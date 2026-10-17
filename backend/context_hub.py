@@ -52,6 +52,11 @@ def tool_output(tool: str) -> dict:
                 meta = json.loads((workspace() / "masterclass_meta.json").read_text("utf-8"))
             except Exception:
                 meta = {}
+        if tool == "lit2plan" and (workspace() / "lit2plan_sources.json").exists():
+            try:
+                meta = json.loads((workspace() / "lit2plan_sources.json").read_text("utf-8"))
+            except Exception:
+                meta = {}
         return {"content": _read(files[tool]), "updated": _mtime(f), **meta}
     if tool == "paper":
         main, review = _read("main.tex"), _read("review.md")

@@ -76,6 +76,7 @@ Each project has its own **data folder** (workspace, outputs, chats, 📌 notes,
 
 ### 1. Reference Library
 - Drop full-text PDFs. The app extracts title, authors, abstract, DOI and year. Click **✨ AI-parse** to let the AI normalise the metadata.
+- Click **👁 Read** (or a paper title) to **read the PDF right in the app**. It uses the browser's built-in viewer, so you can zoom, search and print. Use ‹ › or the ← → keys for the previous/next paper; click the key to copy it.
 - Click **Edit** to fix metadata or lock a **BibTeX key**. Untick **Use** to exclude a paper from the paper.
 - **3.1 Generate references.bib** builds a clean BibTeX file.
 - Scanned PDFs (images only) need OCR first, e.g. with `ocrmypdf`.
@@ -198,12 +199,50 @@ In 💬 chat you can ask the mentor to **role-play an examiner or reviewer**. Ex
 **🔗 Shared context:**
 - When on, each tool's AI also sees the latest output and recent messages of the other tools, plus all 📌 notes.
 - **📌 Pin** an answer, or just the text you selected in it, so every tool can use it.
+- The **📌 (count)** button at the top right, next to the project name, opens the **Shared context** window from any tab. In the window you can:
+  - **search by keyword**, with matches highlighted;
+  - filter by tool;
+  - click a pin to **expand / collapse** it, or use *Expand all / Collapse all*;
+  - copy or delete single notes.
 
 **Chat sessions:**
 - Each tool keeps its own session list: new, rename, delete, export to Markdown.
 - *Auto-open* decides whether the last session reopens on start.
 
 **Limits per message:** about 150,000 characters of documents and at most 8 images. The newest message's attachments get priority.
+
+## Internet search (v2.6)
+
+The AI agents can **search the internet for papers and up-to-date information** before answering. Results are real records from scholarly databases and search engines; the AI reads and cites them and never invents sources.
+
+**On/off per chat:** use the **🌐** selector next to the message box. It is available in every tool that has a chat:
+- **🌐 Search: off** — as before, no searching.
+- **📚 Search papers** — OpenAlex, arXiv, Semantic Scholar (free, no key).
+- **🌐 Search web** — DuckDuckGo (free), or Tavily / Brave with your own key.
+- **🌐📚 Papers + web** — both.
+
+The choice is remembered per tool.
+
+**How it works:** for each question,
+1. a small planner agent writes 1–3 English queries. "Latest" or "since 2023" questions add a year filter automatically;
+2. the app searches, merges duplicates (by DOI) and numbers the results **[S1], [S2]…**;
+3. the AI answers with link citations like **[S1](url)**.
+
+Under every answer, a **🌐 sources** list shows authors, year, venue and citation count. For each source:
+- **📥 Library** downloads the open-access PDF into your Reference Library, with clean metadata (title, authors, DOI).
+- **📎** attaches the full page or PDF to your next question.
+
+**Tool 1 Lit2Plan:** choose *🌐 Internet search while planning*. The plan is then grounded in real, recent papers, gets an extra **9. Key Papers Found Online** section, and shows a **Literature found online** card for saving PDFs.
+
+**Reference Library → 🔎 Find papers online:** search a topic (optional "since year"), then 📥 to add papers directly.
+
+**Settings (sidebar → 🔎 Internet search):**
+- web search engine and API key (Tavily, Brave);
+- results per search;
+- Semantic Scholar key and OpenAlex e-mail (optional, faster and more reliable);
+- whether to read the top web pages.
+
+> Only the search queries leave your computer, never your files or project data. Paper results include only the abstract, so open the paper before citing details. Without an internet connection the app reports the error and still answers from your local library.
 
 ## Recommended 6-month workflow
 

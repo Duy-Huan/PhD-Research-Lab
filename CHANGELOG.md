@@ -1,5 +1,30 @@
 # Changelog
 
+## v2.6.2 — 2026-10-17
+- **Read PDFs directly in the app:** 👁 Read button (or click a paper title) in the Reference Library opens a large in-app reader using the browser's built-in PDF viewer (zoom, search, page thumbnails, print).
+  - Title, authors, venue and the BibTeX key (click to copy) are shown above the PDF.
+  - Previous/next paper with ‹ › or the ← → keys; open in a new tab or download.
+- Citation chips: "📕 Read PDF" opens the same reader.
+
+## v2.6.1 — 2026-10-17
+- **📌 Shared-context button in the header** (next to the project name): shows the number of pinned notes, pulses when a new note is pinned, and opens the shared-context window from any tab.
+- **Shared-context window redesigned:**
+  - Each pin collapses to a one-line preview or expands to the full note; Expand all / Collapse all.
+  - **Keyword search** across text, source and tool, with highlighted matches; previews jump to the first match, and a few matches open automatically. Esc clears the search.
+  - Filter by tool; copy or delete a single note; larger scrollable window; "Add a note manually" folded away.
+
+## v2.6.0 — 2026-10-17
+- **Internet search for the AI agents.**
+  - **🌐 selector in every chat:** off / 📚 papers / 🌐 web / both, remembered per tool.
+  - **Sources:** papers from OpenAlex, arXiv and Semantic Scholar (free, no key); web from DuckDuckGo (free) or Tavily / Brave (API key).
+  - **Per question:** a planner agent writes the queries (with a year filter for "latest" questions). Results are de-duplicated by DOI and numbered [S1]…, injected into the prompt with strict cite-only-listed-sources rules, and the answer cites them as links.
+  - **Search progress is streamed live.** Sources are saved with the message and included in Markdown exports.
+- Under each answer: a sources list with 📥 *save open-access PDF to the Reference Library* (with database metadata) and 📎 *attach full text*.
+- **Lit2Plan:** optional online literature search while planning, adding a "Key Papers Found Online" section and a sources card (restored after refresh).
+- **Reference Library:** new **🔎 Find papers online** box.
+- **Sidebar → 🔎 Internet search:** web engine and keys (stored locally, masked), results per search, Semantic Scholar key, OpenAlex e-mail, read top pages.
+- New agent **🌐 Search query planner**. New endpoints: `POST /api/search`, `POST /api/references/fetch`; chat endpoints accept `web`.
+
 ## v2.5.0 — 2026-10-17
 - **Paper Writer redesigned as a section workshop:**
   - **⚡ Quick pipeline** or **🔬 Deep · section by section**: write → in-depth section review (score /10, Critical/Major/Minor issues with quotes, missing content, citation check, rewrites) → revise, 1–3 rounds per section; skip accepted sections, pause after each section, final whole-paper review.

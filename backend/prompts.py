@@ -37,10 +37,20 @@ Markdown table: Risk | Likelihood (L/M/H) | Impact (L/M/H) | Early Warning Signa
 {HONESTY}"""
 
 
-def lit2plan_user(idea: str, domain: str, expansion: str, library_digest: str) -> str:
-    return (f"RESEARCH IDEA:\n{idea}\n\nDOMAIN / CONSTRAINTS:\n{domain or '(not specified)'}\n\n"
-            f"QUERY EXPANSION (from local agent):\n{expansion}\n\n"
-            f"LOCAL LIBRARY (ingested full-text PDFs; cite as [bib_key]):\n{library_digest}")
+def lit2plan_user(idea: str, domain: str, expansion: str, library_digest: str, online: str = "") -> str:
+    out = (f"RESEARCH IDEA:\n{idea}\n\nDOMAIN / CONSTRAINTS:\n{domain or '(not specified)'}\n\n"
+           f"QUERY EXPANSION (from local agent):\n{expansion}\n\n"
+           f"LOCAL LIBRARY (ingested full-text PDFs; cite as [bib_key]):\n{library_digest}")
+    if online:
+        out += f"\n\nONLINE LITERATURE (retrieved just now from OpenAlex / arXiv / Semantic Scholar / web; cite as [S#](url)):\n{online}"
+    return out
+
+
+LIT2PLAN_ONLINE = """
+
+ONLINE LITERATURE: the researcher enabled internet search. Use the ONLINE LITERATURE sources to ground the SOTA taxonomy, gaps and novelty claims in real, recent papers. Cite them as Markdown links with their number, e.g. [S4](https://doi.org/...). Cite only listed sources (abstract-level claims only), never invent papers. Add a final section:
+## 9. Key Papers Found Online
+A Markdown table: # | Paper (linked) | Year | Venue | Why it matters for this plan — the 8-12 most relevant sources, most important first. Skip clearly irrelevant results."""
 
 
 # ----------------------------------------------------------------- Tool 2

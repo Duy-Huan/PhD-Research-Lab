@@ -398,6 +398,62 @@ textarea.live{border-color:var(--accent);box-shadow:0 0 0 3px rgba(217,164,65,.1
 .diff ins{background:rgba(92,184,122,.24);color:inherit;text-decoration:none}
 .fixnote{font-size:12.5px;margin-top:6px}
 @media (max-width:1100px){.wgrid{grid-template-columns:1fr}.diff{grid-template-columns:1fr}}
+/* ---------- v2.6 internet search ---------- */
+.websel{width:auto;border:1px solid var(--line);border-radius:14px;padding:3px 8px;font-size:12px;background:var(--bg);color:var(--muted);cursor:pointer;margin-left:4px;max-width:150px}
+.websel.on{color:var(--ok);border-color:var(--ok);font-weight:600}
+.searchline{font-size:12.5px;color:var(--muted);margin:2px 0 8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.searchline .q{font-family:var(--mono);font-size:11.5px;background:var(--panel2);border-radius:6px;padding:1px 6px;color:var(--text)}
+details.srcs{margin:8px 0 2px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+details.srcs>summary{cursor:pointer;padding:6px 10px;font-size:12.5px;color:var(--muted);list-style:none;display:flex;gap:8px;align-items:center}
+details.srcs>summary::-webkit-details-marker{display:none}
+details.srcs[open]>summary{border-bottom:1px solid var(--line)}
+.srclist{max-height:360px;overflow-y:auto;padding:4px 8px}
+.src{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:8px;align-items:start;padding:7px 2px;border-bottom:1px dashed var(--line);font-size:12.5px}
+.src:last-child{border-bottom:0}
+.src .sid{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent2);background:rgba(95,168,211,.12);border-radius:6px;text-align:center;padding:2px 0}
+.src a.st{color:var(--text);font-weight:600;text-decoration:none}
+.src a.st:hover{text-decoration:underline;color:var(--accent2)}
+.src .sm{color:var(--muted);font-size:11.5px;margin-top:1px}
+.src .ss{color:var(--muted);font-size:11.5px;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.src .sb{display:flex;gap:2px;flex-wrap:wrap;justify-content:flex-end}
+.src .sb .iconbtn{padding:2px 6px;font-size:11.5px}
+.kindtag{font-size:10px;border:1px solid var(--line);border-radius:5px;padding:0 5px;margin-right:4px;color:var(--muted)}
+.srccard{margin-top:12px}
+/* ---------- v2.6.1 shared-context notes ---------- */
+.notesbtn{align-self:center;background:none;border:1px solid var(--line);border-radius:20px;padding:3px 11px;margin-right:8px;cursor:pointer;color:var(--text);font-size:12.5px;white-space:nowrap}
+.notesbtn:hover{border-color:var(--accent);color:var(--accent)}
+.notesbtn.has{border-color:var(--accent)}
+.notesbtn.bump{animation:bump .6s}
+@keyframes bump{30%{transform:scale(1.18)}}
+#notes-modal .card.notescard{width:min(900px,96vw);max-height:92vh;display:flex;flex-direction:column}
+.ntools{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:4px 0 2px}
+.ntools input{flex:1;min-width:220px}
+.ntools select{width:auto;min-width:150px}
+#notes-list{overflow-y:auto;flex:1;min-height:120px;padding-right:4px;margin-top:6px}
+.note2{border:1px solid var(--line);border-radius:10px;margin:8px 0;background:var(--bg)}
+.note2 .nhead{display:flex;gap:8px;align-items:center;padding:7px 10px;cursor:pointer;user-select:none}
+.note2 .nhead:hover{background:var(--panel2);border-radius:10px}
+.note2 .caret{color:var(--muted);font-size:11px;width:12px;transition:transform .15s}
+.note2.open .caret{transform:rotate(90deg)}
+.note2 .nprev{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;color:var(--text)}
+.note2 .nmeta{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.note2 .nbody{display:none;padding:2px 14px 10px 30px;border-top:1px dashed var(--line)}
+.note2.open .nbody{display:block}
+.note2.open .nprev{color:var(--muted)}
+.note2 .nact{display:flex;gap:2px}
+.note2 mark,.nprev mark{background:rgba(217,164,65,.38);color:inherit;border-radius:3px;padding:0 1px}
+details.nadd{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
+/* ---------- v2.6.2 PDF reader ---------- */
+.libtitle{cursor:pointer}
+.libtitle:hover{color:var(--accent2);text-decoration:underline}
+#pdf-modal .card.pdfcard{width:min(1400px,98vw);height:95vh;max-height:95vh;display:flex;flex-direction:column;padding:10px 12px;overflow:hidden}
+.pdfbar{display:flex;gap:6px;align-items:center;margin-bottom:8px}
+.pdft{flex:1;min-width:0;display:flex;flex-direction:column}
+.pdft b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
+.pdft .status{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pdf-key{font-family:var(--mono);color:var(--accent)}
+#pdf-frame{flex:1;width:100%;border:1px solid var(--line);border-radius:8px;background:#525659}
 </style>
 </head>
 <body>
@@ -405,7 +461,7 @@ textarea.live{border-color:var(--accent);box-shadow:0 0 0 3px rgba(217,164,65,.1
 <!-- ================================================================ CONFIG SIDEBAR -->
 <aside>
   <div class="brand">PhD Interactive<br><span>Autonomous Research Lab</span></div>
-  <div class="sub">Hybrid multi-cloud AI + LM Studio · <span id="app-version">v2.5.0</span></div>
+  <div class="sub">Hybrid multi-cloud AI + LM Studio · <span id="app-version">v2.6.2</span></div>
 
   <h3>📂 Research project</h3>
   <div class="row"><select id="proj-select" title="Switch research project"></select></div>
@@ -454,6 +510,16 @@ textarea.live{border-color:var(--accent);box-shadow:0 0 0 3px rgba(217,164,65,.1
     <button class="btn small" data-allmode="default">Recommended</button>
   </div>
 
+  <h3>🔎 Internet search</h3>
+  <div class="status" style="margin-top:0">Turn it on per chat with the 🌐 selector next to the message box. Papers come from OpenAlex, arXiv and Semantic Scholar (free, no key).</div>
+  <label>Web search engine</label>
+  <select id="cfg-webeng"><option value="duckduckgo">DuckDuckGo — free, no key</option><option value="tavily">Tavily — API key (free tier)</option><option value="brave">Brave Search — API key</option></select>
+  <div id="webkey-box"><label id="webkey-label">API key</label><input type="password" id="cfg-webkey" autocomplete="off" placeholder="paste API key"></div>
+  <div class="row"><div><label>Results per search</label><select id="cfg-nres"><option>5</option><option>8</option><option>12</option><option>20</option></select></div>
+    <div><label>Semantic Scholar key <span class="status">(optional)</span></label><input type="password" id="cfg-s2key" autocomplete="off"></div></div>
+  <label>E-mail for OpenAlex <span class="status">(optional, faster)</span></label><input type="text" id="cfg-mailto" placeholder="you@university.edu">
+  <label class="chk"><input type="checkbox" id="cfg-readpages"> Read the top web pages (more accurate, slower)</label>
+
   <h3>🌐 AI output language (Tools 1, 2, 4)</h3>
   <select id="cfg-outlang">
     <option value="ui">Follow interface language</option>
@@ -473,7 +539,7 @@ textarea.live{border-color:var(--accent);box-shadow:0 0 0 3px rgba(217,164,65,.1
   <button data-tab="papers">📚 Papers &amp; Writer</button>
   <button data-tab="masterclass">📖 Masterclass</button>
   <button data-tab="guide">📘 Guide</button>
-  <span style="flex:1"></span><span class="projtag" id="proj-tag" title="Active research project"></span>
+  <span style="flex:1"></span><button class="notesbtn" id="notes-open" title="Shared context: pinned notes visible to every tool's chat">📌 <span id="notes-count">0</span></button><span class="projtag" id="proj-tag" title="Active research project"></span>
   <span class="themesw" id="lang-switch" title="Interface language">
     <button data-ui-lang="en">EN</button><button data-ui-lang="vi">VI</button>
   </span>
@@ -492,11 +558,14 @@ textarea.live{border-color:var(--accent);box-shadow:0 0 0 3px rgba(217,164,65,.1
       <textarea id="l2p-idea" rows="8" placeholder="e.g. Lightweight spectral-spatial transformer for onboard hyperspectral anomaly detection under 2 W power budget"></textarea>
       <label>Domain specifications &amp; constraints</label>
       <textarea id="l2p-domain" rows="4" placeholder="Domain, datasets available, compute, target venue, timeline..."></textarea>
+      <label>🌐 Internet search while planning</label>
+      <select id="l2p-web"><option value="off">Off — local library + model knowledge only</option><option value="papers" selected>📚 Search papers (OpenAlex · arXiv · Semantic Scholar)</option><option value="both">🌐📚 Papers + web</option></select>
       <div class="row" style="margin-top:12px"><button class="btn primary" id="l2p-run">Generate research plan</button></div>
       <div class="status" id="l2p-meta"></div>
     </div>
     <div>
       <div class="out" id="l2p-out"><div class="empty">Your research direction will appear here.</div></div>
+      <div id="l2p-sources"></div>
       <details style="margin-top:12px"><summary class="status" style="cursor:pointer">Query expansion (local agent)</summary><div class="out md" id="l2p-exp" style="min-height:0;margin-top:8px"></div></details>
       <div class="card chatcard" id="chat-lit2plan"></div>
     </div>
@@ -551,6 +620,14 @@ textarea.live{border-color:var(--accent);box-shadow:0 0 0 3px rgba(217,164,65,.1
     </div>
     <div class="card" style="padding:4px 10px;overflow-x:auto">
       <table class="lib"><thead><tr><th>Use</th><th>Key</th><th>Title / Authors</th><th>Year</th><th>Venue</th><th>Status</th><th></th></tr></thead><tbody id="lib-body"></tbody></table>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h4>🔎 Find papers online <span class="status">— OpenAlex · arXiv · Semantic Scholar; 📥 downloads open-access PDFs into this library</span></h4>
+      <div class="row"><input type="text" id="find-q" placeholder="e.g. lightweight hyperspectral image denoising transformer">
+        <input type="text" id="find-year" placeholder="since year" style="flex:0 0 100px">
+        <select id="find-mode" style="flex:0 0 150px"><option value="papers">📚 Papers</option><option value="both">🌐📚 Papers + web</option></select>
+        <button class="btn primary" id="find-go">Search</button></div>
+      <div id="find-out"></div>
     </div>
     <details style="margin-top:12px"><summary class="status" style="cursor:pointer">BibTeX preview</summary><pre class="log" id="bib-preview" style="max-height:400px"></pre></details>
   </div>
@@ -807,12 +884,21 @@ textarea.live{border-color:var(--accent);box-shadow:0 0 0 3px rgba(217,164,65,.1
 </div></div>
 
 <!-- shared context notes modal -->
-<div class="modal" id="notes-modal"><div class="card">
+<div class="modal" id="notes-modal"><div class="card notescard">
   <div class="row"><h4 style="flex:1;margin:0">📌 Shared context — visible to every tool's chat</h4><button class="btn small" id="notes-close">Close</button></div>
   <p class="status">Pinned notes are injected (newest first) into the follow-up chats of all tools when "🔗 Share context" is on, together with each tool's latest output and recent chat.</p>
+  <div class="ntools">
+    <input type="text" id="notes-search" placeholder="🔍 Search pinned notes (keyword)…" autocomplete="off">
+    <select id="notes-tool" title="Filter by tool"></select>
+    <button class="btn small" id="notes-expand" title="Expand all">⤢ Expand all</button>
+    <button class="btn small" id="notes-collapse" title="Collapse all">⤡ Collapse all</button>
+  </div>
+  <div class="status" id="notes-info"></div>
   <div id="notes-list"></div>
-  <label>Add a note manually</label><textarea id="notes-text" rows="3" placeholder="e.g. Target venue is IEEE SPL; keep the model under 50k parameters."></textarea>
-  <div class="row" style="margin-top:8px;justify-content:flex-end"><span style="flex:1"></span><button class="btn primary" id="notes-add">Add note</button></div>
+  <details class="nadd"><summary>＋ Add a note manually</summary>
+    <textarea id="notes-text" rows="3" placeholder="e.g. Target venue is IEEE SPL; keep the model under 50k parameters."></textarea>
+    <div class="row" style="margin-top:8px;justify-content:flex-end"><span style="flex:1"></span><button class="btn primary" id="notes-add">Add note</button></div>
+  </details>
 </div></div>
 
 <!-- in-app folder browser (fallback when the native dialog is unavailable) -->
@@ -831,6 +917,20 @@ textarea.live{border-color:var(--accent);box-shadow:0 0 0 3px rgba(217,164,65,.1
   <p class="status">The full text (first 20 pages) is attached to your next message; the AI can quote it and cite it by its BibTeX key.</p>
   <input type="text" id="paper-search" placeholder="Search title, author, key, venue…">
   <div id="paper-list" style="margin-top:8px"></div>
+</div></div>
+
+<!-- PDF reader -->
+<div class="modal" id="pdf-modal"><div class="card pdfcard">
+  <div class="pdfbar">
+    <button class="btn small" id="pdf-prev" title="Previous paper (←)">‹</button><button class="btn small" id="pdf-next" title="Next paper (→)">›</button>
+    <div class="pdft"><b id="pdf-title"></b><span class="status" id="pdf-meta"></span></div>
+    <button class="btn small" id="pdf-key" title="Copy the citation key"></button>
+    <a class="btn small" id="pdf-tab" target="_blank" rel="noopener" title="Open in a new browser tab">↗ New tab</a>
+    <a class="btn small" id="pdf-dl" title="Download">⬇</a>
+    <button class="btn small" id="pdf-close">Close</button>
+  </div>
+  <iframe id="pdf-frame" title="PDF"></iframe>
+  <div class="status" style="margin:6px 0 0;text-align:center">Uses your browser's built-in PDF viewer (zoom, Ctrl+F search, print). If the page stays blank, your browser is set to download PDFs — use ↗ New tab or ⬇.</div>
 </div></div>
 
 <!-- reading view -->
@@ -963,7 +1063,7 @@ document.addEventListener('click', e => {
   pop.innerHTML = `<div class="status">[${esc(p.key)}]</div><b>${esc(p.title)}</b>
     <div class="status" style="margin:4px 0 8px">${esc((p.authors || []).slice(0, 6).join(', '))}${(p.authors || []).length > 6 ? ' et al.' : ''}<br>${esc(p.venue || '')} ${esc(p.year || '')}</div>
     <div class="row" style="flex-wrap:wrap;gap:6px">
-      ${p.file ? `<a class="btn small" target="_blank" href="/api/references/file/${encodeURIComponent(p.file)}">📕 Open PDF</a>` : ''}
+      ${p.file ? `<button class="btn small" data-readfile="${esc(p.file)}">📕 Read PDF</button>` : ''}
       ${p.doi ? `<a class="btn small" target="_blank" rel="noopener" href="https://doi.org/${esc(p.doi)}">DOI ↗</a>` : ''}
       ${p.file ? '<button class="btn small" data-act="attach">📎 Attach to chat</button>' : ''}
       <button class="btn small" data-act="copy">Copy key</button></div>`;
@@ -1111,6 +1211,10 @@ function applyConfig() {
   $('#cfg-refs').value = CFG.references_dir;
   $('#cfg-fallback').checked = CFG.fallback_to_cloud;
   $('#cfg-outlang').value = CFG.output_lang || 'ui';
+  const sc = CFG.search || {};
+  $('#cfg-webeng').value = sc.web_engine || 'duckduckgo'; $('#cfg-nres').value = String(sc.n_results || 8);
+  $('#cfg-s2key').value = sc.s2_key || ''; $('#cfg-mailto').value = sc.mailto || ''; $('#cfg-readpages').checked = sc.read_pages !== false;
+  paintWebKey();
   const cur = PROV || CFG.default_cloud; PROV = null;
   editProvider(cur); renderAgents();
 }
@@ -1132,6 +1236,7 @@ async function saveConfig() {
     providers, default_cloud: CFG.default_cloud,
     lmstudio_base_url: $('#cfg-lmurl').value.trim(), local_model: $('#cfg-localmodel').value,
     references_dir: $('#cfg-refs').value.trim(), fallback_to_cloud: $('#cfg-fallback').checked, output_lang: $('#cfg-outlang').value,
+    search: searchPatch(),
     agent_modes: CFG.agent_modes,
   }});
   applyConfig();
@@ -1356,18 +1461,43 @@ $('#refs-browse').onclick = async () => {
 };
 
 
+function paintWebKey() {
+  const eng = $('#cfg-webeng').value, sc = (CFG && CFG.search) || {};
+  $('#webkey-box').style.display = eng === 'duckduckgo' ? 'none' : '';
+  $('#webkey-label').textContent = eng === 'tavily' ? I18N.tr('Tavily API key') : I18N.tr('Brave Search API key');
+  $('#cfg-webkey').value = eng === 'tavily' ? (sc.tavily_key || '') : eng === 'brave' ? (sc.brave_key || '') : '';
+}
+$('#cfg-webeng').onchange = paintWebKey;
+function searchPatch() {
+  const eng = $('#cfg-webeng').value, out = {web_engine: eng, n_results: +$('#cfg-nres').value, s2_key: $('#cfg-s2key').value,
+    mailto: $('#cfg-mailto').value, read_pages: $('#cfg-readpages').checked};
+  if (eng === 'tavily') out.tavily_key = $('#cfg-webkey').value;
+  if (eng === 'brave') out.brave_key = $('#cfg-webkey').value;
+  return out;
+}
 function outLang() { const v = $('#cfg-outlang').value || 'ui'; return v === 'ui' ? I18N.lang() : v; }
 $('#cfg-outlang').onchange = () => saveConfig().then(() => toast('Configuration saved', 'ok'));
 
 // ===================================================================== tool 1
 $('#l2p-run').onclick = e => busy(e.target, async () => {
   await saveConfig();
-  const r = await api('/api/tool/lit2plan', {method: 'POST', body: {idea: $('#l2p-idea').value, domain: $('#l2p-domain').value, lang: outLang()}});
+  try { localStorage.setItem('l2p_web', $('#l2p-web').value); } catch {}
+  const r = await api('/api/tool/lit2plan', {method: 'POST', body: {idea: $('#l2p-idea').value, domain: $('#l2p-domain').value, lang: outLang(), web: $('#l2p-web').value}});
+  renderL2PSources(r.sources, r.search_errors);
   renderOut($('#l2p-out'), r.plan, 'lit2plan.md');
   setRich($('#l2p-exp'), r.expansion);
   $('#l2p-meta').innerHTML = `Query expansion ${engineBadge(r.engines.query_expansion)} · Planner ${engineBadge(r.engines.lit2plan)} ${r.notes.map(n => '<br>⚠ ' + esc(n)).join('')}`;
   await CHAT_L2P.newChat(true); toast('New follow-up chat started for this plan', 'ok');
 }, 'Researching…');
+
+function renderL2PSources(src, errors) {
+  const box = $('#l2p-sources');
+  if (!(src || []).length && !(errors || []).length) { box.innerHTML = ''; return; }
+  box.innerHTML = `<div class="card srccard"><h4>🌐 ${esc(I18N.tr('Literature found online'))} <span class="status">— ${esc(I18N.tr('📥 saves an open-access PDF into your Reference Library'))}</span></h4>
+    ${sourcesHTML(src, true)}${(errors || []).map(x => `<div class="status">⚠ ${esc(x)}</div>`).join('')}</div>`;
+  wireSources(box, CHAT_L2P);
+}
+try { const w = localStorage.getItem('l2p_web'); if (w) $('#l2p-web').value = w; } catch {}
 
 // ===================================================================== tool 2
 let EXP_CODE = '', EXP_DESIGN = '';
@@ -1401,10 +1531,10 @@ function renderLibrary() {
   $('#lib-body').innerHTML = LIB.map((e, i) => `<tr>
     <td><input type="checkbox" data-inc="${i}" ${e.include ? 'checked' : ''}></td>
     <td class="k">${esc(e.key)}</td>
-    <td><b>${esc(e.title)}</b><br><span class="status">${esc((e.authors || []).slice(0, 4).join(', '))}${(e.authors || []).length > 4 ? ' et al.' : ''} · ${esc(e.file)}</span></td>
+    <td><b class="libtitle" data-read="${i}" title="Read this PDF here">${esc(e.title)}</b><br><span class="status">${esc((e.authors || []).slice(0, 4).join(', '))}${(e.authors || []).length > 4 ? ' et al.' : ''} · ${esc(e.file)}</span></td>
     <td>${esc(e.year)}</td><td class="status">${esc((e.venue || '').slice(0, 60))}</td>
     <td>${e.llm_refined ? '<span class="badge ok">AI-parsed</span>' : '<span class="badge warn">heuristic</span>'}${e.error ? '<br><span class="badge" style="color:var(--err)">error</span>' : ''}</td>
-    <td style="white-space:nowrap"><button class="btn small" data-edit="${i}">Edit</button> <button class="btn small" data-ai="${i}">✨</button> <button class="btn small danger" data-del="${i}">🗑</button></td></tr>`).join('')
+    <td style="white-space:nowrap"><button class="btn small primary" data-read="${i}" title="Read this PDF here">👁 Read</button> <button class="btn small" data-edit="${i}">Edit</button> <button class="btn small" data-ai="${i}">✨</button> <button class="btn small danger" data-del="${i}">🗑</button></td></tr>`).join('')
     || '<tr><td colspan="7" class="empty">No PDFs yet. Drop full-text papers above or copy them into the reference folder and click Rescan.</td></tr>';
   $$('[data-inc]').forEach(c => c.onchange = async () => { const e = LIB[c.dataset.inc]; await api('/api/references/' + encodeURIComponent(e.file), {method: 'PUT', body: {include: c.checked}}); loadLibrary(); });
   $$('[data-ai]').forEach(b => b.onclick = () => busy(b, async () => { await refineOne(LIB[b.dataset.ai].file); await loadLibrary(); }, ''));
@@ -1414,6 +1544,7 @@ function renderLibrary() {
     await api('/api/references/' + encodeURIComponent(e.file), {method: 'DELETE'}); loadLibrary();
   });
   $$('[data-edit]').forEach(b => b.onclick = () => openRefModal(LIB[b.dataset.edit]));
+  $$('#lib-body [data-read]').forEach(b => b.onclick = () => openPdf(LIB[b.dataset.read].file));
 }
 async function refineOne(file) {
   const r = await api('/api/references/refine', {method: 'POST', body: {file}});
@@ -1451,6 +1582,16 @@ async function genBib() {
 }
 $('#lib-bib').onclick = e => busy(e.target, async () => { const r = await genBib(); toast(`references.bib: ${r.count} entries`, 'ok'); }, 'Agent 3.1…');
 $('#lib-dl-bib').onclick = () => location.href = '/api/download/references.bib';
+async function findPapers() {
+  const q = $('#find-q').value.trim(); if (!q) return toast('Type a topic first', 'err');
+  const r = await api('/api/search', {method: 'POST', body: {query: q, mode: $('#find-mode').value, year_from: $('#find-year').value.trim()}});
+  $('#find-out').innerHTML = (r.sources.length ? sourcesHTML(r.sources, true) : `<div class="empty">${esc(I18N.tr('No results.'))}</div>`) + r.errors.map(x => `<div class="status">⚠ ${esc(x)}</div>`).join('');
+  wireSources($('#find-out'), null);
+  $$('#find-out [data-sact=attach]').forEach(b => b.remove());
+  $$('#find-out [data-sact=lib]').forEach(b => { const f = b.onclick; b.onclick = async e => { await f(e); loadLibrary(); }; });
+}
+$('#find-go').onclick = e => busy(e.target, findPapers, 'Searching…');
+$('#find-q').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('#find-go').click(); } });
 
 let EDITING = null;
 function openRefModal(e) {
@@ -2252,6 +2393,38 @@ async function previewAttachment(a) {
   openView(a.title || a.name, (a.url ? `Source: <${a.url}>\n\n` : '') + '```text\n' + text.slice(0, 20000) + (text.length > 20000 ? `\n… [${(text.length - 20000).toLocaleString()} more characters sent to the AI]` : '') + '\n```');
 }
 
+// ---------------------------------------------------------------- internet search sources (v2.6)
+function sourcesHTML(src, open) {
+  if (!src || !src.length) return '';
+  const papers = src.filter(x => x.kind === 'paper').length, web = src.length - papers;
+  return `<details class="srcs" ${open ? 'open' : ''}><summary>🌐 ${src.length} ${esc(I18N.tr('sources'))}${papers ? ` · 📚 ${papers} ${esc(I18N.tr('papers'))}` : ''}${web ? ` · 🌐 ${web} ${esc(I18N.tr('web pages'))}` : ''}</summary><div class="srclist">${src.map(x => {
+    const meta = x.kind === 'paper'
+      ? [(x.authors || []).slice(0, 3).join(', ') + ((x.authors || []).length > 3 ? ' et al.' : ''), x.year, x.venue, x.citations != null ? `${I18N.tr('cited by')} ${x.citations}` : '', x.source].filter(Boolean).join(' · ')
+      : [(() => { try { return new URL(x.url).hostname; } catch { return ''; } })(), x.source].filter(Boolean).join(' · ');
+    return `<div class="src" data-src='${esc(JSON.stringify(x))}'><span class="sid">${esc(x.id)}</span><div><span class="kindtag">${x.kind === 'paper' ? '📚' : '🌐'}</span><a class="st" href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.title || x.url)}</a>
+      <div class="sm">${esc(meta)}</div>${x.snippet ? `<div class="ss">${esc(x.snippet)}</div>` : ''}</div>
+      <div class="sb">${x.pdf_url ? `<button class="iconbtn" data-sact="lib" title="Download the open-access PDF into this project's Reference Library">📥 ${esc(I18N.tr('Library'))}</button>` : ''}<button class="iconbtn" data-sact="attach" title="Attach this page / PDF to your next message (full text)">📎</button></div></div>`;
+  }).join('')}</div></details>`;
+}
+function wireSources(root, panel) {
+  root.querySelectorAll('.src [data-sact]').forEach(b => b.onclick = async e => {
+    e.preventDefault();
+    const x = JSON.parse(b.closest('.src').dataset.src);
+    if (b.dataset.sact === 'attach') {
+      if (!panel) return;
+      panel.addLink(x.pdf_url || x.url); toast(I18N.tr('Attached — it will be read in full with your next message'), 'ok'); return;
+    }
+    await savePaperToLibrary(x, b);
+  });
+}
+async function savePaperToLibrary(x, btn) {
+  const old = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spin"></span>';
+  try {
+    const r = await api('/api/references/fetch', {method: 'POST', body: x});
+    btn.innerHTML = '✓ ' + esc(I18N.tr('Saved')); toast(`${I18N.tr('Saved to the Reference Library')}: ${r.file}`, 'ok'); loadCatalog();
+  } catch (e) { btn.disabled = false; btn.innerHTML = old; toast(e.message, 'err'); }
+}
+
 class ChatPanel {
   /** opts: {tool, title, subtitle, empty, placeholder, tables, share, chips:[...], tall, onNew} */
   constructor(root, opts) {
@@ -2282,6 +2455,8 @@ class ChatPanel {
           <button class="iconbtn" data-r="link" title="Attach a web page, arXiv/DOI link or online PDF">🔗 Link</button>
           <button class="iconbtn" data-r="paper" title="Attach full text of a paper from this project's library">📚 Paper</button>
           ${opts.share ? `<label class="toggle" title="Also give the AI the outputs, pinned notes and recent chats of the other tools"><input type="checkbox" data-r="share" ${shareOn ? 'checked' : ''}><span>Shared context</span></label>` : ''}
+          <select class="websel" data-r="web" title="Internet search for the next questions: papers (OpenAlex · arXiv · Semantic Scholar) and/or the web">
+            <option value="off">🌐 Search: off</option><option value="papers">📚 Search papers</option><option value="web">🌐 Search web</option><option value="both">🌐📚 Papers + web</option></select>
           <span style="flex:1"></span>
           <span class="status" data-r="saved"></span>
           <button class="sendbtn" data-r="send" title="Send (Enter)">↑</button>
@@ -2323,6 +2498,11 @@ class ChatPanel {
       toast(e.target.checked ? 'Each tool reopens its last session on start' : 'Each tool starts a new chat on start', 'ok');
     };
     if (R.share) R.share.onchange = e => { try { localStorage.setItem(shareKey, e.target.checked ? '1' : '0'); } catch {} };
+    try { R.web.value = localStorage.getItem('web_' + opts.tool) || 'off'; } catch {}
+    const paintWeb = () => R.web.classList.toggle('on', R.web.value !== 'off');
+    paintWeb();
+    R.web.onchange = () => { paintWeb(); try { localStorage.setItem('web_' + opts.tool, R.web.value); } catch {}
+      if (R.web.value !== 'off') toast(I18N.tr('Internet search is on for this chat — each question searches before answering'), 'ok'); };
   }
   // ---------------------------------------------------------------- helpers
   setSaved(text, cls = '') { this.r.saved.textContent = text; this.r.saved.className = 'status ' + cls; this.r.saved.title = text; }
@@ -2455,6 +2635,7 @@ class ChatPanel {
       </div>` : `
       <div class="turn ai ${i === lastAi ? 'last' : ''}" data-i="${i}"><div class="avatar">✳</div><div class="abody">
         <div class="md" data-md="${i}"></div>
+        ${sourcesHTML(m.sources)}
         ${this.o.tables && (m.tables || []).length ? `<div class="tablebtns">${m.tables.map((t, j) => (m.added || []).includes(j)
           ? `<button class="btn small" disabled>✓ Table ${j + 1} added</button>`
           : `<button class="btn small" data-addt="${i}:${j}">➕ Add table ${j + 1} to paper</button>`).join('')}</div>` : ''}
@@ -2466,6 +2647,7 @@ class ChatPanel {
           <span class="status">${engineBadge(m.engine)} ${m.ts ? esc(new Date(m.ts).toLocaleString()) : ''} ${m.note ? '· ⚠ ' + esc(m.note) : ''}</span>
         </div></div></div>`).join('');
     R.msgs.querySelectorAll('[data-md]').forEach(el => setRich(el, this.chat[el.dataset.md].content));
+    wireSources(R.msgs, this);
     R.msgs.querySelectorAll('.turn.user .attchip').forEach(el => el.onclick = () => {
       const m = this.chat[el.closest('.turn').dataset.i]; previewAttachment((m.attachments || []).find(a => a.id === el.dataset.att) || {});
     });
@@ -2530,12 +2712,12 @@ class ChatPanel {
     R.msgs.querySelector('.emptystate')?.remove();
     R.msgs.appendChild(live); this.scroll(true);
     const mdEl = live.querySelector('.md');
-    let acc = '', done = null, errMsg = null, timer = null, shared = false;
+    let acc = '', done = null, errMsg = null, timer = null, shared = false, liveSources = [];
     const paint = () => { timer = null; mdEl.innerHTML = md(acc) + '<span class="cursor"></span>'; linkifyCitations(mdEl); this.scroll(); };
     this.ctrl = new AbortController();
     try {
       const resp = await fetch('/api/chat/stream', {method: 'POST', signal: this.ctrl.signal, headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({tool: this.o.tool, session_id: this.sid, messages: this.chat, share: R.share ? R.share.checked : false})});
+        body: JSON.stringify({tool: this.o.tool, session_id: this.sid, messages: this.chat, share: R.share ? R.share.checked : false, web: R.web.value})});
       if (!resp.ok) { let d = ''; try { d = (await resp.json()).detail; } catch {} throw new Error(d || 'HTTP ' + resp.status); }
       const reader = resp.body.getReader(), dec = new TextDecoder(); let buf = '';
       for (;;) {
@@ -2548,6 +2730,18 @@ class ChatPanel {
           if (!line.startsWith('data:')) continue;
           const ev = JSON.parse(line.slice(5));
           if (ev.type === 'start') { if (ev.session_id) this.sid = ev.session_id; shared = ev.shared; live.querySelector('[data-st]').textContent = shared ? '🔗 using shared context…' : ''; }
+          else if (ev.type === 'search') {
+            const qs = [...(ev.queries?.papers || []).map(q => '📚 ' + q), ...(ev.queries?.web || []).map(q => '🌐 ' + q)];
+            mdEl.innerHTML = `<div class="searchline"><span class="spin"></span>${esc(I18N.tr(ev.status === 'planning' ? 'Planning the search…' : 'Searching the internet:'))} ${qs.map(q => `<span class="q">${esc(q)}</span>`).join(' ')}</div>`;
+            this.scroll();
+          } else if (ev.type === 'sources') {
+            liveSources = ev.sources || [];
+            const box = document.createElement('div');
+            box.innerHTML = sourcesHTML(liveSources, true) + (ev.errors || []).map(x => `<div class="status">⚠ ${esc(x)}</div>`).join('');
+            live.querySelector('.abody').insertBefore(box, live.querySelector('.aactions'));
+            wireSources(box, this);
+            mdEl.innerHTML = `<span class="thinking">${esc(I18N.tr('Reading the sources'))}<span>.</span><span>.</span><span>.</span></span>`;
+          }
           else if (ev.type === 'delta') { acc += ev.text; if (!timer) timer = setTimeout(paint, 50); }
           else if (ev.type === 'done') done = ev;
           else if (ev.type === 'error') errMsg = ev.detail;
@@ -2558,11 +2752,11 @@ class ChatPanel {
     }
     clearTimeout(timer); this.ctrl = null;
     if (done) {
-      this.chat.push({role: 'assistant', content: done.reply, tables: done.tables || [], engine: done.engine, note: done.note, added: [], ts: new Date().toISOString()});
+      this.chat.push({role: 'assistant', content: done.reply, tables: done.tables || [], engine: done.engine, note: done.note, added: [], sources: done.sources || [], ts: new Date().toISOString()});
       this.sid = done.session.id; this.setSaved(this.label(done.session.updated, done.session.count) + (done.shared ? ' · 🔗 shared' : ''), 'ok');
       this.refresh();
     } else if (acc) {  // stopped by the user (or connection lost): keep the partial answer
-      this.chat.push({role: 'assistant', content: acc, engine: '', note: errMsg ? 'Interrupted: ' + errMsg : 'Stopped by user', ts: new Date().toISOString(), added: []});
+      this.chat.push({role: 'assistant', content: acc, engine: '', note: errMsg ? 'Interrupted: ' + errMsg : 'Stopped by user', ts: new Date().toISOString(), added: [], sources: liveSources});
       this.persist(true);
     }
     this.setStreaming(false);
@@ -2598,10 +2792,42 @@ class ChatPanel {
     if (!this.chat.length) return toast('Nothing to export yet', 'err');
     const title = (this.sessions.find(x => x.id === this.sid) || {}).title || 'chat';
     const body = this.chat.map(m => `### ${m.role === 'user' ? '🧑 You' : '🤖 AI' + (m.engine ? ' (' + m.engine + ')' : '')}${m.ts ? ' — ' + new Date(m.ts).toLocaleString() : ''}\n\n`
-      + ((m.attachments || []).length ? m.attachments.map(a => `> 📎 ${a.title || a.name}${a.url ? ' — ' + a.url : ''}`).join('\n') + '\n\n' : '') + m.content).join('\n\n---\n\n');
+      + ((m.attachments || []).length ? m.attachments.map(a => `> 📎 ${a.title || a.name}${a.url ? ' — ' + a.url : ''}`).join('\n') + '\n\n' : '') + m.content
+      + ((m.sources || []).length ? '\n\n**Sources**\n\n' + m.sources.map(x => `- [${x.id}] ${x.title} — ${x.url}`).join('\n') : '')).join('\n\n---\n\n');
     download(`chat-${this.o.tool}-${title.replace(/[^\w\- ]+/g, '').slice(0, 40).trim() || 'session'}.md`, `# ${title}\n\n${body}\n`, 'text/markdown');
   }
 }
+
+// ---- in-app PDF reader (browser's built-in viewer: zoom, search, page navigation, print)
+let PDF_LIST = [], PDF_IDX = -1;
+async function openPdf(file) {
+  if (!LIB.length) { try { LIB = (await api('/api/references')).references; } catch {} }
+  PDF_LIST = LIB.length ? LIB : Object.values(CATALOG);
+  PDF_IDX = PDF_LIST.findIndex(e => e.file === file);
+  if (PDF_IDX < 0) { PDF_LIST = [{file, title: file}]; PDF_IDX = 0; }
+  showPdf();
+  $('#pdf-modal').classList.add('on');
+}
+function showPdf() {
+  const e = PDF_LIST[PDF_IDX], url = '/api/references/file/' + encodeURIComponent(e.file);
+  $('#pdf-title').textContent = e.title || e.file;
+  $('#pdf-meta').textContent = [(e.authors || []).slice(0, 4).join(', ') + ((e.authors || []).length > 4 ? ' et al.' : ''), e.year, e.venue, e.file, `${PDF_IDX + 1}/${PDF_LIST.length}`].filter(Boolean).join(' · ');
+  $('#pdf-key').textContent = e.key ? `[${e.key}]` : ''; $('#pdf-key').style.display = e.key ? '' : 'none';
+  $('#pdf-tab').href = url; $('#pdf-dl').href = url + '?download=1';
+  $('#pdf-frame').src = url + '#view=FitH';
+  $('#pdf-prev').disabled = PDF_IDX <= 0; $('#pdf-next').disabled = PDF_IDX >= PDF_LIST.length - 1;
+}
+function closePdf() { $('#pdf-modal').classList.remove('on'); $('#pdf-frame').src = 'about:blank'; }
+$('#pdf-close').onclick = closePdf;
+$('#pdf-prev').onclick = () => { if (PDF_IDX > 0) { PDF_IDX--; showPdf(); } };
+$('#pdf-next').onclick = () => { if (PDF_IDX < PDF_LIST.length - 1) { PDF_IDX++; showPdf(); } };
+$('#pdf-key').onclick = () => { navigator.clipboard.writeText(PDF_LIST[PDF_IDX].key); toast('Copied', 'ok'); };
+document.addEventListener('keydown', e => {
+  if (!$('#pdf-modal').classList.contains('on') || e.target.closest('input,textarea,select')) return;
+  if (e.key === 'ArrowLeft') $('#pdf-prev').click(); else if (e.key === 'ArrowRight') $('#pdf-next').click();
+  else if (e.key === 'Escape') closePdf();
+});
+document.addEventListener('click', e => { const b = e.target.closest('[data-readfile]'); if (b) { $('#citepop').style.display = 'none'; openPdf(b.dataset.readfile); } });
 
 // ---- library paper picker
 let PICKER_PANEL = null;
@@ -2626,23 +2852,87 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') $$('.modal.o
 
 // ---- shared context notes (📌) modal
 const TOOL_NAMES = {lit2plan: 'Tool 1 · Lit2Plan', experiment: 'Tool 2 · Experiment', data: 'Tool 3 · Data chat', paper: 'Tool 3 · Paper', masterclass: 'Tool 4 · Masterclass', review: 'Tool 3 · Paper Review'};
+let NOTES = [], NOTES_OPEN = new Set();
 async function refreshNoteCount() {
-  try { const {notes} = await api('/api/context/notes'); PANELS.forEach(p => p.r.ncount.textContent = notes.length); return notes; } catch { return []; }
+  try {
+    const {notes} = await api('/api/context/notes');
+    const prev = NOTES.length; NOTES = notes;
+    PANELS.forEach(p => p.r.ncount.textContent = notes.length);
+    $('#notes-count').textContent = notes.length; $('#notes-open').classList.toggle('has', notes.length > 0);
+    if (notes.length > prev && prev) { const b = $('#notes-open'); b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); }
+    return notes;
+  } catch { return []; }
+}
+function highlight(root, words) {
+  if (!words.length) return;
+  const re = new RegExp('(' + words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'gi');
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {acceptNode: n => n.parentElement.closest('mark,.katex') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT});
+  const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+  for (const n of nodes) {
+    if (!re.test(n.nodeValue)) continue; re.lastIndex = 0;
+    const frag = document.createDocumentFragment();
+    n.nodeValue.split(re).forEach((part, k) => { if (k % 2) { const m = document.createElement('mark'); m.textContent = part; frag.append(m); } else if (part) frag.append(part); });
+    n.replaceWith(frag);
+  }
+}
+function previewOf(text, words) {
+  const flat = text.replace(/[#*`>|]+|\$\$?/g, '').replace(/\s+/g, ' ').trim();  // plain-text preview of the Markdown
+  if (!words.length) return flat.slice(0, 220);
+  const low = flat.toLowerCase(), at = Math.min(...words.map(w => { const k = low.indexOf(w); return k < 0 ? Infinity : k; }));
+  if (!isFinite(at) || at < 60) return flat.slice(0, 220);
+  return '…' + flat.slice(at - 50, at + 170);
+}
+function renderNotes() {
+  const q = $('#notes-search').value.trim().toLowerCase(), words = q.split(/\s+/).filter(Boolean), tool = $('#notes-tool').value;
+  const list = NOTES.slice().reverse().filter(n => (!tool || n.tool === tool) &&
+    words.every(w => (n.text + ' ' + (n.source || '') + ' ' + (TOOL_NAMES[n.tool] || n.tool)).toLowerCase().includes(w)));
+  $('#notes-info').textContent = NOTES.length ? (q || tool ? `${list.length}/${NOTES.length} ${I18N.tr('notes match')}` : `${NOTES.length} ${I18N.tr('pinned notes')}`) : '';
+  if (!NOTES.length) { $('#notes-list').innerHTML = `<div class="empty">${esc(I18N.tr('No pinned notes yet. Use 📌 Pin on any AI answer — or select part of an answer first — to share it with every tool.'))}</div>`; return; }
+  if (!list.length) { $('#notes-list').innerHTML = `<div class="empty">${esc(I18N.tr('No note contains this keyword.'))}</div>`; return; }
+  $('#notes-list').innerHTML = list.map(n => {
+    const open = NOTES_OPEN.has(n.id) || (words.length && list.length <= 3);
+    return `<div class="note2 ${open ? 'open' : ''}" data-nid="${esc(n.id)}">
+      <div class="nhead"><span class="caret">▶</span><span class="badge">${esc(TOOL_NAMES[n.tool] || n.tool)}</span>
+        <span class="nprev">${esc(previewOf(n.text, words))}</span>
+        <span class="nmeta">${n.text.length > 400 ? Math.round(n.text.length / 100) / 10 + 'k · ' : ''}${esc(new Date(n.ts).toLocaleDateString())}</span>
+        <span class="nact"><button class="iconbtn" data-ncopy title="Copy">⧉</button><button class="iconbtn" data-ndel title="Delete this note">✕</button></span></div>
+      <div class="nbody">${n.source ? `<div class="status">${esc(n.source)} · ${esc(new Date(n.ts).toLocaleString())}</div>` : ''}<div class="md">${md(n.text)}</div></div></div>`;
+  }).join('');
+  $$('#notes-list .note2').forEach(el => {
+    const n = NOTES.find(x => x.id === el.dataset.nid);
+    highlight(el.querySelector('.nprev'), words); highlight(el.querySelector('.nbody .md'), words);
+    el.querySelector('.nhead').onclick = e => {
+      if (e.target.closest('.nact')) return;
+      el.classList.toggle('open'); el.classList.contains('open') ? NOTES_OPEN.add(n.id) : NOTES_OPEN.delete(n.id);
+    };
+    el.querySelector('[data-ncopy]').onclick = () => { navigator.clipboard.writeText(n.text); toast('Copied', 'ok'); };
+    el.querySelector('[data-ndel]').onclick = async () => {
+      if (!confirm('Delete this pinned note? Every tool stops seeing it.')) return;
+      await api('/api/context/notes/' + n.id, {method: 'DELETE'}); NOTES_OPEN.delete(n.id); await refreshNoteCount(); renderNotes();
+    };
+  });
 }
 async function openNotes() {
-  const notes = await refreshNoteCount();
-  $('#notes-list').innerHTML = notes.length ? notes.slice().reverse().map(n => `<div class="note">
-      <div class="status msghead"><span class="badge">${esc(TOOL_NAMES[n.tool] || n.tool)}</span> ${esc(n.source || '')} · ${esc(new Date(n.ts).toLocaleString())}
-      <span style="flex:1"></span><button class="btn small danger" data-delnote="${esc(n.id)}">✕</button></div><div class="md">${md(n.text)}</div></div>`).join('')
-    : '<div class="empty">No pinned notes yet. Use 📌 Pin on any AI answer — or select part of an answer first — to share it with every tool.</div>';
-  $$('[data-delnote]').forEach(b => b.onclick = async () => { await api('/api/context/notes/' + b.dataset.delnote, {method: 'DELETE'}); openNotes(); });
+  await refreshNoteCount();
+  const tools = [...new Set(NOTES.map(n => n.tool))];
+  const cur = $('#notes-tool').value;
+  $('#notes-tool').innerHTML = `<option value="">${esc(I18N.tr('All tools'))}</option>` + tools.map(t => `<option value="${esc(t)}">${esc(TOOL_NAMES[t] || t)} (${NOTES.filter(n => n.tool === t).length})</option>`).join('');
+  $('#notes-tool').value = tools.includes(cur) ? cur : '';
+  renderNotes();
   $('#notes-modal').classList.add('on');
+  setTimeout(() => $('#notes-search').focus(), 50);
 }
+$('#notes-open').onclick = () => openNotes();
+$('#notes-search').addEventListener('input', renderNotes);
+$('#notes-search').addEventListener('keydown', e => { if (e.key === 'Escape' && e.target.value) { e.stopPropagation(); e.target.value = ''; renderNotes(); } });
+$('#notes-tool').onchange = renderNotes;
+$('#notes-expand').onclick = () => { $$('#notes-list .note2').forEach(el => { el.classList.add('open'); NOTES_OPEN.add(el.dataset.nid); }); };
+$('#notes-collapse').onclick = () => { $$('#notes-list .note2').forEach(el => el.classList.remove('open')); NOTES_OPEN.clear(); };
 $('#notes-close').onclick = () => $('#notes-modal').classList.remove('on');
 $('#notes-add').onclick = async () => {
   const text = $('#notes-text').value.trim(); if (!text) return;
   await api('/api/context/notes', {method: 'POST', body: {tool: 'data', text, source: 'manual note'}});
-  $('#notes-text').value = ''; openNotes();
+  $('#notes-text').value = ''; $('.nadd').open = false; openNotes();
 };
 
 const PANELS = [];
@@ -2676,6 +2966,7 @@ async function restoreOutputs() {
   try {
     const [a, b, c] = await Promise.all(['lit2plan', 'experiment', 'masterclass'].map(t => api('/api/tool/output/' + t)));
     if (a.content) renderOut($('#l2p-out'), a.content, 'lit2plan.md');
+    if (a.sources) renderL2PSources(a.sources);
     if (b.content) { EXP_DESIGN = b.content; const m = b.content.match(/```python\n([\s\S]*?)```/); EXP_CODE = m ? m[1] : ''; renderOut($('#exp-out'), b.content, 'experiment_design.md'); }
     if (c.content) { renderOut($('#mc-out'), c.content, 'masterclass_guide.md'); if (c.topic && !$('#mc-topic').value) $('#mc-topic').value = c.topic; }
   } catch {}

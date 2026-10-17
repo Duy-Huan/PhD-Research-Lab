@@ -2,12 +2,14 @@
 
 Run:  python -m uvicorn backend.app:app --host 127.0.0.1 --port 8765
 """
+import asyncio
 import json
 import os
 import re
 import sys
 from pathlib import Path
 
+import httpx
 from fastapi import Body, FastAPI, File, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from fastapi.staticfiles import StaticFiles
@@ -27,6 +29,7 @@ from .chat_store import (TOOLS, SessionNotFound, create_session, delete_session,
 from .llm import (LLMError, call_agent, stream_agent, cloud_chat, extract_json, list_local_models, list_provider_models,
                   provider_settings, strip_fences)
 from . import review_ext as RX
+from . import websearch as WS
 from . import review_prompts as RP
 from .paper import (SECTION_TITLES, SECTIONS, assemble, build_zip, clean_section,
                     fix_citations, load_project, read_ws, save_project, write_ws)
@@ -289,12 +292,68 @@ async def lit2plan(body: dict = Body(...)):
     exp = await call_agent("query_expansion", prompts.QUERY_EXPANSION_SYS,
                            f"Idea: {idea}\nDomain: {body.get('domain', '')}", max_tokens=1500, temperature=0.3)
     digest = reference_digest(included()[:40], 350)
-    plan = await call_agent("lit2plan", prompts.LIT2PLAN_SYS + prompts.output_language(body.get("lang")),
-                            prompts.lit2plan_user(idea, body.get("domain", ""), exp["text"], digest), max_tokens=10000)
+    web = body.get("web") if body.get("web") in WS.MODES else "off"
+    online, res = "", {"sources": [], "errors": [], "queries": {}}
+    if web != "off":
+        q = await WS.plan_queries(call_agent, f"USER: Research idea: {idea}\nDomain / constraints: {body.get('domain', '')}\n"
+                                              f"Find the most relevant and recent literature (seminal + state of the art).\n\nQuery expansion:\n{exp['text'][:3000]}")
+        res = await WS.search(web, q["papers"], q["web"], n=12, year_from=q.get("year_from"))
+        online = WS.sources_block(res["sources"])
+    system = prompts.LIT2PLAN_SYS + prompts.output_language(body.get("lang")) + (prompts.LIT2PLAN_ONLINE if online else "")
+    plan = await call_agent("lit2plan", system, prompts.lit2plan_user(idea, body.get("domain", ""), exp["text"], digest, online),
+                            max_tokens=10000)
     write_ws("lit2plan.md", plan["text"])
-    return {"expansion": exp["text"], "plan": plan["text"],
-            "engines": {"query_expansion": exp["engine"], "lit2plan": plan["engine"]},
+    sources = WS.compact(res["sources"])
+    write_ws("lit2plan_sources.json", json.dumps({"sources": sources, "queries": res["queries"]}, ensure_ascii=False))
+    return {"expansion": exp["text"], "plan": plan["text"], "sources": sources, "search_errors": res["errors"],
+            "queries": res["queries"], "engines": {"query_expansion": exp["engine"], "lit2plan": plan["engine"]},
             "notes": [n for n in (exp["note"], plan["note"]) if n]}
+
+
+@app.post("/api/search")
+async def internet_search(body: dict = Body(...)):
+    """Direct search (Find papers panel): {query, mode: papers|web|both, year_from?}."""
+    query = str(body.get("query", "")).strip()
+    if not query:
+        raise HTTPException(400, "Query required")
+    mode = body.get("mode") if body.get("mode") in ("papers", "web", "both") else "papers"
+    yf = body.get("year_from")
+    res = await WS.search(mode, [query], [query], year_from=int(yf) if str(yf or "").isdigit() else None)
+    return {"sources": WS.compact(res["sources"]), "errors": res["errors"]}
+
+
+@app.post("/api/references/fetch")
+async def fetch_reference(body: dict = Body(...)):
+    """Download an open-access PDF found online into this project's references folder (with its metadata)."""
+    url = str(body.get("pdf_url") or "").strip()
+    if not url.startswith(("http://", "https://")):
+        raise HTTPException(400, "No open-access PDF link for this paper — open the page and download it manually")
+    try:
+        async with httpx.AsyncClient(timeout=60, follow_redirects=True, headers={"User-Agent": WS.UA, "Accept": "application/pdf,*/*"}) as c:
+            r = await c.get(url)
+    except httpx.HTTPError as e:
+        raise HTTPException(502, f"Could not download the PDF: {e}")
+    data = r.content
+    if r.status_code >= 400 or not data.startswith(b"%PDF"):
+        raise HTTPException(502, "The link did not return a PDF (publisher page or paywall) — open it and download manually")
+    rdir = refs_dir()
+    name = WS.safe_pdf_name(body.get("title", ""), body.get("year"))
+    base, k = name[:-4], 1
+    while (rdir / name).exists():
+        k += 1
+        name = f"{base}_{k}.pdf"
+    (rdir / name).write_bytes(data)
+    res = await run_in_threadpool(scan_directory)
+    lib = load_library()
+    if name in lib:  # metadata from the scholarly database is more reliable than PDF heuristics
+        authors = body.get("authors") or []
+        merge_llm_metadata(lib[name], {"title": body.get("title"), "authors": authors, "year": body.get("year"),
+                                       "venue": body.get("venue"), "doi": body.get("doi"),
+                                       "abstract": body.get("snippet") or lib[name].get("abstract"),
+                                       "entry_type": "misc" if "arxiv" in (body.get("venue") or "").lower() else lib[name].get("entry_type", "article")})
+        lib[name]["source_url"] = body.get("url") or url
+        save_library(lib)
+    return {"file": name, "added": res["added"]}
 
 
 @app.post("/api/tool/experiment")
@@ -426,23 +485,47 @@ def _prepare_chat(body: dict) -> dict:
         system = prompts.tool_chat_system(tool, own, shared, reference_digest(included()[:30], 250))
         msgs = _llm_messages(history, 16)
     system += prompts.ATTACHMENT_RULES
+    web = body.get("web") if body.get("web") in WS.MODES else "off"
     return {"tool": tool, "agent": agent, "temp": temp, "system": system, "msgs": msgs,
-            "sid": sid, "history": history, "shared": bool(shared)}
+            "sid": sid, "history": history, "shared": bool(shared), "web": web, "sources": []}
+
+
+def _conversation_text(history: list, n: int = 6) -> str:
+    return "\n\n".join(f"{m['role'].upper()}: {m['content'][:2500]}" for m in history[-n:])
+
+
+async def _web_search(ctx: dict, on_event=None) -> dict:
+    """Plan queries for the latest question, search the internet, add the results to the system prompt."""
+    plan = await WS.plan_queries(call_agent, _conversation_text(ctx["history"]))
+    if on_event:
+        await on_event({"type": "search", "status": "searching", "mode": ctx["web"],
+                        "queries": {"papers": plan["papers"] if ctx["web"] in ("papers", "both") else [],
+                                    "web": plan["web"] if ctx["web"] in ("web", "both") else []}})
+    res = await WS.search(ctx["web"], plan["papers"], plan["web"], year_from=plan.get("year_from"))
+    if res["sources"]:
+        ctx["system"] += WS.WEB_RULES + WS.sources_block(res["sources"])
+    else:
+        ctx["system"] += ("\n\n# INTERNET SEARCH\nAn internet search was attempted but returned no usable results"
+                          f"{' (' + '; '.join(res['errors']) + ')' if res['errors'] else ''}. Say so briefly and answer from the other context.")
+    ctx["sources"] = WS.compact(res["sources"])
+    return res
 
 
 def _finish(ctx: dict, text: str, engine: str, note: str) -> tuple[dict, dict]:
     tables = re.findall(r"\\begin\{table\*?\}.*?\\end\{table\*?\}", text, flags=re.S) if ctx["tool"] == "data" else []
-    reply = {"content": text, "tables": tables, "engine": engine, "note": note}
+    reply = {"content": text, "tables": tables, "engine": engine, "note": note, "sources": ctx.get("sources") or []}
     saved = record_turn(ctx["sid"], ctx["history"], reply)
     return reply, {"id": ctx["sid"], "title": saved["title"], "updated": saved["updated"], "count": len(saved["messages"])}
 
 
 async def _chat_once(body: dict) -> dict:
     ctx = _prepare_chat(body)
+    if ctx["web"] != "off":
+        await _web_search(ctx)
     r = await call_agent(ctx["agent"], ctx["system"], messages=ctx["msgs"], max_tokens=6000, temperature=ctx["temp"])
     reply, session = await run_in_threadpool(_finish, ctx, r["text"], r["engine"], r["note"])
     return {"reply": reply["content"], "tables": reply["tables"], "engine": r["engine"], "note": r["note"],
-            "shared": ctx["shared"], "session": session}
+            "shared": ctx["shared"], "session": session, "sources": reply["sources"]}
 
 
 @app.post("/api/chat")
@@ -471,7 +554,26 @@ async def chat_stream(body: dict = Body(...)):
     async def gen():
         meta = {}
         try:
-            yield sse({"type": "start", "session_id": ctx["sid"], "shared": ctx["shared"]})
+            yield sse({"type": "start", "session_id": ctx["sid"], "shared": ctx["shared"], "web": ctx["web"]})
+            if ctx["web"] != "off":
+                yield sse({"type": "search", "status": "planning", "mode": ctx["web"]})
+                q = []
+
+                async def push(ev):
+                    q.append(ev)
+                task = asyncio.ensure_future(_web_search(ctx, push))
+                try:
+                    while not task.done():
+                        await asyncio.sleep(0.15)
+                        while q:
+                            yield sse(q.pop(0))
+                finally:
+                    if not task.done():  # browser pressed Stop during the search
+                        task.cancel()
+                while q:
+                    yield sse(q.pop(0))
+                res = task.result()
+                yield sse({"type": "sources", "sources": ctx["sources"], "errors": res["errors"]})
             async for kind, val in stream_agent(ctx["agent"], ctx["system"], ctx["msgs"], max_tokens=6000, temperature=ctx["temp"]):
                 if kind == "delta":
                     yield sse({"type": "delta", "text": val})
@@ -479,7 +581,7 @@ async def chat_stream(body: dict = Body(...)):
                     meta = val
             reply, session = await run_in_threadpool(_finish, ctx, meta["text"], meta["engine"], meta["note"])
             yield sse({"type": "done", "reply": reply["content"], "tables": reply["tables"], "engine": meta["engine"],
-                       "note": meta["note"], "shared": ctx["shared"], "session": session})
+                       "note": meta["note"], "shared": ctx["shared"], "session": session, "sources": reply["sources"]})
         except LLMError as e:
             yield sse({"type": "error", "detail": str(e)})
 
@@ -530,11 +632,13 @@ def library_catalog():
 
 
 @app.get("/api/references/file/{name}")
-def reference_file(name: str):
+def reference_file(name: str, download: int = 0):
+    """Serve a library PDF: inline for the in-app reader / new tab, or as a download (?download=1)."""
     f = refs_dir() / Path(name).name
     if not f.exists():
         raise HTTPException(404, "PDF not found in this project's references folder")
-    return FileResponse(f, media_type="application/pdf", content_disposition_type="inline")
+    return FileResponse(f, media_type="application/pdf", filename=f.name,
+                        content_disposition_type="attachment" if download else "inline")
 
 
 @app.get("/api/tool/output/{tool}")

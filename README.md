@@ -1,4 +1,4 @@
-# PhD Interactive Autonomous Research Lab — v2.5.0
+# PhD Interactive Autonomous Research Lab — v2.6.2
 
 A local desktop web app for Windows 11 that runs an end-to-end research workflow on a **hybrid AI architecture**: any of 14 cloud AI providers for deep reasoning and academic writing, plus local models in **LM Studio** (`http://localhost:1234/v1`) for fast, private, zero-cost extraction work.
 
@@ -116,6 +116,17 @@ Novelty + domain (hyperspectral, FOG signals, RISC-V SoC, …) → formulation i
 ### 📖 Tool 4 — Masterclass
 Rebuttal letters, major revisions, grant writing, thesis defense, qualifying exams, PRISMA reviews, venue choice, reproducibility packages, job applications — tailored to the context you provide.
 
+### 🔎 Internet search (v2.6)
+Every chat has a **🌐 search** selector with four settings: off, 📚 papers, 🌐 web, or both.
+- **Paper sources:** OpenAlex, arXiv and Semantic Scholar (free, no key).
+- **Web sources:** DuckDuckGo (free), or Tavily / Brave with an API key.
+- **Per question:** a small planner agent writes the queries (with a year filter for "latest" questions). Results are de-duplicated by DOI and numbered [S1]…, and the answer cites them as links.
+- **Under each answer:** a sources list with 📥 *save open-access PDF to the Reference Library* (with database metadata) and 📎 *attach full text*.
+- **Lit2Plan** can ground the plan in papers found online, adding a "Key Papers Found Online" section.
+- **Reference Library** has a **🔎 Find papers online** box.
+
+Settings are in the sidebar. Only search queries are sent out. `PHDLAB_SEARCH_BASE` redirects all search endpoints, e.g. to an institutional proxy.
+
 ### ✳ Claude-style chat & rich results (v2.0)
 All five chats (Tool 1, Tool 2, Data chat, Paper chat, Tool 4) share one Claude-web-like interface:
 - **Streaming answers** with a live cursor and a **■ Stop** button (a stopped answer is kept); **↻ Retry** the last answer; **✎ Edit** any question and resend.
@@ -164,6 +175,7 @@ phd-research-lab/
 │   ├── prompts.py    agent system prompts (Tools 1-4, section workshop)
 │   ├── review_ext.py      ④ Paper Review: storage, desk check, quote verification, fix apply
 │   ├── review_prompts.py  venue standards (ICORE / h5 / Q1-Q4) and reviewer prompts
+│   ├── websearch.py       internet search (OpenAlex, arXiv, Semantic Scholar, DuckDuckGo/Tavily/Brave)
 │   └── chat_store.py, context_hub.py, attachments.py, fs_browse.py
 ├── frontend/index.html   single-page UI
 ├── references/       default PDF pool

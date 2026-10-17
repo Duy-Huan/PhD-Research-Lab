@@ -98,6 +98,8 @@ def _clean_message(m: dict) -> dict | None:
         out["added"] = sorted({int(i) for i in (m.get("added") or []) if isinstance(i, (int, float))})
         out["engine"] = str(m.get("engine") or "")
         out["note"] = str(m.get("note") or "")
+        if isinstance(m.get("sources"), list) and m["sources"]:
+            out["sources"] = [x for x in m["sources"] if isinstance(x, dict)][:30]
     return out
 
 

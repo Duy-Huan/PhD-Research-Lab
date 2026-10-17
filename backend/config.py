@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "2.5.0"
+APP_VERSION = "2.6.2"
 
 ROOT = Path(__file__).resolve().parent.parent
 GLOBAL_DIR = ROOT / "data"                 # global config + the "Default project" (backward compatible)
@@ -91,7 +91,19 @@ AGENTS = {
     "ext_meta":        {"label": "📝 Review · Area Chair / Editor", "default": "claude"},
     "ext_fixer":       {"label": "📝 Review · Quick-fix editor", "default": "claude"},
     "chat_review":     {"label": "💬 Chat · Paper Review", "default": "claude"},
+    # v2.6 internet search
+    "web_query":       {"label": "🌐 Search query planner", "default": "cloud"},
 }
+
+SEARCH_DEFAULTS = {
+    "web_engine": "duckduckgo",   # duckduckgo (free, no key) | tavily | brave
+    "tavily_key": "", "brave_key": "",
+    "s2_key": "",                 # Semantic Scholar API key (optional, higher rate limit)
+    "mailto": "",                 # e-mail for the OpenAlex "polite pool" (optional, faster)
+    "n_results": 8,               # results per search
+    "read_pages": True,           # read the text of the top web pages (more accurate, slower)
+}
+SEARCH_KEYS = ("tavily_key", "brave_key", "s2_key")
 
 DEFAULTS = {
     "providers": {pid: {"api_key": "", "model": spec["model"], "base_url": ""} for pid, spec in PROVIDERS.items()},
@@ -105,6 +117,7 @@ DEFAULTS = {
     "chat_restore": True,  # reopen the last chat session on start
     "output_lang": "ui",   # Tools 1/2/4 output language: ui | en | vi
     "agent_modes": {k: v["default"] for k, v in AGENTS.items()},
+    "search": dict(SEARCH_DEFAULTS),
 }
 
 _lock = threading.Lock()
@@ -136,6 +149,7 @@ def load_config() -> dict:
         cfg["providers"]["anthropic"]["model"] = saved["claude_model"]
     cfg["agent_modes"].update({a: m for a, m in (saved.get("agent_modes") or {}).items()
                                if a in AGENTS and _valid_mode(m)})
+    cfg["search"].update({k: v for k, v in (saved.get("search") or {}).items() if k in SEARCH_DEFAULTS})
     if cfg["default_cloud"] not in PROVIDERS:
         cfg["default_cloud"] = "anthropic"
     if not (GLOBAL_DIR / META_NAME).exists():  # first run / upgrade: describe the legacy data/ folder as a project
@@ -172,6 +186,23 @@ def save_config(patch: dict) -> dict:
                 cfg[k] = v
             elif k == "chat_restore":
                 cfg[k] = bool(v)
+            elif k == "search" and isinstance(v, dict):
+                sc = cfg["search"]
+                for f, val in v.items():
+                    if f in SEARCH_KEYS:
+                        if isinstance(val, str) and "•" not in val:  # masked value = unchanged
+                            sc[f] = val.strip()
+                    elif f == "web_engine":
+                        sc[f] = val if val in ("duckduckgo", "tavily", "brave") else "duckduckgo"
+                    elif f == "n_results":
+                        try:
+                            sc[f] = max(3, min(20, int(val)))
+                        except (TypeError, ValueError):
+                            pass
+                    elif f == "read_pages":
+                        sc[f] = bool(val)
+                    elif f == "mailto":
+                        sc[f] = str(val).strip()[:120]
             elif k == "output_lang":
                 cfg[k] = v if v in ("ui", "en", "vi") else "ui"
         CONFIG_PATH.write_text(json.dumps(cfg, indent=2), "utf-8")
@@ -187,6 +218,9 @@ def public_config(cfg: dict) -> dict:
     for pid, p in out["providers"].items():
         p["has_key"] = bool(p.get("api_key"))
         p["api_key"] = mask(p.get("api_key", ""))
+    for f in SEARCH_KEYS:
+        out["search"]["has_" + f] = bool(out["search"].get(f))
+        out["search"][f] = mask(out["search"].get(f, ""))
     out["provider_specs"] = PROVIDERS
     out["agents"] = AGENTS
     out["version"] = APP_VERSION

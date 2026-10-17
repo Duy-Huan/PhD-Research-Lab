@@ -76,6 +76,7 @@ Mỗi dự án có **thư mục data** riêng (workspace, output, chat, ghi chú
 
 ### 1. Thư viện tài liệu (Reference Library)
 - Kéo-thả PDF toàn văn. App đọc tiêu đề, tác giả, abstract, DOI và năm. Bấm **✨ AI-parse** để AI chuẩn hoá metadata.
+- Bấm **👁 Đọc** (hoặc bấm vào tiêu đề bài) để **đọc PDF ngay trên web**. Trình đọc dùng sẵn bộ xem PDF của trình duyệt, nên phóng to, tìm chữ và in được. Chuyển bài trước/sau bằng ‹ › hoặc phím ← →; bấm vào khoá trích dẫn để chép.
 - Bấm **Edit** để sửa metadata hoặc đặt **BibTeX key** cố định. Bỏ tick **Use** để loại một bài khỏi bài báo.
 - **3.1 Generate references.bib** tạo file BibTeX sạch.
 - PDF scan (chỉ có ảnh) cần OCR trước, ví dụ bằng `ocrmypdf`.
@@ -186,12 +187,50 @@ Trong 💬 chat, có thể nhờ mentor **đóng vai hội đồng hoặc review
 **🔗 Shared context:**
 - Khi bật, AI ở mỗi tool thấy thêm output mới nhất, các tin nhắn gần đây của tool khác, và các ghi chú 📌.
 - Ghim **📌 Pin** một câu trả lời, hoặc chỉ đoạn bạn bôi đen, để mọi tool cùng dùng.
+- Nút **📌 (số ghi chú)** ở góc trên, cạnh tên dự án, mở cửa sổ **Ngữ cảnh chung** từ bất kỳ tab nào. Trong cửa sổ này:
+  - **tìm theo từ khoá**, từ khớp được tô màu;
+  - lọc theo tool;
+  - bấm vào từng ghim để **mở rộng / thu gọn**, hoặc dùng *Mở rộng tất cả / Thu gọn tất cả*;
+  - chép hoặc xoá từng ghi chú.
 
 **Phiên chat:**
 - Mỗi tool có danh sách phiên riêng: tạo mới, đổi tên, xoá, xuất Markdown.
 - *Auto-open* quyết định có tự mở lại phiên gần nhất khi khởi động hay không.
 
 **Giới hạn mỗi lượt hỏi:** khoảng 150.000 ký tự tài liệu và tối đa 8 ảnh. Tài liệu ở tin nhắn mới nhất được ưu tiên.
+
+## Tìm kiếm trên internet (v2.6)
+
+Các AI agent có thể **tự tìm paper và thông tin mới trên mạng** trước khi trả lời. Kết quả là dữ liệu thật từ các cơ sở dữ liệu học thuật và công cụ tìm kiếm; AI chỉ đọc và trích dẫn, không tự nghĩ ra nguồn.
+
+**Bật / tắt cho từng chat:** dùng ô chọn **🌐** cạnh khung nhập tin nhắn, có ở mọi tool có chat:
+- **🌐 Tìm kiếm: tắt** — như trước, không tìm kiếm.
+- **📚 Tìm paper** — OpenAlex, arXiv, Semantic Scholar (miễn phí, không cần key).
+- **🌐 Tìm trên web** — DuckDuckGo (miễn phí), hoặc Tavily / Brave nếu bạn có key.
+- **🌐📚 Paper + web** — cả hai.
+
+App nhớ lựa chọn riêng cho từng tool.
+
+**Cách hoạt động:** với mỗi câu hỏi,
+1. một agent nhỏ lập 1–3 truy vấn tiếng Anh. Nếu bạn hỏi kiểu "mới nhất" hoặc "từ 2023", app tự lọc theo năm;
+2. app tìm kiếm, gộp các kết quả trùng (theo DOI) và đánh số **[S1], [S2]…**;
+3. AI trả lời và trích dẫn bằng link **[S1](url)**.
+
+Dưới mỗi câu trả lời có danh sách **🌐 nguồn**: tác giả, năm, venue, số trích dẫn. Với mỗi nguồn:
+- **📥 Thư viện** tải PDF truy cập mở vào Thư viện tài liệu, kèm metadata chuẩn (tiêu đề, tác giả, DOI).
+- **📎** đính kèm toàn văn trang hoặc PDF vào câu hỏi tiếp theo.
+
+**Tool 1 Lit2Plan:** chọn *🌐 Tìm trên internet khi lập kế hoạch*. Kế hoạch sẽ dựa trên paper thật, mới, có thêm mục **9. Key Papers Found Online**, và thẻ **Tài liệu tìm được trên mạng** để lưu PDF.
+
+**Thư viện tài liệu → 🔎 Tìm paper trên mạng:** tìm theo chủ đề (lọc "từ năm"), rồi bấm 📥 để nạp thẳng vào thư viện.
+
+**Cài đặt (thanh bên → 🔎 Tìm kiếm internet):**
+- công cụ tìm web và API key (Tavily, Brave);
+- số kết quả mỗi lần tìm;
+- key Semantic Scholar và e-mail OpenAlex (tuỳ chọn, giúp nhanh và ổn định hơn);
+- có đọc nội dung các trang web đầu hay không.
+
+> Chỉ các truy vấn tìm kiếm được gửi đi, không gửi file hay dữ liệu dự án. Paper chỉ có abstract, nên hãy mở bài gốc trước khi trích dẫn chi tiết. Không có mạng thì app báo lỗi và vẫn trả lời bằng thư viện cục bộ.
 
 ## Quy trình 6 tháng khuyên dùng
 
