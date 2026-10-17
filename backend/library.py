@@ -32,9 +32,11 @@ if fitz is None:
     except Exception as _e:
         PDF_BACKEND_ERROR += f" | pypdf unavailable: {_e}"
 
-from .config import DATA_DIR, refs_dir
+from .config import data_dir, refs_dir
 
-LIBRARY_PATH = DATA_DIR / "library.json"
+
+def _lib_path():
+    return data_dir() / "library.json"  # per project
 _lock = threading.Lock()
 
 FIELDS = ["title", "authors", "year", "venue", "entry_type", "volume", "number",
@@ -44,9 +46,9 @@ STOPWORDS = {"a", "an", "the", "on", "of", "for", "in", "to", "and", "with", "to
 
 # ------------------------------------------------------------------ storage
 def load_library() -> dict:
-    if LIBRARY_PATH.exists():
+    if _lib_path().exists():
         try:
-            return json.loads(LIBRARY_PATH.read_text("utf-8"))
+            return json.loads(_lib_path().read_text("utf-8"))
         except Exception:
             return {}
     return {}
@@ -55,7 +57,7 @@ def load_library() -> dict:
 def save_library(lib: dict) -> None:
     with _lock:
         assign_keys(lib)
-        LIBRARY_PATH.write_text(json.dumps(lib, indent=2, ensure_ascii=False), "utf-8")
+        _lib_path().write_text(json.dumps(lib, indent=2, ensure_ascii=False), "utf-8")
 
 
 def included(lib: dict | None = None) -> list:

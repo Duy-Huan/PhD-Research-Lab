@@ -92,6 +92,17 @@ table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
 .subnav button.on{border-color:var(--accent);color:var(--text)}
 .subtab{display:none}.subtab.on{display:block}
 .chat{display:flex;flex-direction:column;height:calc(100vh - 230px);min-height:420px}
+.chatcard{margin-top:16px}
+.projtag{align-self:center;font-size:12.5px;color:var(--accent);border:1px solid var(--accent);border-radius:20px;padding:3px 12px;white-space:nowrap;max-width:320px;overflow:hidden;text-overflow:ellipsis}
+.chatpanel{display:flex;flex-direction:column;height:620px}
+.chatpanel.tall{height:calc(100vh - 230px);min-height:460px}
+.chathead{display:flex;gap:10px;align-items:baseline;margin-bottom:8px;flex-wrap:wrap}
+.chathead b{font-family:var(--serif);font-size:15px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:8px 0}
+.chip{background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:4px 11px;font-size:12px;color:var(--muted);cursor:pointer}
+.chip:hover{border-color:var(--accent);color:var(--text)}
+.msghead{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.note{border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin:8px 0;background:var(--bg)}
 .msgs{flex:1;overflow-y:auto;padding:4px 4px 12px}
 .msg{max-width:92%;margin:10px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line)}
 .msg.user{margin-left:auto;background:var(--panel2);white-space:pre-wrap;font-family:var(--mono);font-size:12.5px;max-height:320px;overflow:auto}
@@ -118,6 +129,8 @@ table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
 .toast.err{border-left-color:var(--err)} .toast.ok{border-left-color:var(--ok)}
 .spin{display:inline-block;width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:s .7s linear infinite;vertical-align:-2px;margin-right:6px}
 @keyframes s{to{transform:rotate(360deg)}}
+.sessbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.sessbar select{width:auto;min-width:240px;max-width:420px;padding:5px 8px;font-size:12.5px}
 .chk{display:flex;gap:6px;align-items:center;font-size:12.5px;color:var(--text);margin-top:10px}
 @media (max-width:1000px){.app{grid-template-columns:1fr}aside{max-height:none;border-right:0;border-bottom:1px solid var(--line)}.grid2{grid-template-columns:1fr}}
 </style>
@@ -127,7 +140,21 @@ table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
 <!-- ================================================================ CONFIG SIDEBAR -->
 <aside>
   <div class="brand">PhD Interactive<br><span>Autonomous Research Lab</span></div>
-  <div class="sub">Hybrid multi-cloud AI + LM Studio · <span id="app-version">v1.2.0</span></div>
+  <div class="sub">Hybrid multi-cloud AI + LM Studio · <span id="app-version">v1.6.0</span></div>
+
+  <h3>📂 Research project</h3>
+  <div class="row"><select id="proj-select" title="Switch research project"></select></div>
+  <div class="row" style="margin-top:6px;flex-wrap:wrap;gap:6px">
+    <button class="btn small" id="proj-new">＋ New</button>
+    <button class="btn small" id="proj-open" title="Open an existing project folder (e.g. copied from another PC)">📂 Open…</button>
+    <button class="btn small" id="proj-rename" title="Rename project">✎</button>
+    <button class="btn small danger" id="proj-forget" title="Remove from list (files are kept)">✕</button>
+  </div>
+  <label>Data folder (workspace, chats, library, outputs)</label>
+  <div class="row"><input type="text" id="proj-data" readonly><button class="btn small" id="proj-open-folder" title="Open in Explorer">↗</button></div>
+  <label>References folder (full-text PDFs of this project)</label>
+  <div class="row"><input type="text" id="cfg-refs" placeholder="C:\Users\you\PhD\references"><button class="btn small" id="open-refs" title="Open in Explorer">↗</button></div>
+  <div class="status">API keys and AI engines are shared by all projects.</div>
 
   <h3>☁ Cloud AI providers</h3>
   <label>Default cloud provider (used by agents set to "Default")</label>
@@ -155,11 +182,6 @@ table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
   <div class="status" id="st-local"><span class="dot"></span>not checked</div>
   <label class="chk"><input type="checkbox" id="cfg-fallback"> Fall back to Claude if local fails</label>
 
-  <h3>📁 Reference directory</h3>
-  <label>Local folder for full-text PDFs</label>
-  <input type="text" id="cfg-refs" placeholder="C:\Users\you\PhD\references">
-  <div class="row" style="margin-top:8px"><button class="btn small" id="open-refs">Open folder</button></div>
-
   <h3>⚙ Agent engines</h3>
   <div id="agent-modes"></div>
   <div class="row" style="margin-top:8px">
@@ -178,6 +200,7 @@ table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
   <button data-tab="experiment">🔬 Experiment Design</button>
   <button data-tab="papers">📚 Papers &amp; Writer</button>
   <button data-tab="masterclass">📖 Masterclass</button>
+  <span style="flex:1"></span><span class="projtag" id="proj-tag" title="Active research project"></span>
 </nav>
 
 <!-- ================================================================ TOOL 1 -->
@@ -196,6 +219,7 @@ table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
     <div>
       <div class="out" id="l2p-out"><div class="empty">Your research direction will appear here.</div></div>
       <details style="margin-top:12px"><summary class="status" style="cursor:pointer">Query expansion (local agent)</summary><div class="out md" id="l2p-exp" style="min-height:0;margin-top:8px"></div></details>
+      <div class="card chatcard" id="chat-lit2plan"></div>
     </div>
   </div>
 </section>
@@ -217,7 +241,10 @@ table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
       <div class="row" style="margin-top:8px"><button class="btn small" id="exp-dl-code">⬇ experiment_skeleton.py</button><button class="btn small" id="exp-to-paper">→ Use as paper method notes</button></div>
       <div class="status" id="exp-meta"></div>
     </div>
-    <div class="out" id="exp-out"><div class="empty">Methodology and skeleton code will appear here.</div></div>
+    <div>
+      <div class="out" id="exp-out"><div class="empty">Methodology and skeleton code will appear here.</div></div>
+      <div class="card chatcard" id="chat-experiment"></div>
+    </div>
   </div>
 </section>
 
@@ -250,20 +277,7 @@ table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
 
   <!-- chat -->
   <div class="subtab" id="sub-chat">
-    <div class="chat card">
-      <div class="msgs" id="msgs"><div class="empty">Paste training logs, CSV metrics, ablation results or SystemC-AMS / MATLAB output. The Data Extractor turns them into publication-ready LaTeX tables you can push into the paper.</div></div>
-      <div class="composer">
-        <div class="attach" id="attach-info"></div>
-        <textarea id="chat-input" placeholder="Paste raw data or ask a question…  (Ctrl+Enter to send)"></textarea>
-        <div class="row" style="margin-top:8px">
-          <button class="btn small" id="attach-btn">📎 Attach data file</button>
-          <input type="file" id="attach-input" hidden accept=".csv,.txt,.log,.json,.tsv,.m,.dat,.out,.md,.yaml,.yml">
-          <button class="btn small" id="chat-clear">Clear</button>
-          <span style="flex:1"></span>
-          <button class="btn primary" id="chat-send">Send</button>
-        </div>
-      </div>
-    </div>
+    <div class="card" id="chat-data"></div>
   </div>
 
   <!-- writer -->
@@ -306,6 +320,7 @@ table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
           <textarea id="sec-editor" class="code" rows="16" placeholder="Select a section"></textarea>
           <div class="row" style="margin-top:8px"><button class="btn small" id="sec-save">Save section</button><button class="btn small" id="sec-redraft">↻ Redraft (3.2)</button><button class="btn small" id="sec-revise">✎ Revise (3.4)</button><span style="flex:1"></span></div>
         </div>
+        <div class="card chatcard" id="chat-paper" style="margin-top:14px"></div>
         <div class="card" style="margin-top:14px">
           <h4>Peer review (3.3)</h4>
           <div class="md" id="review-out"><span class="status">No review yet.</span></div>
@@ -332,7 +347,10 @@ table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
       <div class="row" style="margin-top:12px"><button class="btn primary" id="mc-run">Generate guide</button></div>
       <div class="status" id="mc-meta"></div>
     </div>
-    <div class="out" id="mc-out"><div class="empty">Choose a milestone above.</div></div>
+    <div>
+      <div class="out" id="mc-out"><div class="empty">Choose a milestone above.</div></div>
+      <div class="card chatcard" id="chat-masterclass"></div>
+    </div>
   </div>
 </section>
 </main>
@@ -349,6 +367,30 @@ table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
   <div class="row"><div><label>DOI</label><input type="text" id="rm-doi"></div><div><label>Publisher</label><input type="text" id="rm-publisher"></div></div>
   <label>Abstract</label><textarea id="rm-abstract" rows="5"></textarea>
   <div class="row" style="margin-top:12px;justify-content:flex-end"><span style="flex:1"></span><button class="btn" id="rm-cancel">Cancel</button><button class="btn primary" id="rm-save">Save</button></div>
+</div></div>
+
+<!-- project modal -->
+<div class="modal" id="proj-modal"><div class="card">
+  <h4 id="pm-title">New research project</h4>
+  <div id="pm-new">
+    <label>Project name</label><input type="text" id="pm-name" placeholder="e.g. FOG sensor denoising">
+    <label>Data folder <span class="status">(empty = &lt;app&gt;/projects/&lt;name&gt;)</span></label><input type="text" id="pm-data" placeholder="D:\PhD\FOG-project">
+    <label>References folder <span class="status">(empty = &lt;data folder&gt;/references)</span></label><input type="text" id="pm-refs" placeholder="D:\PhD\FOG-project\references">
+  </div>
+  <div id="pm-openbox" style="display:none">
+    <label>Existing project data folder</label><input type="text" id="pm-path" placeholder="D:\PhD\HSI-project">
+    <p class="status">Any folder works: if it has no project yet, a new one is initialised inside it (workspace/, references/, project_meta.json). Nothing is deleted.</p>
+  </div>
+  <div class="row" style="margin-top:12px"><span style="flex:1"></span><button class="btn" id="pm-cancel">Cancel</button><button class="btn primary" id="pm-ok">Create &amp; switch</button></div>
+</div></div>
+
+<!-- shared context notes modal -->
+<div class="modal" id="notes-modal"><div class="card">
+  <div class="row"><h4 style="flex:1;margin:0">📌 Shared context — visible to every tool's chat</h4><button class="btn small" id="notes-close">Close</button></div>
+  <p class="status">Pinned notes are injected (newest first) into the follow-up chats of all tools when "🔗 Share context" is on, together with each tool's latest output and recent chat.</p>
+  <div id="notes-list"></div>
+  <label>Add a note manually</label><textarea id="notes-text" rows="3" placeholder="e.g. Target venue is IEEE SPL; keep the model under 50k parameters."></textarea>
+  <div class="row" style="margin-top:8px;justify-content:flex-end"><span style="flex:1"></span><button class="btn primary" id="notes-add">Add note</button></div>
 </div></div>
 
 <div id="toast"></div>
@@ -416,6 +458,8 @@ $$('.subnav button').forEach(b => b.onclick = () => {
   $$('.subtab').forEach(t => t.classList.toggle('on', t.id === 'sub-' + b.dataset.sub));
   if (b.dataset.sub === 'writer') loadProject();
   if (b.dataset.sub === 'library') loadLibrary();
+  if (b.dataset.sub === 'chat') CHAT_DATA.scroll();
+  if (b.dataset.sub === 'writer') CHAT_PAPER.scroll();
 });
 
 // ===================================================================== config
@@ -519,6 +563,59 @@ $('#prov-list-models').onclick = e => busy(e.target, async () => {
 }, '…');
 $('#open-refs').onclick = async () => { await saveConfig(); await api('/api/references/open', {method: 'POST'}); };
 
+// ===================================================================== research projects
+let PROJECTS = [];
+async function loadProjects() {
+  try {
+    PROJECTS = (await api('/api/projects')).projects;
+    const act = PROJECTS.find(p => p.active) || PROJECTS[0];
+    $('#proj-select').innerHTML = PROJECTS.map(p => `<option value="${esc(p.data_dir)}" title="${esc(p.data_dir)}">${p.is_default ? '★ ' : ''}${esc(p.name)}${p.exists ? '' : ' (missing)'}</option>`).join('');
+    $('#proj-select').value = act.data_dir;
+    $('#proj-data').value = act.data_dir; $('#proj-data').title = act.data_dir;
+    requestAnimationFrame(() => ['#proj-data', '#cfg-refs'].forEach(id => { const el = $(id); el.title = el.value; el.scrollLeft = el.scrollWidth; }));
+    $('#proj-tag').textContent = '📂 ' + act.name; document.title = `${act.name} · PhD Research Lab`;
+    $('#proj-forget').disabled = !!act.is_default;
+  } catch (e) { toast('Projects: ' + e.message, 'err'); }
+}
+async function switchProject(fn) {
+  // flush pending chat saves into the CURRENT project before switching
+  await Promise.all(PANELS.map(p => p.flush()));
+  const info = await fn();
+  toast(`Switched to project "${info.name}"`, 'ok');
+  setTimeout(() => location.reload(), 400);  // reload every tool with the new project's data
+}
+$('#proj-select').onchange = e => switchProject(() => api('/api/projects/activate', {method: 'POST', body: {data_dir: e.target.value}}))
+  .catch(err => { toast(err.message, 'err'); loadProjects(); });
+let PM_MODE = 'new';
+function openProjModal(mode) {
+  PM_MODE = mode;
+  $('#pm-title').textContent = mode === 'new' ? 'New research project' : 'Open existing project folder';
+  $('#pm-new').style.display = mode === 'new' ? '' : 'none';
+  $('#pm-openbox').style.display = mode === 'open' ? '' : 'none';
+  $('#pm-ok').textContent = mode === 'new' ? 'Create & switch' : 'Open & switch';
+  ['#pm-name', '#pm-data', '#pm-refs', '#pm-path'].forEach(id => $(id).value = '');
+  $('#proj-modal').classList.add('on'); (mode === 'new' ? $('#pm-name') : $('#pm-path')).focus();
+}
+$('#proj-new').onclick = () => openProjModal('new');
+$('#proj-open').onclick = () => openProjModal('open');
+$('#pm-cancel').onclick = () => $('#proj-modal').classList.remove('on');
+$('#pm-ok').onclick = () => busy($('#pm-ok'), () => switchProject(() => PM_MODE === 'new'
+  ? api('/api/projects', {method: 'POST', body: {name: $('#pm-name').value, data_dir: $('#pm-data').value.trim(), references_dir: $('#pm-refs').value.trim()}})
+  : api('/api/projects/open', {method: 'POST', body: {data_dir: $('#pm-path').value.trim()}})), '…').catch(() => {});
+$('#proj-rename').onclick = async () => {
+  const cur = PROJECTS.find(p => p.active); if (!cur) return;
+  const name = prompt('Project name:', cur.name); if (!name || !name.trim()) return;
+  await api('/api/projects/rename', {method: 'PUT', body: {data_dir: cur.data_dir, name}}); loadProjects();
+};
+$('#proj-forget').onclick = async () => {
+  const cur = PROJECTS.find(p => p.active); if (!cur || cur.is_default) return;
+  if (!confirm(`Remove "${cur.name}" from the project list?\nThe folder ${cur.data_dir} and its files are NOT deleted; you can open it again later.`)) return;
+  await Promise.all(PANELS.map(p => p.flush()));
+  await api('/api/projects/forget', {method: 'POST', body: {data_dir: cur.data_dir}});
+  location.reload();
+};
+$('#proj-open-folder').onclick = () => api('/api/projects/open-folder', {method: 'POST'}).catch(e => toast(e.message, 'err'));
+
 // ===================================================================== tool 1
 $('#l2p-run').onclick = e => busy(e.target, async () => {
   await saveConfig();
@@ -526,6 +623,7 @@ $('#l2p-run').onclick = e => busy(e.target, async () => {
   renderOut($('#l2p-out'), r.plan, 'lit2plan.md');
   $('#l2p-exp').innerHTML = md(r.expansion);
   $('#l2p-meta').innerHTML = `Query expansion ${engineBadge(r.engines.query_expansion)} · Planner ${engineBadge(r.engines.lit2plan)} ${r.notes.map(n => '<br>⚠ ' + esc(n)).join('')}`;
+  await CHAT_L2P.newChat(true); toast('New follow-up chat started for this plan', 'ok');
 }, 'Researching…');
 
 // ===================================================================== tool 2
@@ -536,6 +634,7 @@ $('#exp-run').onclick = e => busy(e.target, async () => {
   EXP_CODE = r.code; EXP_DESIGN = r.design;
   renderOut($('#exp-out'), r.design, 'experiment_design.md');
   $('#exp-meta').innerHTML = `${engineBadge(r.engine)} ${r.note ? '⚠ ' + esc(r.note) : ''}`;
+  await CHAT_EXP.newChat(true); toast('New follow-up chat started for this design', 'ok');
 }, 'Designing…');
 $('#exp-dl-code').onclick = () => EXP_CODE ? download('experiment_skeleton.py', EXP_CODE, 'text/x-python') : (location.href = '/api/download/experiment_skeleton.py');
 $('#exp-to-paper').onclick = async () => {
@@ -628,48 +727,6 @@ $('#rm-save').onclick = async () => {
   try { await api('/api/references/' + encodeURIComponent(EDITING.file), {method: 'PUT', body}); $('#ref-modal').classList.remove('on'); loadLibrary(); }
   catch (e) { toast(e.message, 'err'); }
 };
-
-// ===================================================================== tool 3: chat
-let CHAT = [], ATTACH = null;
-function renderChat() {
-  if (!CHAT.length) return;
-  $('#msgs').innerHTML = CHAT.map((m, i) => m.role === 'user'
-    ? `<div class="msg user">${esc(m.content.length > 4000 ? m.content.slice(0, 4000) + '\n… [' + (m.content.length - 4000) + ' more chars]' : m.content)}</div>`
-    : `<div class="msg assistant"><div class="status" style="margin-bottom:6px">${engineBadge(m.engine)} ${m.note ? '⚠ ' + esc(m.note) : ''}</div><div class="md">${md(m.content)}</div>
-       ${(m.tables || []).map((t, j) => `<button class="btn small" data-addt="${i}:${j}" style="margin:6px 6px 0 0">➕ Add table ${j + 1} to paper</button>`).join('')}</div>`).join('');
-  $$('[data-addt]').forEach(b => b.onclick = async () => {
-    const [i, j] = b.dataset.addt.split(':').map(Number);
-    await api('/api/paper/tables', {method: 'POST', body: {latex: CHAT[i].tables[j]}});
-    b.textContent = '✓ Added'; b.disabled = true; toast('Table added to Paper Writer', 'ok');
-  });
-  $('#msgs').scrollTop = $('#msgs').scrollHeight;
-}
-$('#attach-btn').onclick = () => $('#attach-input').click();
-$('#attach-input').onchange = async e => {
-  const f = e.target.files[0]; if (!f) return;
-  let text = await f.text();
-  if (text.length > 60000) { text = text.slice(0, 60000); toast('File truncated to 60k characters', ''); }
-  ATTACH = {name: f.name, text}; $('#attach-info').textContent = `📎 ${f.name} (${text.length.toLocaleString()} chars) — will be sent with your message`;
-  e.target.value = '';
-};
-async function sendChat() {
-  let content = $('#chat-input').value.trim();
-  if (ATTACH) content = `${content || 'Parse this data into LaTeX tables.'}\n\n--- FILE: ${ATTACH.name} ---\n${ATTACH.text}`;
-  if (!content) return;
-  CHAT.push({role: 'user', content}); $('#chat-input').value = ''; ATTACH = null; $('#attach-info').textContent = '';
-  renderChat();
-  const btn = $('#chat-send');
-  await busy(btn, async () => {
-    try {
-      const r = await api('/api/chat', {method: 'POST', body: {messages: CHAT.map(m => ({role: m.role, content: m.content}))}});
-      CHAT.push({role: 'assistant', content: r.reply, tables: r.tables, engine: r.engine, note: r.note});
-    } catch (e) { CHAT.pop(); $('#chat-input').value = content; throw e; }
-    renderChat();
-  }, 'Thinking…').catch(() => renderChat());
-}
-$('#chat-send').onclick = sendChat;
-$('#chat-input').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) sendChat(); });
-$('#chat-clear').onclick = () => { CHAT = []; $('#msgs').innerHTML = '<div class="empty">Conversation cleared.</div>'; };
 
 // ===================================================================== tool 3: writer
 let PROJ = null, SECTIONS = [], SEL = null;
@@ -794,9 +851,260 @@ $('#mc-run').onclick = e => busy(e.target, async () => {
   const r = await api('/api/masterclass', {method: 'POST', body: {topic: $('#mc-topic').value, context: $('#mc-context').value}});
   renderOut($('#mc-out'), r.guide, 'masterclass_guide.md');
   $('#mc-meta').innerHTML = `${engineBadge(r.engine)} ${r.note ? '⚠ ' + esc(r.note) : ''}`;
+  await CHAT_MC.newChat(true); toast('New follow-up chat started for this guide', 'ok');
 }, 'Writing guide…');
 
+// ===================================================================== reusable chat panel (sessions + persistence + shared context)
+const CHAT_RESTORE = {value: true};
+class ChatPanel {
+  /** opts: {tool, endpoint, title, empty, placeholder, attach, tables, share, chips:[...], tall} */
+  constructor(root, opts) {
+    Object.assign(this, {root, o: opts, chat: [], sid: null, sessions: [], attachData: null, saveTimer: null});
+    const shareKey = 'share_' + opts.tool;
+    let shareOn = true; try { shareOn = localStorage.getItem(shareKey) !== '0'; } catch {}
+    root.innerHTML = `<div class="chatpanel ${opts.tall ? 'tall' : ''}">
+      ${opts.title ? `<div class="chathead"><b>${opts.title}</b><span class="status">${opts.subtitle || ''}</span></div>` : ''}
+      <div class="sessbar">
+        <select data-r="sel" title="Saved chat sessions of this tool"></select>
+        <button class="btn small" data-r="new">＋ New chat</button>
+        <button class="btn small" data-r="rename" title="Rename session">✎</button>
+        <button class="btn small danger" data-r="del" title="Delete session (moved to _trash)">🗑</button>
+        <button class="btn small" data-r="export" title="Export as Markdown">⬇</button>
+        <button class="btn small" data-r="notes" title="Shared context notes (📌) visible to all tools">📌 <span data-r="ncount">0</span></button>
+        <span style="flex:1"></span>
+        ${opts.share ? `<label class="chk" style="margin:0" title="Include the outputs, pinned notes and recent chats of the other tools"><input type="checkbox" data-r="share" ${shareOn ? 'checked' : ''}> 🔗 Share context with other tools</label>` : ''}
+        <label class="chk" style="margin:0" title="Global setting"><input type="checkbox" data-r="restore"> Auto-open last session</label>
+      </div>
+      ${(opts.chips || []).length ? `<div class="chips">${opts.chips.map((c, i) => `<button class="chip" data-chip="${i}">${esc(c)}</button>`).join('')}</div>` : ''}
+      <div class="msgs" data-r="msgs"></div>
+      <div class="composer">
+        <div class="attach" data-r="ainfo"></div>
+        <textarea data-r="input" placeholder="${esc(opts.placeholder || 'Ask a follow-up question…  (Ctrl+Enter to send)')}"></textarea>
+        <div class="row" style="margin-top:8px">
+          ${opts.attach ? `<button class="btn small" data-r="attach">📎 Attach data file</button><input type="file" data-r="afile" hidden accept=".csv,.txt,.log,.json,.tsv,.m,.dat,.out,.md,.yaml,.yml,.py,.tex">` : ''}
+          <button class="btn small" data-r="clear">Clear</button>
+          <span class="status" data-r="saved" style="flex:1;text-align:right;margin:0 8px"></span>
+          <button class="btn primary" data-r="send">Send</button>
+        </div>
+      </div></div>`;
+    this.r = {}; root.querySelectorAll('[data-r]').forEach(el => this.r[el.dataset.r] = el);
+    const R = this.r;
+    R.sel.onchange = e => e.target.value ? this.open(e.target.value).catch(err => toast(err.message, 'err')) : this.newChat();
+    R.new.onclick = () => this.newChat();
+    R.rename.onclick = () => this.rename();
+    R.del.onclick = () => this.remove();
+    R.export.onclick = () => this.exportMd();
+    R.notes.onclick = () => openNotes();
+    R.send.onclick = () => this.send();
+    R.clear.onclick = () => this.clearMsgs();
+    R.input.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) this.send(); });
+    R.restore.onchange = async e => {
+      CHAT_RESTORE.value = e.target.checked; PANELS.forEach(p => p.r.restore.checked = e.target.checked);
+      await api('/api/config', {method: 'POST', body: {chat_restore: e.target.checked}});
+      toast(e.target.checked ? 'Each tool reopens its last session on start' : 'Each tool starts a new chat on start', 'ok');
+    };
+    if (R.share) R.share.onchange = e => { try { localStorage.setItem(shareKey, e.target.checked ? '1' : '0'); } catch {} };
+    if (R.attach) {
+      R.attach.onclick = () => R.afile.click();
+      R.afile.onchange = async e => {
+        const f = e.target.files[0]; if (!f) return;
+        let text = await f.text();
+        if (text.length > 60000) { text = text.slice(0, 60000); toast('File truncated to 60k characters', ''); }
+        this.attachData = {name: f.name, text}; R.ainfo.textContent = `📎 ${f.name} (${text.length.toLocaleString()} chars) — will be sent with your message`;
+        e.target.value = '';
+      };
+    }
+    root.querySelectorAll('[data-chip]').forEach(b => b.onclick = () => { R.input.value = opts.chips[b.dataset.chip]; R.input.focus(); });
+  }
+  setSaved(text, cls = '') { this.r.saved.textContent = text; this.r.saved.className = 'status ' + cls; }
+  label(updated, count) { const t = updated ? new Date(updated).toLocaleString() : ''; return `💾 ${count} message(s) saved${t ? ' · ' + t : ''}`; }
+  scroll() { requestAnimationFrame(() => { this.r.msgs.scrollTop = this.r.msgs.scrollHeight; }); }
+  renderSelect() {
+    const opts = this.sessions.map(x => `<option value="${esc(x.id)}">${esc(x.title)} · ${x.count} msg · ${x.updated ? new Date(x.updated).toLocaleDateString() : ''}</option>`);
+    if (!this.sid) opts.unshift('<option value="">✨ New chat (saved after first message)</option>');
+    this.r.sel.innerHTML = opts.join('') || '<option value="">✨ New chat</option>';
+    this.r.sel.value = this.sid || '';
+    this.r.rename.disabled = this.r.del.disabled = !this.sid;
+  }
+  async refresh() {
+    const r = await api('/api/chat/sessions?tool=' + this.o.tool);
+    this.sessions = r.sessions; CHAT_RESTORE.value = r.restore; this.r.restore.checked = r.restore; this.renderSelect();
+    return r;
+  }
+  async init() {
+    try {
+      const r = await this.refresh();
+      const target = r.active || (r.sessions[0] && r.sessions[0].id);
+      if (r.restore && target) await this.open(target); else await this.newChat(true);
+    } catch (e) { this.setSaved('⚠ Could not load saved chats: ' + e.message, 'err'); }
+  }
+  async open(sid) {
+    await this.flush();
+    const d = await api('/api/chat/sessions/' + encodeURIComponent(sid));
+    this.sid = d.id; this.chat = d.messages || []; this.render(); this.renderSelect();
+    this.setSaved(this.label(d.updated, this.chat.length) + (d.context ? ' · 📄 context snapshot' : ''), 'ok');
+  }
+  async newChat(silent) {
+    await this.flush();
+    this.sid = null; this.chat = []; this.render(); this.renderSelect();
+    this.setSaved('✨ New chat — saved automatically after your first message');
+    if (!silent && this.o.onNew) this.o.onNew();
+  }
+  async ensure() {
+    if (this.sid) return this.sid;
+    const d = await api('/api/chat/sessions', {method: 'POST', body: {tool: this.o.tool, messages: this.chat}});
+    this.sid = d.id; await this.refresh();
+    return this.sid;
+  }
+  persist(immediate = false) {
+    clearTimeout(this.saveTimer); this.saveTimer = null;
+    if (!this.sid && !this.chat.length) return Promise.resolve();
+    const run = async () => {
+      try {
+        const sid = await this.ensure();
+        const r = await fetch('/api/chat/sessions/' + encodeURIComponent(sid), {method: 'PUT', keepalive: true,
+          headers: {'Content-Type': 'application/json'}, body: JSON.stringify({messages: this.chat})});
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const d = await r.json(); this.setSaved(this.label(d.updated, d.count), 'ok');
+        const m = this.sessions.find(x => x.id === sid);
+        if (m) { Object.assign(m, {title: d.title, count: d.count, updated: d.updated}); this.renderSelect(); }
+      } catch (e) { this.setSaved('⚠ Not saved: ' + e.message, 'err'); }
+    };
+    if (immediate) return run();
+    this.setSaved('💾 Saving…'); this.saveTimer = setTimeout(run, 400);
+    return Promise.resolve();
+  }
+  async flush() { if (this.saveTimer) await this.persist(true); }
+  render() {
+    const R = this.r;
+    if (!this.chat.length) { R.msgs.innerHTML = `<div class="empty">${this.o.empty || 'Ask anything about the output above.'}</div>`; return; }
+    R.msgs.innerHTML = this.chat.map((m, i) => m.role === 'user'
+      ? `<div class="msg user">${esc(m.content.length > 4000 ? m.content.slice(0, 4000) + '\n… [' + (m.content.length - 4000) + ' more chars]' : m.content)}</div>`
+      : `<div class="msg assistant" data-i="${i}"><div class="status msghead">${engineBadge(m.engine)} ${m.ts ? esc(new Date(m.ts).toLocaleString()) : ''} ${m.note ? '⚠ ' + esc(m.note) : ''}
+           <span style="flex:1"></span><button class="btn small" data-pin="${i}" title="Pin this answer (or the text you selected in it) to the shared context of all tools">📌 Pin</button>
+           <button class="btn small" data-copy="${i}">Copy</button></div><div class="md">${md(m.content)}</div>
+         ${this.o.tables ? (m.tables || []).map((t, j) => (m.added || []).includes(j)
+           ? `<button class="btn small" disabled style="margin:6px 6px 0 0">✓ Table ${j + 1} added</button>`
+           : `<button class="btn small" data-addt="${i}:${j}" style="margin:6px 6px 0 0">➕ Add table ${j + 1} to paper</button>`).join('') : ''}</div>`).join('');
+    R.msgs.querySelectorAll('[data-addt]').forEach(b => b.onclick = async () => {
+      const [i, j] = b.dataset.addt.split(':').map(Number);
+      await api('/api/paper/tables', {method: 'POST', body: {latex: this.chat[i].tables[j]}});
+      this.chat[i].added = [...new Set([...(this.chat[i].added || []), j])];
+      this.render(); this.persist(); toast('Table added to Paper Writer', 'ok');
+    });
+    R.msgs.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => { navigator.clipboard.writeText(this.chat[b.dataset.copy].content); toast('Copied', 'ok'); });
+    R.msgs.querySelectorAll('[data-pin]').forEach(b => b.onclick = async () => {
+      const box = b.closest('.msg'); const sel = window.getSelection();
+      const picked = sel && sel.toString().trim() && box.contains(sel.anchorNode) ? sel.toString().trim() : this.chat[b.dataset.pin].content;
+      const title = (this.sessions.find(x => x.id === this.sid) || {}).title || '';
+      await api('/api/context/notes', {method: 'POST', body: {tool: this.o.tool, text: picked.slice(0, 6000), source: title}});
+      refreshNoteCount(); toast('📌 Pinned to shared context — all tools can now use it', 'ok');
+    });
+    this.scroll();
+  }
+  async send() {
+    const R = this.r;
+    let content = R.input.value.trim();
+    if (this.attachData) content = `${content || 'Parse this data into LaTeX tables.'}\n\n--- FILE: ${this.attachData.name} ---\n${this.attachData.text}`;
+    if (!content) return;
+    this.chat.push({role: 'user', content, ts: new Date().toISOString()});
+    R.input.value = ''; this.attachData = null; R.ainfo.textContent = '';
+    this.render();
+    await busy(R.send, async () => {
+      await this.persist(true);  // save the question first; it can never overwrite the saved answer
+      try {
+        const body = {messages: this.chat, session_id: this.sid, tool: this.o.tool, share: R.share ? R.share.checked : false};
+        const r = await api(this.o.endpoint, {method: 'POST', body});
+        this.chat.push({role: 'assistant', content: r.reply, tables: r.tables || [], engine: r.engine, note: r.note, added: [], ts: new Date().toISOString()});
+        if (r.session) { this.sid = r.session.id; this.setSaved(this.label(r.session.updated, r.session.count) + (r.shared ? ' · 🔗 shared context used' : ''), 'ok'); this.refresh(); }
+      } catch (e) { this.chat.pop(); R.input.value = content; this.persist(); throw e; }
+      this.render();
+    }, 'Thinking…').catch(() => this.render());
+  }
+  async clearMsgs() {
+    if (!this.chat.length || !confirm('Clear all messages in this session? (Use "＋ New chat" to keep it and start another.)')) return;
+    this.chat = []; this.render(); await this.persist(true);
+  }
+  async rename() {
+    const cur = this.sessions.find(x => x.id === this.sid); if (!cur) return;
+    const title = prompt('Session name:', cur.title); if (!title || !title.trim()) return;
+    await api('/api/chat/sessions/' + encodeURIComponent(this.sid), {method: 'PUT', body: {title}});
+    await this.refresh(); toast('Session renamed', 'ok');
+  }
+  async remove() {
+    const cur = this.sessions.find(x => x.id === this.sid); if (!cur) return;
+    if (!confirm(`Delete "${cur.title}"? It is moved to data/workspace/chat_sessions/_trash/.`)) return;
+    clearTimeout(this.saveTimer); this.saveTimer = null;
+    const r = await api('/api/chat/sessions/' + encodeURIComponent(this.sid), {method: 'DELETE'});
+    this.sid = null; await this.refresh();
+    if (r.active) await this.open(r.active); else await this.newChat(true);
+  }
+  exportMd() {
+    if (!this.chat.length) return toast('Nothing to export yet', 'err');
+    const title = (this.sessions.find(x => x.id === this.sid) || {}).title || 'chat';
+    const body = this.chat.map(m => `### ${m.role === 'user' ? '🧑 You' : '🤖 AI' + (m.engine ? ' (' + m.engine + ')' : '')}${m.ts ? ' — ' + new Date(m.ts).toLocaleString() : ''}\n\n${m.content}`).join('\n\n---\n\n');
+    download(`chat-${this.o.tool}-${title.replace(/[^\w\- ]+/g, '').slice(0, 40).trim() || 'session'}.md`, `# ${title}\n\n${body}\n`, 'text/markdown');
+  }
+}
+
+// ---- shared context notes (📌) modal
+const TOOL_NAMES = {lit2plan: 'Tool 1 · Lit2Plan', experiment: 'Tool 2 · Experiment', data: 'Tool 3 · Data chat', paper: 'Tool 3 · Paper', masterclass: 'Tool 4 · Masterclass'};
+async function refreshNoteCount() {
+  try { const {notes} = await api('/api/context/notes'); PANELS.forEach(p => p.r.ncount.textContent = notes.length); return notes; } catch { return []; }
+}
+async function openNotes() {
+  const notes = await refreshNoteCount();
+  $('#notes-list').innerHTML = notes.length ? notes.slice().reverse().map(n => `<div class="note">
+      <div class="status msghead"><span class="badge">${esc(TOOL_NAMES[n.tool] || n.tool)}</span> ${esc(n.source || '')} · ${esc(new Date(n.ts).toLocaleString())}
+      <span style="flex:1"></span><button class="btn small danger" data-delnote="${esc(n.id)}">✕</button></div><div class="md">${md(n.text)}</div></div>`).join('')
+    : '<div class="empty">No pinned notes yet. Use 📌 Pin on any AI answer — or select part of an answer first — to share it with every tool.</div>';
+  $$('[data-delnote]').forEach(b => b.onclick = async () => { await api('/api/context/notes/' + b.dataset.delnote, {method: 'DELETE'}); openNotes(); });
+  $('#notes-modal').classList.add('on');
+}
+$('#notes-close').onclick = () => $('#notes-modal').classList.remove('on');
+$('#notes-add').onclick = async () => {
+  const text = $('#notes-text').value.trim(); if (!text) return;
+  await api('/api/context/notes', {method: 'POST', body: {tool: 'data', text, source: 'manual note'}});
+  $('#notes-text').value = ''; openNotes();
+};
+
+const PANELS = [];
+function mountChat(id, opts) { const p = new ChatPanel($(id), opts); PANELS.push(p); return p; }
+const CHAT_L2P = mountChat('#chat-lit2plan', {tool: 'lit2plan', endpoint: '/api/tool-chat', share: true,
+  title: '💬 Follow-up chat — deepen the research direction', subtitle: 'context: the plan above + other tools',
+  empty: 'Ask about the plan: challenge a hypothesis, compare gaps, refine the roadmap…',
+  chips: ['Which gap is the most publishable, and why?', 'Critique hypothesis H1 like a tough IEEE reviewer', 'Turn Month 1 into a week-by-week task plan', 'Propose 2 alternative research directions and compare them']});
+const CHAT_EXP = mountChat('#chat-experiment', {tool: 'experiment', endpoint: '/api/tool-chat', share: true, attach: true,
+  title: '💬 Follow-up chat — refine the methodology', subtitle: 'context: design + skeleton code + other tools',
+  empty: 'Ask about the maths, ablations, statistics or code. You can attach logs or a .py file.',
+  chips: ['Is this ablation design sufficient? What is missing?', 'Which statistical test should I use, and how?', 'Modify experiment_skeleton.py to add a new baseline', 'Estimate the compute budget for the full study']});
+const CHAT_DATA = mountChat('#chat-data', {tool: 'data', endpoint: '/api/chat', attach: true, tables: true, tall: true,
+  placeholder: 'Paste raw data or ask a question…  (Ctrl+Enter to send)',
+  empty: 'Paste training logs, CSV metrics, ablation results or SystemC-AMS / MATLAB output. The Data Extractor turns them into publication-ready LaTeX tables you can push into the paper.'});
+const CHAT_PAPER = mountChat('#chat-paper', {tool: 'paper', endpoint: '/api/tool-chat', share: true,
+  title: '💬 Paper chat — co-author & reviewer discussion', subtitle: 'context: main.tex + peer review + other tools',
+  empty: 'Discuss the manuscript and the review; ask for exact LaTeX replacements.',
+  chips: ["Summarise the reviewer's major issues and a fix plan", 'Which claims are not supported by the results?', 'Strengthen the contribution bullets in the Introduction', 'Draft a point-by-point response to the reviewer']});
+const CHAT_MC = mountChat('#chat-masterclass', {tool: 'masterclass', endpoint: '/api/tool-chat', share: true,
+  title: '💬 Follow-up chat — ask your mentor', subtitle: 'context: the guide above + other tools',
+  empty: 'Ask follow-up questions, or ask the mentor to role-play an examiner or reviewer.',
+  chips: ['Role-play: be my thesis examiner and ask 5 hard questions', 'Adapt the templates to my exact situation', 'Make a 2-week action checklist', 'What are the most common mistakes at this stage?']});
+
+// ---- restore the last output of Tools 1, 2 and 4 after a refresh
+async function restoreOutputs() {
+  try {
+    const [a, b, c] = await Promise.all(['lit2plan', 'experiment', 'masterclass'].map(t => api('/api/tool/output/' + t)));
+    if (a.content) renderOut($('#l2p-out'), a.content, 'lit2plan.md');
+    if (b.content) { EXP_DESIGN = b.content; const m = b.content.match(/```python\n([\s\S]*?)```/); EXP_CODE = m ? m[1] : ''; renderOut($('#exp-out'), b.content, 'experiment_design.md'); }
+    if (c.content) { renderOut($('#mc-out'), c.content, 'masterclass_guide.md'); if (c.topic && !$('#mc-topic').value) $('#mc-topic').value = c.topic; }
+  } catch {}
+}
+
 loadConfig().catch(e => toast('Backend not reachable: ' + e.message, 'err'));
+loadProjects();
+restoreOutputs();
+PANELS.forEach(p => p.init());  // reopen each tool's last session (if 'Auto-open' is on)
+refreshNoteCount();
 </script>
 </body>
 </html>

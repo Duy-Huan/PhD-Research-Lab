@@ -4,3 +4,5 @@ data/config.json
 data/library.json
 data/workspace/*
 references/*.pdf
+projects/
+data/project_meta.json

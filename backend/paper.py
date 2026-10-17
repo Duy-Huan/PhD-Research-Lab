@@ -7,10 +7,9 @@ import re
 import zipfile
 from datetime import date
 
-from .config import WORKSPACE, refs_dir
+from .config import refs_dir, workspace
 from .library import build_bibtex, included
 
-PROJECT_PATH = WORKSPACE / "project.json"
 
 SECTIONS = [
     ("abstract", "Abstract"),
@@ -33,25 +32,26 @@ DEFAULT_PROJECT = {
 # ---------------------------------------------------------------- state
 def load_project() -> dict:
     p = dict(DEFAULT_PROJECT)
-    if PROJECT_PATH.exists():
+    pp = workspace() / "project.json"
+    if pp.exists():
         try:
-            p.update(json.loads(PROJECT_PATH.read_text("utf-8")))
+            p.update(json.loads(pp.read_text("utf-8")))
         except Exception:
             pass
     return p
 
 
 def save_project(p: dict) -> dict:
-    PROJECT_PATH.write_text(json.dumps(p, indent=2, ensure_ascii=False), "utf-8")
+    (workspace() / "project.json").write_text(json.dumps(p, indent=2, ensure_ascii=False), "utf-8")
     return p
 
 
 def write_ws(name: str, text: str) -> None:
-    (WORKSPACE / name).write_text(text, "utf-8")
+    (workspace() / name).write_text(text, "utf-8")
 
 
 def read_ws(name: str) -> str:
-    f = WORKSPACE / name
+    f = workspace() / name
     return f.read_text("utf-8") if f.exists() else ""
 
 

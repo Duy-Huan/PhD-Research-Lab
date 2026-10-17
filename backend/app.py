@@ -2,6 +2,7 @@
 
 Run:  python -m uvicorn backend.app:app --host 127.0.0.1 --port 8765
 """
+import json
 import os
 import re
 import sys
@@ -12,9 +13,13 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Response
 
 from . import prompts
-from .config import APP_VERSION, ROOT, load_config, public_config, refs_dir, save_config
+from .config import (APP_VERSION, ROOT, activate_project, create_project, data_dir, forget_project, list_projects,
+                     load_config, open_project, public_config, refs_dir, rename_project, save_config)
 from .library import (PDF_BACKEND, build_bibtex, first_pages_text, included, load_library,
                       merge_llm_metadata, reference_digest, save_library, scan_directory)
+from .context_hub import add_note, build_shared_context, delete_note, load_notes, tool_output
+from .chat_store import (TOOLS, SessionNotFound, create_session, delete_session, get_active, list_sessions,
+                         load_session, record_turn, save_session)
 from .llm import (LLMError, call_agent, cloud_chat, extract_json, list_local_models, list_provider_models,
                   provider_settings, strip_fences)
 from .paper import (SECTION_TITLES, SECTIONS, assemble, build_zip, clean_section,
@@ -65,15 +70,69 @@ async def local_models():
     return {"models": await list_local_models(cfg["lmstudio_base_url"])}
 
 
-@app.post("/api/references/open")
-def open_refs_folder():
-    path = refs_dir()
+def _open_in_explorer(path) -> None:
     if sys.platform.startswith("win"):
         os.startfile(str(path))  # type: ignore[attr-defined]
     elif sys.platform == "darwin":
         os.system(f'open "{path}"')
     else:
         os.system(f'xdg-open "{path}" >/dev/null 2>&1 &')
+
+
+@app.post("/api/references/open")
+def open_refs_folder():
+    path = refs_dir()
+    _open_in_explorer(path)
+    return {"path": str(path)}
+
+
+# ================================================================ research projects
+def _project_call(fn, *args):
+    try:
+        return fn(*args)
+    except (ValueError, FileNotFoundError, OSError) as e:
+        raise HTTPException(400, str(e))
+
+
+@app.get("/api/projects")
+def projects():
+    """All registered research projects; each has its own data folder and references folder."""
+    return {"projects": list_projects()}
+
+
+@app.post("/api/projects")
+def projects_create(body: dict = Body(...)):
+    """New project: {name, data_dir?, references_dir?}. Becomes the active project."""
+    return _project_call(create_project, body.get("name", ""), body.get("data_dir"), body.get("references_dir"))
+
+
+@app.post("/api/projects/open")
+def projects_open(body: dict = Body(...)):
+    """Register an existing project folder (e.g. copied from another PC) and activate it."""
+    return _project_call(open_project, body.get("data_dir", ""))
+
+
+@app.post("/api/projects/activate")
+def projects_activate(body: dict = Body(...)):
+    return _project_call(activate_project, body.get("data_dir", ""))
+
+
+@app.put("/api/projects/rename")
+def projects_rename(body: dict = Body(...)):
+    return _project_call(rename_project, body.get("data_dir", ""), body.get("name", ""))
+
+
+@app.post("/api/projects/forget")
+def projects_forget(body: dict = Body(...)):
+    """Remove from the list only - no files are deleted."""
+    _project_call(forget_project, body.get("data_dir", ""))
+    return {"projects": list_projects()}
+
+
+@app.post("/api/projects/open-folder")
+def projects_open_folder():
+    path = data_dir()
+    _open_in_explorer(path)
     return {"path": str(path)}
 
 
@@ -229,16 +288,138 @@ def download(name: str):
 # ================================================================ Tool 3: chat console
 @app.post("/api/chat")
 async def chat(body: dict = Body(...)):
-    msgs = [m for m in body.get("messages", []) if m.get("role") in ("user", "assistant") and m.get("content")]
-    if not msgs or msgs[-1]["role"] != "user":
+    history = [m for m in body.get("messages", []) if m.get("role") in ("user", "assistant") and m.get("content")]
+    if not history or history[-1]["role"] != "user":
         raise HTTPException(400, "Last message must be from the user")
-    msgs = msgs[-12:]
+    msgs = []  # LLM context window: last 12 messages, consecutive same-role turns merged
+    for m in history[-12:]:  # (a question left unanswered by a refresh would otherwise break role alternation)
+        if msgs and msgs[-1]["role"] == m["role"]:
+            msgs[-1]["content"] += "\n\n" + m["content"]
+        else:
+            msgs.append({"role": m["role"], "content": m["content"]})
     if msgs[0]["role"] != "user":
         msgs = msgs[1:]
     system = prompts.DATA_EXTRACTOR_SYS + "\n\nLOCAL LIBRARY:\n" + reference_digest(included()[:30], 200)
     r = await call_agent("data_extractor", system, messages=msgs, max_tokens=6000, temperature=0.1)
     tables = re.findall(r"\\begin\{table\*?\}.*?\\end\{table\*?\}", r["text"], flags=re.S)
-    return {"reply": r["text"], "tables": tables, "engine": r["engine"], "note": r["note"]}
+    reply = {"content": r["text"], "tables": tables, "engine": r["engine"], "note": r["note"]}
+    # Session persistence: save the completed Q&A turn to data/workspace/chat_sessions/<id>.json
+    sid = body.get("session_id") or get_active("data") or create_session(tool="data")["id"]
+    saved = await run_in_threadpool(record_turn, sid, history, reply)
+    return {"reply": r["text"], "tables": tables, "engine": r["engine"], "note": r["note"],
+            "session": {"id": sid, "title": saved["title"], "updated": saved["updated"], "count": len(saved["messages"])}}
+
+
+@app.exception_handler(SessionNotFound)
+async def session_not_found(_, exc):
+    return JSONResponse(status_code=404, content={"detail": f"Chat session not found: {exc}"})
+
+
+@app.get("/api/chat/sessions")
+def chat_sessions(tool: str = "data"):
+    """Saved conversations of one tool (newest first) and its active one."""
+    if tool not in TOOLS:
+        raise HTTPException(400, f"Unknown tool {tool}")
+    return {"tool": tool, "active": get_active(tool), "sessions": list_sessions(tool),
+            "restore": load_config().get("chat_restore", True)}
+
+
+@app.post("/api/chat/sessions")
+def chat_session_create(body: dict = Body(default={})):
+    """New session. For Tools 1/2/4 the current tool output is snapshotted as the session context."""
+    tool = body.get("tool", "data")
+    if tool not in TOOLS:
+        raise HTTPException(400, f"Unknown tool {tool}")
+    context = tool_output(tool)["content"] if tool in ("lit2plan", "experiment", "masterclass") else ""
+    return create_session(body.get("title"), body.get("messages"), tool=tool, context=context)
+
+
+# ================================================================ follow-up chats for Tools 1-4
+def _recent_sessions(exclude: str) -> dict:
+    out = {}
+    for t in TOOLS:
+        sid = get_active(t)
+        if t != exclude and sid:
+            try:
+                out[t] = load_session(sid, activate=False)["messages"]
+            except SessionNotFound:
+                pass
+    return out
+
+
+@app.post("/api/tool-chat")
+async def tool_chat(body: dict = Body(...)):
+    """Follow-up chat about a tool's output, optionally sharing context with the other tools."""
+    tool = body.get("tool")
+    if tool not in prompts.TOOL_CHAT_SYS:
+        raise HTTPException(400, f"Unknown tool {tool}")
+    history = [m for m in body.get("messages", []) if m.get("role") in ("user", "assistant") and m.get("content")]
+    if not history or history[-1]["role"] != "user":
+        raise HTTPException(400, "Last message must be from the user")
+    sid = body.get("session_id")
+    if not sid:
+        sid = create_session(tool=tool, context=tool_output(tool)["content"] if tool != "paper" else "")["id"]
+    sess = load_session(sid, activate=False)
+    own = sess.get("context") or tool_output(tool)["content"]  # snapshot first, else latest output
+    own = own[:40000] + ("\n…[truncated]" if len(own) > 40000 else "")
+    shared = build_shared_context(tool, _recent_sessions(tool)) if body.get("share", True) else ""
+    system = prompts.tool_chat_system(tool, own, shared, reference_digest(included()[:30], 250))
+    msgs = []
+    for m in history[-16:]:
+        if msgs and msgs[-1]["role"] == m["role"]:
+            msgs[-1]["content"] += "\n\n" + m["content"]
+        else:
+            msgs.append({"role": m["role"], "content": m["content"]})
+    if msgs[0]["role"] != "user":
+        msgs = msgs[1:]
+    r = await call_agent(f"chat_{tool}", system, messages=msgs, max_tokens=6000, temperature=0.4)
+    reply = {"content": r["text"], "tables": [], "engine": r["engine"], "note": r["note"]}
+    saved = await run_in_threadpool(record_turn, sid, history, reply)
+    return {"reply": r["text"], "tables": [], "engine": r["engine"], "note": r["note"], "shared": bool(shared),
+            "session": {"id": sid, "title": saved["title"], "updated": saved["updated"], "count": len(saved["messages"])}}
+
+
+@app.get("/api/tool/output/{tool}")
+def get_tool_output(tool: str):
+    """Last saved output of a tool, so the UI can restore it after a refresh."""
+    return tool_output(tool)
+
+
+@app.get("/api/context/notes")
+def get_notes():
+    return {"notes": load_notes()}
+
+
+@app.post("/api/context/notes")
+def post_note(body: dict = Body(...)):
+    if not str(body.get("text", "")).strip():
+        raise HTTPException(400, "Empty note")
+    return add_note(body.get("tool", "data"), body["text"], body.get("source", ""))
+
+
+@app.delete("/api/context/notes/{note_id}")
+def remove_note(note_id: str):
+    delete_note(note_id)
+    return {"deleted": note_id}
+
+
+@app.get("/api/chat/sessions/{sid}")
+def chat_session_get(sid: str):
+    """Open a conversation (also marks it as the active one)."""
+    return load_session(sid)
+
+
+@app.put("/api/chat/sessions/{sid}")
+def chat_session_put(sid: str, body: dict = Body(...)):
+    """Background save of messages and/or rename."""
+    d = save_session(sid, body.get("messages"), body.get("title"))
+    return {"id": sid, "title": d["title"], "updated": d["updated"], "count": len(d["messages"])}
+
+
+@app.delete("/api/chat/sessions/{sid}")
+def chat_session_delete(sid: str):
+    """Move a conversation to chat_sessions/_trash/ (recoverable)."""
+    return {"deleted": sid, "active": delete_session(sid)}
 
 
 # ================================================================ Tool 3: paper pipeline
@@ -363,4 +544,6 @@ async def masterclass(body: dict = Body(...)):
         raise HTTPException(400, "Topic required")
     user = f"MILESTONE: {topic}\n\nRESEARCHER CONTEXT:\n{body.get('context') or '(none provided)'}"
     r = await call_agent("masterclass", prompts.MASTERCLASS_SYS, user, max_tokens=8000, temperature=0.4)
+    write_ws("masterclass_guide.md", r["text"])
+    write_ws("masterclass_meta.json", json.dumps({"topic": topic, "context": body.get("context", "")}, ensure_ascii=False))
     return {"guide": r["text"], "engine": r["engine"], "note": r["note"]}

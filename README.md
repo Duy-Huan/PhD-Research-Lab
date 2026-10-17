@@ -1,4 +1,4 @@
-# PhD Interactive Autonomous Research Lab — v1.2.0
+# PhD Interactive Autonomous Research Lab — v1.6.0
 
 A local desktop web app for Windows 11 that runs an end-to-end research workflow on a **hybrid AI architecture**: any of 14 cloud AI providers for deep reasoning and academic writing, plus local models in **LM Studio** (`http://localhost:1234/v1`) for fast, private, zero-cost extraction work.
 
@@ -49,6 +49,20 @@ Settings live in `data/config.json` (plain text on your machine — keep the fol
 
 ---
 
+## 3b. Research projects (v1.6)
+One installation can hold any number of research projects. The **📂 Research project** box at the top of the sidebar switches between them; the active one is shown at the top right.
+
+| Per project (separate) | Shared by all projects |
+|---|---|
+| Data folder: `workspace/` (paper, outputs, chat sessions, 📌 notes), `library.json`, `project_meta.json` | API keys, providers, models |
+| References folder (full-text PDFs) — default `<data folder>/references`, or any folder you choose | Agent engine choices, LM Studio settings |
+
+- **＋ New** — name + optional data/references folders (default `projects/<name>/`).
+- **📂 Open…** — register an existing project folder, e.g. one copied from another PC or a shared drive.
+- **✎** rename · **✕** remove from the list (files are never deleted) · **↗** open the folder in Explorer.
+- Your previous data (`data/` + `references/`) becomes the **★ Default project** automatically.
+- A project folder is self-contained (references are stored relative to it when inside), so you can zip, back up or move it as a whole.
+
 ## 4. Workflows
 
 ### 🛠️ Tool 1 — Lit2Plan & Research Direction Architect
@@ -59,7 +73,7 @@ Novelty + domain (hyperspectral, FOG signals, RISC-V SoC, …) → formulation i
 
 ### 📚 Tool 3 — Papers & Writer
 1. **Reference Library** — drag-and-drop full-text PDFs from IEEE Xplore / ACM DL (or copy them into the folder and *Rescan*). The PDF engine (PyMuPDF if available, otherwise pure-Python pypdf) extracts embedded metadata, the title (largest font on page 1), abstract, DOI and year; the local model then refines this into clean structured metadata. Edit any field, lock a custom BibTeX key, or exclude a paper.
-2. **Data Chat Console** — paste or attach training logs, CSVs, ablation results, SystemC-AMS / MATLAB output. The Data Extractor returns booktabs LaTeX tables (best values bolded, mean ± std) + factual observations. *➕ Add table to paper*.
+2. **Data Chat Console** — paste or attach training logs, CSVs, ablation results, SystemC-AMS / MATLAB output. The Data Extractor returns booktabs LaTeX tables (best values bolded, mean ± std) + factual observations. *➕ Add table to paper*. **Chat sessions** are saved automatically (one file per conversation in `data/workspace/chat_sessions/`). Use the session bar to switch, start a **＋ New chat**, rename, export to Markdown or delete (moved to `_trash/`). *Auto-open last session on start* decides whether the app reopens your last conversation or starts a fresh one.
 3. **Paper Writer Pipeline**
    - **3.1 BibTeX Extractor** (local) — normalises every included PDF and writes `references.bib` (deterministic formatting, unique keys like `smith2023spectral`).
    - **3.2 Academic Author** (Claude) — drafts Introduction, Related Work, Methodology, Experiments & Results, Discussion, Conclusion, then the Abstract, in raw LaTeX with `\cite{key}` only from `references.bib`.
@@ -71,6 +85,14 @@ Novelty + domain (hyperspectral, FOG signals, RISC-V SoC, …) → formulation i
 
 ### 📖 Tool 4 — Masterclass
 Rebuttal letters, major revisions, grant writing, thesis defense, qualifying exams, PRISMA reviews, venue choice, reproducibility packages, job applications — tailored to the context you provide.
+
+### 💬 Follow-up chats & Shared Context Hub (v1.5)
+Every tool has its own **follow-up chat** under its output — Tool 1 (plan), Tool 2 (methodology + code), Tool 3 (Data chat and Paper chat on `main.tex` + review), Tool 4 (mentor). Each tool keeps its own list of saved sessions (switch, new, rename, delete, export).
+- **Context snapshot:** a session remembers the tool output it was started on; generating a new output automatically starts a new follow-up session, while old sessions keep their original context.
+- **🔗 Share context with other tools** (per tool, on by default): the chat also receives the latest outputs of the other tools, the recent messages of their active chats, and all pinned notes.
+- **📌 Pin:** pin any AI answer — or just the text you selected in it — to the shared context; manage notes from the 📌 button. Pinned notes have the highest priority in every tool's chat.
+- Each chat's engine (cloud provider or local) is set in the sidebar like any other agent ("💬 Chat · Tool N").
+- Tool 1/2/4 outputs are restored after a refresh.
 
 ---
 
