@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PhD Research Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<style>
+:root{
+  --bg:#0f1216; --panel:#161a20; --panel2:#1c212a; --line:#2a313c; --text:#e6e9ee; --muted:#8d97a6;
+  --accent:#d9a441; --accent2:#5fa8d3; --ok:#5cb87a; --err:#e06c6c; --cloud:#5fa8d3; --local:#9b7fe0;
+  --radius:10px; --mono:'IBM Plex Mono',Consolas,monospace; --sans:'IBM Plex Sans','Segoe UI',sans-serif;
+  --serif:'Source Serif 4',Georgia,serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:14px/1.55 var(--sans)}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{display:grid;grid-template-columns:320px 1fr;height:100vh}
+aside{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:18px 16px 40px}
+.brand{font-family:var(--serif);font-size:20px;font-weight:700;line-height:1.2;margin-bottom:2px}
+.brand span{color:var(--accent)}
+.sub{color:var(--muted);font-size:12px;margin-bottom:18px}
+h3{font-family:var(--serif);font-size:15px;margin:20px 0 8px;color:var(--accent);font-weight:600;letter-spacing:.2px}
+label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
+input[type=text],input[type=password],select,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:80px;font-family:var(--sans)}
+textarea.code{font-family:var(--mono);font-size:12.5px;line-height:1.5}
+.row{display:flex;gap:8px;align-items:center}
+.row>*{flex:1}
+.btn{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;white-space:nowrap;flex:0 0 auto}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#1a1405;font-weight:600}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.small{padding:4px 9px;font-size:12px}
+.btn.danger:hover{border-color:var(--err);color:var(--err)}
+.btn:disabled{opacity:.5;cursor:wait}
+.agent{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line);font-size:12.5px}
+.provlist{border:1px solid var(--line);border-radius:8px;max-height:230px;overflow-y:auto}
+.prov{display:flex;gap:6px;align-items:center;padding:6px 9px;font-size:12.5px;cursor:pointer;border-bottom:1px solid var(--line)}
+.prov:last-child{border-bottom:0}
+.prov span:first-child{flex:1}
+.prov:hover{background:var(--panel2)} .prov.sel{background:var(--panel2);box-shadow:inset 3px 0 0 var(--accent)}
+.agent select{width:auto;max-width:150px;padding:3px 6px;font-size:11.5px}
+.seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;flex:0 0 auto}
+.seg button{background:none;border:0;padding:3px 9px;font-size:11.5px;cursor:pointer;color:var(--muted)}
+.seg button.on.cloud{background:var(--cloud);color:#06121a}
+.seg button.on.local{background:var(--local);color:#120a20}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted);margin-right:6px}
+.dot.ok{background:var(--ok)} .dot.err{background:var(--err)}
+.status{font-size:12px;color:var(--muted);margin-top:6px;word-break:break-word}
+main{display:flex;flex-direction:column;min-width:0}
+nav{display:flex;gap:2px;padding:0 18px;border-bottom:1px solid var(--line);background:var(--panel);overflow-x:auto}
+nav button{background:none;border:0;border-bottom:2px solid transparent;padding:14px 14px 12px;cursor:pointer;color:var(--muted);white-space:nowrap}
+nav button.on{color:var(--text);border-bottom-color:var(--accent)}
+.tab{display:none;padding:22px 26px 60px;overflow-y:auto;flex:1}
+.tab.on{display:block}
+.tab h2{font-family:var(--serif);font-size:24px;margin:0 0 4px}
+.lead{color:var(--muted);margin:0 0 18px;max-width:900px}
+.grid2{display:grid;grid-template-columns:minmax(320px,420px) 1fr;gap:20px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.card h4{margin:0 0 10px;font-size:14px}
+.out{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;min-height:200px}
+.out .toolbar{display:flex;gap:6px;justify-content:flex-end;margin:-6px -8px 8px}
+.empty{color:var(--muted);text-align:center;padding:60px 10px}
+.md h1,.md h2,.md h3{font-family:var(--serif);color:var(--text)}
+.md h2{font-size:19px;border-bottom:1px solid var(--line);padding-bottom:4px;margin-top:26px}
+.md h3{font-size:16px;color:var(--text)}
+.md table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13px;display:block;overflow-x:auto}
+.md th,.md td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+.md th{background:var(--panel2)}
+.md code{font-family:var(--mono);background:var(--bg);padding:1px 5px;border-radius:4px;font-size:12.5px}
+.md pre{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px;overflow-x:auto}
+.md pre code{background:none;padding:0}
+.md a{color:var(--accent2)}
+.badge{display:inline-block;font-size:11px;padding:1px 7px;border-radius:20px;border:1px solid var(--line);color:var(--muted)}
+.badge.cloud{border-color:var(--cloud);color:var(--cloud)} .badge.local{border-color:var(--local);color:var(--local)}
+.badge.ok{border-color:var(--ok);color:var(--ok)} .badge.warn{border-color:var(--accent);color:var(--accent)}
+.drop{border:2px dashed var(--line);border-radius:var(--radius);padding:26px;text-align:center;color:var(--muted);cursor:pointer;transition:.15s}
+.drop.over,.drop:hover{border-color:var(--accent);color:var(--text);background:rgba(217,164,65,.05)}
+table.lib{width:100%;border-collapse:collapse;font-size:13px}
+table.lib th{text-align:left;color:var(--muted);font-weight:500;padding:8px 6px;border-bottom:1px solid var(--line)}
+table.lib td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
+.subnav{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.subnav button{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:6px 14px;cursor:pointer;color:var(--muted)}
+.subnav button.on{border-color:var(--accent);color:var(--text)}
+.subtab{display:none}.subtab.on{display:block}
+.chat{display:flex;flex-direction:column;height:calc(100vh - 230px);min-height:420px}
+.msgs{flex:1;overflow-y:auto;padding:4px 4px 12px}
+.msg{max-width:92%;margin:10px 0;padding:12px 16px;border-radius:12px;border:1px solid var(--line)}
+.msg.user{margin-left:auto;background:var(--panel2);white-space:pre-wrap;font-family:var(--mono);font-size:12.5px;max-height:320px;overflow:auto}
+.msg.assistant{background:var(--panel)}
+.composer{border-top:1px solid var(--line);padding-top:10px}
+.composer textarea{min-height:70px;font-family:var(--mono);font-size:12.5px}
+.attach{font-size:12px;color:var(--accent2);margin:4px 0}
+.log{background:var(--bg);border:1px solid var(--line);border-radius:8px;font-family:var(--mono);font-size:12px;padding:10px;max-height:200px;overflow-y:auto;white-space:pre-wrap}
+.log .e{color:var(--err)} .log .o{color:var(--ok)} .log .w{color:var(--accent)}
+.secgrid{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.sec{border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12.5px;cursor:pointer;background:var(--bg)}
+.sec.done{border-color:var(--ok)} .sec.sel{outline:2px solid var(--accent)}
+.tablechip{display:flex;justify-content:space-between;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin:4px 0;font-family:var(--mono);font-size:12px}
+.topics{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:16px}
+.topic{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;cursor:pointer}
+.topic:hover,.topic.on{border-color:var(--accent)}
+.topic b{display:block;margin-bottom:3px}
+.topic span{color:var(--muted);font-size:12.5px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50}
+.modal.on{display:flex}
+.modal .card{width:min(680px,94vw);max-height:90vh;overflow-y:auto}
+#toast{position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:8px;z-index:60}
+.toast{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--accent2);padding:10px 14px;border-radius:8px;max-width:420px;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.toast.err{border-left-color:var(--err)} .toast.ok{border-left-color:var(--ok)}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:s .7s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes s{to{transform:rotate(360deg)}}
+.chk{display:flex;gap:6px;align-items:center;font-size:12.5px;color:var(--text);margin-top:10px}
+@media (max-width:1000px){.app{grid-template-columns:1fr}aside{max-height:none;border-right:0;border-bottom:1px solid var(--line)}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<!-- ================================================================ CONFIG SIDEBAR -->
+<aside>
+  <div class="brand">PhD Interactive<br><span>Autonomous Research Lab</span></div>
+  <div class="sub">Hybrid multi-cloud AI + LM Studio · <span id="app-version">v1.2.0</span></div>
+
+  <h3>☁ Cloud AI providers</h3>
+  <label>Default cloud provider (used by agents set to "Default")</label>
+  <select id="cfg-default"></select>
+  <label>API keys — click a provider to edit</label>
+  <div id="prov-list" class="provlist"></div>
+  <div class="card" id="prov-editor" style="padding:12px;margin-top:8px">
+    <div class="row"><b id="prov-title" style="flex:1">Provider</b><a id="prov-link" class="status" target="_blank" rel="noopener" style="flex:0 0 auto;color:var(--accent2)">Get API key ↗</a></div>
+    <label>API key</label>
+    <input type="password" id="prov-key" placeholder="paste API key" autocomplete="off">
+    <label>Model</label>
+    <div class="row"><input type="text" id="prov-model" list="prov-models"><button class="btn small" id="prov-list-models" title="Fetch the models your key can use">List</button></div>
+    <datalist id="prov-models"></datalist>
+    <label>Base URL <span class="status">(leave empty for default)</span></label>
+    <input type="text" id="prov-base">
+    <div class="row" style="margin-top:8px"><button class="btn small" id="prov-test">Test connection</button><span style="flex:1"></span><button class="btn small danger" id="prov-clear">Remove key</button></div>
+    <div class="status" id="prov-status"><span class="dot"></span>not tested</div>
+  </div>
+
+  <h3>🖥 LM Studio (local)</h3>
+  <label>Base URL</label>
+  <input type="text" id="cfg-lmurl" placeholder="http://localhost:1234/v1">
+  <label>Local model</label>
+  <div class="row"><select id="cfg-localmodel"><option value="">(first loaded model)</option></select><button class="btn small" id="refresh-models">↻</button></div>
+  <div class="status" id="st-local"><span class="dot"></span>not checked</div>
+  <label class="chk"><input type="checkbox" id="cfg-fallback"> Fall back to Claude if local fails</label>
+
+  <h3>📁 Reference directory</h3>
+  <label>Local folder for full-text PDFs</label>
+  <input type="text" id="cfg-refs" placeholder="C:\Users\you\PhD\references">
+  <div class="row" style="margin-top:8px"><button class="btn small" id="open-refs">Open folder</button></div>
+
+  <h3>⚙ Agent engines</h3>
+  <div id="agent-modes"></div>
+  <div class="row" style="margin-top:8px">
+    <button class="btn small" data-allmode="local">All local</button>
+    <button class="btn small" data-allmode="cloud">All cloud</button>
+    <button class="btn small" data-allmode="default">Recommended</button>
+  </div>
+
+  <button class="btn primary" id="save-cfg" style="width:100%;margin-top:18px">Save configuration</button>
+  <div class="status">Stored locally in <code>data/config.json</code>. The key is only sent to api.anthropic.com.</div>
+</aside>
+
+<main>
+<nav>
+  <button data-tab="lit2plan" class="on">🛠️ Lit2Plan</button>
+  <button data-tab="experiment">🔬 Experiment Design</button>
+  <button data-tab="papers">📚 Papers &amp; Writer</button>
+  <button data-tab="masterclass">📖 Masterclass</button>
+</nav>
+
+<!-- ================================================================ TOOL 1 -->
+<section class="tab on" id="tab-lit2plan">
+  <h2>Lit2Plan &amp; Research Direction Architect</h2>
+  <p class="lead">Query expansion → SOTA taxonomy → research gaps → falsifiable hypotheses → 6-month roadmap → risk register. Grounded in the PDFs in your local library.</p>
+  <div class="grid2">
+    <div class="card">
+      <label>Raw research idea / keywords</label>
+      <textarea id="l2p-idea" rows="8" placeholder="e.g. Lightweight spectral-spatial transformer for onboard hyperspectral anomaly detection under 2 W power budget"></textarea>
+      <label>Domain specifications &amp; constraints</label>
+      <textarea id="l2p-domain" rows="4" placeholder="Domain, datasets available, compute, target venue, timeline..."></textarea>
+      <div class="row" style="margin-top:12px"><button class="btn primary" id="l2p-run">Generate research plan</button></div>
+      <div class="status" id="l2p-meta"></div>
+    </div>
+    <div>
+      <div class="out" id="l2p-out"><div class="empty">Your research direction will appear here.</div></div>
+      <details style="margin-top:12px"><summary class="status" style="cursor:pointer">Query expansion (local agent)</summary><div class="out md" id="l2p-exp" style="min-height:0;margin-top:8px"></div></details>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ TOOL 2 -->
+<section class="tab" id="tab-experiment">
+  <h2>Experimental Design &amp; Methodology Generator</h2>
+  <p class="lead">Mathematical formulation, metrics, ablation matrix, statistical protocol and a runnable <code>experiment_skeleton.py</code>.</p>
+  <div class="grid2">
+    <div class="card">
+      <label>Novelty proposal</label>
+      <textarea id="exp-novelty" rows="8" placeholder="What is new about your method? Which hypothesis does it test?"></textarea>
+      <label>Target domain</label>
+      <input type="text" id="exp-domain" list="domains" placeholder="Hyperspectral Image Processing">
+      <datalist id="domains"><option value="Hyperspectral Image Processing"><option value="FOG (Fiber-Optic Gyroscope) sensor signals"><option value="RISC-V SoC design & verification"><option value="Computer Vision"><option value="Natural Language Processing"><option value="Time-series forecasting"><option value="Wireless communications / signal processing"></datalist>
+      <label>Constraints (hardware, data, time)</label>
+      <textarea id="exp-constraints" rows="3" placeholder="1× RTX 4090, Indian Pines + Pavia U, 3 months"></textarea>
+      <div class="row" style="margin-top:12px"><button class="btn primary" id="exp-run">Generate methodology</button></div>
+      <div class="row" style="margin-top:8px"><button class="btn small" id="exp-dl-code">⬇ experiment_skeleton.py</button><button class="btn small" id="exp-to-paper">→ Use as paper method notes</button></div>
+      <div class="status" id="exp-meta"></div>
+    </div>
+    <div class="out" id="exp-out"><div class="empty">Methodology and skeleton code will appear here.</div></div>
+  </div>
+</section>
+
+<!-- ================================================================ TOOL 3 -->
+<section class="tab" id="tab-papers">
+  <h2>Local PDF Library, Data Console &amp; Paper Writer</h2>
+  <p class="lead">Ingest full-text IEEE/ACM PDFs → turn raw results into LaTeX tables → multi-agent drafting, peer review and revision → <code>latex.zip</code>.</p>
+  <div class="subnav">
+    <button data-sub="library" class="on">① Reference Library</button>
+    <button data-sub="chat">② Data Chat Console</button>
+    <button data-sub="writer">③ Paper Writer Pipeline</button>
+  </div>
+
+  <!-- library -->
+  <div class="subtab on" id="sub-library">
+    <div class="drop" id="drop">Drop PDF files here or click to select<br><span class="status" id="refs-dir"></span></div>
+    <input type="file" id="pdf-input" accept="application/pdf,.pdf" multiple hidden>
+    <div class="row" style="margin:12px 0;flex-wrap:wrap">
+      <button class="btn" id="lib-scan">↻ Rescan folder</button>
+      <button class="btn" id="lib-refine-all">✨ AI-parse unrefined</button>
+      <button class="btn primary" id="lib-bib">3.1 Generate references.bib</button>
+      <button class="btn" id="lib-dl-bib">⬇ references.bib</button>
+      <span class="status" id="lib-count" style="flex:1;text-align:right"></span>
+    </div>
+    <div class="card" style="padding:4px 10px;overflow-x:auto">
+      <table class="lib"><thead><tr><th>Use</th><th>Key</th><th>Title / Authors</th><th>Year</th><th>Venue</th><th>Status</th><th></th></tr></thead><tbody id="lib-body"></tbody></table>
+    </div>
+    <details style="margin-top:12px"><summary class="status" style="cursor:pointer">BibTeX preview</summary><pre class="log" id="bib-preview" style="max-height:400px"></pre></details>
+  </div>
+
+  <!-- chat -->
+  <div class="subtab" id="sub-chat">
+    <div class="chat card">
+      <div class="msgs" id="msgs"><div class="empty">Paste training logs, CSV metrics, ablation results or SystemC-AMS / MATLAB output. The Data Extractor turns them into publication-ready LaTeX tables you can push into the paper.</div></div>
+      <div class="composer">
+        <div class="attach" id="attach-info"></div>
+        <textarea id="chat-input" placeholder="Paste raw data or ask a question…  (Ctrl+Enter to send)"></textarea>
+        <div class="row" style="margin-top:8px">
+          <button class="btn small" id="attach-btn">📎 Attach data file</button>
+          <input type="file" id="attach-input" hidden accept=".csv,.txt,.log,.json,.tsv,.m,.dat,.out,.md,.yaml,.yml">
+          <button class="btn small" id="chat-clear">Clear</button>
+          <span style="flex:1"></span>
+          <button class="btn primary" id="chat-send">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- writer -->
+  <div class="subtab" id="sub-writer">
+    <div class="grid2">
+      <div>
+        <div class="card">
+          <h4>Paper project</h4>
+          <label>Title</label><input type="text" id="p-title">
+          <label>Authors — one per line: Name | Affiliation | email | Country</label>
+          <textarea id="p-authors" rows="3" class="code"></textarea>
+          <div class="row"><div><label>Template</label><select id="p-style"><option>IEEE</option><option>ACM</option></select></div>
+          <div><label>Keywords</label><input type="text" id="p-keywords"></div></div>
+          <label>Core contribution / novelty</label><textarea id="p-contribution" rows="4"></textarea>
+          <label>Method notes</label><textarea id="p-method" rows="4"></textarea>
+          <label>Results notes</label><textarea id="p-results" rows="3"></textarea>
+          <div class="row" style="margin-top:10px"><button class="btn" id="p-save">Save project</button></div>
+          <label>LaTeX tables from Data Chat (<span id="p-tcount">0</span>)</label>
+          <div id="p-tables"></div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <h4>Multi-agent pipeline</h4>
+          <div class="row" style="flex-wrap:wrap">
+            <button class="btn primary" id="pipe-full">▶ Run full pipeline</button>
+            <button class="btn" id="pipe-bib">3.1 BibTeX</button>
+            <button class="btn" id="pipe-draft">3.2 Draft all</button>
+            <button class="btn" id="pipe-review">3.3 Review</button>
+            <button class="btn" id="pipe-revise">3.4 Revise all</button>
+            <button class="btn" id="pipe-assemble">Assemble main.tex</button>
+          </div>
+          <div class="row" style="margin-top:8px"><a class="btn primary" id="export-zip" href="/api/export/latex.zip" style="text-decoration:none;text-align:center">⬇ Export latex.zip</a><button class="btn small" id="dl-main">⬇ main.tex</button></div>
+          <label>Progress</label><div class="log" id="pipe-log"></div>
+          <div class="status" id="cite-report"></div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <h4>Sections <span class="status">— click to edit, ↻ to redraft one</span></h4>
+          <div class="secgrid" id="secgrid"></div>
+          <textarea id="sec-editor" class="code" rows="16" placeholder="Select a section"></textarea>
+          <div class="row" style="margin-top:8px"><button class="btn small" id="sec-save">Save section</button><button class="btn small" id="sec-redraft">↻ Redraft (3.2)</button><button class="btn small" id="sec-revise">✎ Revise (3.4)</button><span style="flex:1"></span></div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <h4>Peer review (3.3)</h4>
+          <div class="md" id="review-out"><span class="status">No review yet.</span></div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <h4>main.tex preview</h4>
+          <textarea id="main-preview" class="code" rows="18" readonly></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ TOOL 4 -->
+<section class="tab" id="tab-masterclass">
+  <h2>Step-by-Step PhD Research Masterclass</h2>
+  <p class="lead">Pick a milestone, add your context, get a tailored guide with templates and checklists.</p>
+  <div class="topics" id="topics"></div>
+  <div class="grid2">
+    <div class="card">
+      <label>Milestone</label><input type="text" id="mc-topic">
+      <label>Your context (field, stage, reviewer comments, grant call, deadline…)</label>
+      <textarea id="mc-context" rows="10"></textarea>
+      <div class="row" style="margin-top:12px"><button class="btn primary" id="mc-run">Generate guide</button></div>
+      <div class="status" id="mc-meta"></div>
+    </div>
+    <div class="out" id="mc-out"><div class="empty">Choose a milestone above.</div></div>
+  </div>
+</section>
+</main>
+</div>
+
+<!-- edit reference modal -->
+<div class="modal" id="ref-modal"><div class="card">
+  <h4>Edit reference metadata <span class="status" id="rm-file"></span></h4>
+  <div class="row"><div><label>BibTeX key</label><input type="text" id="rm-key"></div><div><label>Type</label><select id="rm-type"><option>article</option><option>inproceedings</option><option>misc</option><option>book</option><option>incollection</option><option>techreport</option></select></div><div><label>Year</label><input type="text" id="rm-year"></div></div>
+  <label>Title</label><input type="text" id="rm-title">
+  <label>Authors (one per line)</label><textarea id="rm-authors" rows="4"></textarea>
+  <label>Venue (journal / booktitle)</label><input type="text" id="rm-venue">
+  <div class="row"><div><label>Volume</label><input type="text" id="rm-volume"></div><div><label>Number</label><input type="text" id="rm-number"></div><div><label>Pages</label><input type="text" id="rm-pages"></div></div>
+  <div class="row"><div><label>DOI</label><input type="text" id="rm-doi"></div><div><label>Publisher</label><input type="text" id="rm-publisher"></div></div>
+  <label>Abstract</label><textarea id="rm-abstract" rows="5"></textarea>
+  <div class="row" style="margin-top:12px;justify-content:flex-end"><span style="flex:1"></span><button class="btn" id="rm-cancel">Cancel</button><button class="btn primary" id="rm-save">Save</button></div>
+</div></div>
+
+<div id="toast"></div>
+
+<script>
+// ===================================================================== helpers
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+async function api(path, opts = {}) {
+  const o = {...opts, headers: {...(opts.headers || {})}};
+  if (o.body && !(o.body instanceof FormData) && typeof o.body !== 'string') {
+    o.body = JSON.stringify(o.body); o.headers['Content-Type'] = 'application/json';
+  }
+  const r = await fetch(path, o);
+  const ct = r.headers.get('content-type') || '';
+  const data = ct.includes('json') ? await r.json() : await r.text();
+  if (!r.ok) throw new Error((data && data.detail) ? (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail)) : `HTTP ${r.status}`);
+  return data;
+}
+function toast(msg, kind = '') {
+  const t = document.createElement('div'); t.className = 'toast ' + kind; t.textContent = msg;
+  $('#toast').appendChild(t); setTimeout(() => t.remove(), kind === 'err' ? 9000 : 4500);
+}
+async function busy(btn, fn, label = 'Working…') {
+  const old = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<span class="spin"></span>${label}`;
+  try { return await fn(); } catch (e) { toast(e.message, 'err'); throw e; }
+  finally { btn.disabled = false; btn.innerHTML = old; }
+}
+function md(text) {
+  text = text || '';
+  const math = [];
+  // protect math from the markdown parser, render with KaTeX afterwards
+  text = text.replace(/\$\$([\s\S]+?)\$\$/g, (_, m) => `@@MATH${math.push([m, true]) - 1}@@`)
+             .replace(/(?<![\\$\w])\$([^\n$]+?)\$(?!\w)/g, (_, m) => `@@MATH${math.push([m, false]) - 1}@@`);
+  let html = window.marked ? marked.parse(text) : '<pre>' + esc(text) + '</pre>';
+  if (window.DOMPurify) html = DOMPurify.sanitize(html);
+  return html.replace(/@@MATH(\d+)@@/g, (_, i) => {
+    const [m, disp] = math[+i];
+    try { return window.katex ? katex.renderToString(m, {displayMode: disp, throwOnError: false}) : esc(m); }
+    catch { return esc(m); }
+  });
+}
+function download(name, text, type = 'text/plain') {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], {type})); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function engineBadge(e) { return !e ? '' : e === 'local' ? '<span class="badge local">🖥 Local</span>' : `<span class="badge cloud">☁ ${esc(provLabel(e))}</span>`; }
+function renderOut(el, text, filename) {
+  el.innerHTML = `<div class="toolbar"><button class="btn small" data-copy>Copy</button><button class="btn small" data-dl>⬇ ${filename}</button></div><div class="md">${md(text)}</div>`;
+  el.querySelector('[data-copy]').onclick = () => { navigator.clipboard.writeText(text); toast('Copied', 'ok'); };
+  el.querySelector('[data-dl]').onclick = () => download(filename, text, 'text/markdown');
+}
+
+// ===================================================================== tabs
+$$('nav button').forEach(b => b.onclick = () => {
+  $$('nav button').forEach(x => x.classList.toggle('on', x === b));
+  $$('.tab').forEach(t => t.classList.toggle('on', t.id === 'tab-' + b.dataset.tab));
+  if (b.dataset.tab === 'papers') { loadLibrary(); loadProject(); }
+});
+$$('.subnav button').forEach(b => b.onclick = () => {
+  $$('.subnav button').forEach(x => x.classList.toggle('on', x === b));
+  $$('.subtab').forEach(t => t.classList.toggle('on', t.id === 'sub-' + b.dataset.sub));
+  if (b.dataset.sub === 'writer') loadProject();
+  if (b.dataset.sub === 'library') loadLibrary();
+});
+
+// ===================================================================== config
+let CFG = null, PROV = null;
+const provLabel = pid => (CFG && CFG.provider_specs[pid] ? CFG.provider_specs[pid].label : pid);
+const provHasKey = pid => { const p = CFG.providers[pid]; return !!(p.has_key || (p.api_key && !p.api_key.includes('•'))); };
+function syncProvForm() {
+  if (!PROV) return;
+  const p = CFG.providers[PROV];
+  p.api_key = $('#prov-key').value; p.model = $('#prov-model').value.trim(); p.base_url = $('#prov-base').value.trim();
+}
+function renderProviders() {
+  $('#prov-list').innerHTML = Object.keys(CFG.provider_specs).map(pid => `<div class="prov ${pid === PROV ? 'sel' : ''}" data-prov="${pid}">
+      <span>${esc(provLabel(pid))}</span>${pid === CFG.default_cloud ? '<span class="badge warn">default</span>' : ''}
+      <span class="badge ${provHasKey(pid) ? 'ok' : ''}">${provHasKey(pid) ? '✓ key' : 'no key'}</span></div>`).join('');
+  $$('[data-prov]').forEach(d => d.onclick = () => editProvider(d.dataset.prov));
+  $('#cfg-default').innerHTML = Object.keys(CFG.provider_specs).map(pid =>
+    `<option value="${pid}" ${pid === CFG.default_cloud ? 'selected' : ''}>${esc(provLabel(pid))}${provHasKey(pid) ? '' : ' (no key)'}</option>`).join('');
+}
+function editProvider(pid) {
+  syncProvForm(); PROV = pid;
+  const spec = CFG.provider_specs[pid], p = CFG.providers[pid];
+  $('#prov-title').textContent = spec.label;
+  $('#prov-key').value = p.api_key || '';
+  $('#prov-model').value = p.model || spec.model || '';
+  $('#prov-base').value = p.base_url || ''; $('#prov-base').placeholder = spec.base_url || 'https://your-endpoint/v1';
+  $('#prov-models').innerHTML = (spec.models || []).map(m => `<option value="${esc(m)}">`).join('');
+  const link = $('#prov-link'); link.style.display = spec.key_url ? '' : 'none'; link.href = spec.key_url || '#';
+  $('#prov-status').innerHTML = '<span class="dot"></span>not tested';
+  renderProviders();
+}
+$('#cfg-default').onchange = e => { CFG.default_cloud = e.target.value; renderProviders(); renderAgents(); };
+$('#prov-key').oninput = () => { syncProvForm(); renderProviders(); };
+$('#prov-clear').onclick = () => { $('#prov-key').value = ''; syncProvForm(); CFG.providers[PROV].has_key = false; renderProviders(); toast('Key will be removed when you save', ''); };
+function renderAgents() {
+  const opts = m => [`<option value="cloud" ${m === 'cloud' ? 'selected' : ''}>☁ Default (${esc(provLabel(CFG.default_cloud))})</option>`,
+    `<option value="local" ${m === 'local' ? 'selected' : ''}>🖥 Local (LM Studio)</option>`,
+    ...Object.keys(CFG.provider_specs).map(pid => `<option value="${pid}" ${m === pid ? 'selected' : ''}>${esc(provLabel(pid))}${provHasKey(pid) ? '' : ' ⚠'}</option>`)].join('');
+  $('#agent-modes').innerHTML = Object.entries(CFG.agents).map(([id, a]) =>
+    `<div class="agent"><span>${esc(a.label)}</span><select data-agent="${id}">${opts(CFG.agent_modes[id])}</select></div>`).join('');
+  $$('#agent-modes select').forEach(sel => sel.onchange = () => { CFG.agent_modes[sel.dataset.agent] = sel.value; });
+}
+function applyConfig() {
+  $('#app-version').textContent = 'v' + CFG.version;
+  $('#cfg-lmurl').value = CFG.lmstudio_base_url;
+  $('#cfg-refs').value = CFG.references_dir;
+  $('#cfg-fallback').checked = CFG.fallback_to_cloud;
+  const cur = PROV || CFG.default_cloud; PROV = null;
+  editProvider(cur); renderAgents();
+}
+async function loadConfig() {
+  CFG = await api('/api/config');
+  if (CFG.local_model) { $('#cfg-localmodel').innerHTML += `<option>${esc(CFG.local_model)}</option>`; $('#cfg-localmodel').value = CFG.local_model; }
+  applyConfig();
+  refreshModels(true);
+}
+$$('[data-allmode]').forEach(b => b.onclick = () => {
+  for (const id in CFG.agents) CFG.agent_modes[id] = b.dataset.allmode === 'default' ? CFG.agents[id].default : b.dataset.allmode;
+  renderAgents();
+});
+async function saveConfig() {
+  syncProvForm();
+  const providers = {};
+  for (const [pid, p] of Object.entries(CFG.providers)) providers[pid] = {api_key: p.api_key || '', model: p.model || '', base_url: p.base_url || ''};
+  CFG = await api('/api/config', {method: 'POST', body: {
+    providers, default_cloud: CFG.default_cloud,
+    lmstudio_base_url: $('#cfg-lmurl').value.trim(), local_model: $('#cfg-localmodel').value,
+    references_dir: $('#cfg-refs').value.trim(), fallback_to_cloud: $('#cfg-fallback').checked,
+    agent_modes: CFG.agent_modes,
+  }});
+  applyConfig();
+}
+$('#save-cfg').onclick = e => busy(e.target, async () => { await saveConfig(); toast('Configuration saved', 'ok'); }, 'Saving…');
+async function refreshModels(silent) {
+  const st = $('#st-local');
+  try {
+    if (!silent) await saveConfig();
+    const {models} = await api('/api/local/models');
+    const sel = $('#cfg-localmodel');
+    const keep = sel.value || CFG.local_model;
+    const opts = [...new Set([...models, ...(keep ? [keep] : [])])];
+    sel.innerHTML = '<option value="">(first loaded model)</option>' + opts.map(m => `<option>${esc(m)}</option>`).join('');
+    sel.value = keep || '';
+    st.innerHTML = `<span class="dot ok"></span>LM Studio online · ${models.length} model(s)`;
+  } catch (e) { st.innerHTML = `<span class="dot err"></span>${esc(e.message)}`; }
+}
+$('#refresh-models').onclick = () => refreshModels(false);
+$('#prov-test').onclick = e => busy(e.target, async () => {
+  await saveConfig();
+  try { const r = await api('/api/test/provider', {method: 'POST', body: {provider: PROV}});
+    $('#prov-status').innerHTML = `<span class="dot ok"></span>${esc(r.model)}: "${esc(r.reply)}"`;
+  } catch (err) { $('#prov-status').innerHTML = `<span class="dot err"></span>${esc(err.message)}`; }
+}, 'Testing…');
+$('#prov-list-models').onclick = e => busy(e.target, async () => {
+  await saveConfig();
+  try { const {models} = await api('/api/provider/models', {method: 'POST', body: {provider: PROV}});
+    $('#prov-models').innerHTML = models.map(m => `<option value="${esc(m)}">`).join('');
+    $('#prov-status').innerHTML = `<span class="dot ok"></span>${models.length} models available — click the Model box to choose`;
+    $('#prov-model').value = ''; $('#prov-model').focus();
+  } catch (err) { $('#prov-status').innerHTML = `<span class="dot err"></span>${esc(err.message)}`; }
+}, '…');
+$('#open-refs').onclick = async () => { await saveConfig(); await api('/api/references/open', {method: 'POST'}); };
+
+// ===================================================================== tool 1
+$('#l2p-run').onclick = e => busy(e.target, async () => {
+  await saveConfig();
+  const r = await api('/api/tool/lit2plan', {method: 'POST', body: {idea: $('#l2p-idea').value, domain: $('#l2p-domain').value}});
+  renderOut($('#l2p-out'), r.plan, 'lit2plan.md');
+  $('#l2p-exp').innerHTML = md(r.expansion);
+  $('#l2p-meta').innerHTML = `Query expansion ${engineBadge(r.engines.query_expansion)} · Planner ${engineBadge(r.engines.lit2plan)} ${r.notes.map(n => '<br>⚠ ' + esc(n)).join('')}`;
+}, 'Researching…');
+
+// ===================================================================== tool 2
+let EXP_CODE = '', EXP_DESIGN = '';
+$('#exp-run').onclick = e => busy(e.target, async () => {
+  await saveConfig();
+  const r = await api('/api/tool/experiment', {method: 'POST', body: {novelty: $('#exp-novelty').value, domain: $('#exp-domain').value, constraints: $('#exp-constraints').value}});
+  EXP_CODE = r.code; EXP_DESIGN = r.design;
+  renderOut($('#exp-out'), r.design, 'experiment_design.md');
+  $('#exp-meta').innerHTML = `${engineBadge(r.engine)} ${r.note ? '⚠ ' + esc(r.note) : ''}`;
+}, 'Designing…');
+$('#exp-dl-code').onclick = () => EXP_CODE ? download('experiment_skeleton.py', EXP_CODE, 'text/x-python') : (location.href = '/api/download/experiment_skeleton.py');
+$('#exp-to-paper').onclick = async () => {
+  if (!EXP_DESIGN) return toast('Generate a methodology first', 'err');
+  const design = EXP_DESIGN.split(/##\s*9\./)[0];
+  await api('/api/paper/project', {method: 'POST', body: {method_notes: design.slice(0, 12000), contribution: $('#exp-novelty').value}});
+  toast('Copied into Paper Writer method notes', 'ok');
+};
+
+// ===================================================================== tool 3: library
+let LIB = [];
+async function loadLibrary() {
+  try {
+    const r = await api('/api/references');
+    LIB = r.references; $('#refs-dir').textContent = `${r.dir} · PDF engine: ${r.pdf_backend}`; renderLibrary();
+    if (r.added.length) toast(`${r.added.length} new PDF(s) detected`, 'ok');
+  } catch (e) { toast(e.message, 'err'); }
+}
+function renderLibrary() {
+  $('#lib-count').textContent = `${LIB.length} PDF(s) · ${LIB.filter(e => e.include).length} included`;
+  $('#lib-body').innerHTML = LIB.map((e, i) => `<tr>
+    <td><input type="checkbox" data-inc="${i}" ${e.include ? 'checked' : ''}></td>
+    <td class="k">${esc(e.key)}</td>
+    <td><b>${esc(e.title)}</b><br><span class="status">${esc((e.authors || []).slice(0, 4).join(', '))}${(e.authors || []).length > 4 ? ' et al.' : ''} · ${esc(e.file)}</span></td>
+    <td>${esc(e.year)}</td><td class="status">${esc((e.venue || '').slice(0, 60))}</td>
+    <td>${e.llm_refined ? '<span class="badge ok">AI-parsed</span>' : '<span class="badge warn">heuristic</span>'}${e.error ? '<br><span class="badge" style="color:var(--err)">error</span>' : ''}</td>
+    <td style="white-space:nowrap"><button class="btn small" data-edit="${i}">Edit</button> <button class="btn small" data-ai="${i}">✨</button> <button class="btn small danger" data-del="${i}">🗑</button></td></tr>`).join('')
+    || '<tr><td colspan="7" class="empty">No PDFs yet. Drop full-text papers above or copy them into the reference folder and click Rescan.</td></tr>';
+  $$('[data-inc]').forEach(c => c.onchange = async () => { const e = LIB[c.dataset.inc]; await api('/api/references/' + encodeURIComponent(e.file), {method: 'PUT', body: {include: c.checked}}); loadLibrary(); });
+  $$('[data-ai]').forEach(b => b.onclick = () => busy(b, async () => { await refineOne(LIB[b.dataset.ai].file); await loadLibrary(); }, ''));
+  $$('[data-del]').forEach(b => b.onclick = async () => {
+    const e = LIB[b.dataset.del];
+    if (!confirm(`Delete ${e.file} from the reference folder? This removes the PDF from disk.`)) return;
+    await api('/api/references/' + encodeURIComponent(e.file), {method: 'DELETE'}); loadLibrary();
+  });
+  $$('[data-edit]').forEach(b => b.onclick = () => openRefModal(LIB[b.dataset.edit]));
+}
+async function refineOne(file) {
+  const r = await api('/api/references/refine', {method: 'POST', body: {file}});
+  if (r.note) toast(r.note);
+  return r;
+}
+async function uploadFiles(files) {
+  const fd = new FormData(); let n = 0;
+  for (const f of files) if (f.name.toLowerCase().endsWith('.pdf')) { fd.append('files', f); n++; }
+  if (!n) return toast('Only PDF files are accepted', 'err');
+  toast(`Uploading ${n} PDF(s)…`);
+  const r = await api('/api/references/upload', {method: 'POST', body: fd});
+  LIB = r.references; renderLibrary();
+  toast(`Saved ${r.saved.length} PDF(s). AI-parsing metadata…`, 'ok');
+  for (const f of r.added) { try { await refineOne(f); } catch (e) { toast(`${f}: ${e.message}`, 'err'); } }
+  await loadLibrary();
+}
+const drop = $('#drop');
+drop.onclick = () => $('#pdf-input').click();
+$('#pdf-input').onchange = e => { uploadFiles(e.target.files); e.target.value = ''; };
+['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => uploadFiles(e.dataTransfer.files));
+$('#lib-scan').onclick = e => busy(e.target, loadLibrary, 'Scanning…');
+$('#lib-refine-all').onclick = e => busy(e.target, async () => {
+  const todo = LIB.filter(x => !x.llm_refined);
+  if (!todo.length) return toast('All entries are already AI-parsed', 'ok');
+  for (const [i, x] of todo.entries()) { e.target.innerHTML = `<span class="spin"></span>${i + 1}/${todo.length}`; try { await refineOne(x.file); } catch (err) { toast(`${x.file}: ${err.message}`, 'err'); } }
+  await loadLibrary();
+}, 'Parsing…');
+async function genBib() {
+  const r = await api('/api/bib/generate', {method: 'POST', body: {refine: true}});
+  $('#bib-preview').textContent = r.bib; r.notes.forEach(n => toast(n));
+  await loadLibrary(); return r;
+}
+$('#lib-bib').onclick = e => busy(e.target, async () => { const r = await genBib(); toast(`references.bib: ${r.count} entries`, 'ok'); }, 'Agent 3.1…');
+$('#lib-dl-bib').onclick = () => location.href = '/api/download/references.bib';
+
+let EDITING = null;
+function openRefModal(e) {
+  EDITING = e; $('#rm-file').textContent = e.file;
+  $('#rm-key').value = e.key || ''; $('#rm-type').value = e.entry_type || 'article'; $('#rm-year').value = e.year || '';
+  $('#rm-title').value = e.title || ''; $('#rm-authors').value = (e.authors || []).join('\n'); $('#rm-venue').value = e.venue || '';
+  $('#rm-volume').value = e.volume || ''; $('#rm-number').value = e.number || ''; $('#rm-pages').value = e.pages || '';
+  $('#rm-doi').value = e.doi || ''; $('#rm-publisher').value = e.publisher || ''; $('#rm-abstract').value = e.abstract || '';
+  $('#ref-modal').classList.add('on');
+}
+$('#rm-cancel').onclick = () => $('#ref-modal').classList.remove('on');
+$('#rm-save').onclick = async () => {
+  const body = {title: $('#rm-title').value, authors: $('#rm-authors').value, year: $('#rm-year').value, venue: $('#rm-venue').value,
+    entry_type: $('#rm-type').value, volume: $('#rm-volume').value, number: $('#rm-number').value, pages: $('#rm-pages').value,
+    doi: $('#rm-doi').value, publisher: $('#rm-publisher').value, abstract: $('#rm-abstract').value};
+  if ($('#rm-key').value.trim() && $('#rm-key').value.trim() !== EDITING.key) body.key = $('#rm-key').value.trim();
+  try { await api('/api/references/' + encodeURIComponent(EDITING.file), {method: 'PUT', body}); $('#ref-modal').classList.remove('on'); loadLibrary(); }
+  catch (e) { toast(e.message, 'err'); }
+};
+
+// ===================================================================== tool 3: chat
+let CHAT = [], ATTACH = null;
+function renderChat() {
+  if (!CHAT.length) return;
+  $('#msgs').innerHTML = CHAT.map((m, i) => m.role === 'user'
+    ? `<div class="msg user">${esc(m.content.length > 4000 ? m.content.slice(0, 4000) + '\n… [' + (m.content.length - 4000) + ' more chars]' : m.content)}</div>`
+    : `<div class="msg assistant"><div class="status" style="margin-bottom:6px">${engineBadge(m.engine)} ${m.note ? '⚠ ' + esc(m.note) : ''}</div><div class="md">${md(m.content)}</div>
+       ${(m.tables || []).map((t, j) => `<button class="btn small" data-addt="${i}:${j}" style="margin:6px 6px 0 0">➕ Add table ${j + 1} to paper</button>`).join('')}</div>`).join('');
+  $$('[data-addt]').forEach(b => b.onclick = async () => {
+    const [i, j] = b.dataset.addt.split(':').map(Number);
+    await api('/api/paper/tables', {method: 'POST', body: {latex: CHAT[i].tables[j]}});
+    b.textContent = '✓ Added'; b.disabled = true; toast('Table added to Paper Writer', 'ok');
+  });
+  $('#msgs').scrollTop = $('#msgs').scrollHeight;
+}
+$('#attach-btn').onclick = () => $('#attach-input').click();
+$('#attach-input').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  let text = await f.text();
+  if (text.length > 60000) { text = text.slice(0, 60000); toast('File truncated to 60k characters', ''); }
+  ATTACH = {name: f.name, text}; $('#attach-info').textContent = `📎 ${f.name} (${text.length.toLocaleString()} chars) — will be sent with your message`;
+  e.target.value = '';
+};
+async function sendChat() {
+  let content = $('#chat-input').value.trim();
+  if (ATTACH) content = `${content || 'Parse this data into LaTeX tables.'}\n\n--- FILE: ${ATTACH.name} ---\n${ATTACH.text}`;
+  if (!content) return;
+  CHAT.push({role: 'user', content}); $('#chat-input').value = ''; ATTACH = null; $('#attach-info').textContent = '';
+  renderChat();
+  const btn = $('#chat-send');
+  await busy(btn, async () => {
+    try {
+      const r = await api('/api/chat', {method: 'POST', body: {messages: CHAT.map(m => ({role: m.role, content: m.content}))}});
+      CHAT.push({role: 'assistant', content: r.reply, tables: r.tables, engine: r.engine, note: r.note});
+    } catch (e) { CHAT.pop(); $('#chat-input').value = content; throw e; }
+    renderChat();
+  }, 'Thinking…').catch(() => renderChat());
+}
+$('#chat-send').onclick = sendChat;
+$('#chat-input').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) sendChat(); });
+$('#chat-clear').onclick = () => { CHAT = []; $('#msgs').innerHTML = '<div class="empty">Conversation cleared.</div>'; };
+
+// ===================================================================== tool 3: writer
+let PROJ = null, SECTIONS = [], SEL = null;
+function log(msg, cls = '') {
+  const el = $('#pipe-log'); const t = new Date().toLocaleTimeString();
+  el.innerHTML += `<div class="${cls}">[${t}] ${esc(msg)}</div>`; el.scrollTop = el.scrollHeight;
+}
+async function loadProject() {
+  const r = await api('/api/paper/project');
+  PROJ = r.project; SECTIONS = r.sections;
+  $('#p-title').value = PROJ.title; $('#p-authors').value = PROJ.authors; $('#p-style').value = PROJ.style;
+  $('#p-keywords').value = PROJ.keywords; $('#p-contribution').value = PROJ.contribution;
+  $('#p-method').value = PROJ.method_notes; $('#p-results').value = PROJ.results_notes;
+  $('#main-preview').value = r.main_tex || '';
+  $('#review-out').innerHTML = PROJ.review ? md(PROJ.review) : '<span class="status">No review yet.</span>';
+  renderTables(); renderSections();
+}
+function renderTables() {
+  $('#p-tcount').textContent = PROJ.tables.length;
+  $('#p-tables').innerHTML = PROJ.tables.map((t, i) => {
+    const cap = (t.match(/\\caption\{([^}]*)\}/) || [, 'table ' + (i + 1)])[1];
+    return `<div class="tablechip"><span>${esc(cap.slice(0, 70))}</span><button class="btn small danger" data-deltable="${i}">✕</button></div>`;
+  }).join('') || '<div class="status">Add tables from the Data Chat Console.</div>';
+  $$('[data-deltable]').forEach(b => b.onclick = async () => { PROJ = (await api('/api/paper/tables/' + b.dataset.deltable, {method: 'DELETE'})).project; renderTables(); });
+}
+function renderSections() {
+  $('#secgrid').innerHTML = SECTIONS.map(([id, title]) =>
+    `<div class="sec ${PROJ.sections[id] ? 'done' : ''} ${SEL === id ? 'sel' : ''}" data-sec="${id}">${PROJ.sections[id] ? '✓ ' : ''}${esc(title)}</div>`).join('');
+  $$('[data-sec]').forEach(d => d.onclick = () => { SEL = d.dataset.sec; $('#sec-editor').value = PROJ.sections[SEL] || ''; renderSections(); });
+}
+async function saveProjectForm() {
+  PROJ = (await api('/api/paper/project', {method: 'POST', body: {
+    title: $('#p-title').value, authors: $('#p-authors').value, style: $('#p-style').value, keywords: $('#p-keywords').value,
+    contribution: $('#p-contribution').value, method_notes: $('#p-method').value, results_notes: $('#p-results').value}})).project;
+}
+$('#p-save').onclick = e => busy(e.target, async () => { await saveProjectForm(); toast('Project saved', 'ok'); }, 'Saving…');
+
+async function stepBib() { log('Agent 3.1 · BibTeX Extractor: normalising local PDFs…'); const r = await genBib(); log(`references.bib ready (${r.count} entries)`, 'o'); r.notes.forEach(n => log(n, 'w')); }
+async function draftOne(id) {
+  const title = SECTIONS.find(s => s[0] === id)[1];
+  log(`Agent 3.2 · Academic Author: drafting ${title}…`);
+  const r = await api('/api/paper/draft', {method: 'POST', body: {section: id}});
+  PROJ.sections[id] = r.latex; renderSections();
+  if (SEL === id) $('#sec-editor').value = r.latex;
+  log(`${title} drafted (${r.engine})${r.unknown_citations.length ? ' · removed invalid cites: ' + r.unknown_citations.join(', ') : ''}`, r.unknown_citations.length ? 'w' : 'o');
+}
+async function stepDraft() {
+  await saveProjectForm();
+  // body first, abstract last so it can summarise the drafted paper
+  const order = SECTIONS.map(s => s[0]).filter(s => s !== 'abstract').concat(['abstract']);
+  for (const id of order) await draftOne(id);
+}
+async function stepAssemble() {
+  const r = await api('/api/paper/assemble', {method: 'POST'});
+  $('#main-preview').value = r.main_tex; showReport(r.report); log('main.tex assembled', 'o'); return r;
+}
+function showReport(rep) {
+  $('#cite-report').innerHTML = `Citations used: <b>${rep.used.length}</b>/${rep.n_references} · unused: ${rep.unused.length ? esc(rep.unused.join(', ')) : 'none'} · removed invalid: ${rep.unknown.length ? esc(rep.unknown.join(', ')) : 'none'} · placeholders: <b>${rep.placeholders}</b>${rep.missing_sections.length ? ' · missing: ' + esc(rep.missing_sections.join(', ')) : ''}`;
+}
+async function stepReview() {
+  log('Agent 3.3 · Peer Reviewer: auditing main.tex…');
+  const r = await api('/api/paper/review', {method: 'POST'});
+  PROJ.review = r.review; $('#review-out').innerHTML = md(r.review); showReport(r.report);
+  log(`Review complete (${r.engine})`, 'o');
+}
+async function reviseOne(id) {
+  const title = SECTIONS.find(s => s[0] === id)[1];
+  log(`Agent 3.4 · Revision Editor: revising ${title}…`);
+  const r = await api('/api/paper/revise', {method: 'POST', body: {section: id}});
+  if (r.skipped) return log(`${title}: not drafted, skipped`, 'w');
+  if (r.rejected) return log(`${title}: ${r.note}`, 'w');
+  PROJ.sections[id] = r.latex; if (SEL === id) $('#sec-editor').value = r.latex;
+  log(`${title} revised (${r.engine})`, 'o');
+}
+async function stepRevise() { for (const [id] of SECTIONS) await reviseOne(id); }
+async function runStep(btn, fn, label) {
+  try { await busy(btn, fn, label); } catch (e) { log('ERROR: ' + e.message, 'e'); }
+}
+$('#pipe-bib').onclick = e => runStep(e.target, stepBib, '3.1…');
+$('#pipe-draft').onclick = e => runStep(e.target, async () => { await stepDraft(); await stepAssemble(); }, '3.2…');
+$('#pipe-assemble').onclick = e => runStep(e.target, stepAssemble, 'Assembling…');
+$('#pipe-review').onclick = e => runStep(e.target, stepReview, '3.3…');
+$('#pipe-revise').onclick = e => runStep(e.target, async () => { await stepRevise(); await stepAssemble(); }, '3.4…');
+$('#pipe-full').onclick = e => runStep(e.target, async () => {
+  await saveConfig(); $('#pipe-log').innerHTML = '';
+  log('▶ Full pipeline started');
+  await stepBib(); await stepDraft(); await stepAssemble(); await stepReview(); await stepRevise(); await stepAssemble();
+  log('✔ Pipeline finished — review placeholders, then Export latex.zip', 'o');
+}, 'Running pipeline…');
+$('#sec-save').onclick = async () => {
+  if (!SEL) return toast('Select a section first', 'err');
+  await api('/api/paper/section', {method: 'PUT', body: {section: SEL, latex: $('#sec-editor').value}});
+  PROJ.sections[SEL] = $('#sec-editor').value; renderSections(); toast('Section saved', 'ok');
+};
+$('#sec-redraft').onclick = e => { if (!SEL) return toast('Select a section first', 'err'); runStep(e.target, async () => { await saveProjectForm(); await draftOne(SEL); }, '3.2…'); };
+$('#sec-revise').onclick = e => { if (!SEL) return toast('Select a section first', 'err'); runStep(e.target, () => reviseOne(SEL), '3.4…'); };
+$('#dl-main').onclick = async () => { const r = await api('/api/paper/assemble', {method: 'POST'}); download('main.tex', r.main_tex, 'application/x-tex'); };
+$('#export-zip').addEventListener('click', () => toast('Building latex.zip…'));
+
+// ===================================================================== tool 4
+const TOPICS = [
+  ['IEEE reviewer rebuttal / response letter', 'Point-by-point responses, tone, tracking changes'],
+  ['Major revision strategy for an IEEE Transactions paper', 'Triage comments, plan experiments, resubmit'],
+  ['Grant proposal writing (NSF / ERC / national fund)', 'Aims, significance, work packages, budget'],
+  ['PhD thesis defense preparation', 'Slides, rehearsal, anticipated questions'],
+  ['Qualifying exam / research proposal defense', 'Proposal structure and committee prep'],
+  ['Systematic literature review (PRISMA)', 'Protocol, screening, synthesis'],
+  ['Choosing the right venue & cover letter', 'Journal vs conference, scope fit'],
+  ['Writing a strong IEEE/ACM Introduction', 'CARS model, contribution bullets'],
+  ['Reproducibility package & artifact evaluation', 'Code, data, Docker, ACM badges'],
+  ['Thesis structure & writing plan', 'Chapters from papers, timeline'],
+  ['Working effectively with your advisor', 'Meetings, expectations, feedback'],
+  ['Postdoc / faculty job applications', 'Research statement, job talk'],
+];
+$('#topics').innerHTML = TOPICS.map(([t, d], i) => `<div class="topic" data-topic="${i}"><b>${esc(t)}</b><span>${esc(d)}</span></div>`).join('');
+$$('[data-topic]').forEach(el => el.onclick = () => {
+  $$('[data-topic]').forEach(x => x.classList.toggle('on', x === el));
+  $('#mc-topic').value = TOPICS[el.dataset.topic][0]; $('#mc-context').focus();
+});
+$('#mc-run').onclick = e => busy(e.target, async () => {
+  await saveConfig();
+  const r = await api('/api/masterclass', {method: 'POST', body: {topic: $('#mc-topic').value, context: $('#mc-context').value}});
+  renderOut($('#mc-out'), r.guide, 'masterclass_guide.md');
+  $('#mc-meta').innerHTML = `${engineBadge(r.engine)} ${r.note ? '⚠ ' + esc(r.note) : ''}`;
+}, 'Writing guide…');
+
+loadConfig().catch(e => toast('Backend not reachable: ' + e.message, 'err'));
+</script>
+</body>
+</html>
