@@ -114,6 +114,20 @@ Each project has its own **data folder** (workspace, outputs, chats, 📌 notes,
 - **🔬 In-depth writing:** longer, more detailed output for single ✍ Write / ✎ Revise runs.
 - **✓ Accept:** marks the section as final.
 
+**📄 PDF preview** (right under the workspace):
+- **▶ Compile PDF** assembles main.tex and compiles it with the LaTeX on your computer: pdfLaTeX + BibTeX, latexmk, XeLaTeX or Tectonic. The PDF appears below, with **⤢ Full screen** and **⬇ main.pdf**.
+- **Auto-compile** recompiles after every agent run and every Save (Ctrl+S).
+- **LaTeX errors** are listed per section. Click one to jump to the exact spot in the editor. Undefined references/citations and leftover placeholders are reported too; details are in **📜 Log**.
+- **Quick layout:** without the IEEEtran/acmart class, the preview is compiled with `article`, so you can always read the draft.
+- **No LaTeX yet?**
+  - Windows: `winget install TectonicTypesetting.Tectonic`, or MiKTeX;
+  - Ubuntu: `sudo apt install texlive-latex-extra texlive-publishers texlive-bibtex-extra latexmk`;
+  - macOS: `brew install tectonic` or MacTeX.
+
+  Until then you can tick *Allow online compilation*; the paper is then sent to an external service.
+
+**LaTeX syntax highlighting:** the editor colours commands, environments (`\begin{…}`), `\section`, `\cite`/`\ref`/`\label`, math `$…$`, `%` comments and red `[TBD]` placeholders, even while an agent is writing. **Tab** inserts two spaces, **Ctrl+S** saves.
+
 **Tips:**
 - Run Deep mode once, then read every section review.
 - Write instructions for the weak sections, then 🔬 Deep-cycle only those.

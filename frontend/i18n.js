@@ -505,6 +505,44 @@
     '↗ New tab': '↗ Tab mới',
     'Open in a new browser tab': 'Mở trong tab mới của trình duyệt',
     'Download': 'Tải về',
+    // ---------------- v2.7
+    '📄 PDF preview': '📄 Xem trước PDF',
+    '▶ Compile PDF': '▶ Biên dịch PDF',
+    'Assemble main.tex and compile it with LaTeX': 'Ghép main.tex và biên dịch bằng LaTeX',
+    'LaTeX engine': 'Trình biên dịch LaTeX',
+    'Layout of the preview': 'Bố cục bản xem trước',
+    'Template layout (IEEE / ACM)': 'Bố cục theo template (IEEE / ACM)',
+    'Quick layout (always compiles)': 'Bố cục nhanh (luôn biên dịch được)',
+    'Recompile automatically after every agent run and every Save': 'Tự biên dịch lại sau mỗi lần agent chạy xong và mỗi lần Lưu',
+    'Auto-compile': 'Tự biên dịch',
+    'Read the PDF full screen': 'Đọc PDF toàn màn hình',
+    '⤢ Full screen': '⤢ Toàn màn hình',
+    'Download main.pdf': 'Tải main.pdf',
+    '⬇ main.pdf': '⬇ main.pdf',
+    'Show the LaTeX build log': 'Xem log biên dịch LaTeX',
+    '📜 Log': '📜 Log',
+    'Only when no TeX engine is installed: sends main.tex + references.bib to the public LaTeX-on-HTTP service': 'Chỉ dùng khi máy chưa cài LaTeX: gửi main.tex + references.bib tới dịch vụ công cộng LaTeX-on-HTTP',
+    'Allow online compilation when no LaTeX is installed (sends the paper to latex.ytotech.com)': 'Cho phép biên dịch online khi chưa cài LaTeX (gửi bài báo tới latex.ytotech.com)',
+    'Press ▶ Compile PDF to see the manuscript as a PDF.': 'Bấm ▶ Biên dịch PDF để xem bản thảo dưới dạng PDF.',
+    'No LaTeX installed': 'Chưa cài LaTeX',
+    'Found': 'Tìm thấy',
+    'No LaTeX engine found on this computer': 'Không tìm thấy trình biên dịch LaTeX trên máy này',
+    'Or tick "Allow online compilation" above (the paper is sent to an external service).': 'Hoặc tick "Cho phép biên dịch online" ở trên (bài báo sẽ được gửi tới dịch vụ bên ngoài).',
+    'Online compilation allowed — used only when you pick the Online engine or no LaTeX is installed': 'Đã cho phép biên dịch online — chỉ dùng khi bạn chọn engine Online hoặc máy chưa cài LaTeX',
+    'quick layout': 'bố cục nhanh',
+    'errors': 'lỗi',
+    'no PDF produced': 'không tạo được PDF',
+    'LaTeX error(s)': 'lỗi LaTeX',
+    'click one to jump to it in the editor': 'bấm vào một lỗi để nhảy tới chỗ đó trong trình soạn thảo',
+    'Undefined references': 'Tham chiếu chưa định nghĩa',
+    'Undefined citations': 'Trích dẫn chưa định nghĩa',
+    'Placeholders still in the paper': 'Placeholder còn trong bài',
+    'This error is in the template part of main.tex (title, authors, preamble).': 'Lỗi này nằm ở phần template của main.tex (tiêu đề, tác giả, preamble).',
+    'Compiling…': 'Đang biên dịch…',
+    'LaTeX produced no PDF — see the errors below the button': 'LaTeX không tạo được PDF — xem các lỗi bên dưới nút',
+    'Compile the PDF first': 'Hãy biên dịch PDF trước',
+    'Save (Ctrl+S)': 'Lưu (Ctrl+S)',
+    'LaTeX build log': 'Log biên dịch LaTeX',
   };
 
   const PATTERNS = [
@@ -556,9 +594,10 @@
     [/^(\d+)\/(\d+) written$/, '$1/$2 đã viết'],
     [/^✳ Claude preferred → (.+)$/, '✳ Ưu tiên Claude → $1'],
     [/^Saved to the Reference Library: (.+)$/, 'Đã lưu vào Thư viện tài liệu: $1'],
+    [/^(ℹ )?(\S+)\.cls is not installed — compiled with the quick layout instead \(to get the real template: (.+)\)\.$/, '$1Máy chưa cài $2.cls — đã biên dịch bằng bố cục nhanh (muốn dùng đúng template: $3).'],
   ];
 
-  const SKIP = '.md, .ububble, #pdf-title, #pdf-meta, .nprev, .src .st, .src .ss, .searchline .q, .iq, .diff, .ibody, .ihead b, .docinfo b, #rv-select, #rv-src, #p-sum, pre, code, textarea, .katex, #guide-body, .attchip .nm, .paperitem b, #lib-body td:nth-child(3) b, #lib-body td.k, #fs-list, #fs-path, .projtag, script, style, [data-noi18n]';
+  const SKIP = '.md, .ububble, .texhl, .texerr code, #pdf-title, #pdf-meta, .nprev, .src .st, .src .ss, .searchline .q, .iq, .diff, .ibody, .ihead b, .docinfo b, #rv-select, #rv-src, #p-sum, pre, code, textarea, .katex, #guide-body, .attchip .nm, .paperitem b, #lib-body td:nth-child(3) b, #lib-body td.k, #fs-list, #fs-path, .projtag, script, style, [data-noi18n]';
   const ORIG = new WeakMap();
   let LANG = 'en', busy = false, obs;
   try { LANG = localStorage.getItem('ui_lang') || ((navigator.language || '').toLowerCase().startsWith('vi') ? 'vi' : 'en'); } catch {}

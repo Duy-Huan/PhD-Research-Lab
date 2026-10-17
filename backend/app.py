@@ -930,6 +930,42 @@ def paper_stream(body: dict = Body(...)):
     raise HTTPException(400, f"Unknown action {action}")
 
 
+# ---------------------------------------------------------------- v2.7: LaTeX → PDF preview
+from . import latex_build as LB
+
+
+@app.get("/api/latex/engines")
+def latex_engines():
+    return {**LB.engines(), "install_help": LB.install_help()}
+
+
+@app.post("/api/latex/compile")
+async def latex_compile(body: dict = Body(default={})):
+    """Assemble main.tex and compile it to PDF with the local TeX engine (or online, if enabled)."""
+    try:
+        return await run_in_threadpool(LB.compile_pdf, body.get("engine", ""), body.get("layout", "template"))
+    except LB.NoEngine as e:
+        raise HTTPException(424, {"message": str(e), "install_help": LB.install_help()})
+    except RuntimeError as e:
+        raise HTTPException(400, str(e))
+
+
+@app.get("/api/latex/pdf")
+def latex_pdf(download: int = 0):
+    f = LB.build_dir() / "main.pdf"
+    if not f.exists():
+        raise HTTPException(404, "No PDF yet — press ▶ Compile PDF")
+    return FileResponse(f, media_type="application/pdf", filename="main.pdf",
+                        content_disposition_type="attachment" if download else "inline",
+                        headers={"Cache-Control": "no-store"})
+
+
+@app.get("/api/latex/log", response_class=PlainTextResponse)
+def latex_log():
+    f = LB.build_dir() / "build.log"
+    return f.read_text("utf-8", "replace") if f.exists() else "(no build log yet)"
+
+
 @app.get("/api/export/latex.zip")
 async def export_zip():
     data = await run_in_threadpool(build_zip)

@@ -108,6 +108,20 @@ Mỗi dự án có **thư mục data** riêng (workspace, output, chat, ghi chú
 - **🔬 Viết chuyên sâu:** viết dài và chi tiết hơn khi bấm ✍ Viết hoặc ✎ Sửa riêng lẻ.
 - **✓ Duyệt:** đánh dấu phần là bản cuối.
 
+**📄 Xem trước PDF** (ngay dưới khu làm việc):
+- Bấm **▶ Biên dịch PDF** để ghép main.tex và biên dịch bằng LaTeX trên máy bạn: pdfLaTeX + BibTeX, latexmk, XeLaTeX hoặc Tectonic. PDF hiện ngay bên dưới; có nút **⤢ Toàn màn hình** và **⬇ main.pdf**.
+- **Tự biên dịch:** tự biên dịch lại sau mỗi lần agent viết/sửa xong và mỗi lần bạn bấm Lưu (Ctrl+S).
+- **Lỗi LaTeX** được liệt kê theo từng phần. Bấm vào một lỗi để nhảy tới đúng dòng trong trình soạn thảo. App cũng báo tham chiếu/trích dẫn chưa định nghĩa và placeholder còn sót. Xem chi tiết ở **📜 Log**.
+- **Bố cục nhanh:** nếu máy chưa có class IEEEtran/acmart, app tự biên dịch bằng class `article`, nên bạn vẫn đọc nhanh được bản thảo.
+- **Chưa cài LaTeX?**
+  - Windows: `winget install TectonicTypesetting.Tectonic`, hoặc MiKTeX;
+  - Ubuntu: `sudo apt install texlive-latex-extra texlive-publishers texlive-bibtex-extra latexmk`;
+  - macOS: `brew install tectonic` hoặc MacTeX.
+
+  Nếu chưa cài được, có thể tick *Cho phép biên dịch online*; khi đó bài báo sẽ được gửi tới dịch vụ bên ngoài.
+
+**Tô màu cú pháp LaTeX:** ô soạn thảo tô màu lệnh, môi trường (`\begin{…}`), `\section`, `\cite`/`\ref`/`\label`, công thức `$…$`, comment `%` và placeholder `[TBD]` màu đỏ, kể cả khi AI đang viết. Phím **Tab** chèn 2 dấu cách, **Ctrl+S** để lưu.
+
 **Mẹo:** chạy chế độ Chuyên sâu một lần, đọc phản biện từng phần, viết chỉ dẫn cho các phần yếu, rồi bấm 🔬 Chu trình sâu riêng cho chúng. Dùng **💬 Paper chat** để hỏi *"Câu nào chưa được kết quả chứng minh?"*. Cuối cùng **⬇ Export latex.zip** → Overleaf (*New Project → Upload Project*).
 
 **Bộ bảo vệ tính trung thực:**

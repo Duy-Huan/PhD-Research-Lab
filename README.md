@@ -1,4 +1,4 @@
-# PhD Interactive Autonomous Research Lab — v2.6.2
+# PhD Interactive Autonomous Research Lab — v2.7.0
 
 A local desktop web app for Windows 11 that runs an end-to-end research workflow on a **hybrid AI architecture**: any of 14 cloud AI providers for deep reasoning and academic writing, plus local models in **LM Studio** (`http://localhost:1234/v1`) for fast, private, zero-cost extraction work.
 
@@ -102,6 +102,12 @@ Novelty + domain (hyperspectral, FOG signals, RISC-V SoC, …) → formulation i
      - **🔬 Deep · section by section** runs each section through *write → section review (score /10, Critical/Major/Minor issues with quotes) → revise*, for 1–3 rounds, before moving on. Options: skip accepted sections, pause after each section, final whole-paper review.
    - **Section workshop:** a board with status, word count and score for every section. The editor shows the agents writing live. A per-section review tab, and per-section **instructions for the AI** that take precedence over reviewer comments. ✓ Accept marks a section as final.
    - **■ Stop** interrupts the running agent at once: the upstream AI request is cancelled, finished steps are kept, and the interrupted step changes nothing. Each pipeline step can also be run on its own.
+   - **📄 PDF preview (v2.7):** compiles the paper with your local LaTeX (pdfLaTeX/BibTeX, latexmk, XeLaTeX or Tectonic).
+     - Auto-compiles after every agent run or Save.
+     - Errors are mapped to sections (click to jump); a full-screen reader is included.
+     - A *quick layout* still compiles when IEEEtran/acmart is missing.
+     - Online compilation is optional and opt-in.
+   - **LaTeX syntax highlighting** in the section editor (Tab, Ctrl+S).
    - **⬇ Export latex.zip**.
 4. **④ Paper Review (v2.5)** — a separate flow for a finished manuscript (PDF / DOCX / TEX / MD), reviewed by Claude by default.
    - **Venue standard:** conference by **ICORE rank C → B → A → A\*** or **h5-index band**, or journal by **Q4 → Q1**. Optional venue name and track, double-blind mode, and 1–3 reviewer personas (domain expert, methods/experiments "Reviewer 2", presentation).
@@ -175,6 +181,7 @@ phd-research-lab/
 │   ├── prompts.py    agent system prompts (Tools 1-4, section workshop)
 │   ├── review_ext.py      ④ Paper Review: storage, desk check, quote verification, fix apply
 │   ├── review_prompts.py  venue standards (ICORE / h5 / Q1-Q4) and reviewer prompts
+│   ├── latex_build.py     LaTeX → PDF preview (engine discovery, quick layout, log parsing)
 │   ├── websearch.py       internet search (OpenAlex, arXiv, Semantic Scholar, DuckDuckGo/Tavily/Brave)
 │   └── chat_store.py, context_hub.py, attachments.py, fs_browse.py
 ├── frontend/index.html   single-page UI

@@ -454,6 +454,46 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
 .pdft .status{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #pdf-key{font-family:var(--mono);color:var(--accent)}
 #pdf-frame{flex:1;width:100%;border:1px solid var(--line);border-radius:8px;background:#525659}
+/* ---------- v2.7 LaTeX highlighting + PDF preview ---------- */
+.texed{position:relative;background:var(--bg);border-radius:8px}
+.texed textarea{position:relative;z-index:1;background:transparent !important;overflow-y:scroll;color:transparent;caret-color:var(--text);display:block;width:100%;
+  font-family:var(--mono);font-size:12.5px;line-height:1.5;padding:8px 10px;white-space:pre-wrap;overflow-wrap:break-word;word-break:normal;tab-size:2}
+.texed textarea::selection{background:rgba(95,168,211,.35);color:transparent}
+.texed textarea::placeholder{color:var(--muted)}
+.texhl{position:absolute;inset:0;margin:0;border:1px solid transparent;padding:8px 10px;font-family:var(--mono);font-size:12.5px;line-height:1.5;
+  white-space:pre-wrap;overflow-wrap:break-word;word-break:normal;overflow-y:scroll;overflow-x:hidden;scrollbar-color:transparent transparent;pointer-events:none;color:var(--text);tab-size:2}
+.texhl .c{color:#7d8590;font-style:italic}
+.texhl .k{color:#c678dd}
+.texhl .e{color:#e5a03d;font-weight:600}
+.texhl .s{color:#e06c75;font-weight:700}
+.texhl .r{color:#56b6c2}
+.texhl .m{color:#98c379}
+.texhl .b{color:#d19a66}
+.texhl .t{background:rgba(224,108,108,.25);color:#ff7b72;border-radius:3px}
+.texhl .a{color:#d19a66;font-weight:700}
+:root[data-theme="light"] .texhl .c{color:#6a737d}
+:root[data-theme="light"] .texhl .k{color:#8a3fb8}
+:root[data-theme="light"] .texhl .e{color:#a35f00}
+:root[data-theme="light"] .texhl .s{color:#c0392b}
+:root[data-theme="light"] .texhl .r{color:#0b7285}
+:root[data-theme="light"] .texhl .m{color:#2b7a2b}
+:root[data-theme="light"] .texhl .b{color:#9a5b13}
+:root[data-theme="light"] .texhl .t{color:#c0392b}
+.texctl{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.texctl select{width:auto;min-width:0;padding:5px 8px;font-size:12.5px}
+.texview{position:relative;margin-top:10px;height:78vh;min-height:480px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#525659}
+.texview iframe{width:100%;height:100%;border:0;display:none}
+.texview.has iframe{display:block}
+.texview .empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;background:var(--bg);color:var(--muted);padding:20px;text-align:center}
+.texview.has .empty{display:none}
+.texview.busy::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.25)}
+.texerr{border:1px solid var(--err);border-radius:10px;background:rgba(224,108,108,.07);padding:8px 12px;margin-top:10px;font-size:12.5px}
+.texerr.warn{border-color:var(--accent);background:rgba(217,164,65,.07)}
+.texerr ul{margin:4px 0 0;padding-left:18px}
+.texerr li{margin:3px 0;cursor:pointer}
+.texerr li:hover{color:var(--accent2)}
+.texerr code{font-size:11.5px}
+.texok{color:var(--ok)}
 </style>
 </head>
 <body>
@@ -461,7 +501,7 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
 <!-- ================================================================ CONFIG SIDEBAR -->
 <aside>
   <div class="brand">PhD Interactive<br><span>Autonomous Research Lab</span></div>
-  <div class="sub">Hybrid multi-cloud AI + LM Studio · <span id="app-version">v2.6.2</span></div>
+  <div class="sub">Hybrid multi-cloud AI + LM Studio · <span id="app-version">v2.7.0</span></div>
 
   <h3>📂 Research project</h3>
   <div class="row"><select id="proj-select" title="Switch research project"></select></div>
@@ -713,10 +753,28 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
             <button class="btn primary" id="ws-deepbtn" title="Write (if empty) → review → revise this section">🔬 Deep cycle</button>
             <span style="flex:1"></span>
             <span class="status" id="ws-words"></span>
-            <button class="btn small" id="sec-save">💾 Save</button>
+            <button class="btn small" id="sec-save" title="Save (Ctrl+S)">💾 Save</button>
             <button class="btn small" id="ws-accept" title="Mark this section as final (Deep mode can skip it)">✓ Accept</button>
           </div>
         </div>
+        <details class="card fold" id="tex-card" style="margin-top:14px" open>
+          <summary><h4>📄 PDF preview</h4><span class="status" id="tex-sum"></span></summary>
+          <div class="texctl">
+            <button class="btn primary" id="tex-go" title="Assemble main.tex and compile it with LaTeX">▶ Compile PDF</button>
+            <select id="tex-engine" title="LaTeX engine"></select>
+            <select id="tex-layout" title="Layout of the preview">
+              <option value="template">Template layout (IEEE / ACM)</option>
+              <option value="simple">Quick layout (always compiles)</option></select>
+            <label class="chk" title="Recompile automatically after every agent run and every Save"><input type="checkbox" id="tex-auto" checked> Auto-compile</label>
+            <span style="flex:1"></span>
+            <button class="btn small" id="tex-full" title="Read the PDF full screen">⤢ Full screen</button>
+            <a class="btn small" id="tex-dl" href="/api/latex/pdf?download=1" title="Download main.pdf">⬇ main.pdf</a>
+            <button class="btn small" id="tex-logbtn" title="Show the LaTeX build log">📜 Log</button>
+          </div>
+          <label class="chk" style="margin-top:6px" title="Only when no TeX engine is installed: sends main.tex + references.bib to the public LaTeX-on-HTTP service"><input type="checkbox" id="tex-online"> Allow online compilation when no LaTeX is installed (sends the paper to latex.ytotech.com)</label>
+          <div id="tex-msg"></div>
+          <div class="texview"><iframe id="tex-frame" title="PDF preview"></iframe><div class="empty" id="tex-empty">Press ▶ Compile PDF to see the manuscript as a PDF.</div></div>
+        </details>
         <details class="card fold" style="margin-top:14px" open>
           <summary><h4>Progress log</h4><button class="iconbtn" id="log-clear" title="Clear log">🧹</button></summary>
           <div class="log" id="pipe-log"></div>
@@ -1161,7 +1219,7 @@ $$('.subnav button').forEach(b => b.onclick = () => {
   if (b.dataset.sub === 'writer') loadProject();
   if (b.dataset.sub === 'library') loadLibrary();
   if (b.dataset.sub === 'chat') CHAT_DATA.scroll();
-  if (b.dataset.sub === 'writer') CHAT_PAPER.scroll();
+  if (b.dataset.sub === 'writer') { CHAT_PAPER.scroll(); if (!TEX.engines) loadTexEngines(); }
   if (b.dataset.sub === 'review') { loadReviews(); CHAT_REVIEW.scroll(); }
 });
 
@@ -1688,7 +1746,7 @@ let WMODE = (() => { try { return localStorage.getItem('writer_mode') || 'deep';
 const W = new Runner($('#w-stop'), $('#w-stat'), on => {
   $('#w-go').disabled = on; $$('#secws .wsact .btn, #secboard .iconbtn, #w-steps .step').forEach(b => b.disabled = on);
   $('#sec-editor').readOnly = on && !!LIVE;
-  if (!on) { LIVE = null; $('#sec-editor').classList.remove('live'); renderBoard(); renderWorkspace(); }
+  if (!on) { LIVE = null; $('#sec-editor').classList.remove('live'); renderBoard(); renderWorkspace(); autoCompile(); }
 });
 W.onStop = () => { log('■ Stopped by user — finished steps were kept, the interrupted step was discarded.', 'w'); markStep(null, 'stop'); };
 W.onError = e => { log('ERROR: ' + e.message, 'e'); markStep(null, 'err'); };
@@ -1799,7 +1857,7 @@ async function flushSectionEdits() {
 $('#sec-notes').addEventListener('change', () => flushSectionEdits().then(() => toast('Instructions saved', 'ok')).catch(e => toast(e.message, 'err')));
 $('#sec-save').onclick = async () => {
   if (!SEL) return toast('Select a section first', 'err');
-  try { await flushSectionEdits(); renderBoard(); renderWorkspace(); toast('Section saved', 'ok'); } catch (e) { toast(e.message, 'err'); }
+  try { await flushSectionEdits(); renderBoard(); renderWorkspace(); toast('Section saved', 'ok'); autoCompile(); } catch (e) { toast(e.message, 'err'); }
 };
 $('#ws-accept').onclick = async () => {
   const next = stateOf(SEL) === 'accepted' ? 'revised' : 'accepted';
@@ -1988,6 +2046,130 @@ $('#ws-deepbtn').onclick = () => secAction('deep', SEL);
 $('#dl-main').onclick = async () => { const r = await api('/api/paper/assemble', {method: 'POST'}); download('main.tex', r.main_tex, 'application/x-tex'); };
 $('#export-zip').addEventListener('click', () => toast('Building latex.zip…'));
 window.addEventListener('ui-lang', () => { if (PROJ) { renderBoard(); renderWorkspace(); renderSteps(); } });
+
+// ===================================================================== v2.7: LaTeX syntax highlighting (overlay editor)
+const TEX_RE = /(%[^\n]*)|(\\(?:begin|end)\{[^}]*\})|(\\(?:sub)*section\*?|\\paragraph\*?|\\caption|\\title|\\maketitle)|(\\(?:cite[a-zA-Z]*|ref|eqref|autoref|cref|Cref|label)\*?(?:\[[^\]]*\])?\{[^}]*\})|(\\textcolor\{red\}\{\[[^\]\n]*\]\}|\[(?:TBD|CITATION NEEDED)[^\]\n]*\])|(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\)|(?<!\\)\$(?:\\.|[^$\\\n])+\$)|(\\[a-zA-Z@]+\*?|\\[^a-zA-Z\s])|([{}\[\]])|(&|\\\\)/g;
+const TEX_CLS = ['c', 'e', 's', 'r', 't', 'm', 'k', 'b', 'a'];
+function texHighlight(src) {
+  let out = '', last = 0, m;
+  TEX_RE.lastIndex = 0;
+  while ((m = TEX_RE.exec(src))) {
+    if (m.index > last) out += esc(src.slice(last, m.index));
+    const g = m.slice(1).findIndex(x => x !== undefined);
+    out += `<span class="${TEX_CLS[g]}">${esc(m[0])}</span>`;
+    last = m.index + m[0].length;
+    if (m[0].length === 0) TEX_RE.lastIndex++;
+  }
+  return out + esc(src.slice(last)) + '\n ';
+}
+function attachTexEditor(ta) {
+  const wrap = document.createElement('div'); wrap.className = 'texed';
+  ta.parentNode.insertBefore(wrap, ta);
+  const pre = document.createElement('pre'); pre.className = 'texhl'; pre.setAttribute('aria-hidden', 'true');
+  wrap.append(pre, ta);
+  let shown = null;
+  const paint = () => { const v = ta.value; if (v !== shown) { shown = v; pre.innerHTML = texHighlight(v); } pre.scrollTop = ta.scrollTop; pre.scrollLeft = ta.scrollLeft; };
+  ta.addEventListener('input', paint); ta.addEventListener('scroll', () => { pre.scrollTop = ta.scrollTop; });
+  setInterval(() => { if (ta.offsetParent) paint(); }, 150);  // programmatic changes (agents streaming, section switch)
+  if (!ta.readOnly) ta.addEventListener('keydown', e => {
+    if (e.key === 'Tab' && !e.shiftKey && !e.ctrlKey && !ta.readOnly) {
+      e.preventDefault(); const a = ta.selectionStart, b = ta.selectionEnd;
+      ta.setRangeText('  ', a, b, 'end'); ta.dispatchEvent(new Event('input'));
+    }
+  });
+  paint();
+  return paint;
+}
+const ED_PAINT = attachTexEditor($('#sec-editor'));
+attachTexEditor($('#main-preview'));
+$('#sec-editor').addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); $('#sec-save').click(); } });
+
+// ===================================================================== v2.7: LaTeX → PDF preview
+let TEX = {engines: null, busy: false, timer: null, last: null};
+const texPrefs = () => { try { return JSON.parse(localStorage.getItem('tex_prefs') || '{}'); } catch { return {}; } };
+function saveTexPrefs() { try { localStorage.setItem('tex_prefs', JSON.stringify({engine: $('#tex-engine').value, layout: $('#tex-layout').value, auto: $('#tex-auto').checked})); } catch {} }
+async function loadTexEngines() {
+  try { TEX.engines = await api('/api/latex/engines'); } catch (e) { return; }
+  const E = TEX.engines, pr = texPrefs();
+  const names = {pdflatex: 'pdfLaTeX (+BibTeX)', latexmk: 'latexmk', xelatex: 'XeLaTeX', tectonic: 'Tectonic', online: '☁ Online (LaTeX-on-HTTP)'};
+  const opts = [...E.available, ...(E.online ? ['online'] : [])];
+  $('#tex-engine').innerHTML = opts.length ? opts.map(o => `<option value="${o}">${esc(names[o] || o)}</option>`).join('') : `<option value="">${esc(I18N.tr('No LaTeX installed'))}</option>`;
+  if (pr.engine && opts.includes(pr.engine)) $('#tex-engine').value = pr.engine;
+  if (pr.layout) $('#tex-layout').value = pr.layout;
+  if (pr.auto !== undefined) $('#tex-auto').checked = pr.auto;
+  $('#tex-online').checked = !!E.online;
+  if (!opts.length) texInstallHelp();
+  else if (!$('#tex-view-has')) $('#tex-empty').innerHTML = esc(I18N.tr('Press ▶ Compile PDF to see the manuscript as a PDF.')) + `<span class="status">${esc(I18N.tr('Found'))}: ${esc(E.available.join(', ') || 'online')}</span>`;
+}
+function texInstallHelp() {
+  const E = TEX.engines || {};
+  $('#tex-empty').innerHTML = `<b>${esc(I18N.tr('No LaTeX engine found on this computer'))}</b>
+    <div style="max-width:620px;text-align:left;font-size:13px">${(E.install_help || []).map(x => `<p style="margin:6px 0">• ${esc(x)}</p>`).join('')}
+    <p style="margin:6px 0">• ${esc(I18N.tr('Or tick "Allow online compilation" above (the paper is sent to an external service).'))}</p></div>`;
+  $('.texview').classList.remove('has');
+}
+['#tex-engine', '#tex-layout', '#tex-auto'].forEach(id => $(id).addEventListener('change', saveTexPrefs));
+$('#tex-online').onchange = async e => {
+  await api('/api/config', {method: 'POST', body: {latex_online: e.target.checked}});
+  if (e.target.checked) toast(I18N.tr('Online compilation allowed — used only when you pick the Online engine or no LaTeX is installed'), 'ok');
+  await loadTexEngines();
+};
+function texShow(r) {
+  const view = $('.texview');
+  if (r.ok) {
+    view.classList.add('has');
+    $('#tex-frame').src = `/api/latex/pdf?t=${r.pdf_mtime}#view=FitH`;
+  }
+  const nerr = r.errors.length, warn = r.undefined_citations.length + r.undefined_refs.length;
+  $('#tex-sum').innerHTML = r.ok
+    ? `<span class="texok">✓</span> ${r.pages ? r.pages + ' ' + esc(I18N.tr('pages')) + ' · ' : ''}${r.seconds} s · ${esc(r.engine)}${r.layout === 'simple' ? ' · ' + esc(I18N.tr('quick layout')) : ''}${nerr ? ` · ⚠ ${nerr} ${esc(I18N.tr('errors'))}` : ''}`
+    : `✗ ${esc(I18N.tr('no PDF produced'))}`;
+  let html = (r.notes || []).map(n => `<div class="texerr warn">ℹ ${esc(n)}</div>`).join('');
+  if (nerr) html += `<div class="texerr"><b>${nerr} ${esc(I18N.tr('LaTeX error(s)'))}</b> — ${esc(I18N.tr('click one to jump to it in the editor'))}<ul>${r.errors.map((e, i) =>
+    `<li data-texerr="${i}"><b>${esc(e.section_title ? I18N.tr(e.section_title) : e.line ? 'main.tex l.' + e.line : '')}</b> ${esc(e.message)}${e.context ? ` — <code>${esc(e.context)}</code>` : ''}</li>`).join('')}</ul></div>`;
+  if (warn) html += `<div class="texerr warn">${r.undefined_refs.length ? `${esc(I18N.tr('Undefined references'))}: <code>${esc(r.undefined_refs.join(', '))}</code> ` : ''}${r.undefined_citations.length ? `${esc(I18N.tr('Undefined citations'))}: <code>${esc(r.undefined_citations.join(', '))}</code>` : ''}</div>`;
+  if (r.report && r.report.placeholders) html += `<div class="texerr warn">${esc(I18N.tr('Placeholders still in the paper'))}: <b>${r.report.placeholders}</b> ([TBD] / [CITATION NEEDED])</div>`;
+  $('#tex-msg').innerHTML = html;
+  $$('#tex-msg [data-texerr]').forEach(li => li.onclick = () => jumpToTexError(r.errors[li.dataset.texerr]));
+}
+function jumpToTexError(e) {
+  if (!e.section) return toast(I18N.tr('This error is in the template part of main.tex (title, authors, preamble).'), '');
+  selectSection(e.section, 'latex');
+  const ed = $('#sec-editor'), probe = (e.context || '').trim().slice(-40);
+  const at = probe ? ed.value.indexOf(probe) : -1;
+  ed.focus();
+  if (at >= 0) {
+    ed.setSelectionRange(at, at + probe.length);
+    const line = ed.value.slice(0, at).split('\n').length;
+    ed.scrollTop = Math.max(0, (line - 4) * 18.75);
+  }
+  $('#secws').scrollIntoView({block: 'start', behavior: 'smooth'});
+}
+async function compilePdf(silent) {
+  if (TEX.busy) return;
+  if (!TEX.engines) await loadTexEngines();
+  if (!$('#tex-engine').value) { texInstallHelp(); if (!silent) toast(I18N.tr('No LaTeX engine found on this computer'), 'err'); return; }
+  TEX.busy = true; const btn = $('#tex-go'), old = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = `<span class="spin"></span>${esc(I18N.tr('Compiling…'))}`; $('.texview').classList.add('busy');
+  try {
+    await flushSectionEdits();
+    const r = await api('/api/latex/compile', {method: 'POST', body: {engine: $('#tex-engine').value, layout: $('#tex-layout').value}});
+    TEX.last = r; texShow(r);
+    if (r.report) showReport(r.report);
+    if (!r.ok && !silent) toast(I18N.tr('LaTeX produced no PDF — see the errors below the button'), 'err');
+  } catch (e) { $('#tex-sum').textContent = '✗ ' + e.message; if (!silent) toast(e.message, 'err'); }
+  finally { TEX.busy = false; btn.disabled = false; btn.innerHTML = old; $('.texview').classList.remove('busy'); }
+}
+function autoCompile() {
+  if (!$('#tex-auto').checked || W.busy || !PROJ || !SECTIONS.some(([id]) => PROJ.sections[id])) return;
+  clearTimeout(TEX.timer); TEX.timer = setTimeout(() => compilePdf(true), 600);
+}
+$('#tex-go').onclick = () => compilePdf(false);
+$('#tex-full').onclick = () => {
+  if (!TEX.last || !TEX.last.ok) return toast(I18N.tr('Compile the PDF first'), 'err');
+  openPdfUrl(`/api/latex/pdf?t=${TEX.last.pdf_mtime}`, PROJ.title || 'main.pdf', `main.pdf · ${TEX.last.pages || '?'} ${I18N.tr('pages')}`, '/api/latex/pdf?download=1');
+};
+$('#tex-logbtn').onclick = async () => { openView('LaTeX build log', '```text\n' + (await api('/api/latex/log')).slice(-60000) + '\n```'); };
 
 // ===================================================================== tool 3: external paper review
 const R = new Runner($('#rv-stop'), $('#rv-stat'), on => {
@@ -2808,12 +2990,15 @@ async function openPdf(file) {
   showPdf();
   $('#pdf-modal').classList.add('on');
 }
+function openPdfUrl(url, title, meta, dl) {
+  PDF_LIST = [{url, title, meta, dl}]; PDF_IDX = 0; showPdf(); $('#pdf-modal').classList.add('on');
+}
 function showPdf() {
-  const e = PDF_LIST[PDF_IDX], url = '/api/references/file/' + encodeURIComponent(e.file);
+  const e = PDF_LIST[PDF_IDX], url = e.url || '/api/references/file/' + encodeURIComponent(e.file);
   $('#pdf-title').textContent = e.title || e.file;
-  $('#pdf-meta').textContent = [(e.authors || []).slice(0, 4).join(', ') + ((e.authors || []).length > 4 ? ' et al.' : ''), e.year, e.venue, e.file, `${PDF_IDX + 1}/${PDF_LIST.length}`].filter(Boolean).join(' · ');
+  $('#pdf-meta').textContent = e.meta || [(e.authors || []).slice(0, 4).join(', ') + ((e.authors || []).length > 4 ? ' et al.' : ''), e.year, e.venue, e.file, `${PDF_IDX + 1}/${PDF_LIST.length}`].filter(Boolean).join(' · ');
   $('#pdf-key').textContent = e.key ? `[${e.key}]` : ''; $('#pdf-key').style.display = e.key ? '' : 'none';
-  $('#pdf-tab').href = url; $('#pdf-dl').href = url + '?download=1';
+  $('#pdf-tab').href = url; $('#pdf-dl').href = e.dl || url + '?download=1';
   $('#pdf-frame').src = url + '#view=FitH';
   $('#pdf-prev').disabled = PDF_IDX <= 0; $('#pdf-next').disabled = PDF_IDX >= PDF_LIST.length - 1;
 }

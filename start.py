@@ -23,12 +23,12 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 HOST = "127.0.0.1"
-APP_VERSION = "2.6.2"   # must match backend/config.py - a mismatch means files from two versions were mixed
+APP_VERSION = "2.7.0"   # must match backend/config.py - a mismatch means files from two versions were mixed
 # Files that must exist for this version (an incomplete copy or a partial upgrade is the most common failure)
 REQUIRED_FILES = [
     "backend/__init__.py", "backend/app.py", "backend/config.py", "backend/llm.py", "backend/library.py",
     "backend/paper.py", "backend/prompts.py", "backend/chat_store.py", "backend/context_hub.py",
-    "backend/attachments.py", "backend/fs_browse.py", "backend/review_ext.py", "backend/review_prompts.py", "backend/websearch.py", "frontend/index.html", "frontend/vendor/marked.min.js",
+    "backend/attachments.py", "backend/fs_browse.py", "backend/review_ext.py", "backend/review_prompts.py", "backend/websearch.py", "backend/latex_build.py", "frontend/index.html", "frontend/vendor/marked.min.js",
     "frontend/vendor/purify.min.js", "frontend/vendor/katex/katex.min.js", "frontend/vendor/katex/katex.min.css",
     "frontend/vendor/hljs/highlight.min.js", "frontend/guide/en.md", "frontend/guide/vi.md", "frontend/i18n.js", "requirements.txt",
 ]

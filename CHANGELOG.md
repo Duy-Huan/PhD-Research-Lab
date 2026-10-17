@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.7.0 — 2026-10-17
+- **📄 PDF preview in the Paper Writer:** compiles main.tex + references.bib with the LaTeX installed on your computer.
+  - Engines: pdfLaTeX + BibTeX, latexmk, XeLaTeX or Tectonic, found on PATH and in the usual MiKTeX / TeX Live / MacTeX folders.
+  - The PDF appears right under the editor, with a full-screen reader and ⬇ main.pdf.
+  - **Auto-compile** after every agent run and every Save.
+  - **Error list mapped to sections:** click an error to jump to and select the offending LaTeX in the editor. Undefined references/citations and leftover placeholders are reported. The build log is viewable.
+  - **Quick layout:** if IEEEtran / acmart is not installed, the preview is compiled with the article class (with shims for IEEE/ACM commands), so it always shows; a note tells how to install the real class.
+  - Install help when no LaTeX is found. Optional, opt-in online compilation (LaTeX-on-HTTP).
+- **LaTeX syntax highlighting** in the section editor and the main.tex preview: commands, environments, sections, citations/refs/labels, math, comments, braces and red [TBD]/[CITATION NEEDED] placeholders, in both themes; also while the agents stream.
+- Editor: Tab inserts spaces; Ctrl+S saves the section.
+- New endpoints: `GET /api/latex/engines`, `POST /api/latex/compile`, `GET /api/latex/pdf`, `GET /api/latex/log`.
+
 ## v2.6.2 — 2026-10-17
 - **Read PDFs directly in the app:** 👁 Read button (or click a paper title) in the Reference Library opens a large in-app reader using the browser's built-in PDF viewer (zoom, search, page thumbnails, print).
   - Title, authors, venue and the BibTeX key (click to copy) are shown above the PDF.

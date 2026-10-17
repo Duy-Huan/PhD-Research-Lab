@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "2.6.2"
+APP_VERSION = "2.7.0"
 
 ROOT = Path(__file__).resolve().parent.parent
 GLOBAL_DIR = ROOT / "data"                 # global config + the "Default project" (backward compatible)
@@ -118,6 +118,7 @@ DEFAULTS = {
     "output_lang": "ui",   # Tools 1/2/4 output language: ui | en | vi
     "agent_modes": {k: v["default"] for k, v in AGENTS.items()},
     "search": dict(SEARCH_DEFAULTS),
+    "latex_online": False,   # v2.7: allow compiling the preview with the public LaTeX-on-HTTP service (sends the paper)
 }
 
 _lock = threading.Lock()
@@ -136,7 +137,7 @@ def load_config() -> dict:
         except Exception:
             saved = {}
     for k in ("default_cloud", "lmstudio_base_url", "local_model", "references_dir", "fallback_to_cloud", "chat_restore",
-              "projects", "active_project", "output_lang"):
+              "projects", "active_project", "output_lang", "latex_online"):
         if k in saved:
             cfg[k] = saved[k]
     for pid, p in (saved.get("providers") or {}).items():
@@ -184,7 +185,7 @@ def save_config(patch: dict) -> dict:
                 cfg[k] = info["references_dir"]
             elif k in ("lmstudio_base_url", "local_model", "fallback_to_cloud"):
                 cfg[k] = v
-            elif k == "chat_restore":
+            elif k in ("chat_restore", "latex_online"):
                 cfg[k] = bool(v)
             elif k == "search" and isinstance(v, dict):
                 sc = cfg["search"]
