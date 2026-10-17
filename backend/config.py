@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "1.6.0"
+APP_VERSION = "2.1.0"
 
 ROOT = Path(__file__).resolve().parent.parent
 GLOBAL_DIR = ROOT / "data"                 # global config + the "Default project" (backward compatible)

@@ -6,21 +6,42 @@
 <title>PhD Research Lab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<!-- bundled locally: works offline / behind firewalls -->
+<link rel="stylesheet" href="/vendor/katex/katex.min.css">
+<link rel="stylesheet" id="hljs-theme" href="/vendor/hljs/github-dark.min.css">
+<script>
+  // apply the saved theme before the page paints (no flash): light | dark | auto (follow the OS)
+  (function () {
+    var mode = 'auto'; try { mode = localStorage.getItem('ui_theme') || 'auto'; } catch (e) {}
+    var eff = mode === 'auto' ? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : mode;
+    document.documentElement.dataset.theme = eff;
+    if (eff === 'light') document.getElementById('hljs-theme').href = '/vendor/hljs/github.min.css';
+  })();
+</script>
+<script src="/vendor/marked.min.js"></script>
+<script src="/vendor/purify.min.js"></script>
+<script src="/vendor/katex/katex.min.js"></script>
+<script src="/vendor/hljs/highlight.min.js"></script>
+<script src="/vendor/hljs/extra-languages.min.js"></script>
 <style>
 :root{
   --bg:#0f1216; --panel:#161a20; --panel2:#1c212a; --line:#2a313c; --text:#e6e9ee; --muted:#8d97a6;
   --accent:#d9a441; --accent2:#5fa8d3; --ok:#5cb87a; --err:#e06c6c; --cloud:#5fa8d3; --local:#9b7fe0;
   --radius:10px; --mono:'IBM Plex Mono',Consolas,monospace; --sans:'IBM Plex Sans','Segoe UI',sans-serif;
   --serif:'Source Serif 4',Georgia,serif;
+  --on-accent:#1a1405; --codebg:#0d1117; --backdrop:rgba(0,0,0,.6); --shadow:rgba(0,0,0,.45);
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#f5f3ee; --panel:#ffffff; --panel2:#efebe3; --line:#dcd5c8; --text:#1f2328; --muted:#646a73;
+  --accent:#a8690f; --accent2:#1d67a8; --ok:#2b8a52; --err:#c0392b; --cloud:#1d67a8; --local:#6a49c4;
+  --on-accent:#ffffff; --codebg:#f6f8fa; --backdrop:rgba(30,25,15,.35); --shadow:rgba(60,50,30,.18);
+  color-scheme:light;
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:14px/1.55 var(--sans)}
 button,input,select,textarea{font:inherit;color:inherit}
-.app{display:grid;grid-template-columns:320px 1fr;height:100vh}
+.app{display:grid;grid-template-columns:320px minmax(0,1fr);height:100vh;overflow:hidden}
 aside{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:18px 16px 40px}
 .brand{font-family:var(--serif);font-size:20px;font-weight:700;line-height:1.2;margin-bottom:2px}
 .brand span{color:var(--accent)}
@@ -35,7 +56,7 @@ textarea.code{font-family:var(--mono);font-size:12.5px;line-height:1.5}
 .row>*{flex:1}
 .btn{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;white-space:nowrap;flex:0 0 auto}
 .btn:hover{border-color:var(--accent)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#1a1405;font-weight:600}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
 .btn.primary:hover{filter:brightness(1.08)}
 .btn.small{padding:4px 9px;font-size:12px}
 .btn.danger:hover{border-color:var(--err);color:var(--err)}
@@ -54,15 +75,18 @@ textarea.code{font-family:var(--mono);font-size:12.5px;line-height:1.5}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted);margin-right:6px}
 .dot.ok{background:var(--ok)} .dot.err{background:var(--err)}
 .status{font-size:12px;color:var(--muted);margin-top:6px;word-break:break-word}
-main{display:flex;flex-direction:column;min-width:0}
+main{display:flex;flex-direction:column;min-width:0;min-height:0;height:100vh;overflow:hidden}
 nav{display:flex;gap:2px;padding:0 18px;border-bottom:1px solid var(--line);background:var(--panel);overflow-x:auto}
-nav button{background:none;border:0;border-bottom:2px solid transparent;padding:14px 14px 12px;cursor:pointer;color:var(--muted);white-space:nowrap}
-nav button.on{color:var(--text);border-bottom-color:var(--accent)}
-.tab{display:none;padding:22px 26px 60px;overflow-y:auto;flex:1}
+nav button[data-tab]{background:none;border:0;border-bottom:2px solid transparent;padding:14px 14px 12px;cursor:pointer;color:var(--muted);white-space:nowrap}
+nav button[data-tab].on{color:var(--text);border-bottom-color:var(--accent)}
+.tab{display:none;padding:22px 26px 60px;overflow-y:auto;overflow-x:hidden;flex:1;min-height:0}
 .tab.on{display:block}
 .tab h2{font-family:var(--serif);font-size:24px;margin:0 0 4px}
 .lead{color:var(--muted);margin:0 0 18px;max-width:900px}
-.grid2{display:grid;grid-template-columns:minmax(320px,420px) 1fr;gap:20px;align-items:start}
+.grid2{display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:20px;align-items:start}
+.grid2>*{min-width:0}
+.out,.card,.md,.abody,.chatpanel{min-width:0}
+.md pre,.md .katex-display{max-width:100%}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
 .card h4{margin:0 0 10px;font-size:14px}
 .out{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;min-height:200px}
@@ -93,6 +117,10 @@ table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
 .subtab{display:none}.subtab.on{display:block}
 .chat{display:flex;flex-direction:column;height:calc(100vh - 230px);min-height:420px}
 .chatcard{margin-top:16px}
+.themesw{display:flex;align-self:center;border:1px solid var(--line);border-radius:20px;overflow:hidden;margin-left:8px;flex:0 0 auto}
+.themesw button{background:none;border:0;padding:4px 10px;cursor:pointer;color:var(--muted);font-size:13px}
+.themesw button.on{background:var(--accent);color:var(--on-accent)}
+body,.card,.out,aside,nav,.composer2,.ububble,input,select,textarea{transition:background-color .2s,border-color .2s,color .2s}
 .projtag{align-self:center;font-size:12.5px;color:var(--accent);border:1px solid var(--accent);border-radius:20px;padding:3px 12px;white-space:nowrap;max-width:320px;overflow:hidden;text-overflow:ellipsis}
 .chatpanel{display:flex;flex-direction:column;height:620px}
 .chatpanel.tall{height:calc(100vh - 230px);min-height:460px}
@@ -121,18 +149,104 @@ table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
 .topic:hover,.topic.on{border-color:var(--accent)}
 .topic b{display:block;margin-bottom:3px}
 .topic span{color:var(--muted);font-size:12.5px}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50}
+.modal{position:fixed;inset:0;background:var(--backdrop);display:none;align-items:center;justify-content:center;z-index:50}
 .modal.on{display:flex}
 .modal .card{width:min(680px,94vw);max-height:90vh;overflow-y:auto}
 #toast{position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:8px;z-index:60}
-.toast{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--accent2);padding:10px 14px;border-radius:8px;max-width:420px;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.toast{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--accent2);padding:10px 14px;border-radius:8px;max-width:420px;box-shadow:0 6px 20px var(--shadow)}
 .toast.err{border-left-color:var(--err)} .toast.ok{border-left-color:var(--ok)}
 .spin{display:inline-block;width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:s .7s linear infinite;vertical-align:-2px;margin-right:6px}
 @keyframes s{to{transform:rotate(360deg)}}
 .sessbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid var(--line)}
 .sessbar select{width:auto;min-width:240px;max-width:420px;padding:5px 8px;font-size:12.5px}
 .chk{display:flex;gap:6px;align-items:center;font-size:12.5px;color:var(--text);margin-top:10px}
-@media (max-width:1000px){.app{grid-template-columns:1fr}aside{max-height:none;border-right:0;border-bottom:1px solid var(--line)}.grid2{grid-template-columns:1fr}}
+@media (max-width:1000px){.app{grid-template-columns:1fr;height:auto;overflow:visible}main{height:auto;overflow:visible}.tab{overflow:visible}aside{max-height:none;border-right:0;border-bottom:1px solid var(--line)}.grid2{grid-template-columns:1fr}}
+/* ---------- v2 Claude-style chat & rich rendering ---------- */
+.chatpanel{display:flex;flex-direction:column;height:700px}
+.chatpanel.tall{height:calc(100vh - 205px);min-height:480px}
+.sessbar{gap:2px}
+.msgs-wrap{position:relative;flex:1;min-height:0;display:flex}
+.msgs{flex:1;overflow-y:auto;padding:6px 8px 18px;scroll-behavior:auto}
+.jump{position:absolute;right:16px;bottom:12px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);color:var(--text);cursor:pointer;display:none;box-shadow:0 4px 14px var(--shadow)}
+.jump.on{display:block}
+.turn{margin:16px 0}
+.turn.user{display:flex;flex-direction:column;align-items:flex-end}
+.ububble{background:var(--panel2);border:1px solid var(--line);border-radius:16px 16px 4px 16px;padding:10px 15px;max-width:86%;white-space:pre-wrap;word-break:break-word;font-size:14px;line-height:1.55}
+.ububble.collapsed{max-height:190px;overflow:hidden;-webkit-mask-image:linear-gradient(#000 65%,transparent);mask-image:linear-gradient(#000 65%,transparent)}
+.more{font-size:12px;color:var(--accent2);cursor:pointer;margin-top:3px}
+.uactions,.aactions{display:flex;gap:2px;align-items:center;flex-wrap:wrap;opacity:0;transition:opacity .15s;margin-top:4px}
+.turn:hover .uactions,.turn:hover .aactions,.turn.last .aactions{opacity:1}
+.aactions .status{margin-left:6px;font-size:11.5px}
+.iconbtn{background:none;border:0;color:var(--muted);cursor:pointer;padding:4px 8px;border-radius:7px;font-size:12.5px;white-space:nowrap}
+.iconbtn:hover:not(:disabled){background:var(--panel2);color:var(--text)}
+.iconbtn:disabled{opacity:.35;cursor:default}
+.turn.ai{display:grid;grid-template-columns:30px minmax(0,1fr);gap:12px}
+.avatar{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#e0b15a,#c2703d);color:#1a1405;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;margin-top:2px}
+.avatar.big{width:44px;height:44px;font-size:24px;border-radius:12px;margin:0 auto 10px}
+.abody{min-width:0}
+.abody .md{line-height:1.7;font-size:14.5px}
+.abody .md > :first-child{margin-top:2px}
+.md h1,.md h2,.md h3,.md h4{line-height:1.3}
+.md p{margin:.55em 0}
+.md li{margin:.2em 0}
+.md blockquote{border-left:3px solid var(--line);margin:8px 0;padding:2px 12px;color:var(--muted)}
+.md img{max-width:100%;border-radius:8px}
+.md hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+.md .katex-display{overflow-x:auto;overflow-y:hidden;padding:4px 0}
+.cursor{display:inline-block;width:8px;height:1.05em;background:var(--accent);vertical-align:text-bottom;animation:blink 1s steps(2) infinite;margin-left:2px;border-radius:1px}
+@keyframes blink{50%{opacity:0}}
+.thinking{color:var(--muted);font-size:13.5px}
+.thinking span{animation:dots 1.2s infinite;opacity:0}
+.thinking span:nth-child(2){animation-delay:.2s}.thinking span:nth-child(3){animation-delay:.4s}
+@keyframes dots{40%{opacity:1}100%{opacity:0}}
+.emptystate{text-align:center;color:var(--muted);padding:40px 16px 10px;max-width:640px;margin:0 auto}
+.emptystate .chips{justify-content:center;margin-top:14px}
+.attchips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;justify-content:flex-end;max-width:86%}
+.pending{display:flex;flex-wrap:wrap;gap:6px}
+.pending:not(:empty){margin-bottom:6px}
+.attchip{display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:5px 9px;font-size:12px;max-width:290px;cursor:pointer}
+.attchip:hover{border-color:var(--accent2)}
+.attchip .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px}
+.attchip .meta{color:var(--muted);white-space:nowrap}
+.attchip .x{background:none;border:0;color:var(--muted);cursor:pointer;padding:0 0 0 2px;font-size:12px}
+.attchip .x:hover{color:var(--err)}
+.attchip img.thumb{width:26px;height:26px;object-fit:cover;border-radius:5px}
+.attchip.uploading{opacity:.7}
+.composer2{border:1px solid var(--line);border-radius:16px;background:var(--bg);padding:9px 10px 7px;margin-top:8px;transition:border-color .15s}
+.composer2:focus-within{border-color:var(--accent)}
+.composer2.over{border-style:dashed;border-color:var(--accent);background:rgba(217,164,65,.06)}
+.composer2 textarea{border:0;background:transparent;resize:none;min-height:26px;max-height:240px;padding:4px 6px;font-family:var(--sans);font-size:14.5px;line-height:1.5;width:100%}
+.composer2 textarea:focus{outline:none;border:0}
+.ctools{display:flex;align-items:center;gap:2px;margin-top:4px}
+.ctools .status{font-size:11.5px;margin-right:8px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.linkoffer{display:flex;gap:4px;align-items:center}
+.linkoffer:not(:empty){margin-bottom:6px}
+.toggle{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);padding:3px 9px;border:1px solid var(--line);border-radius:14px;cursor:pointer;margin-left:4px}
+.toggle:has(input:checked){color:var(--accent2);border-color:var(--accent2)}
+.toggle input{margin:0}
+.sendbtn{width:34px;height:34px;border-radius:10px;background:var(--accent);border:0;color:var(--on-accent);font-weight:700;font-size:17px;cursor:pointer;flex:0 0 auto}
+.sendbtn:hover{filter:brightness(1.08)}
+.sendbtn.stop{background:var(--text);color:var(--bg);font-size:13px}
+.hint{font-size:11px;text-align:center;margin-top:5px;opacity:.75}
+.errorbox{border:1px solid var(--err);background:rgba(224,108,108,.08);color:var(--text);border-radius:10px;padding:10px 12px;margin:10px 0 10px 42px;font-size:13px}
+.errorbox .btn{margin-left:8px}
+.tablebtns{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.codeblock{border:1px solid var(--line);border-radius:10px;margin:12px 0;overflow:hidden;background:var(--codebg)}
+.codehead{display:flex;justify-content:space-between;align-items:center;background:var(--panel2);padding:2px 6px 2px 12px;font-size:11.5px;color:var(--muted);font-family:var(--mono);border-bottom:1px solid var(--line)}
+.md .codeblock pre{margin:0;border:0;border-radius:0;background:var(--codebg);padding:12px 14px}
+.md .codeblock pre code.hljs{background:transparent;padding:0}
+.tablewrap{overflow-x:auto;margin:10px 0}
+.md .tablewrap table{display:table;margin:0}
+.cite{display:inline-block;background:rgba(95,168,211,.14);color:var(--accent2);border:1px solid rgba(95,168,211,.4);border-radius:6px;padding:0 6px;margin:0 2px;font-size:12px;cursor:pointer;line-height:1.55;white-space:nowrap}
+.cite:hover{background:rgba(95,168,211,.28)}
+#citepop{position:fixed;z-index:80;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:350px;box-shadow:0 10px 30px var(--shadow);display:none;font-size:13px}
+#citepop a.btn{text-decoration:none}
+a.btn:not(.primary){color:var(--text)}
+.paperitem{border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin:6px 0;cursor:pointer;background:var(--bg)}
+.paperitem:hover{border-color:var(--accent)}
+#view-modal .card{width:min(980px,96vw);max-height:92vh;display:flex;flex-direction:column}
+#view-body{overflow-y:auto;flex:1;padding-right:6px}
+.out .md{line-height:1.7}
 </style>
 </head>
 <body>
@@ -140,7 +254,7 @@ table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
 <!-- ================================================================ CONFIG SIDEBAR -->
 <aside>
   <div class="brand">PhD Interactive<br><span>Autonomous Research Lab</span></div>
-  <div class="sub">Hybrid multi-cloud AI + LM Studio · <span id="app-version">v1.6.0</span></div>
+  <div class="sub">Hybrid multi-cloud AI + LM Studio · <span id="app-version">v2.1.0</span></div>
 
   <h3>📂 Research project</h3>
   <div class="row"><select id="proj-select" title="Switch research project"></select></div>
@@ -201,6 +315,9 @@ table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
   <button data-tab="papers">📚 Papers &amp; Writer</button>
   <button data-tab="masterclass">📖 Masterclass</button>
   <span style="flex:1"></span><span class="projtag" id="proj-tag" title="Active research project"></span>
+  <span class="themesw" id="theme-switch" title="Appearance">
+    <button data-theme-mode="light" title="Light">☀</button><button data-theme-mode="dark" title="Dark">🌙</button><button data-theme-mode="auto" title="Follow system">🖥</button>
+  </span>
 </nav>
 
 <!-- ================================================================ TOOL 1 -->
@@ -393,6 +510,22 @@ table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
   <div class="row" style="margin-top:8px;justify-content:flex-end"><span style="flex:1"></span><button class="btn primary" id="notes-add">Add note</button></div>
 </div></div>
 
+<!-- library paper picker -->
+<div class="modal" id="paper-modal"><div class="card">
+  <div class="row"><h4 style="flex:1;margin:0">📚 Attach a paper from this project's library</h4><button class="btn small" id="paper-close">Close</button></div>
+  <p class="status">The full text (first 20 pages) is attached to your next message; the AI can quote it and cite it by its BibTeX key.</p>
+  <input type="text" id="paper-search" placeholder="Search title, author, key, venue…">
+  <div id="paper-list" style="margin-top:8px"></div>
+</div></div>
+
+<!-- reading view -->
+<div class="modal" id="view-modal"><div class="card">
+  <div class="row" style="margin-bottom:8px"><h4 id="view-title" style="flex:1;margin:0"></h4>
+    <button class="btn small" id="view-copy">Copy</button><button class="btn small" id="view-dl">⬇ .md</button><button class="btn small" id="view-close">Close</button></div>
+  <div class="md" id="view-body"></div>
+</div></div>
+<div id="citepop"></div>
+
 <div id="toast"></div>
 
 <script>
@@ -421,35 +554,146 @@ async function busy(btn, fn, label = 'Working…') {
   try { return await fn(); } catch (e) { toast(e.message, 'err'); throw e; }
   finally { btn.disabled = false; btn.innerHTML = old; }
 }
-function md(text) {
-  text = text || '';
-  const math = [];
-  // protect math from the markdown parser, render with KaTeX afterwards
-  text = text.replace(/\$\$([\s\S]+?)\$\$/g, (_, m) => `@@MATH${math.push([m, true]) - 1}@@`)
-             .replace(/(?<![\\$\w])\$([^\n$]+?)\$(?!\w)/g, (_, m) => `@@MATH${math.push([m, false]) - 1}@@`);
-  let html = window.marked ? marked.parse(text) : '<pre>' + esc(text) + '</pre>';
-  if (window.DOMPurify) html = DOMPurify.sanitize(html);
-  return html.replace(/@@MATH(\d+)@@/g, (_, i) => {
-    const [m, disp] = math[+i];
-    try { return window.katex ? katex.renderToString(m, {displayMode: disp, throwOnError: false}) : esc(m); }
-    catch { return esc(m); }
-  });
-}
 function download(name, text, type = 'text/plain') {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([text], {type})); a.download = name; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 function engineBadge(e) { return !e ? '' : e === 'local' ? '<span class="badge local">🖥 Local</span>' : `<span class="badge cloud">☁ ${esc(provLabel(e))}</span>`; }
+// ---------------------------------------------------------------- rich rendering (offline: marked + DOMPurify + KaTeX + highlight.js)
+if (window.marked) marked.setOptions({gfm: true, breaks: false});
+const CODE_SPLIT = /(```[\s\S]*?(?:```|$)|`[^`\n]+`)/g;
+function protectMath(text, math) {
+  // math is only recognised OUTSIDE code blocks / inline code (LaTeX tables inside ```latex stay verbatim)
+  return text.split(CODE_SPLIT).map((part, i) => i % 2 ? part : part
+    .replace(/\$\$([\s\S]+?)\$\$/g, (_, m) => `@@MATH${math.push([m, true]) - 1}@@`)
+    .replace(/\\\[([\s\S]+?)\\\]/g, (_, m) => `@@MATH${math.push([m, true]) - 1}@@`)
+    .replace(/\\\(([\s\S]+?)\\\)/g, (_, m) => `@@MATH${math.push([m, false]) - 1}@@`)
+    .replace(/(?<![\\$\w])\$(?=\S)([^\n$]+?)(?<=\S)\$(?![\w$])/g, (_, m) => `@@MATH${math.push([m, false]) - 1}@@`)
+  ).join('');
+}
+function md(text) {
+  const math = [];
+  const src = protectMath(String(text || ''), math);
+  let html = window.marked ? marked.parse(src) : '<pre>' + esc(src) + '</pre>';
+  if (window.DOMPurify) html = DOMPurify.sanitize(html, {ADD_ATTR: ['target']});
+  return html.replace(/@@MATH(\d+)@@/g, (_, i) => {
+    const [m, disp] = math[+i];
+    try { return window.katex ? katex.renderToString(m, {displayMode: disp, throwOnError: false, strict: 'ignore'}) : esc(m); }
+    catch { return esc(m); }
+  });
+}
+const CODE_EXT = {python: 'py', py: 'py', latex: 'tex', tex: 'tex', bibtex: 'bib', matlab: 'm', cpp: 'cpp', c: 'c', json: 'json',
+  bash: 'sh', shell: 'sh', yaml: 'yaml', javascript: 'js', verilog: 'v', systemverilog: 'sv', vhdl: 'vhd', csv: 'csv', markdown: 'md'};
+function enhance(root) {
+  root.querySelectorAll('pre > code').forEach(code => {
+    if (code.dataset.done) return; code.dataset.done = 1;
+    const lang = ((code.className.match(/language-([\w+-]+)/) || [])[1] || '').toLowerCase();
+    try { if (window.hljs && (lang ? hljs.getLanguage(lang) : code.textContent.length < 20000)) hljs.highlightElement(code); } catch {}
+    const pre = code.parentElement, box = document.createElement('div');
+    box.className = 'codeblock';
+    const head = document.createElement('div'); head.className = 'codehead';
+    head.innerHTML = `<span>${esc(lang || 'code')}</span><span><button class="iconbtn" data-act="copy">Copy</button>${CODE_EXT[lang] ? '<button class="iconbtn" data-act="save">⬇ Save</button>' : ''}</span>`;
+    head.querySelector('[data-act=copy]').onclick = e => { navigator.clipboard.writeText(code.textContent); e.target.textContent = '✓ Copied'; setTimeout(() => e.target.textContent = 'Copy', 1500); };
+    const sv = head.querySelector('[data-act=save]'); if (sv) sv.onclick = () => download(`snippet.${CODE_EXT[lang]}`, code.textContent);
+    pre.replaceWith(box); box.append(head, pre);
+  });
+  root.querySelectorAll('table').forEach(t => {
+    if (t.parentElement.classList.contains('tablewrap')) return;
+    const w = document.createElement('div'); w.className = 'tablewrap'; t.replaceWith(w); w.append(t);
+  });
+  root.querySelectorAll('a[href^="http"]').forEach(a => { a.target = '_blank'; a.rel = 'noopener noreferrer'; });
+  linkifyCitations(root);
+}
+function setRich(el, text) { el.innerHTML = md(text); enhance(el); }
+
+// ---------------------------------------------------------------- citation chips for [bib_key] / \cite{key}
+let CATALOG = {};
+async function loadCatalog() {
+  try { const {papers} = await api('/api/library/catalog'); CATALOG = Object.fromEntries(papers.map(p => [p.key, p])); } catch {}
+}
+function citeLabel(p) {
+  const a = (p.authors || [])[0] || '';
+  const last = a.includes(',') ? a.split(',')[0] : a.split(' ').pop();
+  return `${last || p.key}${(p.authors || []).length > 1 ? ' et al.' : ''} ${p.year || ''}`.trim();
+}
+function linkifyCitations(root) {
+  if (!Object.keys(CATALOG).length) return;
+  const re = /\[([A-Za-z][\w:-]*\d{4}[\w-]*(?:\s*[,;]\s*[A-Za-z][\w:-]*\d{4}[\w-]*)*)\]|\\cite[tp]?\{([^}]+)\}/g;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: n => n.parentElement.closest('pre,code,a,.cite,.katex,textarea') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT});
+  const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+  for (const n of nodes) {
+    const t = n.nodeValue; let m, last = 0; const frag = document.createDocumentFragment(); re.lastIndex = 0;
+    while ((m = re.exec(t))) {
+      const keys = (m[1] || m[2]).split(/[,;]/).map(k => k.trim()).filter(Boolean);
+      if (!keys.some(k => CATALOG[k])) continue;
+      frag.append(t.slice(last, m.index));
+      keys.forEach(k => {
+        const s = document.createElement('span');
+        s.className = 'cite' + (CATALOG[k] ? '' : ' unknown'); s.dataset.key = k;
+        s.textContent = CATALOG[k] ? citeLabel(CATALOG[k]) : k; s.title = CATALOG[k] ? CATALOG[k].title : 'Not in the library';
+        frag.append(s);
+      });
+      last = m.index + m[0].length;
+    }
+    if (last) { frag.append(t.slice(last)); n.replaceWith(frag); }
+  }
+}
+document.addEventListener('click', e => {
+  const c = e.target.closest('.cite');
+  const pop = $('#citepop');
+  if (!c) { if (!e.target.closest('#citepop')) pop.style.display = 'none'; return; }
+  const p = CATALOG[c.dataset.key]; if (!p) return;
+  pop.innerHTML = `<div class="status">[${esc(p.key)}]</div><b>${esc(p.title)}</b>
+    <div class="status" style="margin:4px 0 8px">${esc((p.authors || []).slice(0, 6).join(', '))}${(p.authors || []).length > 6 ? ' et al.' : ''}<br>${esc(p.venue || '')} ${esc(p.year || '')}</div>
+    <div class="row" style="flex-wrap:wrap;gap:6px">
+      ${p.file ? `<a class="btn small" target="_blank" href="/api/references/file/${encodeURIComponent(p.file)}">📕 Open PDF</a>` : ''}
+      ${p.doi ? `<a class="btn small" target="_blank" rel="noopener" href="https://doi.org/${esc(p.doi)}">DOI ↗</a>` : ''}
+      ${p.file ? '<button class="btn small" data-act="attach">📎 Attach to chat</button>' : ''}
+      <button class="btn small" data-act="copy">Copy key</button></div>`;
+  const r = c.getBoundingClientRect();
+  pop.style.display = 'block';
+  pop.style.left = Math.max(8, Math.min(r.left, innerWidth - 360)) + 'px';
+  pop.style.top = (r.bottom + 6 + 220 > innerHeight ? r.top - pop.offsetHeight - 6 : r.bottom + 6) + 'px';
+  const at = pop.querySelector('[data-act=attach]');
+  if (at) at.onclick = () => { const panel = PANELS.find(x => x.root.contains(c)) || visiblePanel(); if (panel) panel.addPaper(p.file); pop.style.display = 'none'; };
+  pop.querySelector('[data-act=copy]').onclick = () => { navigator.clipboard.writeText(p.key); toast('Copied', 'ok'); };
+});
+function visiblePanel() { return PANELS.find(p => p.root.offsetParent !== null); }
+
+// ---------------------------------------------------------------- reading view
+function openView(title, text) {
+  $('#view-title').textContent = title;
+  setRich($('#view-body'), text);
+  $('#view-modal').classList.add('on');
+  $('#view-copy').onclick = () => { navigator.clipboard.writeText(text); toast('Copied', 'ok'); };
+  $('#view-dl').onclick = () => download(title.replace(/[^\w\- ]+/g, '').trim().slice(0, 40) + '.md', text, 'text/markdown');
+}
+
 function renderOut(el, text, filename) {
-  el.innerHTML = `<div class="toolbar"><button class="btn small" data-copy>Copy</button><button class="btn small" data-dl>⬇ ${filename}</button></div><div class="md">${md(text)}</div>`;
+  el.innerHTML = `<div class="toolbar"><button class="btn small" data-copy>Copy</button><button class="btn small" data-view>⤢ Reading view</button><button class="btn small" data-dl>⬇ ${filename}</button></div><div class="md"></div>`;
+  setRich(el.querySelector('.md'), text);
+  el.querySelector('[data-view]').onclick = () => openView(filename, text);
   el.querySelector('[data-copy]').onclick = () => { navigator.clipboard.writeText(text); toast('Copied', 'ok'); };
   el.querySelector('[data-dl]').onclick = () => download(filename, text, 'text/markdown');
 }
 
+// ===================================================================== appearance (light / dark / auto)
+function themeMode() { try { return localStorage.getItem('ui_theme') || 'auto'; } catch { return 'auto'; } }
+function applyTheme(mode) {
+  const eff = mode === 'auto' ? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : mode;
+  document.documentElement.dataset.theme = eff;
+  $('#hljs-theme').href = eff === 'light' ? '/vendor/hljs/github.min.css' : '/vendor/hljs/github-dark.min.css';
+  $$('[data-theme-mode]').forEach(b => b.classList.toggle('on', b.dataset.themeMode === mode));
+}
+$$('[data-theme-mode]').forEach(b => b.onclick = () => { try { localStorage.setItem('ui_theme', b.dataset.themeMode); } catch {} applyTheme(b.dataset.themeMode); });
+matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => { if (themeMode() === 'auto') applyTheme('auto'); });
+applyTheme(themeMode());
+
 // ===================================================================== tabs
-$$('nav button').forEach(b => b.onclick = () => {
-  $$('nav button').forEach(x => x.classList.toggle('on', x === b));
+$$('nav button[data-tab]').forEach(b => b.onclick = () => {
+  $$('nav button[data-tab]').forEach(x => x.classList.toggle('on', x === b));
   $$('.tab').forEach(t => t.classList.toggle('on', t.id === 'tab-' + b.dataset.tab));
   if (b.dataset.tab === 'papers') { loadLibrary(); loadProject(); }
 });
@@ -621,7 +865,7 @@ $('#l2p-run').onclick = e => busy(e.target, async () => {
   await saveConfig();
   const r = await api('/api/tool/lit2plan', {method: 'POST', body: {idea: $('#l2p-idea').value, domain: $('#l2p-domain').value}});
   renderOut($('#l2p-out'), r.plan, 'lit2plan.md');
-  $('#l2p-exp').innerHTML = md(r.expansion);
+  setRich($('#l2p-exp'), r.expansion);
   $('#l2p-meta').innerHTML = `Query expansion ${engineBadge(r.engines.query_expansion)} · Planner ${engineBadge(r.engines.lit2plan)} ${r.notes.map(n => '<br>⚠ ' + esc(n)).join('')}`;
   await CHAT_L2P.newChat(true); toast('New follow-up chat started for this plan', 'ok');
 }, 'Researching…');
@@ -649,7 +893,7 @@ let LIB = [];
 async function loadLibrary() {
   try {
     const r = await api('/api/references');
-    LIB = r.references; $('#refs-dir').textContent = `${r.dir} · PDF engine: ${r.pdf_backend}`; renderLibrary();
+    loadCatalog(); LIB = r.references; $('#refs-dir').textContent = `${r.dir} · PDF engine: ${r.pdf_backend}`; renderLibrary();
     if (r.added.length) toast(`${r.added.length} new PDF(s) detected`, 'ok');
   } catch (e) { toast(e.message, 'err'); }
 }
@@ -741,7 +985,7 @@ async function loadProject() {
   $('#p-keywords').value = PROJ.keywords; $('#p-contribution').value = PROJ.contribution;
   $('#p-method').value = PROJ.method_notes; $('#p-results').value = PROJ.results_notes;
   $('#main-preview').value = r.main_tex || '';
-  $('#review-out').innerHTML = PROJ.review ? md(PROJ.review) : '<span class="status">No review yet.</span>';
+  if (PROJ.review) setRich($('#review-out'), PROJ.review); else $('#review-out').innerHTML = '<span class="status">No review yet.</span>';
   renderTables(); renderSections();
 }
 function renderTables() {
@@ -789,7 +1033,7 @@ function showReport(rep) {
 async function stepReview() {
   log('Agent 3.3 · Peer Reviewer: auditing main.tex…');
   const r = await api('/api/paper/review', {method: 'POST'});
-  PROJ.review = r.review; $('#review-out').innerHTML = md(r.review); showReport(r.report);
+  PROJ.review = r.review; setRich($('#review-out'), r.review); showReport(r.report);
   log(`Review complete (${r.engine})`, 'o');
 }
 async function reviseOne(id) {
@@ -854,74 +1098,156 @@ $('#mc-run').onclick = e => busy(e.target, async () => {
   await CHAT_MC.newChat(true); toast('New follow-up chat started for this guide', 'ok');
 }, 'Writing guide…');
 
-// ===================================================================== reusable chat panel (sessions + persistence + shared context)
+// ===================================================================== Claude-style chat panel
+// sessions + persistence + shared context + attachments (files / links / library papers / images) + streaming
 const CHAT_RESTORE = {value: true};
+const KIND_ICON = {pdf: '📕', docx: '📘', pptx: '📙', xlsx: '📗', text: '📄', notebook: '📓', html: '🌐', link: '🔗', paper: '📚', image: '🖼️'};
+function fmtSize(n) { return !n ? '' : n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(0) + ' KB' : (n / 1048576).toFixed(1) + ' MB'; }
+function attMeta(a) {
+  if (a.status === 'uploading') return 'uploading…';
+  if (a.kind === 'image') return fmtSize(a.size);
+  return [a.pages ? a.pages + ' p' : '', a.chars ? (a.chars < 1000 ? a.chars + ' chars' : (a.chars / 1000).toFixed(a.chars < 10000 ? 1 : 0) + 'k chars') : '', a.kind === 'link' && a.url ? new URL(a.url).hostname : ''].filter(Boolean).join(' · ');
+}
+function attChip(a, removable) {
+  const icon = a.status === 'uploading' ? '<span class="spin"></span>'
+    : a.kind === 'image' && a.id ? `<img class="thumb" src="/api/attachments/${a.id}/raw" alt="">` : (KIND_ICON[a.kind] || '📎');
+  return `<span class="attchip ${a.status || ''}" data-att="${esc(a.id || '')}" title="${esc(a.title || a.url || a.name)}">${icon}
+    <span class="nm">${esc(a.kind !== 'image' && a.title ? a.title : a.name)}</span><span class="meta">${esc(attMeta(a))}</span>
+    ${removable ? '<button class="x" title="Remove">✕</button>' : ''}</span>`;
+}
+async function previewAttachment(a) {
+  if (!a.id) return;
+  if (a.kind === 'image') { openView(a.name, `![${a.name}](/api/attachments/${a.id}/raw)`); return; }
+  const text = await (await fetch(`/api/attachments/${a.id}/text`)).text();
+  openView(a.title || a.name, (a.url ? `Source: <${a.url}>\n\n` : '') + '```text\n' + text.slice(0, 20000) + (text.length > 20000 ? `\n… [${(text.length - 20000).toLocaleString()} more characters sent to the AI]` : '') + '\n```');
+}
+
 class ChatPanel {
-  /** opts: {tool, endpoint, title, empty, placeholder, attach, tables, share, chips:[...], tall} */
+  /** opts: {tool, title, subtitle, empty, placeholder, tables, share, chips:[...], tall, onNew} */
   constructor(root, opts) {
-    Object.assign(this, {root, o: opts, chat: [], sid: null, sessions: [], attachData: null, saveTimer: null});
+    Object.assign(this, {root, o: opts, chat: [], sid: null, sessions: [], pending: [], saveTimer: null, streaming: false, ctrl: null});
     const shareKey = 'share_' + opts.tool;
     let shareOn = true; try { shareOn = localStorage.getItem(shareKey) !== '0'; } catch {}
     root.innerHTML = `<div class="chatpanel ${opts.tall ? 'tall' : ''}">
       ${opts.title ? `<div class="chathead"><b>${opts.title}</b><span class="status">${opts.subtitle || ''}</span></div>` : ''}
       <div class="sessbar">
         <select data-r="sel" title="Saved chat sessions of this tool"></select>
-        <button class="btn small" data-r="new">＋ New chat</button>
-        <button class="btn small" data-r="rename" title="Rename session">✎</button>
-        <button class="btn small danger" data-r="del" title="Delete session (moved to _trash)">🗑</button>
-        <button class="btn small" data-r="export" title="Export as Markdown">⬇</button>
-        <button class="btn small" data-r="notes" title="Shared context notes (📌) visible to all tools">📌 <span data-r="ncount">0</span></button>
+        <button class="iconbtn" data-r="new" title="New chat">＋ New</button>
+        <button class="iconbtn" data-r="rename" title="Rename session">✎</button>
+        <button class="iconbtn" data-r="del" title="Delete session (moved to _trash)">🗑</button>
+        <button class="iconbtn" data-r="clear" title="Clear messages">🧹</button>
+        <button class="iconbtn" data-r="export" title="Export as Markdown">⬇</button>
+        <button class="iconbtn" data-r="notes" title="Shared context notes (📌) visible to all tools">📌 <span data-r="ncount">0</span></button>
         <span style="flex:1"></span>
-        ${opts.share ? `<label class="chk" style="margin:0" title="Include the outputs, pinned notes and recent chats of the other tools"><input type="checkbox" data-r="share" ${shareOn ? 'checked' : ''}> 🔗 Share context with other tools</label>` : ''}
-        <label class="chk" style="margin:0" title="Global setting"><input type="checkbox" data-r="restore"> Auto-open last session</label>
+        <label class="chk" style="margin:0" title="Global setting: reopen the last session of every tool on start"><input type="checkbox" data-r="restore"> Auto-open</label>
       </div>
-      ${(opts.chips || []).length ? `<div class="chips">${opts.chips.map((c, i) => `<button class="chip" data-chip="${i}">${esc(c)}</button>`).join('')}</div>` : ''}
-      <div class="msgs" data-r="msgs"></div>
-      <div class="composer">
-        <div class="attach" data-r="ainfo"></div>
-        <textarea data-r="input" placeholder="${esc(opts.placeholder || 'Ask a follow-up question…  (Ctrl+Enter to send)')}"></textarea>
-        <div class="row" style="margin-top:8px">
-          ${opts.attach ? `<button class="btn small" data-r="attach">📎 Attach data file</button><input type="file" data-r="afile" hidden accept=".csv,.txt,.log,.json,.tsv,.m,.dat,.out,.md,.yaml,.yml,.py,.tex">` : ''}
-          <button class="btn small" data-r="clear">Clear</button>
-          <span class="status" data-r="saved" style="flex:1;text-align:right;margin:0 8px"></span>
-          <button class="btn primary" data-r="send">Send</button>
+      <div class="msgs-wrap"><div class="msgs" data-r="msgs"></div><button class="jump" data-r="jump" title="Scroll to latest">↓</button></div>
+      <div class="composer2" data-r="composer">
+        <div class="pending" data-r="pending"></div>
+        <div class="linkoffer" data-r="offer"></div>
+        <textarea data-r="input" rows="1" placeholder="${esc(opts.placeholder || 'Ask a follow-up question…')}"></textarea>
+        <div class="ctools">
+          <button class="iconbtn" data-r="attach" title="Attach files: PDF, DOCX, PPTX, XLSX, CSV, code, images… (or drag & drop / paste)">📎</button>
+          <input type="file" data-r="afile" hidden multiple>
+          <button class="iconbtn" data-r="link" title="Attach a web page, arXiv/DOI link or online PDF">🔗 Link</button>
+          <button class="iconbtn" data-r="paper" title="Attach full text of a paper from this project's library">📚 Paper</button>
+          ${opts.share ? `<label class="toggle" title="Also give the AI the outputs, pinned notes and recent chats of the other tools"><input type="checkbox" data-r="share" ${shareOn ? 'checked' : ''}><span>Shared context</span></label>` : ''}
+          <span style="flex:1"></span>
+          <span class="status" data-r="saved"></span>
+          <button class="sendbtn" data-r="send" title="Send (Enter)">↑</button>
         </div>
-      </div></div>`;
+      </div>
+      <div class="hint status">Enter to send · Shift+Enter for a new line · drop or paste files and images</div></div>`;
     this.r = {}; root.querySelectorAll('[data-r]').forEach(el => this.r[el.dataset.r] = el);
     const R = this.r;
     R.sel.onchange = e => e.target.value ? this.open(e.target.value).catch(err => toast(err.message, 'err')) : this.newChat();
     R.new.onclick = () => this.newChat();
     R.rename.onclick = () => this.rename();
     R.del.onclick = () => this.remove();
+    R.clear.onclick = () => this.clearMsgs();
     R.export.onclick = () => this.exportMd();
     R.notes.onclick = () => openNotes();
-    R.send.onclick = () => this.send();
-    R.clear.onclick = () => this.clearMsgs();
-    R.input.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) this.send(); });
+    R.send.onclick = () => this.streaming ? this.stop() : this.send();
+    R.attach.onclick = () => R.afile.click();
+    R.afile.onchange = e => { this.addFiles(e.target.files); e.target.value = ''; };
+    R.link.onclick = () => { const u = prompt('Paste a link (web page, arXiv, DOI, online PDF):'); if (u && u.trim()) this.addLink(u.trim()); };
+    R.paper.onclick = () => openPaperPicker(this);
+    R.input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); if (!this.streaming) this.send(); }
+    });
+    R.input.addEventListener('input', () => this.autosize());
+    R.input.addEventListener('paste', e => {
+      const files = [...(e.clipboardData?.files || [])];
+      if (files.length) { e.preventDefault(); this.addFiles(files); return; }
+      const t = (e.clipboardData?.getData('text') || '').trim();
+      if (/^https?:\/\/\S+$/.test(t)) this.offerLink(t);
+    });
+    R.composer.addEventListener('dragover', e => { e.preventDefault(); R.composer.classList.add('over'); });
+    R.composer.addEventListener('dragleave', () => R.composer.classList.remove('over'));
+    R.composer.addEventListener('drop', e => { e.preventDefault(); R.composer.classList.remove('over'); if (e.dataTransfer.files.length) this.addFiles(e.dataTransfer.files); });
+    R.msgs.addEventListener('scroll', () => R.jump.classList.toggle('on', R.msgs.scrollHeight - R.msgs.scrollTop - R.msgs.clientHeight > 200));
+    R.jump.onclick = () => this.scroll(true);
     R.restore.onchange = async e => {
       CHAT_RESTORE.value = e.target.checked; PANELS.forEach(p => p.r.restore.checked = e.target.checked);
       await api('/api/config', {method: 'POST', body: {chat_restore: e.target.checked}});
       toast(e.target.checked ? 'Each tool reopens its last session on start' : 'Each tool starts a new chat on start', 'ok');
     };
     if (R.share) R.share.onchange = e => { try { localStorage.setItem(shareKey, e.target.checked ? '1' : '0'); } catch {} };
-    if (R.attach) {
-      R.attach.onclick = () => R.afile.click();
-      R.afile.onchange = async e => {
-        const f = e.target.files[0]; if (!f) return;
-        let text = await f.text();
-        if (text.length > 60000) { text = text.slice(0, 60000); toast('File truncated to 60k characters', ''); }
-        this.attachData = {name: f.name, text}; R.ainfo.textContent = `📎 ${f.name} (${text.length.toLocaleString()} chars) — will be sent with your message`;
-        e.target.value = '';
-      };
-    }
-    root.querySelectorAll('[data-chip]').forEach(b => b.onclick = () => { R.input.value = opts.chips[b.dataset.chip]; R.input.focus(); });
   }
-  setSaved(text, cls = '') { this.r.saved.textContent = text; this.r.saved.className = 'status ' + cls; }
-  label(updated, count) { const t = updated ? new Date(updated).toLocaleString() : ''; return `💾 ${count} message(s) saved${t ? ' · ' + t : ''}`; }
-  scroll() { requestAnimationFrame(() => { this.r.msgs.scrollTop = this.r.msgs.scrollHeight; }); }
+  // ---------------------------------------------------------------- helpers
+  setSaved(text, cls = '') { this.r.saved.textContent = text; this.r.saved.className = 'status ' + cls; this.r.saved.title = text; }
+  label(updated, count) { const t = updated ? new Date(updated).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) : ''; return `💾 ${count} msg${t ? ' · ' + t : ''}`; }
+  nearBottom() { const m = this.r.msgs; return m.scrollHeight - m.scrollTop - m.clientHeight < 120; }
+  scroll(force) { requestAnimationFrame(() => { if (force || this.nearBottom() || this.streaming) this.r.msgs.scrollTop = this.r.msgs.scrollHeight; }); }
+  autosize() { const t = this.r.input; t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 240) + 'px'; }
+  // ---------------------------------------------------------------- attachments
+  renderPending() {
+    this.r.pending.innerHTML = this.pending.map(a => attChip(a, true)).join('');
+    this.r.pending.querySelectorAll('.attchip').forEach((el, i) => {
+      el.querySelector('.x').onclick = ev => { ev.stopPropagation(); this.pending.splice(i, 1); this.renderPending(); };
+      el.onclick = () => previewAttachment(this.pending[i]);
+    });
+  }
+  async upload(placeholders, call) {
+    this.pending.push(...placeholders); this.renderPending();
+    try {
+      const res = await call();
+      const got = Array.isArray(res) ? res : [res];
+      placeholders.forEach((ph, k) => { const i = this.pending.indexOf(ph); if (i >= 0) { if (got[k]) this.pending[i] = got[k]; else this.pending.splice(i, 1); } });
+    } catch (e) {
+      placeholders.forEach(ph => { const i = this.pending.indexOf(ph); if (i >= 0) this.pending.splice(i, 1); });
+      toast(e.message, 'err');
+    }
+    this.renderPending();
+  }
+  addFiles(fileList) {
+    const files = [...fileList]; if (!files.length) return;
+    const ph = files.map(f => ({name: f.name, size: f.size, status: 'uploading', kind: 'text'}));
+    const fd = new FormData(); files.forEach(f => fd.append('files', f, f.name || 'pasted-image.png'));
+    this.upload(ph, async () => {
+      const r = await api('/api/attachments', {method: 'POST', body: fd});
+      r.errors.forEach(err => toast(err, 'err'));
+      // map results back in order of successful files
+      return files.map(f => r.attachments.find(a => a.name === (f.name || 'pasted-image.png'))).filter(Boolean)
+        .concat([]).slice(0, ph.length);
+    });
+  }
+  addLink(url) {
+    this.r.offer.innerHTML = '';
+    this.upload([{name: url, status: 'uploading', kind: 'link'}], () => api('/api/attachments/link', {method: 'POST', body: {url}}));
+  }
+  addPaper(file) {
+    this.upload([{name: file, status: 'uploading', kind: 'paper'}], () => api('/api/attachments/paper', {method: 'POST', body: {file}}));
+  }
+  offerLink(url) {
+    this.r.offer.innerHTML = `<button class="chip">🔗 Attach as source: ${esc(url.length > 60 ? url.slice(0, 60) + '…' : url)}</button><button class="iconbtn" title="Dismiss">✕</button>`;
+    const [b, x] = this.r.offer.querySelectorAll('button');
+    b.onclick = () => this.addLink(url); x.onclick = () => this.r.offer.innerHTML = '';
+  }
+  // ---------------------------------------------------------------- sessions
   renderSelect() {
     const opts = this.sessions.map(x => `<option value="${esc(x.id)}">${esc(x.title)} · ${x.count} msg · ${x.updated ? new Date(x.updated).toLocaleDateString() : ''}</option>`);
-    if (!this.sid) opts.unshift('<option value="">✨ New chat (saved after first message)</option>');
+    if (!this.sid) opts.unshift('<option value="">✨ New chat</option>');
     this.r.sel.innerHTML = opts.join('') || '<option value="">✨ New chat</option>';
     this.r.sel.value = this.sid || '';
     this.r.rename.disabled = this.r.del.disabled = !this.sid;
@@ -936,18 +1262,20 @@ class ChatPanel {
       const r = await this.refresh();
       const target = r.active || (r.sessions[0] && r.sessions[0].id);
       if (r.restore && target) await this.open(target); else await this.newChat(true);
-    } catch (e) { this.setSaved('⚠ Could not load saved chats: ' + e.message, 'err'); }
+    } catch (e) { this.setSaved('⚠ ' + e.message, 'err'); }
   }
   async open(sid) {
+    if (this.streaming) this.stop();
     await this.flush();
     const d = await api('/api/chat/sessions/' + encodeURIComponent(sid));
-    this.sid = d.id; this.chat = d.messages || []; this.render(); this.renderSelect();
-    this.setSaved(this.label(d.updated, this.chat.length) + (d.context ? ' · 📄 context snapshot' : ''), 'ok');
+    this.sid = d.id; this.chat = d.messages || []; this.render(true); this.renderSelect();
+    this.setSaved(this.label(d.updated, this.chat.length) + (d.context ? ' · 📄 snapshot' : ''), 'ok');
   }
   async newChat(silent) {
+    if (this.streaming) this.stop();
     await this.flush();
-    this.sid = null; this.chat = []; this.render(); this.renderSelect();
-    this.setSaved('✨ New chat — saved automatically after your first message');
+    this.sid = null; this.chat = []; this.render(true); this.renderSelect();
+    this.setSaved('');
     if (!silent && this.o.onNew) this.o.onNew();
   }
   async ensure() {
@@ -975,54 +1303,151 @@ class ChatPanel {
     return Promise.resolve();
   }
   async flush() { if (this.saveTimer) await this.persist(true); }
-  render() {
+  // ---------------------------------------------------------------- rendering
+  emptyHTML() {
+    return `<div class="emptystate"><div class="avatar big">✳</div><div>${this.o.empty || 'Ask anything about the output above.'}</div>
+      ${(this.o.chips || []).length ? `<div class="chips">${this.o.chips.map((c, i) => `<button class="chip" data-chip="${i}">${esc(c)}</button>`).join('')}</div>` : ''}</div>`;
+  }
+  render(force) {
     const R = this.r;
-    if (!this.chat.length) { R.msgs.innerHTML = `<div class="empty">${this.o.empty || 'Ask anything about the output above.'}</div>`; return; }
-    R.msgs.innerHTML = this.chat.map((m, i) => m.role === 'user'
-      ? `<div class="msg user">${esc(m.content.length > 4000 ? m.content.slice(0, 4000) + '\n… [' + (m.content.length - 4000) + ' more chars]' : m.content)}</div>`
-      : `<div class="msg assistant" data-i="${i}"><div class="status msghead">${engineBadge(m.engine)} ${m.ts ? esc(new Date(m.ts).toLocaleString()) : ''} ${m.note ? '⚠ ' + esc(m.note) : ''}
-           <span style="flex:1"></span><button class="btn small" data-pin="${i}" title="Pin this answer (or the text you selected in it) to the shared context of all tools">📌 Pin</button>
-           <button class="btn small" data-copy="${i}">Copy</button></div><div class="md">${md(m.content)}</div>
-         ${this.o.tables ? (m.tables || []).map((t, j) => (m.added || []).includes(j)
-           ? `<button class="btn small" disabled style="margin:6px 6px 0 0">✓ Table ${j + 1} added</button>`
-           : `<button class="btn small" data-addt="${i}:${j}" style="margin:6px 6px 0 0">➕ Add table ${j + 1} to paper</button>`).join('') : ''}</div>`).join('');
+    if (!this.chat.length) {
+      R.msgs.innerHTML = this.emptyHTML();
+      R.msgs.querySelectorAll('[data-chip]').forEach(b => b.onclick = () => { R.input.value = this.o.chips[b.dataset.chip]; this.autosize(); R.input.focus(); });
+      return;
+    }
+    const lastAi = this.chat.map(m => m.role).lastIndexOf('assistant');
+    R.msgs.innerHTML = this.chat.map((m, i) => m.role === 'user' ? `
+      <div class="turn user" data-i="${i}">
+        ${(m.attachments || []).length ? `<div class="attchips">${m.attachments.map(a => attChip(a, false)).join('')}</div>` : ''}
+        <div class="ububble ${m.content.length > 1500 ? 'collapsed' : ''}">${esc(m.content)}</div>
+        ${m.content.length > 1500 ? '<span class="more" data-more>Show more</span>' : ''}
+        <div class="uactions"><button class="iconbtn" data-edit="${i}" title="Edit and resend">✎ Edit</button><button class="iconbtn" data-copy="${i}">Copy</button></div>
+      </div>` : `
+      <div class="turn ai ${i === lastAi ? 'last' : ''}" data-i="${i}"><div class="avatar">✳</div><div class="abody">
+        <div class="md" data-md="${i}"></div>
+        ${this.o.tables && (m.tables || []).length ? `<div class="tablebtns">${m.tables.map((t, j) => (m.added || []).includes(j)
+          ? `<button class="btn small" disabled>✓ Table ${j + 1} added</button>`
+          : `<button class="btn small" data-addt="${i}:${j}">➕ Add table ${j + 1} to paper</button>`).join('')}</div>` : ''}
+        <div class="aactions">
+          <button class="iconbtn" data-copy="${i}" title="Copy Markdown">Copy</button>
+          ${i === lastAi ? `<button class="iconbtn" data-regen title="Regenerate the answer">↻ Retry</button>` : ''}
+          <button class="iconbtn" data-pin="${i}" title="Pin this answer (or your selection) to the shared context of all tools">📌 Pin</button>
+          <button class="iconbtn" data-view="${i}" title="Open in reading view">⤢</button>
+          <span class="status">${engineBadge(m.engine)} ${m.ts ? esc(new Date(m.ts).toLocaleString()) : ''} ${m.note ? '· ⚠ ' + esc(m.note) : ''}</span>
+        </div></div></div>`).join('');
+    R.msgs.querySelectorAll('[data-md]').forEach(el => setRich(el, this.chat[el.dataset.md].content));
+    R.msgs.querySelectorAll('.turn.user .attchip').forEach(el => el.onclick = () => {
+      const m = this.chat[el.closest('.turn').dataset.i]; previewAttachment((m.attachments || []).find(a => a.id === el.dataset.att) || {});
+    });
+    R.msgs.querySelectorAll('[data-more]').forEach(el => el.onclick = () => { el.previousElementSibling.classList.toggle('collapsed'); el.textContent = el.textContent === 'Show more' ? 'Show less' : 'Show more'; });
+    R.msgs.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => { navigator.clipboard.writeText(this.chat[b.dataset.copy].content); toast('Copied', 'ok'); });
+    R.msgs.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => this.edit(+b.dataset.edit));
+    R.msgs.querySelectorAll('[data-view]').forEach(b => b.onclick = () => openView((this.sessions.find(x => x.id === this.sid) || {}).title || 'Answer', this.chat[b.dataset.view].content));
+    R.msgs.querySelectorAll('[data-regen]').forEach(b => b.onclick = () => this.regenerate());
     R.msgs.querySelectorAll('[data-addt]').forEach(b => b.onclick = async () => {
       const [i, j] = b.dataset.addt.split(':').map(Number);
       await api('/api/paper/tables', {method: 'POST', body: {latex: this.chat[i].tables[j]}});
       this.chat[i].added = [...new Set([...(this.chat[i].added || []), j])];
       this.render(); this.persist(); toast('Table added to Paper Writer', 'ok');
     });
-    R.msgs.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => { navigator.clipboard.writeText(this.chat[b.dataset.copy].content); toast('Copied', 'ok'); });
     R.msgs.querySelectorAll('[data-pin]').forEach(b => b.onclick = async () => {
-      const box = b.closest('.msg'); const sel = window.getSelection();
+      const box = b.closest('.turn'); const sel = window.getSelection();
       const picked = sel && sel.toString().trim() && box.contains(sel.anchorNode) ? sel.toString().trim() : this.chat[b.dataset.pin].content;
       const title = (this.sessions.find(x => x.id === this.sid) || {}).title || '';
       await api('/api/context/notes', {method: 'POST', body: {tool: this.o.tool, text: picked.slice(0, 6000), source: title}});
-      refreshNoteCount(); toast('📌 Pinned to shared context — all tools can now use it', 'ok');
+      refreshNoteCount(); toast('📌 Pinned to shared context — every tool can now use it', 'ok');
     });
-    this.scroll();
+    this.scroll(force);
+  }
+  // ---------------------------------------------------------------- sending & streaming
+  setStreaming(on) {
+    this.streaming = on;
+    const b = this.r.send; b.classList.toggle('stop', on); b.textContent = on ? '■' : '↑'; b.title = on ? 'Stop generating' : 'Send (Enter)';
   }
   async send() {
     const R = this.r;
-    let content = R.input.value.trim();
-    if (this.attachData) content = `${content || 'Parse this data into LaTeX tables.'}\n\n--- FILE: ${this.attachData.name} ---\n${this.attachData.text}`;
-    if (!content) return;
-    this.chat.push({role: 'user', content, ts: new Date().toISOString()});
-    R.input.value = ''; this.attachData = null; R.ainfo.textContent = '';
-    this.render();
-    await busy(R.send, async () => {
-      await this.persist(true);  // save the question first; it can never overwrite the saved answer
-      try {
-        const body = {messages: this.chat, session_id: this.sid, tool: this.o.tool, share: R.share ? R.share.checked : false};
-        const r = await api(this.o.endpoint, {method: 'POST', body});
-        this.chat.push({role: 'assistant', content: r.reply, tables: r.tables || [], engine: r.engine, note: r.note, added: [], ts: new Date().toISOString()});
-        if (r.session) { this.sid = r.session.id; this.setSaved(this.label(r.session.updated, r.session.count) + (r.shared ? ' · 🔗 shared context used' : ''), 'ok'); this.refresh(); }
-      } catch (e) { this.chat.pop(); R.input.value = content; this.persist(); throw e; }
-      this.render();
-    }, 'Thinking…').catch(() => this.render());
+    if (this.pending.some(a => a.status === 'uploading')) return toast('Wait for the attachments to finish uploading', 'err');
+    const text = R.input.value.trim();
+    const atts = this.pending.filter(a => a.id);
+    if (!text && !atts.length) return;
+    this.chat.push({role: 'user', content: text || 'Please review the attached file(s).', attachments: atts, ts: new Date().toISOString()});
+    R.input.value = ''; this.autosize(); this.pending = []; this.renderPending(); R.offer.innerHTML = '';
+    this.render(true);
+    await this.stream();
   }
+  async regenerate() {
+    if (this.streaming) return;
+    while (this.chat.length && this.chat[this.chat.length - 1].role === 'assistant') this.chat.pop();
+    if (!this.chat.length) return;
+    this.render(true); await this.stream();
+  }
+  edit(i) {
+    if (this.streaming) return;
+    const later = this.chat.length - i - 1;
+    if (later > 0 && !confirm(`Edit this message? The ${later} message(s) after it will be removed from this session.`)) return;
+    const m = this.chat[i];
+    this.r.input.value = m.content; this.pending = [...(m.attachments || [])]; this.renderPending();
+    this.chat = this.chat.slice(0, i); this.render(); this.persist(); this.autosize(); this.r.input.focus();
+  }
+  stop() { if (this.ctrl) this.ctrl.abort(); }
+  async stream() {
+    const R = this.r;
+    this.setStreaming(true);
+    await this.persist(true);  // the question is saved before the AI answers
+    const live = document.createElement('div');
+    live.className = 'turn ai last streaming';
+    live.innerHTML = '<div class="avatar">✳</div><div class="abody"><div class="md"><span class="thinking">Thinking<span>.</span><span>.</span><span>.</span></span></div><div class="aactions"><span class="status" data-st></span></div></div>';
+    R.msgs.querySelector('.emptystate')?.remove();
+    R.msgs.appendChild(live); this.scroll(true);
+    const mdEl = live.querySelector('.md');
+    let acc = '', done = null, errMsg = null, timer = null, shared = false;
+    const paint = () => { timer = null; mdEl.innerHTML = md(acc) + '<span class="cursor"></span>'; linkifyCitations(mdEl); this.scroll(); };
+    this.ctrl = new AbortController();
+    try {
+      const resp = await fetch('/api/chat/stream', {method: 'POST', signal: this.ctrl.signal, headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({tool: this.o.tool, session_id: this.sid, messages: this.chat, share: R.share ? R.share.checked : false})});
+      if (!resp.ok) { let d = ''; try { d = (await resp.json()).detail; } catch {} throw new Error(d || 'HTTP ' + resp.status); }
+      const reader = resp.body.getReader(), dec = new TextDecoder(); let buf = '';
+      for (;;) {
+        const {value, done: end} = await reader.read();
+        if (end) break;
+        buf += dec.decode(value, {stream: true});
+        let k;
+        while ((k = buf.indexOf('\n\n')) >= 0) {
+          const line = buf.slice(0, k).trim(); buf = buf.slice(k + 2);
+          if (!line.startsWith('data:')) continue;
+          const ev = JSON.parse(line.slice(5));
+          if (ev.type === 'start') { if (ev.session_id) this.sid = ev.session_id; shared = ev.shared; live.querySelector('[data-st]').textContent = shared ? '🔗 using shared context…' : ''; }
+          else if (ev.type === 'delta') { acc += ev.text; if (!timer) timer = setTimeout(paint, 50); }
+          else if (ev.type === 'done') done = ev;
+          else if (ev.type === 'error') errMsg = ev.detail;
+        }
+      }
+    } catch (e) {
+      if (e.name !== 'AbortError') errMsg = e.message;
+    }
+    clearTimeout(timer); this.ctrl = null;
+    if (done) {
+      this.chat.push({role: 'assistant', content: done.reply, tables: done.tables || [], engine: done.engine, note: done.note, added: [], ts: new Date().toISOString()});
+      this.sid = done.session.id; this.setSaved(this.label(done.session.updated, done.session.count) + (done.shared ? ' · 🔗 shared' : ''), 'ok');
+      this.refresh();
+    } else if (acc) {  // stopped by the user (or connection lost): keep the partial answer
+      this.chat.push({role: 'assistant', content: acc, engine: '', note: errMsg ? 'Interrupted: ' + errMsg : 'Stopped by user', ts: new Date().toISOString(), added: []});
+      this.persist(true);
+    }
+    this.setStreaming(false);
+    this.render();
+    if (errMsg && !acc) {
+      const box = document.createElement('div');
+      box.className = 'errorbox';
+      box.innerHTML = `⚠ ${esc(errMsg)} <button class="btn small">↻ Retry</button>`;
+      box.querySelector('button').onclick = () => { box.remove(); this.regenerate(); };
+      R.msgs.appendChild(box); this.scroll(true);
+    }
+  }
+  // ---------------------------------------------------------------- session actions
   async clearMsgs() {
-    if (!this.chat.length || !confirm('Clear all messages in this session? (Use "＋ New chat" to keep it and start another.)')) return;
+    if (!this.chat.length || !confirm('Clear all messages in this session? (Use "＋ New" to keep it and start another.)')) return;
     this.chat = []; this.render(); await this.persist(true);
   }
   async rename() {
@@ -1042,10 +1467,32 @@ class ChatPanel {
   exportMd() {
     if (!this.chat.length) return toast('Nothing to export yet', 'err');
     const title = (this.sessions.find(x => x.id === this.sid) || {}).title || 'chat';
-    const body = this.chat.map(m => `### ${m.role === 'user' ? '🧑 You' : '🤖 AI' + (m.engine ? ' (' + m.engine + ')' : '')}${m.ts ? ' — ' + new Date(m.ts).toLocaleString() : ''}\n\n${m.content}`).join('\n\n---\n\n');
+    const body = this.chat.map(m => `### ${m.role === 'user' ? '🧑 You' : '🤖 AI' + (m.engine ? ' (' + m.engine + ')' : '')}${m.ts ? ' — ' + new Date(m.ts).toLocaleString() : ''}\n\n`
+      + ((m.attachments || []).length ? m.attachments.map(a => `> 📎 ${a.title || a.name}${a.url ? ' — ' + a.url : ''}`).join('\n') + '\n\n' : '') + m.content).join('\n\n---\n\n');
     download(`chat-${this.o.tool}-${title.replace(/[^\w\- ]+/g, '').slice(0, 40).trim() || 'session'}.md`, `# ${title}\n\n${body}\n`, 'text/markdown');
   }
 }
+
+// ---- library paper picker
+let PICKER_PANEL = null;
+async function openPaperPicker(panel) {
+  PICKER_PANEL = panel;
+  await loadCatalog();
+  $('#paper-search').value = ''; renderPaperList();
+  $('#paper-modal').classList.add('on'); $('#paper-search').focus();
+}
+function renderPaperList() {
+  const q = $('#paper-search').value.toLowerCase();
+  const items = Object.values(CATALOG).filter(p => !q || [p.key, p.title, (p.authors || []).join(' '), p.venue, p.year].join(' ').toLowerCase().includes(q));
+  $('#paper-list').innerHTML = items.map(p => `<div class="paperitem" data-file="${esc(p.file)}"><b>${esc(p.title)}</b>
+      <div class="status">[${esc(p.key)}] ${esc((p.authors || []).slice(0, 3).join(', '))}${(p.authors || []).length > 3 ? ' et al.' : ''} · ${esc(p.venue || '')} ${esc(p.year || '')}</div></div>`).join('')
+    || '<div class="empty">No papers in this project\'s library yet. Add PDFs in Papers &amp; Writer → Reference Library.</div>';
+  $$('#paper-list .paperitem').forEach(el => el.onclick = () => { PICKER_PANEL.addPaper(el.dataset.file); $('#paper-modal').classList.remove('on'); });
+}
+$('#paper-search').oninput = renderPaperList;
+$('#paper-close').onclick = () => $('#paper-modal').classList.remove('on');
+$('#view-close').onclick = () => $('#view-modal').classList.remove('on');
+document.addEventListener('keydown', e => { if (e.key === 'Escape') $$('.modal.on').forEach(m => m.classList.remove('on')); });
 
 // ---- shared context notes (📌) modal
 const TOOL_NAMES = {lit2plan: 'Tool 1 · Lit2Plan', experiment: 'Tool 2 · Experiment', data: 'Tool 3 · Data chat', paper: 'Tool 3 · Paper', masterclass: 'Tool 4 · Masterclass'};
@@ -1070,22 +1517,22 @@ $('#notes-add').onclick = async () => {
 
 const PANELS = [];
 function mountChat(id, opts) { const p = new ChatPanel($(id), opts); PANELS.push(p); return p; }
-const CHAT_L2P = mountChat('#chat-lit2plan', {tool: 'lit2plan', endpoint: '/api/tool-chat', share: true,
+const CHAT_L2P = mountChat('#chat-lit2plan', {tool: 'lit2plan', share: true,
   title: '💬 Follow-up chat — deepen the research direction', subtitle: 'context: the plan above + other tools',
   empty: 'Ask about the plan: challenge a hypothesis, compare gaps, refine the roadmap…',
   chips: ['Which gap is the most publishable, and why?', 'Critique hypothesis H1 like a tough IEEE reviewer', 'Turn Month 1 into a week-by-week task plan', 'Propose 2 alternative research directions and compare them']});
-const CHAT_EXP = mountChat('#chat-experiment', {tool: 'experiment', endpoint: '/api/tool-chat', share: true, attach: true,
+const CHAT_EXP = mountChat('#chat-experiment', {tool: 'experiment', share: true, attach: true,
   title: '💬 Follow-up chat — refine the methodology', subtitle: 'context: design + skeleton code + other tools',
   empty: 'Ask about the maths, ablations, statistics or code. You can attach logs or a .py file.',
   chips: ['Is this ablation design sufficient? What is missing?', 'Which statistical test should I use, and how?', 'Modify experiment_skeleton.py to add a new baseline', 'Estimate the compute budget for the full study']});
-const CHAT_DATA = mountChat('#chat-data', {tool: 'data', endpoint: '/api/chat', attach: true, tables: true, tall: true,
+const CHAT_DATA = mountChat('#chat-data', {tool: 'data', tables: true, tall: true,
   placeholder: 'Paste raw data or ask a question…  (Ctrl+Enter to send)',
   empty: 'Paste training logs, CSV metrics, ablation results or SystemC-AMS / MATLAB output. The Data Extractor turns them into publication-ready LaTeX tables you can push into the paper.'});
-const CHAT_PAPER = mountChat('#chat-paper', {tool: 'paper', endpoint: '/api/tool-chat', share: true,
+const CHAT_PAPER = mountChat('#chat-paper', {tool: 'paper', share: true,
   title: '💬 Paper chat — co-author & reviewer discussion', subtitle: 'context: main.tex + peer review + other tools',
   empty: 'Discuss the manuscript and the review; ask for exact LaTeX replacements.',
   chips: ["Summarise the reviewer's major issues and a fix plan", 'Which claims are not supported by the results?', 'Strengthen the contribution bullets in the Introduction', 'Draft a point-by-point response to the reviewer']});
-const CHAT_MC = mountChat('#chat-masterclass', {tool: 'masterclass', endpoint: '/api/tool-chat', share: true,
+const CHAT_MC = mountChat('#chat-masterclass', {tool: 'masterclass', share: true,
   title: '💬 Follow-up chat — ask your mentor', subtitle: 'context: the guide above + other tools',
   empty: 'Ask follow-up questions, or ask the mentor to role-play an examiner or reviewer.',
   chips: ['Role-play: be my thesis examiner and ask 5 hard questions', 'Adapt the templates to my exact situation', 'Make a 2-week action checklist', 'What are the most common mistakes at this stage?']});
@@ -1102,8 +1549,7 @@ async function restoreOutputs() {
 
 loadConfig().catch(e => toast('Backend not reachable: ' + e.message, 'err'));
 loadProjects();
-restoreOutputs();
-PANELS.forEach(p => p.init());  // reopen each tool's last session (if 'Auto-open' is on)
+loadCatalog().then(() => { restoreOutputs(); PANELS.forEach(p => p.init()); });  // reopen each tool's last session (if 'Auto-open' is on)
 refreshNoteCount();
 </script>
 </body>

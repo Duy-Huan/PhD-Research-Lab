@@ -1,4 +1,4 @@
-# PhD Interactive Autonomous Research Lab — v1.6.0
+# PhD Interactive Autonomous Research Lab — v2.1.0
 
 A local desktop web app for Windows 11 that runs an end-to-end research workflow on a **hybrid AI architecture**: any of 14 cloud AI providers for deep reasoning and academic writing, plus local models in **LM Studio** (`http://localhost:1234/v1`) for fast, private, zero-cost extraction work.
 
@@ -85,6 +85,15 @@ Novelty + domain (hyperspectral, FOG signals, RISC-V SoC, …) → formulation i
 
 ### 📖 Tool 4 — Masterclass
 Rebuttal letters, major revisions, grant writing, thesis defense, qualifying exams, PRISMA reviews, venue choice, reproducibility packages, job applications — tailored to the context you provide.
+
+### ✳ Claude-style chat & rich results (v2.0)
+All five chats (Tool 1, Tool 2, Data chat, Paper chat, Tool 4) share one Claude-web-like interface:
+- **Streaming answers** with a live cursor and a **■ Stop** button (a stopped answer is kept); **↻ Retry** the last answer; **✎ Edit** any question and resend.
+- **Attachments** — 📎 files (PDF, DOCX, PPTX, XLSX, CSV/TSV, JSON, LaTeX, BibTeX, Python/MATLAB/C++/Verilog…, Jupyter notebooks, HTML), **images** (sent as vision input to models that support it), drag & drop or paste; 🔗 **links** (web pages, arXiv/DOI pages, online PDFs — pasting a URL offers to attach it); 📚 **papers** from the project library (full text). Click a chip to preview exactly what the AI receives. Attachments are stored per project in `workspace/attachments/` and stay attached in the saved session.
+- **Rich rendering, fully offline** — Markdown, tables, KaTeX math (`$…$`, `$$…$$`, `\(…\)`, `\[…\]`), syntax-highlighted code with Copy / Save, LaTeX kept verbatim inside code blocks, and **citation chips**: `[bib_key]` or `\cite{key}` become chips showing authors, venue, *Open PDF*, *DOI* and *Attach to chat*.
+- **Appearance:** ☀ light / 🌙 dark / 🖥 follow the OS — switch at the top right (remembered per browser; code highlighting switches too).
+- **Enter** sends, **Shift+Enter** new line (safe with Vietnamese/Telex input), ⤢ reading view, 📌 pin, export to Markdown.
+- Tool outputs (Lit2Plan, Experiment design, Masterclass, review) use the same renderer with a reading view.
 
 ### 💬 Follow-up chats & Shared Context Hub (v1.5)
 Every tool has its own **follow-up chat** under its output — Tool 1 (plan), Tool 2 (methodology + code), Tool 3 (Data chat and Paper chat on `main.tex` + review), Tool 4 (mentor). Each tool keeps its own list of saved sessions (switch, new, rename, delete, export).

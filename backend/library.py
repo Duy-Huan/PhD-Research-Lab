@@ -348,3 +348,9 @@ def reference_digest(entries: list, abstract_chars: int = 600) -> str:
         lines.append(f"[{e['key']}] {e.get('title', '')} — {authors} ({e.get('year', 'n.d.')}), {e.get('venue', '')}\n"
                      f"    Abstract: {(e.get('abstract') or 'n/a')[:abstract_chars]}")
     return "\n".join(lines) if lines else "(no references ingested)"
+
+
+def pdf_text(path: Path, max_pages: int = 40, limit: int = 200_000) -> tuple[str, int]:
+    """Full text of the first `max_pages` pages (for chat attachments). Returns (text, page_count)."""
+    r = _read_pdf(path, max_pages, want_title=False)
+    return r["text"][:limit], r["pages"]

@@ -10,17 +10,20 @@ from pathlib import Path
 
 from fastapi import Body, FastAPI, File, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Response
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Response, StreamingResponse
 
 from . import prompts
 from .config import (APP_VERSION, ROOT, activate_project, create_project, data_dir, forget_project, list_projects,
                      load_config, open_project, public_config, refs_dir, rename_project, save_config)
 from .library import (PDF_BACKEND, build_bibtex, first_pages_text, included, load_library,
                       merge_llm_metadata, reference_digest, save_library, scan_directory)
+from .attachments import (AttachmentError, add_library_paper, add_link, add_upload, clean_refs, get_meta,
+                          get_text, raw_path, render_for_llm)
 from .context_hub import add_note, build_shared_context, delete_note, load_notes, tool_output
 from .chat_store import (TOOLS, SessionNotFound, create_session, delete_session, get_active, list_sessions,
                          load_session, record_turn, save_session)
-from .llm import (LLMError, call_agent, cloud_chat, extract_json, list_local_models, list_provider_models,
+from .llm import (LLMError, call_agent, stream_agent, cloud_chat, extract_json, list_local_models, list_provider_models,
                   provider_settings, strip_fences)
 from .paper import (SECTION_TITLES, SECTIONS, assemble, build_zip, clean_section,
                     fix_citations, load_project, read_ws, save_project, write_ws)
@@ -37,6 +40,9 @@ async def llm_error_handler(_, exc: LLMError):
 @app.get("/")
 def index():
     return FileResponse(FRONTEND)
+
+
+app.mount("/vendor", StaticFiles(directory=str(ROOT / "frontend" / "vendor")), name="vendor")  # offline UI libraries
 
 
 # ================================================================ configuration
@@ -285,34 +291,15 @@ def download(name: str):
                     headers={"Content-Disposition": f'attachment; filename="{name}"'})
 
 
-# ================================================================ Tool 3: chat console
-@app.post("/api/chat")
-async def chat(body: dict = Body(...)):
-    history = [m for m in body.get("messages", []) if m.get("role") in ("user", "assistant") and m.get("content")]
-    if not history or history[-1]["role"] != "user":
-        raise HTTPException(400, "Last message must be from the user")
-    msgs = []  # LLM context window: last 12 messages, consecutive same-role turns merged
-    for m in history[-12:]:  # (a question left unanswered by a refresh would otherwise break role alternation)
-        if msgs and msgs[-1]["role"] == m["role"]:
-            msgs[-1]["content"] += "\n\n" + m["content"]
-        else:
-            msgs.append({"role": m["role"], "content": m["content"]})
-    if msgs[0]["role"] != "user":
-        msgs = msgs[1:]
-    system = prompts.DATA_EXTRACTOR_SYS + "\n\nLOCAL LIBRARY:\n" + reference_digest(included()[:30], 200)
-    r = await call_agent("data_extractor", system, messages=msgs, max_tokens=6000, temperature=0.1)
-    tables = re.findall(r"\\begin\{table\*?\}.*?\\end\{table\*?\}", r["text"], flags=re.S)
-    reply = {"content": r["text"], "tables": tables, "engine": r["engine"], "note": r["note"]}
-    # Session persistence: save the completed Q&A turn to data/workspace/chat_sessions/<id>.json
-    sid = body.get("session_id") or get_active("data") or create_session(tool="data")["id"]
-    saved = await run_in_threadpool(record_turn, sid, history, reply)
-    return {"reply": r["text"], "tables": tables, "engine": r["engine"], "note": r["note"],
-            "session": {"id": sid, "title": saved["title"], "updated": saved["updated"], "count": len(saved["messages"])}}
-
-
+# ================================================================ chats (Data chat + follow-up chats of Tools 1-4)
 @app.exception_handler(SessionNotFound)
 async def session_not_found(_, exc):
     return JSONResponse(status_code=404, content={"detail": f"Chat session not found: {exc}"})
+
+
+@app.exception_handler(AttachmentError)
+async def attachment_error(_, exc):
+    return JSONResponse(status_code=400, content={"detail": str(exc)})
 
 
 @app.get("/api/chat/sessions")
@@ -334,7 +321,6 @@ def chat_session_create(body: dict = Body(default={})):
     return create_session(body.get("title"), body.get("messages"), tool=tool, context=context)
 
 
-# ================================================================ follow-up chats for Tools 1-4
 def _recent_sessions(exclude: str) -> dict:
     out = {}
     for t in TOOLS:
@@ -347,36 +333,174 @@ def _recent_sessions(exclude: str) -> dict:
     return out
 
 
-@app.post("/api/tool-chat")
-async def tool_chat(body: dict = Body(...)):
-    """Follow-up chat about a tool's output, optionally sharing context with the other tools."""
-    tool = body.get("tool")
-    if tool not in prompts.TOOL_CHAT_SYS:
+ATTACHMENT_BUDGET = 150_000  # characters of attached documents per request (newest messages first)
+
+
+def _llm_messages(history: list, window: int) -> list:
+    """Last `window` messages -> LLM messages with attachment text/images; same-role turns merged."""
+    hist = history[-window:]
+    budget, rendered = ATTACHMENT_BUDGET, [None] * len(hist)
+    n_images = 0
+    for i in range(len(hist) - 1, -1, -1):  # newest first gets the attachment budget
+        m = hist[i]
+        content, images = m["content"], []
+        if m["role"] == "user" and m.get("attachments"):
+            block, images, used = render_for_llm(m["attachments"], budget)
+            budget -= used
+            images = images[: max(0, 8 - n_images)]
+            n_images += len(images)
+            if block:
+                content = f"{block}\n\n{content}"
+        rendered[i] = {"role": m["role"], "content": content, "images": images}
+    msgs = []
+    for m in rendered:
+        if msgs and msgs[-1]["role"] == m["role"]:
+            msgs[-1]["content"] += "\n\n" + m["content"]
+            msgs[-1]["images"] += m["images"]
+        else:
+            msgs.append(m)
+    if msgs and msgs[0]["role"] != "user":
+        msgs = msgs[1:]
+    return msgs
+
+
+def _prepare_chat(body: dict) -> dict:
+    tool = body.get("tool") or "data"
+    if tool not in TOOLS:
         raise HTTPException(400, f"Unknown tool {tool}")
     history = [m for m in body.get("messages", []) if m.get("role") in ("user", "assistant") and m.get("content")]
     if not history or history[-1]["role"] != "user":
         raise HTTPException(400, "Last message must be from the user")
+    for m in history:
+        if m.get("attachments"):
+            m["attachments"] = clean_refs(m["attachments"])
     sid = body.get("session_id")
     if not sid:
-        sid = create_session(tool=tool, context=tool_output(tool)["content"] if tool != "paper" else "")["id"]
-    sess = load_session(sid, activate=False)
-    own = sess.get("context") or tool_output(tool)["content"]  # snapshot first, else latest output
-    own = own[:40000] + ("\n…[truncated]" if len(own) > 40000 else "")
-    shared = build_shared_context(tool, _recent_sessions(tool)) if body.get("share", True) else ""
-    system = prompts.tool_chat_system(tool, own, shared, reference_digest(included()[:30], 250))
-    msgs = []
-    for m in history[-16:]:
-        if msgs and msgs[-1]["role"] == m["role"]:
-            msgs[-1]["content"] += "\n\n" + m["content"]
-        else:
-            msgs.append({"role": m["role"], "content": m["content"]})
-    if msgs[0]["role"] != "user":
-        msgs = msgs[1:]
-    r = await call_agent(f"chat_{tool}", system, messages=msgs, max_tokens=6000, temperature=0.4)
-    reply = {"content": r["text"], "tables": [], "engine": r["engine"], "note": r["note"]}
-    saved = await run_in_threadpool(record_turn, sid, history, reply)
-    return {"reply": r["text"], "tables": [], "engine": r["engine"], "note": r["note"], "shared": bool(shared),
-            "session": {"id": sid, "title": saved["title"], "updated": saved["updated"], "count": len(saved["messages"])}}
+        sid = (get_active("data") if tool == "data" else None) or create_session(
+            tool=tool, context=tool_output(tool)["content"] if tool in ("lit2plan", "experiment", "masterclass") else "")["id"]
+    shared = ""
+    if tool == "data":
+        agent, temp = "data_extractor", 0.1
+        system = prompts.DATA_EXTRACTOR_SYS + "\n\nLOCAL LIBRARY:\n" + reference_digest(included()[:30], 200)
+        msgs = _llm_messages(history, 12)
+    else:
+        agent, temp = f"chat_{tool}", 0.4
+        sess = load_session(sid, activate=False)
+        own = sess.get("context") or tool_output(tool)["content"]  # snapshot first, else latest output
+        own = own[:40000] + ("\n…[truncated]" if len(own) > 40000 else "")
+        shared = build_shared_context(tool, _recent_sessions(tool)) if body.get("share", True) else ""
+        system = prompts.tool_chat_system(tool, own, shared, reference_digest(included()[:30], 250))
+        msgs = _llm_messages(history, 16)
+    system += prompts.ATTACHMENT_RULES
+    return {"tool": tool, "agent": agent, "temp": temp, "system": system, "msgs": msgs,
+            "sid": sid, "history": history, "shared": bool(shared)}
+
+
+def _finish(ctx: dict, text: str, engine: str, note: str) -> tuple[dict, dict]:
+    tables = re.findall(r"\\begin\{table\*?\}.*?\\end\{table\*?\}", text, flags=re.S) if ctx["tool"] == "data" else []
+    reply = {"content": text, "tables": tables, "engine": engine, "note": note}
+    saved = record_turn(ctx["sid"], ctx["history"], reply)
+    return reply, {"id": ctx["sid"], "title": saved["title"], "updated": saved["updated"], "count": len(saved["messages"])}
+
+
+async def _chat_once(body: dict) -> dict:
+    ctx = _prepare_chat(body)
+    r = await call_agent(ctx["agent"], ctx["system"], messages=ctx["msgs"], max_tokens=6000, temperature=ctx["temp"])
+    reply, session = await run_in_threadpool(_finish, ctx, r["text"], r["engine"], r["note"])
+    return {"reply": reply["content"], "tables": reply["tables"], "engine": r["engine"], "note": r["note"],
+            "shared": ctx["shared"], "session": session}
+
+
+@app.post("/api/chat")
+async def chat(body: dict = Body(...)):
+    """Data chat (non-streaming)."""
+    return await _chat_once({**body, "tool": "data"})
+
+
+@app.post("/api/tool-chat")
+async def tool_chat(body: dict = Body(...)):
+    """Follow-up chat of Tools 1-4 (non-streaming)."""
+    if body.get("tool") not in prompts.TOOL_CHAT_SYS:
+        raise HTTPException(400, f"Unknown tool {body.get('tool')}")
+    return await _chat_once(body)
+
+
+@app.post("/api/chat/stream")
+async def chat_stream(body: dict = Body(...)):
+    """Streaming chat for every tool (Server-Sent Events): delta events, then a final done/error event.
+    The turn is saved when the answer completes; if the user presses Stop the browser saves the partial answer."""
+    ctx = _prepare_chat(body)
+
+    def sse(obj: dict) -> str:
+        return f"data: {json.dumps(obj, ensure_ascii=False)}\n\n"
+
+    async def gen():
+        meta = {}
+        try:
+            yield sse({"type": "start", "session_id": ctx["sid"], "shared": ctx["shared"]})
+            async for kind, val in stream_agent(ctx["agent"], ctx["system"], ctx["msgs"], max_tokens=6000, temperature=ctx["temp"]):
+                if kind == "delta":
+                    yield sse({"type": "delta", "text": val})
+                else:
+                    meta = val
+            reply, session = await run_in_threadpool(_finish, ctx, meta["text"], meta["engine"], meta["note"])
+            yield sse({"type": "done", "reply": reply["content"], "tables": reply["tables"], "engine": meta["engine"],
+                       "note": meta["note"], "shared": ctx["shared"], "session": session})
+        except LLMError as e:
+            yield sse({"type": "error", "detail": str(e)})
+
+    return StreamingResponse(gen(), media_type="text/event-stream",
+                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
+# ================================================================ attachments & library catalogue
+@app.post("/api/attachments")
+async def upload_attachments(files: list[UploadFile] = File(...)):
+    """Upload files to attach to a chat message; returns metadata (and per-file errors)."""
+    out, errors = [], []
+    for f in files:
+        try:
+            out.append(await run_in_threadpool(add_upload, f.filename or "file", await f.read()))
+        except AttachmentError as e:
+            errors.append(str(e))
+    return {"attachments": out, "errors": errors}
+
+
+@app.post("/api/attachments/link")
+async def attach_link(body: dict = Body(...)):
+    """Fetch a web page / online PDF and attach its text."""
+    return await add_link(body.get("url", ""))
+
+
+@app.post("/api/attachments/paper")
+def attach_paper(body: dict = Body(...)):
+    """Attach the full text of a paper from the project's references folder."""
+    return add_library_paper(body.get("file", ""))
+
+
+@app.get("/api/attachments/{att_id}/raw")
+def attachment_raw(att_id: str):
+    p = raw_path(att_id)
+    return FileResponse(p, filename=get_meta(att_id)["name"], content_disposition_type="inline")
+
+
+@app.get("/api/attachments/{att_id}/text", response_class=PlainTextResponse)
+def attachment_text(att_id: str):
+    return get_text(att_id)
+
+
+@app.get("/api/library/catalog")
+def library_catalog():
+    """Included references (for citation chips and the paper picker)."""
+    return {"papers": [{k: e.get(k) for k in ("key", "title", "authors", "year", "venue", "doi", "file")} for e in included()]}
+
+
+@app.get("/api/references/file/{name}")
+def reference_file(name: str):
+    f = refs_dir() / Path(name).name
+    if not f.exists():
+        raise HTTPException(404, "PDF not found in this project's references folder")
+    return FileResponse(f, media_type="application/pdf", content_disposition_type="inline")
 
 
 @app.get("/api/tool/output/{tool}")

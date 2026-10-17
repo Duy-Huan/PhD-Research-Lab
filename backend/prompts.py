@@ -207,3 +207,13 @@ def tool_chat_system(tool: str, tool_output: str, shared: str, digest: str) -> s
         out += f"\n\n# SHARED CONTEXT FROM OTHER TOOLS\n{shared}"
     out += f"\n\n# REFERENCE CATALOGUE (local library)\n{digest}"
     return out
+
+
+ATTACHMENT_RULES = """
+
+# ATTACHMENTS
+The researcher may attach documents, web pages, library papers or images to a message; their text appears inside
+<attachment name=... type=... [url=...] [bib_key=...]> tags (images are provided directly).
+- Use them as primary sources for that question; quote briefly and name the attachment you rely on.
+- When an attachment has a url, cite it as a Markdown link [title](url); when it has a bib_key, cite it as [bib_key].
+- If an attachment is truncated or unreadable, say so instead of guessing."""

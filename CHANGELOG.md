@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.1.0 — 2026-10-17
+- Light / dark / auto (follow OS) appearance, switch in the header; applied before first paint (no flash); code highlighting theme follows.
+- Fix: wide code blocks, tables or formulas no longer stretch the result column past the window; each tab now scrolls on its own.
+- Fix: tab handler no longer captures other header buttons.
+
+## v2.0.0 — 2026-10-17
+- Claude-style chat UI for every tool: streaming answers (SSE) with Stop, Retry, Edit-and-resend, reading view, jump-to-latest.
+- Attachments: files (PDF/DOCX/PPTX/XLSX/CSV/code/notebooks/HTML), images (vision input for Claude, GPT, Gemini…), web links and online PDFs, papers from the project library; drag & drop, paste, previews; stored per project.
+- Rich offline rendering: marked + DOMPurify + KaTeX + highlight.js bundled in `frontend/vendor/` (no CDN needed); code blocks with Copy/Save; math no longer applied inside code blocks (fixes broken LaTeX tables) or to prices like "$5"; `\(…\)` and `\[…\]` math supported.
+- Citation chips for `[bib_key]` / `\cite{}` with Open PDF / DOI / Attach-to-chat.
+- Enter-to-send with IME (Vietnamese Telex) protection; auto-growing composer.
+- New endpoints: `POST /api/chat/stream`, `POST /api/attachments`, `/api/attachments/link`, `/api/attachments/paper`, `GET /api/attachments/{id}/raw|text`, `GET /api/library/catalog`, `GET /api/references/file/{name}`.
+
 ## v1.6.0 — 2026-10-17
 - Multiple research projects: each project has its own data folder (workspace, outputs, chat sessions, pinned notes, library) and its own references folder; switch from the sidebar, active project shown in the header.
 - New / open existing folder / rename / remove-from-list (non-destructive) / open in Explorer.

@@ -29,10 +29,43 @@ def _err_msg(r: httpx.Response) -> str:
         return r.text[:600]
 
 
+# --------------------------------------------------------------------- multimodal message conversion
+def to_anthropic(messages: list) -> list:
+    out = []
+    for m in messages:
+        imgs = m.get("images") or []
+        if m["role"] == "user" and imgs:
+            content = [{"type": "image", "source": {"type": "base64", "media_type": i["media_type"], "data": i["data"]}}
+                       for i in imgs] + [{"type": "text", "text": m["content"] or "(see attached images)"}]
+            out.append({"role": "user", "content": content})
+        else:
+            out.append({"role": m["role"], "content": m["content"]})
+    return out
+
+
+def to_openai(messages: list) -> list:
+    out = []
+    for m in messages:
+        imgs = m.get("images") or []
+        if m["role"] == "user" and imgs:
+            content = [{"type": "text", "text": m["content"] or "(see attached images)"}] + [
+                {"type": "image_url", "image_url": {"url": f"data:{i['media_type']};base64,{i['data']}"}} for i in imgs]
+            out.append({"role": "user", "content": content})
+        else:
+            out.append({"role": m["role"], "content": m["content"]})
+    return out
+
+
+def strip_think(text: str) -> str:
+    """Remove <think>…</think> reasoning (and an unfinished <think> block) from model output."""
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.S)
+    return re.sub(r"<think>.*\Z", "", text, flags=re.S)
+
+
 # --------------------------------------------------------------------- Anthropic native
 async def anthropic_chat(base: str, key: str, model: str, system: str, messages: list, max_tokens: int) -> str:
     headers = {"x-api-key": key, "anthropic-version": ANTHROPIC_VERSION, "content-type": "application/json"}
-    body = {"model": model, "max_tokens": max_tokens, "system": system, "messages": messages}
+    body = {"model": model, "max_tokens": max_tokens, "system": system, "messages": to_anthropic(messages)}
     try:
         async with httpx.AsyncClient(timeout=TIMEOUT) as c:
             r = await c.post(f"{base}/messages", headers=headers, json=body)
@@ -50,7 +83,7 @@ async def anthropic_chat(base: str, key: str, model: str, system: str, messages:
 # --------------------------------------------------------------------- OpenAI-compatible
 async def openai_compat_chat(base: str, key: str, model: str, system: str, messages: list, max_tokens: int,
                              temperature: float | None, label: str, pid: str = "", connect_hint: str = "") -> str:
-    body = {"model": model, "messages": [{"role": "system", "content": system}] + messages,
+    body = {"model": model, "messages": [{"role": "system", "content": system}] + to_openai(messages),
             "max_tokens": max_tokens, "stream": False}
     if temperature is not None:
         body["temperature"] = temperature
@@ -90,7 +123,7 @@ async def openai_compat_chat(base: str, key: str, model: str, system: str, messa
     content = msg.get("content") or ""
     if isinstance(content, list):  # some providers return content parts
         content = "".join(p.get("text", "") for p in content if isinstance(p, dict))
-    content = re.sub(r"<think>.*?</think>", "", content, flags=re.S).strip()
+    content = strip_think(content).strip()
     if data["choices"][0].get("finish_reason") == "length":
         content += "\n\n% [WARNING: output truncated at max_tokens]"
     return content
@@ -194,6 +227,143 @@ async def call_agent(agent: str, system: str, user: str | None = None, messages:
             return {"text": text, "engine": fb, "engine_label": engine_label(fb),
                     "note": f"Local model unavailable, fell back to {engine_label(fb)}: {e}"}
         raise
+
+
+# --------------------------------------------------------------------- streaming
+def _sse_lines_to_json(line: str):
+    if not line.startswith("data:"):
+        return None
+    payload = line[5:].strip()
+    if not payload or payload == "[DONE]":
+        return None
+    try:
+        return json.loads(payload)
+    except ValueError:
+        return None
+
+
+async def _stream_anthropic(base, key, model, system, messages, max_tokens):
+    headers = {"x-api-key": key, "anthropic-version": ANTHROPIC_VERSION, "content-type": "application/json"}
+    body = {"model": model, "max_tokens": max_tokens, "system": system, "messages": to_anthropic(messages), "stream": True}
+    try:
+        async with httpx.AsyncClient(timeout=TIMEOUT) as c:
+            async with c.stream("POST", f"{base}/messages", headers=headers, json=body) as r:
+                if r.status_code != 200:
+                    await r.aread()
+                    raise LLMError(f"Anthropic error {r.status_code}: {_err_msg(r)}")
+                async for line in r.aiter_lines():
+                    d = _sse_lines_to_json(line)
+                    if not d:
+                        continue
+                    t = d.get("type")
+                    if t == "content_block_delta" and d.get("delta", {}).get("type") == "text_delta":
+                        yield d["delta"]["text"]
+                    elif t == "message_delta" and d.get("delta", {}).get("stop_reason") == "max_tokens":
+                        yield "\n\n% [WARNING: output truncated at max_tokens]"
+                    elif t == "error":
+                        raise LLMError(f"Anthropic stream error: {d.get('error', {}).get('message', d)}")
+    except httpx.HTTPError as e:
+        raise LLMError(f"Network error contacting Anthropic: {e}") from e
+
+
+async def _stream_openai(base, key, model, system, messages, max_tokens, temperature, label, pid="", connect_hint=""):
+    body = {"model": model, "messages": [{"role": "system", "content": system}] + to_openai(messages),
+            "max_tokens": max_tokens, "stream": True}
+    if temperature is not None:
+        body["temperature"] = temperature
+    if pid == "openai":
+        body["max_completion_tokens"] = body.pop("max_tokens")
+        body.pop("temperature", None)
+    headers = {"Content-Type": "application/json"}
+    if key:
+        headers["Authorization"] = f"Bearer {key}"
+    if pid == "openrouter":
+        headers["X-Title"] = "PhD Research Lab"
+    try:
+        async with httpx.AsyncClient(timeout=TIMEOUT) as c:
+            for _ in range(3):
+                async with c.stream("POST", f"{base}/chat/completions", headers=headers, json=body) as r:
+                    if r.status_code == 400:
+                        await r.aread()
+                        t = r.text.lower()
+                        if "max_tokens" in t and "max_tokens" in body:
+                            body["max_completion_tokens"] = body.pop("max_tokens")
+                            continue
+                        if "temperature" in t and "temperature" in body:
+                            body.pop("temperature")
+                            continue
+                    if r.status_code != 200:
+                        await r.aread()
+                        raise LLMError(f"{label} error {r.status_code}: {_err_msg(r)}")
+                    async for line in r.aiter_lines():
+                        d = _sse_lines_to_json(line)
+                        if not d or not d.get("choices"):
+                            continue
+                        ch = d["choices"][0]
+                        delta = (ch.get("delta") or {}).get("content")
+                        if isinstance(delta, list):
+                            delta = "".join(p.get("text", "") for p in delta if isinstance(p, dict))
+                        if delta:
+                            yield delta
+                        if ch.get("finish_reason") == "length":
+                            yield "\n\n% [WARNING: output truncated at max_tokens]"
+                    return
+    except httpx.ConnectError as e:
+        raise LLMError(f"Cannot reach {label} at {base}. {connect_hint}".strip()) from e
+    except httpx.HTTPError as e:
+        raise LLMError(f"{label} request failed: {e}") from e
+
+
+async def _stream_engine(cfg, engine, system, messages, max_tokens, temperature):
+    if engine == "local":
+        base = cfg["lmstudio_base_url"].rstrip("/")
+        model = cfg.get("local_model") or ((await list_local_models(base)) or [None])[0]
+        if not model:
+            raise LLMError("LM Studio is running but no model is loaded.")
+        async for t in _stream_openai(base, "", model, system, messages, max_tokens, temperature,
+                                      "LM Studio", "local", LMSTUDIO_HINT):
+            yield t
+        return
+    spec, key, model, base = provider_settings(cfg, engine)
+    if not key:
+        raise LLMError(f"No API key for {spec['label']}. Add it in Configuration → Cloud AI providers.")
+    if spec["kind"] == "anthropic":
+        async for t in _stream_anthropic(base, key, model, system, messages, max_tokens):
+            yield t
+    else:
+        async for t in _stream_openai(base, key, model, system, messages, max_tokens, temperature, spec["label"], engine):
+            yield t
+
+
+async def stream_agent(agent: str, system: str, messages: list, max_tokens: int = 4096, temperature: float = 0.3):
+    """Async generator: yields ("delta", text) chunks (reasoning <think> blocks hidden), then ("meta", {...})."""
+    cfg = load_config()
+    engine = resolve_engine(cfg, agent)
+    note, raw, emitted = "", "", 0
+
+    async def run(eng):
+        nonlocal raw, emitted
+        async for chunk in _stream_engine(cfg, eng, system, messages, max_tokens, temperature):
+            raw += chunk
+            visible = strip_think(raw)
+            if len(visible) > emitted and visible.startswith(visible[:emitted]):
+                yield visible[emitted:]
+                emitted = len(visible)
+
+    try:
+        async for piece in run(engine):
+            yield ("delta", piece)
+    except LLMError as e:
+        fb = cfg["default_cloud"]
+        if engine == "local" and not raw and cfg.get("fallback_to_cloud") and cfg["providers"][fb].get("api_key"):
+            note = f"Local model unavailable, fell back to {engine_label(fb)}: {e}"
+            engine = fb
+            async for piece in run(engine):
+                yield ("delta", piece)
+        else:
+            raise
+    yield ("meta", {"engine": engine, "engine_label": engine_label(engine), "note": note,
+                    "text": strip_think(raw).strip()})
 
 
 # --------------------------------------------------------------------- helpers
