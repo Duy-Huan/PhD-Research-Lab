@@ -3,9 +3,11 @@
     python start.py            -> checks environment, installs missing packages, starts server, opens browser
     python start.py --port 9000
     python start.py --no-browser
+    python start.py --check     -> only verify the installation (files, version, packages)
 """
 import importlib.util
 import os
+import re
 import socket
 import subprocess
 import sys
@@ -21,6 +23,22 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 HOST = "127.0.0.1"
+APP_VERSION = "2.5.0"   # must match backend/config.py - a mismatch means files from two versions were mixed
+# Files that must exist for this version (an incomplete copy or a partial upgrade is the most common failure)
+REQUIRED_FILES = [
+    "backend/__init__.py", "backend/app.py", "backend/config.py", "backend/llm.py", "backend/library.py",
+    "backend/paper.py", "backend/prompts.py", "backend/chat_store.py", "backend/context_hub.py",
+    "backend/attachments.py", "backend/fs_browse.py", "backend/review_ext.py", "backend/review_prompts.py", "frontend/index.html", "frontend/vendor/marked.min.js",
+    "frontend/vendor/purify.min.js", "frontend/vendor/katex/katex.min.js", "frontend/vendor/katex/katex.min.css",
+    "frontend/vendor/hljs/highlight.min.js", "frontend/guide/en.md", "frontend/guide/vi.md", "frontend/i18n.js", "requirements.txt",
+]
+UPGRADE_HELP = """How to fix (takes 1 minute):
+  1. Extract the WHOLE new zip into a NEW, empty folder (do not copy single files over an old version).
+  2. Copy your user data from the old folder into the new one:
+       data/        (settings, API keys, Default project)
+       references/  (PDFs of the Default project)
+       projects/    (other research projects, if you have any)
+  3. Start the new folder:  Windows: run.bat    Linux/macOS: ./run.sh  (or: python3 start.py)"""
 # module name(s) to probe -> pip package
 REQUIRED = [
     (("fastapi",), "fastapi"),
@@ -44,6 +62,49 @@ def check_python() -> None:
         fail("Python 3.9 or newer is required (3.11/3.12 recommended). Install from https://www.python.org/downloads/")
 
 
+def check_files() -> None:
+    missing = [f for f in REQUIRED_FILES if not os.path.isfile(os.path.join(ROOT, f))]
+    if missing:
+        fail("The installation is incomplete or mixes files from different versions.\n"
+             "Missing: " + ", ".join(missing) + "\n\n" + UPGRADE_HELP)
+    try:
+        cfg = open(os.path.join(ROOT, "backend", "config.py"), encoding="utf-8").read()
+        found = re.search(r'APP_VERSION = "([^"]+)"', cfg).group(1)
+    except Exception:
+        found = "unknown"
+    if found != APP_VERSION:
+        fail(f"Version mismatch: start.py is v{APP_VERSION} but backend/config.py is v{found}.\n"
+             "Files from two versions were mixed.\n\n" + UPGRADE_HELP)
+    print(f"Files   : OK (v{APP_VERSION})")
+
+
+def in_venv() -> bool:
+    return sys.prefix != getattr(sys, "base_prefix", sys.prefix)
+
+
+def reexec_in_venv() -> None:
+    """Linux/macOS system Pythons often refuse 'pip install' (PEP 668 'externally-managed-environment').
+    Create ./.venv once, install the requirements there and restart this script inside it."""
+    venv_dir = os.path.join(ROOT, ".venv")
+    vpy = os.path.join(venv_dir, "bin", "python")
+    if not os.path.exists(vpy):
+        print(f"Creating a private virtual environment in {venv_dir} ...")
+        if subprocess.call([sys.executable, "-m", "venv", venv_dir]) != 0:
+            fail("Could not create a virtual environment. On Ubuntu/Debian install it with:\n"
+                 f"  sudo apt install python3-venv   (or python{sys.version_info.major}.{sys.version_info.minor}-venv)\n"
+                 "then run this script again.")
+    probe = "import fastapi, uvicorn, httpx, pypdf, multipart"
+    if subprocess.call([vpy, "-c", probe], stderr=subprocess.DEVNULL) == 0:
+        print("Using existing .venv\n")
+        os.execv(vpy, [vpy, os.path.abspath(__file__)] + sys.argv[1:])
+    print("Installing packages into .venv ...\n")
+    if subprocess.call([vpy, "-m", "pip", "install", "-q", "--upgrade", "pip"]) != 0 or \
+            subprocess.call([vpy, "-m", "pip", "install", "-r", os.path.join(ROOT, "requirements.txt")]) != 0:
+        fail("pip install into .venv failed. Check your internet connection and try again.")
+    print("\nRestarting inside .venv ...\n")
+    os.execv(vpy, [vpy, os.path.abspath(__file__)] + sys.argv[1:])
+
+
 def missing_packages() -> list:
     return [pkg for mods, pkg in REQUIRED if not any(importlib.util.find_spec(m) for m in mods)]
 
@@ -54,9 +115,15 @@ def ensure_packages() -> None:
         print("Packages: OK")
         return
     print(f"Missing packages for THIS Python ({sys.executable}): {', '.join(miss)}")
+    venv_py = os.path.join(ROOT, ".venv", "bin", "python")
+    if os.name != "nt" and not in_venv():
+        if os.path.exists(venv_py) or not os.access(sys.prefix, os.W_OK):
+            reexec_in_venv()  # system Python (PEP 668) -> use/create ./.venv
     print("Installing now...\n")
     cmd = [sys.executable, "-m", "pip", "install", "-r", os.path.join(ROOT, "requirements.txt")]
     if subprocess.call(cmd) != 0:
+        if os.name != "nt" and not in_venv():
+            reexec_in_venv()  # e.g. "externally-managed-environment" on Ubuntu 23.04+/Debian 12+
         fail("pip install failed. Check your internet connection, then run:\n  " + " ".join(cmd))
     importlib.invalidate_caches()
     if missing_packages():
@@ -107,7 +174,11 @@ def main() -> None:
     if not os.path.isfile(os.path.join(ROOT, "backend", "app.py")):
         fail("backend/app.py not found. Extract the whole zip (right-click > Extract All) before running.")
     check_python()
+    check_files()
     ensure_packages()
+    if "--check" in args:
+        print("\nInstallation OK.")
+        return
 
     # port handling
     if not port_free(port):

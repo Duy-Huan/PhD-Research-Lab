@@ -26,12 +26,18 @@ DEFAULT_PROJECT = {
     "title": "", "authors": "", "style": "IEEE", "keywords": "",
     "contribution": "", "method_notes": "", "results_notes": "",
     "tables": [], "sections": {}, "review": "",
+    # v2.5 section workshop
+    "venue": "",              # target venue (calibrates the section reviewer)
+    "section_reviews": {},    # {section_id: markdown review of that section}
+    "section_scores": {},     # {section_id: 1-10 from the section reviewer}
+    "section_notes": {},      # {section_id: author's instructions for the AI}
+    "section_state": {},      # {section_id: drafted | reviewed | revised | accepted | edited}
 }
 
 
 # ---------------------------------------------------------------- state
 def load_project() -> dict:
-    p = dict(DEFAULT_PROJECT)
+    p = json.loads(json.dumps(DEFAULT_PROJECT))  # deep copy: nested dicts must not be shared
     pp = workspace() / "project.json"
     if pp.exists():
         try:

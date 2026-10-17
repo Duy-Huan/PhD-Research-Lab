@@ -73,7 +73,10 @@ async def anthropic_chat(base: str, key: str, model: str, system: str, messages:
         raise LLMError(f"Network error contacting Anthropic: {e}") from e
     if r.status_code != 200:
         raise LLMError(f"Anthropic error {r.status_code}: {_err_msg(r)}")
-    data = r.json()
+    try:
+        data = r.json()
+    except ValueError:
+        raise LLMError(f"Anthropic returned a non-JSON response (check the base URL): {r.text[:200]}")
     text = "".join(b.get("text", "") for b in data.get("content", []) if b.get("type") == "text")
     if data.get("stop_reason") == "max_tokens":
         text += "\n\n% [WARNING: output truncated at max_tokens]"
@@ -115,7 +118,10 @@ async def openai_compat_chat(base: str, key: str, model: str, system: str, messa
         break
     if r.status_code != 200:
         raise LLMError(f"{label} error {r.status_code}: {_err_msg(r)}")
-    data = r.json()
+    try:
+        data = r.json()
+    except ValueError:
+        raise LLMError(f"{label} returned a non-JSON response (check the base URL): {r.text[:200]}")
     try:
         msg = data["choices"][0]["message"]
     except (KeyError, IndexError, TypeError):
@@ -201,6 +207,8 @@ async def local_chat(cfg: dict, system: str, messages: list, max_tokens: int, te
 # --------------------------------------------------------------------- router
 def resolve_engine(cfg: dict, agent: str) -> str:
     mode = cfg["agent_modes"].get(agent, "cloud")
+    if mode == "claude":  # Claude preferred: Anthropic when it has a key, otherwise the default cloud provider
+        return "anthropic" if (cfg["providers"].get("anthropic") or {}).get("api_key") else cfg["default_cloud"]
     return cfg["default_cloud"] if mode == "cloud" else mode
 
 

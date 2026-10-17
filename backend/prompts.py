@@ -116,20 +116,42 @@ SECTION_GUIDE = {
 }
 
 
+# v2.5 deep mode: target length per section (words)
+SECTION_DEPTH = {
+    "abstract": "180-250 words",
+    "introduction": "900-1300 words",
+    "related_work": "900-1400 words, 3-5 thematic subsections",
+    "methodology": "1500-2300 words, with formal problem statement, equations and an algorithm/complexity analysis",
+    "experiments": "1500-2300 words: setup, main results, ablations, sensitivity, qualitative analysis",
+    "discussion": "600-1000 words",
+    "conclusion": "200-350 words",
+}
+
+
 def _project_block(p: dict) -> str:
     tables = "\n\n".join(p.get("tables", [])) or "(none)"
     return (f"PAPER TITLE: {p.get('title') or '(untitled)'}\nTARGET STYLE: {p.get('style', 'IEEE')}\n"
+            f"TARGET VENUE: {p.get('venue') or '(not specified)'}\n"
             f"KEYWORDS: {p.get('keywords', '')}\n\nCORE CONTRIBUTION / NOVELTY:\n{p.get('contribution') or '(not given)'}\n\n"
             f"METHOD NOTES:\n{p.get('method_notes') or '(not given)'}\n\n"
             f"RESULTS NOTES:\n{p.get('results_notes') or '(not given)'}\n\nLATEX TABLES (from Data Extractor):\n{tables}")
 
 
-def author_user(section_id: str, section_title: str, p: dict, digest: str, keys: list) -> str:
+def author_user(section_id: str, section_title: str, p: dict, digest: str, keys: list,
+                instructions: str = "", deep: bool = False) -> str:
     others = []
     for sid, tex in (p.get("sections") or {}).items():
         if sid != section_id and tex:
-            others.append(f"--- {sid} (excerpt) ---\n{tex[:2500]}")
-    return (f"WRITE SECTION: {section_title}\nSECTION GUIDANCE: {SECTION_GUIDE.get(section_id, '')}\n\n"
+            others.append(f"--- {sid} (excerpt) ---\n{tex[:4000 if deep else 2500]}")
+    extra = ""
+    if deep:
+        extra += (f"DEPTH: DEEP MODE — write a thorough, detailed, publication-grade section of about {SECTION_DEPTH.get(section_id, '')}. "
+                  "Develop every argument fully (motivation → mechanism → evidence → implication), define all notation, "
+                  "and use \\subsection / \\paragraph structure where natural. Depth must come from substance, never from padding "
+                  "or invented facts.\n")
+    if instructions.strip():
+        extra += f"AUTHOR'S INSTRUCTIONS FOR THIS SECTION (follow them):\n{instructions.strip()}\n"
+    return (f"WRITE SECTION: {section_title}\nSECTION GUIDANCE: {SECTION_GUIDE.get(section_id, '')}\n{extra}\n"
             f"{_project_block(p)}\n\nAVAILABLE REFERENCES (the ONLY valid \\cite keys: {', '.join(keys) or 'NONE - do not cite'}):\n{digest}\n\n"
             f"ALREADY-DRAFTED SECTIONS (keep consistent notation and claims):\n{chr(10).join(others) or '(none yet)'}")
 
@@ -161,9 +183,42 @@ Rules:
 - Keep labels (\\label) stable so cross-references still resolve."""
 
 
-def editor_user(section_id: str, section_tex: str, review: str, keys: list, digest: str) -> str:
+def editor_user(section_id: str, section_tex: str, review: str, keys: list, digest: str, instructions: str = "") -> str:
+    extra = f"AUTHOR'S INSTRUCTIONS (take precedence over reviewer suggestions):\n{instructions.strip()}\n\n" if instructions.strip() else ""
     return (f"SECTION ID: {section_id}\nVALID CITE KEYS: {', '.join(keys) or 'NONE'}\n\nREFERENCE CATALOGUE:\n{digest}\n\n"
-            f"PEER REVIEW:\n{review}\n\nCURRENT SECTION LaTeX:\n{section_tex}")
+            f"{extra}PEER REVIEW:\n{review}\n\nCURRENT SECTION LaTeX:\n{section_tex}")
+
+
+SECTION_REVIEWER_SYS = """You are Agent 3.3-S, a senior peer reviewer (Associate Editor / Area Chair level) who audits ONE section of a LaTeX manuscript in depth, before the full paper is reviewed.
+Judge the section against what a strong paper at the TARGET VENUE needs in that section, and keep the rest of the paper (excerpts provided) in mind for consistency of claims and notation.
+Rules:
+- Ground every comment in the section text: quote the exact words (at most 20) you are criticising.
+- Never invent facts, numbers or references. You may only recommend citing keys from the reference catalogue.
+- Be specific and actionable; prefer "replace X with Y" over vague advice.
+Output Markdown, exactly in this order:
+SCORE: <integer 1-10>/10
+## Verdict
+One paragraph: is this section ready for the target venue? What is the single most important fix?
+## Strengths
+## Issues
+### Critical
+### Major
+### Minor
+Number every issue; each with **Where** ("quote"), **Problem**, **Fix**. Write "None." under an empty level.
+## Missing content
+What a reviewer at the target venue expects in this section that is absent.
+## Citation & evidence check
+Claims lacking support, citations that do not fit the cited abstract, catalogue papers worth citing here, unsupported numbers.
+## Suggested rewrites
+2-4 concrete before → after examples in LaTeX."""
+
+
+def section_reviewer_user(section_id: str, section_title: str, section_tex: str, p: dict, digest: str, keys: list) -> str:
+    others = [f"--- {sid} (excerpt) ---\n{tex[:2000]}" for sid, tex in (p.get("sections") or {}).items() if sid != section_id and tex]
+    return (f"SECTION UNDER REVIEW: {section_title} [{section_id}]\nWHAT THIS SECTION SHOULD DO: {SECTION_GUIDE.get(section_id, '')}\n\n"
+            f"{_project_block(p)}\n\nREFERENCE CATALOGUE (valid keys: {', '.join(keys) or 'NONE'}):\n{digest}\n\n"
+            f"OTHER SECTIONS (for consistency):\n{chr(10).join(others) or '(none yet)'}\n\n"
+            f"SECTION LaTeX TO REVIEW:\n{section_tex}")
 
 
 # ----------------------------------------------------------------- Tool 4
@@ -194,6 +249,10 @@ TOOL_CHAT_SYS = {
     "paper": "You are a senior co-author and editor for the LaTeX manuscript below (with its peer review if present). "
              "Help the researcher understand reviewer comments, strengthen arguments, tighten claims to the evidence, "
              "improve structure and tone, and propose exact LaTeX replacements they can paste into a section." + _CHAT_RULES,
+    "review": "You are the Area Chair / handling editor who coordinated the peer review below of the researcher's own manuscript. "
+              "Help the author understand each reviewer comment, prioritise fixes from critical to minor, plan the revision, "
+              "draft rebuttal / response-to-reviewer text, and propose exact replacement text (LaTeX when the source is LaTeX). "
+              "Be candid about acceptance chances at the chosen venue level." + _CHAT_RULES,
     "masterclass": "You are a world-class PhD mentor continuing the masterclass guide below. Answer follow-up questions, "
                    "tailor templates to the researcher's situation, role-play reviewers/examiners/panels when asked, "
                    "and give step-by-step, practical advice." + _CHAT_RULES,
@@ -217,3 +276,12 @@ The researcher may attach documents, web pages, library papers or images to a me
 - Use them as primary sources for that question; quote briefly and name the attachment you rely on.
 - When an attachment has a url, cite it as a Markdown link [title](url); when it has a bib_key, cite it as [bib_key].
 - If an attachment is truncated or unreadable, say so instead of guessing."""
+
+
+def output_language(lang) -> str:
+    """Extra instruction for Tools 1, 2 and 4 when the researcher wants Vietnamese output (papers stay English)."""
+    if lang == "vi":
+        return ("\n\nOUTPUT LANGUAGE: Write the entire output in Vietnamese (tiếng Việt), natural academic style. "
+                "Keep in English: technical terms when no standard Vietnamese term exists (e.g. ablation, baseline, transformer), "
+                "method/dataset/metric names, [bib_key] citations, venue names, LaTeX math, code, and literature search strings.")
+    return ""

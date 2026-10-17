@@ -20,16 +20,24 @@ from .library import (PDF_BACKEND, build_bibtex, first_pages_text, included, loa
                       merge_llm_metadata, reference_digest, save_library, scan_directory)
 from .attachments import (AttachmentError, add_library_paper, add_link, add_upload, clean_refs, get_meta,
                           get_text, raw_path, render_for_llm)
+from .fs_browse import list_dir, make_dir, pick_folder_native
 from .context_hub import add_note, build_shared_context, delete_note, load_notes, tool_output
 from .chat_store import (TOOLS, SessionNotFound, create_session, delete_session, get_active, list_sessions,
                          load_session, record_turn, save_session)
 from .llm import (LLMError, call_agent, stream_agent, cloud_chat, extract_json, list_local_models, list_provider_models,
                   provider_settings, strip_fences)
+from . import review_ext as RX
+from . import review_prompts as RP
 from .paper import (SECTION_TITLES, SECTIONS, assemble, build_zip, clean_section,
                     fix_citations, load_project, read_ws, save_project, write_ws)
 
 app = FastAPI(title="PhD Interactive Autonomous Research Lab", version=APP_VERSION)
 FRONTEND = ROOT / "frontend" / "index.html"
+
+
+@app.exception_handler(RX.ReviewError)
+async def review_error_handler(_, exc):
+    return JSONResponse(status_code=400, content={"detail": str(exc)})
 
 
 @app.exception_handler(LLMError)
@@ -43,6 +51,12 @@ def index():
 
 
 app.mount("/vendor", StaticFiles(directory=str(ROOT / "frontend" / "vendor")), name="vendor")  # offline UI libraries
+@app.get("/i18n.js")
+def i18n_js():
+    return FileResponse(ROOT / "frontend" / "i18n.js", media_type="application/javascript")
+
+
+app.mount("/guide", StaticFiles(directory=str(ROOT / "frontend" / "guide")), name="guide")  # user guide (EN/VI)
 
 
 # ================================================================ configuration
@@ -133,6 +147,26 @@ def projects_forget(body: dict = Body(...)):
     """Remove from the list only - no files are deleted."""
     _project_call(forget_project, body.get("data_dir", ""))
     return {"projects": list_projects()}
+
+
+@app.post("/api/fs/pick-folder")
+async def fs_pick_folder(body: dict = Body(default={})):
+    """Native 'Select folder' dialog of the OS; {native: False} means: use the in-app browser instead."""
+    return await run_in_threadpool(pick_folder_native, body.get("initial", ""), body.get("title", "Select folder"))
+
+
+@app.get("/api/fs/list")
+def fs_list(path: str = ""):
+    """Sub-folders of a folder (in-app folder browser)."""
+    return list_dir(path)
+
+
+@app.post("/api/fs/mkdir")
+def fs_mkdir(body: dict = Body(...)):
+    try:
+        return make_dir(body.get("parent", ""), body.get("name", ""))
+    except (ValueError, OSError) as e:
+        raise HTTPException(400, str(e))
 
 
 @app.post("/api/projects/open-folder")
@@ -255,7 +289,7 @@ async def lit2plan(body: dict = Body(...)):
     exp = await call_agent("query_expansion", prompts.QUERY_EXPANSION_SYS,
                            f"Idea: {idea}\nDomain: {body.get('domain', '')}", max_tokens=1500, temperature=0.3)
     digest = reference_digest(included()[:40], 350)
-    plan = await call_agent("lit2plan", prompts.LIT2PLAN_SYS,
+    plan = await call_agent("lit2plan", prompts.LIT2PLAN_SYS + prompts.output_language(body.get("lang")),
                             prompts.lit2plan_user(idea, body.get("domain", ""), exp["text"], digest), max_tokens=10000)
     write_ws("lit2plan.md", plan["text"])
     return {"expansion": exp["text"], "plan": plan["text"],
@@ -267,7 +301,7 @@ async def lit2plan(body: dict = Body(...)):
 async def experiment(body: dict = Body(...)):
     if not body.get("novelty", "").strip():
         raise HTTPException(400, "Novelty proposal is required")
-    r = await call_agent("experiment", prompts.EXPERIMENT_SYS,
+    r = await call_agent("experiment", prompts.EXPERIMENT_SYS + prompts.output_language(body.get("lang")),
                          prompts.experiment_user(body["novelty"], body.get("domain", ""), body.get("constraints", "")),
                          max_tokens=16000)
     code_blocks = re.findall(r"```python\n(.*?)```", r["text"], flags=re.S)
@@ -556,7 +590,7 @@ def get_project():
 @app.post("/api/paper/project")
 def update_project(body: dict = Body(...)):
     p = load_project()
-    for k in ("title", "authors", "style", "keywords", "contribution", "method_notes", "results_notes"):
+    for k in ("title", "authors", "style", "keywords", "contribution", "method_notes", "results_notes", "venue"):
         if k in body:
             p[k] = body[k]
     return {"project": save_project(p)}
@@ -594,19 +628,29 @@ async def draft_section(body: dict = Body(...)):
     tex, unknown = fix_citations(tex, set(keys))
     p = load_project()
     p["sections"][sid] = tex
+    p["section_state"][sid] = "drafted"
     save_project(p)
     return {"section": sid, "latex": tex, "unknown_citations": unknown, "engine": r["engine"], "note": r["note"]}
 
 
 @app.put("/api/paper/section")
 def save_section(body: dict = Body(...)):
+    """Save a section's LaTeX and/or its AI instructions and/or its workflow state (accepted, ...)."""
     sid = body.get("section")
     if sid not in SECTION_TITLES:
         raise HTTPException(400, "Unknown section")
     p = load_project()
-    p["sections"][sid] = body.get("latex", "")
+    if "latex" in body:
+        changed = (p["sections"].get(sid) or "") != (body.get("latex") or "")
+        p["sections"][sid] = body.get("latex") or ""
+        if changed:
+            p["section_state"][sid] = "edited" if body["latex"] else ""
+    if "notes" in body:
+        p["section_notes"][sid] = str(body.get("notes") or "")
+    if body.get("state") in ("accepted", "edited", "drafted", "reviewed", "revised", ""):
+        p["section_state"][sid] = body["state"]
     save_project(p)
-    return {"ok": True}
+    return {"ok": True, "state": p["section_state"].get(sid, "")}
 
 
 @app.post("/api/paper/assemble")
@@ -649,8 +693,137 @@ async def revise_section(body: dict = Body(...)):
                 "note": "Revision discarded: output was much shorter than the original section."}
     p = load_project()
     p["sections"][sid] = tex
+    p["section_state"][sid] = "revised"
     save_project(p)
     return {"section": sid, "latex": tex, "unknown_citations": unknown, "engine": r["engine"], "note": r["note"]}
+
+
+# ---------------------------------------------------------------- v2.5: streaming section workshop
+SCORE_RE = re.compile(r"SCORE:\s*(\d{1,2})\s*/\s*10", re.I)
+
+
+def _sse(obj: dict) -> str:
+    return f"data: {json.dumps(obj, ensure_ascii=False)}\n\n"
+
+
+def sse_job(agent: str, system: str, user: str, finalize, max_tokens: int = 8000, temperature: float = 0.3,
+            start: dict | None = None) -> StreamingResponse:
+    """Stream one agent run as Server-Sent Events: start → delta… → done (finalize(meta) result) | error.
+    If the browser aborts (■ Stop), Starlette cancels this generator and the upstream AI request, and nothing is saved."""
+    async def gen():
+        try:
+            yield _sse({"type": "start", **(start or {})})
+            meta = {}
+            async for kind, val in stream_agent(agent, system, [{"role": "user", "content": user}],
+                                                max_tokens=max_tokens, temperature=temperature):
+                if kind == "delta":
+                    yield _sse({"type": "delta", "text": val})
+                else:
+                    meta = val
+            if not meta.get("text", "").strip():
+                raise LLMError("The model returned an empty answer.")
+            out = await run_in_threadpool(finalize, meta)
+            yield _sse({"type": "done", "engine": meta["engine"], "note": meta["note"], **out})
+        except LLMError as e:
+            yield _sse({"type": "error", "detail": str(e)})
+        except HTTPException as e:
+            yield _sse({"type": "error", "detail": str(e.detail)})
+        except Exception as e:  # never leave the browser hanging
+            yield _sse({"type": "error", "detail": f"{type(e).__name__}: {e}"})
+
+    return StreamingResponse(gen(), media_type="text/event-stream",
+                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
+@app.post("/api/paper/stream")
+def paper_stream(body: dict = Body(...)):
+    """Streaming paper agents. action: draft | review_section | revise | review (whole paper).
+    Options: section, deep (bool), instructions (str, saved as the section's notes)."""
+    action, sid = body.get("action"), body.get("section")
+    deep = bool(body.get("deep"))
+    if action != "review" and sid not in SECTION_TITLES:
+        raise HTTPException(400, f"Unknown section {sid}")
+    p = load_project()
+    if "instructions" in body and sid in SECTION_TITLES:
+        p["section_notes"][sid] = str(body.get("instructions") or "")
+        save_project(p)
+    notes = (p.get("section_notes") or {}).get(sid, "") if sid else ""
+    entries = included()
+    keys = [e["key"] for e in entries]
+
+    if action == "draft":
+        user = prompts.author_user(sid, SECTION_TITLES[sid], p, reference_digest(entries), keys, notes, deep)
+
+        def fin(meta):
+            tex = clean_section(sid, strip_fences(meta["text"]))
+            tex, unknown = fix_citations(tex, set(keys))
+            q = load_project()
+            q["sections"][sid] = tex
+            q["section_state"][sid] = "drafted"
+            q["section_reviews"].pop(sid, None)  # an old review no longer matches the new text
+            q["section_scores"].pop(sid, None)
+            save_project(q)
+            return {"section": sid, "latex": tex, "unknown_citations": unknown}
+        return sse_job("author", prompts.AUTHOR_SYS, user, fin, max_tokens=12000 if deep else 8000, temperature=0.4,
+                       start={"action": action, "section": sid})
+
+    if action == "review_section":
+        cur = (p.get("sections") or {}).get(sid)
+        if not cur:
+            raise HTTPException(400, "Draft this section first")
+        user = prompts.section_reviewer_user(sid, SECTION_TITLES[sid], cur, p, reference_digest(entries, 300), keys)
+
+        def fin(meta):
+            m = SCORE_RE.search(meta["text"])
+            score = max(1, min(10, int(m.group(1)))) if m else None
+            q = load_project()
+            q["section_reviews"][sid] = meta["text"]
+            if score:
+                q["section_scores"][sid] = score
+            q["section_state"][sid] = "reviewed"
+            save_project(q)
+            return {"section": sid, "review": meta["text"], "score": score}
+        return sse_job("reviewer", prompts.SECTION_REVIEWER_SYS, user, fin, max_tokens=6000, temperature=0.2,
+                       start={"action": action, "section": sid})
+
+    if action == "revise":
+        cur = (p.get("sections") or {}).get(sid)
+        if not cur:
+            raise HTTPException(400, "Draft this section first")
+        review = (p.get("section_reviews") or {}).get(sid) or p.get("review")
+        if not review:
+            raise HTTPException(400, "Review this section (🔍) or the whole paper (3.3) first")
+        source = "section" if (p.get("section_reviews") or {}).get(sid) else "paper"
+        user = prompts.editor_user(sid, cur, review, keys, reference_digest(entries, 300), notes)
+
+        def fin(meta):
+            tex = clean_section(sid, strip_fences(meta["text"]))
+            tex, unknown = fix_citations(tex, set(keys))
+            if len(tex) < 0.3 * len(cur):
+                return {"section": sid, "latex": cur, "rejected": True,
+                        "message": "Revision discarded: output was much shorter than the original section."}
+            q = load_project()
+            q["sections"][sid] = tex
+            q["section_state"][sid] = "revised"
+            save_project(q)
+            return {"section": sid, "latex": tex, "unknown_citations": unknown, "review_source": source}
+        return sse_job("editor", prompts.EDITOR_SYS, user, fin, max_tokens=12000 if deep else 8000, temperature=0.2,
+                       start={"action": action, "section": sid, "review_source": source})
+
+    if action == "review":
+        main, _, report = assemble()
+
+        def fin(meta):
+            q = load_project()
+            q["review"] = meta["text"]
+            save_project(q)
+            write_ws("review.md", meta["text"])
+            return {"review": meta["text"], "report": report}
+        return sse_job("reviewer", prompts.REVIEWER_SYS,
+                       prompts.reviewer_user(main, reference_digest(entries, 400), report), fin, max_tokens=8000,
+                       temperature=0.2, start={"action": action})
+
+    raise HTTPException(400, f"Unknown action {action}")
 
 
 @app.get("/api/export/latex.zip")
@@ -660,6 +833,206 @@ async def export_zip():
                     headers={"Content-Disposition": 'attachment; filename="latex.zip"'})
 
 
+# ================================================================ v2.5: external Paper Review flow
+@app.get("/api/review")
+def review_list():
+    return {"reviews": RX.list_reviews(), "active": RX.get_active()}
+
+
+@app.post("/api/review/upload")
+async def review_upload(file: UploadFile = File(...)):
+    """Start a new review from a manuscript file (PDF / DOCX / TEX / MD / TXT)."""
+    meta = await run_in_threadpool(RX.create_review, file.filename or "paper.pdf", await file.read())
+    return {"meta": meta, "state": RX.load_state(meta["id"])}
+
+
+@app.get("/api/review/{rid}")
+def review_get(rid: str):
+    return RX.get_review(rid)
+
+
+@app.delete("/api/review/{rid}")
+def review_delete(rid: str):
+    RX.delete_review(rid)
+    return {"deleted": rid}
+
+
+@app.put("/api/review/{rid}/settings")
+def review_settings(rid: str, body: dict = Body(...)):
+    """Venue standard (conference ICORE / h5, journal Q1-Q4), number of reviewers, blind mode."""
+    return {"meta": RX.set_settings(rid, body)}
+
+
+@app.post("/api/review/{rid}/source")
+async def review_source(rid: str, file: UploadFile = File(...)):
+    """Attach the LaTeX source so accepted fixes can be applied automatically."""
+    return {"meta": await run_in_threadpool(RX.add_source, rid, file.filename or "", await file.read())}
+
+
+@app.get("/api/review/{rid}/text", response_class=PlainTextResponse)
+def review_text(rid: str):
+    return RX.paper_text(rid)
+
+
+@app.get("/api/review/{rid}/original")
+def review_original(rid: str):
+    m = RX.load_meta(rid)
+    f = RX._dir(rid) / f"original{m.get('ext', '')}"
+    return FileResponse(f, filename=m.get("file"), content_disposition_type="inline")
+
+
+def _rv_paper(rid: str) -> str:
+    t = RX.paper_text(rid)
+    return t[:RX.PAPER_BUDGET] + ("\n…[manuscript truncated]" if len(t) > RX.PAPER_BUDGET else "")
+
+
+@app.post("/api/review/{rid}/stage")
+def review_stage(rid: str, body: dict = Body(...)):
+    """Streaming review stages: reviewer (idx 1-3) → meta (area chair / editor) → issues (structured list) → response letter."""
+    stage = body.get("stage")
+    meta = RX.load_meta(rid)
+    v = meta.get("venue") or {}
+    label = RP.venue_label(v)
+    ps = RX.prescreen_text(meta.get("prescreen") or {}, meta.get("truncated", False))
+    st = RX.load_state(rid)
+
+    if stage == "reviewer":
+        n = meta.get("n_reviewers", 3)
+        idx = int(body.get("idx", 1))
+        personas = RP.PERSONAS.get(n, RP.PERSONAS[3])
+        if not 1 <= idx <= len(personas):
+            raise HTTPException(400, "Reviewer index out of range")
+        persona = personas[idx - 1]
+
+        def fin(m):
+            rec = {"id": persona[0], "persona": persona[1], "text": m["text"], "engine": m["engine"],
+                   "ts": RX._now(), "venue": label, **RX.parse_review_header(m["text"])}
+
+            def put(s):
+                if body.get("fresh"):  # a full new round: drop the reports of the previous round
+                    s["reviewers"] = {}
+                for k in [k for k in s["reviewers"] if k not in {x[0] for x in personas}]:
+                    s["reviewers"].pop(k)  # reviewer count was lowered
+                s["reviewers"][persona[0]] = rec
+            RX.update_state(rid, put)
+            return {"reviewer": rec}
+        return sse_job("ext_reviewer", RP.reviewer_system(v, persona), RP.reviewer_user(_rv_paper(rid), ps, meta.get("title", "")),
+                       fin, max_tokens=7000, temperature=0.3, start={"stage": stage, "id": persona[0], "persona": persona[1]})
+
+    if stage == "meta":
+        if not st["reviewers"]:
+            raise HTTPException(400, "Run the reviewers first")
+        user = (f"AUTOMATIC DESK CHECK:\n{ps}\n\nREVIEWER REPORTS:\n{RX.reviews_digest(st)}\n\n"
+                f"MANUSCRIPT TEXT:\n{_rv_paper(rid)}")
+
+        def fin(m):
+            rec = {"text": m["text"], "engine": m["engine"], "ts": RX._now(), "venue": label, **RX.parse_meta_header(m["text"])}
+            RX.update_state(rid, lambda s: s.__setitem__("meta", rec))
+            return {"meta": rec}
+        return sse_job("ext_meta", RP.meta_system(v), user, fin, max_tokens=7000, temperature=0.2, start={"stage": stage})
+
+    if stage == "issues":
+        if not st["reviewers"]:
+            raise HTTPException(400, "Run the reviewers first")
+        text = RX.paper_text(rid)
+
+        def fin(m):
+            try:
+                data = extract_json(m["text"])
+            except Exception as e:
+                raise LLMError(f"Could not parse the issue list returned by the model ({e}). Press Retry.")
+            issues = RX.normalise_issues(data.get("issues") if isinstance(data, dict) else data, text)
+
+            def put(s):
+                s["issues"] = issues
+                s["fixes"] = {}  # fixes belong to the previous issue list
+            RX.update_state(rid, put)
+            return {"issues": issues}
+        return sse_job("ext_meta", RP.ISSUES_SYS,
+                       RP.issues_user(_rv_paper(rid), RX.reviews_digest(st), (st.get("meta") or {}).get("text", "(none)"), RP.venue_brief(v)),
+                       fin, max_tokens=12000, temperature=0.1, start={"stage": stage})
+
+    if stage == "response":
+        if not st["reviewers"]:
+            raise HTTPException(400, "Run the reviewers first")
+
+        def fin(m):
+            rec = {"text": m["text"], "engine": m["engine"], "ts": RX._now()}
+            RX.update_state(rid, lambda s: s.__setitem__("response", rec))
+            return {"response": rec}
+        return sse_job("ext_meta", RP.RESPONSE_SYS,
+                       RP.response_user(RP.venue_brief(v), (st.get("meta") or {}).get("text", ""), RX.reviews_digest(st, 15000), RX.issues_digest(st)),
+                       fin, max_tokens=8000, temperature=0.3, start={"stage": stage})
+
+    raise HTTPException(400, f"Unknown stage {stage}")
+
+
+@app.post("/api/review/{rid}/fix")
+def review_fix(rid: str, body: dict = Body(...)):
+    """Streaming quick fix for one issue: ORIGINAL → REVISED passage (+ note / plan)."""
+    st = RX.load_state(rid)
+    issue = next((i for i in st["issues"] if i["id"] == body.get("issue_id")), None)
+    if not issue:
+        raise HTTPException(404, "Issue not found — extract the issue list first")
+    meta = RX.load_meta(rid)
+    excerpt, fmt = RX.excerpt_for(rid, issue)
+
+    def fin(m):
+        fx = {**RX.parse_fix(m["text"]), "engine": m["engine"], "ts": RX._now(), "format": fmt, "status": "proposed"}
+        fx["original_found"] = bool(fx["original"]) and RX.quote_found(excerpt, fx["original"])
+        RX.update_state(rid, lambda s: s["fixes"].__setitem__(issue["id"], fx))
+        return {"issue_id": issue["id"], "fix": fx}
+    return sse_job("ext_fixer", RP.FIX_SYS, RP.fix_user(RP.venue_brief(meta.get("venue") or {}), issue, excerpt, fmt,
+                                                        body.get("instructions", "")),
+                   fin, max_tokens=5000, temperature=0.2, start={"issue_id": issue["id"]})
+
+
+@app.put("/api/review/{rid}/issue/{iid}")
+def review_issue(rid: str, iid: str, body: dict = Body(...)):
+    """Update an issue status (open | done | wontfix) and/or its fix status (proposed | accepted | dismissed)."""
+    def upd(s):
+        for it in s["issues"]:
+            if it["id"] == iid and body.get("status") in ("open", "done", "wontfix"):
+                it["status"] = body["status"]
+        fx = s["fixes"].get(iid)
+        if fx and body.get("fix_status") in ("proposed", "accepted", "dismissed"):
+            fx["status"] = body["fix_status"]
+        if fx and isinstance(body.get("revised"), str):
+            fx["revised"] = body["revised"]
+    st = RX.update_state(rid, upd)
+    return {"issue": next((i for i in st["issues"] if i["id"] == iid), None), "fix": st["fixes"].get(iid)}
+
+
+@app.post("/api/review/{rid}/apply")
+def review_apply(rid: str, body: dict = Body(default={})):
+    """Apply accepted fixes to the LaTeX source → source_revised.tex (the original is never modified)."""
+    return RX.apply_fixes(rid, body.get("ids"))
+
+
+@app.get("/api/review/{rid}/download/{kind}")
+def review_download(rid: str, kind: str):
+    m = RX.load_meta(rid)
+    stem = re.sub(r"[^\w\-]+", "_", Path(m.get("file", "paper")).stem)[:40]
+    if kind == "report":
+        return Response(RX.report_md(rid), media_type="text/markdown",
+                        headers={"Content-Disposition": f'attachment; filename="review_report_{stem}.md"'})
+    if kind == "fixes":
+        return Response(RX.fixes_md(rid), media_type="text/markdown",
+                        headers={"Content-Disposition": f'attachment; filename="proposed_fixes_{stem}.md"'})
+    if kind == "response":
+        st = RX.load_state(rid)
+        if not st.get("response"):
+            raise HTTPException(404, "Generate the response letter first")
+        return Response(st["response"]["text"], media_type="text/markdown",
+                        headers={"Content-Disposition": f'attachment; filename="response_to_reviewers_{stem}.md"'})
+    if kind == "source":
+        f = RX._dir(rid) / "source_revised.tex"
+        if not f.exists():
+            raise HTTPException(404, "No revised source yet — accept fixes and press Apply")
+        return FileResponse(f, filename=f"{stem}_revised.tex", media_type="application/x-tex")
+    raise HTTPException(404, "Unknown download")
+
+
 # ================================================================ Tool 4
 @app.post("/api/masterclass")
 async def masterclass(body: dict = Body(...)):
@@ -667,7 +1040,7 @@ async def masterclass(body: dict = Body(...)):
     if not topic:
         raise HTTPException(400, "Topic required")
     user = f"MILESTONE: {topic}\n\nRESEARCHER CONTEXT:\n{body.get('context') or '(none provided)'}"
-    r = await call_agent("masterclass", prompts.MASTERCLASS_SYS, user, max_tokens=8000, temperature=0.4)
+    r = await call_agent("masterclass", prompts.MASTERCLASS_SYS + prompts.output_language(body.get("lang")), user, max_tokens=8000, temperature=0.4)
     write_ws("masterclass_guide.md", r["text"])
     write_ws("masterclass_meta.json", json.dumps({"topic": topic, "context": body.get("context", "")}, ensure_ascii=False))
     return {"guide": r["text"], "engine": r["engine"], "note": r["note"]}

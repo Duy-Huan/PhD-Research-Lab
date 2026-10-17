@@ -1,4 +1,4 @@
-# PhD Interactive Autonomous Research Lab — v2.1.0
+# PhD Interactive Autonomous Research Lab — v2.5.0
 
 A local desktop web app for Windows 11 that runs an end-to-end research workflow on a **hybrid AI architecture**: any of 14 cloud AI providers for deep reasoning and academic writing, plus local models in **LM Studio** (`http://localhost:1234/v1`) for fast, private, zero-cost extraction work.
 
@@ -24,6 +24,10 @@ Every agent can be switched between Cloud and Local from the sidebar. If a local
 
 ---
 
+> 🌐 **English / Tiếng Việt:** switch the interface with **EN / VI** at the top right; *AI output language* (sidebar) lets Tools 1, 2, 4 answer in Vietnamese while LaTeX papers stay English.
+>
+> 📘 **Full user guide inside the app:** tab **Guide** (Vietnamese / English) — quick start, every tool, recommended 6-month workflow, tips and troubleshooting. Source: `frontend/guide/`.
+
 ## 1. Install (once)
 
 1. Install **Python 3.10+** from python.org (tick *Add python.exe to PATH*).
@@ -38,9 +42,21 @@ The server binds to `127.0.0.1` only (not reachable from your network).
 Manual start (any Python 3.9+): open a terminal in this folder and run `python start.py`.
 `start.py` checks the Python version, installs missing packages into the Python that runs it, picks a free port if 8765 is busy, and opens the browser only once the server is ready.
 
+## 2b. Linux / macOS
+```bash
+unzip PhD-Research-Lab-v2.2.1.zip && cd PhD-Research-Lab-v2.2.1
+./run.sh            # or: python3 start.py
+```
+- If the system Python refuses `pip install` (PEP 668 "externally-managed-environment", Ubuntu 23.04+/Debian 12+), `start.py` automatically creates `./.venv`, installs the packages there and restarts inside it. If `venv` itself is missing: `sudo apt install python3-venv`.
+- Optional: `sudo apt install python3-tk` enables the native "Select folder" dialog (otherwise the built-in folder browser is used).
+- `python3 start.py --check` verifies files, version and packages without starting the server.
+
+## 2c. Upgrading to a new version
+Extract the **whole** new zip into a **new, empty folder** — never copy single files over an old version (that mixes versions; `start.py` now detects this and explains what is missing). Then copy your user data from the old folder: `data/`, `references/` and `projects/` (if present).
+
 ## 3. Configure (sidebar)
 
-- **Cloud AI providers** → click a provider, paste its API key, press **List** to choose a model, then **Test connection**. Choose the **Default cloud provider**.
+- **Cloud AI providers** → click a provider, paste its API key, press **↻ List** to load the models your key can use, pick one from the searchable model list (type to filter, ↑/↓ + Enter), then **Test connection**. Choose the **Default cloud provider**.
 - **LM Studio Base URL** + **Local model** (↻ lists models loaded in LM Studio).
 - **Reference directory** — any folder, e.g. `C:\Users\you\PhD\references`. Defaults to `./references`.
 - **Agent engines** — per agent: Default cloud / Local / a specific provider. *Save configuration*.
@@ -59,6 +75,7 @@ One installation can hold any number of research projects. The **📂 Research p
 
 - **＋ New** — name + optional data/references folders (default `projects/<name>/`).
 - **📂 Open…** — register an existing project folder, e.g. one copied from another PC or a shared drive.
+- **📁 Browse** next to *Data folder* (open any folder as a project) and *References folder* (choose where this project's PDFs live) — opens the Windows folder dialog; if that is unavailable it falls back to a built-in folder browser (drives, Home, ⬆, ＋ New folder, PDF count).
 - **✎** rename · **✕** remove from the list (files are never deleted) · **↗** open the folder in Explorer.
 - Your previous data (`data/` + `references/`) becomes the **★ Default project** automatically.
 - A project folder is self-contained (references are stored relative to it when inside), so you can zip, back up or move it as a whole.
@@ -80,8 +97,21 @@ Novelty + domain (hyperspectral, FOG signals, RISC-V SoC, …) → formulation i
    - **Citation guard** — any `\cite` key not in `references.bib` is stripped automatically; unsupported claims become a red `[CITATION NEEDED]`. Missing numbers become red `[TBD]` — results are never invented.
    - **3.3 Peer Reviewer** (Claude) — scores, major/minor issues tagged by section, citation-grounding audit against reference abstracts.
    - **3.4 Revision Editor** (Claude) — rewrites each section to address the review (section-by-section, so long papers never hit output limits; degenerate rewrites are rejected).
-   - **▶ Run full pipeline** chains 3.1 → 3.2 → assemble → 3.3 → 3.4 → assemble. Every section stays hand-editable.
+   - **Two modes (v2.5):**
+     - **⚡ Quick pipeline** chains 3.1 → 3.2 → assemble → 3.3 → 3.4 → assemble.
+     - **🔬 Deep · section by section** runs each section through *write → section review (score /10, Critical/Major/Minor issues with quotes) → revise*, for 1–3 rounds, before moving on. Options: skip accepted sections, pause after each section, final whole-paper review.
+   - **Section workshop:** a board with status, word count and score for every section. The editor shows the agents writing live. A per-section review tab, and per-section **instructions for the AI** that take precedence over reviewer comments. ✓ Accept marks a section as final.
+   - **■ Stop** interrupts the running agent at once: the upstream AI request is cancelled, finished steps are kept, and the interrupted step changes nothing. Each pipeline step can also be run on its own.
    - **⬇ Export latex.zip**.
+4. **④ Paper Review (v2.5)** — a separate flow for a finished manuscript (PDF / DOCX / TEX / MD), reviewed by Claude by default.
+   - **Venue standard:** conference by **ICORE rank C → B → A → A\*** or **h5-index band**, or journal by **Q4 → Q1**. Optional venue name and track, double-blind mode, and 1–3 reviewer personas (domain expert, methods/experiments "Reviewer 2", presentation).
+   - **Pipeline:**
+     - automatic desk check: pages, sections, references, anonymity leaks, leftover `??`/TODO;
+     - reviewer reports with recommendation, score and confidence;
+     - area-chair / editor meta-review with decision and phased revision roadmap;
+     - de-duplicated issue list Critical → Major → Minor → Typo, with every quote verified against the paper.
+   - **Quick fixes:** an original ↔ revised word diff per issue, an action plan for issues that need new experiments, Accept / Done / Won't fix, and batch "Fix critical" or "Fix all".
+   - **Outputs:** with the `.tex` source attached, accepted fixes are applied into `…_revised.tex` (the original is never modified). Also a response-to-reviewers letter, a Markdown report, and a follow-up chat with the area chair.
 
 ### 📖 Tool 4 — Masterclass
 Rebuttal letters, major revisions, grant writing, thesis defense, qualifying exams, PRISMA reviews, venue choice, reproducibility packages, job applications — tailored to the context you provide.
@@ -131,10 +161,13 @@ phd-research-lab/
 │   ├── llm.py        hybrid router (Claude Messages API + LM Studio OpenAI API, fallback)
 │   ├── library.py    PyMuPDF ingestion, metadata store, BibTeX formatter
 │   ├── paper.py      project state, LaTeX templates, citation guard, zip export
-│   └── prompts.py    all agent system prompts
+│   ├── prompts.py    agent system prompts (Tools 1-4, section workshop)
+│   ├── review_ext.py      ④ Paper Review: storage, desk check, quote verification, fix apply
+│   ├── review_prompts.py  venue standards (ICORE / h5 / Q1-Q4) and reviewer prompts
+│   └── chat_store.py, context_hub.py, attachments.py, fs_browse.py
 ├── frontend/index.html   single-page UI
 ├── references/       default PDF pool
-└── data/             config.json, library.json, workspace/ (project.json, main.tex, review.md, …)
+└── data/             config.json, library.json, workspace/ (project.json, main.tex, review.md, paper_reviews/, …)
 ```
 
 ## 7. Troubleshooting

@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "2.1.0"
+APP_VERSION = "2.5.0"
 
 ROOT = Path(__file__).resolve().parent.parent
 GLOBAL_DIR = ROOT / "data"                 # global config + the "Default project" (backward compatible)
@@ -86,6 +86,11 @@ AGENTS = {
     "chat_experiment": {"label": "💬 Chat · Tool 2 Experiment", "default": "cloud"},
     "chat_paper":      {"label": "💬 Chat · Tool 3 Paper", "default": "cloud"},
     "chat_masterclass": {"label": "💬 Chat · Tool 4 Masterclass", "default": "cloud"},
+    # v2.5 external paper review flow — Claude preferred ("claude" = Anthropic if it has a key, else the default cloud)
+    "ext_reviewer":    {"label": "📝 Review · Reviewers R1-R3", "default": "claude"},
+    "ext_meta":        {"label": "📝 Review · Area Chair / Editor", "default": "claude"},
+    "ext_fixer":       {"label": "📝 Review · Quick-fix editor", "default": "claude"},
+    "chat_review":     {"label": "💬 Chat · Paper Review", "default": "claude"},
 }
 
 DEFAULTS = {
@@ -98,6 +103,7 @@ DEFAULTS = {
     "active_project": "",    # data folder of the active project ("" = Default project in data/)
     "fallback_to_cloud": True,
     "chat_restore": True,  # reopen the last chat session on start
+    "output_lang": "ui",   # Tools 1/2/4 output language: ui | en | vi
     "agent_modes": {k: v["default"] for k, v in AGENTS.items()},
 }
 
@@ -105,7 +111,7 @@ _lock = threading.Lock()
 
 
 def _valid_mode(m: str) -> bool:
-    return m in ("cloud", "local") or m in PROVIDERS
+    return m in ("cloud", "local", "claude") or m in PROVIDERS
 
 
 def load_config() -> dict:
@@ -117,7 +123,7 @@ def load_config() -> dict:
         except Exception:
             saved = {}
     for k in ("default_cloud", "lmstudio_base_url", "local_model", "references_dir", "fallback_to_cloud", "chat_restore",
-              "projects", "active_project"):
+              "projects", "active_project", "output_lang"):
         if k in saved:
             cfg[k] = saved[k]
     for pid, p in (saved.get("providers") or {}).items():
@@ -166,6 +172,8 @@ def save_config(patch: dict) -> dict:
                 cfg[k] = v
             elif k == "chat_restore":
                 cfg[k] = bool(v)
+            elif k == "output_lang":
+                cfg[k] = v if v in ("ui", "en", "vi") else "ui"
         CONFIG_PATH.write_text(json.dumps(cfg, indent=2), "utf-8")
         return cfg
 

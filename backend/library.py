@@ -354,3 +354,24 @@ def pdf_text(path: Path, max_pages: int = 40, limit: int = 200_000) -> tuple[str
     """Full text of the first `max_pages` pages (for chat attachments). Returns (text, page_count)."""
     r = _read_pdf(path, max_pages, want_title=False)
     return r["text"][:limit], r["pages"]
+
+
+def pdf_pages(path: Path, max_pages: int = 80) -> tuple[list, int]:
+    """Text of each page (for page-referenced reviewing). Returns ([page_text, ...], page_count)."""
+    _require_backend()
+    if PDF_BACKEND == "pymupdf":
+        with fitz.open(path) as doc:
+            return [doc[i].get_text() for i in range(min(max_pages, doc.page_count))], doc.page_count
+    reader = PdfReader(str(path))
+    if reader.is_encrypted:
+        try:
+            reader.decrypt("")
+        except Exception:
+            pass
+    out = []
+    for i in range(min(max_pages, len(reader.pages))):
+        try:
+            out.append(reader.pages[i].extract_text() or "")
+        except Exception:
+            out.append("")
+    return out, len(reader.pages)

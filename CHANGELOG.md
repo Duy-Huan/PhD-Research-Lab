@@ -1,5 +1,40 @@
 # Changelog
 
+## v2.5.0 — 2026-10-17
+- **Paper Writer redesigned as a section workshop:**
+  - **⚡ Quick pipeline** or **🔬 Deep · section by section**: write → in-depth section review (score /10, Critical/Major/Minor issues with quotes, missing content, citation check, rewrites) → revise, 1–3 rounds per section; skip accepted sections, pause after each section, final whole-paper review.
+  - Sticky control bar with a clickable stepper (run any step alone).
+  - Section board (status, words, score, quick actions) and a workspace with live-streamed LaTeX, a section-review tab, and per-section instructions for the AI.
+  - ✓ Accept, plus an in-depth writing option for single runs.
+- **■ Stop** for every agent run: aborts the stream and cancels the upstream AI request; finished steps are kept and the interrupted step is discarded (the section keeps its previous text).
+- **New ④ Paper Review flow** for finished manuscripts (PDF/DOCX/TEX/MD):
+  - **Venue calibration:** conference by ICORE rank C/B/A/A* or h5-index band, journal by Q1–Q4. Optional venue name and track, double-blind mode, and 1–3 reviewer personas.
+  - **Review stages:** automatic desk check (anonymity leaks, missing sections, leftover placeholders); streamed reviewer reports; area-chair / editor meta-review with decision and phased revision roadmap; de-duplicated issue list Critical → Typo with quote verification.
+  - **Revising:** quick fixes with word-level diff and action plans; batch "Fix critical / Fix all"; apply accepted fixes to the LaTeX source (`…_revised.tex`).
+  - **Outputs:** response-to-reviewers letter, Markdown report and fixes, and a follow-up chat with the area chair.
+- New agent engine option **✳ Claude preferred** (Anthropic when it has a key, otherwise the default provider), used by the review agents.
+- Paper project: new **Target venue** field (calibrates the section reviewer).
+- New endpoints: `POST /api/paper/stream` (SSE: draft / review_section / revise / review); `/api/review/*` (upload, settings, source, stage, fix, issue, apply, download).
+
+## v2.4.0 — 2026-10-17
+- Interface language **English / Tiếng Việt** (EN / VI switch in the header, auto-detected from the browser, remembered). All labels, placeholders, tooltips, dialogs, toasts, pipeline logs and dynamically created UI are translated; AI answers, Markdown output, code, formulas and user input are never touched. The Guide follows the interface language.
+- **AI output language (Tools 1, 2, 4):** follow interface / always English / always Vietnamese; technical terms, citations, math and code stay in English; LaTeX papers are always English.
+- Fix: a provider returning non-JSON now gives a clear error instead of HTTP 500.
+
+## v2.3.0 — 2026-10-17
+- New **📘 Guide** tab: detailed user guide in Vietnamese and English (quick start, architecture & cost, projects, Tools 1–4 best practices, chats/attachments/shared context, 6-month workflow, quality tips, shortcuts, backup/upgrade, troubleshooting) with table of contents, scroll-spy and search; language remembered.
+
+## v2.2.1 — 2026-10-17
+- `start.py` verifies the installation before starting: all required files present and `start.py`/`backend` versions identical; a partial upgrade (new files copied over an old version) now gives a clear explanation and the 3-step fix instead of a ModuleNotFoundError.
+- Linux/macOS: automatic `./.venv` when the system Python is externally managed (PEP 668); an existing `.venv` is reused even when started with the system `python3`.
+- New `run.sh` launcher; `start.py --check`.
+- Tested on Linux with Python 3.14.
+
+## v2.2.0 — 2026-10-17
+- 📁 Browse buttons for the project Data folder and References folder: native OS folder dialog, with a built-in themed folder browser as fallback (drives, Home, up, new folder, PDF count, project detection).
+- New searchable model picker (cloud and LM Studio) replacing the browser's datalist/select: grouped "Suggested" / "Available on your account", filter-as-you-type, keyboard navigation, current/default markers, follows light/dark theme; fetched model lists are remembered.
+- New endpoints: `POST /api/fs/pick-folder`, `GET /api/fs/list`, `POST /api/fs/mkdir`.
+
 ## v2.1.0 — 2026-10-17
 - Light / dark / auto (follow OS) appearance, switch in the header; applied before first paint (no flash); code highlighting theme follows.
 - Fix: wide code blocks, tables or formulas no longer stretch the result column past the window; each tab now scrolls on its own.
