@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "2.7.0"
+APP_VERSION = "3.1.0"
 
 ROOT = Path(__file__).resolve().parent.parent
 GLOBAL_DIR = ROOT / "data"                 # global config + the "Default project" (backward compatible)
@@ -93,6 +93,12 @@ AGENTS = {
     "chat_review":     {"label": "💬 Chat · Paper Review", "default": "claude"},
     # v2.6 internet search
     "web_query":       {"label": "🌐 Search query planner", "default": "cloud"},
+    # v3.0 research IDE
+    "coder":           {"label": "💻 Co-coding agent (IDE)", "default": "local"},
+    "summarizer":      {"label": "🧠 Memory summarizer", "default": "local"},
+    "context_agent":   {"label": "🧠 Context decision agent", "default": "cloud"},
+    # v3.1 external results
+    "results_analyst": {"label": "📊 Results analyst (reads figures/tables)", "default": "cloud"},
 }
 
 SEARCH_DEFAULTS = {
@@ -110,6 +116,9 @@ DEFAULTS = {
     "default_cloud": "anthropic",
     "lmstudio_base_url": "http://localhost:1234/v1",
     "local_model": "",
+    "ollama_base_url": "http://localhost:11434",
+    "ollama_model": "",
+    "agent_models": {},      # v3: per-agent model override {agent: model id} for the engine selected for that agent
     "references_dir": str(ROOT / "references"),  # legacy (v1.0-1.5): becomes the Default project's references
     "projects": [],          # registered project data folders
     "active_project": "",    # data folder of the active project ("" = Default project in data/)
@@ -118,14 +127,16 @@ DEFAULTS = {
     "output_lang": "ui",   # Tools 1/2/4 output language: ui | en | vi
     "agent_modes": {k: v["default"] for k, v in AGENTS.items()},
     "search": dict(SEARCH_DEFAULTS),
-    "latex_online": False,   # v2.7: allow compiling the preview with the public LaTeX-on-HTTP service (sends the paper)
+    "latex_online": False,
+    "github": {"token": "", "user": "", "name": "", "email": ""},   # v3: Personal Access Token (only sent to api.github.com / github.com)
+    "memory": {"tier1_threshold_tokens": 24000, "keep_recent_turns": 12, "auto_summarize": True, "interval_s": 180},   # v2.7: allow compiling the preview with the public LaTeX-on-HTTP service (sends the paper)
 }
 
 _lock = threading.Lock()
 
 
 def _valid_mode(m: str) -> bool:
-    return m in ("cloud", "local", "claude") or m in PROVIDERS
+    return m in ("cloud", "local", "claude", "ollama") or m in PROVIDERS
 
 
 def load_config() -> dict:
@@ -136,7 +147,8 @@ def load_config() -> dict:
             saved = json.loads(CONFIG_PATH.read_text("utf-8"))
         except Exception:
             saved = {}
-    for k in ("default_cloud", "lmstudio_base_url", "local_model", "references_dir", "fallback_to_cloud", "chat_restore",
+    for k in ("default_cloud", "lmstudio_base_url", "local_model", "ollama_base_url", "ollama_model",
+              "references_dir", "fallback_to_cloud", "chat_restore",
               "projects", "active_project", "output_lang", "latex_online"):
         if k in saved:
             cfg[k] = saved[k]
@@ -150,6 +162,10 @@ def load_config() -> dict:
         cfg["providers"]["anthropic"]["model"] = saved["claude_model"]
     cfg["agent_modes"].update({a: m for a, m in (saved.get("agent_modes") or {}).items()
                                if a in AGENTS and _valid_mode(m)})
+    for sec in ("github", "memory"):
+        if isinstance(saved.get(sec), dict):
+            cfg[sec].update({k: v for k, v in saved[sec].items() if k in DEFAULTS[sec]})
+    cfg["agent_models"].update({a: str(m) for a, m in (saved.get("agent_models") or {}).items() if a in AGENTS and m})
     cfg["search"].update({k: v for k, v in (saved.get("search") or {}).items() if k in SEARCH_DEFAULTS})
     if cfg["default_cloud"] not in PROVIDERS:
         cfg["default_cloud"] = "anthropic"
@@ -183,10 +199,33 @@ def save_config(patch: dict) -> dict:
                 proj = active_project(cfg)
                 info = _ensure_project(proj["data_dir"], None, str(v).strip() or None, update_refs=True)
                 cfg[k] = info["references_dir"]
-            elif k in ("lmstudio_base_url", "local_model", "fallback_to_cloud"):
+            elif k in ("lmstudio_base_url", "local_model", "fallback_to_cloud", "ollama_base_url", "ollama_model"):
                 cfg[k] = v
+            elif k == "agent_models" and isinstance(v, dict):
+                for a, m in v.items():
+                    if a in AGENTS:
+                        if m:
+                            cfg["agent_models"][a] = str(m).strip()
+                        else:
+                            cfg["agent_models"].pop(a, None)
             elif k in ("chat_restore", "latex_online"):
                 cfg[k] = bool(v)
+            elif k == "github" and isinstance(v, dict):
+                for f, val in v.items():
+                    if f == "token":
+                        if isinstance(val, str) and "•" not in val:
+                            cfg["github"]["token"] = val.strip()
+                    elif f in ("user", "name", "email"):
+                        cfg["github"][f] = str(val).strip()[:120]
+            elif k == "memory" and isinstance(v, dict):
+                for f, val in v.items():
+                    if f == "auto_summarize":
+                        cfg["memory"][f] = bool(val)
+                    elif f in ("tier1_threshold_tokens", "keep_recent_turns", "interval_s"):
+                        try:
+                            cfg["memory"][f] = max(1, int(val))
+                        except (TypeError, ValueError):
+                            pass
             elif k == "search" and isinstance(v, dict):
                 sc = cfg["search"]
                 for f, val in v.items():
@@ -222,6 +261,8 @@ def public_config(cfg: dict) -> dict:
     for f in SEARCH_KEYS:
         out["search"]["has_" + f] = bool(out["search"].get(f))
         out["search"][f] = mask(out["search"].get(f, ""))
+    out["github"]["has_token"] = bool(out["github"].get("token"))
+    out["github"]["token"] = mask(out["github"].get("token", ""))
     out["provider_specs"] = PROVIDERS
     out["agents"] = AGENTS
     out["version"] = APP_VERSION

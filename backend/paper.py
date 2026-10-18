@@ -32,6 +32,9 @@ DEFAULT_PROJECT = {
     "section_scores": {},     # {section_id: 1-10 from the section reviewer}
     "section_notes": {},      # {section_id: author's instructions for the AI}
     "section_state": {},      # {section_id: drafted | reviewed | revised | accepted | edited}
+    # v3.1 writing briefs (directions stay in section_notes)
+    "section_briefs": {},     # {section_id: {must, avoid, outline, tone, length, words, cite, results, results_only}}
+    "paper_brief": {},        # {story, style, terms, avoid}
 }
 
 
@@ -276,6 +279,9 @@ def build_zip() -> bytes:
         z.writestr("references.bib", bib)
         z.writestr("README.md", readme)
         z.writestr("references/", "")
+        from .results import figure_files
+        for src, rel in figure_files([main]):
+            z.write(src, rel)
         for e in included():
             f = rdir / e["file"]
             if f.exists():

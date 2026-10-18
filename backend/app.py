@@ -16,6 +16,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Response, StreamingResponse
 
 from . import prompts
+from . import brief as BR
 from .config import (APP_VERSION, ROOT, activate_project, create_project, data_dir, forget_project, list_projects,
                      load_config, open_project, public_config, refs_dir, rename_project, save_config)
 from .library import (PDF_BACKEND, build_bibtex, first_pages_text, included, load_library,
@@ -34,7 +35,23 @@ from . import review_prompts as RP
 from .paper import (SECTION_TITLES, SECTIONS, assemble, build_zip, clean_section,
                     fix_citations, load_project, read_ws, save_project, write_ws)
 
-app = FastAPI(title="PhD Interactive Autonomous Research Lab", version=APP_VERSION)
+from contextlib import asynccontextmanager
+
+
+@asynccontextmanager
+async def lifespan(_app):
+    """v3: background Summarization Agent (hierarchical memory) runs while the app is up."""
+    from .memory import worker
+    stop = asyncio.Event()
+    task = asyncio.create_task(worker(stop))
+    try:
+        yield
+    finally:
+        stop.set()
+        task.cancel()
+
+
+app = FastAPI(title="PhD Interactive Autonomous Research Lab", version=APP_VERSION, lifespan=lifespan)
 FRONTEND = ROOT / "frontend" / "index.html"
 
 
@@ -48,9 +65,40 @@ async def llm_error_handler(_, exc: LLMError):
     return JSONResponse(status_code=502, content={"detail": str(exc)})
 
 
+NO_CACHE = {"Cache-Control": "no-cache, must-revalidate"}
+
+
 @app.get("/")
 def index():
-    return FileResponse(FRONTEND)
+    """The page links its scripts with ?v=<version> so a browser never mixes files from two versions."""
+    html = FRONTEND.read_text("utf-8")
+    html = re.sub(r'((?:src|href)="/(?:app/[\w.-]+|i18n\.js))"', lambda m: f'{m.group(1)}?v={APP_VERSION}"', html)
+    return Response(html, media_type="text/html; charset=utf-8", headers=NO_CACHE)
+
+
+class _NoStaleUI:
+    """Pure ASGI (does not buffer SSE streams): UI files are always revalidated, so an upgrade shows up immediately."""
+    def __init__(self, inner):
+        self.inner = inner
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http" or not scope["path"].startswith(("/app/", "/guide/", "/i18n.js")):
+            return await self.inner(scope, receive, send)
+
+        async def snd(msg):
+            if msg["type"] == "http.response.start":
+                hs = [(k, v) for k, v in msg.get("headers", []) if k.lower() != b"cache-control"]
+                msg = {**msg, "headers": hs + [(b"cache-control", b"no-cache, must-revalidate")]}
+            await send(msg)
+        return await self.inner(scope, receive, snd)
+
+
+app.add_middleware(_NoStaleUI)
+
+
+@app.get("/api/version")
+def api_version():
+    return {"version": APP_VERSION, "root": str(ROOT)}
 
 
 app.mount("/vendor", StaticFiles(directory=str(ROOT / "frontend" / "vendor")), name="vendor")  # offline UI libraries
@@ -60,6 +108,11 @@ def i18n_js():
 
 
 app.mount("/guide", StaticFiles(directory=str(ROOT / "frontend" / "guide")), name="guide")  # user guide (EN/VI)
+app.mount("/app", StaticFiles(directory=str(ROOT / "frontend" / "app")), name="app")  # v3 IDE / Docker / Context modules
+from .api_v3 import router as _v3_router  # noqa: E402
+app.include_router(_v3_router)
+from .api_v31 import router as _v31_router  # noqa: E402
+app.include_router(_v31_router)
 
 
 # ================================================================ configuration
@@ -300,9 +353,15 @@ async def lit2plan(body: dict = Body(...)):
         res = await WS.search(web, q["papers"], q["web"], n=12, year_from=q.get("year_from"))
         online = WS.sources_block(res["sources"])
     system = prompts.LIT2PLAN_SYS + prompts.output_language(body.get("lang")) + (prompts.LIT2PLAN_ONLINE if online else "")
+    must = _v3_context("lit2plan", "")
+    if must:
+        system += must + "\n(Build the plan around the locked decisions above.)"
     plan = await call_agent("lit2plan", system, prompts.lit2plan_user(idea, body.get("domain", ""), exp["text"], digest, online),
                             max_tokens=10000)
+    from .api_v3 import snapshot_plan
+    snapshot_plan("before new generation")
     write_ws("lit2plan.md", plan["text"])
+    snapshot_plan("generated")
     sources = WS.compact(res["sources"])
     write_ws("lit2plan_sources.json", json.dumps({"sources": sources, "queries": res["queries"]}, ensure_ascii=False))
     return {"expansion": exp["text"], "plan": plan["text"], "sources": sources, "search_errors": res["errors"],
@@ -360,7 +419,11 @@ async def fetch_reference(body: dict = Body(...)):
 async def experiment(body: dict = Body(...)):
     if not body.get("novelty", "").strip():
         raise HTTPException(400, "Novelty proposal is required")
-    r = await call_agent("experiment", prompts.EXPERIMENT_SYS + prompts.output_language(body.get("lang")),
+    ctx = _v3_context("experiment", "")
+    if ctx and "RESEARCH RESULTS PROVIDED" in ctx:
+        ctx += ("\n(The researcher already has the results above: design the methodology around them — reuse their datasets, "
+                "metrics and baselines, and propose the experiments that are still missing, e.g. ablations, significance tests.)")
+    r = await call_agent("experiment", prompts.EXPERIMENT_SYS + prompts.output_language(body.get("lang")) + ctx,
                          prompts.experiment_user(body["novelty"], body.get("domain", ""), body.get("constraints", "")),
                          max_tokens=16000)
     code_blocks = re.findall(r"```python\n(.*?)```", r["text"], flags=re.S)
@@ -483,11 +546,35 @@ def _prepare_chat(body: dict) -> dict:
         own = own[:40000] + ("\n…[truncated]" if len(own) > 40000 else "")
         shared = build_shared_context(tool, _recent_sessions(tool)) if body.get("share", True) else ""
         system = prompts.tool_chat_system(tool, own, shared, reference_digest(included()[:30], 250))
-        msgs = _llm_messages(history, 16)
+        msgs = _llm_messages(history, max(8, 2 * int(load_config()["memory"]["keep_recent_turns"])))
+    system += _v3_context(tool, sid)
     system += prompts.ATTACHMENT_RULES
     web = body.get("web") if body.get("web") in WS.MODES else "off"
     return {"tool": tool, "agent": agent, "temp": temp, "system": system, "msgs": msgs,
             "sid": sid, "history": history, "shared": bool(shared), "web": web, "sources": []}
+
+
+def _v3_context(tool: str, sid: str) -> str:
+    """Pinned graph nodes + locked decisions (always, must-follow) and hierarchical memory (Tier 3 + Tier 2)."""
+    out = ""
+    try:
+        from .context_graph import pinned_block, purged_ids
+        from .memory import memory_block
+        pinned = pinned_block()
+        if pinned:
+            out += ("\n\n# MUST-FOLLOW CONTEXT (pinned / locked by the researcher — comply strictly; never contradict it; "
+                    "point out explicitly if the researcher's new request conflicts with it)\n" + pinned)
+        mem = memory_block(tool, sid, budget=7000, purged=purged_ids())
+        if mem:
+            out += "\n\n# PROJECT MEMORY (hierarchical: long-term facts + summaries of earlier work)\n" + mem
+        from .results import digest as results_digest
+        res = results_digest(4000, purged_ids())
+        if res:
+            out += ("\n\n# RESEARCH RESULTS PROVIDED BY THE RESEARCHER (work done outside the app; real results — "
+                    "quote their numbers exactly, never extrapolate)\n" + res)
+    except Exception:
+        pass
+    return out
 
 
 def _conversation_text(history: list, n: int = 6) -> str:
@@ -726,7 +813,8 @@ async def draft_section(body: dict = Body(...)):
     entries = included()
     keys = [e["key"] for e in entries]
     r = await call_agent("author", prompts.AUTHOR_SYS,
-                         prompts.author_user(sid, SECTION_TITLES[sid], p, reference_digest(entries), keys),
+                         prompts.author_user(sid, SECTION_TITLES[sid], p, reference_digest(entries), keys,
+                                             BR.render(p, sid, "author", keys)),
                          max_tokens=8000, temperature=0.4)
     tex = clean_section(sid, strip_fences(r["text"]))
     tex, unknown = fix_citations(tex, set(keys))
@@ -788,7 +876,8 @@ async def revise_section(body: dict = Body(...)):
     entries = included()
     keys = [e["key"] for e in entries]
     r = await call_agent("editor", prompts.EDITOR_SYS,
-                         prompts.editor_user(sid, current, p["review"], keys, reference_digest(entries, 300)),
+                         prompts.editor_user(sid, current, p["review"], keys, reference_digest(entries, 300),
+                                             BR.render(p, sid, "editor", keys)),
                          max_tokens=8000, temperature=0.2)
     tex = clean_section(sid, strip_fences(r["text"]))
     tex, unknown = fix_citations(tex, set(keys))
@@ -851,9 +940,9 @@ def paper_stream(body: dict = Body(...)):
     if "instructions" in body and sid in SECTION_TITLES:
         p["section_notes"][sid] = str(body.get("instructions") or "")
         save_project(p)
-    notes = (p.get("section_notes") or {}).get(sid, "") if sid else ""
     entries = included()
     keys = [e["key"] for e in entries]
+    notes = BR.render(p, sid, "author", keys) if sid else ""   # v3.1 brief (directions + structure + selected results)
 
     if action == "draft":
         user = prompts.author_user(sid, SECTION_TITLES[sid], p, reference_digest(entries), keys, notes, deep)
@@ -875,7 +964,8 @@ def paper_stream(body: dict = Body(...)):
         cur = (p.get("sections") or {}).get(sid)
         if not cur:
             raise HTTPException(400, "Draft this section first")
-        user = prompts.section_reviewer_user(sid, SECTION_TITLES[sid], cur, p, reference_digest(entries, 300), keys)
+        user = prompts.section_reviewer_user(sid, SECTION_TITLES[sid], cur, p, reference_digest(entries, 300), keys,
+                                             BR.render(p, sid, "reviewer", keys))
 
         def fin(meta):
             m = SCORE_RE.search(meta["text"])
@@ -898,7 +988,7 @@ def paper_stream(body: dict = Body(...)):
         if not review:
             raise HTTPException(400, "Review this section (🔍) or the whole paper (3.3) first")
         source = "section" if (p.get("section_reviews") or {}).get(sid) else "paper"
-        user = prompts.editor_user(sid, cur, review, keys, reference_digest(entries, 300), notes)
+        user = prompts.editor_user(sid, cur, review, keys, reference_digest(entries, 300), BR.render(p, sid, "editor", keys))
 
         def fin(meta):
             tex = clean_section(sid, strip_fences(meta["text"]))

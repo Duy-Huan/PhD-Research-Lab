@@ -1,5 +1,41 @@
 # Changelog
 
+## v3.1.0 — 2026-10-18 — Writing briefs & your own results
+- **Fix: "I run run.bat but do not see the new tabs".** When an older copy of the lab was still running (its black window open), `run.bat` used to open the browser on that old server. The launcher now checks the version (and folder) of the running server: a different version → it starts the new one on the next free port and prints a clear warning to close the old window. The page is served with `no-cache` and versioned script links, so a browser can no longer show stale files after an upgrade; a red banner appears if page and server versions differ. New `GET /api/version`.
+- **📥 Your research results (Experiment Design tab):** drop results you produced outside the app — images (PNG/JPG/SVG/EPS), PDF, LaTeX, Markdown, CSV/TSV, Excel, Word, notebooks, JSON, logs, code — or type a result by hand.
+  - Stored per project in `data/results/` (original file + extracted text + your description, tags, metrics); deleting moves to `data/results/_trash/`.
+  - **✨ Analyze:** the Results analyst agent reads the file or the **image (vision)** and writes the key numbers, findings, caveats and a suggested caption — grounded only in the file.
+  - **▦ LaTeX table:** CSV / Markdown / Excel / .tex → booktabs table added to the Paper Writer (a `.tex` table is kept verbatim; non-table model output is rejected).
+  - **Context:** every chat and the Experiment designer receive a digest of your results; results appear as nodes in the 🧠 Context graph; 📌 pin (must-follow) or 🙈 hide from AI per result.
+  - **✍ Use in paper:** send a result to any section's brief, choosing how to present it.
+- **🎯 Brief per paper section (Paper Writer):** replaces "Instructions for AI" (old instructions are kept as the directions).
+  - Directions & wishes with one-click suggestions per section; **results to present** chosen from uploads, Code IDE runs and run figures, Writer tables and results notes — each with *present as* (auto / table / figure / numbers in text / comparative analysis / headline result), a note, and an order; "present only the selected results".
+  - Required structure (ordered outline), must include, must avoid, tone, length or target words, references to emphasise.
+  - **🧭 Paper-wide brief:** overall story & key claims, style, terminology & notation, never-do — applied to every section.
+  - Sent to the Author (3.2), the Editor (3.4) and the section Reviewer (3.3, which now reports deviations from the brief) in quick and deep modes. **👁 Preview what the AI receives**, ⧉ copy a brief to other sections, 🎯 marks on the section board.
+  - **Figures:** a figure chosen in a brief is inserted with the exact `\includegraphics{figures/…}` line and label; the file is copied into the PDF preview build, `latex.zip` (`figures/`) and `project_export.zip`.
+- New agent: 📊 Results analyst (cloud by default; vision-capable models read figures). New endpoints under `/api/results/*` and `/api/paper/brief*`.
+
+## v3.0.0 — 2026-10-18 — Unified stateful multi-agent research IDE
+All earlier features are kept; three new tabs and a shared project state connect them.
+- **💻 Code IDE tab (VS Code-style):** activity bar (Explorer, Search, Source Control, Runs, Docker), Monaco editor with tabs, diff view, image preview, LaTeX/BibTeX highlighting; xterm terminal with a command line; live metric charts; resizable panels.
+  - **Co-coding agent:** 💡 Suggest (proposals with diff / apply / apply all) or ⚡ Auto (apply → run → read stderr → fix, up to N attempts). Context: locked decisions, pinned items, memory, Tool 2 blueprint, workspace snapshot, last run.
+  - **Start from the blueprint** seeds `data/code/` from Tool 2. Files deleted from the explorer go to `code/.trash/`.
+  - **Runs:** every run is stored in `data/runs/<id>/` with logs, `metrics.json`, parsed log metrics and figures; run view with curves; *Use results in the paper* → Writer notes + booktabs table of measured numbers.
+  - **Source Control / GitHub:** init, status, diff, commit, discard, push, pull, **Publish to GitHub** (public/private) with a Personal Access Token (stored in `data/config.json`, sent only to GitHub, never written to `.git/config`). Uses GitPython when installed, the git CLI otherwise.
+- **🐳 Docker sandbox:** one persistent container per project via the Docker CLI (`docker exec` jobs, Stop kills the process), memory/CPU/shm limits, optional network, **GPU passthrough** with automatic CPU fallback, image pull with progress; local venv mode when Docker is absent.
+- **🐳 Docker & System tab:** detailed live monitor (2 s): Docker daemon, sandbox container, GPU util/VRAM/temperature/power, container CPU/RAM/PIDs/IO, host RAM/CPU/disk, sparklines; container actions; Test GPU; settings; jobs with log viewer; images/containers; local AI servers.
+  - **Machine scan + recommended setup:** OS, CPU, RAM, NVIDIA GPU/driver/CUDA, Docker (+ GPU runtime), WSL2, Git, LaTeX, Ollama/LM Studio → sandbox image and limits, local model size for your VRAM, agent engines; one click to apply. Scan cached in `data/system/`.
+- **🧠 Context tab:** vis-network knowledge graph of the project (objectives, hypotheses, decisions, constraints, literature, code assumptions, metrics, episodes); inspect / edit / **📌 pin** (MUST-FOLLOW context for every agent) / **🗑 purge** (hidden from agents, purged papers leave the reference digest) / add / delete; **Context Decision Agent** that proposes graph operations you approve.
+- **Hierarchical memory** (`data/memory/project_state.json`): Tier 1 working memory (recent turns + sandbox logs), Tier 2 episodes written by a **background summarizer on the local model** when Tier 1 passes the threshold, Tier 3 long-term knowledge (goals, hypotheses, constraints, best metrics, references, decisions). Injected into every chat within a token budget.
+- **Lit2Plan ⇄ chat:** 🔒 Lock decisions from any answer or selected text (direction / hypothesis / gap / constraint / rejected); locked decisions bind all agents; **🔄 Regenerate overview** from the discussion; **🕘 Versions** with restore.
+- **Local AI fixes:** LM Studio model list with **Load / Unload / Use** (REST API → `lms` CLI → JIT); **Ollama** support (list, load with keep-alive, unload, pull with progress); per-agent model override; changing an agent's engine/model now updates every open chat immediately (**live engine · model badge** + quick switcher in each chat header).
+- **MCP server:** `POST /mcp` (JSON-RPC: initialize, tools/list, tools/call) with `sandbox_run_code`, `sandbox_manage_files`, `sandbox_get_metrics`; `mcp_stdio_bridge.py` for stdio clients.
+- **⬇ project_export.zip:** paper, plan, code, runs/metrics/figures and memory in one archive.
+- New agents: Co-coding (local), Memory summarizer (local), Context decision (cloud). New settings: `ollama_base_url`, `ollama_model`, `agent_models`, `github`, `memory`.
+- Vietnamese interface covers all new views. `setup.bat` reports optional tools; `start.py --check` lists Docker/Git/GPU/LaTeX/Ollama.
+- Vendored offline: Monaco 0.52.2, xterm.js 5.5.0, vis-network 9.1.9 (licenses included).
+
 ## v2.7.0 — 2026-10-17
 - **📄 PDF preview in the Paper Writer:** compiles main.tex + references.bib with the LaTeX installed on your computer.
   - Engines: pdfLaTeX + BibTeX, latexmk, XeLaTeX or Tectonic, found on PATH and in the usual MiKTeX / TeX Live / MacTeX folders.

@@ -145,8 +145,9 @@ def provider_settings(cfg: dict, pid: str) -> tuple[dict, str, str, str]:
 
 
 async def cloud_chat(cfg: dict, pid: str, system: str, messages: list, max_tokens: int,
-                     temperature: float | None = None) -> str:
-    spec, key, model, base = provider_settings(cfg, pid)
+                     temperature: float | None = None, model: str | None = None) -> str:
+    spec, key, default_model, base = provider_settings(cfg, pid)
+    model = model or default_model
     if not key:
         raise LLMError(f"No API key for {spec['label']}. Add it in Configuration → Cloud AI providers.")
     if not base:
@@ -192,16 +193,38 @@ async def list_local_models(base_url: str) -> list:
         raise LLMError(f"Cannot reach LM Studio at {base}. {LMSTUDIO_HINT} ({e})") from e
 
 
-async def local_chat(cfg: dict, system: str, messages: list, max_tokens: int, temperature: float) -> str:
+OLLAMA_HINT = "Start Ollama (it runs in the system tray, or `ollama serve`) and pull a model, e.g. `ollama pull qwen2.5-coder:14b`."
+LOCAL_ENGINES = ("local", "ollama")
+
+
+async def local_target(cfg: dict, engine: str, model: str | None = None) -> tuple[str, str, str, str]:
+    """(base_url_v1, model, label, hint) for LM Studio ('local') or Ollama."""
+    from .local_ai import first_model, ollama_root
+    if engine == "ollama":
+        base = ollama_root(cfg.get("ollama_base_url")) + "/v1"
+        model = model or cfg.get("ollama_model") or await first_model("ollama", cfg)
+        if not model:
+            raise LLMError("Ollama has no model. " + OLLAMA_HINT)
+        return base, model, "Ollama", OLLAMA_HINT
     base = cfg["lmstudio_base_url"].rstrip("/")
-    model = cfg.get("local_model")
+    model = model or cfg.get("local_model")
     if not model:
-        models = await list_local_models(base)
-        if not models:
-            raise LLMError("LM Studio is running but no model is loaded.")
-        model = models[0]
-    return await openai_compat_chat(base, "", model, system, messages, max_tokens, temperature,
-                                    "LM Studio", "local", LMSTUDIO_HINT)
+        try:
+            model = await first_model("local", cfg)
+        except Exception:
+            model = None
+        if not model:
+            models = await list_local_models(base)
+            if not models:
+                raise LLMError("LM Studio is running but no model is loaded.")
+            model = models[0]
+    return base, model, "LM Studio", LMSTUDIO_HINT
+
+
+async def local_chat(cfg: dict, system: str, messages: list, max_tokens: int, temperature: float,
+                     engine: str = "local", model: str | None = None) -> str:
+    base, model, label, hint = await local_target(cfg, engine, model)
+    return await openai_compat_chat(base, "", model, system, messages, max_tokens, temperature, label, engine, hint)
 
 
 # --------------------------------------------------------------------- router
@@ -212,27 +235,55 @@ def resolve_engine(cfg: dict, agent: str) -> str:
     return cfg["default_cloud"] if mode == "cloud" else mode
 
 
+def resolve_model(cfg: dict, agent: str) -> str | None:
+    """Per-agent model override (v3); None = the engine's default model."""
+    return (cfg.get("agent_models") or {}).get(agent) or None
+
+
 def engine_label(engine: str) -> str:
-    return "LM Studio (local)" if engine == "local" else PROVIDERS.get(engine, {}).get("label", engine)
+    if engine == "local":
+        return "LM Studio (local)"
+    if engine == "ollama":
+        return "Ollama (local)"
+    return PROVIDERS.get(engine, {}).get("label", engine)
+
+
+def default_model_for(cfg: dict, engine: str) -> str:
+    if engine == "local":
+        return cfg.get("local_model") or ""
+    if engine == "ollama":
+        return cfg.get("ollama_model") or ""
+    if engine in PROVIDERS:
+        return cfg["providers"][engine].get("model") or PROVIDERS[engine]["model"]
+    return ""
+
+
+def agent_runtime(cfg: dict, agent: str) -> dict:
+    """What an agent will use right now: {engine, engine_label, model} — shown in every chat header."""
+    eng = resolve_engine(cfg, agent)
+    return {"agent": agent, "mode": cfg["agent_modes"].get(agent, "cloud"), "engine": eng, "engine_label": engine_label(eng),
+            "model": resolve_model(cfg, agent) or default_model_for(cfg, eng) or "(auto)",
+            "override": bool(resolve_model(cfg, agent))}
 
 
 async def call_agent(agent: str, system: str, user: str | None = None, messages: list | None = None,
                      max_tokens: int = 4096, temperature: float = 0.2) -> dict:
-    """Run an agent on its configured engine. Returns {text, engine, engine_label, note}."""
+    """Run an agent on its configured engine/model. Returns {text, engine, engine_label, model, note}."""
     cfg = load_config()
     engine = resolve_engine(cfg, agent)
+    model = resolve_model(cfg, agent)
     msgs = messages or [{"role": "user", "content": user or ""}]
-    if engine != "local":
-        text = await cloud_chat(cfg, engine, system, msgs, max_tokens, temperature)
-        return {"text": text, "engine": engine, "engine_label": engine_label(engine), "note": ""}
+    if engine not in LOCAL_ENGINES:
+        text = await cloud_chat(cfg, engine, system, msgs, max_tokens, temperature, model)
+        return {"text": text, "engine": engine, "engine_label": engine_label(engine), "model": model or default_model_for(cfg, engine), "note": ""}
     try:
-        text = await local_chat(cfg, system, msgs, max_tokens, temperature)
-        return {"text": text, "engine": "local", "engine_label": engine_label("local"), "note": ""}
+        text = await local_chat(cfg, system, msgs, max_tokens, temperature, engine, model)
+        return {"text": text, "engine": engine, "engine_label": engine_label(engine), "model": model or default_model_for(cfg, engine), "note": ""}
     except LLMError as e:
         fb = cfg["default_cloud"]
         if cfg.get("fallback_to_cloud") and cfg["providers"][fb].get("api_key"):
             text = await cloud_chat(cfg, fb, system, msgs, max_tokens, temperature)
-            return {"text": text, "engine": fb, "engine_label": engine_label(fb),
+            return {"text": text, "engine": fb, "engine_label": engine_label(fb), "model": default_model_for(cfg, fb),
                     "note": f"Local model unavailable, fell back to {engine_label(fb)}: {e}"}
         raise
 
@@ -322,17 +373,14 @@ async def _stream_openai(base, key, model, system, messages, max_tokens, tempera
         raise LLMError(f"{label} request failed: {e}") from e
 
 
-async def _stream_engine(cfg, engine, system, messages, max_tokens, temperature):
-    if engine == "local":
-        base = cfg["lmstudio_base_url"].rstrip("/")
-        model = cfg.get("local_model") or ((await list_local_models(base)) or [None])[0]
-        if not model:
-            raise LLMError("LM Studio is running but no model is loaded.")
-        async for t in _stream_openai(base, "", model, system, messages, max_tokens, temperature,
-                                      "LM Studio", "local", LMSTUDIO_HINT):
+async def _stream_engine(cfg, engine, system, messages, max_tokens, temperature, model=None):
+    if engine in LOCAL_ENGINES:
+        base, model, label, hint = await local_target(cfg, engine, model)
+        async for t in _stream_openai(base, "", model, system, messages, max_tokens, temperature, label, engine, hint):
             yield t
         return
-    spec, key, model, base = provider_settings(cfg, engine)
+    spec, key, default_model, base = provider_settings(cfg, engine)
+    model = model or default_model
     if not key:
         raise LLMError(f"No API key for {spec['label']}. Add it in Configuration → Cloud AI providers.")
     if spec["kind"] == "anthropic":
@@ -347,11 +395,12 @@ async def stream_agent(agent: str, system: str, messages: list, max_tokens: int 
     """Async generator: yields ("delta", text) chunks (reasoning <think> blocks hidden), then ("meta", {...})."""
     cfg = load_config()
     engine = resolve_engine(cfg, agent)
+    model = resolve_model(cfg, agent)
     note, raw, emitted = "", "", 0
 
-    async def run(eng):
+    async def run(eng, mdl):
         nonlocal raw, emitted
-        async for chunk in _stream_engine(cfg, eng, system, messages, max_tokens, temperature):
+        async for chunk in _stream_engine(cfg, eng, system, messages, max_tokens, temperature, mdl):
             raw += chunk
             visible = strip_think(raw)
             if len(visible) > emitted and visible.startswith(visible[:emitted]):
@@ -359,19 +408,19 @@ async def stream_agent(agent: str, system: str, messages: list, max_tokens: int 
                 emitted = len(visible)
 
     try:
-        async for piece in run(engine):
+        async for piece in run(engine, model):
             yield ("delta", piece)
     except LLMError as e:
         fb = cfg["default_cloud"]
-        if engine == "local" and not raw and cfg.get("fallback_to_cloud") and cfg["providers"][fb].get("api_key"):
+        if engine in LOCAL_ENGINES and not raw and cfg.get("fallback_to_cloud") and cfg["providers"][fb].get("api_key"):
             note = f"Local model unavailable, fell back to {engine_label(fb)}: {e}"
-            engine = fb
-            async for piece in run(engine):
+            engine, model = fb, None
+            async for piece in run(engine, None):
                 yield ("delta", piece)
         else:
             raise
     yield ("meta", {"engine": engine, "engine_label": engine_label(engine), "note": note,
-                    "text": strip_think(raw).strip()})
+                    "model": model or default_model_for(cfg, engine), "text": strip_think(raw).strip()})
 
 
 # --------------------------------------------------------------------- helpers

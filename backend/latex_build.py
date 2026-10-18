@@ -270,6 +270,11 @@ def _compile(engine: str, layout: str, notes: list, t0: float, retry: bool) -> d
     (build / "main.tex").write_text(tex, "utf-8")
     (build / "references.bib").write_text(bib, "utf-8")
     try:
+        from .results import copy_figures
+        copy_figures([tex], build)          # v3.1: figures chosen in the section briefs
+    except Exception:
+        pass
+    try:
         log = _compile_online(tex, bib, build) if engine == "online" else _compile_local(engine, build)
     except subprocess.TimeoutExpired:
         raise RuntimeError(f"LaTeX did not finish within {TIMEOUT} s (a package download or an endless loop?).")

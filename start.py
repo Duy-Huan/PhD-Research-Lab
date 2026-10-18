@@ -23,7 +23,7 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 HOST = "127.0.0.1"
-APP_VERSION = "2.7.0"   # must match backend/config.py - a mismatch means files from two versions were mixed
+APP_VERSION = "3.1.0"   # must match backend/config.py - a mismatch means files from two versions were mixed
 # Files that must exist for this version (an incomplete copy or a partial upgrade is the most common failure)
 REQUIRED_FILES = [
     "backend/__init__.py", "backend/app.py", "backend/config.py", "backend/llm.py", "backend/library.py",
@@ -31,6 +31,15 @@ REQUIRED_FILES = [
     "backend/attachments.py", "backend/fs_browse.py", "backend/review_ext.py", "backend/review_prompts.py", "backend/websearch.py", "backend/latex_build.py", "frontend/index.html", "frontend/vendor/marked.min.js",
     "frontend/vendor/purify.min.js", "frontend/vendor/katex/katex.min.js", "frontend/vendor/katex/katex.min.css",
     "frontend/vendor/hljs/highlight.min.js", "frontend/guide/en.md", "frontend/guide/vi.md", "frontend/i18n.js", "requirements.txt",
+    # v3.0: Code IDE, Docker sandbox, memory, context graph, GitHub, MCP
+    "backend/api_v3.py", "backend/local_ai.py", "backend/sysinfo.py", "backend/sandbox.py", "backend/ide_fs.py",
+    "backend/gitops.py", "backend/memory.py", "backend/context_graph.py", "backend/coder.py", "backend/mcp_server.py",
+    "mcp_stdio_bridge.py", "frontend/app/ide.js", "frontend/app/docker.js", "frontend/app/context.js", "frontend/app/v3.css",
+    "frontend/vendor/monaco/vs/loader.js", "frontend/vendor/monaco/vs/editor/editor.main.js",
+    "frontend/vendor/xterm/xterm.js", "frontend/vendor/xterm/addon-fit.js", "frontend/vendor/xterm/xterm.css",
+    "frontend/vendor/vis/vis-network.min.js",
+    # v3.1: external results + writing briefs
+    "backend/results.py", "backend/brief.py", "backend/api_v31.py", "frontend/app/results.js", "frontend/app/brief.js",
 ]
 UPGRADE_HELP = """How to fix (takes 1 minute):
   1. Extract the WHOLE new zip into a NEW, empty folder (do not copy single files over an old version).
@@ -140,10 +149,28 @@ def port_free(port: int) -> bool:
             return False
 
 
-def lab_already_running(port: int) -> bool:
+def running_lab(port: int) -> dict | None:
+    """{'version', 'root'} of a PhD Research Lab already listening on this port, else None."""
+    import json
     try:
         with urllib.request.urlopen(f"http://{HOST}:{port}/api/config", timeout=2) as r:
-            return b"agent_modes" in r.read()
+            cfg = json.loads(r.read().decode("utf-8", "replace"))
+        if "agent_modes" not in cfg:
+            return None
+    except Exception:
+        return None
+    info = {"version": str(cfg.get("version") or "older"), "root": ""}
+    try:
+        with urllib.request.urlopen(f"http://{HOST}:{port}/api/version", timeout=2) as r:
+            info.update(json.loads(r.read().decode("utf-8", "replace")))
+    except Exception:
+        pass
+    return info
+
+
+def same_folder(a: str, b: str) -> bool:
+    try:
+        return os.path.normcase(os.path.realpath(a)) == os.path.normcase(os.path.realpath(b))
     except Exception:
         return False
 
@@ -162,6 +189,17 @@ def open_when_ready(url: str, port: int) -> None:
         pass
 
 
+def report_tools() -> None:
+    """Optional tools for v3 (Code IDE sandbox, Source Control, PDF preview). Missing ones only disable that feature;
+    the 🐳 Docker & System tab scans everything in detail and recommends a setup."""
+    import shutil
+    def has(*names):
+        return next((n for n in names if shutil.which(n)), None)
+    items = [("Docker", has("docker")), ("Git", has("git")), ("NVIDIA GPU", has("nvidia-smi")),
+             ("LaTeX", has("latexmk", "pdflatex", "tectonic", "xelatex")), ("Ollama", has("ollama")), ("LM Studio CLI", has("lms"))]
+    print("Tools   : " + ", ".join(f"{k} {'yes' if v else 'no'}" for k, v in items) + "  (details: Docker & System tab)")
+
+
 def main() -> None:
     args = sys.argv[1:]
     port = int(args[args.index("--port") + 1]) if "--port" in args else 8765
@@ -176,15 +214,17 @@ def main() -> None:
     check_python()
     check_files()
     ensure_packages()
+    report_tools()
     if "--check" in args:
         print("\nInstallation OK.")
         return
 
     # port handling
     if not port_free(port):
-        if lab_already_running(port):
+        info = running_lab(port)
+        if info and info["version"] == APP_VERSION and (not info.get("root") or same_folder(info["root"], ROOT)):
             url = f"http://{HOST}:{port}"
-            print(f"The lab is already running at {url} - opening it.")
+            print(f"The lab (v{APP_VERSION}) is already running at {url} - opening it.")
             if browser:
                 webbrowser.open(url)
             return
@@ -192,7 +232,15 @@ def main() -> None:
         port = next((p for p in range(port + 1, port + 50) if port_free(p)), None)
         if port is None:
             fail(f"Port {old} and the next 49 ports are busy.")
-        print(f"Port {old} is used by another program -> using port {port}")
+        if info:
+            where = f" from {info['root']}" if info.get("root") else ""
+            print("!" * 64)
+            print(f"!! Another copy of the lab (v{info['version']}{where}) is still running on port {old}.")
+            print(f"!! This is v{APP_VERSION}: it starts on port {port} instead.")
+            print("!! Close the OLD black window so your browser never opens the old version.")
+            print("!" * 64)
+        else:
+            print(f"Port {old} is used by another program -> using port {port}")
 
     # import the app first so errors are shown clearly
     try:

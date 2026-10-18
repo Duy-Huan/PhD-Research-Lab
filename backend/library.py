@@ -343,7 +343,14 @@ def build_bibtex(entries: list | None = None) -> str:
 def reference_digest(entries: list, abstract_chars: int = 600) -> str:
     """Compact citation catalogue for prompts."""
     lines = []
+    try:  # v3: papers purged in the Context graph are hidden from the agents (the PDF and BibTeX stay)
+        from .context_graph import purged_lit_keys
+        hidden = purged_lit_keys()
+    except Exception:
+        hidden = set()
     for e in entries:
+        if e.get("key") in hidden:
+            continue
         authors = ", ".join(e.get("authors", [])[:3]) + (" et al." if len(e.get("authors", [])) > 3 else "")
         lines.append(f"[{e['key']}] {e.get('title', '')} — {authors} ({e.get('year', 'n.d.')}), {e.get('venue', '')}\n"
                      f"    Abstract: {(e.get('abstract') or 'n/a')[:abstract_chars]}")

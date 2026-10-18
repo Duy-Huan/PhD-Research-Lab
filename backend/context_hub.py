@@ -28,6 +28,7 @@ TOOL_LABELS = {
     "paper": "Tool 3 · Paper (main.tex + peer review)",
     "masterclass": "Tool 4 · Masterclass guide",
     "review": "Tool 3 · Paper Review (external manuscript, simulated venue review)",
+    "ide": "💻 Code IDE (co-coding agent)",
 }
 
 

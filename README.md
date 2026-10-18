@@ -1,6 +1,16 @@
-# PhD Interactive Autonomous Research Lab — v2.7.0
+# PhD Interactive Autonomous Research Lab — v3.1.0
 
-A local desktop web app for Windows 11 that runs an end-to-end research workflow on a **hybrid AI architecture**: any of 14 cloud AI providers for deep reasoning and academic writing, plus local models in **LM Studio** (`http://localhost:1234/v1`) for fast, private, zero-cost extraction work.
+A local desktop web app for Windows 11 (and Linux/macOS) that runs an end-to-end research workflow on a **hybrid AI architecture**: any of 14 cloud AI providers for deep reasoning and academic writing, plus local models in **Ollama** (recommended) or **LM Studio** for fast, private, zero-cost work.
+
+**v3.0 — a unified, stateful multi-agent research IDE:**
+- 💻 **Code IDE** tab: VS Code-style editor (Monaco), file explorer, terminal (xterm), runs/metrics/figures, Source Control with **Publish to GitHub**, and an AI **co-coding agent** that writes code from your Tool 2 blueprint, runs it in a **Docker sandbox** (GPU passthrough) and fixes errors from stderr by itself.
+- 🐳 **Docker & System** tab: live, detailed monitor of Docker, the sandbox container, GPU/VRAM, host RAM/CPU/disk, jobs and logs; it scans your PC and offers a one-click **recommended setup**.
+- 🧠 **Context** tab: knowledge graph of everything the agents know (📌 pin = must follow, 🗑 purge = hidden), a Context Decision Agent, and **3-tier project memory** kept small by a background summarizer running on your local model.
+- 🔒 **Lit2Plan decisions:** lock directions/hypotheses/rejections from the chat; 🔄 regenerate the research overview after many discussions; 🕘 versions.
+- 🖥 LM Studio **Load / Unload** buttons, 🦙 Ollama support (pull, load, unload), per-agent model choice with **live badges** in every chat.
+- 🔌 MCP server (`sandbox_run_code`, `sandbox_manage_files`, `sandbox_get_metrics`) and `project_export.zip`.
+
+**v3.1:** 📥 upload results you produced outside the app (figures, PDF, LaTeX, Markdown, CSV/Excel, notebooks…) — they become context for every agent; 🎯 a **brief per paper section** (directions, which results to present and how, structure, must/avoid, tone, length, references) plus a paper-wide brief.
 
 ### Supported cloud providers
 | Provider | API style | Get a key |
@@ -28,11 +38,22 @@ Every agent can be switched between Cloud and Local from the sidebar. If a local
 >
 > 📘 **Full user guide inside the app:** tab **Guide** (Vietnamese / English) — quick start, every tool, recommended 6-month workflow, tips and troubleshooting. Source: `frontend/guide/`.
 
-## 1. Install (once)
+## 1. Install (once) — Windows 11
 
-1. Install **Python 3.10+** from python.org (tick *Add python.exe to PATH*).
-2. Install **LM Studio** → download a model (e.g. Qwen3-8B / Llama-3.1-8B-Instruct / Mistral-Small) → **Developer** tab → **Start Server** (port 1234).
-3. Double-click **`setup.bat`** (creates `.venv` and installs FastAPI, Uvicorn, httpx, pypdf).
+1. Install **Python 3.10+** from python.org (tick *Add python.exe to PATH*). Tested up to Python 3.14.
+2. Double-click **`setup.bat`** — creates `.venv`, installs FastAPI, Uvicorn, httpx, pypdf, GitPython (all pure Python, no native DLLs → no Smart App Control prompts) and lists which optional tools were found.
+3. Optional tools — each one only enables a feature; the app works without them:
+
+| Tool | Enables | Install |
+|---|---|---|
+| **Docker Desktop** + WSL2 | Code IDE sandbox, GPU containers | docker.com → install with the *WSL 2 backend*; in PowerShell (admin) `wsl --install` if WSL2 is missing; reboot; start Docker Desktop |
+| **NVIDIA driver** (Game Ready / Studio, recent) | GPU passthrough (`--gpus all`) | Windows driver only — do **not** install a Linux driver inside WSL. Test: ▶ *Test GPU* in the Docker & System tab |
+| **Ollama** (recommended local AI) | local agents (coder, summarizer, extraction) | ollama.com/download → the sidebar 🦙 section pulls/loads models, e.g. `qwen2.5-coder:14b` |
+| **LM Studio** | local agents | download a model → **Developer** → **Start Server** (port 1234). Enable the `lms` CLI so the app can load models itself |
+| **Git for Windows** | Source Control, Publish to GitHub | git-scm.com/download/win |
+| **MiKTeX / TeX Live / Tectonic** | PDF preview of the paper | miktex.org |
+
+4. Start the app (`run.bat`), open **🐳 Docker & System** → *🔎 Rescan machine* → *⚡ Apply recommended setup*. It picks the sandbox image (PyTorch+CUDA when a GPU is usable, else `python:3.11-slim`), RAM/CPU limits, and the local model size for your VRAM (12 GB → 14B Q4_K_M, 8k context).
 
 ## 2. Run
 
@@ -44,7 +65,7 @@ Manual start (any Python 3.9+): open a terminal in this folder and run `python s
 
 ## 2b. Linux / macOS
 ```bash
-unzip PhD-Research-Lab-v2.2.1.zip && cd PhD-Research-Lab-v2.2.1
+unzip PhD-Research-Lab-v3.1.0.zip && cd PhD-Research-Lab-v3.1.0
 ./run.sh            # or: python3 start.py
 ```
 - If the system Python refuses `pip install` (PEP 668 "externally-managed-environment", Ubuntu 23.04+/Debian 12+), `start.py` automatically creates `./.venv`, installs the packages there and restarts inside it. If `venv` itself is missing: `sudo apt install python3-venv`.
@@ -57,7 +78,9 @@ Extract the **whole** new zip into a **new, empty folder** — never copy single
 ## 3. Configure (sidebar)
 
 - **Cloud AI providers** → click a provider, paste its API key, press **↻ List** to load the models your key can use, pick one from the searchable model list (type to filter, ↑/↓ + Enter), then **Test connection**. Choose the **Default cloud provider**.
-- **LM Studio Base URL** + **Local model** (↻ lists models loaded in LM Studio).
+- **LM Studio Base URL** + **Local model**: the list shows every downloaded model with **Load** / **⏏ Unload** / **Use** buttons (load uses the LM Studio REST API, then the `lms` CLI, then just-in-time loading).
+- **🦙 Ollama** Base URL (`http://localhost:11434`) + model: Load / Unload (frees VRAM) / Use, and ⤓ Pull to download a model.
+- **Agent engines**: each agent → Default cloud, a specific provider, Local (LM Studio) or Local (Ollama), plus an optional model per agent. Changes save immediately; the **badge in every chat header** shows the engine · model in use and opens a quick switcher.
 - **Reference directory** — any folder, e.g. `C:\Users\you\PhD\references`. Defaults to `./references`.
 - **Agent engines** — per agent: Default cloud / Local / a specific provider. *Save configuration*.
 
@@ -122,6 +145,34 @@ Novelty + domain (hyperspectral, FOG signals, RISC-V SoC, …) → formulation i
 ### 📖 Tool 4 — Masterclass
 Rebuttal letters, major revisions, grant writing, thesis defense, qualifying exams, PRISMA reviews, venue choice, reproducibility packages, job applications — tailored to the context you provide.
 
+### 📥 Your research results (v3.1, Experiment Design tab)
+Drop files produced outside the app — images, PDF, `.tex`, `.md`, `.csv/.tsv`, `.xlsx`, `.docx`, `.ipynb`, `.json`, logs, code — or **＋ Type a result**. Describe each one (experiment, dataset, setting): agents rely on that description. **✨ Analyze** extracts key numbers and findings (images are read by a vision model), **▦ LaTeX table** adds a booktabs table to the Writer, **📌 Pin** makes a result must-follow context, **🙈 Hide from AI** removes it from every prompt, **✍ Use in paper** adds it to a section brief. Files live in `data/results/`.
+
+### 🎯 Section briefs (v3.1, Paper Writer)
+Select a section → tab **🎯 Brief**: directions & wishes (with suggestions), **results to present** (uploads, Code IDE runs/figures, Writer tables) with *present as* table / figure / numbers in text / comparison / headline and a note each, required structure, must include / must avoid, tone & length, references to emphasise. **🧭 Paper-wide brief** (story, style, terminology, never-do) applies to all sections. The brief goes to the Author, Editor and section Reviewer; **👁 Preview** shows exactly what the AI receives. Chosen figures are inserted with `\includegraphics{figures/…}` and shipped in the PDF preview and `latex.zip`.
+
+### 💻 Code IDE (v3.0)
+- **Explorer / Search / Source Control / Runs** in the activity bar; Monaco editor with tabs (Ctrl+S save, Ctrl+Enter run), diff view, images; terminal at the bottom with **live metric charts**.
+- **Start from the blueprint** creates `src/`, `README.md`, `requirements.txt` from Tool 2 (`experiment_skeleton.py` + design).
+- **Co-coding agent** (right panel): 💡 *Suggest* shows file changes as proposals (diff / apply / apply all); ⚡ *Auto* applies → runs in the sandbox → reads stderr → fixes, up to N attempts. It sees your locked decisions, pinned context, memory, the blueprint, the workspace and the last run.
+- Code runs with `docker exec` in one persistent container per project (`phdlab-…`): workspace at `/workspace`, run outputs at `/runs`. Without Docker it falls back to a private Python venv.
+- Every run is kept in `data/runs/<id>/` (`stdout.log`, `stderr.log`, `metrics.json`, `figures/`). Metrics come from `metrics.json` **and** log lines such as `epoch 3 loss=0.12 psnr=28.4`. *Use results in the paper* fills the Writer's results notes and adds a booktabs table with the **measured** numbers.
+- **Source Control:** init, changes, diff, commit, push/pull, **🚀 Publish to GitHub** (public/private). The Personal Access Token stays in `data/config.json`, is sent only to GitHub and is passed to `git push` for that one command — never written to `.git/config`.
+
+### 🐳 Docker & System (v3.0)
+Status cards (Docker, sandbox, GPU, host, container usage) and sparklines refresh every 2 s: GPU util/VRAM/temperature/power, container CPU/RAM/PIDs/IO, host RAM/CPU/disk. Container actions (start, stop, restart, recreate), image pull with progress, **Test GPU**, sandbox settings (engine, image, RAM/CPU/shm limits, GPU, network, time limit, self-debug attempts), jobs table with log viewer, images/containers, local AI servers, machine scan (OS, CPU, RAM, GPU/driver/CUDA, Docker, WSL2, Git, LaTeX, `lms`) and recommendations.
+
+### 🧠 Context & memory (v3.0)
+- **Graph** of objectives, hypotheses, decisions, constraints, literature, code assumptions, metrics and memory episodes. Click a node to inspect/edit, **📌 pin** (injected as MUST-FOLLOW context into every agent) or **🗑 purge** (hidden from all agents; purged papers leave the reference digest; data is kept).
+- **Context Decision Agent:** describe the change in plain language ("prune the old CNN assumptions, focus on FLOPs"); it proposes pin/purge/add/edit operations that you tick and apply.
+- **Memory:** Tier 1 = recent chat turns + sandbox logs; when it passes the threshold (default 24k tokens) the **summarizer agent (local model)** writes Tier 2 episodes in the background; Tier 3 = goals, hypotheses, constraints, best metrics, validated references, locked decisions. Stored in `data/memory/project_state.json`.
+
+### 🔒 Lit2Plan decisions & regenerate (v3.0)
+🔒 on any chat answer (or select text in the plan → *Lock selected text*) records a direction, hypothesis, gap, constraint or rejected direction. Locked decisions bind every agent. **🔄 Regenerate overview** rewrites the research plan from the discussion + locked decisions; **🕘 Versions** keeps and restores earlier overviews.
+
+### 🔌 MCP & export (v3.0)
+`POST http://127.0.0.1:8765/mcp` (Streamable HTTP JSON-RPC) exposes `sandbox_run_code`, `sandbox_manage_files`, `sandbox_get_metrics`. For stdio clients (Claude Desktop): `{"mcpServers": {"phd-research-lab": {"command": "python", "args": ["<app folder>/mcp_stdio_bridge.py"]}}}`. **⬇ project_export.zip** (Writer) bundles paper, plan, code, runs/metrics/figures and memory.
+
 ### 🔎 Internet search (v2.6)
 Every chat has a **🌐 search** selector with four settings: off, 📚 papers, 🌐 web, or both.
 - **Paper sources:** OpenAlex, arXiv and Semantic Scholar (free, no key).
@@ -183,10 +234,26 @@ phd-research-lab/
 │   ├── review_prompts.py  venue standards (ICORE / h5 / Q1-Q4) and reviewer prompts
 │   ├── latex_build.py     LaTeX → PDF preview (engine discovery, quick layout, log parsing)
 │   ├── websearch.py       internet search (OpenAlex, arXiv, Semantic Scholar, DuckDuckGo/Tavily/Brave)
-│   └── chat_store.py, context_hub.py, attachments.py, fs_browse.py
-├── frontend/index.html   single-page UI
-├── references/       default PDF pool
-└── data/             config.json, library.json, workspace/ (project.json, main.tex, review.md, paper_reviews/, …)
+│   ├── chat_store.py, context_hub.py, attachments.py, fs_browse.py
+│   ├── api_v3.py          v3 routes (local AI, system, sandbox, IDE, git, memory, context, MCP)
+│   ├── sandbox.py         Docker CLI sandbox / local venv, jobs, runs, metrics
+│   ├── sysinfo.py         machine scan + recommended setup (no native packages)
+│   ├── local_ai.py        LM Studio / Ollama model management
+│   ├── ide_fs.py, coder.py, gitops.py, memory.py, context_graph.py, mcp_server.py
+│   ├── results.py, brief.py, api_v31.py   v3.1 uploaded results + section briefs
+├── mcp_stdio_bridge.py    MCP stdio ↔ HTTP bridge
+├── frontend/index.html    single-page UI  ·  frontend/app/ (ide.js, docker.js, context.js, v3.css)
+├── frontend/vendor/       marked, KaTeX, highlight.js, Monaco, xterm.js, vis-network (offline)
+├── references/            default PDF pool
+└── data/                  everything you create, per project:
+    ├── config.json        API keys, GitHub token, engines (shared by all projects)
+    ├── system/            machine scan cache
+    ├── workspace/         project.json, main.tex, chats, lit2plan_versions/, paper_reviews/, …
+    ├── code/              Code IDE workspace (a git repo; mounted at /workspace)
+    ├── runs/<id>/         run.json, stdout/stderr logs, metrics.json, figures/ (mounted at /runs)
+    ├── sandbox/           settings.json, venv/ (local mode)
+    ├── memory/            project_state.json, context_graph.json, context_chat.json
+    └── results/           research results you uploaded (index.json, <id>/file + extracted.txt, _trash/)
 ```
 
 ## 7. Troubleshooting
@@ -200,5 +267,12 @@ phd-research-lab/
 | Provider 404 / model not found | Click **List** and pick a model your key can access. |
 | Port 8765 busy | Edit the port in `run.bat`. |
 | Local reviewer/author loses context on long papers | Keep 3.2–3.4 on Cloud, or load a long-context model in LM Studio. |
+| After an upgrade the new tabs are missing | An older copy is still running (its black window). Close every old window, run `run.bat` again; if the browser still shows the old page press **Ctrl+F5**. Since v3.1 the launcher detects this and starts the new version on another port. |
+| Code IDE says "Docker not running" | Start Docker Desktop (whale icon steady), then ↻ in the Docker & System tab. Until then runs use the local venv. |
+| `--gpus all` fails / Test GPU shows no GPU | Update the NVIDIA Windows driver, Docker Desktop → Settings → Resources → WSL integration on, `wsl --update`. The app retries on CPU automatically. |
+| CUDA out of memory while a local model is loaded | ⏏ Unload the LM Studio / Ollama model in the sidebar before long training runs (12 GB cards cannot hold both). |
+| First run is slow | The sandbox image is being downloaded (PyTorch+CUDA ≈ 8 GB). Progress shows in the Docker & System tab. |
+| Publish to GitHub: 401 | Token missing scopes — fine-grained token with *Contents: read/write* and *Administration: read/write* (to create repos), or classic `repo`. |
+| `pip install` in the sandbox fails | Enable 🌐 Network in sandbox settings, then ♻ Recreate the container. |
 
 **Academic integrity:** the lab drafts; you are the author. Verify every citation, number and claim before submission, and follow your venue's policy on disclosing AI assistance. Publisher PDFs in `references/` are for personal use — don't redistribute them.

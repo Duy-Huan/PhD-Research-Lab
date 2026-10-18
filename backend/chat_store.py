@@ -43,7 +43,7 @@ def _state_path():
 def _legacy_path():
     return workspace() / "chat_session.json"
 SCHEMA_VERSION = 3
-TOOLS = ("data", "lit2plan", "experiment", "paper", "masterclass", "review")
+TOOLS = ("data", "lit2plan", "experiment", "paper", "masterclass", "review", "ide")
 MAX_CONTEXT_CHARS = 60_000
 MAX_MESSAGES = 1000
 MAX_CONTENT_CHARS = 250_000

@@ -112,6 +112,7 @@ Hard rules:
 - Ground each citation in what that reference's title/abstract actually says.
 - Never fabricate numerical results. Use only numbers from the RESULTS / TABLES provided. If results are missing, write \\textcolor{red}{[TBD: ...]} placeholders.
 - When LaTeX tables are provided and you are writing Experiments & Results, include them verbatim and reference them with \\ref{}.
+- When the AUTHOR'S BRIEF lists results with a figure LaTeX line, use exactly that \\includegraphics path and \\label; captions describe only what the description/analysis says.
 - Formal, precise, concise academic tone; active voice where natural; define every symbol; use equation/align environments with \\label.
 - Escape special characters (%, &, _, #) in prose."""
 
@@ -144,7 +145,20 @@ def _project_block(p: dict) -> str:
             f"TARGET VENUE: {p.get('venue') or '(not specified)'}\n"
             f"KEYWORDS: {p.get('keywords', '')}\n\nCORE CONTRIBUTION / NOVELTY:\n{p.get('contribution') or '(not given)'}\n\n"
             f"METHOD NOTES:\n{p.get('method_notes') or '(not given)'}\n\n"
-            f"RESULTS NOTES:\n{p.get('results_notes') or '(not given)'}\n\nLATEX TABLES (from Data Extractor):\n{tables}")
+            f"RESULTS NOTES:\n{p.get('results_notes') or '(not given)'}\n\nLATEX TABLES (from Data Extractor):\n{tables}"
+            + _uploaded_results())
+
+
+def _uploaded_results() -> str:
+    """v3.1: catalogue of results the researcher uploaded (work done outside the app)."""
+    try:
+        from .context_graph import purged_ids
+        from .results import digest
+        d = digest(4000, purged_ids())
+        return ("\n\nRESEARCH RESULTS UPLOADED BY THE RESEARCHER (real results; use their numbers only as given; "
+                "the section brief says which ones to present):\n" + d) if d else ""
+    except Exception:
+        return ""
 
 
 def author_user(section_id: str, section_title: str, p: dict, digest: str, keys: list,
@@ -160,7 +174,8 @@ def author_user(section_id: str, section_title: str, p: dict, digest: str, keys:
                   "and use \\subsection / \\paragraph structure where natural. Depth must come from substance, never from padding "
                   "or invented facts.\n")
     if instructions.strip():
-        extra += f"AUTHOR'S INSTRUCTIONS FOR THIS SECTION (follow them):\n{instructions.strip()}\n"
+        extra += (instructions.strip() if instructions.startswith("AUTHOR'S BRIEF") else
+                  f"AUTHOR'S INSTRUCTIONS FOR THIS SECTION (follow them):\n{instructions.strip()}") + "\n"
     return (f"WRITE SECTION: {section_title}\nSECTION GUIDANCE: {SECTION_GUIDE.get(section_id, '')}\n{extra}\n"
             f"{_project_block(p)}\n\nAVAILABLE REFERENCES (the ONLY valid \\cite keys: {', '.join(keys) or 'NONE - do not cite'}):\n{digest}\n\n"
             f"ALREADY-DRAFTED SECTIONS (keep consistent notation and claims):\n{chr(10).join(others) or '(none yet)'}")
@@ -194,7 +209,8 @@ Rules:
 
 
 def editor_user(section_id: str, section_tex: str, review: str, keys: list, digest: str, instructions: str = "") -> str:
-    extra = f"AUTHOR'S INSTRUCTIONS (take precedence over reviewer suggestions):\n{instructions.strip()}\n\n" if instructions.strip() else ""
+    extra = ((instructions.strip() if instructions.startswith("AUTHOR'S BRIEF") else
+              f"AUTHOR'S INSTRUCTIONS (take precedence over reviewer suggestions):\n{instructions.strip()}") + "\n\n") if instructions.strip() else ""
     return (f"SECTION ID: {section_id}\nVALID CITE KEYS: {', '.join(keys) or 'NONE'}\n\nREFERENCE CATALOGUE:\n{digest}\n\n"
             f"{extra}PEER REVIEW:\n{review}\n\nCURRENT SECTION LaTeX:\n{section_tex}")
 
@@ -223,12 +239,13 @@ Claims lacking support, citations that do not fit the cited abstract, catalogue 
 2-4 concrete before → after examples in LaTeX."""
 
 
-def section_reviewer_user(section_id: str, section_title: str, section_tex: str, p: dict, digest: str, keys: list) -> str:
+def section_reviewer_user(section_id: str, section_title: str, section_tex: str, p: dict, digest: str, keys: list,
+                          brief: str = "") -> str:
     others = [f"--- {sid} (excerpt) ---\n{tex[:2000]}" for sid, tex in (p.get("sections") or {}).items() if sid != section_id and tex]
     return (f"SECTION UNDER REVIEW: {section_title} [{section_id}]\nWHAT THIS SECTION SHOULD DO: {SECTION_GUIDE.get(section_id, '')}\n\n"
             f"{_project_block(p)}\n\nREFERENCE CATALOGUE (valid keys: {', '.join(keys) or 'NONE'}):\n{digest}\n\n"
             f"OTHER SECTIONS (for consistency):\n{chr(10).join(others) or '(none yet)'}\n\n"
-            f"SECTION LaTeX TO REVIEW:\n{section_tex}")
+            + (f"{brief}\n\n" if brief else "") + f"SECTION LaTeX TO REVIEW:\n{section_tex}")
 
 
 # ----------------------------------------------------------------- Tool 4

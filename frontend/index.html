@@ -8,6 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
 <!-- bundled locally: works offline / behind firewalls -->
 <link rel="stylesheet" href="/vendor/katex/katex.min.css">
+<link rel="stylesheet" href="/vendor/xterm/xterm.css">
+<link rel="stylesheet" href="/app/v3.css">
 <link rel="stylesheet" id="hljs-theme" href="/vendor/hljs/github-dark.min.css">
 <script>
   // apply the saved theme before the page paints (no flash): light | dark | auto (follow the OS)
@@ -501,7 +503,7 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
 <!-- ================================================================ CONFIG SIDEBAR -->
 <aside>
   <div class="brand">PhD Interactive<br><span>Autonomous Research Lab</span></div>
-  <div class="sub">Hybrid multi-cloud AI + LM Studio · <span id="app-version">v2.7.0</span></div>
+  <div class="sub">Hybrid cloud AI + Ollama / LM Studio · <span id="app-version">v3.1.0</span></div>
 
   <h3>📂 Research project</h3>
   <div class="row"><select id="proj-select" title="Switch research project"></select></div>
@@ -540,6 +542,18 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
   <label>Local model</label>
   <div class="row"><input type="text" id="cfg-localmodel" placeholder="(first loaded model)"><button class="btn small" id="refresh-models" title="Reload models from LM Studio">↻</button></div>
   <div class="status" id="st-local"><span class="dot"></span>not checked</div>
+  <div class="row" style="margin-top:6px;gap:6px"><label style="margin:0;flex:0 0 auto">Context</label><select id="lm-ctx" style="flex:1"><option value="">default</option><option>4096</option><option>8192</option><option>16384</option><option>32768</option></select></div>
+  <div class="lmlist" id="lm-list"></div>
+
+  <h3>🦙 Ollama (local)</h3>
+  <label>Base URL</label>
+  <input type="text" id="cfg-ollamaurl" placeholder="http://localhost:11434">
+  <label>Ollama model</label>
+  <div class="row"><input type="text" id="cfg-ollamamodel" placeholder="(loaded model)"><button class="btn small" id="ol-refresh" title="Reload Ollama models">↻</button></div>
+  <div class="status" id="st-ollama"><span class="dot"></span>not checked</div>
+  <div class="lmlist" id="ol-list"></div>
+  <div class="row" style="margin-top:6px;gap:6px"><input type="text" id="ol-pullname" placeholder="qwen2.5-coder:14b"><button class="btn small" id="ol-pull" title="Download a model from the Ollama library">⤓ Pull</button></div>
+  <div class="status" id="ol-pullst"></div>
   <label class="chk"><input type="checkbox" id="cfg-fallback"> Fall back to Claude if local fails</label>
 
   <h3>⚙ Agent engines</h3>
@@ -576,8 +590,11 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
 <nav>
   <button data-tab="lit2plan" class="on">🛠️ Lit2Plan</button>
   <button data-tab="experiment">🔬 Experiment Design</button>
+  <button data-tab="ide">💻 Code IDE</button>
   <button data-tab="papers">📚 Papers &amp; Writer</button>
   <button data-tab="masterclass">📖 Masterclass</button>
+  <button data-tab="context">🧠 Context</button>
+  <button data-tab="docker">🐳 Docker &amp; System</button>
   <button data-tab="guide">📘 Guide</button>
   <span style="flex:1"></span><button class="notesbtn" id="notes-open" title="Shared context: pinned notes visible to every tool's chat">📌 <span id="notes-count">0</span></button><span class="projtag" id="proj-tag" title="Active research project"></span>
   <span class="themesw" id="lang-switch" title="Interface language">
@@ -607,6 +624,16 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
       <div class="out" id="l2p-out"><div class="empty">Your research direction will appear here.</div></div>
       <div id="l2p-sources"></div>
       <details style="margin-top:12px"><summary class="status" style="cursor:pointer">Query expansion (local agent)</summary><div class="out md" id="l2p-exp" style="min-height:0;margin-top:8px"></div></details>
+      <div class="card decs" id="l2p-decs">
+        <div class="row" style="flex-wrap:wrap;gap:6px"><h4 style="margin:0;flex:1">🔒 Locked decisions <span class="status" id="dec-count"></span></h4>
+          <button class="btn small" id="l2p-lockplan" title="Select text in the plan above, then lock it">🔒 Lock selected text</button>
+          <button class="btn small" id="l2p-regen" title="Rewrite the research overview from the discussion below and the locked decisions">🔄 Regenerate overview from discussion</button>
+          <button class="btn small" id="l2p-vers" title="Earlier versions of the research overview">🕘 Versions</button></div>
+        <p class="status" style="margin:4px 0 0">Lock the directions you choose in the discussion (🔒 on any answer, or select text). Locked decisions bind every agent and are the backbone when the overview is regenerated.</p>
+        <div id="dec-list"></div>
+        <div class="row" style="gap:6px;margin-top:6px"><select id="dec-kind" style="flex:0 0 150px"><option value="direction">✅ Direction</option><option value="hypothesis">🧪 Hypothesis</option><option value="gap">🎯 Gap</option><option value="constraint">📏 Constraint</option><option value="rejected">🚫 Rejected</option></select>
+          <input type="text" id="dec-new" placeholder="Add a decision manually…"><button class="btn small" id="dec-add">＋</button></div>
+      </div>
       <div class="card chatcard" id="chat-lit2plan"></div>
     </div>
   </div>
@@ -626,7 +653,7 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
       <label>Constraints (hardware, data, time)</label>
       <textarea id="exp-constraints" rows="3" placeholder="1× RTX 4090, Indian Pines + Pavia U, 3 months"></textarea>
       <div class="row" style="margin-top:12px"><button class="btn primary" id="exp-run">Generate methodology</button></div>
-      <div class="row" style="margin-top:8px"><button class="btn small" id="exp-dl-code">⬇ experiment_skeleton.py</button><button class="btn small" id="exp-to-paper">→ Use as paper method notes</button></div>
+      <div class="row" style="margin-top:8px"><button class="btn small" id="exp-dl-code">⬇ experiment_skeleton.py</button><button class="btn small" id="exp-to-paper">→ Use as paper method notes</button><button class="btn small" id="exp-to-ide">→ 💻 Open in Code IDE</button></div>
       <div class="status" id="exp-meta"></div>
     </div>
     <div>
@@ -634,6 +661,7 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
       <div class="card chatcard" id="chat-experiment"></div>
     </div>
   </div>
+  <div class="card rescard" id="res-card"></div>
 </section>
 
 <!-- ================================================================ TOOL 3 -->
@@ -710,7 +738,8 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
           <label>Core contribution / novelty</label><textarea id="p-contribution" rows="4"></textarea>
           <label>Method notes</label><textarea id="p-method" rows="4"></textarea>
           <label>Results notes</label><textarea id="p-results" rows="3"></textarea>
-          <div class="row" style="margin-top:10px"><button class="btn" id="p-save">Save project</button></div>
+          <div id="pbrief-host"></div>
+          <div class="row" style="margin-top:10px;gap:6px"><button class="btn" id="p-save">Save project</button><button class="btn small" id="p-import" title="Fill the results notes and add a LaTeX table from the Code IDE runs (real measured metrics)">⇣ Import results from Code IDE</button></div>
           <label>LaTeX tables from Data Chat (<span id="p-tcount">0</span>)</label>
           <div id="p-tables"></div>
         </details>
@@ -721,6 +750,7 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
           <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:6px">
             <a class="btn primary" id="export-zip" href="/api/export/latex.zip" style="text-decoration:none;text-align:center">⬇ Export latex.zip</a>
             <button class="btn small" id="dl-main">⬇ main.tex</button>
+            <a class="btn small" href="/api/export/project.zip" title="Everything: paper, plan, code, runs/metrics/figures, memory">⬇ project_export.zip</a>
           </div>
           <div class="status" id="cite-report"></div>
         </div>
@@ -729,22 +759,24 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
       <div>
         <div class="card" id="secws">
           <div class="wshead">
-            <h4 id="ws-title">Select a section</h4><span id="ws-badges"></span>
+            <h4 id="ws-title">Select a section</h4><span id="ws-badges"></span><span id="ws-brief" class="briefline"></span>
             <span style="flex:1"></span>
             <label class="chk" style="margin:0" title="Longer, more detailed writing (deep mode always uses this)"><input type="checkbox" id="ws-deep"> 🔬 In-depth writing</label>
           </div>
           <div class="wtabs">
             <button data-wtab="latex" class="on">LaTeX</button>
             <button data-wtab="review">🔍 Section review</button>
-            <button data-wtab="notes">📝 Instructions for AI</button>
+            <button data-wtab="notes">🎯 Brief · directions &amp; results</button>
           </div>
           <div data-wpane="latex">
             <textarea id="sec-editor" class="code" rows="20" placeholder="Select a section on the left, then ✍ Write it — or type LaTeX here and Save."></textarea>
           </div>
           <div data-wpane="review" hidden><div class="md secreview" id="sec-review"><span class="status">No review of this section yet — press 🔍 Review.</span></div></div>
           <div data-wpane="notes" hidden>
-            <p class="status" style="margin-top:0">Your instructions are sent to the Author (3.2) and Editor (3.4) every time this section is written or revised, and take precedence over reviewer suggestions.</p>
-            <textarea id="sec-notes" rows="7" placeholder="e.g. Emphasise the 2 W power budget; compare with QRNN3D; keep under one page; do not mention transformers."></textarea>
+            <p class="status" style="margin-top:0">Tell the AI how to write this section and which results to show. The brief is sent to the Author (3.2), the Editor (3.4) and the section Reviewer (3.3) every time, and takes precedence over reviewer suggestions. Every part is optional.</p>
+            <label>🧭 Directions &amp; wishes — what this section must argue, emphasise or achieve</label>
+            <textarea id="sec-notes" rows="5" placeholder="e.g. Emphasise the 2 W power budget; compare with QRNN3D; keep under one page; do not mention transformers."></textarea>
+            <div id="brief-host"></div>
           </div>
           <div class="wsact">
             <button class="btn" id="ws-draft" title="Agent 3.2 writes this section">✍ Write</button>
@@ -878,6 +910,11 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
   </div>
 </section>
 
+<!-- ================================================================ v3: CODE IDE / CONTEXT / DOCKER -->
+<section class="tab full" id="tab-ide"></section>
+<section class="tab full" id="tab-context"></section>
+<section class="tab full" id="tab-docker"></section>
+
 <!-- ================================================================ GUIDE -->
 <section class="tab" id="tab-guide">
   <div class="guide-layout">
@@ -998,6 +1035,20 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
   <div class="md" id="view-body"></div>
 </div></div>
 <div id="citepop"></div>
+<div id="rtpop"></div>
+<!-- lock decision -->
+<div class="modal" id="lock-modal"><div class="card">
+  <h4>🔒 Lock a research decision</h4>
+  <p class="status">Locked decisions are binding for every agent (planning, coding, writing, reviewing) and drive the regenerated research overview.</p>
+  <label>Kind</label><select id="lock-kind"><option value="direction">✅ Chosen direction</option><option value="hypothesis">🧪 Hypothesis</option><option value="gap">🎯 Target gap</option><option value="constraint">📏 Constraint</option><option value="rejected">🚫 Rejected direction</option><option value="other">📌 Other decision</option></select>
+  <label>Decision (edit to a precise, self-contained statement)</label><textarea id="lock-text" rows="5"></textarea>
+  <div class="row" style="margin-top:12px"><span style="flex:1"></span><button class="btn" id="lock-cancel">Cancel</button><button class="btn primary" id="lock-ok">🔒 Lock</button></div>
+</div></div>
+<!-- plan versions -->
+<div class="modal" id="ver-modal"><div class="card" style="width:min(900px,96vw)">
+  <div class="row"><h4 style="flex:1;margin:0">🕘 Research overview versions</h4><button class="btn small" id="ver-close">Close</button></div>
+  <div id="ver-list" style="margin-top:8px"></div>
+</div></div>
 
 <div id="toast"></div>
 
@@ -1212,6 +1263,9 @@ $$('nav button[data-tab]').forEach(b => b.onclick = () => {
   $$('.tab').forEach(t => t.classList.toggle('on', t.id === 'tab-' + b.dataset.tab));
   if (b.dataset.tab === 'papers') { loadLibrary(); loadProject(); }
   if (b.dataset.tab === 'guide' && GUIDE_LOADED !== GUIDE_LANG) loadGuide(GUIDE_LANG);
+  if (b.dataset.tab === 'lit2plan') refreshDecisions();
+  window.dispatchEvent(new CustomEvent('tab-shown', {detail: b.dataset.tab}));
+  try { localStorage.setItem('last_tab', b.dataset.tab); } catch {}
 });
 $$('.subnav button').forEach(b => b.onclick = () => {
   $$('.subnav button').forEach(x => x.classList.toggle('on', x === b));
@@ -1258,14 +1312,128 @@ function renderAgents() {
   const opts = m => [`<option value="cloud" ${m === 'cloud' ? 'selected' : ''}>☁ Default (${esc(provLabel(CFG.default_cloud))})</option>`,
     `<option value="claude" ${m === 'claude' ? 'selected' : ''}>✳ Claude preferred${provHasKey('anthropic') ? '' : ' → ' + esc(provLabel(CFG.default_cloud))}</option>`,
     `<option value="local" ${m === 'local' ? 'selected' : ''}>🖥 Local (LM Studio)</option>`,
+    `<option value="ollama" ${m === 'ollama' ? 'selected' : ''}>🦙 Local (Ollama)</option>`,
     ...Object.keys(CFG.provider_specs).map(pid => `<option value="${pid}" ${m === pid ? 'selected' : ''}>${esc(provLabel(pid))}${provHasKey(pid) ? '' : ' ⚠'}</option>`)].join('');
   $('#agent-modes').innerHTML = Object.entries(CFG.agents).map(([id, a]) =>
-    `<div class="agent"><span>${esc(a.label)}</span><select data-agent="${id}">${opts(CFG.agent_modes[id])}</select></div>`).join('');
-  $$('#agent-modes select').forEach(sel => sel.onchange = () => { CFG.agent_modes[sel.dataset.agent] = sel.value; });
+    `<div class="agent" id="agent-row-${id}"><span>${esc(a.label)}</span><select data-agent="${id}">${opts(CFG.agent_modes[id])}</select>
+      <div class="amodel"><input type="text" data-amodel="${id}" value="${esc((CFG.agent_models || {})[id] || '')}" placeholder="${esc(defaultModelHint(CFG.agent_modes[id]))}" title="Model for this agent (empty = the engine's default model)"></div></div>`).join('');
+  $$('#agent-modes select').forEach(sel => sel.onchange = () => {
+    const id = sel.dataset.agent; CFG.agent_modes[id] = sel.value;
+    CFG.agent_models = CFG.agent_models || {}; delete CFG.agent_models[id];
+    const inp = $(`[data-amodel="${id}"]`); inp.value = ''; inp.placeholder = defaultModelHint(sel.value);
+    saveAgentsNow({[id]: ''});
+  });
+  $$('#agent-modes [data-amodel]').forEach(inp => {
+    new Combo(inp, {placeholderEmpty: 'Type a model id', groups: () => modelGroups(CFG.agent_modes[inp.dataset.amodel]), onPick: () => saveAgentModel(inp)});
+    inp.addEventListener('change', () => saveAgentModel(inp));
+  });
+}
+function defaultModelHint(mode) {
+  const eng = mode === 'cloud' ? CFG.default_cloud : mode === 'claude' ? (provHasKey('anthropic') ? 'anthropic' : CFG.default_cloud) : mode;
+  if (eng === 'local') return 'default: ' + ($('#cfg-localmodel').value || 'loaded LM Studio model');
+  if (eng === 'ollama') return 'default: ' + ($('#cfg-ollamamodel').value || 'loaded Ollama model');
+  return 'default: ' + ((CFG.providers[eng] || {}).model || (CFG.provider_specs[eng] || {}).model || '');
+}
+function modelGroups(mode) {
+  const eng = mode === 'cloud' ? CFG.default_cloud : mode === 'claude' ? (provHasKey('anthropic') ? 'anthropic' : CFG.default_cloud) : mode;
+  if (eng === 'local') return [{label: 'LM Studio', items: ((LOCAL_STATE.lmstudio || {}).models || []).map(m => ({value: m.id, hint: m.state === 'loaded' ? 'loaded' : ''}))}];
+  if (eng === 'ollama') return [{label: 'Ollama', items: ((LOCAL_STATE.ollama || {}).models || []).map(m => ({value: m.id, hint: m.params || ''}))}];
+  const spec = CFG.provider_specs[eng] || {};
+  const fetched = FETCHED_MODELS[eng] || [];
+  return [{label: 'Suggested', items: (spec.models || []).map(m => ({value: m}))}, {label: fetched.length ? 'Available on your account' : '', items: fetched.filter(m => !(spec.models || []).includes(m)).map(m => ({value: m}))}];
+}
+let AGENT_SAVE_T = null;
+function saveAgentModel(inp) {
+  const id = inp.dataset.amodel; CFG.agent_models = CFG.agent_models || {};
+  const v = inp.value.trim(); if (v) CFG.agent_models[id] = v; else delete CFG.agent_models[id];
+  saveAgentsNow({[id]: v});
+}
+function saveAgentsNow(models) {
+  clearTimeout(AGENT_SAVE_T);
+  AGENT_SAVE_T = setTimeout(async () => {
+    try {
+      await api('/api/config', {method: 'POST', body: {agent_modes: CFG.agent_modes, agent_models: models || {}}});
+      await refreshRuntimeBadges(true);
+      toast('Agent model updated — applies to the next message in every chat', 'ok');
+    } catch (e) { toast(e.message, 'err'); }
+  }, 250);
+}
+
+// ---- live engine/model badges in every chat header (+ quick switcher)
+let RUNTIME = {};
+async function refreshRuntimeBadges(flash) {
+  try { RUNTIME = await api('/api/agents/runtime'); } catch { return; }
+  $$('.rtbadge[data-agent]').forEach(b => {
+    const r = RUNTIME[b.dataset.agent]; if (!r) return;
+    const icon = r.engine === 'local' ? '🖥' : r.engine === 'ollama' ? '🦙' : '☁';
+    const txt = `${icon} ${r.engine_label.replace(' (local)', '')} · ${r.model}`;
+    if (b.textContent !== txt) { b.textContent = txt; if (flash) { b.classList.remove('flash'); void b.offsetWidth; b.classList.add('flash'); } }
+    b.title = I18N.tr('Engine and model used by this agent — click to change');
+  });
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('.rtbadge[data-agent]'); const pop = $('#rtpop');
+  if (!b) { if (!e.target.closest('#rtpop') && !e.target.closest('.combo-panel')) pop.style.display = 'none'; return; }
+  const id = b.dataset.agent, a = CFG.agents[id]; if (!a) return;
+  const row = $('#agent-row-' + id);
+  pop.innerHTML = `<b style="font-size:13px">${esc(a.label)}</b><label>Engine</label><select id="rt-eng">${row.querySelector('select').innerHTML}</select>
+    <label>Model</label><input type="text" id="rt-model" value="${esc((CFG.agent_models || {})[id] || '')}" placeholder="${esc(defaultModelHint(CFG.agent_modes[id]))}">
+    <div class="row" style="margin-top:10px;gap:6px"><span style="flex:1"></span><button class="btn small" id="rt-cancel">Cancel</button><button class="btn small primary" id="rt-ok">Apply</button></div>`;
+  $('#rt-eng').value = CFG.agent_modes[id];
+  const combo = new Combo($('#rt-model'), {placeholderEmpty: 'Type a model id', groups: () => modelGroups($('#rt-eng').value)});
+  $('#rt-eng').onchange = () => { $('#rt-model').value = ''; $('#rt-model').placeholder = defaultModelHint($('#rt-eng').value); };
+  const r = b.getBoundingClientRect();
+  pop.style.display = 'block'; pop.style.left = Math.min(r.left, innerWidth - 345) + 'px'; pop.style.top = Math.min(r.bottom + 6, innerHeight - 220) + 'px';
+  $('#rt-cancel').onclick = () => { pop.style.display = 'none'; combo.close(); };
+  $('#rt-ok').onclick = () => {
+    CFG.agent_modes[id] = $('#rt-eng').value; CFG.agent_models = CFG.agent_models || {};
+    const v = $('#rt-model').value.trim(); if (v) CFG.agent_models[id] = v; else delete CFG.agent_models[id];
+    row.querySelector('select').value = CFG.agent_modes[id]; const inp = row.querySelector('[data-amodel]'); inp.value = v; inp.placeholder = defaultModelHint(CFG.agent_modes[id]);
+    pop.style.display = 'none'; combo.close(); saveAgentsNow({[id]: v});
+  };
+});
+
+// ---- LM Studio & Ollama model managers (load / unload / use / pull)
+let LOCAL_STATE = {};
+async function refreshLocal() {
+  try { LOCAL_STATE = await api('/api/local/status'); } catch (e) { return; }
+  const lm = LOCAL_STATE.lmstudio, ol = LOCAL_STATE.ollama;
+  $('#st-local').innerHTML = lm.online ? `<span class="dot ok"></span>LM Studio online · ${lm.models.length} model(s) · ${lm.loaded.length} loaded${lm.api === 'openai' ? ' (old API: load state unknown)' : ''}`
+    : `<span class="dot err"></span>${esc(lm.error || 'offline')}`;
+  LOCAL_MODELS = lm.models.map(m => m.id);
+  const cur = $('#cfg-localmodel').value;
+  $('#lm-list').innerHTML = lm.online ? (lm.models.map((m, i) => `<div class="lmrow"><span class="id" title="${esc(m.id)}">${m.id === cur ? '★ ' : ''}${esc(m.id)}</span>
+      ${m.state === 'loaded' ? '<span class="badge ok">loaded</span>' : ''}<span class="status" style="margin:0">${esc(m.quantization || '')}</span>
+      ${m.state === 'loaded' ? `<button class="btn" data-lmun="${i}" title="Unload from VRAM">⏏</button>` : `<button class="btn" data-lmload="${i}" title="Load into memory">Load</button>`}
+      <button class="btn" data-lmuse="${i}" title="Use as the default LM Studio model">Use</button></div>`).join('') || '<div class="status" style="padding:6px 8px">No models downloaded in LM Studio.</div>') : '';
+  $$('[data-lmload]').forEach(b => b.onclick = () => busy(b, async () => {
+    const m = lm.models[b.dataset.lmload];
+    const r = await api('/api/local/load', {method: 'POST', body: {engine: 'local', model: m.id, context_length: $('#lm-ctx').value || null}});
+    $('#cfg-localmodel').value = m.id; toast(`LM Studio: ${m.id} loaded (${r.method})`, 'ok'); await refreshLocal(); CFG.local_model = m.id; renderAgents(); refreshRuntimeBadges(true);
+  }, '…'));
+  $$('[data-lmun]').forEach(b => b.onclick = () => busy(b, async () => { await api('/api/local/unload', {method: 'POST', body: {engine: 'local', model: lm.models[b.dataset.lmun].id}}); toast('Model unloaded', 'ok'); refreshLocal(); }, '…'));
+  $$('[data-lmuse]').forEach(b => b.onclick = async () => { const id = lm.models[b.dataset.lmuse].id; $('#cfg-localmodel').value = id; await api('/api/config', {method: 'POST', body: {local_model: id}}); CFG.local_model = id; refreshLocal(); renderAgents(); refreshRuntimeBadges(true); toast(`LM Studio default model: ${id}`, 'ok'); });
+  $('#st-ollama').innerHTML = ol.online ? `<span class="dot ok"></span>Ollama online · ${ol.models.length} model(s) · ${ol.loaded.length} loaded` : `<span class="dot err"></span>${esc(ol.error || 'offline')}`;
+  const ocur = $('#cfg-ollamamodel').value, loaded = Object.fromEntries((ol.loaded || []).map(m => [m.id, m]));
+  $('#ol-list').innerHTML = ol.online ? (ol.models.map((m, i) => `<div class="lmrow"><span class="id" title="${esc(m.id)}">${m.id === ocur ? '★ ' : ''}${esc(m.id)}</span>
+      ${loaded[m.id] ? `<span class="badge ok">${loaded[m.id].size_vram ? (loaded[m.id].size_vram / 2 ** 30).toFixed(1) + ' GB VRAM' : 'loaded'}</span>` : ''}<span class="status" style="margin:0">${esc(m.params || '')} ${esc(m.quantization || '')}</span>
+      ${loaded[m.id] ? `<button class="btn" data-olun="${i}" title="Unload from memory">⏏</button>` : `<button class="btn" data-olload="${i}" title="Load into memory">Load</button>`}
+      <button class="btn" data-oluse="${i}" title="Use as the default Ollama model">Use</button></div>`).join('') || '<div class="status" style="padding:6px 8px">No models yet — pull one below.</div>') : '';
+  $$('[data-olload]').forEach(b => b.onclick = () => busy(b, async () => { const m = ol.models[b.dataset.olload]; await api('/api/local/load', {method: 'POST', body: {engine: 'ollama', model: m.id}}); $('#cfg-ollamamodel').value = m.id; CFG.ollama_model = m.id; toast(`Ollama: ${m.id} loaded`, 'ok'); refreshLocal(); renderAgents(); refreshRuntimeBadges(true); }, '…'));
+  $$('[data-olun]').forEach(b => b.onclick = () => busy(b, async () => { await api('/api/local/unload', {method: 'POST', body: {engine: 'ollama', model: ol.models[b.dataset.olun].id}}); toast('Model unloaded', 'ok'); refreshLocal(); }, '…'));
+  $$('[data-oluse]').forEach(b => b.onclick = async () => { const id = ol.models[b.dataset.oluse].id; $('#cfg-ollamamodel').value = id; await api('/api/config', {method: 'POST', body: {ollama_model: id}}); CFG.ollama_model = id; refreshLocal(); renderAgents(); refreshRuntimeBadges(true); toast(`Ollama default model: ${id}`, 'ok'); });
 }
 function applyConfig() {
   $('#app-version').textContent = 'v' + CFG.version;
+  const PAGE_V = '3.1.0';
+  if (CFG.version && CFG.version !== PAGE_V && !$('#vwarn')) {   // page and server from two different versions
+    const b = document.createElement('div'); b.id = 'vwarn'; b.className = 'vwarn';
+    b.textContent = I18N.tr(`This page is v${PAGE_V} but the server answering it is v${CFG.version}. Another copy of the lab is still running: close its black window, run run.bat again and press Ctrl+F5.`);
+    document.body.prepend(b);
+  }
   $('#cfg-lmurl').value = CFG.lmstudio_base_url;
+  $('#cfg-ollamaurl').value = CFG.ollama_base_url || 'http://localhost:11434';
+  $('#cfg-ollamamodel').value = CFG.ollama_model || '';
   $('#cfg-refs').value = CFG.references_dir;
   $('#cfg-fallback').checked = CFG.fallback_to_cloud;
   $('#cfg-outlang').value = CFG.output_lang || 'ui';
@@ -1281,6 +1449,8 @@ async function loadConfig() {
   $('#cfg-localmodel').value = CFG.local_model || '';
   applyConfig();
   refreshModels(true);
+  refreshLocal().then(() => renderAgents());
+  refreshRuntimeBadges();
 }
 $$('[data-allmode]').forEach(b => b.onclick = () => {
   for (const id in CFG.agents) CFG.agent_modes[id] = b.dataset.allmode === 'default' ? CFG.agents[id].default : b.dataset.allmode;
@@ -1293,6 +1463,7 @@ async function saveConfig() {
   CFG = await api('/api/config', {method: 'POST', body: {
     providers, default_cloud: CFG.default_cloud,
     lmstudio_base_url: $('#cfg-lmurl').value.trim(), local_model: $('#cfg-localmodel').value,
+    ollama_base_url: $('#cfg-ollamaurl').value.trim(), ollama_model: $('#cfg-ollamamodel').value.trim(), agent_models: CFG.agent_models || {},
     references_dir: $('#cfg-refs').value.trim(), fallback_to_cloud: $('#cfg-fallback').checked, output_lang: $('#cfg-outlang').value,
     search: searchPatch(),
     agent_modes: CFG.agent_modes,
@@ -1309,7 +1480,23 @@ async function refreshModels(silent) {
     st.innerHTML = `<span class="dot ok"></span>LM Studio online · ${models.length} model(s)`;
   } catch (e) { st.innerHTML = `<span class="dot err"></span>${esc(e.message)}`; }
 }
-$('#refresh-models').onclick = () => refreshModels(false);
+$('#refresh-models').onclick = () => refreshModels(false).then(refreshLocal);
+$('#ol-refresh').onclick = async () => { await saveConfig(); refreshLocal(); };
+$('#ol-pull').onclick = async () => {
+  const model = $('#ol-pullname').value.trim(); if (!model) return toast('Type a model name, e.g. qwen2.5-coder:14b', 'err');
+  const st = $('#ol-pullst'); st.textContent = 'Pulling ' + model + '…';
+  try {
+    const resp = await fetch('/api/local/pull', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({model})});
+    const reader = resp.body.getReader(), dec = new TextDecoder(); let buf = '';
+    for (;;) { const {value, done} = await reader.read(); if (done) break; buf += dec.decode(value, {stream: true}); let k;
+      while ((k = buf.indexOf('\n\n')) >= 0) { const line = buf.slice(0, k).trim(); buf = buf.slice(k + 2); if (!line.startsWith('data:')) continue; const d = JSON.parse(line.slice(5));
+        if (d.type === 'progress') st.textContent = `${d.status || ''}${d.total ? ' ' + Math.round(100 * (d.completed || 0) / d.total) + '%' : ''}`;
+        else if (d.type === 'error') st.textContent = '⚠ ' + d.detail; else if (d.type === 'done') { st.textContent = '✓ ' + model; refreshLocal(); } } }
+  } catch (e) { st.textContent = '⚠ ' + e.message; }
+};
+['#cfg-localmodel', '#cfg-ollamamodel', '#cfg-lmurl', '#cfg-ollamaurl'].forEach(id => $(id).addEventListener('change', () => saveConfig().then(() => { renderAgents(); refreshRuntimeBadges(true); refreshLocal(); }).catch(e => toast(e.message, 'err'))));
+$('#prov-model').addEventListener('change', () => saveConfig().then(() => refreshRuntimeBadges(true)).catch(() => {}));
+$('#cfg-default').addEventListener('change', () => saveConfig().then(() => refreshRuntimeBadges(true)).catch(() => {}));
 $('#prov-test').onclick = e => busy(e.target, async () => {
   await saveConfig();
   try { const r = await api('/api/test/provider', {method: 'POST', body: {provider: PROV}});
@@ -1557,6 +1744,64 @@ function renderL2PSources(src, errors) {
 }
 try { const w = localStorage.getItem('l2p_web'); if (w) $('#l2p-web').value = w; } catch {}
 
+// ===================================================================== v3: locked decisions (Lit2Plan ↔ chat ↔ all agents)
+const DEC_KIND = {direction: '✅ direction', hypothesis: '🧪 hypothesis', gap: '🎯 gap', constraint: '📏 constraint', rejected: '🚫 rejected', other: '📌 decision'};
+let DECISIONS = [];
+async function refreshDecisions() {
+  try { DECISIONS = (await api('/api/decisions')).decisions; } catch { return; }
+  $('#dec-count').textContent = DECISIONS.length ? `(${DECISIONS.filter(d => d.locked).length} locked)` : '';
+  $('#dec-list').innerHTML = DECISIONS.map((d, i) => `<div class="dec ${d.locked ? '' : 'unlocked'}"><span class="k ${d.kind}">${esc(I18N.tr(DEC_KIND[d.kind] || d.kind))}</span>
+    <span class="tx">${esc(d.text)}</span><span class="ac"><button class="iconbtn" data-dlock="${i}" title="${d.locked ? 'Unlock (agents may ignore it)' : 'Lock (binding)'}">${d.locked ? '🔒' : '🔓'}</button>
+    <button class="iconbtn" data-dedit="${i}" title="Edit">✎</button><button class="iconbtn" data-ddel="${i}" title="Delete">✕</button></span></div>`).join('')
+    || '<div class="status" style="margin:6px 0">No decisions yet.</div>';
+  $$('[data-dlock]').forEach(b => b.onclick = async () => { const d = DECISIONS[b.dataset.dlock]; await api('/api/decisions/' + d.id, {method: 'PUT', body: {locked: !d.locked}}); refreshDecisions(); });
+  $$('[data-dedit]').forEach(b => b.onclick = async () => { const d = DECISIONS[b.dataset.dedit]; const t = prompt('Edit decision:', d.text); if (t && t.trim()) { await api('/api/decisions/' + d.id, {method: 'PUT', body: {text: t.trim()}}); refreshDecisions(); } });
+  $$('[data-ddel]').forEach(b => b.onclick = async () => { const d = DECISIONS[b.dataset.ddel]; if (!confirm('Delete this decision?')) return; await api('/api/decisions/' + d.id, {method: 'DELETE'}); refreshDecisions(); });
+  window.CONTEXT_API && CONTEXT_API.reload();
+}
+let LOCK_SRC = '';
+function openLock(text, source) {
+  LOCK_SRC = source || '';
+  $('#lock-text').value = String(text || '').replace(/\n{3,}/g, '\n\n').slice(0, 1500);
+  $('#lock-modal').classList.add('on'); $('#lock-text').focus();
+}
+$('#lock-cancel').onclick = () => $('#lock-modal').classList.remove('on');
+$('#lock-ok').onclick = async () => {
+  const text = $('#lock-text').value.trim(); if (!text) return;
+  await api('/api/decisions', {method: 'POST', body: {text, kind: $('#lock-kind').value, source: LOCK_SRC}});
+  $('#lock-modal').classList.remove('on'); toast('🔒 Decision locked — every agent must follow it', 'ok'); refreshDecisions();
+};
+$('#dec-add').onclick = async () => {
+  const text = $('#dec-new').value.trim(); if (!text) return;
+  await api('/api/decisions', {method: 'POST', body: {text, kind: $('#dec-kind').value, source: 'manual'}}); $('#dec-new').value = ''; refreshDecisions();
+};
+$('#dec-new').addEventListener('keydown', e => { if (e.key === 'Enter') $('#dec-add').click(); });
+$('#l2p-lockplan').onclick = () => {
+  const sel = window.getSelection(); const t = sel ? sel.toString().trim() : '';
+  if (!t) return toast('Select a passage of the research plan first', 'err');
+  openLock(t, 'lit2plan overview');
+};
+$('#l2p-regen').onclick = e => busy(e.target, async () => {
+  if (!confirm('Regenerate the research overview from the discussion and the locked decisions? The current version is kept in 🕘 Versions.')) return;
+  await saveConfig();
+  const r = await api('/api/tool/lit2plan/regenerate', {method: 'POST', body: {session_id: CHAT_L2P.sid, lang: outLang()}});
+  renderOut($('#l2p-out'), r.plan, 'lit2plan.md'); e.target.classList.remove('primary');
+  $('#l2p-meta').innerHTML = `Regenerated ${engineBadge(r.engine)} · ${r.versions.length} version(s) kept${r.note ? ' · ⚠ ' + esc(r.note) : ''}`;
+  toast('Research overview updated from the discussion', 'ok');
+  $('#l2p-out').scrollIntoView({behavior: 'smooth', block: 'start'});
+}, 'Regenerating…');
+$('#l2p-vers').onclick = async () => {
+  const {versions} = await api('/api/tool/lit2plan/versions');
+  $('#ver-list').innerHTML = versions.map(v => `<div class="paperitem" style="cursor:default"><div class="row"><b style="flex:1;font-family:var(--mono);font-size:12.5px">${esc(v.name.replace('.md', '').replace(/(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})/, '$1-$2-$3 $4:$5:$6'))}</b>
+      <span class="status" style="margin:0 8px">${esc(v.reason)} · ${Math.round(v.size / 1024)} KB</span><button class="btn small" data-vview="${esc(v.name)}">View</button><button class="btn small" data-vrest="${esc(v.name)}">Restore</button></div></div>`).join('')
+    || '<div class="empty">No versions yet — they are created each time the overview is generated or regenerated.</div>';
+  $$('[data-vview]').forEach(b => b.onclick = async () => { const d = await api('/api/tool/lit2plan/version/' + encodeURIComponent(b.dataset.vview)); openView(d.name, d.content); });
+  $$('[data-vrest]').forEach(b => b.onclick = async () => { if (!confirm('Restore this version as the current overview?')) return; const d = await api('/api/tool/lit2plan/restore', {method: 'POST', body: {name: b.dataset.vrest}}); renderOut($('#l2p-out'), d.plan, 'lit2plan.md'); $('#ver-modal').classList.remove('on'); toast('Version restored', 'ok'); });
+  $('#ver-modal').classList.add('on');
+};
+$('#ver-close').onclick = () => $('#ver-modal').classList.remove('on');
+refreshDecisions();
+
 // ===================================================================== tool 2
 let EXP_CODE = '', EXP_DESIGN = '';
 $('#exp-run').onclick = e => busy(e.target, async () => {
@@ -1567,6 +1812,11 @@ $('#exp-run').onclick = e => busy(e.target, async () => {
   $('#exp-meta').innerHTML = `${engineBadge(r.engine)} ${r.note ? '⚠ ' + esc(r.note) : ''}`;
   await CHAT_EXP.newChat(true); toast('New follow-up chat started for this design', 'ok');
 }, 'Designing…');
+$('#exp-to-ide').onclick = async () => {
+  try { const r = await api('/api/ide/seed', {method: 'POST'}); toast(r.created.length ? 'Code IDE project created from the blueprint' : 'Opening the Code IDE', 'ok'); } catch (e) { return toast(e.message, 'err'); }
+  document.querySelector('nav button[data-tab=ide]').click();
+  setTimeout(() => window.IDE_API && IDE_API.openFile('experiment_skeleton.py'), 900);
+};
 $('#exp-dl-code').onclick = () => EXP_CODE ? download('experiment_skeleton.py', EXP_CODE, 'text/x-python') : (location.href = '/api/download/experiment_skeleton.py');
 $('#exp-to-paper').onclick = async () => {
   if (!EXP_DESIGN) return toast('Generate a methodology first', 'err');
@@ -1813,6 +2063,7 @@ function renderBoard() {
     if (act && !act.disabled) secAction(act.dataset.act, row.dataset.sec);
   });
   if (W.busy) $$('#secboard .iconbtn').forEach(b => b.disabled = true);
+  if (window.BRIEF_API) BRIEF_API.decorateBoard();
 }
 function selectSection(id, tab) {
   if (SEL !== id && !LIVE) flushSectionEdits().catch(e => toast(e.message, 'err'));
@@ -1838,6 +2089,7 @@ function renderWorkspace(tab) {
   const has = !!PROJ.sections[SEL];
   if (!W.busy) { $('#ws-review').disabled = $('#ws-revise').disabled = !has; $('#ws-accept').disabled = !has; }
   if (tab) setWTab(tab);
+  if (window.BRIEF_API) BRIEF_API.load(SEL);
 }
 $$('#secws [data-wtab]').forEach(b => b.onclick = () => setWTab(b.dataset.wtab));
 $('#sec-editor').addEventListener('input', () => { $('#ws-words').textContent = `${wordCount($('#sec-editor').value)} ${I18N.tr('words')} · ${I18N.tr('unsaved')}`; });
@@ -1870,6 +2122,11 @@ async function saveProjectForm() {
     title: $('#p-title').value, authors: $('#p-authors').value, style: $('#p-style').value, keywords: $('#p-keywords').value, venue: $('#p-venue').value,
     contribution: $('#p-contribution').value, method_notes: $('#p-method').value, results_notes: $('#p-results').value}})).project};
 }
+$('#p-import').onclick = e => busy(e.target, async () => {
+  const r = await api('/api/paper/import-results', {method: 'POST', body: {}});
+  PROJ = {...PROJ, ...r.project}; $('#p-results').value = PROJ.results_notes; renderTables();
+  toast(`Imported metrics of the latest runs + a LaTeX table${r.figures.length ? ' · ' + r.figures.length + ' figure(s) available in the runs' : ''}`, 'ok');
+}, '…');
 $('#p-save').onclick = e => busy(e.target, async () => { await saveProjectForm(); toast('Project saved', 'ok'); }, 'Saving…');
 
 // ---------------------------------------------------------------- streaming agent steps
@@ -2614,7 +2871,7 @@ class ChatPanel {
     const shareKey = 'share_' + opts.tool;
     let shareOn = true; try { shareOn = localStorage.getItem(shareKey) !== '0'; } catch {}
     root.innerHTML = `<div class="chatpanel ${opts.tall ? 'tall' : ''}">
-      ${opts.title ? `<div class="chathead"><b>${opts.title}</b><span class="status">${opts.subtitle || ''}</span></div>` : ''}
+      ${opts.title ? `<div class="chathead"><b>${opts.title}</b><span class="status">${opts.subtitle || ''}</span><span style="flex:1"></span><span class="rtbadge" data-agent="${opts.tool === 'data' ? 'data_extractor' : 'chat_' + opts.tool}"></span></div>` : ''}
       <div class="sessbar">
         <select data-r="sel" title="Saved chat sessions of this tool"></select>
         <button class="iconbtn" data-r="new" title="New chat">＋ New</button>
@@ -2624,6 +2881,7 @@ class ChatPanel {
         <button class="iconbtn" data-r="export" title="Export as Markdown">⬇</button>
         <button class="iconbtn" data-r="notes" title="Shared context notes (📌) visible to all tools">📌 <span data-r="ncount">0</span></button>
         <span style="flex:1"></span>
+        ${opts.title ? '' : `<span class="rtbadge" data-agent="${opts.tool === 'data' ? 'data_extractor' : 'chat_' + opts.tool}"></span>`}
         <label class="chk" style="margin:0" title="Global setting: reopen the last session of every tool on start"><input type="checkbox" data-r="restore"> Auto-open</label>
       </div>
       <div class="msgs-wrap"><div class="msgs" data-r="msgs"></div><button class="jump" data-r="jump" title="Scroll to latest">↓</button></div>
@@ -2825,6 +3083,7 @@ class ChatPanel {
           <button class="iconbtn" data-copy="${i}" title="Copy Markdown">Copy</button>
           ${i === lastAi ? `<button class="iconbtn" data-regen title="Regenerate the answer">↻ Retry</button>` : ''}
           <button class="iconbtn" data-pin="${i}" title="Pin this answer (or your selection) to the shared context of all tools">📌 Pin</button>
+          <button class="iconbtn" data-lock="${i}" title="Lock a decision from this answer (or your selection): binding for every agent">🔒 Lock</button>
           <button class="iconbtn" data-view="${i}" title="Open in reading view">⤢</button>
           <span class="status">${engineBadge(m.engine)} ${m.ts ? esc(new Date(m.ts).toLocaleString()) : ''} ${m.note ? '· ⚠ ' + esc(m.note) : ''}</span>
         </div></div></div>`).join('');
@@ -2843,6 +3102,11 @@ class ChatPanel {
       await api('/api/paper/tables', {method: 'POST', body: {latex: this.chat[i].tables[j]}});
       this.chat[i].added = [...new Set([...(this.chat[i].added || []), j])];
       this.render(); this.persist(); toast('Table added to Paper Writer', 'ok');
+    });
+    R.msgs.querySelectorAll('[data-lock]').forEach(b => b.onclick = () => {
+      const box = b.closest('.turn'); const sel = window.getSelection();
+      const picked = sel && sel.toString().trim() && box.contains(sel.anchorNode) ? sel.toString().trim() : this.chat[b.dataset.lock].content;
+      openLock(picked, `${this.o.tool} chat`);
     });
     R.msgs.querySelectorAll('[data-pin]').forEach(b => b.onclick = async () => {
       const box = b.closest('.turn'); const sel = window.getSelection();
@@ -2936,6 +3200,7 @@ class ChatPanel {
     if (done) {
       this.chat.push({role: 'assistant', content: done.reply, tables: done.tables || [], engine: done.engine, note: done.note, added: [], sources: done.sources || [], ts: new Date().toISOString()});
       this.sid = done.session.id; this.setSaved(this.label(done.session.updated, done.session.count) + (done.shared ? ' · 🔗 shared' : ''), 'ok');
+      if (this.o.tool === 'lit2plan') { const b = $('#l2p-regen'); if (b) b.classList.add('primary'); }
       this.refresh();
     } else if (acc) {  // stopped by the user (or connection lost): keep the partial answer
       this.chat.push({role: 'assistant', content: acc, engine: '', note: errMsg ? 'Interrupted: ' + errMsg : 'Stopped by user', ts: new Date().toISOString(), added: [], sources: liveSources});
@@ -3161,6 +3426,15 @@ loadConfig().catch(e => toast('Backend not reachable: ' + e.message, 'err'));
 loadProjects();
 loadCatalog().then(() => { restoreOutputs(); PANELS.forEach(p => p.init()); });  // reopen each tool's last session (if 'Auto-open' is on)
 refreshNoteCount();
+setTimeout(() => { try { const t = localStorage.getItem('last_tab'); if (t && t !== 'lit2plan') document.querySelector(`nav button[data-tab="${t}"]`)?.click(); } catch {} }, 50);
 </script>
+<script src="/vendor/xterm/xterm.js"></script>
+<script src="/vendor/xterm/addon-fit.js"></script>
+<script src="/vendor/vis/vis-network.min.js"></script>
+<script src="/app/ide.js"></script>
+<script src="/app/docker.js"></script>
+<script src="/app/context.js"></script>
+<script src="/app/results.js"></script>
+<script src="/app/brief.js"></script>
 </body>
 </html>
