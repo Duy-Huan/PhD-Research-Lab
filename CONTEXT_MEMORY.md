@@ -99,3 +99,5 @@ Mã nguồn tại `backend/memory/compressor.py` bắt buộc phải triển kha
 2. **Hierarchical Reduce (Qwen Local):** Ép buộc băm nhỏ log hội thoại thô thành từng chunk 3,500 tokens. Gọi Qwen Local tóm tắt song song theo cấu trúc JSON/Markdown học thuật nghiêm ngặt trước khi dọn sạch (Purge) log cũ.
 3. **Graph Entity Wiring:** Biến các bản nén văn bản thành các Node tri thức có liên kết logic trực tiếp với mã `task_id` của ClearML và mã giả thuyết khoa học.
 
+
+Claude, hãy đọc kỹ nguyên lý nén TREEFRAG trong paper Stingy Context và cơ chế Write Isolation của paper GAM để viết code thuật toán nén phân cấp tối ưu hóa VRAM cho card RTX 3060 12GB.
