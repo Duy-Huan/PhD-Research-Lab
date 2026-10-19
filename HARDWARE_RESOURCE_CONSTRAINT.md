@@ -11,10 +11,11 @@ Hệ thống backend (`backend/sysinfo.py` và `backend/sandbox.py`) khi khởi 
 | Tài nguyên phần cứng | Tổng dung lượng vật lý | Giới hạn trần an toàn (Safety Cap) | Phân bổ cho Docker Sandbox | Phân bổ cho Local AI Engine |
 | :--- | :--- | :--- | :--- | :--- |
 | **GPU VRAM (RTX 3060)**| **12.0 GB** | **11.0 GB** (Chừa 1GB cho hiển thị OS) | 100% (Khi Unload Local AI) | Tối đa **8.0 GB** (Bắt buộc dùng Quantized Q4_K_M) |
-| **System RAM** | **32.0 GB** | **28.0 GB** (Chừa 4GB cho hệ thống) | **12.0 GB - 16.0 GB** | Tối đa **12.0 GB** (Nếu chạy LLM trên RAM) |
+| **System RAM** | **32.0 GB** | **20.0 GB** (Chừa 12GB cho hệ thống) | **12.0 GB - 16.0 GB** | Tối đa **12.0 GB** (Nếu chạy LLM trên RAM) |
 | **CPU Cores/Threads**  | **10C / 16T** | Giới hạn 85% CPU Load | Tối đa **6 Cores** (`--cpus="6"`) | Tối đa **4 Cores** (Thread threads pooling) |
 | **Storage (NVMe SSD)** | **2.5 TB** | Giữ trống tối thiểu 50GB | Không giới hạn | Không giới hạn |
 
+Ngoài ra hãy thêm cơ chế tự động check info hệ thống PC để đưa ra option tự động một cách thông minh, hoặc cho user config khi bắt đầu chạy hệ thống.
 ---
 
 ## 2. 03 Thuật Toán Điều Phối Bộ Nhớ Chiến Lược (Orchestration Algorithms)
