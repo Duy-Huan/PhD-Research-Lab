@@ -90,3 +90,12 @@ Hệ thống không được phụ thuộc vào một phương thức tìm kiế
   <Dữ liệu từ Knowledge Memory>
   ```
 - File cấu trúc này sẽ được nhúng trực tiếp vào lượt gọi LLM kế tiếp, đảm bảo mô hình luôn nhận được thông tin có độ tinh khiết tri thức cao nhất.
+
+Ngoài ra thuật toán nén context memory phải được thực hiện để tiết kiệm tài nguyên.
+ 4. AUTOMATED MEMORY COMPRESSION LAWS (QUY ĐỊNH NÉN BỘ NHỚ)
+
+Mã nguồn tại `backend/memory/compressor.py` bắt buộc phải triển khai bộ ba thuật toán nén tự động nhằm bảo vệ tài nguyên máy Host:
+1. **Token Watermark Monitor:** Kích hoạt ngầm (`asyncio`) quét `Working Memory`. Trigger lệnh nén ngay khi đạt ngưỡng High Watermark (16,000 tokens) và trả bộ nhớ ngắn hạn về mức Low Watermark (2,000 tokens) để giải phóng KV Cache cho RTX 3060.
+2. **Hierarchical Reduce (Qwen Local):** Ép buộc băm nhỏ log hội thoại thô thành từng chunk 3,500 tokens. Gọi Qwen Local tóm tắt song song theo cấu trúc JSON/Markdown học thuật nghiêm ngặt trước khi dọn sạch (Purge) log cũ.
+3. **Graph Entity Wiring:** Biến các bản nén văn bản thành các Node tri thức có liên kết logic trực tiếp với mã `task_id` của ClearML và mã giả thuyết khoa học.
+
