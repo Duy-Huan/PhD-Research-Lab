@@ -174,7 +174,7 @@ def author_user(section_id: str, section_title: str, p: dict, digest: str, keys:
                   "and use \\subsection / \\paragraph structure where natural. Depth must come from substance, never from padding "
                   "or invented facts.\n")
     if instructions.strip():
-        extra += (instructions.strip() if instructions.startswith("AUTHOR'S BRIEF") else
+        extra += (instructions.strip() if instructions.lstrip().startswith("AUTHOR'S BRIEF") else
                   f"AUTHOR'S INSTRUCTIONS FOR THIS SECTION (follow them):\n{instructions.strip()}") + "\n"
     return (f"WRITE SECTION: {section_title}\nSECTION GUIDANCE: {SECTION_GUIDE.get(section_id, '')}\n{extra}\n"
             f"{_project_block(p)}\n\nAVAILABLE REFERENCES (the ONLY valid \\cite keys: {', '.join(keys) or 'NONE - do not cite'}):\n{digest}\n\n"
@@ -209,7 +209,7 @@ Rules:
 
 
 def editor_user(section_id: str, section_tex: str, review: str, keys: list, digest: str, instructions: str = "") -> str:
-    extra = ((instructions.strip() if instructions.startswith("AUTHOR'S BRIEF") else
+    extra = ((instructions.strip() if instructions.lstrip().startswith("AUTHOR'S BRIEF") else
               f"AUTHOR'S INSTRUCTIONS (take precedence over reviewer suggestions):\n{instructions.strip()}") + "\n\n") if instructions.strip() else ""
     return (f"SECTION ID: {section_id}\nVALID CITE KEYS: {', '.join(keys) or 'NONE'}\n\nREFERENCE CATALOGUE:\n{digest}\n\n"
             f"{extra}PEER REVIEW:\n{review}\n\nCURRENT SECTION LaTeX:\n{section_tex}")

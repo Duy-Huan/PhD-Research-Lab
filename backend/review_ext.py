@@ -59,9 +59,15 @@ def _write_json(path: Path, obj) -> None:
 
 
 def _read_json(path: Path, default):
+    if not path.exists():
+        return default
     try:
         return json.loads(path.read_text("utf-8"))
-    except Exception:
+    except ValueError:
+        from .memory.store import quarantine
+        quarantine(path)  # reviewer reports cost real model calls: keep the damaged file instead of overwriting it
+        return default
+    except OSError:
         return default
 
 
@@ -143,7 +149,7 @@ def _detect_title(text: str, ext: str) -> str:
     if ext == ".tex":
         m = re.search(r"\\title(?:\[[^\]]*\])?\{((?:[^{}]|\{[^{}]*\})+)\}", text)
         if m:
-            return re.sub(r"\s+|\\\\", " ", m.group(1)).strip()[:250]
+            return re.sub(r"(?:\s|\\\\)+", " ", m.group(1)).strip()[:250]  # "A \\ Title" → "A Title"
     if ext in (".md", ".markdown"):
         m = re.search(r"^#\s+(.+)$", text, re.M)
         if m:

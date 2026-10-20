@@ -119,6 +119,8 @@ def rename(src: str, dst: str) -> dict:
         raise FsError("Source not found")
     if b.exists():
         raise FsError("Target already exists")
+    if a in b.parents:
+        raise FsError("Cannot move a folder into itself")
     b.parent.mkdir(parents=True, exist_ok=True)
     shutil.move(str(a), str(b))
     return {"path": rel(b)}
@@ -139,6 +141,8 @@ def delete(path: str) -> dict:
 
 def upload(path: str, data: bytes) -> dict:
     p = safe(path)
+    if p.is_dir():
+        raise FsError("Is a folder")
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_bytes(data)
     return {"path": rel(p), "size": len(data)}

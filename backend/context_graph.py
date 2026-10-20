@@ -43,8 +43,16 @@ def load_overlay() -> dict:
     f = _overlay_path()
     if f.exists():
         try:
-            d.update(json.loads(f.read_text("utf-8")))
-        except Exception:
+            saved = json.loads(f.read_text("utf-8"))
+            if not isinstance(saved, dict):
+                raise ValueError("overlay is not an object")
+            d.update(saved)
+        except ValueError:
+            # The overlay holds purges (records hidden from every AI) and sensitivity overrides: keep the damaged file
+            # so the next save cannot silently erase the researcher's privacy choices.
+            from .memory.store import quarantine
+            quarantine(f)
+        except OSError:
             pass
     return d
 

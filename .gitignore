@@ -9,3 +9,8 @@ data/project_meta.json
 claude/
 # v4.0: all runtime data of the default project (memory, runs, code workspace, sandbox, telemetry, API keys)
 data/
+
+# coverage (dev)
+.coverage
+htmlcov/
+coverage.json

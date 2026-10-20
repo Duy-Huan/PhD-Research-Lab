@@ -6,6 +6,7 @@ import re
 
 import httpx
 
+from . import model_lifecycle as LC
 from .config import PROVIDERS, load_config
 
 ANTHROPIC_VERSION = "2023-06-01"
@@ -67,7 +68,7 @@ async def anthropic_chat(base: str, key: str, model: str, system: str, messages:
     headers = {"x-api-key": key, "anthropic-version": ANTHROPIC_VERSION, "content-type": "application/json"}
     body = {"model": model, "max_tokens": max_tokens, "system": system, "messages": to_anthropic(messages)}
     try:
-        async with httpx.AsyncClient(timeout=TIMEOUT) as c:
+        async with LC.http_client(TIMEOUT) as c:
             r = await c.post(f"{base}/messages", headers=headers, json=body)
     except httpx.HTTPError as e:
         raise LLMError(f"Network error contacting Anthropic: {e}") from e
@@ -101,7 +102,7 @@ async def openai_compat_chat(base: str, key: str, model: str, system: str, messa
     r = None
     for _ in range(3):  # adapt to provider-specific parameter rules
         try:
-            async with httpx.AsyncClient(timeout=TIMEOUT) as c:
+            async with LC.http_client(TIMEOUT) as c:
                 r = await c.post(f"{base}/chat/completions", headers=headers, json=body)
         except httpx.ConnectError as e:
             raise LLMError(f"Cannot reach {label} at {base}. {connect_hint}".strip()) from e
@@ -174,10 +175,10 @@ async def cloud_chat(cfg: dict, pid: str, system: str, messages: list, max_token
 
 async def list_provider_models(cfg: dict, pid: str) -> list:
     spec, key, _, base = provider_settings(cfg, pid)
-    if not key:
+    if not key and not spec.get("key_optional"):  # local gateways (9Router, OmniRoute) work without a key
         raise LLMError(f"Enter and save the {spec['label']} API key first.")
     headers = ({"x-api-key": key, "anthropic-version": ANTHROPIC_VERSION} if spec["kind"] == "anthropic"
-               else {"Authorization": f"Bearer {key}"})
+               else ({"Authorization": f"Bearer {key}"} if key else {}))
     try:
         async with httpx.AsyncClient(timeout=20) as c:
             r = await c.get(f"{base}/models", headers=headers, params={"limit": 200} if spec["kind"] == "anthropic" else None)
@@ -261,7 +262,7 @@ async def ollama_native_chat(cfg: dict, system: str, messages: list, max_tokens:
     body = {"model": model, "messages": _ollama_messages(system, messages), "stream": False,
             "options": {**options, "num_predict": max_tokens, "temperature": temperature}}
     try:
-        async with httpx.AsyncClient(timeout=TIMEOUT) as c:
+        async with LC.http_client(TIMEOUT) as c:
             r = await c.post(ollama_root(cfg.get("ollama_base_url")) + "/api/chat", json=body)
     except httpx.ConnectError as e:
         raise LLMError(f"Cannot reach Ollama. {hint}") from e
@@ -282,7 +283,7 @@ async def _stream_ollama_native(cfg, system, messages, max_tokens, temperature, 
     body = {"model": model, "messages": _ollama_messages(system, messages), "stream": True,
             "options": {**options, "num_predict": max_tokens, "temperature": temperature}}
     try:
-        async with httpx.AsyncClient(timeout=TIMEOUT) as c:
+        async with LC.http_client(TIMEOUT) as c:
             async with c.stream("POST", ollama_root(cfg.get("ollama_base_url")) + "/api/chat", json=body) as r:
                 if r.status_code != 200:
                     await r.aread()
@@ -308,13 +309,15 @@ async def _stream_ollama_native(cfg, system, messages, max_tokens, temperature, 
 
 
 async def local_chat(cfg: dict, system: str, messages: list, max_tokens: int, temperature: float,
-                     engine: str = "local", model: str | None = None) -> str:
-    if engine == "ollama":
-        opts = ollama_offload_options(cfg)
-        if opts:
-            return await ollama_native_chat(cfg, system, messages, max_tokens, temperature, model, opts)
+                     engine: str = "local", model: str | None = None, purpose: str | None = None) -> str:
+    """v4.1: every local call holds a lifecycle lease (load → task → release per config.lifecycle)."""
     base, model, label, hint = await local_target(cfg, engine, model)
-    return await openai_compat_chat(base, "", model, system, messages, max_tokens, temperature, label, engine, hint)
+    async with LC.lease("local", engine, model, purpose):
+        if engine == "ollama":
+            opts = ollama_offload_options(cfg)
+            if opts:
+                return await ollama_native_chat(cfg, system, messages, max_tokens, temperature, model, opts)
+        return await openai_compat_chat(base, "", model, system, messages, max_tokens, temperature, label, engine, hint)
 
 
 # --------------------------------------------------------------------- router
@@ -377,7 +380,7 @@ async def call_agent(agent: str, system: str, user: str | None = None, messages:
         text = await cloud_chat(cfg, engine, system, msgs, max_tokens, temperature, model)
         return {"text": text, "engine": engine, "engine_label": engine_label(engine), "model": model or default_model_for(cfg, engine), "note": ""}
     try:
-        text = await local_chat(cfg, system, msgs, max_tokens, temperature, engine, model)
+        text = await local_chat(cfg, system, msgs, max_tokens, temperature, engine, model, LC.purpose_for(agent))
         return {"text": text, "engine": engine, "engine_label": engine_label(engine), "model": model or default_model_for(cfg, engine), "note": ""}
     except LLMError as e:
         fb = cfg["default_cloud"]
@@ -413,7 +416,7 @@ async def _call_auto(cfg: dict, agent: str, system: str, msgs: list, max_tokens:
     for eng in p["candidates"][:4]:
         try:
             if eng in LOCAL_ENGINES:
-                text = await local_chat(cfg, system, msgs, max_tokens, temperature, eng)
+                text = await local_chat(cfg, system, msgs, max_tokens, temperature, eng, purpose=LC.purpose_for(agent))
             else:
                 text = await cloud_chat(cfg, eng, system, msgs, max_tokens, temperature)
             return {"text": text, "engine": eng, "engine_label": engine_label(eng), "model": default_model_for(cfg, eng),
@@ -440,7 +443,7 @@ async def _stream_anthropic(base, key, model, system, messages, max_tokens):
     headers = {"x-api-key": key, "anthropic-version": ANTHROPIC_VERSION, "content-type": "application/json"}
     body = {"model": model, "max_tokens": max_tokens, "system": system, "messages": to_anthropic(messages), "stream": True}
     try:
-        async with httpx.AsyncClient(timeout=TIMEOUT) as c:
+        async with LC.http_client(TIMEOUT) as c:
             async with c.stream("POST", f"{base}/messages", headers=headers, json=body) as r:
                 if r.status_code != 200:
                     await r.aread()
@@ -474,7 +477,7 @@ async def _stream_openai(base, key, model, system, messages, max_tokens, tempera
     if pid == "openrouter":
         headers["X-Title"] = "PhD Research Lab"
     try:
-        async with httpx.AsyncClient(timeout=TIMEOUT) as c:
+        async with LC.http_client(TIMEOUT) as c:
             for _ in range(3):
                 async with c.stream("POST", f"{base}/chat/completions", headers=headers, json=body) as r:
                     if r.status_code == 400:
@@ -508,17 +511,17 @@ async def _stream_openai(base, key, model, system, messages, max_tokens, tempera
         raise LLMError(f"{label} request failed: {e}") from e
 
 
-async def _stream_engine(cfg, engine, system, messages, max_tokens, temperature, model=None):
-    if engine == "ollama":
-        opts = ollama_offload_options(cfg)
-        if opts:
-            async for t in _stream_ollama_native(cfg, system, messages, max_tokens, temperature, model, opts):
-                yield t
-            return
+async def _stream_engine(cfg, engine, system, messages, max_tokens, temperature, model=None, purpose=None):
     if engine in LOCAL_ENGINES:
         base, model, label, hint = await local_target(cfg, engine, model)
-        async for t in _stream_openai(base, "", model, system, messages, max_tokens, temperature, label, engine, hint):
-            yield t
+        async with LC.lease("local", engine, model, purpose):
+            opts = ollama_offload_options(cfg) if engine == "ollama" else None
+            if opts:
+                async for t in _stream_ollama_native(cfg, system, messages, max_tokens, temperature, model, opts):
+                    yield t
+                return
+            async for t in _stream_openai(base, "", model, system, messages, max_tokens, temperature, label, engine, hint):
+                yield t
         return
     spec, key, default_model, base = provider_settings(cfg, engine)
     model = model or default_model
@@ -539,9 +542,11 @@ async def stream_agent(agent: str, system: str, messages: list, max_tokens: int 
     model = resolve_model(cfg, agent)
     note, raw, emitted = "", "", 0
 
+    purpose = LC.purpose_for(agent)
+
     async def run(eng, mdl):
         nonlocal raw, emitted
-        async for chunk in _stream_engine(cfg, eng, system, messages, max_tokens, temperature, mdl):
+        async for chunk in _stream_engine(cfg, eng, system, messages, max_tokens, temperature, mdl, purpose):
             raw += chunk
             visible = strip_think(raw)
             if len(visible) > emitted and visible.startswith(visible[:emitted]):

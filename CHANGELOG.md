@@ -1,5 +1,27 @@
 # Changelog
 
+## v4.1.0 — 2026-10-20 — Model lifecycle · secure CLI space · workflow orchestrator (Optuna HPO, model intelligence)
+All v4.0 data, settings and APIs keep working. Reports: `docs/architecture/v4.1-audit.md`, `docs/architecture/v4.1-final-report.md`.
+- **Model lifecycle** (`backend/model_lifecycle.py`, Settings → Model lifecycle & resources): Load → task → unload /
+  Keep loaded / Unload when idle, chosen separately for local background tasks, local chats, CLI agents, MCP tools &
+  sandbox container and cloud connections. Background agents and embeddings unload their local model after the task
+  by default. Live VRAM panel (also in Settings → Local AI): resident models, owner, countdown, manual **Unload** /
+  **Unload all**. A model that is answering is never unloaded; your own loads are respected; one PhD-Lab model in VRAM
+  at a time; opt-in automatic VRAM release before GPU training. Cloud calls reuse pooled HTTPS connections.
+- **Secure CLI space** (`backend/gateway/workspace.py`): Codex / Claude Code / Antigravity / Gemini CLI now run in a
+  per-session workspace (never the project folder) with an allowlisted environment, a read-only context manifest,
+  time limit and process-tree cleanup. Security profiles review / assisted, fail-closed per provider (consent for
+  weaker isolation). Fix: a CLI process was left running when the client disconnected right after the first event.
+- **Workflow Orchestrator** (`backend/workflow/`, new 🧭 Workflows page): manual / assisted / bounded / custom modes,
+  per-step autonomy, approve / edit / revise / reject / provide-result gates, budgets (trials, cycles, agent calls,
+  runtime), pause / resume / cancel, recovery after restart, nested workflows, 11 versioned templates, SSE timeline.
+- **HPO**: deterministic search-space validator (bounds, log, conditions, leakage, budget), Optuna (TPE / random /
+  grid / NSGA-II, pruning, persistent resumable studies) with a builtin fallback, local sequential runner, Ray Tune
+  adapter behind a flag (refuses until validated), Pareto fronts, confirmation runs with 95 % CI.
+- **Model Intelligence**: spec / PyTorch (sandbox) / ONNX adapters; params, MACs/FLOPs, memory, latency, feasibility
+  vs. this PC — every value labelled MEASURED / ESTIMATED / UNAVAILABLE.
+- Tests: 184 → 341 (+ Node frontend tests). New modules: 100 % line + branch coverage; changed lines: 100 %.
+
 ## v4.0.0 — 2026-10-20 — Research-state-aware Context Memory · AI Gateway (ChatGPT / Claude / Antigravity) · environments · new UI
 All v3.2 APIs, data files and settings keep working (v3.2 records are read as-is; new fields are optional). Reports:
 `docs/architecture/backend-v3.3-final.md`, `docs/architecture/provider-integration-v3.4-final.md`.

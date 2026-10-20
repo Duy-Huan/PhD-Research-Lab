@@ -20,6 +20,8 @@
           <div id="gw-pick" class="row" style="gap:10px;flex-wrap:wrap;flex:1 1 auto"></div>
           <select id="gw-role" style="flex:0 0 200px" title="${esc(T('Role of the context policy'))}"></select>
           <label class="chk" style="margin:0;flex:0 0 auto"><input type="checkbox" id="gw-review"> ${T('Review before sending')}</label>
+          <select id="gw-profile" style="flex:0 0 190px" title="${esc(T('Security profile of the CLI session workspace'))}"><option value="review">🔒 ${T('Read-only review')}</option><option value="assisted">✎ ${T('Assisted (session workspace writable)')}</option></select>
+          <label class="chk" style="margin:0;flex:0 0 auto" id="gw-weaker-l" hidden><input type="checkbox" id="gw-weaker"> ${T('accept weaker isolation')}</label>
           <button class="btn primary" id="gw-ask" style="flex:0">↑ ${T('Ask')}</button></div>
         <p class="status">${T('Pick two or more providers to compare their answers on the same context. Answers are kept here and never forwarded to another provider.')}</p>
         <div id="gw-out"></div></div>
@@ -27,6 +29,7 @@
       <details class="card" style="margin-top:16px"><summary><b>🧾 ${T('Audit log')}</b> <span class="status">${T('metadata only — no prompts or answers')}</span></summary><div id="gw-audit"></div></details>
     </div>`;
     $('#gw-ask').onclick = ask;
+    $('#gw-profile').onchange = () => { $('#gw-weaker-l').hidden = $('#gw-profile').value !== 'assisted'; };
     $('#gw-q').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); ask(); } });
     $('#tab-gateway details').addEventListener('toggle', e => e.target.open && audit());
   }
@@ -37,6 +40,7 @@
       G.prov = p; G.policies = pol.roles; G.cfg = cfg;
     } catch (e) { $('#gw-prov').innerHTML = `<div class="status">⚠ ${esc(e.message)}</div>`; return; }
     $('#gw-review').checked = !!G.cfg.gateway.review_before_external;
+    $('#gw-profile').value = G.cfg.gateway.cli_profile || 'review'; $('#gw-profile').onchange();
     $('#gw-role').innerHTML = Object.entries(G.policies).map(([k, v]) => `<option value="${esc(k)}" ${k === 'director' ? 'selected' : ''}>${esc(T(v.label))}</option>`).join('');
     renderProviders(); renderMcp();
   }
@@ -74,10 +78,11 @@
     if (!q) return toast(T('Ask a question'), 'err');
     if (!picks.length) return toast(T('Pick at least one provider'), 'err');
     const review = $('#gw-review').checked, role = $('#gw-role').value;
+    const profile = $('#gw-profile').value, allow_weaker = profile === 'assisted' && $('#gw-weaker').checked;
     await busy($('#gw-ask'), async () => {
       let reqs;
-      if (picks.length > 1) reqs = (await api('/api/gateway/compare', {method: 'POST', body: {query: q, providers: picks, role, review}})).requests;
-      else reqs = [await api('/api/gateway/requests', {method: 'POST', body: {query: q, provider: picks[0], role, review, send: !review}})];
+      if (picks.length > 1) reqs = (await api('/api/gateway/compare', {method: 'POST', body: {query: q, providers: picks, role, review, profile, allow_weaker}})).requests;
+      else reqs = [await api('/api/gateway/requests', {method: 'POST', body: {query: q, provider: picks[0], role, review, send: !review, profile, allow_weaker}})];
       $('#gw-out').innerHTML = `<div class="gwanswers">${reqs.map(r => `<div class="card gwans" id="ans-${esc(r.id || r.provider)}"></div>`).join('')}</div>`;
       for (const r of reqs) {
         if (!r.id) { $(`#ans-${r.provider}`).innerHTML = `<b>${esc(NAME[r.provider])}</b><div class="status">⚠ ${esc((r.errors || []).join(' · '))}</div>`; continue; }

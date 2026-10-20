@@ -85,9 +85,12 @@ class CodexArgs(unittest.TestCase):
         seen = {}
 
         class P:
-            pid, stdin, stdout, stderr = 1, mock.MagicMock(), mock.MagicMock(), mock.MagicMock()
+            pid, stdin, stdout, stderr, returncode = 1, mock.MagicMock(), mock.MagicMock(), mock.MagicMock(), 0
 
             def poll(self):
+                return 0
+
+            def wait(self, timeout=None):
                 return 0
         P.stdout.readline.return_value = ""
         P.stderr.readline.return_value = ""

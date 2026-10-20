@@ -47,9 +47,17 @@ def _dir() -> Path:
 
 
 def _index() -> dict:
+    p = _dir() / "index.json"
+    if not p.exists():
+        return {}
     try:
-        return json.loads((_dir() / "index.json").read_text("utf-8"))
-    except Exception:
+        d = json.loads(p.read_text("utf-8"))
+        return d if isinstance(d, dict) else {}
+    except ValueError:
+        from .memory.store import quarantine
+        quarantine(p)  # never let the next upload overwrite the only copy of every attachment's metadata
+        return {}
+    except OSError:
         return {}
 
 
@@ -263,7 +271,11 @@ async def add_link(url: str) -> dict:
     if "pdf" in ctype or final.lower().endswith(".pdf") or data[:4] == b"%PDF":
         stored = f"{att_id}.pdf"
         (_dir() / stored).write_bytes(data)
-        text, pages = pdf_text(_dir() / stored)
+        try:
+            text, pages = pdf_text(_dir() / stored)
+        except Exception as e:  # damaged / HTML-masquerading PDF: a clear error, not a server crash
+            (_dir() / stored).unlink(missing_ok=True)
+            raise AttachmentError(f"{url}: could not read the PDF ({type(e).__name__})")
         name = Path(urlparse(final).path).name or "document.pdf"
         meta.update({"name": name, "kind": "link", "title": name, "stored": stored, "pages": pages})
     elif ctype.startswith("image/"):
@@ -274,7 +286,10 @@ async def add_link(url: str) -> dict:
                      "media_type": ctype.split(";")[0], "title": final})
         text = ""
     else:
-        raw = data.decode(r.encoding or "utf-8", errors="replace")
+        try:
+            raw = data.decode(r.encoding or "utf-8", errors="replace")
+        except LookupError:  # a server announcing an unknown charset
+            raw = data.decode("utf-8", errors="replace")
         title, text = html_to_text(raw) if "html" in ctype or "<html" in raw[:2000].lower() else ("", raw)
         meta.update({"name": title or u.netloc, "kind": "link", "title": title or final})
     if meta["kind"] != "image" and not text.strip():

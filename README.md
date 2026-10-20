@@ -20,6 +20,7 @@ A local desktop web app for Windows 11 (and Linux/macOS) that runs an end-to-end
 - 📈 **ClearML without a server**: `pip install clearml` (done by `setup.bat`) and every run is recorded as a ClearML offline session in the project — import it into a ClearML Server later if you want the web UI.
 - 🩺 **Live critic** while the Paper Writer streams; 🛡 **provenance** sealed into run figures/tables; 🧬 Hugging Face / Kaggle dataset connectors.
 - 🧪 Automated tests: `python -m unittest discover -s tests -p "test_*.py"`.
+- 🧪 Coverage (dev): `pip install -r requirements-dev.txt`, then `python -m coverage run -m unittest discover -s tests -p "test_*.py"` and `python -m coverage report`; frontend: `node --test "tests/frontend/*.test.js"`.
 
 ### Supported cloud providers
 | Provider | API style | Get a key |

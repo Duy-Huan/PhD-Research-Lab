@@ -144,7 +144,9 @@ def _ollama_embed(cfg: dict, texts: list, timeout: float) -> list:
             body["options"] = {"num_gpu": 0}  # keep VRAM for the training run
     except Exception:
         pass
-    r = httpx.post(_ollama_root(cfg) + "/api/embed", json=body, timeout=timeout)
+    from ..model_lifecycle import lease_sync
+    with lease_sync("local", "ollama", body["model"], "background"):  # v4.1: embeddings are a background task
+        r = httpx.post(_ollama_root(cfg) + "/api/embed", json=body, timeout=timeout)
     r.raise_for_status()
     vecs = r.json().get("embeddings") or []
     if len(vecs) != len(texts):

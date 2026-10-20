@@ -44,14 +44,26 @@ def load_project() -> dict:
     pp = workspace() / "project.json"
     if pp.exists():
         try:
-            p.update(json.loads(pp.read_text("utf-8")))
-        except Exception:
+            saved = json.loads(pp.read_text("utf-8"))
+            if isinstance(saved, dict):
+                p.update(saved)
+            else:
+                raise ValueError("project.json is not an object")
+        except ValueError:
+            from .memory.store import quarantine
+            quarantine(pp)  # keep the damaged paper: the next save would otherwise replace it with an empty project
+        except OSError:
             pass
     return p
 
 
 def save_project(p: dict) -> dict:
-    (workspace() / "project.json").write_text(json.dumps(p, indent=2, ensure_ascii=False), "utf-8")
+    """Atomic write (tmp + replace): a crash or a full disk never leaves a half-written paper behind."""
+    from .memory.store import replace_retry
+    pp = workspace() / "project.json"
+    tmp = pp.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(p, indent=2, ensure_ascii=False), "utf-8")
+    replace_retry(tmp, pp)
     return p
 
 
@@ -89,8 +101,8 @@ def fix_citations(tex: str, valid: set) -> tuple[str, list]:
         keys = [k.strip() for k in m.group(3).split(",") if k.strip()]
         good = [k for k in keys if k in valid]
         unknown.extend(k for k in keys if k not in valid)
-        if good:
-            return f"\\cite{m.group(2) or ''}{{{','.join(good)}}}"
+        if good:  # keep the author's command (\citet, \citep, \citeauthor …) — only the keys are filtered
+            return f"\\{m.group(1)}{m.group(2) or ''}{{{','.join(good)}}}"
         return "\\textcolor{red}{[CITATION NEEDED]}"
 
     return CITE_RE.sub(repl, tex), sorted(set(unknown))

@@ -90,10 +90,12 @@ def png_read(data: bytes) -> dict:
             k, v = body.split(b"\x00", 1)
             if k.startswith(b"phd_"):
                 found[k.decode("latin-1")] = v.decode("latin-1", "replace")
-        elif typ == b"iTXt" and body.startswith(b"phd_"):
-            parts = body.split(b"\x00", 4)
-            if len(parts) == 5:
-                found[parts[0].decode("latin-1")] = parts[4].decode("utf-8", "replace")
+        elif typ == b"iTXt" and body.startswith(b"phd_") and b"\x00" in body:
+            # keyword \0 compression-flag(1 byte) compression-method(1 byte) language \0 translated-keyword \0 text
+            key, rest = body.split(b"\x00", 1)
+            parts = rest[2:].split(b"\x00", 2)
+            if len(rest) >= 2 and len(parts) == 3:
+                found[key.decode("latin-1")] = parts[2].decode("utf-8", "replace")
     if "phd_provenance" in found:
         try:
             return json.loads(found["phd_provenance"])
@@ -152,7 +154,8 @@ SVG_RE = re.compile(r"<!-- PHD-PROVENANCE (\{.*?\}) -->\n?", re.S)
 
 def svg_write(text: str, rec: dict) -> str:
     text = SVG_RE.sub("", text)
-    c = f"<!-- {PREFIX}{json.dumps(rec, ensure_ascii=True, sort_keys=True).replace('--', '- -')} -->\n"
+    # "--" may not appear in an XML comment; it can only occur inside JSON strings, where "--" decodes back exactly
+    c = f"<!-- {PREFIX}{json.dumps(rec, ensure_ascii=True, sort_keys=True).replace('--', '-' + chr(92) + 'u002d')} -->\n"
     m = re.match(r"\s*<\?xml[^>]*\?>\s*", text)
     return text[:m.end()] + c + text[m.end():] if m else c + text
 
@@ -205,7 +208,8 @@ def read_bytes(name: str, data: bytes) -> dict:
             return png_read(data)
         if data.startswith(b"\xff\xd8"):
             return jpeg_read(data)
-        if ext == ".svg" or data.lstrip()[:5] in (b"<?xml", b"<svg "):
+        head = data.lstrip()[:64]
+        if ext == ".svg" or head[:5] in (b"<?xml", b"<svg ") or head.startswith(b"<!-- " + PREFIX.encode()):
             return svg_read(data.decode("utf-8", "replace"))
         if ext in (".csv", ".tsv", ".txt"):
             return csv_read(data.decode("utf-8", "replace"))

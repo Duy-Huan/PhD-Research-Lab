@@ -17,6 +17,9 @@ Policy (non-negotiable, v3.4 §0):
     with --bare (bare mode skips the subscription login and requires an API key).
   • Read-only by default: Codex runs with --sandbox read-only, Claude Code may only call the PhD-Lab research MCP read
     tools, Antigravity CLI runs with --sandbox (no approvals in headless mode → everything else is soft-denied).
+  • v4.1 Secure CLI space (gateway/workspace.py): the process runs in its session workspace (never the app or project
+    folder), with an allowlisted environment, a time limit, and its whole process tree is killed when the request ends
+    early (cancel, timeout, client gone). context["profile"] selects review | assisted where the provider supports it.
 """
 from __future__ import annotations
 
@@ -67,6 +70,19 @@ def _gw() -> dict:
     return load_config()["gateway"]
 
 
+def kill_tree(proc) -> None:
+    """Terminate a CLI process and every child it started (best effort, never raises)."""
+    try:
+        if proc.poll() is not None:
+            return
+        if sys.platform.startswith("win"):
+            subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)], capture_output=True, creationflags=NO_WINDOW)
+        else:  # pragma: no cover - POSIX
+            proc.kill()
+    except Exception:  # pragma: no cover
+        pass
+
+
 def _drain(stream, out: list) -> None:
     try:
         for line in iter(stream.readline, ""):
@@ -82,6 +98,7 @@ class ProviderConnector:
     vendor = ""
     path = ""            # the officially supported integration path, shown in the UI
     api_env: tuple = ()  # vendor API-key variables removed by the cost guard
+    supports_resume = False  # native session resume (used by the cli lifecycle policy)
 
     def enabled(self) -> bool:
         return bool(_gw().get(f"{self.provider_id}_enabled", True))
@@ -146,14 +163,10 @@ class CLIConnector(ProviderConnector):
         return which(*self.binaries)
 
     def env(self) -> dict:
-        """Cost guard: the API-key variables of EVERY AI vendor are removed (an agent could otherwise spend another
-        vendor's key through a shell command); the provider's own ones stay only with <provider>_api_fallback."""
-        env = dict(os.environ)
-        keep = set(self.api_env) if self.api_fallback() else set()
-        for k in ALL_API_ENV - keep:
-            env.pop(k, None)
-        env["NO_COLOR"] = "1"
-        return env
+        """v4.1: an allowlisted environment (workspace.minimal_env) — credentials, cloud keys and unrelated variables
+        never reach the CLI. Cost guard: the provider's own API-key variables pass only with <provider>_api_fallback."""
+        from .workspace import minimal_env
+        return minimal_env(set(self.api_env) if self.api_fallback() else set())
 
     def _probe(self) -> dict:
         b = self.binary()
@@ -212,19 +225,38 @@ class CLIConnector(ProviderConnector):
         if h["state"] in ("DISCONNECTED", "UNAVAILABLE", "ERROR"):
             raise ProviderError(f"{self.label} is {h['state']}: {h['detail']}", h["state"])
         rid = context.get("request_id") or "req-" + secrets.token_hex(6)
+        from . import workspace as W
+        profile = context.get("profile") or "review"
+        if not context.get("cwd"):  # never the project / app folder: an ad-hoc session workspace instead
+            try:
+                iso = W.check_profile(self.provider_id, profile, bool(context.get("allow_weaker")))
+            except W.WorkspaceError as e:
+                raise ProviderError(str(e), "ERROR")
+            context["cwd"] = W.open_session(self.provider_id, "adhoc-" + re.sub(r"[^\w-]", "-", rid)[-24:], profile, iso)["cwd"]
+        cwd = Path(context["cwd"]).resolve()
+        if not cwd.is_dir() or cwd.name != "workspace" or cwd.parent.parent.parent.parent != W.root():
+            raise ProviderError("CLI working directory is not a PhD-Lab session workspace", "ERROR")
         args = self.argv(context)
-        from ..sandbox import code_dir
         try:
-            proc = subprocess.Popen(args, cwd=str(code_dir()), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            proc = subprocess.Popen(args, cwd=str(cwd), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                     text=True, encoding="utf-8", errors="replace", bufsize=1, env=self.env(), creationflags=NO_WINDOW)
         except OSError as e:
             raise ProviderError(f"Could not start {self.binaries[0]}: {e}", "UNAVAILABLE")
         with _lock:
             _procs[rid] = proc
         err_lines: list = []
+        context["_stderr"] = err_lines
         threading.Thread(target=_drain, args=(proc.stderr, err_lines), daemon=True).start()
-        yield E.ev("request_started", provider=self.provider_id, request_id=rid)
-        try:
+        limit = float(context.get("timeout_s") or _gw().get("provider_timeout_s", 600) or 600)
+
+        def _timeout():
+            proc._phd_timeout = True
+            kill_tree(proc)
+        watchdog = threading.Timer(limit, _timeout)
+        watchdog.daemon = True
+        watchdog.start()
+        try:  # everything after the launch is inside try/finally: a client that leaves early never orphans the CLI
+            yield E.ev("request_started", provider=self.provider_id, request_id=rid)
             try:
                 proc.stdin.write(self.stdin_payload(message, context))
                 proc.stdin.close()
@@ -249,6 +281,11 @@ class CLIConnector(ProviderConnector):
                             _last_error[self.provider_id] = (st, e.get("message", "")[:200])
                     yield e
             proc.wait()
+            if getattr(proc, "_phd_timeout", False):
+                yield E.ev("error", message=f"{self.label} did not finish within {int(limit)} s — stopped (time limit)",
+                           state="ERROR")
+                yield E.ev("request_completed", provider=self.provider_id, request_id=rid, exit_code=proc.returncode)
+                return
             cancelled = getattr(proc, "_phd_cancelled", False)
             if cancelled:
                 yield E.ev("request_cancelled", provider=self.provider_id, request_id=rid)
@@ -263,6 +300,8 @@ class CLIConnector(ProviderConnector):
                 _last_error.pop(self.provider_id, None)
             yield E.ev("request_completed", provider=self.provider_id, request_id=rid, exit_code=proc.returncode)
         finally:
+            watchdog.cancel()
+            kill_tree(proc)  # consumer gone / exception: no orphaned CLI or child process stays behind
             with _lock:
                 _procs.pop(rid, None)
             for f in (proc.stdout, proc.stderr):
@@ -282,13 +321,7 @@ class CLIConnector(ProviderConnector):
         if not p or p.poll() is not None:
             return {"provider": self.provider_id, "cancelled": False, "detail": "request is not running"}
         p._phd_cancelled = True
-        try:
-            if sys.platform.startswith("win"):
-                subprocess.run(["taskkill", "/F", "/T", "/PID", str(p.pid)], capture_output=True, creationflags=NO_WINDOW)
-            else:
-                p.terminate()
-        except Exception:
-            pass
+        kill_tree(p)
         return {"provider": self.provider_id, "cancelled": True}
 
 
@@ -297,6 +330,7 @@ class CodexConnector(CLIConnector):
     path = "Codex CLI signed in with a ChatGPT plan (`codex login`)"
     binaries, normalizer, login_cmd = ("codex",), "codex", "codex login"
     api_env = ("OPENAI_API_KEY", "CODEX_API_KEY", "OPENAI_BASE_URL", "AZURE_OPENAI_API_KEY")
+    supports_resume = True
 
     def binary(self):
         from ..integrations.agents import CodexBackend
@@ -326,14 +360,15 @@ class CodexConnector(CLIConnector):
         return ["npm install -g @openai/codex", "codex login   (choose 'Sign in with ChatGPT')"]
 
     def argv(self, context: dict) -> list:
-        args = self._prefix() + ["exec", "--json", "--sandbox", "read-only", "--skip-git-repo-check"]
+        mode = "workspace-write" if context.get("profile") == "assisted" else "read-only"
+        args = self._prefix() + ["exec", "--json", "--sandbox", mode, "--skip-git-repo-check"]
         if sys.platform.startswith("win"):
             from ..config import load_config
             ws = load_config()["codex"].get("windows_sandbox") or "unelevated"
             if ws != "config":
                 args += ["-c", f"windows.sandbox={ws}"]
         if context.get("resume_session") and re.fullmatch(r"[\w-]{6,80}", context["resume_session"]):
-            args = self._prefix() + ["exec", "resume", "--json", "-c", "sandbox_mode=read-only", "--skip-git-repo-check",
+            args = self._prefix() + ["exec", "resume", "--json", "-c", f"sandbox_mode={mode}", "--skip-git-repo-check",
                                      context["resume_session"]]
         if context.get("model"):
             args += ["-m", str(context["model"])[:80]]
@@ -352,6 +387,8 @@ class ClaudeCodeConnector(CLIConnector):
     binaries, binary_key, normalizer, login_cmd = ("claude",), "claude_binary", "claude", "claude"
     api_env = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_BASE_URL", "CLAUDE_CODE_USE_BEDROCK",
                "CLAUDE_CODE_USE_VERTEX", "CLAUDE_CODE_USE_FOUNDRY")
+    supports_resume = True
+    WRITE_TOOLS = ("Edit", "Write", "MultiEdit", "NotebookEdit")
 
     def setup(self) -> list:
         return ["Install Claude Code (https://code.claude.com/docs)", "run `claude` once and sign in with your Claude account (/login)"]
@@ -366,6 +403,10 @@ class ClaudeCodeConnector(CLIConnector):
             f.write_text(json.dumps(cfg), "utf-8")
             context["_tmpfile"] = str(f)  # removed when the request ends
             args += ["--mcp-config", str(f), "--allowedTools", ",".join(f"mcp__phd-research-lab__{t}" for t in READ_TOOLS)]
+        if context.get("profile") == "assisted":  # writes only inside the session workspace (permission rules)
+            args += ["--permission-mode", "acceptEdits", "--disallowedTools", "Bash"]
+        else:  # review: no shell, no file writes
+            args += ["--disallowedTools", ",".join(("Bash",) + self.WRITE_TOOLS)]
         if context.get("resume_session") and re.fullmatch(r"[\w-]{6,80}", context["resume_session"]):
             args += ["--resume", context["resume_session"]]
         if context.get("model"):
@@ -382,6 +423,7 @@ class AntigravityConnector(CLIConnector):
     provider_id, label, vendor = "antigravity", "Google Antigravity (MCP + agy CLI)", "Google"
     path = "Antigravity IDE/app as MCP client (mcp_config.json) and the Antigravity CLI `agy -p` (Google sign-in)"
     binaries, normalizer, login_cmd = ("agy",), "agy", "agy"
+    supports_resume = True
     api_env = ("GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GENAI_USE_VERTEXAI", "GOOGLE_APPLICATION_CREDENTIALS")
 
     def config_path(self) -> Path:

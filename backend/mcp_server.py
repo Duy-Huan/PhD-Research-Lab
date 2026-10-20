@@ -119,7 +119,9 @@ def call_tool(name: str, args: dict, client: dict | None = None) -> dict:
             ide_fs.write("_mcp_snippet.py", code)
             cmd = "python _mcp_snippet.py"
         timeout = max(5, min(3600, int(args.get("timeout") or 600)))
-        job = sandbox.run_blocking(cmd, timeout, "run", f"MCP: {cmd[:60]}")
+        from .model_lifecycle import sandbox_lease
+        with sandbox_lease():  # v4.1: the container follows lifecycle.mcp (stop after task / idle / keep running)
+            job = sandbox.run_blocking(cmd, timeout, "run", f"MCP: {cmd[:60]}")
         return _text({"run_id": job.id, "status": job.status, "exit_code": job.exit_code, "mode": job.mode,
                       "stdout": job.tail(120, "out")[-12000:], "stderr": job.tail(80, "err")[-8000:],
                       "metrics": (job.meta or {}).get("metrics", {}), "figures": (job.meta or {}).get("figures", [])})

@@ -230,7 +230,8 @@ async def gw_prepare(request: Request, body: dict = Body(...)):
     def go():
         r = GS.prepare(str(body.get("query") or ""), str(body.get("provider") or ""), role=str(body.get("role") or ""),
                        session_id=str(body.get("session_id") or ""), review=body.get("review"),
-                       budget_tokens=body.get("budget_tokens"), resume_session=str(body.get("resume_session") or ""))
+                       budget_tokens=body.get("budget_tokens"), resume_session=str(body.get("resume_session") or ""),
+                       profile=str(body.get("profile") or ""), allow_weaker=bool(body.get("allow_weaker")))
         if body.get("send") and r["status"] == "ready":
             return GS.send(r["id"], base_url=_base(request))
         return r
@@ -285,7 +286,8 @@ async def gw_propose(rid: str, body: dict = Body(...)):
 @router.post("/api/gateway/compare")
 async def gw_compare(request: Request, body: dict = Body(...)):
     return await _call(GS.compare, str(body.get("query") or ""), list(body.get("providers") or []), str(body.get("role") or ""),
-                       str(body.get("session_id") or ""), body.get("review"), _base(request))
+                       str(body.get("session_id") or ""), body.get("review"), _base(request), str(body.get("profile") or ""),
+                       bool(body.get("allow_weaker")))
 
 
 @router.get("/api/gateway/sessions/{sid}")

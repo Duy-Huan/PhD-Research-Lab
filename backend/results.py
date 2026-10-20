@@ -49,9 +49,17 @@ def rdir() -> Path:
 
 
 def load() -> list:
+    p = rdir() / "index.json"
+    if not p.exists():
+        return []
     try:
-        return json.loads((rdir() / "index.json").read_text("utf-8")).get("items", [])
-    except Exception:
+        items = json.loads(p.read_text("utf-8")).get("items", [])
+        return items if isinstance(items, list) else []
+    except (ValueError, AttributeError):
+        from .memory.store import quarantine
+        quarantine(p)  # never let the next upload overwrite the researcher's whole results catalogue
+        return []
+    except OSError:
         return []
 
 
@@ -338,8 +346,10 @@ def resolve(ref: str, budget: int = 6000) -> dict | None:
             r = get_run(ref[4:])
             ms = r.get("metrics") or {}
             series = (r.get("parsed") or {}).get("series") or {}
-            ser = "; ".join(f"{k}: " + ", ".join(f"{v:.4g}" for v in vals[-12:]) for k, vals in list(series.items())[:6]
-                            if isinstance(vals, list) and all(isinstance(v, (int, float)) for v in vals))
+            def _val(v):  # series points are [step, value] (sandbox.parse_metrics_text) or plain numbers
+                return v[1] if isinstance(v, (list, tuple)) and len(v) == 2 else v
+            ser = "; ".join(f"{k}: " + ", ".join(f"{_val(v):.4g}" for v in vals[-12:]) for k, vals in list(series.items())[:6]
+                            if isinstance(vals, list) and all(isinstance(_val(v), (int, float)) for v in vals))
             body = (f"Command: {r.get('cmd', '')}\nFinal metrics (measured): " + ", ".join(f"{k}={v}" for k, v in ms.items())
                     + (f"\nPer-epoch series (last values): {ser}" if ser else "") + f"\nLog tail:\n{(r.get('stdout') or '')[-1500:]}")
             return {"title": f"Run {r['id']}", "kind": "data", "body": body[:budget]}

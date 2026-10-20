@@ -123,8 +123,11 @@ class CodexBackend:
                "thread_id": resume_thread or "", "final_message": "", "usage": {}, "errors": [], "events": deque(maxlen=400),
                "changed_files": [], "changed_files_source": "git-derived", "link": link or {}, "proc": None, "cancelled": False}
         try:
+            from ..gateway.connectors import CodexConnector
+            from ..gateway.workspace import minimal_env  # v4.1: allowlisted env — other vendors' keys and secrets stay out
             proc = subprocess.Popen(args, cwd=str(code_dir()), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                    text=True, encoding="utf-8", errors="replace", bufsize=1, creationflags=NO_WINDOW)
+                                    text=True, encoding="utf-8", errors="replace", bufsize=1, creationflags=NO_WINDOW,
+                                    env=minimal_env(set(CodexConnector.api_env)))
         except OSError as e:
             raise IntegrationError(f"Could not start codex: {e}")
         run["proc"], run["status"] = proc, "running"
@@ -252,7 +255,10 @@ def get_run(rid: str) -> dict:
     f = _runs_dir() / f"{rid}.json"
     if not f.exists():
         raise IntegrationError("Run not found")
-    return json.loads(f.read_text("utf-8"))
+    try:
+        return json.loads(f.read_text("utf-8"))
+    except (OSError, ValueError):
+        raise IntegrationError("The run record is damaged (interrupted write)")
 
 
 def list_runs(limit: int = 30) -> list:

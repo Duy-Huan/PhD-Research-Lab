@@ -480,14 +480,29 @@ def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | No
     if not cmd.strip():
         raise SandboxError("Empty command")
     s, _ = _capped_settings()
+    pre_notes: list = []
     mode, mode_why = (s["mode"], "") if s["mode"] in ("local", "docker") else choose_mode(s)
     if kind == "run" and s.get("gpu") and (extra_env or {}).get("CUDA_VISIBLE_DEVICES") != "":
         from .resources import VramBusy, vram_gate
         try:  # researcher's rule: no GPU training while local LLMs sit in VRAM (refused before anything is created)
             vram_gate()
         except VramBusy as e:
-            raise VramBusyError(str(e), e.models, e.vram_used_mb)
+            from .config import load_config
+            if not load_config()["resources"].get("auto_unload_for_gpu"):
+                raise VramBusyError(str(e), e.models, e.vram_used_mb)
+            from .model_lifecycle import free_vram_for_gpu  # v4.1 opt-in: release IDLE local models, then re-check
+            freed = free_vram_for_gpu(log=pre_notes.append)
+            if not freed.get("ok"):
+                busy = freed.get("busy") or e.models
+                raise VramBusyError(str(e) + (" A local model is answering right now." if freed.get("busy") else ""), busy,
+                                    e.vram_used_mb)
+            try:
+                vram_gate()
+            except VramBusy as e2:
+                raise VramBusyError(str(e2), e2.models, e2.vram_used_mb)
     job = _register(Job(kind, cmd, title))
+    for m in pre_notes:
+        job.add("sys", m)
     job.mode = mode
     if mode_why:
         job.add("sys", f"ℹ environment: auto → {'Docker' if mode == 'docker' else 'Python'} ({mode_why})")
@@ -806,11 +821,16 @@ def get_run(run_id: str) -> dict:
     d = runs_dir() / run_id
     if not d.exists():
         raise SandboxError("Run not found")
-    r = json.loads((d / "run.json").read_text("utf-8")) if (d / "run.json").exists() else {"id": run_id}
+    def _json(f: Path, default):  # a run interrupted mid-write must not make the run (or its provenance) unreadable
+        try:
+            return json.loads(f.read_text("utf-8")) if f.exists() else default
+        except (OSError, ValueError):
+            return default
+    r = _json(d / "run.json", None) or {"id": run_id, "warning": "run.json is missing or damaged"}
+    r["id"] = run_id
     if run_id in JOBS:
         r.update(JOBS[run_id].info())
-    p = d / "metrics_parsed.json"
-    r["parsed"] = json.loads(p.read_text("utf-8")) if p.exists() else {}
+    r["parsed"] = _json(d / "metrics_parsed.json", {})
     r["stdout"] = (d / "stdout.log").read_text("utf-8", "replace")[-60000:] if (d / "stdout.log").exists() else ""
     r["stderr"] = (d / "stderr.log").read_text("utf-8", "replace")[-30000:] if (d / "stderr.log").exists() else ""
     return r

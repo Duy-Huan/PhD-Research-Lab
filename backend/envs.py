@@ -207,10 +207,14 @@ def hub_tags(repo: str, q: str = "", limit: int = 60) -> list:
         raise ValueError("Docker Hub repository like pytorch/pytorch or python")
     ns, name = (repo.split("/", 1) if "/" in repo else ("library", repo))
     url = f"https://hub.docker.com/v2/repositories/{ns}/{name}/tags"
-    r = httpx.get(url, params={"page_size": 100, "ordering": "last_updated", **({"name": q} if q else {})}, timeout=15)
+    try:
+        r = httpx.get(url, params={"page_size": 100, "ordering": "last_updated", **({"name": q} if q else {})}, timeout=15)
+    except httpx.HTTPError as e:
+        raise ValueError(f"Docker Hub is not reachable ({type(e).__name__})")
     if r.status_code == 404:
         raise ValueError(f"{repo} not found on Docker Hub")
-    r.raise_for_status()
+    if r.status_code >= 300:
+        raise ValueError(f"Docker Hub answered HTTP {r.status_code}")
     out = []
     for t in r.json().get("results", [])[:limit]:
         size = max((im.get("size") or 0 for im in t.get("images") or []), default=0)

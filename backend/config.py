@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "4.0.0"
+APP_VERSION = "4.1.0"
 
 ROOT = Path(__file__).resolve().parent.parent
 # PHDLAB_DATA_DIR (v3.2) moves ALL user data elsewhere — used by the test suite so it never touches the real data/.
@@ -114,11 +114,19 @@ AGENTS = {
     "results_analyst": {"label": "📊 Results analyst (reads figures/tables)", "default": "cloud"},
     # v3.2 live critic (LaTeX / citation / logic checks while the paper streams) — "auto" = SmartMultiRouter
     "critic":          {"label": "🩺 Live critic (Paper Writer)", "default": "auto"},
+    # v4.1 workflow orchestrator (agent planning / HPO strategy / interpretation of validated results)
+    "workflow_planner": {"label": "🧭 Workflow planner & interpreter", "default": "auto"},
+    "hpo_strategist":  {"label": "🎛 HPO strategist (search spaces)", "default": "auto"},
 }
+
+# v4.1 model lifecycle: agents whose calls are BACKGROUND tasks (no researcher waiting on a stream). Their local models
+# follow lifecycle.local_background (default: load → task → unload); everything else follows lifecycle.local_interactive.
+BACKGROUND_AGENTS = frozenset({"summarizer", "critic", "pdf_parser", "bib_extractor", "query_expansion", "web_query",
+                               "workflow_planner", "hpo_strategist"})
 
 # v3.2: task kind of every agent for the "auto" engine mode (backend/llm_router.py)
 AGENT_TASK_KIND = {
-    "critic": "live_critic", "summarizer": "summarize", "pdf_parser": "extract", "bib_extractor": "extract",
+    "critic": "live_critic", "summarizer": "summarize", "workflow_planner": "reasoning", "hpo_strategist": "reasoning", "pdf_parser": "extract", "bib_extractor": "extract",
     "data_extractor": "extract", "query_expansion": "extract", "web_query": "extract", "coder": "code",
     "lit2plan": "reasoning", "experiment": "reasoning", "author": "writing", "reviewer": "reasoning", "editor": "writing",
     "context_agent": "reasoning", "results_analyst": "reasoning", "masterclass": "writing",
@@ -161,7 +169,28 @@ DEFAULTS = {
     # v3.2 hardware resource governor (HARDWARE_RESOURCE_CONSTRAINT.md); 0 = derived from the scanned machine
     "resources": {"enforce_caps": True, "require_unload": True, "vram_free_target_mb": 2048, "unload_wait_s": 1.5,
                   "unload_timeout_s": 20, "gpu_temp_limit_c": 83, "cpu_fallback_on_gpu_fault": True, "gpu_busy_util_pct": 80,
-                  "sandbox_memory_gb": 0, "sandbox_cpus": 0, "local_ai_vram_gb": 0, "local_ai_threads": 0},
+                  "sandbox_memory_gb": 0, "sandbox_cpus": 0, "local_ai_vram_gb": 0, "local_ai_threads": 0,
+                  # v4.1: free VRAM automatically (idle local models only — never one that is answering) when a GPU
+                  # training run is started; off = the v3.2 rule (the run is refused until the researcher unloads)
+                  "auto_unload_for_gpu": False},
+    # v4.1 model lifecycle (backend/model_lifecycle.py). One vocabulary for every engine class:
+    #   unload_after_task  load → task → unload (after unload_grace_s, so a burst of calls does not thrash VRAM)
+    #   keep_loaded        keep it until the researcher unloads it
+    #   idle_unload        keep it while in use, release after <class>_idle_min minutes without a task
+    # local = LM Studio / Ollama models in VRAM; cli = native CLI sessions (Codex / Claude Code / Gemini / agy — the
+    # process itself always exits after a request); mcp = the Docker sandbox container used by MCP tools and agent runs;
+    # cloud = the pooled HTTPS connections to cloud APIs.
+    "lifecycle": {"enabled": True, "local_background": "unload_after_task", "local_interactive": "idle_unload",
+                  "cli": "idle_unload", "mcp": "idle_unload", "cloud": "idle_unload",
+                  "local_idle_min": 10, "cli_idle_min": 30, "mcp_idle_min": 15, "cloud_idle_min": 5,
+                  "unload_grace_s": 15, "respect_manual_loads": True, "single_model_vram": True},
+    # v4.1 feature flags — every v4.1 subsystem can be switched off on its own; v4.0 behaviour stays available.
+    "features": {"workflow_orchestrator": True, "model_intelligence": True, "optuna_hpo": True, "ray_tune": False,
+                 "multi_objective_hpo": True, "automated_replanning": False, "experiment_execution": True,
+                 "memory_writeback": True},
+    # v4.1 workflow defaults (a workflow's own budgets can only be LOWER than these hard caps)
+    "workflow": {"max_trials_cap": 200, "max_runtime_minutes_cap": 1440, "max_parallel_trials_cap": 4,
+                 "max_workflow_cycles_cap": 10, "default_parallel_trials": 1, "retention_runs": 200},
     # v3.2 integrations (all optional; credentials are masked in the UI and only sent to their own server)
     # ClearML: "offline" = SDK only, every run recorded as an offline session in <project>/clearml (no server);
     # "server" = a ClearML Server with credentials. auto_record: record every finished sandbox run.
@@ -183,17 +212,25 @@ DEFAULTS = {
                 "codex_enabled": True, "claude_code_enabled": True, "gemini_cli_enabled": True, "antigravity_enabled": True,
                 "codex_api_fallback": False, "claude_code_api_fallback": False, "antigravity_api_fallback": False,
                 "gemini_cli_api_fallback": False,
-                "claude_binary": "", "gemini_binary": ""},
+                "claude_binary": "", "gemini_binary": "",
+                # v4.1 Secure CLI gateway: every CLI request runs in its own session workspace under cli_space_dir
+                # (empty = <data>/cli-space), never in the project or the app folder. cli_profile: review (read-only) |
+                # assisted (the session workspace is writable). A profile the provider cannot enforce is refused
+                # unless the researcher accepts the weaker isolation for that request.
+                "cli_space_dir": "", "cli_profile": "review", "cli_retention_days": 14, "cli_max_sessions": 300},
     # v3.4 MCP gateway (POST /mcp, localhost only). token: when set, every MCP request needs "Authorization: Bearer <token>".
     # Research write tools only create review CANDIDATES (never permanent memory) unless the researcher approves them.
     "mcp": {"enabled": True, "expose_research": True, "allow_writes": True, "expose_sandbox": True, "token": "",
             "rate_limit_per_min": 240, "audit": True},
 }
-SECTIONS_V32 = ("memory", "resources", "clearml", "codex", "workspace", "routing", "critic", "provenance", "gateway", "mcp")
+SECTIONS_V32 = ("memory", "resources", "clearml", "codex", "workspace", "routing", "critic", "provenance", "gateway", "mcp",
+                "lifecycle", "features", "workflow")
+LIFECYCLE_POLICIES = ("unload_after_task", "keep_loaded", "idle_unload")
 SECRET_FIELDS = {"clearml": ("access_key", "secret_key"), "mcp": ("token",)}
 CHOICES = {("codex", "sandbox"): ("read-only", "workspace-write"), ("clearml", "mode"): ("offline", "server"),
            ("codex", "windows_sandbox"): ("unelevated", "elevated", "config"),
-           ("memory", "embed_engine"): ("auto", "ollama", "hashing")}
+           ("memory", "embed_engine"): ("auto", "ollama", "hashing"), ("gateway", "cli_profile"): ("review", "assisted"),
+           **{("lifecycle", k): LIFECYCLE_POLICIES for k in ("local_background", "local_interactive", "cli", "mcp", "cloud")}}
 
 _lock = threading.Lock()
 

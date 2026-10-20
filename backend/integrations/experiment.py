@@ -181,7 +181,12 @@ def read_offline_session(path: Path) -> dict:
                 "run_id": params.get("General/run_id", ""), "status": params.get("General/status", "")}
 
     if path.is_dir():
-        return from_folder(lambda n: (path / n).read_text("utf-8"))
+        def read_dir(n):
+            f = path / n
+            if not f.is_file():  # same contract as the zip reader: a session without metrics.jsonl is still readable
+                raise KeyError(n)
+            return f.read_text("utf-8")
+        return from_folder(read_dir)
     with zipfile.ZipFile(path) as z:
         names = {Path(n).name: n for n in z.namelist() if n.count("/") <= 1}
 
@@ -459,15 +464,24 @@ def auto_record(run_id: str) -> None:
 
 def _store_pointer(run_id: str, info: dict, merge_error: bool = False) -> None:
     from ..sandbox import JOBS, runs_dir
+    from ..memory.store import quarantine, replace_retry
     f = runs_dir() / run_id / "run.json"
-    d = json.loads(f.read_text("utf-8")) if f.exists() else {"id": run_id}
+    d = {"id": run_id}
+    if f.exists():
+        try:
+            d = json.loads(f.read_text("utf-8"))
+        except ValueError:
+            quarantine(f)  # keep the damaged record; the pointer is still stored
     if merge_error:
         if (d.get("clearml") or {}).get("task_id"):
             return
         d["clearml"] = info
     else:
         d["clearml"] = info
-    f.write_text(json.dumps(d, indent=1), "utf-8")
+    f.parent.mkdir(parents=True, exist_ok=True)
+    tmp = f.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(d, indent=1), "utf-8")
+    replace_retry(tmp, f)
     if run_id in JOBS:
         JOBS[run_id].meta["clearml"] = d["clearml"]
     if merge_error or not info.get("task_id"):

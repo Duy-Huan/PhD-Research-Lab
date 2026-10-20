@@ -42,13 +42,19 @@ from contextlib import asynccontextmanager
 async def lifespan(_app):
     """v3: background Summarization Agent (hierarchical memory) runs while the app is up."""
     from .memory import worker
+    from .model_lifecycle import reaper
     stop = asyncio.Event()
     task = asyncio.create_task(worker(stop))
+    reap = asyncio.create_task(reaper(stop))  # v4.1 model lifecycle: unload/close per policy when a deadline is due
     try:
         yield
     finally:
         stop.set()
         task.cancel()
+        try:  # let the reaper close the pooled connections; never block shutdown for long
+            await asyncio.wait_for(reap, timeout=3)
+        except BaseException:
+            reap.cancel()
 
 
 app = FastAPI(title="PhD Interactive Autonomous Research Lab", version=APP_VERSION, lifespan=lifespan)
@@ -145,6 +151,8 @@ from .api_v32 import router as _v32_router  # noqa: E402
 app.include_router(_v32_router)
 from .api_v33 import router as _v33_router  # noqa: E402  (v3.3 Context Memory + v3.4 Context Gateway)
 app.include_router(_v33_router)
+from .api_v41 import router as _v41_router  # noqa: E402  (v4.1 model lifecycle, secure CLI space, workflow orchestrator)
+app.include_router(_v41_router)
 
 
 # ================================================================ configuration

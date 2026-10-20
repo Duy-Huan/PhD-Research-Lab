@@ -12,6 +12,9 @@ the alternatives, the researcher chooses.
 
 Storage: <project>/gateway/requests/<id>.json (prompt + answer stay on this machine), sessions/<id>.json,
 <project>/gateway/audit.jsonl (metadata only: ids, provider, token counts, blocked counts, latency — no content).
+v4.1: every request carries a security profile (review | assisted, checked fail-closed at prepare), runs in the
+provider's session workspace with a read-only context manifest (workspace.py), holds a `cli` lifecycle lease, and
+resumes the provider's native session when the cli lifecycle policy keeps sessions.
 """
 from __future__ import annotations
 
@@ -110,7 +113,8 @@ def _summary(r: dict) -> dict:
 
 
 def prepare(query: str, provider: str, role: str = "", session_id: str = "", review: bool | None = None,
-            budget_tokens: int | None = None, compare_id: str = "", resume_session: str = "") -> dict:
+            budget_tokens: int | None = None, compare_id: str = "", resume_session: str = "", profile: str = "",
+            allow_weaker: bool = False) -> dict:
     from ..config import load_config
     from ..telemetry import new_request_id
     from .context import provider_context
@@ -125,7 +129,17 @@ def prepare(query: str, provider: str, role: str = "", session_id: str = "", rev
     caps = conn.capabilities()
     if caps.get("send") == C.NOT_SUPPORTED:
         raise GatewayError(f"{conn.label} cannot be called from PhD-Lab ({h['state']}): use it as an MCP client instead")
+    from . import workspace as W
+    from .. import model_lifecycle as LC
+    profile = profile or cfg["gateway"].get("cli_profile", "review")
+    try:
+        iso = W.check_profile(provider, profile, allow_weaker)
+    except W.WorkspaceError as e:
+        raise GatewayError(str(e))
+    W.prune(cfg)
     sid = _session(session_id)
+    if not resume_session and getattr(conn, "supports_resume", False):
+        resume_session = LC.cli_resume(sid, provider, cfg)
     rid = "gw-" + secrets.token_hex(5)
     t0 = time.perf_counter()
     pc = provider_context(query, provider, role=role, session_id=sid, budget_tokens=budget_tokens, cfg=cfg,
@@ -136,7 +150,8 @@ def prepare(query: str, provider: str, role: str = "", session_id: str = "", rev
          "context_version": pc["context_version"], "includes": pc["includes"], "included_ids": pc["included_ids"],
          "blocked": pc["blocked"], "sanitize": pc["sanitize"], "sensitivity_allowed": pc["sensitivity_allowed"],
          "status": "review" if review else "ready", "health_state": h["state"], "created": time.time(), "ended": None,
-         "events": [], "answer": "", "errors": [], "resume_session": resume_session, "provider_session": ""}
+         "events": [], "answer": "", "errors": [], "resume_session": resume_session, "provider_session": "",
+         "profile": profile, "isolation": iso}
     with _lock:
         REQS[rid] = r
     _session_add(sid, rid, provider)
@@ -188,7 +203,17 @@ def send(rid: str, edited_prompt: str | None = None, base_url: str = "", wait: b
         return public(r)  # never an automatic fallback — the researcher picks an alternative
     from ..config import load_config
     mcfg = load_config()["mcp"]
-    ctx = {"request_id": rid, "resume_session": r.get("resume_session", "")}
+    from . import workspace as W
+    profile = r.get("profile") or "review"
+    sess = W.open_session(r["provider"], r["session_id"], profile, r.get("isolation"))
+    W.stage_context(sess, rid, r["prompt"], {"provider": r["provider"], "session_id": r["session_id"],
+                                             "context_version": r.get("context_version"), "role": r.get("role"),
+                                             "included_ids": r.get("included_ids", []), "blocked_count": len(r.get("blocked") or []),
+                                             "sensitivity_allowed": r.get("sensitivity_allowed"), "sanitize": r.get("sanitize"),
+                                             "profile": profile, "isolation": r.get("isolation")})
+    r["workspace"] = sess["dir"]
+    ctx = {"request_id": rid, "resume_session": r.get("resume_session", ""), "cwd": sess["cwd"], "profile": profile,
+           "_session": sess}
     if base_url and mcfg.get("enabled") and mcfg.get("expose_research"):
         ctx["mcp_url"] = base_url.rstrip("/") + "/mcp"
         ctx["mcp_token"] = mcfg.get("token", "")
@@ -203,6 +228,13 @@ def send(rid: str, edited_prompt: str | None = None, base_url: str = "", wait: b
 
 
 def _run(r: dict, conn, ctx: dict) -> None:
+    from .. import model_lifecycle as LC
+    with LC.lease_sync("cli", r["provider"], r["session_id"], "interactive"):
+        _run_inner(r, conn, ctx)
+    LC.cli_remember(r["session_id"], r["provider"], r.get("provider_session", ""))
+
+
+def _run_inner(r: dict, conn, ctx: dict) -> None:
     from ..telemetry import span
     first = None
     t0 = time.perf_counter()
@@ -240,6 +272,9 @@ def _run(r: dict, conn, ctx: dict) -> None:
     finally:
         r["ended"] = time.time()
         r["first_token_s"] = round(first, 3) if first is not None else None
+        if ctx.get("_session"):
+            from .workspace import write_output
+            write_output(ctx["_session"], r["id"], r["answer"], ctx.get("_stderr"))
         _persist(r)
         audit("completed", request_id=r["id"], provider=r["provider"], status=r["status"], session_id=r["session_id"],
               latency_ms=round((time.perf_counter() - t0) * 1000, 1), extra={"first_token_s": r["first_token_s"] or 0,
@@ -266,7 +301,7 @@ def events(rid: str, after: int = 0) -> dict:
 
 
 def compare(query: str, providers: list, role: str = "", session_id: str = "", review: bool | None = None,
-            base_url: str = "") -> dict:
+            base_url: str = "", profile: str = "", allow_weaker: bool = False) -> dict:
     """Same canonical context → several providers. Answers stay separate; nothing is cross-forwarded."""
     providers = list(dict.fromkeys(p for p in providers or [] if p))
     if len(providers) < 2:
@@ -276,7 +311,8 @@ def compare(query: str, providers: list, role: str = "", session_id: str = "", r
     reqs = []
     for p in providers:
         try:
-            reqs.append(prepare(query, p, role=role, session_id=sid, review=review, compare_id=cid))
+            reqs.append(prepare(query, p, role=role, session_id=sid, review=review, compare_id=cid, profile=profile,
+                                allow_weaker=allow_weaker))
         except (GatewayError, C.ProviderError) as e:
             reqs.append({"provider": p, "status": "unavailable", "errors": [str(e)]})
     prompts = {x.get("prompt") for x in reqs if x.get("prompt")}

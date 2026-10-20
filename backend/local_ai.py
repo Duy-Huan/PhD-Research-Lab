@@ -149,7 +149,7 @@ async def lmstudio_unload(base_url: str, model: str = "") -> dict:
                     done.append(iid)
                 else:
                     tried.append(f"REST {r.status_code} for {iid}")
-        if inst and len(done) == len(inst):
+        if len(done) == len(inst):  # also when nothing (matching) is loaded: there is nothing to unload
             return {"ok": True, "method": "rest-v1", "unloaded": done}
     except (httpx.HTTPError, ValueError) as e:
         tried.append(f"REST v1 {type(e).__name__}")

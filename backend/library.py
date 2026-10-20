@@ -46,18 +46,30 @@ STOPWORDS = {"a", "an", "the", "on", "of", "for", "in", "to", "and", "with", "to
 
 # ------------------------------------------------------------------ storage
 def load_library() -> dict:
-    if _lib_path().exists():
+    p = _lib_path()
+    if p.exists():
         try:
-            return json.loads(_lib_path().read_text("utf-8"))
-        except Exception:
+            d = json.loads(p.read_text("utf-8"))
+            if isinstance(d, dict):
+                return d
+            raise ValueError("library.json is not an object")
+        except ValueError:
+            from .memory.store import quarantine
+            quarantine(p)  # keep it: the next save would otherwise erase every curated reference (keys, metadata)
+            return {}
+        except OSError:
             return {}
     return {}
 
 
 def save_library(lib: dict) -> None:
+    from .memory.store import replace_retry
     with _lock:
         assign_keys(lib)
-        _lib_path().write_text(json.dumps(lib, indent=2, ensure_ascii=False), "utf-8")
+        p = _lib_path()
+        tmp = p.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(lib, indent=2, ensure_ascii=False), "utf-8")
+        replace_retry(tmp, p)
 
 
 def included(lib: dict | None = None) -> list:
@@ -203,7 +215,8 @@ def heuristic_metadata(path: Path) -> dict:
         year = re.search(r"(19|20)\d{2}", ym.group(0)).group(0)
 
     venue = ""
-    vm = re.search(r"(IEEE [A-Z][A-Za-z ]+(?:Transactions|Journal|Letters|Conference)[A-Za-z ,]*|"
+    # "IEEE Transactions on …", "IEEE Geoscience and Remote Sensing Letters", "IEEE/CVF Conference on …", "IEEE Access"
+    vm = re.search(r"(IEEE(?:/CVF)? (?:[A-Z][A-Za-z\-]* |and |of |on )*(?:Transactions|Journal|Letters|Conference|Access)\b[A-Za-z ,\-]*|"
                    r"Proceedings of [^\n]+|ACM [A-Z][A-Za-z ]+)", text)
     if vm:
         venue = vm.group(0).strip()[:200]

@@ -79,9 +79,16 @@ def _mtime(f) -> str | None:
 
 # ------------------------------------------------------------------ pinned notes
 def load_notes() -> list:
+    p = _notes_path()
+    if not p.exists():
+        return []
     try:
-        return json.loads(_notes_path().read_text("utf-8")).get("notes", [])
-    except Exception:
+        return json.loads(p.read_text("utf-8")).get("notes", [])
+    except (ValueError, AttributeError):
+        from .memory.store import quarantine
+        quarantine(p)  # keep the damaged file: the next save would otherwise destroy every pinned note
+        return []
+    except OSError:
         return []
 
 

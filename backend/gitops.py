@@ -167,7 +167,13 @@ def commit(message: str, paths: list | None = None) -> dict:
 
 
 def discard(path: str) -> dict:
-    G(["checkout", "--", path])
+    """Revert ONE file to its last commit. The path must name a file inside the workspace: an empty path or "."
+    would otherwise discard every uncommitted change of the project."""
+    root = code_dir().resolve()
+    p = (root / (path or "")).resolve()
+    if not path or not path.strip() or p == root or root not in p.parents or p.is_dir():
+        raise GitError("Choose one file to discard (folders and the whole workspace cannot be discarded at once)")
+    G(["checkout", "--", str(p.relative_to(root)).replace("\\", "/")])
     return status()
 
 
@@ -191,7 +197,8 @@ def gh_user(tok: str | None = None) -> dict:
                                           "X-GitHub-Api-Version": "2022-11-28"}, timeout=20)
     if r.status_code == 401:
         raise GitError("GitHub rejected the token (401) — check it has not expired")
-    r.raise_for_status()
+    if r.status_code >= 300:
+        raise GitError(f"GitHub error {r.status_code}: {r.text[:200]}")
     d = r.json()
     return {"login": d.get("login"), "name": d.get("name"), "html_url": d.get("html_url")}
 
