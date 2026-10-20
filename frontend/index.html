@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
 <!-- bundled locally: works offline / behind firewalls -->
 <link rel="stylesheet" href="/vendor/katex/katex.min.css">
-<link rel="stylesheet" href="/vendor/xterm/xterm.css">
 <link rel="stylesheet" href="/app/v3.css">
 <link rel="stylesheet" id="hljs-theme" href="/vendor/hljs/github-dark.min.css">
 <script>
@@ -503,7 +502,7 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
 <!-- ================================================================ CONFIG SIDEBAR -->
 <aside>
   <div class="brand">PhD Interactive<br><span>Autonomous Research Lab</span></div>
-  <div class="sub">Hybrid cloud AI + Ollama / LM Studio · <span id="app-version">v3.1.0</span></div>
+  <div class="sub">Hybrid cloud AI + Ollama / LM Studio · <span id="app-version">v3.2.0</span></div>
 
   <h3>📂 Research project</h3>
   <div class="row"><select id="proj-select" title="Switch research project"></select></div>
@@ -588,9 +587,10 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
 
 <main>
 <nav>
+  <button data-tab="control">🧭 Control Center</button>
   <button data-tab="lit2plan" class="on">🛠️ Lit2Plan</button>
   <button data-tab="experiment">🔬 Experiment Design</button>
-  <button data-tab="ide">💻 Code IDE</button>
+  <button data-tab="ide">💻 Workspace &amp; Runs</button>
   <button data-tab="papers">📚 Papers &amp; Writer</button>
   <button data-tab="masterclass">📖 Masterclass</button>
   <button data-tab="context">🧠 Context</button>
@@ -653,7 +653,7 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
       <label>Constraints (hardware, data, time)</label>
       <textarea id="exp-constraints" rows="3" placeholder="1× RTX 4090, Indian Pines + Pavia U, 3 months"></textarea>
       <div class="row" style="margin-top:12px"><button class="btn primary" id="exp-run">Generate methodology</button></div>
-      <div class="row" style="margin-top:8px"><button class="btn small" id="exp-dl-code">⬇ experiment_skeleton.py</button><button class="btn small" id="exp-to-paper">→ Use as paper method notes</button><button class="btn small" id="exp-to-ide">→ 💻 Open in Code IDE</button></div>
+      <div class="row" style="margin-top:8px"><button class="btn small" id="exp-dl-code">⬇ experiment_skeleton.py</button><button class="btn small" id="exp-to-paper">→ Use as paper method notes</button><button class="btn small" id="exp-to-ide">→ 💻 Open in VS Code</button></div>
       <div class="status" id="exp-meta"></div>
     </div>
     <div>
@@ -739,7 +739,7 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
           <label>Method notes</label><textarea id="p-method" rows="4"></textarea>
           <label>Results notes</label><textarea id="p-results" rows="3"></textarea>
           <div id="pbrief-host"></div>
-          <div class="row" style="margin-top:10px;gap:6px"><button class="btn" id="p-save">Save project</button><button class="btn small" id="p-import" title="Fill the results notes and add a LaTeX table from the Code IDE runs (real measured metrics)">⇣ Import results from Code IDE</button></div>
+          <div class="row" style="margin-top:10px;gap:6px"><button class="btn" id="p-save">Save project</button><button class="btn small" id="p-import" title="Fill the results notes and add a LaTeX table from the sandbox runs (real measured metrics)">⇣ Import results from sandbox runs</button></div>
           <label>LaTeX tables from Data Chat (<span id="p-tcount">0</span>)</label>
           <div id="p-tables"></div>
         </details>
@@ -914,6 +914,7 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
 <section class="tab full" id="tab-ide"></section>
 <section class="tab full" id="tab-context"></section>
 <section class="tab full" id="tab-docker"></section>
+<section class="tab full" id="tab-control"></section>
 
 <!-- ================================================================ GUIDE -->
 <section class="tab" id="tab-guide">
@@ -1313,6 +1314,7 @@ function renderAgents() {
     `<option value="claude" ${m === 'claude' ? 'selected' : ''}>✳ Claude preferred${provHasKey('anthropic') ? '' : ' → ' + esc(provLabel(CFG.default_cloud))}</option>`,
     `<option value="local" ${m === 'local' ? 'selected' : ''}>🖥 Local (LM Studio)</option>`,
     `<option value="ollama" ${m === 'ollama' ? 'selected' : ''}>🦙 Local (Ollama)</option>`,
+    `<option value="auto" ${m === 'auto' ? 'selected' : ''}>🔀 Auto (route by task, GPU state, fallback)</option>`,
     ...Object.keys(CFG.provider_specs).map(pid => `<option value="${pid}" ${m === pid ? 'selected' : ''}>${esc(provLabel(pid))}${provHasKey(pid) ? '' : ' ⚠'}</option>`)].join('');
   $('#agent-modes').innerHTML = Object.entries(CFG.agents).map(([id, a]) =>
     `<div class="agent" id="agent-row-${id}"><span>${esc(a.label)}</span><select data-agent="${id}">${opts(CFG.agent_modes[id])}</select>
@@ -1329,6 +1331,7 @@ function renderAgents() {
   });
 }
 function defaultModelHint(mode) {
+  if (mode === 'auto') return 'auto: each engine’s default model (see 🧭 Control Center → Resources)';
   const eng = mode === 'cloud' ? CFG.default_cloud : mode === 'claude' ? (provHasKey('anthropic') ? 'anthropic' : CFG.default_cloud) : mode;
   if (eng === 'local') return 'default: ' + ($('#cfg-localmodel').value || 'loaded LM Studio model');
   if (eng === 'ollama') return 'default: ' + ($('#cfg-ollamamodel').value || 'loaded Ollama model');
@@ -1425,7 +1428,7 @@ async function refreshLocal() {
 }
 function applyConfig() {
   $('#app-version').textContent = 'v' + CFG.version;
-  const PAGE_V = '3.1.0';
+  const PAGE_V = '3.2.0';
   if (CFG.version && CFG.version !== PAGE_V && !$('#vwarn')) {   // page and server from two different versions
     const b = document.createElement('div'); b.id = 'vwarn'; b.className = 'vwarn';
     b.textContent = I18N.tr(`This page is v${PAGE_V} but the server answering it is v${CFG.version}. Another copy of the lab is still running: close its black window, run run.bat again and press Ctrl+F5.`);
@@ -1813,7 +1816,7 @@ $('#exp-run').onclick = e => busy(e.target, async () => {
   await CHAT_EXP.newChat(true); toast('New follow-up chat started for this design', 'ok');
 }, 'Designing…');
 $('#exp-to-ide').onclick = async () => {
-  try { const r = await api('/api/ide/seed', {method: 'POST'}); toast(r.created.length ? 'Code IDE project created from the blueprint' : 'Opening the Code IDE', 'ok'); } catch (e) { return toast(e.message, 'err'); }
+  try { const r = await api('/api/ide/seed', {method: 'POST'}); toast(r.created.length ? 'Code workspace created from the blueprint — opening it in VS Code' : 'Opening the code workspace', 'ok'); } catch (e) { return toast(e.message, 'err'); }
   document.querySelector('nav button[data-tab=ide]').click();
   setTimeout(() => window.IDE_API && IDE_API.openFile('experiment_skeleton.py'), 900);
 };
@@ -1958,7 +1961,7 @@ class Runner {
   signal() { this.check(); this.ctrl = new AbortController(); return this.ctrl.signal; }
   api(path, opts = {}) { return api(path, {...opts, signal: this.signal()}); }
   /** POST JSON, read Server-Sent Events. onDelta(textSoFar, chunk); resolves with the "done" event. */
-  async sse(url, body, {onStart, onDelta} = {}) {
+  async sse(url, body, {onStart, onDelta, onEvent} = {}) {
     const resp = await fetch(url, {method: 'POST', signal: this.signal(), headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
     if (!resp.ok) { let d = ''; try { d = (await resp.json()).detail; } catch {} throw new Error(d || 'HTTP ' + resp.status); }
     const reader = resp.body.getReader(), dec = new TextDecoder(); let buf = '', acc = '', done = null;
@@ -1974,6 +1977,7 @@ class Runner {
         else if (ev.type === 'delta') { acc += ev.text; onDelta && onDelta(acc, ev.text); }
         else if (ev.type === 'done') done = ev;
         else if (ev.type === 'error') throw new Error(ev.detail);
+        else if (onEvent) onEvent(ev);
       }
     }
     this.ctrl = null;
@@ -2142,8 +2146,10 @@ async function agentSection(kind, id, deep) {
   else { ed.readOnly = true; ed.classList.add('live'); }
   const paintRv = throttle(t => { if (SEL === id) { rv.innerHTML = md(t) + '<span class="cursor"></span>'; rv.scrollTop = rv.scrollHeight; } }, 150);
   const before = PROJ.sections[id] || '';
+  const crit = criticBar(ed, kind !== 'review');
   try {
     const r = await W.sse('/api/paper/stream', {action: kind === 'review' ? 'review_section' : kind, section: id, deep: !!deep}, {
+      onEvent: ev => { if (ev.type === 'critic' && crit) crit.add(ev.issues); },
       onDelta: t => {
         if (kind === 'review') paintRv(t);
         else if (SEL === id) { ed.value = t; ed.scrollTop = ed.scrollHeight; $('#ws-words').textContent = `${wordCount(t)} ${I18N.tr('words')}…`; }
@@ -2168,6 +2174,25 @@ async function agentSection(kind, id, deep) {
     LIVE = null; ed.classList.remove('live'); ed.readOnly = false;
     renderBoard(); if (SEL === id) renderWorkspace();
   }
+}
+// v3.2 live critic: red/amber badges above the section editor while the author streams (click → jump to the line)
+function criticBar(ed, on) {
+  let bar = document.getElementById('critic-bar');
+  if (!bar && ed && ed.parentNode) { bar = document.createElement('div'); bar.id = 'critic-bar'; bar.className = 'critbar'; ed.parentNode.insertBefore(bar, ed); }
+  if (!bar) return null;
+  bar.innerHTML = '';
+  if (!on) return null;
+  return {add(issues) {
+    for (const i of issues || []) {
+      const b = document.createElement('span');
+      b.className = 'critbadge ' + (i.severity || 'warning');
+      b.textContent = `${i.severity === 'error' ? '⛔' : i.severity === 'info' ? 'ℹ' : '⚠'} ${i.line ? 'L' + i.line + ': ' : ''}${i.message}`;
+      b.title = `${i.kind} · ${i.source}${i.excerpt ? ' · ' + i.excerpt : ''}`;
+      b.onclick = () => { if (!i.line) return; const lines = ed.value.split('\n'); const pos = lines.slice(0, i.line - 1).join('\n').length + (i.line > 1 ? 1 : 0);
+        ed.focus(); ed.setSelectionRange(pos, pos + (lines[i.line - 1] || '').length); ed.scrollTop = Math.max(0, (i.line - 3) * 18); };
+      bar.appendChild(b);
+    }
+  }};
 }
 async function deepCycle(id, rounds) {
   if (!PROJ.sections[id]) await agentSection('draft', id, true);
@@ -3428,13 +3453,12 @@ loadCatalog().then(() => { restoreOutputs(); PANELS.forEach(p => p.init()); }); 
 refreshNoteCount();
 setTimeout(() => { try { const t = localStorage.getItem('last_tab'); if (t && t !== 'lit2plan') document.querySelector(`nav button[data-tab="${t}"]`)?.click(); } catch {} }, 50);
 </script>
-<script src="/vendor/xterm/xterm.js"></script>
-<script src="/vendor/xterm/addon-fit.js"></script>
 <script src="/vendor/vis/vis-network.min.js"></script>
-<script src="/app/ide.js"></script>
+<script src="/app/workspace.js"></script>
 <script src="/app/docker.js"></script>
 <script src="/app/context.js"></script>
 <script src="/app/results.js"></script>
 <script src="/app/brief.js"></script>
+<script src="/app/control.js"></script>
 </body>
 </html>

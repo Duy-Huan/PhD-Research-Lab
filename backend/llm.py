@@ -93,7 +93,7 @@ async def openai_compat_chat(base: str, key: str, model: str, system: str, messa
     if pid == "openai":  # GPT-5 / o-series: max_completion_tokens, default temperature only
         body["max_completion_tokens"] = body.pop("max_tokens")
         body.pop("temperature", None)
-    headers = {"Content-Type": "application/json"}
+    headers = {"Content-Type": "application/json", **gateway_headers(pid)}
     if key:
         headers["Authorization"] = f"Bearer {key}"
     if pid == "openrouter":
@@ -144,11 +144,24 @@ def provider_settings(cfg: dict, pid: str) -> tuple[dict, str, str, str]:
     return spec, p.get("api_key", ""), (p.get("model") or spec["model"]), base
 
 
+HEADER_NAME_RE = re.compile(r"^X-[A-Za-z0-9-]{1,60}$")
+
+
+def gateway_headers(pid: str) -> dict:
+    """v3.2: optional extra headers for a provider (config.routing.provider_headers), e.g. 9Router "X-9Router-Skills".
+    Only X-… names are accepted, so a typo can never inject Authorization/Cookie or identity headers into a request."""
+    try:
+        hs = (load_config().get("routing") or {}).get("provider_headers", {}).get(pid) or {}
+    except Exception:
+        return {}
+    return {k: str(v)[:200] for k, v in hs.items() if HEADER_NAME_RE.match(str(k)) and "\n" not in str(v)}
+
+
 async def cloud_chat(cfg: dict, pid: str, system: str, messages: list, max_tokens: int,
                      temperature: float | None = None, model: str | None = None) -> str:
     spec, key, default_model, base = provider_settings(cfg, pid)
     model = model or default_model
-    if not key:
+    if not key and not spec.get("key_optional"):
         raise LLMError(f"No API key for {spec['label']}. Add it in Configuration → Cloud AI providers.")
     if not base:
         raise LLMError(f"{spec['label']}: base URL is empty.")
@@ -221,8 +234,85 @@ async def local_target(cfg: dict, engine: str, model: str | None = None) -> tupl
     return base, model, "LM Studio", LMSTUDIO_HINT
 
 
+def ollama_offload_options(cfg: dict) -> dict | None:
+    """v3.2 Strategy C: while the GPU trains, Ollama answers from CPU/RAM (num_gpu=0, limited threads)."""
+    try:
+        from .resources import gpu_busy, ollama_cpu_options
+        return ollama_cpu_options(cfg) if gpu_busy(cfg) else None
+    except Exception:
+        return None
+
+
+def _ollama_messages(system: str, messages: list) -> list:
+    out = [{"role": "system", "content": system}]
+    for m in messages:
+        d = {"role": m["role"], "content": m.get("content") or ""}
+        if m.get("images"):
+            d["images"] = [i["data"] for i in m["images"]]
+        out.append(d)
+    return out
+
+
+async def ollama_native_chat(cfg: dict, system: str, messages: list, max_tokens: int, temperature: float,
+                             model: str | None, options: dict) -> str:
+    """Ollama /api/chat (native API: accepts `options`, unlike its OpenAI-compatible endpoint)."""
+    from .local_ai import ollama_root
+    _, model, label, hint = await local_target(cfg, "ollama", model)
+    body = {"model": model, "messages": _ollama_messages(system, messages), "stream": False,
+            "options": {**options, "num_predict": max_tokens, "temperature": temperature}}
+    try:
+        async with httpx.AsyncClient(timeout=TIMEOUT) as c:
+            r = await c.post(ollama_root(cfg.get("ollama_base_url")) + "/api/chat", json=body)
+    except httpx.ConnectError as e:
+        raise LLMError(f"Cannot reach Ollama. {hint}") from e
+    except httpx.HTTPError as e:
+        raise LLMError(f"Ollama request failed: {e}") from e
+    if r.status_code != 200:
+        raise LLMError(f"Ollama error {r.status_code}: {_err_msg(r)}")
+    d = r.json()
+    text = strip_think((d.get("message") or {}).get("content") or "").strip()
+    if d.get("done_reason") == "length":
+        text += "\n\n% [WARNING: output truncated at max_tokens]"
+    return text
+
+
+async def _stream_ollama_native(cfg, system, messages, max_tokens, temperature, model, options):
+    from .local_ai import ollama_root
+    _, model, label, hint = await local_target(cfg, "ollama", model)
+    body = {"model": model, "messages": _ollama_messages(system, messages), "stream": True,
+            "options": {**options, "num_predict": max_tokens, "temperature": temperature}}
+    try:
+        async with httpx.AsyncClient(timeout=TIMEOUT) as c:
+            async with c.stream("POST", ollama_root(cfg.get("ollama_base_url")) + "/api/chat", json=body) as r:
+                if r.status_code != 200:
+                    await r.aread()
+                    raise LLMError(f"Ollama error {r.status_code}: {_err_msg(r)}")
+                async for line in r.aiter_lines():
+                    if not line.strip():
+                        continue
+                    try:
+                        d = json.loads(line)
+                    except ValueError:
+                        continue
+                    if d.get("error"):
+                        raise LLMError(f"Ollama: {d['error']}")
+                    piece = (d.get("message") or {}).get("content")
+                    if piece:
+                        yield piece
+                    if d.get("done") and d.get("done_reason") == "length":
+                        yield "\n\n% [WARNING: output truncated at max_tokens]"
+    except httpx.ConnectError as e:
+        raise LLMError(f"Cannot reach Ollama. {hint}") from e
+    except httpx.HTTPError as e:
+        raise LLMError(f"Ollama request failed: {e}") from e
+
+
 async def local_chat(cfg: dict, system: str, messages: list, max_tokens: int, temperature: float,
                      engine: str = "local", model: str | None = None) -> str:
+    if engine == "ollama":
+        opts = ollama_offload_options(cfg)
+        if opts:
+            return await ollama_native_chat(cfg, system, messages, max_tokens, temperature, model, opts)
     base, model, label, hint = await local_target(cfg, engine, model)
     return await openai_compat_chat(base, "", model, system, messages, max_tokens, temperature, label, engine, hint)
 
@@ -261,6 +351,14 @@ def default_model_for(cfg: dict, engine: str) -> str:
 def agent_runtime(cfg: dict, agent: str) -> dict:
     """What an agent will use right now: {engine, engine_label, model} — shown in every chat header."""
     eng = resolve_engine(cfg, agent)
+    if eng == "auto":
+        from .llm_router import plan
+        p = plan(cfg, agent)
+        first = (p["candidates"] or [""])[0]
+        return {"agent": agent, "mode": "auto", "engine": first or "none", "kind": p["kind"],
+                "engine_label": ("auto → " + engine_label(first)) if first else "auto → (no engine available)",
+                "model": default_model_for(cfg, first) or "(auto)", "override": False, "candidates": p["candidates"],
+                "gpu_busy": p["gpu_busy"], "online": p["online"]}
     return {"agent": agent, "mode": cfg["agent_modes"].get(agent, "cloud"), "engine": eng, "engine_label": engine_label(eng),
             "model": resolve_model(cfg, agent) or default_model_for(cfg, eng) or "(auto)",
             "override": bool(resolve_model(cfg, agent))}
@@ -273,6 +371,8 @@ async def call_agent(agent: str, system: str, user: str | None = None, messages:
     engine = resolve_engine(cfg, agent)
     model = resolve_model(cfg, agent)
     msgs = messages or [{"role": "user", "content": user or ""}]
+    if engine == "auto":
+        return await _call_auto(cfg, agent, system, msgs, max_tokens, temperature)
     if engine not in LOCAL_ENGINES:
         text = await cloud_chat(cfg, engine, system, msgs, max_tokens, temperature, model)
         return {"text": text, "engine": engine, "engine_label": engine_label(engine), "model": model or default_model_for(cfg, engine), "note": ""}
@@ -286,6 +386,41 @@ async def call_agent(agent: str, system: str, user: str | None = None, messages:
             return {"text": text, "engine": fb, "engine_label": engine_label(fb), "model": default_model_for(cfg, fb),
                     "note": f"Local model unavailable, fell back to {engine_label(fb)}: {e}"}
         raise
+
+
+async def _auto_plan(cfg: dict, agent: str) -> dict:
+    import asyncio
+    from .llm_router import plan
+    p = await asyncio.to_thread(plan, cfg, agent)
+    if not p["candidates"]:
+        why = "; ".join(f"{k}: {v}" for k, v in p["skipped"].items())
+        raise LLMError(f"Auto routing ({p['kind']}): no engine is available right now ({why}). Add an API key, start "
+                       "Ollama/LM Studio, or choose a fixed engine for this agent.")
+    return p
+
+
+def _auto_note(p: dict, eng: str, errors: list) -> str:
+    bits = [f"auto routing ({p['kind']}{', GPU busy' if p['gpu_busy'] else ''}{', offline' if not p['online'] else ''}) → {engine_label(eng)}"]
+    if errors:
+        bits.append("fell back after: " + "; ".join(errors))
+    return " · ".join(bits)
+
+
+async def _call_auto(cfg: dict, agent: str, system: str, msgs: list, max_tokens: int, temperature: float) -> dict:
+    """SmartMultiRouter: try the planned engines in order (sequential fallback on any error)."""
+    p = await _auto_plan(cfg, agent)
+    errors = []
+    for eng in p["candidates"][:4]:
+        try:
+            if eng in LOCAL_ENGINES:
+                text = await local_chat(cfg, system, msgs, max_tokens, temperature, eng)
+            else:
+                text = await cloud_chat(cfg, eng, system, msgs, max_tokens, temperature)
+            return {"text": text, "engine": eng, "engine_label": engine_label(eng), "model": default_model_for(cfg, eng),
+                    "note": _auto_note(p, eng, errors) if errors else ""}
+        except LLMError as e:
+            errors.append(f"{engine_label(eng)}: {str(e)[:160]}")
+    raise LLMError("Auto routing: every engine failed — " + " | ".join(errors))
 
 
 # --------------------------------------------------------------------- streaming
@@ -333,7 +468,7 @@ async def _stream_openai(base, key, model, system, messages, max_tokens, tempera
     if pid == "openai":
         body["max_completion_tokens"] = body.pop("max_tokens")
         body.pop("temperature", None)
-    headers = {"Content-Type": "application/json"}
+    headers = {"Content-Type": "application/json", **gateway_headers(pid)}
     if key:
         headers["Authorization"] = f"Bearer {key}"
     if pid == "openrouter":
@@ -374,6 +509,12 @@ async def _stream_openai(base, key, model, system, messages, max_tokens, tempera
 
 
 async def _stream_engine(cfg, engine, system, messages, max_tokens, temperature, model=None):
+    if engine == "ollama":
+        opts = ollama_offload_options(cfg)
+        if opts:
+            async for t in _stream_ollama_native(cfg, system, messages, max_tokens, temperature, model, opts):
+                yield t
+            return
     if engine in LOCAL_ENGINES:
         base, model, label, hint = await local_target(cfg, engine, model)
         async for t in _stream_openai(base, "", model, system, messages, max_tokens, temperature, label, engine, hint):
@@ -381,7 +522,7 @@ async def _stream_engine(cfg, engine, system, messages, max_tokens, temperature,
         return
     spec, key, default_model, base = provider_settings(cfg, engine)
     model = model or default_model
-    if not key:
+    if not key and not spec.get("key_optional"):
         raise LLMError(f"No API key for {spec['label']}. Add it in Configuration → Cloud AI providers.")
     if spec["kind"] == "anthropic":
         async for t in _stream_anthropic(base, key, model, system, messages, max_tokens):
@@ -407,6 +548,25 @@ async def stream_agent(agent: str, system: str, messages: list, max_tokens: int 
                 yield visible[emitted:]
                 emitted = len(visible)
 
+    if engine == "auto":
+        p = await _auto_plan(cfg, agent)
+        errors = []
+        for eng in p["candidates"][:4]:
+            try:
+                async for piece in run(eng, None):
+                    yield ("delta", piece)
+                engine, model = eng, None
+                break
+            except LLMError as e:
+                if raw:  # failed mid-answer: do not splice two models' text together
+                    raise
+                errors.append(f"{engine_label(eng)}: {str(e)[:160]}")
+        else:
+            raise LLMError("Auto routing: every engine failed — " + " | ".join(errors))
+        note = _auto_note(p, engine, errors) if errors else ""
+        yield ("meta", {"engine": engine, "engine_label": engine_label(engine), "note": note,
+                        "model": default_model_for(cfg, engine), "text": strip_think(raw).strip()})
+        return
     try:
         async for piece in run(engine, model):
             yield ("delta", piece)

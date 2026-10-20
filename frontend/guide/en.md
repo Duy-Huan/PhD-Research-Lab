@@ -58,7 +58,7 @@ Each project has its own **data folder** (workspace, outputs, chats, 📌 notes,
 2. **Load your PDFs first**. The planner then cites your own library as `[bib_key]` instead of relying on general knowledge.
 3. Use the generated search strings to find more papers, add their PDFs, then **re-run** Lit2Plan. Each loop grounds the plan more firmly in the literature.
 4. Go deeper in 💬 chat. Examples: *"Critique H1 like a tough reviewer"*, *"Which gap is most publishable in 6 months?"*, *"Turn Month 1 into a weekly plan"*.
-5. **Lock 🔒 directions** right in the chat: press 🔒 *Lock* under an answer (or select text in the plan → *🔒 Lock selected text*) and choose the kind: direction / hypothesis / gap / constraint / rejected. Locked decisions appear in the *🔒 Locked decisions* card, **bind every agent** (Tools 2–4, Code IDE, Writer) and show as 📌 nodes in the Context tab.
+5. **Lock 🔒 directions** right in the chat: press 🔒 *Lock* under an answer (or select text in the plan → *🔒 Lock selected text*) and choose the kind: direction / hypothesis / gap / constraint / rejected. Locked decisions appear in the *🔒 Locked decisions* card, **bind every agent** (Tools 2–4, Workspace agent, Writer) and show as 📌 nodes in the Context tab.
 6. After many rounds of discussion press **🔄 Regenerate overview from discussion**: the plan is rewritten from the chat and the locked decisions. Earlier versions stay in **🕘 Versions** (restorable).
 
 ## Tool 2 — Experimental design
@@ -125,7 +125,7 @@ Every chat, the experiment designer (which then proposes the experiments still m
 - **🔍 Section review:** a score, Critical/Major/Minor issues with exact quotes, missing content, a citation and evidence check, and before → after rewrites.
 - **🎯 Brief · directions & results** (v3.1, replaces *Instructions for AI*): every part is optional; sent to the Author (3.2), the Editor (3.4) and the section Reviewer (3.3 — which reports deviations from the brief), and takes precedence over reviewer suggestions.
   - **🧭 Directions & wishes:** what the section must argue or emphasise. Click the ＋ suggestions to add common ones (e.g. *"End with a bullet list of 3 contributions"*, *"Report mean ± std"*).
-  - **📊 Results to present:** *＋ Choose results…* from your uploads (Experiment Design), Code IDE runs and figures, Writer LaTeX tables and results notes. For each: **present as** (auto / table / figure / numbers in the text / comparative analysis / headline result), a **note** (e.g. *"highlight the +1.2 dB over QRNN3D"*) and the order ↑↓. Tick *Present only the selected results* to keep other results out. Figures are inserted with the exact `\includegraphics{figures/…}` line and shipped with the PDF preview and `latex.zip`.
+  - **📊 Results to present:** *＋ Choose results…* from your uploads (Experiment Design), sandbox runs and figures, Writer LaTeX tables and results notes. For each: **present as** (auto / table / figure / numbers in the text / comparative analysis / headline result), a **note** (e.g. *"highlight the +1.2 dB over QRNN3D"*) and the order ↑↓. Tick *Present only the selected results* to keep other results out. Figures are inserted with the exact `\includegraphics{figures/…}` line and shipped with the PDF preview and `latex.zip`.
   - **🧱 Structure:** ordered outline (one paragraph or subsection per line). **✅ Must include / ⛔ Must avoid.** **🎚 Tone & length** (or target words). **📚 References to emphasise.**
   - **👁 Preview what the AI receives**, **⧉ Copy this brief to other sections**, **✍ Write with this brief**. Sections with a brief show 🎯 on the board.
   - **🧭 Paper-wide brief** (in *Paper project*, or the *Paper-wide brief…* button): overall story & key claims, style, terminology & notation, never-do — applied to every section.
@@ -243,21 +243,18 @@ In 💬 chat you can ask the mentor to **role-play an examiner or reviewer**. Ex
 
 **Limits per message:** about 150,000 characters of documents and at most 8 images. The newest message's attachments get priority.
 
-## 💻 Code IDE (v3.0)
+## 💻 Workspace & Runs (v3.2 — replaces the Code IDE)
 
-The **Code IDE** tab is a small VS Code wired to the Docker sandbox and the agents:
+Code is written in **VS Code** — with the **Codex extension** (`openai.chatgpt`, sign in with your ChatGPT account) or with the Codex CLI from 🧭 Control Center → 🤖 Codex. This tab keeps everything around the code:
 
-- **Activity bar** (left): Explorer, Search in files, Source Control (Git/GitHub), Runs, and a shortcut to the Docker tab. ✳ toggles the agent panel on the right. Panels are resizable.
-- **Start:** *🧪 Start from the blueprint* creates `src/`, `README.md`, `requirements.txt` from Tool 2 — or use *→ 💻 Open in Code IDE* in the Experiment Design tab.
-- **Editing:** Monaco editor, tabs, **Ctrl+S** save, **Ctrl+Enter** run the open file. If the agent or a run changes a file you are editing, the app asks which version to keep.
-- **Running:** ▶ runs in the sandbox; output streams to *Terminal*; log lines like `epoch 3 loss=0.12 psnr=28.4` are plotted live under *Live metrics*. The command line below the terminal runs `pip install …`, `nvidia-smi`, `ls`…
-- **Co-coding agent** (right panel):
-  - **💡 Suggest:** the agent proposes file changes; ⇄ shows the diff, ✓ applies, or *Apply all*.
-  - **⚡ Auto:** apply → run in the sandbox → read stderr → fix, up to N *tries*. Each round shows ❌/✅. ■ stops at any time.
-  - It knows your locked decisions, 📌 items, project memory, the Tool 2 blueprint, the file tree and the last run. Put the *Co-coding* agent on Ollama/LM Studio (a 14B coder) or Claude.
-- **Runs:** each run is kept in `data/runs/<id>/` (logs, `metrics.json`, `figures/`). Open a run to see metrics, curves and figures; **Use results in the paper** fills the results notes and adds a LaTeX table of the **measured** numbers to the Writer (or *⇣ Import results from Code IDE* in the Writer).
-- **Source Control / GitHub:** *Initialize repository* → changes, diff → *Commit* → *Push/Pull*. **🚀 Publish to GitHub**: repo name, public or private. Needs a **Personal Access Token** (⚙ GitHub settings): stored in `data/config.json`, sent only to GitHub, never written to `.git/config`.
-- Write `metrics.json` (a dict of numbers, or a list per epoch) in the working folder or `/runs/<id>/` for exact metrics; save `.png/.svg/.pdf` plots to `figures/`.
+- **🚀 Open in VS Code** / **🐳 Dev Container** (after Control Center → Workspace → Environment Manager) / **⤓ Install Codex extension** when it is missing. Files proposed by the agent or listed in Source Control open in VS Code with ↗.
+- **Start:** *🧬 Start from blueprint* creates `src/`, `README.md`, `requirements.txt` from Tool 2 — or *→ 💻 Open in VS Code* in the Experiment Design tab.
+- **Running:** type a command (`python train.py --epochs 2`, `pip install …`) → ▶ Run in the sandbox. The log streams live; lines like `epoch 3 loss=0.12 psnr=28.4` are plotted as curves.
+- **⛔ VRAM rule for GPU training:** a GPU run is **refused while Ollama / LM Studio still hold a model in VRAM**. Press **🧹 Unload local LLMs** (or *Unload & run* in the dialog), or tick **Run on CPU** for commands that do not need the GPU. Nothing is unloaded automatically.
+- **Self-debugging agent:** 💡 Suggest (⇄ shows a text diff, ✓ applies) or ⚡ Auto (apply → run → read stderr → fix, up to N tries). If the agent itself runs on a local model, tick *agent runs on CPU* or move it to a cloud / auto engine before GPU training.
+- **Runs:** every run keeps logs, `metrics.json`, figures, the **git commit** and its environment in `data/runs/<id>/`; figures/CSVs are sealed with provenance. *Use results in the paper*, *Record as experiment* (Research timeline), *Discuss with the agent*.
+- **Source Control / GitHub:** initialise, diff (text), commit, push/pull, **🚀 Publish to GitHub** with a Personal Access Token (stored only in `data/config.json`, sent only to GitHub).
+- Write `metrics.json` (a dict of numbers) to `$RUN_DIR` for exact metrics; save plots to `$RUN_DIR` or `figures/`.
 
 ## 🐳 Docker & System (v3.0)
 
@@ -356,7 +353,7 @@ Under every answer, a **🌐 sources** list shows authors, year, venue and citat
 ## Data, backup & upgrades
 
 - **Your data lives in:** `data/` (settings, API keys, Default project), `references/` (PDFs of the Default project) and `projects/` (other projects).
-- Inside every project's data folder (v3.0): `workspace/` (paper, chats, Lit2Plan versions), `code/` (Code IDE, git repo), `runs/` (logs, metrics, figures), `sandbox/` (settings, venv), `memory/` (memory, context graph), `results/` (results you uploaded). `data/system/` caches the machine scan. **⬇ project_export.zip** (Writer) bundles it all.
+- Inside every project's data folder (v3.0): `workspace/` (paper, chats, Lit2Plan versions), `code/` (code workspace opened in VS Code, git repo), `runs/` (logs, metrics, figures), `sandbox/` (settings, venv), `memory/` (memory, context graph), `results/` (results you uploaded). `data/system/` caches the machine scan. **⬇ project_export.zip** (Writer) bundles it all.
 - **Backup:** zipping the project's data folder is enough.
 - **Upgrading:**
   1. Extract the **whole** new zip into a **new folder**.
@@ -377,7 +374,7 @@ Under every answer, a **🌐 sources** list shows authors, year, venue and citat
 | Windows blocks a DLL (Smart App Control) | The app switches to pypdf automatically; no need to disable security |
 | Ubuntu "externally-managed-environment" | `start.py` creates `.venv` automatically; if missing: `sudo apt install python3-venv` |
 | New tabs missing after an upgrade | An older copy is still running (old black window). Close all old windows and run `run.bat` again; if the browser still shows the old page press **Ctrl+F5**. Since v3.1 the launcher detects this and starts the new version on another port |
-| Code IDE says "Docker not running" | Start Docker Desktop and wait for the whale icon to settle; meanwhile code runs in the local venv |
+| Workspace says "Docker not running" | Start Docker Desktop and wait for the whale icon to settle; meanwhile code runs in the local venv |
 | GPU not available in Docker | Update the NVIDIA Windows driver, enable WSL integration in Docker Desktop, `wsl --update`. The app retries on CPU |
 | CUDA out of memory | ⏏ Unload the Ollama/LM Studio model in the sidebar before training |
 | `pip install` fails in the sandbox | Turn on 🌐 Network in sandbox settings, then ♻ Recreate the container |

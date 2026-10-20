@@ -1,9 +1,9 @@
-# PhD Interactive Autonomous Research Lab — v3.1.0
+# PhD Interactive Autonomous Research Lab — v3.2.0
 
 A local desktop web app for Windows 11 (and Linux/macOS) that runs an end-to-end research workflow on a **hybrid AI architecture**: any of 14 cloud AI providers for deep reasoning and academic writing, plus local models in **Ollama** (recommended) or **LM Studio** for fast, private, zero-cost work.
 
 **v3.0 — a unified, stateful multi-agent research IDE:**
-- 💻 **Code IDE** tab: VS Code-style editor (Monaco), file explorer, terminal (xterm), runs/metrics/figures, Source Control with **Publish to GitHub**, and an AI **co-coding agent** that writes code from your Tool 2 blueprint, runs it in a **Docker sandbox** (GPU passthrough) and fixes errors from stderr by itself.
+- 💻 **Code IDE** tab *(replaced in v3.2 by VS Code + Workspace & Runs)*: runs/metrics/figures, Source Control with **Publish to GitHub**, and an AI **co-coding agent** that writes code from your Tool 2 blueprint, runs it in a **Docker sandbox** (GPU passthrough) and fixes errors from stderr by itself.
 - 🐳 **Docker & System** tab: live, detailed monitor of Docker, the sandbox container, GPU/VRAM, host RAM/CPU/disk, jobs and logs; it scans your PC and offers a one-click **recommended setup**.
 - 🧠 **Context** tab: knowledge graph of everything the agents know (📌 pin = must follow, 🗑 purge = hidden), a Context Decision Agent, and **3-tier project memory** kept small by a background summarizer running on your local model.
 - 🔒 **Lit2Plan decisions:** lock directions/hypotheses/rejections from the chat; 🔄 regenerate the research overview after many discussions; 🕘 versions.
@@ -11,6 +11,15 @@ A local desktop web app for Windows 11 (and Linux/macOS) that runs an end-to-end
 - 🔌 MCP server (`sandbox_run_code`, `sandbox_manage_files`, `sandbox_get_metrics`) and `project_export.zip`.
 
 **v3.1:** 📥 upload results you produced outside the app (figures, PDF, LaTeX, Markdown, CSV/Excel, notebooks…) — they become context for every agent; 🎯 a **brief per paper section** (directions, which results to present and how, structure, must/avoid, tone, length, references) plus a paper-wide brief.
+
+**v3.2 — research control plane** (details: `CHANGELOG.md`, `ARCHITECTURE.md`, `INTEGRATION_STATUS.md`, `DEVELOPMENT.md`):
+- 🧭 **Control Center** tab: dashboard, research timeline (hypothesis → experiment → result → decision), workspace hand-off to **VS Code / Dev Containers / Jupyter**, integration status, Codex runs, hardware policy, provenance inspector, memory inspector, dataset search.
+- 🧠 **Context Memory v2**: stable hypothesis ids (`HYPE-NNN`), experiment records pointing to runs, git commits and **ClearML** tasks; tri-search retrieval + deterministic context compiler; watermark compressor (16k → 2k tokens) with a write-once raw page-store.
+- 💻 **Workspace & Runs** replaces the Monaco Code IDE: write code in **VS Code + the Codex extension**; run, follow logs/curves, keep runs, self-debugging agent and Git/GitHub here.
+- ⚙ **Hardware governor** for one GPU: sandbox caps from your PC (e.g. 16 GB / 6 CPUs on 32 GB / 16 threads), **GPU runs refused while Ollama/LM Studio hold VRAM** (press 🧹 Unload, or run on CPU), thermal guard and CPU fallback, GPU-aware `auto` LLM routing (+ DeepInfra, 9Router, OmniRoute).
+- 📈 **ClearML without a server**: `pip install clearml` (done by `setup.bat`) and every run is recorded as a ClearML offline session in the project — import it into a ClearML Server later if you want the web UI.
+- 🩺 **Live critic** while the Paper Writer streams; 🛡 **provenance** sealed into run figures/tables; 🧬 Hugging Face / Kaggle dataset connectors.
+- 🧪 Automated tests: `python -m unittest discover -s tests -p "test_*.py"`.
 
 ### Supported cloud providers
 | Provider | API style | Get a key |
@@ -46,7 +55,7 @@ Every agent can be switched between Cloud and Local from the sidebar. If a local
 
 | Tool | Enables | Install |
 |---|---|---|
-| **Docker Desktop** + WSL2 | Code IDE sandbox, GPU containers | docker.com → install with the *WSL 2 backend*; in PowerShell (admin) `wsl --install` if WSL2 is missing; reboot; start Docker Desktop |
+| **Docker Desktop** + WSL2 | Sandbox runs, GPU containers, Dev Containers | docker.com → install with the *WSL 2 backend*; in PowerShell (admin) `wsl --install` if WSL2 is missing; reboot; start Docker Desktop |
 | **NVIDIA driver** (Game Ready / Studio, recent) | GPU passthrough (`--gpus all`) | Windows driver only — do **not** install a Linux driver inside WSL. Test: ▶ *Test GPU* in the Docker & System tab |
 | **Ollama** (recommended local AI) | local agents (coder, summarizer, extraction) | ollama.com/download → the sidebar 🦙 section pulls/loads models, e.g. `qwen2.5-coder:14b` |
 | **LM Studio** | local agents | download a model → **Developer** → **Start Server** (port 1234). Enable the `lms` CLI so the app can load models itself |
@@ -149,15 +158,17 @@ Rebuttal letters, major revisions, grant writing, thesis defense, qualifying exa
 Drop files produced outside the app — images, PDF, `.tex`, `.md`, `.csv/.tsv`, `.xlsx`, `.docx`, `.ipynb`, `.json`, logs, code — or **＋ Type a result**. Describe each one (experiment, dataset, setting): agents rely on that description. **✨ Analyze** extracts key numbers and findings (images are read by a vision model), **▦ LaTeX table** adds a booktabs table to the Writer, **📌 Pin** makes a result must-follow context, **🙈 Hide from AI** removes it from every prompt, **✍ Use in paper** adds it to a section brief. Files live in `data/results/`.
 
 ### 🎯 Section briefs (v3.1, Paper Writer)
-Select a section → tab **🎯 Brief**: directions & wishes (with suggestions), **results to present** (uploads, Code IDE runs/figures, Writer tables) with *present as* table / figure / numbers in text / comparison / headline and a note each, required structure, must include / must avoid, tone & length, references to emphasise. **🧭 Paper-wide brief** (story, style, terminology, never-do) applies to all sections. The brief goes to the Author, Editor and section Reviewer; **👁 Preview** shows exactly what the AI receives. Chosen figures are inserted with `\includegraphics{figures/…}` and shipped in the PDF preview and `latex.zip`.
+Select a section → tab **🎯 Brief**: directions & wishes (with suggestions), **results to present** (uploads, sandbox runs/figures, Writer tables) with *present as* table / figure / numbers in text / comparison / headline and a note each, required structure, must include / must avoid, tone & length, references to emphasise. **🧭 Paper-wide brief** (story, style, terminology, never-do) applies to all sections. The brief goes to the Author, Editor and section Reviewer; **👁 Preview** shows exactly what the AI receives. Chosen figures are inserted with `\includegraphics{figures/…}` and shipped in the PDF preview and `latex.zip`.
 
-### 💻 Code IDE (v3.0)
-- **Explorer / Search / Source Control / Runs** in the activity bar; Monaco editor with tabs (Ctrl+S save, Ctrl+Enter run), diff view, images; terminal at the bottom with **live metric charts**.
-- **Start from the blueprint** creates `src/`, `README.md`, `requirements.txt` from Tool 2 (`experiment_skeleton.py` + design).
-- **Co-coding agent** (right panel): 💡 *Suggest* shows file changes as proposals (diff / apply / apply all); ⚡ *Auto* applies → runs in the sandbox → reads stderr → fixes, up to N attempts. It sees your locked decisions, pinned context, memory, the blueprint, the workspace and the last run.
+### 💻 Workspace & Runs (v3.2 — replaces the v3.0 Code IDE)
+- **Code is written in VS Code** with the **Codex extension** (`openai.chatgpt`; ⤓ one-click install from the tab) or the Codex CLI (🧭 Control Center → 🤖 Codex). *🚀 Open in VS Code*, *🐳 Dev Container*, and ↗ on any proposed / changed file open it in VS Code.
+- **Start from blueprint** creates `src/`, `README.md`, `requirements.txt` from Tool 2 (`experiment_skeleton.py` + design).
+- **Run** a command in the sandbox with a live log and **live metric curves** (log lines like `epoch 3 loss=0.12 psnr=28.4`).
+- **⛔ VRAM rule:** a GPU run is refused while Ollama / LM Studio hold a model in VRAM — press **🧹 Unload local LLMs** (or *Unload & run*), or tick *Run on CPU*. Nothing is unloaded automatically.
+- **Self-debugging agent:** 💡 *Suggest* (text diff, apply) or ⚡ *Auto* (apply → run → read stderr → fix, up to N attempts). It sees locked decisions, pinned context, compiled memory, the blueprint, the workspace and the last run.
 - Code runs with `docker exec` in one persistent container per project (`phdlab-…`): workspace at `/workspace`, run outputs at `/runs`. Without Docker it falls back to a private Python venv.
-- Every run is kept in `data/runs/<id>/` (`stdout.log`, `stderr.log`, `metrics.json`, `figures/`). Metrics come from `metrics.json` **and** log lines such as `epoch 3 loss=0.12 psnr=28.4`. *Use results in the paper* fills the Writer's results notes and adds a booktabs table with the **measured** numbers.
-- **Source Control:** init, changes, diff, commit, push/pull, **🚀 Publish to GitHub** (public/private). The Personal Access Token stays in `data/config.json`, is sent only to GitHub and is passed to `git push` for that one command — never written to `.git/config`.
+- Every run is kept in `data/runs/<id>/` (`stdout.log`, `stderr.log`, `metrics.json`, `figures/`, `provenance.json`, git commit). *Use results in the paper* fills the Writer's results notes and adds a booktabs table with the **measured** numbers; *Record as experiment* links it to a hypothesis.
+- **Source Control:** init, changes, text diff, commit, push/pull, **🚀 Publish to GitHub** (public/private). The Personal Access Token stays in `data/config.json`, is sent only to GitHub and is passed to `git push` for that one command — never written to `.git/config`.
 
 ### 🐳 Docker & System (v3.0)
 Status cards (Docker, sandbox, GPU, host, container usage) and sparklines refresh every 2 s: GPU util/VRAM/temperature/power, container CPU/RAM/PIDs/IO, host RAM/CPU/disk. Container actions (start, stop, restart, recreate), image pull with progress, **Test GPU**, sandbox settings (engine, image, RAM/CPU/shm limits, GPU, network, time limit, self-debug attempts), jobs table with log viewer, images/containers, local AI servers, machine scan (OS, CPU, RAM, GPU/driver/CUDA, Docker, WSL2, Git, LaTeX, `lms`) and recommendations.
@@ -249,7 +260,7 @@ phd-research-lab/
     ├── config.json        API keys, GitHub token, engines (shared by all projects)
     ├── system/            machine scan cache
     ├── workspace/         project.json, main.tex, chats, lit2plan_versions/, paper_reviews/, …
-    ├── code/              Code IDE workspace (a git repo; mounted at /workspace)
+    ├── code/              code workspace, opened in VS Code (a git repo; mounted at /workspace)
     ├── runs/<id>/         run.json, stdout/stderr logs, metrics.json, figures/ (mounted at /runs)
     ├── sandbox/           settings.json, venv/ (local mode)
     ├── memory/            project_state.json, context_graph.json, context_chat.json
@@ -268,7 +279,7 @@ phd-research-lab/
 | Port 8765 busy | Edit the port in `run.bat`. |
 | Local reviewer/author loses context on long papers | Keep 3.2–3.4 on Cloud, or load a long-context model in LM Studio. |
 | After an upgrade the new tabs are missing | An older copy is still running (its black window). Close every old window, run `run.bat` again; if the browser still shows the old page press **Ctrl+F5**. Since v3.1 the launcher detects this and starts the new version on another port. |
-| Code IDE says "Docker not running" | Start Docker Desktop (whale icon steady), then ↻ in the Docker & System tab. Until then runs use the local venv. |
+| Workspace says "Docker not running" | Start Docker Desktop (whale icon steady), then ↻ in the Docker & System tab. Until then runs use the local venv. |
 | `--gpus all` fails / Test GPU shows no GPU | Update the NVIDIA Windows driver, Docker Desktop → Settings → Resources → WSL integration on, `wsl --update`. The app retries on CPU automatically. |
 | CUDA out of memory while a local model is loaded | ⏏ Unload the LM Studio / Ollama model in the sidebar before long training runs (12 GB cards cannot hold both). |
 | First run is slow | The sandbox image is being downloaded (PyTorch+CUDA ≈ 8 GB). Progress shows in the Docker & System tab. |

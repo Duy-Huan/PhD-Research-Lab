@@ -89,7 +89,7 @@
     document.querySelectorAll('#res-kinds [data-k]').forEach(b => b.onclick = () => { R.kind = b.dataset.k; renderGrid(); });
     const list = R.items.filter(i => (R.kind === 'all' || i.kind === R.kind) &&
       (!R.q || [i.title, i.notes, i.findings, (i.tags || []).join(' '), i.file].join(' ').toLowerCase().includes(R.q)));
-    document.getElementById('res-count').textContent = `— ${R.items.length} ${T('uploaded')}` + (R.runs ? ` · ${R.runs} ${T('runs from the Code IDE are also available to the Writer')}` : '');
+    document.getElementById('res-count').textContent = `— ${R.items.length} ${T('uploaded')}` + (R.runs ? ` · ${R.runs} ${T('runs from Workspace & Runs are also available to the Writer')}` : '');
     if (!R.items.length) { grid.innerHTML = `<div class="resempty">${T('No results yet. Drop files above or type a result.')}</div>`; return; }
     grid.innerHTML = list.map(it => `
       <div class="resitem ${it.pinned ? 'pinned' : ''} ${it.purged ? 'purged' : ''}" data-id="${it.id}">
@@ -258,7 +258,7 @@
       <div class="row" style="justify-content:flex-end;align-items:center"><span class="status" id="pk-n" style="flex:1"></span><button class="btn" data-close>${T('Cancel')}</button><button class="btn primary" id="pk-ok">${T('Add selected')}</button></div>`);
     const load = async () => { pool = (await api('/api/results/pool')).pool; draw(); };
     const draw = () => {
-      const srcs = [['all', T('All')], ['upload', '📥 ' + T('Uploaded')], ['run', '💻 ' + T('Code IDE runs')], ['writer', '✍ ' + T('Writer tables & notes')]];
+      const srcs = [['all', T('All')], ['upload', '📥 ' + T('Uploaded')], ['run', '💻 ' + T('sandbox runs')], ['writer', '✍ ' + T('Writer tables & notes')]];
       m.querySelector('#pk-src').innerHTML = srcs.map(([v, t]) => `<button class="chip ${src === v ? 'on' : ''}" data-s="${v}">${t} · ${v === 'all' ? pool.length : pool.filter(p => p.source === v).length}</button>`).join('');
       m.querySelectorAll('#pk-src [data-s]').forEach(b => b.onclick = () => { src = b.dataset.s; draw(); });
       const list = pool.filter(p => (src === 'all' || p.source === src) && (!q || (p.title + ' ' + p.sub + ' ' + (p.tags || []).join(' ')).toLowerCase().includes(q)));
@@ -268,7 +268,7 @@
           <div class="pthumb">${p.thumb ? `<img loading="lazy" src="${esc(p.thumb)}" alt="">` : (ICON[p.kind] || '📄')}</div>
           <div><div class="pt">${esc(p.title)}</div><div class="ps">${esc(p.sub || '')}</div></div>
           <span class="kbadge ${p.kind}">${T(KIND_LABEL[p.kind] || p.kind)}${already.has(p.ref) ? ' · ' + T('already in brief') : ''}</span>
-        </div>`).join('') || `<div class="resempty">${T('No results yet — upload files in Experiment Design, run code in the Code IDE, or add LaTeX tables.')}</div>`;
+        </div>`).join('') || `<div class="resempty">${T('No results yet — upload files in Experiment Design, run code in Workspace & Runs, or add LaTeX tables.')}</div>`;
       m.querySelectorAll('.pickrow').forEach(row => row.onclick = () => {
         const ref = row.dataset.ref;
         if (already.has(ref)) return;

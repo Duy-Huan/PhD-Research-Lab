@@ -214,7 +214,7 @@ def seed(design_md: str = "", skeleton: str = "") -> list:
         put("experiment_skeleton.py", skeleton)
     if design_md:
         put("docs/experiment_design.md", design_md)
-    put("README.md", "# Research code\n\nCreated by PhD Research Lab. Run experiments from the 💻 Code IDE (Docker sandbox).\n\n"
+    put("README.md", "# Research code\n\nCreated by PhD Research Lab. Edit in VS Code; run experiments from 💻 Workspace & Runs (Docker sandbox).\n\n"
                      "Conventions picked up automatically after each run:\n"
                      "- write final metrics to `$RUN_DIR/metrics.json` (a flat JSON object of numbers)\n"
                      "- log progress lines like `epoch 3 loss=0.12 psnr=28.4` (plotted live)\n"

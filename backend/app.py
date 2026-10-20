@@ -96,6 +96,34 @@ class _NoStaleUI:
 app.add_middleware(_NoStaleUI)
 
 
+class _LocalHostOnly:
+    """v3.2 security: the API runs shell commands (sandbox, MCP) and holds API keys, so it answers only requests whose Host
+    header is this computer. Blocks DNS-rebinding attacks from web pages (evil.example → 127.0.0.1). Pure ASGI (keeps SSE
+    streaming). Extra host names: PHDLAB_ALLOWED_HOSTS="lab.local,myhost"."""
+    ALLOWED = {"localhost", "127.0.0.1", "::1", "testserver"} | {h.strip().lower() for h in os.environ.get(
+        "PHDLAB_ALLOWED_HOSTS", "").split(",") if h.strip()}
+
+    def __init__(self, inner):
+        self.inner = inner
+
+    @staticmethod
+    def host_of(scope) -> str:
+        raw = next((v.decode("latin-1") for k, v in scope.get("headers", []) if k == b"host"), "").strip().lower()
+        if raw.startswith("["):  # [::1]:8765
+            return raw[1:raw.find("]")] if "]" in raw else raw
+        return raw.rsplit(":", 1)[0] if raw.count(":") == 1 else raw
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http" and self.host_of(scope) not in self.ALLOWED:
+            await send({"type": "http.response.start", "status": 421, "headers": [(b"content-type", b"text/plain")]})
+            await send({"type": "http.response.body", "body": b"Misdirected request: PhD Research Lab only answers on localhost."})
+            return
+        return await self.inner(scope, receive, send)
+
+
+app.add_middleware(_LocalHostOnly)
+
+
 @app.get("/api/version")
 def api_version():
     return {"version": APP_VERSION, "root": str(ROOT)}
@@ -113,6 +141,8 @@ from .api_v3 import router as _v3_router  # noqa: E402
 app.include_router(_v3_router)
 from .api_v31 import router as _v31_router  # noqa: E402
 app.include_router(_v31_router)
+from .api_v32 import router as _v32_router  # noqa: E402
+app.include_router(_v32_router)
 
 
 # ================================================================ configuration
@@ -353,7 +383,7 @@ async def lit2plan(body: dict = Body(...)):
         res = await WS.search(web, q["papers"], q["web"], n=12, year_from=q.get("year_from"))
         online = WS.sources_block(res["sources"])
     system = prompts.LIT2PLAN_SYS + prompts.output_language(body.get("lang")) + (prompts.LIT2PLAN_ONLINE if online else "")
-    must = _v3_context("lit2plan", "")
+    must = await run_in_threadpool(_v3_context, "lit2plan", "", idea)
     if must:
         system += must + "\n(Build the plan around the locked decisions above.)"
     plan = await call_agent("lit2plan", system, prompts.lit2plan_user(idea, body.get("domain", ""), exp["text"], digest, online),
@@ -362,9 +392,18 @@ async def lit2plan(body: dict = Body(...)):
     snapshot_plan("before new generation")
     write_ws("lit2plan.md", plan["text"])
     snapshot_plan("generated")
+    hyps = []
+    try:  # v3.2: plan hypotheses → Tier 3 + stable HYPE-NNN ids in Research Memory (shown on the context graph)
+        from .memory import refresh_tier3
+        from .memory.research import sync_from_plan
+        st = await run_in_threadpool(refresh_tier3)
+        hyps = [{"id": h["id"], "text": h["text"], "status": h["status"]}
+                for h in await run_in_threadpool(sync_from_plan, st["tier3"].get("hypotheses") or [])]
+    except Exception as e:
+        print(f"[lit2plan] hypothesis sync failed: {e}")
     sources = WS.compact(res["sources"])
     write_ws("lit2plan_sources.json", json.dumps({"sources": sources, "queries": res["queries"]}, ensure_ascii=False))
-    return {"expansion": exp["text"], "plan": plan["text"], "sources": sources, "search_errors": res["errors"],
+    return {"expansion": exp["text"], "plan": plan["text"], "sources": sources, "search_errors": res["errors"], "hypotheses": hyps,
             "queries": res["queries"], "engines": {"query_expansion": exp["engine"], "lit2plan": plan["engine"]},
             "notes": [n for n in (exp["note"], plan["note"]) if n]}
 
@@ -419,7 +458,7 @@ async def fetch_reference(body: dict = Body(...)):
 async def experiment(body: dict = Body(...)):
     if not body.get("novelty", "").strip():
         raise HTTPException(400, "Novelty proposal is required")
-    ctx = _v3_context("experiment", "")
+    ctx = await run_in_threadpool(_v3_context, "experiment", "", body["novelty"][:2000])
     if ctx and "RESEARCH RESULTS PROVIDED" in ctx:
         ctx += ("\n(The researcher already has the results above: design the methodology around them — reuse their datasets, "
                 "metrics and baselines, and propose the experiments that are still missing, e.g. ablations, significance tests.)")
@@ -538,6 +577,11 @@ def _prepare_chat(body: dict) -> dict:
     if tool == "data":
         agent, temp = "data_extractor", 0.1
         system = prompts.DATA_EXTRACTOR_SYS + "\n\nLOCAL LIBRARY:\n" + reference_digest(included()[:30], 200)
+        try:  # v3.2: /hf, /kaggle, /dataset <query> → real results from the data connectors
+            from .connectors.registry import chat_block
+            system += chat_block(history[-1]["content"])
+        except Exception as e:
+            system += f"\n\n# DATASET SEARCH failed: {e}"
         msgs = _llm_messages(history, 12)
     else:
         agent, temp = f"chat_{tool}", 0.4
@@ -547,26 +591,24 @@ def _prepare_chat(body: dict) -> dict:
         shared = build_shared_context(tool, _recent_sessions(tool)) if body.get("share", True) else ""
         system = prompts.tool_chat_system(tool, own, shared, reference_digest(included()[:30], 250))
         msgs = _llm_messages(history, max(8, 2 * int(load_config()["memory"]["keep_recent_turns"])))
-    system += _v3_context(tool, sid)
+    system += _v3_context(tool, sid, history[-1]["content"][:2000])
     system += prompts.ATTACHMENT_RULES
     web = body.get("web") if body.get("web") in WS.MODES else "off"
     return {"tool": tool, "agent": agent, "temp": temp, "system": system, "msgs": msgs,
             "sid": sid, "history": history, "shared": bool(shared), "web": web, "sources": []}
 
 
-def _v3_context(tool: str, sid: str) -> str:
-    """Pinned graph nodes + locked decisions (always, must-follow) and hierarchical memory (Tier 3 + Tier 2)."""
+def _v3_context(tool: str, sid: str, query: str = "") -> str:
+    """Pinned graph nodes + locked decisions (always, must-follow) and the project memory relevant to `query`."""
     out = ""
     try:
         from .context_graph import pinned_block, purged_ids
-        from .memory import memory_block
         pinned = pinned_block()
         if pinned:
             out += ("\n\n# MUST-FOLLOW CONTEXT (pinned / locked by the researcher — comply strictly; never contradict it; "
                     "point out explicitly if the researcher's new request conflicts with it)\n" + pinned)
-        mem = memory_block(tool, sid, budget=7000, purged=purged_ids())
-        if mem:
-            out += "\n\n# PROJECT MEMORY (hierarchical: long-term facts + summaries of earlier work)\n" + mem
+        from .memory.compiler import agent_block
+        out += agent_block(tool, sid, query, purged_ids())
         from .results import digest as results_digest
         res = results_digest(4000, purged_ids())
         if res:
@@ -606,7 +648,7 @@ def _finish(ctx: dict, text: str, engine: str, note: str) -> tuple[dict, dict]:
 
 
 async def _chat_once(body: dict) -> dict:
-    ctx = _prepare_chat(body)
+    ctx = await run_in_threadpool(_prepare_chat, body)  # v3.2: context compilation may call a local embedding model
     if ctx["web"] != "off":
         await _web_search(ctx)
     r = await call_agent(ctx["agent"], ctx["system"], messages=ctx["msgs"], max_tokens=6000, temperature=ctx["temp"])
@@ -633,7 +675,7 @@ async def tool_chat(body: dict = Body(...)):
 async def chat_stream(body: dict = Body(...)):
     """Streaming chat for every tool (Server-Sent Events): delta events, then a final done/error event.
     The turn is saved when the answer completes; if the user presses Stop the browser saves the partial answer."""
-    ctx = _prepare_chat(body)
+    ctx = await run_in_threadpool(_prepare_chat, body)
 
     def sse(obj: dict) -> str:
         return f"data: {json.dumps(obj, ensure_ascii=False)}\n\n"
@@ -900,21 +942,35 @@ def _sse(obj: dict) -> str:
 
 
 def sse_job(agent: str, system: str, user: str, finalize, max_tokens: int = 8000, temperature: float = 0.3,
-            start: dict | None = None) -> StreamingResponse:
-    """Stream one agent run as Server-Sent Events: start → delta… → done (finalize(meta) result) | error.
+            start: dict | None = None, critic: bool = False) -> StreamingResponse:
+    """Stream one agent run as Server-Sent Events: start → delta… (critic…) → done (finalize(meta) result) | error.
+    critic=True (v3.2): the live critic checks the LaTeX that has arrived and emits {"type": "critic", "issues": [...]}.
     If the browser aborts (■ Stop), Starlette cancels this generator and the upstream AI request, and nothing is saved."""
     async def gen():
+        crit = None
         try:
             yield _sse({"type": "start", **(start or {})})
-            meta = {}
+            if critic:
+                from .critic import StreamCritic
+                crit = await run_in_threadpool(StreamCritic)
+            meta, acc = {}, ""
             async for kind, val in stream_agent(agent, system, [{"role": "user", "content": user}],
                                                 max_tokens=max_tokens, temperature=temperature):
                 if kind == "delta":
                     yield _sse({"type": "delta", "text": val})
+                    if crit:
+                        acc += val
+                        new = crit.feed(acc) + crit.llm_ready()
+                        if new:
+                            yield _sse({"type": "critic", "issues": new})
                 else:
                     meta = val
             if not meta.get("text", "").strip():
                 raise LLMError("The model returned an empty answer.")
+            if crit:
+                new = await crit.final(meta["text"])
+                if new:
+                    yield _sse({"type": "critic", "issues": new, "final": True})
             out = await run_in_threadpool(finalize, meta)
             yield _sse({"type": "done", "engine": meta["engine"], "note": meta["note"], **out})
         except LLMError as e:
@@ -923,6 +979,9 @@ def sse_job(agent: str, system: str, user: str, finalize, max_tokens: int = 8000
             yield _sse({"type": "error", "detail": str(e.detail)})
         except Exception as e:  # never leave the browser hanging
             yield _sse({"type": "error", "detail": f"{type(e).__name__}: {e}"})
+        finally:
+            if crit:
+                crit.close()
 
     return StreamingResponse(gen(), media_type="text/event-stream",
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
@@ -958,7 +1017,7 @@ def paper_stream(body: dict = Body(...)):
             save_project(q)
             return {"section": sid, "latex": tex, "unknown_citations": unknown}
         return sse_job("author", prompts.AUTHOR_SYS, user, fin, max_tokens=12000 if deep else 8000, temperature=0.4,
-                       start={"action": action, "section": sid})
+                       start={"action": action, "section": sid}, critic=True)
 
     if action == "review_section":
         cur = (p.get("sections") or {}).get(sid)
@@ -1002,7 +1061,7 @@ def paper_stream(body: dict = Body(...)):
             save_project(q)
             return {"section": sid, "latex": tex, "unknown_citations": unknown, "review_source": source}
         return sse_job("editor", prompts.EDITOR_SYS, user, fin, max_tokens=12000 if deep else 8000, temperature=0.2,
-                       start={"action": action, "section": sid, "review_source": source})
+                       start={"action": action, "section": sid, "review_source": source}, critic=True)
 
     if action == "review":
         main, _, report = assemble()

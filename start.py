@@ -23,7 +23,7 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 HOST = "127.0.0.1"
-APP_VERSION = "3.1.0"   # must match backend/config.py - a mismatch means files from two versions were mixed
+APP_VERSION = "3.2.0"   # must match backend/config.py - a mismatch means files from two versions were mixed
 # Files that must exist for this version (an incomplete copy or a partial upgrade is the most common failure)
 REQUIRED_FILES = [
     "backend/__init__.py", "backend/app.py", "backend/config.py", "backend/llm.py", "backend/library.py",
@@ -33,13 +33,20 @@ REQUIRED_FILES = [
     "frontend/vendor/hljs/highlight.min.js", "frontend/guide/en.md", "frontend/guide/vi.md", "frontend/i18n.js", "requirements.txt",
     # v3.0: Code IDE, Docker sandbox, memory, context graph, GitHub, MCP
     "backend/api_v3.py", "backend/local_ai.py", "backend/sysinfo.py", "backend/sandbox.py", "backend/ide_fs.py",
-    "backend/gitops.py", "backend/memory.py", "backend/context_graph.py", "backend/coder.py", "backend/mcp_server.py",
-    "mcp_stdio_bridge.py", "frontend/app/ide.js", "frontend/app/docker.js", "frontend/app/context.js", "frontend/app/v3.css",
-    "frontend/vendor/monaco/vs/loader.js", "frontend/vendor/monaco/vs/editor/editor.main.js",
-    "frontend/vendor/xterm/xterm.js", "frontend/vendor/xterm/addon-fit.js", "frontend/vendor/xterm/xterm.css",
+    "backend/gitops.py", "backend/memory/__init__.py", "backend/context_graph.py", "backend/coder.py", "backend/mcp_server.py",
+    "mcp_stdio_bridge.py", "frontend/app/workspace.js", "frontend/app/docker.js", "frontend/app/context.js", "frontend/app/v3.css",
     "frontend/vendor/vis/vis-network.min.js",
     # v3.1: external results + writing briefs
     "backend/results.py", "backend/brief.py", "backend/api_v31.py", "frontend/app/results.js", "frontend/app/brief.js",
+    # v3.2: Context Memory v2, integration layer, resource governor, provenance, live critic, LLM router, connectors
+    "backend/api_v32.py", "backend/memory/store.py", "backend/memory/pages.py", "backend/memory/working.py",
+    "backend/memory/research.py", "backend/memory/knowledge.py", "backend/memory/lod.py", "backend/memory/embeddings.py",
+    "backend/memory/retrieval.py", "backend/memory/compiler.py", "backend/memory/compressor.py",
+    "backend/integrations/__init__.py", "backend/integrations/base.py", "backend/integrations/workspace.py",
+    "backend/integrations/experiment.py", "backend/integrations/clearml_worker.py", "backend/integrations/agents.py",
+    "backend/resources.py", "backend/provenance.py",
+    "backend/critic.py", "backend/llm_router.py", "backend/connectors/__init__.py", "backend/connectors/base.py",
+    "backend/connectors/registry.py", "frontend/app/control.js",
 ]
 UPGRADE_HELP = """How to fix (takes 1 minute):
   1. Extract the WHOLE new zip into a NEW, empty folder (do not copy single files over an old version).
@@ -195,7 +202,8 @@ def report_tools() -> None:
     import shutil
     def has(*names):
         return next((n for n in names if shutil.which(n)), None)
-    items = [("Docker", has("docker")), ("Git", has("git")), ("NVIDIA GPU", has("nvidia-smi")),
+    items = [("Docker", has("docker")), ("Git", has("git")), ("NVIDIA GPU", has("nvidia-smi")), ("VS Code", has("code")),
+             ("ClearML SDK", importlib.util.find_spec("clearml") is not None),
              ("LaTeX", has("latexmk", "pdflatex", "tectonic", "xelatex")), ("Ollama", has("ollama")), ("LM Studio CLI", has("lms"))]
     print("Tools   : " + ", ".join(f"{k} {'yes' if v else 'no'}" for k, v in items) + "  (details: Docker & System tab)")
 

@@ -8,5 +8,8 @@ python-multipart>=0.0.9
 GitPython>=3.1.40
 # Optional, faster/better PDF parsing (native DLL; may be blocked by Windows Smart App Control):
 # pymupdf>=1.24
+# v3.2 ClearML experiment tracking (offline mode needs no server) is installed by setup.bat as a SEPARATE step,
+# because it pulls native packages (numpy, psutil, Pillow). The app only uses it in a subprocess:
+#   pip install "clearml>=2.0"      (or Control Center -> Integrations -> Install ClearML SDK)
 # Not needed: Docker, GPU and system monitoring use the docker / nvidia-smi command-line tools,
 # so no native Python packages (docker-py, psutil, pynvml) are installed.

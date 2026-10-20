@@ -5,9 +5,9 @@
   const C = {inited: false, net: null, g: null, sel: null, filter: new Set(), showPurged: true, q: '', mem: null, chat: []};
   const root = () => $('#tab-context');
   const COLORS = {project: '#d9a441', hub: '#6b7686', objective: '#5cb87a', hypothesis: '#9b7fe0', decision: '#e06c6c', constraint: '#e0a85a',
-    literature: '#5fa8d3', assumption: '#c2703d', code: '#56b6c2', metric: '#98c379', run: '#7d8590', episode: '#a3a8b4', note: '#d19a66', idea: '#c678dd', result: '#e5c07b'};
+    literature: '#5fa8d3', assumption: '#c2703d', code: '#56b6c2', metric: '#98c379', run: '#7d8590', episode: '#a3a8b4', note: '#d19a66', idea: '#c678dd', result: '#e5c07b', experiment: '#61afef', failure: '#e06c6c'};
   const TYPE_LABEL = {objective: 'Objective', hypothesis: 'Hypothesis', decision: 'Decision', constraint: 'Constraint', literature: 'Literature',
-    assumption: 'Code assumption', code: 'Code', metric: 'Metric', episode: 'Episode', note: 'Pinned note', idea: 'Idea', result: 'Result'};
+    assumption: 'Code assumption', code: 'Code', metric: 'Metric', episode: 'Episode', note: 'Pinned note', idea: 'Idea', result: 'Result', experiment: 'Experiment', failure: 'Failure', run: 'Run'};
 
   function build() {
     root().innerHTML = `<div class="v3sec">
