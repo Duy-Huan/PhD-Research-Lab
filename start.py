@@ -43,7 +43,8 @@ REQUIRED_FILES = [
     "backend/memory/research.py", "backend/memory/knowledge.py", "backend/memory/lod.py", "backend/memory/embeddings.py",
     "backend/memory/retrieval.py", "backend/memory/compiler.py", "backend/memory/compressor.py",
     "backend/integrations/__init__.py", "backend/integrations/base.py", "backend/integrations/workspace.py",
-    "backend/integrations/experiment.py", "backend/integrations/agents.py", "backend/resources.py", "backend/provenance.py",
+    "backend/integrations/experiment.py", "backend/integrations/clearml_worker.py", "backend/integrations/agents.py",
+    "backend/resources.py", "backend/provenance.py",
     "backend/critic.py", "backend/llm_router.py", "backend/connectors/__init__.py", "backend/connectors/base.py",
     "backend/connectors/registry.py", "frontend/app/control.js",
 ]
@@ -201,7 +202,8 @@ def report_tools() -> None:
     import shutil
     def has(*names):
         return next((n for n in names if shutil.which(n)), None)
-    items = [("Docker", has("docker")), ("Git", has("git")), ("NVIDIA GPU", has("nvidia-smi")),
+    items = [("Docker", has("docker")), ("Git", has("git")), ("NVIDIA GPU", has("nvidia-smi")), ("VS Code", has("code")),
+             ("ClearML SDK", importlib.util.find_spec("clearml") is not None),
              ("LaTeX", has("latexmk", "pdflatex", "tectonic", "xelatex")), ("Ollama", has("ollama")), ("LM Studio CLI", has("lms"))]
     print("Tools   : " + ", ".join(f"{k} {'yes' if v else 'no'}" for k, v in items) + "  (details: Docker & System tab)")
 

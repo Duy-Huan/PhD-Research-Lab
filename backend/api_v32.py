@@ -243,10 +243,34 @@ async def clearml_sync(body: dict = Body(...)):
     return await _call(ClearMLAdapter().sync_run, rid, code=409)
 
 
+@router.get("/api/experiments/clearml/offline")
+async def clearml_offline_sessions():
+    """ClearML offline sessions of this project (recorded by the app or by training scripts)."""
+    from .integrations.experiment import ClearMLAdapter
+    return {"sessions": await _call(ClearMLAdapter().offline_sessions)}
+
+
+@router.post("/api/experiments/clearml/import")
+async def clearml_import(body: dict = Body(...)):
+    """Upload a run's offline session to the configured ClearML Server."""
+    from .integrations.experiment import ClearMLAdapter
+    rid = str(body.get("run_id", ""))
+    if rid and not RUN_ID.match(rid):
+        raise HTTPException(400, "Invalid run id")
+    return await _call(ClearMLAdapter().import_offline, rid, str(body.get("zip", "")), code=409)
+
+
+@router.post("/api/integrations/clearml/install")
+async def clearml_install():
+    """pip install the ClearML SDK into the Python that runs the app (researcher clicks the button)."""
+    from .integrations.experiment import install_sdk
+    return await _call(install_sdk, code=502)
+
+
 @router.get("/api/experiments/clearml/{task_id}")
 async def clearml_task(task_id: str):
-    from .integrations.experiment import ClearMLAdapter
-    if not re.fullmatch(r"[0-9a-f]{32}", task_id):
+    from .integrations.experiment import OFFLINE_ID, SERVER_ID, ClearMLAdapter
+    if not (SERVER_ID.match(task_id) or OFFLINE_ID.match(task_id)):
         raise HTTPException(400, "Invalid ClearML task id")
     return await _call(ClearMLAdapter().get_experiment, task_id, code=409)
 

@@ -176,26 +176,38 @@
   async function renderIntegrations(body, force) {
     const [list, cfg, runs] = await Promise.all([integrations(force), api('/api/config'), api('/api/sandbox/runs')]);
     const cm = cfg.clearml, cx = cfg.codex;
-    const clearOk = list.some(s => s.name === 'clearml' && s.ok);
+    const cst = list.find(s => s.name === 'clearml') || {}, cex = cst.extra || {};
+    const clearOk = !!cst.ok, offline = (cm.mode || 'offline') === 'offline', canImport = clearOk && (cex.server_ready || cex.mode === 'server');
+    const cmLink = c => c.url ? `<a href="${esc(c.url)}" target="_blank" rel="noopener">${T('Open in ClearML')} ↗</a>`
+      : `${chip('offline', 'link')} <code title="${esc(c.session_zip || '')}">${esc((c.task_id || '').slice(0, 20))}…</code>`;
     body.innerHTML = `<div class="card"><h4>🔌 ${T('Integration status')} <span class="status" style="margin:0">${T('probed just now — available means the tool answered')}</span></h4>
       <table class="dtable"><tr><th></th><th>${T('Integration')}</th><th>${T('State')}</th><th>${T('Detail')}</th><th>${T('Setup')}</th></tr>
       ${list.map(s => `<tr><td>${led(s.state)}</td><td><b>${esc(s.label)}</b>${s.version ? `<div class="status" style="margin:0">${esc(s.version)}</div>` : ''}</td><td>${esc(T(s.state))}</td><td>${esc(s.detail)}</td>
         <td>${s.ok ? '' : (s.setup || []).map(x => `<div class="status" style="margin:0">• ${esc(x)}</div>`).join('')}</td></tr>`).join('')}</table></div>
       <div class="cxgrid" style="grid-template-columns:1fr 1fr">
-      <div class="card dsec"><h4>📈 ClearML</h4>
-        <div class="dform"><div><label class="chk"><input type="checkbox" id="cm-en" ${cm.enabled ? 'checked' : ''}> ${T('Enabled')}</label></div>
+      <div class="card dsec"><h4>📈 ClearML ${led(cst.state)} <span class="status" style="margin:0">${esc(T(cst.state || ''))}${cst.version ? ' · SDK ' + esc(cst.version) : ''}</span></h4>
+        ${cex.can_install ? `<div class="row" style="margin-bottom:8px"><button class="btn primary small" id="cm-install" style="flex:0">⤓ ${T('Install ClearML SDK')}</button><span class="status" style="margin:0">pip install clearml</span></div>` : ''}
+        <div class="dform"><div><label class="chk"><input type="checkbox" id="cm-en" ${cm.enabled ? 'checked' : ''}> ${T('Enabled')}</label>
+            <label class="chk"><input type="checkbox" id="cm-auto" ${cm.auto_record ? 'checked' : ''}> ${T('Record every finished run')}</label></div>
+          <div><label>${T('Mode')}</label><select id="cm-mode"><option value="offline" ${offline ? 'selected' : ''}>${T('Offline — Python SDK only, no server')}</option><option value="server" ${offline ? '' : 'selected'}>${T('Server — ClearML Server')}</option></select></div>
+          <div><label>${T('Project')}</label><input type="text" id="cm-proj" value="${esc(cm.project)}"></div></div>
+        <p class="status">${offline ? T('Offline: each run is recorded with the ClearML SDK as an offline session (parameters, curves, final metrics, log, artifacts, git commit) inside this project. Fill a server below only to import sessions later.')
+          : T('Server: runs are recorded directly on the ClearML Server; the Web UI shows them.')}</p>
+        <details ${offline ? '' : 'open'}><summary class="status" style="cursor:pointer">${T('ClearML Server (optional in offline mode)')}</summary>
+        <div class="dform">
           <div><label>API host</label><input type="text" id="cm-api" value="${esc(cm.api_host)}" placeholder="http://localhost:8008"></div>
           <div><label>Web host</label><input type="text" id="cm-web" value="${esc(cm.web_host)}" placeholder="http://localhost:8080"></div>
           <div><label>Files host</label><input type="text" id="cm-files" value="${esc(cm.files_host)}" placeholder="http://localhost:8081"></div>
           <div><label>Access key</label><input type="password" id="cm-ak" value="${esc(cm.access_key)}"></div>
           <div><label>Secret key</label><input type="password" id="cm-sk" value="${esc(cm.secret_key)}"></div>
-          <div><label>${T('Project')}</label><input type="text" id="cm-proj" value="${esc(cm.project)}"></div>
-          <div><label>${T('Queue (remote agents)')}</label><input type="text" id="cm-q" value="${esc(cm.queue)}"></div></div>
+          <div><label>${T('Queue (remote agents)')}</label><input type="text" id="cm-q" value="${esc(cm.queue)}"></div></div></details>
         <div class="row" style="margin-top:8px"><button class="btn primary small" id="cm-save" style="flex:0">💾 ${T('Save & test')}</button></div>
-        <h4 style="margin-top:14px">${T('Sync finished runs')}</h4>
-        <table class="dtable">${runs.runs.filter(r => r.status !== 'running').slice(0, 10).map(r => `<tr><td class="mono">${esc(r.id)}</td><td>${esc(r.status)}</td><td><code>${esc((r.cmd || '').slice(0, 40))}</code></td>
-          <td>${r.clearml && r.clearml.task_id ? `<a href="${esc(r.clearml.url)}" target="_blank" rel="noopener">${T('Open in ClearML')} ↗</a>` : `<button class="btn small" data-sync="${esc(r.id)}" ${clearOk ? '' : 'disabled'}>⇪ ${T('Sync')}</button>`}</td></tr>`).join('') || `<tr><td>${T('No runs yet')}</td></tr>`}</table>
-        ${clearOk ? '' : `<div class="status">${T('Sync is enabled once ClearML is available.')}</div>`}</div>
+        <h4 style="margin-top:14px">${T('Runs in ClearML')}</h4>
+        <table class="dtable">${runs.runs.filter(r => r.status !== 'running').slice(0, 10).map(r => `<tr><td class="mono">${esc(r.id)}</td><td>${esc(r.status)}</td><td><code>${esc((r.cmd || '').slice(0, 34))}</code></td>
+          <td>${r.clearml && r.clearml.task_id ? cmLink(r.clearml) + (r.clearml.mode === 'offline' && !r.clearml.server_task_id && canImport ? ` <button class="btn small" data-import="${esc(r.id)}">⇪ ${T('Import to server')}</button>` : '')
+            : `${r.clearml && r.clearml.error ? `<span class="status" title="${esc(r.clearml.error)}">⚠</span> ` : ''}<button class="btn small" data-sync="${esc(r.id)}" ${clearOk ? '' : 'disabled'}>⇪ ${T('Record')}</button>`}</td></tr>`).join('') || `<tr><td>${T('No runs yet')}</td></tr>`}</table>
+        ${clearOk ? '' : `<div class="status">${T('Recording is enabled once ClearML is available.')}</div>`}
+        <div id="cm-sessions"></div></div>
       <div class="card dsec"><h4>🤖 Codex</h4>
         <div class="dform"><div><label class="chk"><input type="checkbox" id="cx-en" ${cx.enabled ? 'checked' : ''}> ${T('Enabled')}</label></div>
           <div><label>${T('CLI path (empty = PATH)')}</label><input type="text" id="cx-bin" value="${esc(cx.binary)}"></div>
@@ -204,17 +216,30 @@
         <p class="status">${T('Authentication stays in the Codex CLI (codex login, or CODEX_API_KEY) — this app never stores it. ChatGPT-plan login and API-key billing are different accounts.')}</p>
         <div class="row"><button class="btn primary small" id="cx-save" style="flex:0">💾 ${T('Save & test')}</button></div></div></div>`;
     $('#cm-save').onclick = e => busy(e.target, async () => {
-      await api('/api/config', {method: 'POST', body: {clearml: {enabled: $('#cm-en').checked, api_host: $('#cm-api').value.trim(), web_host: $('#cm-web').value.trim(),
-        files_host: $('#cm-files').value.trim(), access_key: $('#cm-ak').value.trim(), secret_key: $('#cm-sk').value.trim(), project: $('#cm-proj').value.trim(), queue: $('#cm-q').value.trim()}}});
+      await api('/api/config', {method: 'POST', body: {clearml: {enabled: $('#cm-en').checked, auto_record: $('#cm-auto').checked, mode: $('#cm-mode').value,
+        api_host: $('#cm-api').value.trim(), web_host: $('#cm-web').value.trim(), files_host: $('#cm-files').value.trim(), access_key: $('#cm-ak').value.trim(),
+        secret_key: $('#cm-sk').value.trim(), project: $('#cm-proj').value.trim(), queue: $('#cm-q').value.trim()}}});
       show('integrations', true);
     });
+    if ($('#cm-install')) $('#cm-install').onclick = e => busy(e.target, async () => {
+      const r = await api('/api/integrations/clearml/install', {method: 'POST'}); toast(`${T('ClearML SDK installed')} (${r.python})`, 'ok'); show('integrations', true);
+    }, T('Installing…'));
     $('#cx-save').onclick = e => busy(e.target, async () => {
       await api('/api/config', {method: 'POST', body: {codex: {enabled: $('#cx-en').checked, binary: $('#cx-bin').value.trim(), model: $('#cx-model').value.trim(), timeout_s: $('#cx-to').value}}});
       show('integrations', true);
     });
     body.querySelectorAll('[data-sync]').forEach(b => b.onclick = () => busy(b, async () => {
-      const r = await api('/api/experiments/clearml/sync', {method: 'POST', body: {run_id: b.dataset.sync}}); toast(`ClearML task ${r.task_id}`, 'ok'); show('integrations');
+      const r = await api('/api/experiments/clearml/sync', {method: 'POST', body: {run_id: b.dataset.sync}}); toast(`ClearML ${r.mode || ''} task ${r.task_id}`, 'ok'); show('integrations');
     }));
+    body.querySelectorAll('[data-import]').forEach(b => b.onclick = () => busy(b, async () => {
+      const r = await api('/api/experiments/clearml/import', {method: 'POST', body: {run_id: b.dataset.import}}); toast(`${T('Imported')}: ${r.task_id}`, 'ok'); show('integrations');
+    }));
+    if (clearOk) api('/api/experiments/clearml/offline').then(r => {
+      const box = $('#cm-sessions'); if (!box || !r.sessions.length) return;
+      box.innerHTML = `<h4 style="margin-top:14px">${T('Offline sessions')} <span class="status" style="margin:0">${esc(cex.offline_dir || '')}</span></h4>
+        <table class="dtable">${r.sessions.slice(0, 15).map(x => `<tr><td class="mono" title="${esc(x.zip)}">${esc(x.id.slice(0, 18))}…</td><td>${esc(x.name || '')}</td>
+          <td>${Object.entries(x.metrics || {}).filter(([k]) => !k.startsWith('Summary/')).slice(0, 4).map(([k, v]) => `${esc(k)}=${fmt(v)}`).join(' · ')}</td><td class="status">${Math.round((x.size || 0) / 1024)} KB</td></tr>`).join('')}</table>`;
+    }).catch(() => {});
   }
 
   // ------------------------------------------------------------------ Codex

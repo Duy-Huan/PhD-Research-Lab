@@ -22,7 +22,7 @@ python -m unittest discover -s tests -p "test_*.py"
 | Path | Role |
 |---|---|
 | `backend/memory/` | Context Memory: legacy tiers (`__init__`), `working`, `research`, `knowledge`, `pages` (raw page-store), `lod` (TREEFRAG-style tree), `embeddings`, `retrieval`, `compiler`, `compressor` |
-| `backend/integrations/` | `base` (IntegrationStatus contract), `workspace` (VS Code, Dev Containers, Environment Manager, Jupyter), `experiment` (ExperimentBackend, LocalRunsBackend, ClearMLAdapter), `agents` (CodexBackend) |
+| `backend/integrations/` | `base` (IntegrationStatus contract), `workspace` (VS Code, Dev Containers, Environment Manager, Jupyter), `experiment` (ExperimentBackend, LocalRunsBackend, ClearMLAdapter offline/server), `clearml_worker` (the only ClearML SDK user, subprocess), `agents` (CodexBackend) |
 | `backend/resources.py` | hardware policy, caps, JIT VRAM unload, thermal guard, GPU-fault classification |
 | `backend/llm_router.py` | SmartMultiRouter for engine mode `auto` |
 | `backend/critic.py` | live critic (rules + optional LLM) |
@@ -41,7 +41,8 @@ python -m unittest discover -s tests -p "test_*.py"
   "resources": {"enforce_caps": true, "require_unload": true, "vram_free_target_mb": 2048, "unload_wait_s": 1.5,
                 "gpu_temp_limit_c": 83, "cpu_fallback_on_gpu_fault": true, "gpu_busy_util_pct": 80,
                 "sandbox_memory_gb": 0, "sandbox_cpus": 0, "local_ai_vram_gb": 0, "local_ai_threads": 0},   // 0 = derived
-  "clearml": {"enabled": false, "api_host": "http://localhost:8008", "web_host": "http://localhost:8080",
+  "clearml": {"enabled": true, "mode": "offline", "auto_record": true,   // offline = SDK only, no server
+              "api_host": "http://localhost:8008", "web_host": "http://localhost:8080",
               "files_host": "http://localhost:8081", "access_key": "<from ClearML UI>", "secret_key": "<from ClearML UI>",
               "project": "PhD Research Lab", "queue": "default"},
   "codex": {"enabled": false, "binary": "", "sandbox": "read-only", "model": "", "timeout_s": 1800},
@@ -55,6 +56,8 @@ python -m unittest discover -s tests -p "test_*.py"
 Engine mode `auto` routes by task kind (`config.AGENT_TASK_KIND`); `@cloud` = default cloud provider, `@claude` = Anthropic.
 
 ## Conventions
+- The ClearML SDK is imported ONLY in `backend/integrations/clearml_worker.py`, which always runs as a separate Python
+  process (Task.init hooks its process; native deps may be blocked by Smart App Control). Install: `pip install "clearml>=2.0"`.
 - Vendor SDKs/CLIs are imported/called only inside `backend/integrations/*`; adapters report `disabled | unconfigured |
   unavailable | available | error` and never claim success without a real probe.
 - Long-term memory has one writer (`memory/compressor.py`) plus explicit researcher actions; raw pages are write-once.

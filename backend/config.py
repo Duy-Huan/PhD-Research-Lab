@@ -163,8 +163,10 @@ DEFAULTS = {
                   "unload_timeout_s": 20, "gpu_temp_limit_c": 83, "cpu_fallback_on_gpu_fault": True, "gpu_busy_util_pct": 80,
                   "sandbox_memory_gb": 0, "sandbox_cpus": 0, "local_ai_vram_gb": 0, "local_ai_threads": 0},
     # v3.2 integrations (all optional; credentials are masked in the UI and only sent to their own server)
-    "clearml": {"enabled": False, "api_host": "", "web_host": "", "files_host": "", "access_key": "", "secret_key": "",
-                "project": "PhD Research Lab", "queue": "default"},
+    # ClearML: "offline" = SDK only, every run recorded as an offline session in <project>/clearml (no server);
+    # "server" = a ClearML Server with credentials. auto_record: record every finished sandbox run.
+    "clearml": {"enabled": True, "mode": "offline", "auto_record": True, "api_host": "", "web_host": "", "files_host": "",
+                "access_key": "", "secret_key": "", "project": "PhD Research Lab", "queue": "default"},
     "codex": {"enabled": False, "binary": "", "sandbox": "read-only", "model": "", "timeout_s": 1800},
     "workspace": {"vscode_path": "", "jupyter_port": 8888},
     "routing": {"online_check": True, "chains": {}, "provider_headers": {}},
@@ -173,7 +175,7 @@ DEFAULTS = {
 }
 SECTIONS_V32 = ("memory", "resources", "clearml", "codex", "workspace", "routing", "critic", "provenance")
 SECRET_FIELDS = {"clearml": ("access_key", "secret_key")}
-CHOICES = {("codex", "sandbox"): ("read-only", "workspace-write"),
+CHOICES = {("codex", "sandbox"): ("read-only", "workspace-write"), ("clearml", "mode"): ("offline", "server"),
            ("memory", "embed_engine"): ("auto", "ollama", "hashing")}
 
 _lock = threading.Lock()

@@ -17,6 +17,7 @@ A local desktop web app for Windows 11 (and Linux/macOS) that runs an end-to-end
 - 🧠 **Context Memory v2**: stable hypothesis ids (`HYPE-NNN`), experiment records pointing to runs, git commits and **ClearML** tasks; tri-search retrieval + deterministic context compiler; watermark compressor (16k → 2k tokens) with a write-once raw page-store.
 - 💻 **Workspace & Runs** replaces the Monaco Code IDE: write code in **VS Code + the Codex extension**; run, follow logs/curves, keep runs, self-debugging agent and Git/GitHub here.
 - ⚙ **Hardware governor** for one GPU: sandbox caps from your PC (e.g. 16 GB / 6 CPUs on 32 GB / 16 threads), **GPU runs refused while Ollama/LM Studio hold VRAM** (press 🧹 Unload, or run on CPU), thermal guard and CPU fallback, GPU-aware `auto` LLM routing (+ DeepInfra, 9Router, OmniRoute).
+- 📈 **ClearML without a server**: `pip install clearml` (done by `setup.bat`) and every run is recorded as a ClearML offline session in the project — import it into a ClearML Server later if you want the web UI.
 - 🩺 **Live critic** while the Paper Writer streams; 🛡 **provenance** sealed into run figures/tables; 🧬 Hugging Face / Kaggle dataset connectors.
 - 🧪 Automated tests: `python -m unittest discover -s tests -p "test_*.py"`.
 

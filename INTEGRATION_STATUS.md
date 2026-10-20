@@ -18,7 +18,8 @@ Ký hiệu: ✅ kiểm chứng thật trên máy này · 🧪 kiểm chứng b�
 | Environment Manager (Dockerfile + devcontainer.json) | ✅ / 🧪 | Sinh file với caps của máy (16 GB/6 CPU trên máy tham chiếu), image PyTorch đã thẩm định, mount `/runs`, `/datasets` read-only; không bao giờ ghi đè nếu chưa xác nhận. | Chưa build thử image GPU (≈ 8 GB). |
 | Jupyter | ⏳ | Phát hiện CLI → `unavailable` + hướng dẫn. Launcher: `--ServerApp.ip=127.0.0.1`, token ngẫu nhiên, chờ `/api/status` = 200 mới báo chạy. | Cài `pip install jupyterlab` để kiểm chứng. |
 | Git / GitHub | ✅ | `gitops.head_info()` dùng trong mọi run; publish GitHub giữ nguyên v3.0. | — |
-| ClearML (`ExperimentBackend`) | ⏳ | Trạng thái `disabled/unavailable/unconfigured/available` kiểm bằng test; `available` chỉ khi `GET {api}/debug.ping` = 200. `sync_run`, `get_experiment`, `submit_remote` dùng SDK chính thức (`Task.create`, `Logger.report_scalar`, `upload_artifact`, `Task.enqueue`). | **Chưa chạy với server thật.** Test opt-in: `PHDLAB_CLEARML_LIVE=1`. |
+| ClearML — **offline mode** (Python SDK, no server) | ✅ | `clearml 2.1.12` on Python 3.14: sandbox run → offline session (params, curves, final metrics, log, artifacts, research-code commit) in `<project>/clearml/offline/*.zip`, read back without the SDK; auto-record after each run; UI *Record* button; artifacts re-sealed with the task id. All SDK calls run in a subprocess (`clearml_worker.py`). | A training script that calls `Task.init` itself needs `clearml` installed inside the sandbox (container / sandbox venv). |
+| ClearML — **server mode** / import of offline sessions | ⏳ | Status `unconfigured/unavailable/available` only after `GET {api}/debug.ping`; `import_offline_session`, `get_task`, `submit_remote`, fine-grained ops through the same worker. | **Not verified against a live ClearML Server.** Opt-in test: `PHDLAB_CLEARML_LIVE=1`. |
 | Codex CLI (`CodexBackend`) | ⏳ | Cờ/sự kiện đối chiếu tài liệu chính thức (non-interactive mode): `codex exec --json --sandbox read-only|workspace-write -`, sự kiện `thread.started`, `item.completed`, `turn.completed`, `turn.failed`. Mapping sự kiện có unit test. | CLI chưa cài. `codex login status` dùng để đoán trạng thái đăng nhập (best-effort). Test opt-in: `PHDLAB_CODEX_LIVE=1`. |
 | LLM auto router (SmartMultiRouter) | 🧪 | Kế hoạch theo task-kind, offline → chỉ local, GPU bận → cloud trước / LM Studio bị loại, fallback tuần tự. | Chưa có API key nào được cấu hình nên chưa gọi thật provider mới. |
 | DeepInfra / 9Router / OmniRoute | ⏳ | Đăng ký provider OpenAI-compatible; gateway local: key tùy chọn, chỉ dùng khi `/models` phản hồi. Header tùy chỉnh chỉ nhận tên `X-…` (lọc injection). | Header `X-9Router-Skills` lấy từ spec, **chưa kiểm chứng** với 9Router thật — để trống mặc định. |
@@ -38,7 +39,7 @@ Ký hiệu: ✅ kiểm chứng thật trên máy này · 🧪 kiểm chứng b�
 | 1 | Docker limits 12-16 G / 6 core / `--gpus all` | ⚠️ | ✅ | `resources.clamp_sandbox`, `sandbox.ensure_container` |
 | 1 | Graceful degradation → CPU | ⚠️ | ✅ | thermal guard + `_after_run` CPU re-run |
 | 2 | VS Code deep link / Dev Container | ❌ | ✅ | `integrations/workspace.py`; Monaco IDE **đã gỡ**, tab Workspace & Runs |
-| 2 | ClearML local/remote switch | ❌ | ⏳ | `/api/compute/submit` target `clearml` + fallback local |
+| 2 | ClearML local/remote switch | ❌ | ✅ / ⏳ | offline mode (local, verified) ↔ server mode; `/api/compute/submit` target `clearml` + local fallback (server not verified) |
 | 2 | Jupyter session link | ❌ | ⏳ | token ngẫu nhiên, chỉ 127.0.0.1 |
 | 2 | Git metadata (`git_commit_sha`, `repository_url`, token ẩn) | ⚠️ | ✅ | `run.json → git{sha, branch, dirty, remote}` |
 | 3 | 3-tier memory | ✅ | ✅ | watermark 16k → 2k, chunk 3 500 (`memory/compressor.py`) |
@@ -59,4 +60,4 @@ python -m unittest discover -s tests -p "test_*.py"     # 60 test, ~25 s, dữ l
 PHDLAB_CLEARML_LIVE=1 python -m unittest tests/test_live_integrations.py   # cần ClearML server
 PHDLAB_CODEX_LIVE=1  python -m unittest tests/test_live_integrations.py    # cần codex login (tốn quota)
 ```
-Kết quả lần chạy cuối: **72 test OK, 3 skipped** (live ClearML / Codex / LM Studio). Live LM Studio: `PHDLAB_LMSTUDIO_LIVE=1` → OK.
+Kết quả lần chạy cuối: **81 test OK, 3 skipped** (live ClearML-server / Codex / LM Studio). ClearML offline tests chạy thật với SDK đã cài. Live LM Studio: `PHDLAB_LMSTUDIO_LIVE=1` → OK.

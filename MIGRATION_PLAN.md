@@ -18,7 +18,7 @@
 | CM | Context Memory v2 | ✅ v3.2 | page-store, LOD tree, tri-search + RRF + reranker, compiler, compressor watermark. |
 | HW | Resource governor | ✅ v3.2 | policy, caps, JIT unload, thermal guard, CPU fallback, GPU-busy routing. |
 | M3 | VS Code + Git + Docker + Jupyter | ✅ v3.2 (Jupyter chưa kiểm chứng thật) | Monaco IDE đã gỡ; VS Code + extension Codex là nơi viết code; tab Workspace & Runs; Dev Container, Environment Manager, git SHA vào run. |
-| M4 | ClearML | 🟡 Adapter (v3.2), **chưa kiểm chứng với server thật** | Cần cài `clearml` + server (`localhost:8008/8080`). Test thật opt-in `PHDLAB_CLEARML_LIVE=1`. |
+| M4 | ClearML | ✅ offline mode (v3.2) · 🟡 server mode chưa kiểm chứng | `pip install clearml` (setup.bat / nút trong UI) đủ để ghi mọi run thành phiên ClearML offline; server + import: test opt-in `PHDLAB_CLEARML_LIVE=1`. |
 | M5 | Deep Learning workflow | ⏳ | Experiment spec có cấu trúc (seed, dataset version), baseline training example. |
 | M6 | Research Control Center | 🟡 Tab mới (v3.2) | Dashboard, timeline, workspace, integrations, provenance. Chưa redesign toàn bộ điều hướng. |
 | M7 | Model serving | ⏳ | Chỉ abstraction + tài liệu; không cài Kubernetes. vLLM/BentoML khi có use case. |

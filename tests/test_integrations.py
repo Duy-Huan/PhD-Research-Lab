@@ -5,6 +5,7 @@ import os
 import tempfile
 import unittest
 from collections import deque
+from pathlib import Path
 from unittest import mock
 
 from backend.config import load_config
@@ -32,21 +33,82 @@ class ClearML(unittest.TestCase):
         cfg["clearml"].update(c)
         return cfg
 
-    def test_disabled_unavailable_unconfigured(self):
+    SDK_OK = {"installed": True, "ok": True, "version": "2.1.12", "error": ""}
+
+    def test_states_offline_mode(self):
         self.assertEqual(X.ClearMLAdapter(self.cfg(enabled=False)).status().state, "disabled")
         with mock.patch.object(X.ClearMLAdapter, "sdk_installed", return_value=False):
-            self.assertEqual(X.ClearMLAdapter(self.cfg(enabled=True)).status().state, "unavailable")
-        with mock.patch.object(X.ClearMLAdapter, "sdk_installed", return_value=True), mock.patch.object(X, "_clearml_conf_file", return_value=False), \
-                mock.patch.dict(os.environ, {"CLEARML_API_HOST": "", "CLEARML_API_ACCESS_KEY": ""}):
-            self.assertEqual(X.ClearMLAdapter(self.cfg(enabled=True)).status().state, "unconfigured")
-
-    def test_server_down_is_unavailable_and_never_called_success(self):
-        ad = X.ClearMLAdapter(self.cfg(enabled=True, api_host="http://127.0.0.1:9", access_key="k", secret_key="s"))
-        with mock.patch.object(X.ClearMLAdapter, "sdk_installed", return_value=True):
-            st = ad.status()
+            st = X.ClearMLAdapter(self.cfg(enabled=True)).status()
             self.assertEqual(st.state, "unavailable")
+            self.assertTrue(st.extra["can_install"])
+            self.assertIn("pip install clearml", " ".join(st.setup))
+        with mock.patch.object(X.ClearMLAdapter, "sdk_installed", return_value=True), \
+                mock.patch.object(X.ClearMLAdapter, "sdk", return_value={"installed": True, "ok": False, "version": "", "error": "DLL load failed"}):
+            st = X.ClearMLAdapter(self.cfg(enabled=True)).status()
+            self.assertEqual(st.state, "error")  # e.g. Smart App Control blocked a native dependency
+        with mock.patch.object(X.ClearMLAdapter, "sdk_installed", return_value=True), mock.patch.object(X.ClearMLAdapter, "sdk", return_value=self.SDK_OK), \
+                mock.patch.object(X.ClearMLAdapter, "server_ready", return_value=False):
+            st = X.ClearMLAdapter(self.cfg(enabled=True, mode="offline")).status()
+            self.assertEqual(st.state, "available")  # offline: no server needed
+            self.assertNotIn("import_offline", st.capabilities)
+            with self.assertRaises(B.NotSupported):  # fine-grained ops need a server
+                X.ClearMLAdapter(self.cfg(enabled=True, mode="offline")).create_experiment("x")
+
+    def test_states_server_mode(self):
+        with mock.patch.object(X.ClearMLAdapter, "sdk_installed", return_value=True), mock.patch.object(X.ClearMLAdapter, "sdk", return_value=self.SDK_OK), \
+                mock.patch.object(X, "_clearml_conf_file", return_value=False), mock.patch.dict(os.environ, {"CLEARML_API_HOST": "", "CLEARML_API_ACCESS_KEY": ""}):
+            self.assertEqual(X.ClearMLAdapter(self.cfg(enabled=True, mode="server")).status().state, "unconfigured")
+            ad = X.ClearMLAdapter(self.cfg(enabled=True, mode="server", api_host="http://127.0.0.1:9", access_key="k", secret_key="s"))
+            self.assertEqual(ad.status().state, "unavailable")
             with self.assertRaises(B.IntegrationError):
                 ad.sync_run("20260101-120000-abcd")
+
+    def test_worker_output_parsing(self):
+        class R:
+            returncode, stderr = 0, ""
+            stdout = 'ClearML Task: created\n@@RESULT@@{"task_id": "offline-' + "a" * 32 + '"}\nClearML Task: Offline session stored in x.zip\n'
+        with mock.patch.object(X.subprocess, "run", return_value=R()):
+            self.assertEqual(X.run_worker("probe", {}, True, {})["task_id"], "offline-" + "a" * 32)
+        R.stdout, R.returncode = '@@ERROR@@{"error": "ValueError: boom"}\n', 1
+        with mock.patch.object(X.subprocess, "run", return_value=R()):
+            with self.assertRaises(B.IntegrationError) as cm:
+                X.run_worker("probe", {}, True, {})
+        self.assertIn("boom", str(cm.exception))
+
+    def test_server_credentials_never_reach_offline_workers(self):
+        seen = {}
+
+        def fake_run(args, **kw):
+            seen.update(kw["env"])
+
+            class R:
+                returncode, stderr, stdout = 0, "", '@@RESULT@@{"version": "x"}'
+            return R()
+        with mock.patch.dict(os.environ, {"CLEARML_API_SECRET_KEY": "leak"}), mock.patch.object(X.subprocess, "run", side_effect=fake_run):
+            X.run_worker("probe", {}, True, {})
+        self.assertNotIn("CLEARML_API_SECRET_KEY", seen)
+        self.assertTrue(seen["CLEARML_CACHE_DIR"].endswith("clearml"))
+
+    def test_read_offline_session_zip(self):
+        import zipfile
+        with tempfile.TemporaryDirectory() as d:
+            z = os.path.join(d, "offline-" + "b" * 32 + ".zip")
+            task = {"id": "offline-" + "b" * 32, "name": "t [r1]", "project_name": "P",
+                    "hyperparams": {"General": {"run_id": {"value": "r1"}, "status": {"value": "done"}}},
+                    "script": {"repository": "", "branch": "main", "version_num": "abc", "entry_point": "python t.py"}}
+            ev = [{"type": "training_stats_scalar", "metric": "loss", "variant": "loss", "value": v, "iter": i} for i, v in enumerate((1.0, 0.5))]
+            with zipfile.ZipFile(z, "w") as f:
+                f.writestr("task.json", json.dumps(task))
+                f.writestr("metrics.jsonl", json.dumps(ev) + "\n")
+            s = X.read_offline_session(Path(z))
+        self.assertEqual((s["run_id"], s["status"], s["metrics"]["loss"], s["points"]["loss"]), ("r1", "done", 0.5, 2))
+        self.assertEqual(s["script"]["commit"], "abc")
+
+    def test_run_env_only_in_offline_mode_and_without_secrets(self):
+        cfg = self.cfg(enabled=True, mode="offline", secret_key="s3cret")
+        env = X.run_env("/runs/r1", cfg)
+        self.assertEqual(env, {"CLEARML_OFFLINE_MODE": "1", "CLEARML_CACHE_DIR": "/runs/r1/clearml"})
+        self.assertEqual(X.run_env("/runs/r1", self.cfg(enabled=True, mode="server")), {})
 
 
 class Workspace(unittest.TestCase):

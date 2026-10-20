@@ -19,6 +19,8 @@ from backend import config  # noqa: E402
 
 if config.GLOBAL_DIR.resolve() == (ROOT / "data").resolve():
     raise SystemExit("tests must not run on the real data folder")
+# no background ClearML subprocess after every sandbox run in the suite (test_clearml_offline turns it on itself)
+config.save_config({"clearml": {"auto_record": False}})
 
 
 def fresh_project(name: str):

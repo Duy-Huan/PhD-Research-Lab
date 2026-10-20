@@ -445,6 +445,12 @@ def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | No
                                    "gpu": bool(s.get("gpu")) and (extra_env or {}).get("CUDA_VISIBLE_DEVICES", gpu_env.get("CUDA_VISIBLE_DEVICES")) != "",
                                    "memory_gb": s.get("memory_gb"), "cpus": s.get("cpus")}
     env.update(extra_env or {})
+    if kind == "run":  # v3.2: a script that calls clearml Task.init records an offline session into its own run folder
+        try:
+            from .integrations.experiment import run_env
+            env.update(run_env(f"/runs/{job.id}" if mode == "docker" else str(job.run_dir)))
+        except Exception:
+            pass
     if mode == "docker":
         st = ensure_container()
         if st.get("warning"):
@@ -509,6 +515,17 @@ def _waiter(job: Job, t1, t2, timeout_s: int):
             job.add("sys", f"(metrics extraction failed: {e})")
         _after_run(job)
         _write_run_meta(job)
+        if job.kind == "run":
+            threading.Thread(target=_auto_clearml, args=(job.id,), daemon=True).start()
+
+
+def _auto_clearml(run_id: str) -> None:
+    """v3.2: record the finished run in ClearML (offline session or server task) when clearml.auto_record is on."""
+    try:
+        from .integrations.experiment import auto_record
+        auto_record(run_id)
+    except Exception:
+        pass
 
 
 def _after_run(job: Job) -> None:
