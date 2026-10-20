@@ -58,7 +58,7 @@ Mỗi dự án có **thư mục data** riêng (workspace, output, chat, ghi chú
 2. **Đưa PDF vào thư viện trước**. Planner sẽ trích dẫn tài liệu của bạn bằng `[bib_key]` thay vì dựa vào kiến thức chung.
 3. Dùng chuỗi truy vấn sinh ra để tìm thêm bài, tải PDF về, nạp vào thư viện, rồi **chạy lại** Lit2Plan. Mỗi vòng như vậy, kế hoạch bám tài liệu chắc hơn.
 4. Đào sâu bằng 💬 chat. Ví dụ: *"Phản biện H1 như một reviewer khó tính"*, *"Gap nào dễ xuất bản nhất trong 6 tháng?"*, *"Chuyển tháng 1 thành kế hoạch từng tuần"*.
-5. **Chốt 🔒 các định hướng** ngay trong chat: bấm 🔒 *Chốt* dưới câu trả lời (hoặc bôi đen một đoạn trong kế hoạch → *🔒 Chốt đoạn đã chọn*), chọn loại: định hướng / giả thuyết / gap / ràng buộc / hướng đã loại. Các quyết định đã chốt hiện ở thẻ *🔒 Quyết định đã chốt*, **ràng buộc mọi agent** (Tool 2–4, Code IDE, Writer) và hiện thành node 📌 trong tab Ngữ cảnh.
+5. **Chốt 🔒 các định hướng** ngay trong chat: bấm 🔒 *Chốt* dưới câu trả lời (hoặc bôi đen một đoạn trong kế hoạch → *🔒 Chốt đoạn đã chọn*), chọn loại: định hướng / giả thuyết / gap / ràng buộc / hướng đã loại. Các quyết định đã chốt hiện ở thẻ *🔒 Quyết định đã chốt*, **ràng buộc mọi agent** (Tool 2–4, agent Workspace, Writer) và hiện thành node 📌 trong tab Ngữ cảnh.
 6. Sau nhiều vòng thảo luận, bấm **🔄 Tạo lại tổng quan từ thảo luận**: kế hoạch được viết lại dựa trên cuộc chat và các quyết định đã chốt. Bản cũ luôn được giữ trong **🕘 Phiên bản** (khôi phục được).
 
 ## Tool 2 — Thiết kế thí nghiệm
@@ -119,7 +119,7 @@ Mọi chat, bộ thiết kế thí nghiệm (sẽ đề xuất các thí nghiệ
 - **🔍 Phản biện phần:** điểm, các lỗi Nghiêm trọng/Lớn/Nhỏ có trích nguyên văn, nội dung còn thiếu, kiểm tra trích dẫn và gợi ý viết lại.
 - **🎯 Brief · định hướng & kết quả** (v3.1, thay cho *Chỉ dẫn cho AI*): mọi phần đều tuỳ chọn, được gửi tới Tác giả (3.2), Biên tập (3.4) và Phản biện mục (3.3 — sẽ báo lỗi nếu bài lệch brief), ưu tiên hơn góp ý phản biện.
   - **🧭 Định hướng & mong muốn:** mục này phải lập luận, nhấn mạnh điều gì. Bấm các gợi ý ＋ để thêm nhanh (vd. *"Kết thúc bằng danh sách 3 đóng góp"*, *"Báo cáo trung bình ± độ lệch chuẩn"*).
-  - **📊 Kết quả cần trình bày:** *＋ Chọn kết quả…* từ file bạn đã tải (Thiết kế thí nghiệm), các lần chạy và hình từ Code IDE, bảng LaTeX và ghi chú kết quả của Writer. Mỗi kết quả: **trình bày dạng** (tự động / bảng / hình / số liệu trong câu chữ / phân tích so sánh / kết quả nổi bật), một **ghi chú** (vd. *"làm nổi bật mức +1.2 dB so với QRNN3D"*), và thứ tự ↑↓. Tick *Chỉ trình bày các kết quả đã chọn* để AI không đưa kết quả khác vào. Hình được chèn đúng dòng `\includegraphics{figures/…}` và tự kèm vào bản xem trước PDF, `latex.zip`.
+  - **📊 Kết quả cần trình bày:** *＋ Chọn kết quả…* từ file bạn đã tải (Thiết kế thí nghiệm), các lần chạy sandbox và hình, bảng LaTeX và ghi chú kết quả của Writer. Mỗi kết quả: **trình bày dạng** (tự động / bảng / hình / số liệu trong câu chữ / phân tích so sánh / kết quả nổi bật), một **ghi chú** (vd. *"làm nổi bật mức +1.2 dB so với QRNN3D"*), và thứ tự ↑↓. Tick *Chỉ trình bày các kết quả đã chọn* để AI không đưa kết quả khác vào. Hình được chèn đúng dòng `\includegraphics{figures/…}` và tự kèm vào bản xem trước PDF, `latex.zip`.
   - **🧱 Cấu trúc:** dàn ý theo thứ tự (mỗi dòng một đoạn hoặc tiểu mục). **✅ Bắt buộc có / ⛔ Phải tránh.** **🎚 Giọng văn & độ dài** (hoặc số từ mục tiêu). **📚 Tài liệu cần nhấn mạnh.**
   - **👁 Xem trước nội dung AI nhận**, **⧉ Sao chép brief sang mục khác**, **✍ Viết theo brief này**. Mục có brief được đánh dấu 🎯 trên bảng các mục.
   - **🧭 Định hướng chung cả bài** (trong *Dự án bài báo*, hoặc nút *Định hướng chung cả bài…*): mạch chính & luận điểm then chốt, văn phong, thuật ngữ & ký hiệu, điều không được khẳng định — áp dụng cho mọi mục.
@@ -231,21 +231,18 @@ Trong 💬 chat, có thể nhờ mentor **đóng vai hội đồng hoặc review
 
 **Giới hạn mỗi lượt hỏi:** khoảng 150.000 ký tự tài liệu và tối đa 8 ảnh. Tài liệu ở tin nhắn mới nhất được ưu tiên.
 
-## 💻 Code IDE (v3.0)
+## 💻 Workspace & Lần chạy (v3.2 — thay cho Code IDE)
 
-Tab **Code IDE** là một VS Code thu nhỏ gắn với sandbox Docker và các agent:
+Code được viết trong **VS Code** — với **extension Codex** (`openai.chatgpt`, đăng nhập bằng tài khoản ChatGPT) hoặc Codex CLI ở 🧭 Trung tâm điều phối → 🤖 Codex. Tab này lo mọi thứ xung quanh code:
 
-- **Thanh hoạt động** bên trái: Explorer (cây file), Tìm trong file, Quản lý mã nguồn (Git/GitHub), Runs (lịch sử chạy), và nút mở tab Docker. Nút ✳ bật/tắt khung agent bên phải. Có thể kéo giãn các khung.
-- **Bắt đầu:** bấm *🧪 Bắt đầu từ blueprint* để tạo `src/`, `README.md`, `requirements.txt` từ Tool 2. Hoặc nút *→ 💻 Mở trong Code IDE* ở tab Thiết kế thí nghiệm.
-- **Soạn thảo:** Monaco (giống VS Code), nhiều tab, **Ctrl+S** lưu, **Ctrl+Enter** chạy file đang mở. Nếu agent hoặc một lần chạy sửa file mà bạn cũng đang sửa, app hỏi giữ bản nào.
-- **Chạy:** ▶ chạy trong sandbox; output hiện trực tiếp ở *Terminal*; dòng log dạng `epoch 3 loss=0.12 psnr=28.4` được vẽ ngay ở *Metric trực tiếp*. Ô lệnh dưới terminal chạy được `pip install …`, `nvidia-smi`, `ls`…
-- **Agent lập trình cùng** (khung phải):
-  - **💡 Gợi ý:** agent đề xuất thay đổi file; bấm ⇄ để xem diff, ✓ để áp dụng, hoặc *Áp dụng tất cả*.
-  - **⚡ Tự động:** agent áp dụng → chạy trong sandbox → đọc stderr → tự sửa, tối đa N lần (*lần thử*). Bạn thấy từng vòng ❌/✅. ■ dừng bất cứ lúc nào.
-  - Agent biết: các quyết định đã chốt, mục 📌, bộ nhớ dự án, blueprint Tool 2, cây file và lần chạy gần nhất. Nên đặt agent *Co-coding* ở Ollama/LM Studio (14B coder) hoặc Claude.
-- **Runs:** mỗi lần chạy lưu ở `data/runs/<id>/` (log, `metrics.json`, hình trong `figures/`). Mở một run để xem metric, đường cong, hình; **Dùng kết quả trong bài báo** điền ghi chú kết quả và thêm bảng LaTeX bằng **số đo thật** vào Writer (hoặc *⇣ Nhập kết quả từ Code IDE* ở Writer).
-- **Quản lý mã nguồn / GitHub:** *Khởi tạo repository* → xem thay đổi, diff → *Commit* → *Push/Pull*. **🚀 Đăng lên GitHub**: nhập tên repo, chọn công khai/riêng tư. Cần **Personal Access Token** (⚙ Cài đặt GitHub): token lưu trong `data/config.json`, chỉ gửi tới GitHub và không bao giờ ghi vào `.git/config`.
-- Ghi `metrics.json` (dict số, hoặc list theo epoch) vào thư mục chạy hiện tại hoặc `/runs/<id>/` để app nhận metric chính xác nhất; hình `.png/.svg/.pdf` lưu vào `figures/`.
+- **🚀 Mở trong VS Code** / **🐳 Dev Container** (sau khi tạo môi trường ở Trung tâm điều phối → Workspace → Environment Manager) / **⤓ Cài extension Codex** nếu chưa có. File agent đề xuất hoặc file trong Quản lý mã nguồn mở bằng VS Code qua nút ↗.
+- **Bắt đầu:** *🧬 Bắt đầu từ blueprint* tạo `src/`, `README.md`, `requirements.txt` từ Tool 2 — hoặc *→ 💻 Mở trong VS Code* ở tab Thiết kế thí nghiệm.
+- **Chạy:** gõ lệnh (`python train.py --epochs 2`, `pip install …`) → ▶ Chạy trong sandbox. Log hiện trực tiếp; dòng dạng `epoch 3 loss=0.12 psnr=28.4` được vẽ thành đường cong.
+- **⛔ Quy tắc VRAM khi train GPU:** lần chạy GPU **bị từ chối khi Ollama / LM Studio còn nạp model trong VRAM**. Bấm **🧹 Gỡ LLM cục bộ khỏi VRAM** (hoặc *Gỡ model & chạy* trong hộp thoại), hoặc tích **Chạy bằng CPU** cho lệnh không cần GPU. App không tự gỡ model.
+- **Agent tự sửa lỗi:** 💡 Gợi ý (⇄ xem diff dạng văn bản, ✓ áp dụng) hoặc ⚡ Tự động (áp dụng → chạy → đọc stderr → sửa, tối đa N lần). Nếu chính agent chạy bằng model local, hãy tích *agent chạy bằng CPU* hoặc chuyển agent sang engine cloud / auto trước khi train GPU.
+- **Lần chạy:** mỗi run lưu log, `metrics.json`, hình, **git commit** và môi trường trong `data/runs/<id>/`; hình/CSV được niêm phong nguồn gốc. *Dùng kết quả trong bài báo*, *Ghi thành thực nghiệm* (Research timeline), *Thảo luận với agent*.
+- **Quản lý mã nguồn / GitHub:** khởi tạo, diff (văn bản), commit, push/pull, **🚀 Đăng lên GitHub** bằng Personal Access Token (chỉ lưu trong `data/config.json`, chỉ gửi tới GitHub).
+- Ghi `metrics.json` (dict số) vào `$RUN_DIR` để có metric chính xác; lưu hình vào `$RUN_DIR` hoặc `figures/`.
 
 ## 🐳 Docker & Hệ thống (v3.0)
 
@@ -344,7 +341,7 @@ Dưới mỗi câu trả lời có danh sách **🌐 nguồn**: tác giả, năm
 ## Dữ liệu, sao lưu & nâng cấp
 
 - **Dữ liệu của bạn nằm ở:** `data/` (cấu hình, API key, Default project), `references/` (PDF của dự án mặc định) và `projects/` (các dự án khác).
-- Trong mỗi thư mục data của dự án (v3.0): `workspace/` (bài báo, chat, phiên bản Lit2Plan), `code/` (Code IDE, repo git), `runs/` (log, metric, hình), `sandbox/` (cài đặt, venv), `memory/` (bộ nhớ, đồ thị ngữ cảnh), `results/` (kết quả bạn tải lên). `data/system/` lưu kết quả quét máy. **⬇ project_export.zip** (ở Writer) đóng gói tất cả.
+- Trong mỗi thư mục data của dự án (v3.0): `workspace/` (bài báo, chat, phiên bản Lit2Plan), `code/` (thư mục code mở bằng VS Code, repo git), `runs/` (log, metric, hình), `sandbox/` (cài đặt, venv), `memory/` (bộ nhớ, đồ thị ngữ cảnh), `results/` (kết quả bạn tải lên). `data/system/` lưu kết quả quét máy. **⬇ project_export.zip** (ở Writer) đóng gói tất cả.
 - **Sao lưu:** nén thư mục dự án (data folder) là đủ.
 - **Nâng cấp phiên bản:**
   1. Giải nén **toàn bộ** zip mới vào **thư mục mới**.
@@ -365,7 +362,7 @@ Dưới mỗi câu trả lời có danh sách **🌐 nguồn**: tác giả, năm
 | Windows chặn DLL (Smart App Control) | App tự chuyển sang pypdf; không cần tắt bảo mật |
 | Ubuntu báo "externally-managed-environment" | `start.py` tự tạo `.venv`; nếu thiếu: `sudo apt install python3-venv` |
 | Nâng cấp xong nhưng không thấy tab mới | Một bản cũ vẫn đang chạy (cửa sổ đen cũ). Đóng hết cửa sổ cũ, chạy lại `run.bat`; nếu trình duyệt vẫn hiện trang cũ, nhấn **Ctrl+F5**. Từ v3.1 app tự phát hiện và chạy bản mới ở cổng khác |
-| Code IDE báo "Docker chưa chạy" | Mở Docker Desktop, chờ biểu tượng cá voi đứng yên; trong lúc đó code chạy bằng venv cục bộ |
+| Workspace báo "Docker chưa chạy" | Mở Docker Desktop, chờ biểu tượng cá voi đứng yên; trong lúc đó code chạy bằng venv cục bộ |
 | Không dùng được GPU trong Docker | Cập nhật driver NVIDIA (Windows), bật WSL integration trong Docker Desktop, `wsl --update`. App tự chạy lại bằng CPU |
 | CUDA out of memory | ⏏ Gỡ model Ollama/LM Studio ở thanh bên trước khi huấn luyện |
 | `pip install` trong sandbox lỗi | Bật 🌐 Mạng trong cài đặt sandbox rồi ♻ Tạo lại container |

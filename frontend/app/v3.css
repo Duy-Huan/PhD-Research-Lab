@@ -271,3 +271,39 @@
 .pbrief{margin-top:10px;border:1px dashed var(--line);border-radius:10px;padding:6px 10px}
 .pbrief summary{cursor:pointer;font-size:13px;font-weight:600}
 .pbrief textarea{font-size:12.5px}
+
+/* ---------------------------------------------------------------- v3.2 Research Control Center */
+.ccnav{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 14px;border-bottom:1px solid var(--line);padding-bottom:8px}
+.ccnav button{background:none;border:1px solid transparent;border-radius:8px;padding:6px 11px;cursor:pointer;color:var(--muted);font-size:13px}
+.ccnav button:hover{color:var(--text);border-color:var(--line)}
+.ccnav button.on{color:var(--text);border-color:var(--accent);background:var(--panel2)}
+.ccchip{display:inline-block;border-radius:999px;padding:0 8px;font-size:11px;border:1px solid var(--line);color:var(--muted);white-space:nowrap;line-height:18px}
+.ccchip.id{font-family:var(--mono);color:var(--accent2);border-color:color-mix(in srgb,var(--accent2) 50%,transparent)}
+.ccchip.link{font-family:var(--mono);font-size:10.5px}
+.ccchip.testing,.ccchip.running,.ccchip.starting,.ccchip.open{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
+.ccchip.supported,.ccchip.supports,.ccchip.completed,.ccchip.locked{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 55%,transparent)}
+.ccchip.refuted,.ccchip.refutes,.ccchip.failed,.ccchip.validated,.ccchip.cancelled{color:var(--err);border-color:color-mix(in srgb,var(--err) 55%,transparent)}
+.ccline{font-size:12.5px;margin:3px 0;display:flex;flex-wrap:wrap;gap:5px;align-items:center;min-width:0}
+.ccline code{font-size:11.5px}
+.ccsetup{margin:8px 0 0;padding-left:18px;font-size:12.5px;color:var(--muted)}
+.ccv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:12.5px}
+.ccv>span:nth-child(odd){color:var(--muted)}
+.ccv code{word-break:break-all}
+.cctl{position:relative;margin-left:6px}
+.cctl-ev{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;padding:6px 0;border-left:2px solid var(--line);margin-left:12px}
+.cctl-dot{margin-left:-15px;width:26px;height:26px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px}
+.cctl-ev.experiment{border-left-color:color-mix(in srgb,var(--accent2) 60%,transparent)}
+.cctl-ev.failure{border-left-color:color-mix(in srgb,var(--err) 60%,transparent)}
+.cctl-ev.decision{border-left-color:color-mix(in srgb,var(--ok) 60%,transparent)}
+.ccdetail{font-size:12.5px;margin:2px 0}.ccdetail span{color:var(--muted);text-transform:capitalize;margin-right:4px}
+/* live critic badges (Paper Writer) */
+.critbar{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
+.critbar:empty{display:none}
+.critbadge{font-size:11.5px;border-radius:999px;padding:1px 9px;border:1px solid var(--line);cursor:pointer;background:var(--bg);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.critbadge.error{color:var(--err);border-color:var(--err)}
+.critbadge.warning{color:var(--accent);border-color:var(--accent)}
+.critbadge.info{color:var(--muted)}
+@media (max-width:760px){.cxgrid{grid-template-columns:minmax(0,1fr)!important}.v3sec{padding:16px}}
+/* v3.2 Workspace & Runs (replaces the Monaco IDE) */
+.joblog .ok{color:#7ee787}
+.wsdiff{max-height:360px;font-size:11.5px}

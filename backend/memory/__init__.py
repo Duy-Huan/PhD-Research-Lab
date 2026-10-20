@@ -18,7 +18,7 @@ import secrets
 import threading
 from datetime import datetime, timezone
 
-from .config import data_dir, load_config, workspace
+from ..config import data_dir, load_config, workspace
 
 _lock = threading.Lock()
 SUMMARY_CHARS = 30_000
@@ -120,7 +120,7 @@ def decisions_block(st: dict | None = None, purged: set | None = None) -> str:
 
 # ------------------------------------------------------------------ tier 1 (computed)
 def _sessions():
-    from .chat_store import _sess_dir
+    from ..chat_store import _sess_dir
     out = []
     for f in _sess_dir().glob("*.json"):
         if f.name.startswith("_"):
@@ -148,7 +148,7 @@ def tier1(st: dict | None = None) -> dict:
         total += t
     runs_tok = 0
     try:
-        from .sandbox import list_runs, runs_dir
+        from ..sandbox import list_runs, runs_dir
         for r in list_runs(30):
             if r["id"] in st["runs_summarized"]:
                 continue
@@ -188,8 +188,12 @@ _running = {"busy": False}
 
 
 async def summarize(force: bool = False, max_sessions: int = 6) -> dict:
-    """Compress old chat turns and finished runs into Tier-2 episodes; refresh Tier 3. Returns a report."""
-    from .llm import call_agent
+    """Compress old chat turns and finished runs into Tier-2 episodes; refresh Tier 3. Returns a report.
+    v3.2: with memory.v2_pipeline (default) the watermark compressor (memory/compressor.py) does the work."""
+    from ..llm import call_agent
+    if load_config()["memory"].get("v2_pipeline", True):
+        from .compressor import compress
+        return await compress(force=force)
     if _running["busy"]:
         return {"skipped": "already running"}
     _running["busy"] = True
@@ -249,8 +253,8 @@ async def summarize(force: bool = False, max_sessions: int = 6) -> dict:
 
 
 async def _summarize_runs(force: bool) -> int:
-    from .llm import call_agent
-    from .sandbox import list_runs
+    from ..llm import call_agent
+    from ..sandbox import list_runs
     st = load()
     pend = [r for r in list_runs(60) if r["id"] not in st["runs_summarized"] and r.get("status") in ("done", "failed", "stopped")]
     if len(pend) < (1 if force else 3):
@@ -262,8 +266,19 @@ async def _summarize_runs(force: bool) -> int:
     except Exception:
         return 0
     title, body = _split_title(r["text"], f"Experiment runs ({len(pend)})")
+    links = [f"run:{x['id']}" for x in pend]
+    pages = []
+    try:  # v3.2: raw run list snapshotted into the page-store + entity links (task ids, commits) for graph retrieval
+        from .pages import add_page
+        from .compressor import entities
+        raw = "\n".join(lines)
+        pages = [add_page("runs", "runs", [pend[-1]["id"], pend[0]["id"]], raw, header=title)["id"]]
+        links = list(dict.fromkeys(links + entities(raw + "\n" + r["text"])))
+    except Exception:
+        pass
     ep = {"id": "E" + secrets.token_hex(3), "created": _now(), "source": "runs", "tool": "ide", "title": title, "summary": body,
-          "runs": [x["id"] for x in pend], "engine": r.get("engine"), "compressed_tokens": tokens(sum(len(l) for l in lines))}
+          "runs": [x["id"] for x in pend], "engine": r.get("engine"), "compressed_tokens": tokens(sum(len(l) for l in lines)),
+          "links": links, "pages": pages}
 
     def put(st2):
         st2["tier2"].append(ep)
@@ -274,7 +289,7 @@ async def _summarize_runs(force: bool) -> int:
 
 async def _consolidate(max_episodes: int = 40, batch: int = 12):
     """Rolling memory: when Tier 2 grows too long, merge the oldest episodes into one period summary."""
-    from .llm import call_agent
+    from ..llm import call_agent
     st = load()
     eps = [e for e in st["tier2"] if not e.get("pinned")]
     if len(eps) <= max_episodes:
@@ -313,12 +328,12 @@ def _plan_sections(md: str) -> dict:
 def refresh_tier3() -> dict:
     """Fill the automatic parts of Tier 3 (best metrics, references, goals/hypotheses from Lit2Plan when not set by hand)."""
     try:
-        from .sandbox import best_metrics
+        from ..sandbox import best_metrics
         bm = best_metrics()
     except Exception:
         bm = {}
     try:
-        from .library import included
+        from ..library import included
         refs = [e["key"] for e in included()]
     except Exception:
         refs = []
@@ -337,7 +352,13 @@ def refresh_tier3() -> dict:
                 t3["goals"] = ps["goals"]
             if not t3.get("hypotheses_manual") and ps["hypotheses"]:
                 t3["hypotheses"] = ps["hypotheses"]
-    return update(fn)
+    st = update(fn)
+    try:  # v3.2: every plan hypothesis gets a stable HYPE-NNN id in Research Memory (customer scenario 1)
+        from .research import sync_from_plan
+        sync_from_plan(st["tier3"].get("hypotheses") or [])
+    except Exception:
+        pass
+    return st
 
 
 def set_tier3(patch: dict) -> dict:
@@ -387,9 +408,18 @@ def status() -> dict:
     cfg = load_config()["memory"]
     t1 = tier1(st)
     t2_tok = sum(tokens(e.get("summary", "")) for e in st["tier2"])
-    return {"tier1": t1, "tier2": {"count": len(st["tier2"]), "tokens": t2_tok, "episodes": list(reversed(st["tier2"]))},
-            "tier3": st["tier3"], "decisions": st["decisions"], "settings": cfg, "stats": st.get("stats", {}),
-            "busy": _running["busy"]}
+    out = {"tier1": t1, "tier2": {"count": len(st["tier2"]), "tokens": t2_tok, "episodes": list(reversed(st["tier2"]))},
+           "tier3": st["tier3"], "decisions": st["decisions"], "settings": cfg, "stats": st.get("stats", {}),
+           "busy": _running["busy"]}
+    try:  # v3.2 additions (page-store, research memory counts, active watermark)
+        from . import pages, research
+        rs = research.load()
+        out["v2"] = {"enabled": bool(cfg.get("v2_pipeline", True)), "pages": len(pages.list_pages(100000)),
+                     "high": cfg["high_watermark_tokens"], "low": cfg["low_watermark_tokens"], "chunk": cfg["chunk_tokens"],
+                     "hypotheses": len(rs["hypotheses"]), "experiments": len(rs["experiments"]), "failures": len(rs["failures"])}
+    except Exception as e:
+        out["v2"] = {"error": str(e)}
+    return out
 
 
 def delete_episode(eid: str):
@@ -418,7 +448,8 @@ async def worker(stop_event: asyncio.Event):
         try:
             cfg = load_config()["memory"]
             if cfg.get("auto_summarize", True):
-                if tier1()["tokens"] >= int(cfg["tier1_threshold_tokens"]):
+                limit = int(cfg["high_watermark_tokens"] if cfg.get("v2_pipeline", True) else cfg["tier1_threshold_tokens"])
+                if tier1()["tokens"] >= limit:
                     await summarize(force=False)
                 update(lambda st: st["stats"].update(last_check=_now()))
             delay = max(30, int(cfg.get("interval_s", 180)))

@@ -6,7 +6,7 @@ Stored per project in <data>/results/:
     <id>/extracted.txt      text the agents read (empty for images: the researcher's description + AI analysis are used)
     _trash/<id>/            deleted items (recoverable)
 
-The *pool* combines these uploads with Code IDE runs (metrics + figures), the Paper Writer's LaTeX tables and its results
+The *pool* combines these uploads with sandbox runs (metrics + figures), the Paper Writer's LaTeX tables and its results
 notes, so the Writer can pick exactly which results each section presents. Nothing here ever invents a number: agents get
 only the extracted text, the researcher's notes and AI findings that are grounded in that text/image.
 """

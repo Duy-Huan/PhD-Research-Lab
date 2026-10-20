@@ -8,18 +8,22 @@ Each API key is only ever sent to its own provider's API endpoint.
 from __future__ import annotations
 
 import json
+import os
 import re
 import threading
 from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "3.1.0"
+APP_VERSION = "3.2.0"
 
 ROOT = Path(__file__).resolve().parent.parent
-GLOBAL_DIR = ROOT / "data"                 # global config + the "Default project" (backward compatible)
+# PHDLAB_DATA_DIR (v3.2) moves ALL user data elsewhere — used by the test suite so it never touches the real data/.
+_DATA_OVERRIDE = os.environ.get("PHDLAB_DATA_DIR", "").strip()
+GLOBAL_DIR = Path(_DATA_OVERRIDE).resolve() if _DATA_OVERRIDE else ROOT / "data"   # global config + the "Default project"
 CONFIG_PATH = GLOBAL_DIR / "config.json"
-PROJECTS_ROOT = ROOT / "projects"          # default parent folder for new projects
+PROJECTS_ROOT = GLOBAL_DIR / "projects" if _DATA_OVERRIDE else ROOT / "projects"    # default parent folder for new projects
+DEFAULT_REFS = GLOBAL_DIR / "references" if _DATA_OVERRIDE else ROOT / "references"
 META_NAME = "project_meta.json"
 GLOBAL_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -66,6 +70,15 @@ PROVIDERS = {
     "together":   {"label": "Together AI", "kind": "openai", "base_url": "https://api.together.xyz/v1",
                    "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo", "key_url": "https://api.together.ai/settings/api-keys",
                    "models": []},
+    # v3.2 LLM gateway (LLM_UPDATE_PROMPT.md). Local gateways keep their own keys in plaintext: never put your main
+    # paid OpenAI/Anthropic keys into them — give them only their own gateway token.
+    "deepinfra":  {"label": "DeepInfra", "kind": "openai", "base_url": "https://api.deepinfra.com/v1/openai",
+                   "model": "meta-llama/Llama-3.3-70B-Instruct", "key_url": "https://deepinfra.com/dash/api_keys",
+                   "models": ["meta-llama/Llama-3.3-70B-Instruct", "Qwen/Qwen2.5-72B-Instruct"]},
+    "ninerouter": {"label": "9Router (local gateway)", "kind": "openai", "base_url": "http://localhost:20128/v1",
+                   "model": "", "key_url": "", "models": [], "local_gateway": True, "key_optional": True},
+    "omniroute":  {"label": "OmniRoute (local proxy)", "kind": "openai", "base_url": "http://localhost:20130/v1",
+                   "model": "", "key_url": "", "models": [], "local_gateway": True, "key_optional": True},
     "custom":     {"label": "Custom (OpenAI-compatible)", "kind": "openai", "base_url": "",
                    "model": "", "key_url": "", "models": []},
 }
@@ -99,6 +112,16 @@ AGENTS = {
     "context_agent":   {"label": "🧠 Context decision agent", "default": "cloud"},
     # v3.1 external results
     "results_analyst": {"label": "📊 Results analyst (reads figures/tables)", "default": "cloud"},
+    # v3.2 live critic (LaTeX / citation / logic checks while the paper streams) — "auto" = SmartMultiRouter
+    "critic":          {"label": "🩺 Live critic (Paper Writer)", "default": "auto"},
+}
+
+# v3.2: task kind of every agent for the "auto" engine mode (backend/llm_router.py)
+AGENT_TASK_KIND = {
+    "critic": "live_critic", "summarizer": "summarize", "pdf_parser": "extract", "bib_extractor": "extract",
+    "data_extractor": "extract", "query_expansion": "extract", "web_query": "extract", "coder": "code",
+    "lit2plan": "reasoning", "experiment": "reasoning", "author": "writing", "reviewer": "reasoning", "editor": "writing",
+    "context_agent": "reasoning", "results_analyst": "reasoning", "masterclass": "writing",
 }
 
 SEARCH_DEFAULTS = {
@@ -119,7 +142,7 @@ DEFAULTS = {
     "ollama_base_url": "http://localhost:11434",
     "ollama_model": "",
     "agent_models": {},      # v3: per-agent model override {agent: model id} for the engine selected for that agent
-    "references_dir": str(ROOT / "references"),  # legacy (v1.0-1.5): becomes the Default project's references
+    "references_dir": str(DEFAULT_REFS),  # legacy (v1.0-1.5): becomes the Default project's references
     "projects": [],          # registered project data folders
     "active_project": "",    # data folder of the active project ("" = Default project in data/)
     "fallback_to_cloud": True,
@@ -127,16 +150,69 @@ DEFAULTS = {
     "output_lang": "ui",   # Tools 1/2/4 output language: ui | en | vi
     "agent_modes": {k: v["default"] for k, v in AGENTS.items()},
     "search": dict(SEARCH_DEFAULTS),
-    "latex_online": False,
+    "latex_online": False,   # v2.7: allow compiling the preview with the public LaTeX-on-HTTP service (sends the paper)
     "github": {"token": "", "user": "", "name": "", "email": ""},   # v3: Personal Access Token (only sent to api.github.com / github.com)
-    "memory": {"tier1_threshold_tokens": 24000, "keep_recent_turns": 12, "auto_summarize": True, "interval_s": 180},   # v2.7: allow compiling the preview with the public LaTeX-on-HTTP service (sends the paper)
+    "memory": {"tier1_threshold_tokens": 24000, "keep_recent_turns": 12, "auto_summarize": True, "interval_s": 180,
+               # v3.2 Context Memory v2 (CONTEXT_MEMORY.md): token watermarks of the compressor, chunk size of the
+               # hierarchical reduce, retrieval/compiler settings
+               "high_watermark_tokens": 16000, "low_watermark_tokens": 2000, "chunk_tokens": 3500, "min_keep_messages": 2,
+               "parallel_summaries": 2, "summary_timeout_s": 240, "v2_pipeline": True, "context_budget_tokens": 3500,
+               "embed_engine": "auto", "embed_model": "nomic-embed-text", "rerank_url": "", "rerank_model": ""},
+    # v3.2 hardware resource governor (HARDWARE_RESOURCE_CONSTRAINT.md); 0 = derived from the scanned machine
+    "resources": {"enforce_caps": True, "require_unload": True, "vram_free_target_mb": 2048, "unload_wait_s": 1.5,
+                  "unload_timeout_s": 20, "gpu_temp_limit_c": 83, "cpu_fallback_on_gpu_fault": True, "gpu_busy_util_pct": 80,
+                  "sandbox_memory_gb": 0, "sandbox_cpus": 0, "local_ai_vram_gb": 0, "local_ai_threads": 0},
+    # v3.2 integrations (all optional; credentials are masked in the UI and only sent to their own server)
+    "clearml": {"enabled": False, "api_host": "", "web_host": "", "files_host": "", "access_key": "", "secret_key": "",
+                "project": "PhD Research Lab", "queue": "default"},
+    "codex": {"enabled": False, "binary": "", "sandbox": "read-only", "model": "", "timeout_s": 1800},
+    "workspace": {"vscode_path": "", "jupyter_port": 8888},
+    "routing": {"online_check": True, "chains": {}, "provider_headers": {}},
+    "critic": {"enabled": True, "llm": True, "interval_chars": 700},
+    "provenance": {"enabled": True, "csv_header": True},
 }
+SECTIONS_V32 = ("memory", "resources", "clearml", "codex", "workspace", "routing", "critic", "provenance")
+SECRET_FIELDS = {"clearml": ("access_key", "secret_key")}
+CHOICES = {("codex", "sandbox"): ("read-only", "workspace-write"),
+           ("memory", "embed_engine"): ("auto", "ollama", "hashing")}
 
 _lock = threading.Lock()
 
 
 def _valid_mode(m: str) -> bool:
-    return m in ("cloud", "local", "claude", "ollama") or m in PROVIDERS
+    return m in ("cloud", "local", "claude", "ollama", "auto") or m in PROVIDERS
+
+
+def _coerce(default, val):
+    """Value converted to the type of its default (bad values keep the default)."""
+    try:
+        if isinstance(default, bool):
+            return val if isinstance(val, bool) else str(val).strip().lower() in ("1", "true", "yes", "on")
+        if isinstance(default, int):
+            return max(0, int(float(val)))
+        if isinstance(default, float):
+            return max(0.0, float(val))
+        if isinstance(default, dict):
+            return dict(val) if isinstance(val, dict) else default
+        if isinstance(default, list):
+            return list(val) if isinstance(val, list) else default
+        return str(val if val is not None else "").strip()[:2000]
+    except (TypeError, ValueError):
+        return default
+
+
+def _merge_section(sec: str, target: dict, patch: dict, masked_ok: bool) -> None:
+    """Update one v3.2 config section with known keys only; masked secrets ('••') leave the stored value unchanged."""
+    for f, val in (patch or {}).items():
+        if f not in DEFAULTS[sec]:
+            continue
+        if f in SECRET_FIELDS.get(sec, ()) and masked_ok and isinstance(val, str) and "•" in val:
+            continue
+        v = _coerce(DEFAULTS[sec][f], val)
+        allowed = CHOICES.get((sec, f))
+        if allowed and v not in allowed:
+            v = DEFAULTS[sec][f]
+        target[f] = v
 
 
 def load_config() -> dict:
@@ -162,15 +238,17 @@ def load_config() -> dict:
         cfg["providers"]["anthropic"]["model"] = saved["claude_model"]
     cfg["agent_modes"].update({a: m for a, m in (saved.get("agent_modes") or {}).items()
                                if a in AGENTS and _valid_mode(m)})
-    for sec in ("github", "memory"):
+    if isinstance(saved.get("github"), dict):
+        cfg["github"].update({k: v for k, v in saved["github"].items() if k in DEFAULTS["github"]})
+    for sec in SECTIONS_V32:
         if isinstance(saved.get(sec), dict):
-            cfg[sec].update({k: v for k, v in saved[sec].items() if k in DEFAULTS[sec]})
+            _merge_section(sec, cfg[sec], saved[sec], masked_ok=False)
     cfg["agent_models"].update({a: str(m) for a, m in (saved.get("agent_models") or {}).items() if a in AGENTS and m})
     cfg["search"].update({k: v for k, v in (saved.get("search") or {}).items() if k in SEARCH_DEFAULTS})
     if cfg["default_cloud"] not in PROVIDERS:
         cfg["default_cloud"] = "anthropic"
     if not (GLOBAL_DIR / META_NAME).exists():  # first run / upgrade: describe the legacy data/ folder as a project
-        _ensure_project(GLOBAL_DIR, "Default project", cfg.get("references_dir") or str(ROOT / "references"))
+        _ensure_project(GLOBAL_DIR, "Default project", cfg.get("references_dir") or str(DEFAULT_REFS))
     proj = active_project(cfg)
     cfg["references_dir"] = proj["references_dir"]  # what the UI shows/edits = the active project's folder
     return cfg
@@ -217,15 +295,11 @@ def save_config(patch: dict) -> dict:
                             cfg["github"]["token"] = val.strip()
                     elif f in ("user", "name", "email"):
                         cfg["github"][f] = str(val).strip()[:120]
-            elif k == "memory" and isinstance(v, dict):
-                for f, val in v.items():
-                    if f == "auto_summarize":
-                        cfg["memory"][f] = bool(val)
-                    elif f in ("tier1_threshold_tokens", "keep_recent_turns", "interval_s"):
-                        try:
-                            cfg["memory"][f] = max(1, int(val))
-                        except (TypeError, ValueError):
-                            pass
+            elif k in SECTIONS_V32 and isinstance(v, dict):
+                _merge_section(k, cfg[k], v, masked_ok=True)
+                if k == "memory":
+                    for f in ("tier1_threshold_tokens", "keep_recent_turns", "interval_s", "high_watermark_tokens", "chunk_tokens"):
+                        cfg["memory"][f] = max(1, cfg["memory"][f])
             elif k == "search" and isinstance(v, dict):
                 sc = cfg["search"]
                 for f, val in v.items():
@@ -263,6 +337,10 @@ def public_config(cfg: dict) -> dict:
         out["search"][f] = mask(out["search"].get(f, ""))
     out["github"]["has_token"] = bool(out["github"].get("token"))
     out["github"]["token"] = mask(out["github"].get("token", ""))
+    for sec, fields in SECRET_FIELDS.items():
+        for f in fields:
+            out[sec]["has_" + f] = bool(out[sec].get(f))
+            out[sec][f] = mask(out[sec].get(f, ""))
     out["provider_specs"] = PROVIDERS
     out["agents"] = AGENTS
     out["version"] = APP_VERSION

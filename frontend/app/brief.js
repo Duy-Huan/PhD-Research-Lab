@@ -1,5 +1,5 @@
 /* PhD Research Lab v3.1 — writing brief per paper section (Paper Writer → 🎯 Brief)
- * Directions (the existing #sec-notes box) + results to present (from uploads, Code IDE runs, Writer tables) with how to
+ * Directions (the existing #sec-notes box) + results to present (from uploads, sandbox runs, Writer tables) with how to
  * present each one + required structure + must include / must avoid + tone & length + references to emphasise.
  * Plus a paper-wide brief (story, style, terminology, never-do) applied to every section.
  * The brief is sent to the Author (3.2), the Editor (3.4) and the section Reviewer (3.3) on every run.
@@ -100,7 +100,7 @@
     const chips = [...(SUGGEST[sec] || []), ...SUGGEST._];
     host.innerHTML = `
       <div class="bchips">${chips.map(c => `<button class="chip" data-sugg="${esc(c)}" title="${esc(T('Add to the directions'))}">＋ ${esc(T(c))}</button>`).join('')}</div>
-      <div class="bsec"><h5>📊 ${T('Results to present')} <span class="status">— ${T('pick what this section shows and how; uploads (Experiment Design), Code IDE runs and figures, Writer tables')}</span></h5>${resultsEditor()}</div>
+      <div class="bsec"><h5>📊 ${T('Results to present')} <span class="status">— ${T('pick what this section shows and how; uploads (Experiment Design), sandbox runs and figures, Writer tables')}</span></h5>${resultsEditor()}</div>
       <div class="bsec"><h5>🧱 ${T('Structure (optional)')} <span class="status">— ${T('one paragraph or subsection per line, in order')}</span></h5>${listEditor('outline', 'e.g. Datasets and metrics', true)}</div>
       <div class="bgrid">
         <div class="bsec"><h5>✅ ${T('Must include')}</h5>${listEditor('must', 'e.g. the 2 W power budget')}</div>

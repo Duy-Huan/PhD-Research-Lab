@@ -1,4 +1,4 @@
-"""Co-coding agent (v3.0): Human-AI pair programming in the Code IDE with an automatic self-debugging loop.
+"""Co-coding agent (v3.0): Human-AI pair programming (Workspace & Runs tab) with an automatic self-debugging loop.
 
 Text protocol (works with every model, including local 14B models without function calling):
     ```python file=src/train.py        → create/replace that file (complete content)
@@ -66,16 +66,14 @@ def _last_run() -> str:
             f"stderr tail:\n{d.get('stderr', '')[-2500:]}\nstdout tail:\n{d.get('stdout', '')[-1500:]}")
 
 
-def system_prompt(open_file: str = "", extra_context: str = "") -> str:
-    from . import memory as M
-    from .context_graph import pinned_block
+def system_prompt(open_file: str = "", extra_context: str = "", query: str = "") -> str:
+    from .context_graph import pinned_block, purged_ids
+    from .memory.compiler import agent_block
     s = CODER_SYS
     pinned = pinned_block()
     if pinned:
         s += "\n\n# MUST-FOLLOW CONTEXT (pinned by the researcher)\n" + pinned
-    mem = M.memory_block("ide", budget=5000)
-    if mem:
-        s += "\n\n# PROJECT MEMORY\n" + mem
+    s += agent_block("ide", "", query, purged_ids())
     bp = _blueprint()
     if bp:
         s += "\n\n# RESEARCH BLUEPRINT\n" + bp
@@ -126,8 +124,9 @@ def apply(files: list) -> list:
     return done
 
 
-async def run_and_wait(cmd: str, emit, title: str = "") -> dict:
-    job = await asyncio.to_thread(sandbox.start_job, cmd, "run", title or f"agent: {cmd[:60]}")
+async def run_and_wait(cmd: str, emit, title: str = "", cpu: bool = False) -> dict:
+    job = await asyncio.to_thread(sandbox.start_job, cmd, "run", title or f"agent: {cmd[:60]}",
+                                  {"CUDA_VISIBLE_DEVICES": ""} if cpu else None)
     await emit({"type": "run_start", "job": job.info()})
     last = 0
     try:

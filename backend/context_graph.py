@@ -21,10 +21,13 @@ from . import memory as M
 _lock = threading.Lock()
 TYPES = {"project": "Project", "objective": "Objective", "hypothesis": "Hypothesis", "decision": "Decision",
          "literature": "Literature", "assumption": "Code assumption", "code": "Code", "metric": "Metric", "run": "Run",
-         "episode": "Episode", "note": "Pinned note", "constraint": "Constraint", "idea": "Idea", "result": "Result"}
+         "episode": "Episode", "note": "Pinned note", "constraint": "Constraint", "idea": "Idea", "result": "Result",
+         "experiment": "Experiment", "failure": "Validated failure"}
 HUB_LABELS = {"objective": "Objectives", "hypothesis": "Hypotheses", "decision": "Decisions", "literature": "Literature",
               "assumption": "Code assumptions", "code": "Code files", "metric": "Metrics", "run": "Runs", "episode": "Episodes",
-              "note": "Pinned notes", "constraint": "Constraints", "idea": "Ideas", "result": "Results"}
+              "note": "Pinned notes", "constraint": "Constraints", "idea": "Ideas", "result": "Results",
+              "experiment": "Experiments", "failure": "Failures"}
+RESEARCH_ID = re.compile(r"^(HYPE|EXP|FAIL)-\d{3,6}$")
 
 
 def _now() -> str:
@@ -91,10 +94,48 @@ def build(include_purged: bool = True) -> dict:
     used_types = set()
 
     t3 = st["tier3"]
+    try:
+        from .memory import research as RM
+        rs = RM.load()
+    except Exception:
+        rs = {"hypotheses": [], "experiments": [], "failures": []}
+    norm = lambda t: re.sub(r"[^\w]+", " ", re.sub(r"^\s*H\d+\s*[:.)-]\s*", "", t or "").lower()).strip()  # noqa: E731
+    hype_by_text = {norm(h["text"]): h for h in rs["hypotheses"]}
+    alias = {}  # HYPE id → graph node id (plan hypotheses keep their hyp:i node, labelled with the HYPE id)
     for i, g in enumerate(t3.get("goals") or []):
         add(f"goal:{i}", "objective", _short(g), g, "Tier 3 · goals", editable=True); used_types.add("objective")
     for i, h in enumerate(t3.get("hypotheses") or []):
-        add(f"hyp:{i}", "hypothesis", _short(h), h, "Tier 3 · hypotheses", editable=True); used_types.add("hypothesis")
+        hy = hype_by_text.get(norm(h))
+        if hy:
+            alias[hy["id"]] = f"hyp:{i}"
+        add(f"hyp:{i}", "hypothesis", (f"{hy['id']} · " if hy else "") + _short(h), h,
+            "Tier 3 · hypotheses" + (f" · {hy['id']} ({hy['status']})" if hy else ""), editable=True,
+            extra={"hype": hy["id"], "status": hy["status"]} if hy else None)
+        used_types.add("hypothesis")
+    for h in rs["hypotheses"]:
+        if h["id"] not in alias:
+            add(h["id"], "hypothesis", f"{h['id']} · {_short(h['text'], 48)}", h["text"], f"Research memory · {h['status']}",
+                editable=True, deletable=True, extra={"hype": h["id"], "status": h["status"]})
+            alias[h["id"]] = h["id"]
+            used_types.add("hypothesis")
+    run_nodes = set()
+    for e in rs["experiments"]:
+        add(e["id"], "experiment", f"{e['id']} · {_short(e['title'], 44)}",
+            "\n".join(f"{k}: {e[k]}" for k in ("observation", "interpretation", "decision", "conclusion", "next_action") if e.get(k)),
+            f"Research memory · {e.get('verdict') or 'open'}", deletable=True,
+            extra={k: e.get(k) for k in ("run_id", "clearml_task_id", "clearml_url", "git_sha", "hypothesis_id", "verdict")})
+        used_types.add("experiment")
+        if e.get("run_id"):
+            run_nodes.add(e["run_id"])
+    for f in rs["failures"]:
+        add(f["id"], "failure", f"{f['id']} · {_short(f['text'], 44)}", f"{f['text']}\n{f.get('reason', '')}", "Research memory · failure",
+            deletable=True)
+        used_types.add("failure")
+        if f.get("run_id"):
+            run_nodes.add(f["run_id"])
+    for rid in sorted(run_nodes):
+        add(f"run:{rid}", "run", f"run {rid[-11:]}", rid, "Sandbox run")
+        used_types.add("run")
     for i, c in enumerate(t3.get("constraints") or []):
         add(f"con:{i}", "constraint", _short(c), c, "Tier 3 · constraints", editable=True); used_types.add("constraint")
     for d in st["decisions"]:
@@ -139,7 +180,7 @@ def build(include_purged: bool = True) -> dict:
         for p in pys:
             relp = str(p.relative_to(code_dir())).replace("\\", "/")
             doc = re.match(r'\s*(?:#.*\n)*\s*(?:"""|\'\'\')(.+?)(?:"""|\'\'\')', p.read_text("utf-8", errors="replace")[:3000], re.S)
-            add(f"code:{relp}", "code", relp, (doc.group(1).strip() if doc else "")[:500], "Code IDE workspace")
+            add(f"code:{relp}", "code", relp, (doc.group(1).strip() if doc else "")[:500], "code workspace")
             used_types.add("code")
     except Exception:
         pass
@@ -162,6 +203,24 @@ def build(include_purged: bool = True) -> dict:
         if any(x["id"] == h for x in nodes):
             edges.append({"from": h, "to": n["id"]})
     ids = {n["id"] for n in nodes}
+    # v3.2 research links: experiment → hypothesis / run, failure → hypothesis / run, episode → entities it mentions
+    def link(a, b, label):
+        b = alias.get(b, b)
+        if a in ids and b in ids and a != b:
+            edges.append({"from": a, "to": b, "label": label, "research": True})
+    for e in rs["experiments"]:
+        if e.get("hypothesis_id"):
+            link(e["id"], e["hypothesis_id"], e.get("verdict") or "tests")
+        if e.get("run_id"):
+            link(e["id"], f"run:{e['run_id']}", "run")
+    for f in rs["failures"]:
+        if f.get("hypothesis_id"):
+            link(f["id"], f["hypothesis_id"], "refutes")
+        if f.get("run_id"):
+            link(f["id"], f"run:{f['run_id']}", "run")
+    for ep in st["tier2"][-25:]:
+        for l in ep.get("links") or []:
+            link(ep["id"], l, "mentions")
     for a, b, *lab in ov["edges"]:
         if a in ids and b in ids:
             edges.append({"from": a, "to": b, "label": lab[0] if lab else "", "custom": True})
@@ -215,6 +274,12 @@ def apply_ops(ops: list) -> dict:
                         M.set_tier3({key: vals})
                 elif nid.startswith("D"):
                     M.edit_decision(nid, {"text": op.get("text") or op.get("label")})
+                elif RESEARCH_ID.match(nid):
+                    from .memory import research as RM
+                    if nid.startswith("HYPE"):
+                        RM.update_hypothesis(nid, {"text": op.get("text") or op.get("label")})
+                    elif nid.startswith("EXP") and op.get("label"):
+                        RM.update_experiment(nid, {"title": op["label"]})
                 elif nid.startswith("E"):
                     patch = {}
                     if op.get("text"):
@@ -252,7 +317,10 @@ def apply_ops(ops: list) -> dict:
             elif kind == "link":
                 ov["edges"].append([op["from"], op["to"], op.get("label", "")])
             elif kind == "delete":
-                if nid.startswith("D"):
+                if RESEARCH_ID.match(nid):
+                    from .memory import research as RM
+                    RM.delete(nid)
+                elif nid.startswith("D"):
                     M.delete_decision(nid)
                 elif nid.startswith("E"):
                     M.delete_episode(nid)

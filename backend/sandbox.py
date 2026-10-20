@@ -40,6 +40,14 @@ class SandboxError(Exception):
     pass
 
 
+class VramBusyError(SandboxError):
+    """GPU run refused: local LLMs are loaded in VRAM (see resources.vram_gate)."""
+
+    def __init__(self, message: str, models: list, vram_used_mb=None):
+        super().__init__(message)
+        self.models, self.vram_used_mb = models, vram_used_mb
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
@@ -182,8 +190,18 @@ def image_present(image: str) -> bool:
     return code == 0
 
 
-def ensure_container(recreate: bool = False) -> dict:
+def _capped_settings() -> tuple[dict, list]:
+    """Sandbox settings after the v3.2 hardware policy (resources.py); never fails."""
     s = load_settings()
+    try:
+        from .resources import clamp_sandbox
+        return clamp_sandbox(s)
+    except Exception:
+        return s, []
+
+
+def ensure_container(recreate: bool = False) -> dict:
+    s, cap_warn = _capped_settings()
     image = effective_image(s)
     st = container_state()
     want_gpu = bool(s["gpu"])
@@ -195,7 +213,12 @@ def ensure_container(recreate: bool = False) -> dict:
             code, out = docker(["start", st["name"]], 60)
             if code != 0:
                 raise SandboxError(f"Could not start the container: {out.strip()[-400:]}")
-        return container_state()
+        st = container_state()
+        over = [f"{k}={st.get(k) or 'unlimited'}" for k in ("memory_gb", "cpus") if s.get(k) and (not st.get(k) or st[k] > s[k] + 0.01)]
+        if over:  # recreating would drop the packages installed in the container, so only warn
+            st["warning"] = (f"Container limits ({', '.join(over)}) exceed the hardware policy "
+                             f"({s['memory_gb']} GB, {s['cpus']} CPUs) — press ♻ Recreate to apply them.")
+        return st
     if not image_present(image):
         raise SandboxError(f"NEED_IMAGE:{image}")
     args = ["run", "-d", "--name", st["name"], "--label", "phdlab=1", "--label", f"phdlab.project={data_dir().name}",
@@ -213,6 +236,10 @@ def ensure_container(recreate: bool = False) -> dict:
         args += ["--gpus", "all"]
     args += [image, "sleep", "infinity"]
     code, out = docker(args, 180)
+    if code == 0 and cap_warn:
+        st = container_state()
+        st["warning"] = "; ".join(cap_warn)
+        return st
     if code != 0 and want_gpu and re.search(r"gpu|nvidia|device driver", out, re.I):
         args.remove("--gpus"); args.remove("all")
         docker(["rm", "-f", st["name"]], 60)  # a half-created container keeps the name
@@ -382,14 +409,42 @@ def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | No
     """Run a shell command in the sandbox (non-blocking). kind=run creates runs/<id>/."""
     if not cmd.strip():
         raise SandboxError("Empty command")
-    s = load_settings()
+    s, _ = _capped_settings()
     mode = effective_mode(s)
+    if kind == "run" and s.get("gpu") and (extra_env or {}).get("CUDA_VISIBLE_DEVICES") != "":
+        from .resources import VramBusy, vram_gate
+        try:  # researcher's rule: no GPU training while local LLMs sit in VRAM (refused before anything is created)
+            vram_gate()
+        except VramBusy as e:
+            raise VramBusyError(str(e), e.models, e.vram_used_mb)
     job = _register(Job(kind, cmd, title))
     job.mode = mode
     if kind == "run":
         job.run_dir = runs_dir() / job.id
         job.run_dir.mkdir(parents=True, exist_ok=True)
-    env = {"RUN_ID": job.id, **(extra_env or {})}
+    env = {"RUN_ID": job.id}
+    if kind == "run":  # v3.2: traceability (git commit) + hardware governor (thermal guard, JIT VRAM unload)
+        try:
+            from .gitops import head_info
+            job.meta["git"] = head_info()
+            if job.meta["git"].get("dirty"):
+                job.add("sys", f"ℹ code at {job.meta['git'].get('short') or 'no commit'} with uncommitted changes — commit to make this run reproducible")
+        except Exception as e:
+            job.meta["git"] = {"error": str(e)[:200]}
+        gpu_env = {}
+        if s.get("gpu") and "CUDA_VISIBLE_DEVICES" not in (extra_env or {}):
+            try:
+                from .resources import prepare_gpu_run
+                prep = prepare_gpu_run(s, log=lambda m: job.add("sys", m))
+                gpu_env = prep["env"]
+                job.meta["resources"] = {k: v for k, v in prep.items() if k != "env"}
+            except Exception as e:
+                job.add("sys", f"⚠ resource governor skipped: {e}")
+        env.update(gpu_env)
+        job.meta["environment"] = {"mode": mode, "image": effective_image(s) if mode == "docker" else "local venv",
+                                   "gpu": bool(s.get("gpu")) and (extra_env or {}).get("CUDA_VISIBLE_DEVICES", gpu_env.get("CUDA_VISIBLE_DEVICES")) != "",
+                                   "memory_gb": s.get("memory_gb"), "cpus": s.get("cpus")}
+    env.update(extra_env or {})
     if mode == "docker":
         st = ensure_container()
         if st.get("warning"):
@@ -449,10 +504,43 @@ def _waiter(job: Job, t1, t2, timeout_s: int):
     job.add("sys", f"[{job.status}] exit code {job.exit_code} · {round(job.ended - job.started, 1)} s")
     if job.run_dir:
         try:
-            job.meta = collect_run(job)
+            job.meta.update(collect_run(job))
         except Exception as e:
             job.add("sys", f"(metrics extraction failed: {e})")
+        _after_run(job)
         _write_run_meta(job)
+
+
+def _after_run(job: Job) -> None:
+    """v3.2: seal produced artifacts with provenance metadata; re-run once on CPU after a GPU fault."""
+    try:
+        from .config import load_config
+        cfg = load_config()
+        if cfg["provenance"].get("enabled", True):
+            from .provenance import seal_run
+            job.meta["provenance"] = seal_run(job.run_dir, job.id, job.meta, csv_header=cfg["provenance"].get("csv_header", True))
+    except Exception as e:
+        job.add("sys", f"(provenance sealing failed: {e})")
+    if job.status != "failed" or job.kind != "run":
+        return
+    try:
+        from .config import load_config
+        from .resources import classify_failure
+        kind = classify_failure(job.tail(200, "err"))
+        if not kind:
+            return
+        job.meta["failure_class"] = kind
+        if kind == "gpu_oom":
+            job.add("sys", "💡 CUDA out of memory — reduce the batch size / model size, or unload local LLMs first.")
+            return
+        env = job.meta.get("environment") or {}
+        if env.get("gpu") and load_config()["resources"].get("cpu_fallback_on_gpu_fault", True) and not job.meta.get("fallback_of"):
+            nj = start_job(job.cmd, "run", f"CPU fallback of {job.id}", extra_env={"CUDA_VISIBLE_DEVICES": ""})
+            nj.meta["fallback_of"] = job.id
+            job.meta["fallback_run"] = nj.id
+            job.add("sys", f"⚠ GPU fault detected — the run was restarted on CPU as {nj.id}")
+    except Exception as e:
+        job.add("sys", f"(GPU fault handling failed: {e})")
 
 
 def stop_job(job_id: str) -> dict:
@@ -597,7 +685,8 @@ def list_runs(limit: int = 100) -> list:
                 live = JOBS.get(r["id"])
                 if live:
                     r.update(live.info())
-                out.append({k: r.get(k) for k in ("id", "cmd", "title", "status", "exit_code", "started", "duration", "mode", "metrics", "figures")})
+                out.append({k: r.get(k) for k in ("id", "cmd", "title", "status", "exit_code", "started", "duration", "mode", "metrics",
+                                                  "figures", "git", "environment", "clearml", "fallback_run", "fallback_of")})
             except Exception:
                 pass
     return out

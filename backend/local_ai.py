@@ -122,10 +122,39 @@ async def lmstudio_load(base_url: str, model: str, context_length: int | None = 
                        "'Just-in-Time model loading', or install the `lms` CLI, or load the model in the LM Studio window.")
 
 
+async def lmstudio_loaded_instances(base_url: str) -> list:
+    """[(model key, instance id)] from the REST v1 API (LM Studio ≥ 0.4: GET /api/v1/models → loaded_instances)."""
+    root = lms_root(base_url)
+    async with httpx.AsyncClient(timeout=8) as c:
+        r = await c.get(f"{root}/api/v1/models")
+    r.raise_for_status()
+    out = []
+    for m in r.json().get("models", []):
+        for inst in m.get("loaded_instances") or []:
+            if inst.get("id"):
+                out.append((m.get("key", ""), inst["id"]))
+    return out
+
+
 async def lmstudio_unload(base_url: str, model: str = "") -> dict:
     root = lms_root(base_url)
+    tried = []
+    try:  # REST v1: one call per loaded instance (the endpoint requires instance_id)
+        inst = [i for k, i in await lmstudio_loaded_instances(base_url) if not model or model in (k, i)]
+        async with httpx.AsyncClient(timeout=120) as c:
+            done = []
+            for iid in inst:
+                r = await c.post(f"{root}/api/v1/models/unload", json={"instance_id": iid})
+                if r.status_code < 300:
+                    done.append(iid)
+                else:
+                    tried.append(f"REST {r.status_code} for {iid}")
+        if inst and len(done) == len(inst):
+            return {"ok": True, "method": "rest-v1", "unloaded": done}
+    except (httpx.HTTPError, ValueError) as e:
+        tried.append(f"REST v1 {type(e).__name__}")
     async with httpx.AsyncClient(timeout=60) as c:
-        try:
+        try:  # older builds that accepted {"all": true} / {"model": …}
             r = await c.post(f"{root}/api/v1/models/unload", json={"model": model} if model else {"all": True})
             if r.status_code < 300:
                 return {"ok": True, "method": "rest"}
@@ -137,8 +166,8 @@ async def lmstudio_unload(base_url: str, model: str = "") -> dict:
         if code == 0:
             return {"ok": True, "method": "lms"}
         raise LocalAIError(f"lms unload failed: {out.strip()[-300:]}")
-    raise LocalAIError("This LM Studio version cannot unload through its API — eject the model in the LM Studio window "
-                       "(or install the `lms` CLI).")
+    raise LocalAIError("Could not unload LM Studio models (" + ("; ".join(tried) or "no API answered") + ") — eject the model "
+                       "in the LM Studio window (or install the `lms` CLI).")
 
 
 # ------------------------------------------------------------------ Ollama

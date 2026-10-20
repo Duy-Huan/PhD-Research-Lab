@@ -1,4 +1,4 @@
-"""v3.0 API: local AI servers, system scan, Docker sandbox, Code IDE, co-coding agent, Git/GitHub,
+"""v3.0 API: local AI servers, system scan, Docker sandbox, workspace files, co-coding agent, Git/GitHub,
 hierarchical memory, context graph, Lit2Plan decisions & regeneration, results import, project export, MCP."""
 from __future__ import annotations
 
@@ -89,7 +89,7 @@ async def local_pull(body: dict = Body(...)):
 @router.get("/api/agents/runtime")
 async def agents_runtime():
     cfg = load_config()
-    out = {a: agent_runtime(cfg, a) for a in AGENTS}
+    out = await run_in_threadpool(lambda: {a: agent_runtime(cfg, a) for a in AGENTS})  # "auto" agents probe engines
     auto = {r["engine"] for r in out.values() if r["model"] == "(auto)" and r["engine"] in ("local", "ollama")}
     resolved = {}
     for eng in auto:  # show the model that will really be used (the loaded one)
@@ -194,9 +194,15 @@ async def sandbox_pull(body: dict = Body(...)):
         _err(e)
 
 
-def _start(cmd, kind="run", title=""):
+def vram_busy_http(e: "sandbox.VramBusyError") -> HTTPException:
+    return HTTPException(409, {"vram_busy": e.models, "vram_used_mb": e.vram_used_mb, "message": str(e)})
+
+
+def _start(cmd, kind="run", title="", cpu=False):
     try:
-        return sandbox.start_job(cmd, kind, title)
+        return sandbox.start_job(cmd, kind, title, extra_env={"CUDA_VISIBLE_DEVICES": ""} if cpu else None)
+    except sandbox.VramBusyError as e:
+        raise vram_busy_http(e)
     except sandbox.SandboxError as e:
         msg = str(e)
         if msg.startswith("NEED_IMAGE:"):
@@ -206,7 +212,7 @@ def _start(cmd, kind="run", title=""):
 
 @router.post("/api/sandbox/run")
 async def sandbox_run(body: dict = Body(...)):
-    job = await run_in_threadpool(_start, body.get("cmd", ""), body.get("kind", "run"), body.get("title", ""))
+    job = await run_in_threadpool(_start, body.get("cmd", ""), body.get("kind", "run"), body.get("title", ""), bool(body.get("cpu")))
     return job.info()
 
 
@@ -350,6 +356,7 @@ async def ide_agent(body: dict = Body(...)):
     if not history or history[-1]["role"] != "user":
         raise HTTPException(400, "Last message must be from the user")
     auto = bool(body.get("auto"))
+    cpu = bool(body.get("cpu"))  # v3.2: the agent's commands run on CPU (smoke tests while the GPU must stay free)
     max_iters = max(1, min(8, int(body.get("max_iters") or sandbox.load_settings().get("self_debug_max", 4))))
     open_file = body.get("open_file") or ""
     sid = body.get("session_id") or create_session(tool="ide")["id"]
@@ -367,7 +374,7 @@ async def ide_agent(body: dict = Body(...)):
                         "runtime": agent_runtime(load_config(), "coder")})
             for it in range(1, max_iters + 1):
                 await emit({"type": "iter", "n": it})
-                system = await asyncio.to_thread(coder.system_prompt, open_file)
+                system = await asyncio.to_thread(coder.system_prompt, open_file, "", convo[-1]["content"][:2000] if convo else "")
                 text, meta = "", {}
                 async for kind, val in stream_agent("coder", system, convo, max_tokens=8000, temperature=0.2):
                     if kind == "delta":
@@ -390,7 +397,7 @@ async def ide_agent(body: dict = Body(...)):
                 cmd = parsed["run"] or body.get("run_cmd") or ""
                 if not cmd:
                     break
-                res = await coder.run_and_wait(cmd, emit)
+                res = await coder.run_and_wait(cmd, emit, cpu=cpu)
                 j = res["job"]
                 if j["status"] == "done":
                     transcript.append(f"✅ `{cmd}` succeeded (exit 0). Metrics: {json.dumps((res['meta'] or {}).get('metrics', {}))[:300]}")
@@ -410,6 +417,8 @@ async def ide_agent(body: dict = Body(...)):
             await emit({"type": "done", "reply": final, "session": {"id": sid, "title": saved.get("title"), "count": len(saved.get("messages", []))}})
         except LLMError as e:
             await emit({"type": "error", "detail": str(e)})
+        except sandbox.VramBusyError as e:
+            await emit({"type": "error", "detail": str(e), "vram_busy": e.models})
         except sandbox.SandboxError as e:
             await emit({"type": "error", "detail": str(e)})
         except asyncio.CancelledError:
@@ -673,7 +682,7 @@ def paper_import_results(body: dict = Body(default={})):
         runs = [r for r in runs if r["id"] in want]
     runs = runs[:12]
     if not runs:
-        raise HTTPException(400, "No successful runs with metrics yet — run experiments in the 💻 Code IDE first")
+        raise HTTPException(400, "No successful runs with metrics yet — run experiments in 💻 Workspace & Runs first")
     best = sandbox.best_metrics()
     keys = []
     for r in runs:
@@ -681,7 +690,7 @@ def paper_import_results(body: dict = Body(default={})):
             if k not in keys:
                 keys.append(k)
     keys = keys[:8]
-    lines = ["Results imported from the Code IDE runs (real measured values):"]
+    lines = ["Results imported from the sandbox runs (real measured values):"]
     for r in runs:
         lines.append(f"- run {r['id']} (`{(r.get('cmd') or '')[:80]}`): " + ", ".join(f"{k}={v:.4g}" for k, v in r["metrics"].items() if isinstance(v, (int, float))))
     if best:
@@ -762,7 +771,7 @@ def export_project():
                 z.write(f, f"runs/{r.name}/figures/{f.name}")
         z.writestr("README.md", f"# Project export — {date.today().isoformat()}\n\nPhD Research Lab v3 project export:\n"
                                 "- `paper/` LaTeX manuscript (+ PDF if compiled)\n- `research/` plan, experiment design, reviews\n"
-                                "- `code/` the Code IDE workspace\n- `runs/` logs, metrics.json and figures of every run\n"
+                                "- `code/` the code workspace\n- `runs/` logs, metrics.json and figures of every run\n"
                                 "- `results/` research results you uploaded (files, extracted text, notes in index.json)\n"
                                 "- `memory/` hierarchical memory (project_state.json), context graph, decisions\n")
     return Response(buf.getvalue(), media_type="application/zip",

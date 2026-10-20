@@ -173,7 +173,7 @@
     $('#dk-jobs').innerHTML = `<tr><th>${T('Status')}</th><th>${T('Job')}</th><th>${T('Kind')}</th><th>${T('Engine')}</th><th>${T('Duration')}</th><th>${T('Exit')}</th><th></th></tr>`
       + (js.map((j, i) => `<tr><td><span class="st ${j.status}">${esc(T(j.status))}</span></td><td class="mono" title="${esc(j.cmd)}">${esc((j.title || j.cmd).slice(0, 70))}</td><td>${esc(j.kind)}</td><td>${esc(j.mode)}</td>
         <td>${j.duration != null ? j.duration + ' s' : ''}</td><td>${j.exit_code ?? ''}</td><td style="white-space:nowrap"><button class="iconbtn" data-log="${i}">📜</button>${j.status === 'running' ? `<button class="iconbtn" data-stop="${i}">■</button>` : ''}</td></tr>`).join('')
-      || `<tr><td colspan="7" class="status">${T('No jobs yet in this session. Runs from the Code IDE appear here.')}</td></tr>`);
+      || `<tr><td colspan="7" class="status">${T('No jobs yet in this session. Runs from Workspace & Runs appear here.')}</td></tr>`);
     $$('#dk-jobs [data-log]').forEach(b => b.onclick = () => showLog(js[b.dataset.log]));
     $$('#dk-jobs [data-stop]').forEach(b => b.onclick = () => api(`/api/sandbox/jobs/${js[b.dataset.stop].id}/stop`, {method: 'POST'}).then(() => tick(true)).catch(e => toast(e.message, 'err')));
   }

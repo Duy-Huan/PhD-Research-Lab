@@ -125,6 +125,19 @@ def status() -> dict:
     return out
 
 
+def head_info() -> dict:
+    """Commit the code is at right now — recorded in every run (Experiment → Git commit traceability). {} if no repo."""
+    if not git_exe() or not is_repo():
+        return {}
+    sha = G(["rev-parse", "HEAD"], check=False, timeout=20).strip()
+    if not re.fullmatch(r"[0-9a-f]{40}", sha):
+        return {"sha": "", "branch": "", "dirty": True, "note": "no commit yet"}
+    dirty = bool(G(["status", "--porcelain", "-uno"], check=False, timeout=20).strip())
+    remotes = G(["remote"], check=False, timeout=20).split()
+    return {"sha": sha, "short": sha[:10], "branch": G(["rev-parse", "--abbrev-ref", "HEAD"], check=False, timeout=20).strip(),
+            "dirty": dirty, "remote": G(["remote", "get-url", "origin"], check=False, timeout=20).strip() if "origin" in remotes else ""}
+
+
 def diff(path: str) -> dict:
     if not is_repo():
         raise GitError("Not a git repository yet — click Initialize")
