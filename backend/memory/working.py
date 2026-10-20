@@ -6,7 +6,7 @@ from __future__ import annotations
 from . import mem_dir, tier1
 from .store import JsonStore, now
 
-_store = JsonStore(lambda: mem_dir() / "working.json", {"current_task": {}, "agents": {}})
+_store = JsonStore(lambda: mem_dir() / "working.json", {"current_task": {}, "agents": {}, "focus": {}}, versioned=False)
 MAX_TASK = 1200
 
 
@@ -19,6 +19,21 @@ def note_task(tool: str, text: str, session_id: str = "") -> None:
     def put(st):
         st["current_task"] = {"tool": tool, "text": text[:MAX_TASK], "session": session_id, "updated": now()}
     _store.update(put)
+
+
+def set_focus(hypothesis_id: str = "", experiment_id: str = "") -> dict:
+    """v3.3: the researcher's explicit focus (active hypothesis / current experiment) of the Research State."""
+    from . import research
+    rs = research.load()
+    if hypothesis_id and not any(h["id"] == hypothesis_id for h in rs["hypotheses"]):
+        raise research.ResearchError(f"Hypothesis {hypothesis_id} not found")
+    if experiment_id and not any(e["id"] == experiment_id for e in rs["experiments"]):
+        raise research.ResearchError(f"Experiment {experiment_id} not found")
+
+    def put(st):
+        st["focus"] = {"hypothesis_id": hypothesis_id, "experiment_id": experiment_id, "updated": now()}
+        return st["focus"]
+    return _store.update(put)
 
 
 def set_agent_state(agent: str, state: str, detail: str = "") -> None:

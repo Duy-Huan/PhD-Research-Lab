@@ -1,5 +1,56 @@
 # Changelog
 
+## v4.0.0 — 2026-10-20 — Research-state-aware Context Memory · AI Gateway (ChatGPT / Claude / Antigravity) · environments · new UI
+All v3.2 APIs, data files and settings keep working (v3.2 records are read as-is; new fields are optional). Reports:
+`docs/architecture/backend-v3.3-final.md`, `docs/architecture/provider-integration-v3.4-final.md`.
+- **Research State** (`memory/state.py`): objective, active hypothesis (researcher focus first), current experiment, baseline,
+  constraints/hardware, locked decisions, known failures, best validated results, `context_version`.
+- **State-aware, explainable retrieval** (`memory/engine.py`): keyword (stemmed BM25) · vector · state · graph · metadata ·
+  intent · temporal → weighted RRF → per-role scoring; every hit says *why* (`components`, `ranks`, `reasons`),
+  `POST /api/memory/explain`. Metadata filters, current/history temporal modes.
+- **Role-aware compiler** (7 roles, explicit `Budget`, RESEARCH STATE and EVIDENCE & CLAIMS sections, dedup, per-tier
+  low-value cut, LOD compression, CONTEXT TRACE). Same function signatures as v3.2.
+- **Evidence layer** (Claims/Evidence with copied provenance; AI evidence is never self-validated), **provenance chain**
+  (`/api/provenance/chain/{id}`), **structured failure memory**, decisions with evidence/provider/session/supersedes.
+- **Memory lifecycle**: AI/provider/MCP writes become review **candidates** (classified, deduplicated) — `/api/memory/candidates`.
+- **Performance** (profiled first): sparse hashing vectors, fingerprint-keyed caches. At ~4–5k nodes retrieval 614 → 59 ms,
+  compilation 635 → 84 ms; golden-task recall@5 0.47 → 0.94 (dev), clean held-out MRR 0.64 → 0.89.
+- **Fixes**: libraries over 300 papers silently lost papers; Windows read/replace race under concurrent writers; a corrupt
+  JSON store was overwritten on the next write (now quarantined as `.corrupt-<time>`); consolidation dropped raw-page
+  pointers; same-second ordering of decisions/experiments.
+- **Context Gateway** (`backend/gateway/`): one canonical research context for every provider; first-party connectors
+  only — ChatGPT via Codex CLI (ChatGPT sign-in), Claude Code CLI, Google Antigravity (MCP client + `agy` CLI), Gemini CLI;
+  normalised streaming (SSE), multi-provider sessions and comparison, review-before-external, sensitivity classes
+  (PUBLIC/INTERNAL/SENSITIVE/RESTRICTED), credential redaction, cost guard (vendor API keys removed from CLI processes, no
+  automatic fallback), content-free audit.
+- **MCP research tools**: 12 `research_*` tools (strict schemas, structured results with provenance; `record_*` only create
+  candidates) beside the sandbox tools; optional bearer token, Origin check, rate limit, audit (`config.mcp`).
+- **Telemetry**: `/api/telemetry` (p50/p95, cache hit rates); never logs prompts or memory content.
+- Tests: 90 → 165.
+- **Execution environments** (`backend/envs.py`, `backend/deps.py`, Workspace & Runs → Environment): Auto / Python
+  environment (any interpreter found on the machine — also those not on PATH, conda, py launcher — as a project venv or
+  used directly) / Docker (recommended image, vetted catalog, local images, Docker Hub search with tags, custom names).
+  **Automatic dependencies**: requirements/pyproject/environment.yml + imports of .py/.ipynb, installed inside the target
+  environment right before the run in the same log (only what is missing; CUDA PyTorch wheels on NVIDIA machines).
+  "Prepare environment" does it ahead of time. Guide: `docs/integrations/environments.md`.
+- **Jupyter / Dev Container fixed**: JupyterLab is found in any Python on the machine (a `pip install jupyterlab` into
+  the system Python was invisible to the app's own .venv); notebooks get a "PhD-Lab · <project>" kernel of the project
+  environment. Dev Container is one click: installs the Dev Containers extension and generates `.devcontainer/` from the
+  sandbox image when missing.
+- **UI for v3.3/v3.4 backend**: Context tab → Context Memory (Research state with focus, Retrieval & trace with reasons and
+  sharing level, Evidence & claims, Candidates review, Storage tiers); new **AI Gateway** page (ChatGPT/Claude/Antigravity/
+  Gemini status, sign-in, MCP setup, ask/compare with review-before-sending, streamed answers, save to memory); Settings →
+  MCP & privacy.
+- **Fixes**: Space could not be typed in the Dataset / Memory-inspector search (a key handler returned false); Browse
+  buttons on every project path field (new/open project, datasets folder) — choosing the data folder suggests the name.
+- **Frontend shell (2026 refresh)**: the top tab bar and the configuration sidebar are replaced by one left **navigation
+  rail** (grouped Research / Knowledge / System, line icons, collapsible to icons, drawer on phones, arrow-key navigation)
+  and one **Settings** page (Research project · Cloud AI · Local AI · Agent engines · Internet search · Language &
+  appearance · links to the feature-level settings), with section search, scroll-spy menu and a sticky save bar that
+  shows unsaved changes. Slim top bar with page title, **command palette** (Ctrl+K) and a light/dark toggle; deep links
+  (`#settings/cloud`, `#ide`). New design tokens (neutral surfaces, single accent, AA contrast in both themes, visible
+  focus, `prefers-reduced-motion`). All element ids are unchanged; `frontend/app/shell.css`, `frontend/app/shell.js`.
+
 ## v3.2.0 — 2026-10-20 — Research control plane: Context Memory v2, integrations, hardware governor
 All v3.1 features and data are kept (backward compatible). See `ARCHITECTURE_AUDIT.md`, `ARCHITECTURE.md`, `MIGRATION_PLAN.md`, `INTEGRATION_STATUS.md`.
 - **🧠 Context Memory v2** (`backend/memory/` package; `memory.py` moved to `memory/__init__.py`, same API and data):
@@ -10,6 +61,7 @@ All v3.1 features and data are kept (backward compatible). See `ARCHITECTURE_AUD
 - **💻 Workspace & Runs replaces the Monaco Code IDE** (Monaco, xterm and `ide.js` removed, −6.6 MB): code is written in VS Code with the Codex extension (`openai.chatgpt`, one-click install) or Codex CLI. The tab keeps sandbox runs with live log and curves, runs (metrics, figures, git commit), the self-debugging agent (text diffs, files open in VS Code) and Git/GitHub. Experiment Design → *Open in VS Code*.
 - **VRAM rule for GPU training**: a GPU run is refused (HTTP 409 `vram_busy`, dialog in the UI) while Ollama / LM Studio hold a model; the researcher presses 🧹 *Unload* or runs on CPU — nothing is unloaded automatically. Fixed LM Studio unload for builds that require `instance_id` (REST v1); loaded-model detection also reads REST v1.
 - **ClearML through the Python SDK, no server needed (offline mode, default):** `pip install clearml` is a separate, non-fatal step of `setup.bat` (and a button in Control Center → Integrations). Every finished sandbox run is recorded as a ClearML offline session in `<project>/clearml/offline/` (parameters, curves, final metrics, log tail, artifacts, research-code git commit), listed and read back in the UI, linked from the run and Research Memory; scripts that call `Task.init` themselves get `CLEARML_OFFLINE_MODE=1` and their session is linked instead of duplicated. Server mode and *Import to server* use the same worker. The SDK only runs in a subprocess (`clearml_worker.py`).
+- **JupyterLab, Codex CLI and ClearML wired to the app's Python environment:** JupyterLab starts as `python -m jupyterlab` (found without PATH), token-protected on 127.0.0.1, kernels get the project context and ClearML offline mode (a notebook's `Task.init` lands in the project's sessions); research notebook template; 📓 Jupyter / ＋ Notebook buttons. Codex runs through `node codex.js`, with the Windows sandbox passed per run (`codex.windows_sandbox`, default *unelevated* — without it Codex blocked every shell command) and a correct `resume` command; verified with real runs. The local sandbox venv now inherits the app Python's packages (`inherit_packages`).
 - **🧭 Control Center tab**: dashboard, **research timeline**, workspace hand-off, integration status, Codex, resources, provenance inspector, memory inspector, dataset search.
 - **Integration layer** (`backend/integrations/`): honest status contract; VS Code open/deep link/Dev Container; **Environment Manager** (Dockerfile + devcontainer.json with the machine's caps); Jupyter launcher; `ExperimentBackend` with local runs and **ClearMLAdapter** (sync run, get task, remote submit with local fallback); **CodexBackend** (`codex exec --json`, read-only by default).
 - **Hardware governor** (`backend/resources.py`): policy derived from the scanned PC, hard sandbox caps, VRAM gate + manual unload, thermal guard, CPU re-run after GPU faults, GPU-busy aware routing, Ollama CPU offload (`num_gpu: 0`).

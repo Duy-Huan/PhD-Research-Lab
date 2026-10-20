@@ -21,6 +21,7 @@ import re
 import secrets
 import subprocess
 import sys
+from pathlib import Path
 import threading
 import time
 from collections import deque
@@ -51,12 +52,27 @@ class CodexBackend:
         b = (self.cfg.get("binary") or "").strip()
         return b if b and re.search(r"codex", b, re.I) else which("codex")
 
-    def _probe(self) -> dict:
+    def argv(self) -> list:
+        """Command prefix. On Windows npm installs a codex.cmd shim; arguments passed through a batch file are re-parsed by
+        cmd.exe, so the shim's own target is used instead: node <npm>/node_modules/@openai/codex/bin/codex.js."""
         b = self.binary()
         if not b:
+            return []
+        p = Path(b)
+        if p.suffix.lower() in (".cmd", ".bat", ".ps1", "") and sys.platform.startswith("win"):
+            js = p.parent / "node_modules" / "@openai" / "codex" / "bin" / "codex.js"
+            node = p.parent / "node.exe" if (p.parent / "node.exe").is_file() else which("node")
+            if js.is_file() and node:
+                return [str(node), str(js)]
+        return [b]
+
+    def _probe(self) -> dict:
+        pre = self.argv()
+        if not pre:
             return {"bin": None}
-        code, out = run_cli([b, "--version"], 20)
-        lc, lout = run_cli([b, "login", "status"], 20)
+        b = " ".join(pre)
+        code, out = run_cli(pre + ["--version"], 20)
+        lc, lout = run_cli(pre + ["login", "status"], 20)
         return {"bin": b, "ok": code == 0, "version": out.strip().splitlines()[-1] if out.strip() else "",
                 "auth": "logged in" if lc == 0 else ("unknown" if lc in (124, 126, 127) else "not logged in"),
                 "auth_detail": re.sub(r"(sk-[A-Za-z0-9_-]{4})[A-Za-z0-9_-]+", r"\1…", lout.strip())[-160:]}
@@ -89,15 +105,16 @@ class CodexBackend:
             raise IntegrationError("Describe the coding task")
         from ..sandbox import code_dir
         mode = "workspace-write" if allow_write else "read-only"  # never danger-full-access
-        args = [self.binary(), "exec"]
-        if resume_thread:
+        mdl = ["-m", (model or self.cfg["model"])[:80]] if (model or self.cfg.get("model")) else []
+        ws = self.cfg.get("windows_sandbox") or "unelevated"
+        if sys.platform.startswith("win") and ws != "config":  # without a Windows sandbox backend every shell command is blocked
+            mdl += ["-c", f"windows.sandbox={ws}"]
+        if resume_thread:  # `codex exec resume` has no --sandbox flag: the policy is passed as a config override
             if not re.fullmatch(r"[\w-]{6,80}", resume_thread):
                 raise IntegrationError("Invalid session id")
-            args += ["resume", resume_thread]
-        args += ["--json", "--sandbox", mode, "--skip-git-repo-check"]
-        if model or self.cfg.get("model"):
-            args += ["-m", (model or self.cfg["model"])[:80]]
-        args.append("-")
+            args = self.argv() + ["exec", "resume", "--json", "-c", f"sandbox_mode={mode}", "--skip-git-repo-check"] + mdl + [resume_thread, "-"]
+        else:
+            args = self.argv() + ["exec", "--json", "--sandbox", mode, "--skip-git-repo-check", "-C", str(code_dir())] + mdl + ["-"]
         rid = "cx-" + secrets.token_hex(5)
         from .. import gitops
         before = _git_snapshot(gitops)
@@ -121,7 +138,10 @@ class CodexBackend:
         threading.Thread(target=self._pump, args=(run, before), daemon=True).start()
         threading.Thread(target=_drain_stderr, args=(run,), daemon=True).start()
         timeout = int(self.cfg.get("timeout_s") or 1800)
-        threading.Timer(timeout, lambda: run["status"] == "running" and self.cancel_run(rid, reason=f"time limit {timeout} s")).start()
+        watchdog = threading.Timer(timeout, lambda: run["status"] == "running" and self.cancel_run(rid, reason=f"time limit {timeout} s"))
+        watchdog.daemon = True  # never keeps the app (or a test process) alive
+        watchdog.start()
+        run["watchdog"] = watchdog
         _persist(run)
         return public(run)
 
@@ -146,6 +166,8 @@ class CodexBackend:
         run["dirty_after"] = sorted(after.get("files", []))
         run["exit_code"] = proc.returncode
         run["ended"] = time.time()
+        if run.get("watchdog"):
+            run["watchdog"].cancel()
         if run["cancelled"]:
             run["status"] = "cancelled"
         elif run["status"] in ("running", "starting"):
@@ -210,7 +232,7 @@ def _git_snapshot(gitops) -> dict:
 
 
 def public(run: dict) -> dict:
-    out = {k: v for k, v in run.items() if k not in ("proc", "events")}
+    out = {k: v for k, v in run.items() if k not in ("proc", "events", "watchdog")}
     out["events"] = list(run["events"])[-200:]
     return out
 

@@ -17,7 +17,7 @@ import secrets
 from . import mem_dir
 from .store import JsonStore, now
 
-_index = JsonStore(lambda: mem_dir() / "pages.json", {"pages": []})
+_index = JsonStore(lambda: mem_dir() / "pages.json", {"pages": []}, versioned=False)
 ID_RE = re.compile(r"^P[0-9a-f]{8}$")
 
 

@@ -16,14 +16,15 @@ from datetime import datetime, timezone
 
 import httpx
 
-from .embeddings import cosine, get_embedder, tokenize
+from .embeddings import get_embedder, similarity, tokenize
 from .lod import MemoryNode
 
 
 class BM25:
-    def __init__(self, docs: list, k1: float = 1.5, b: float = 0.75):
+    def __init__(self, docs: list, k1: float = 1.5, b: float = 0.75, tokenizer=tokenize):
         self.k1, self.b = k1, b
-        self.docs = [tokenize(d) for d in docs]
+        self.tokenizer = tokenizer
+        self.docs = [tokenizer(d) for d in docs]
         self.avg = (sum(len(d) for d in self.docs) / len(self.docs)) if self.docs else 0.0
         df: dict = {}
         for d in self.docs:
@@ -39,7 +40,7 @@ class BM25:
             self.tf.append(c)
 
     def scores(self, query: str) -> list:
-        q = set(tokenize(query))
+        q = set(self.tokenizer(query))
         out = []
         for i, d in enumerate(self.docs):
             s, dl = 0.0, len(d) or 1
@@ -150,14 +151,14 @@ def search(query: str, nodes: list, cfg: dict, k: int = 24, rerank_pool: int = 4
 
     emb = get_embedder(cfg)
     try:
-        vecs = emb.embed(texts + [query])
+        vecs = emb.embed_unit(texts + [query])  # v3.3: unit vectors (sparse for hashing) + in-process cache — same scores
     except Exception as e:  # neural engine failed → the whole call uses the lexical vectors (never mix spaces)
         diag["vector_error"] = f"{type(e).__name__}: {e}"[:200]
         emb.engine, emb.model = "hashing", "hashing"
-        vecs = emb.embed(texts + [query], cache=False)
+        vecs = emb.embed_unit(texts + [query])
     diag["vector_engine"] = emb.label
     qv = vecs[-1]
-    vs = {nid: cosine(v, qv) for nid, v in zip(ids, vecs[:-1])}
+    vs = {nid: similarity(v, qv) for nid, v in zip(ids, vecs[:-1])}
     vec = _rank({k2: v for k2, v in vs.items() if v > 0.05})
     rankings.append(vec)
     ranks["vector"] = vec

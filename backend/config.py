@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "3.2.0"
+APP_VERSION = "4.0.0"
 
 ROOT = Path(__file__).resolve().parent.parent
 # PHDLAB_DATA_DIR (v3.2) moves ALL user data elsewhere — used by the test suite so it never touches the real data/.
@@ -167,15 +167,32 @@ DEFAULTS = {
     # "server" = a ClearML Server with credentials. auto_record: record every finished sandbox run.
     "clearml": {"enabled": True, "mode": "offline", "auto_record": True, "api_host": "", "web_host": "", "files_host": "",
                 "access_key": "", "secret_key": "", "project": "PhD Research Lab", "queue": "default"},
-    "codex": {"enabled": False, "binary": "", "sandbox": "read-only", "model": "", "timeout_s": 1800},
+    # windows_sandbox: Codex needs a Windows sandbox backend to run shell commands; "unelevated" (restricted token, no
+    # admin rights), "elevated" (stronger, needs a one-time admin setup) or "config" (use ~/.codex/config.toml as is)
+    "codex": {"enabled": True, "binary": "", "sandbox": "read-only", "model": "", "timeout_s": 1800, "windows_sandbox": "unelevated"},
     "workspace": {"vscode_path": "", "jupyter_port": 8888},
     "routing": {"online_check": True, "chains": {}, "provider_headers": {}},
     "critic": {"enabled": True, "llm": True, "interval_chars": 700},
     "provenance": {"enabled": True, "csv_header": True},
+    # v3.4 Context Gateway (provider-independent research context for ChatGPT / Claude Code / Gemini & Antigravity).
+    # Sensitivity: PUBLIC always leaves, INTERNAL per allow_internal, SENSITIVE only with allow_sensitive, RESTRICTED never.
+    # *_api_fallback False = the CLI connectors run with API-key variables removed, so a subscription sign-in is used
+    # and no API billing is ever created implicitly (cost guard).
+    "gateway": {"enabled": True, "allow_internal": True, "allow_sensitive": False, "block_source_code": True,
+                "review_before_external": False, "context_budget_tokens": 6000, "provider_timeout_s": 600,
+                "codex_enabled": True, "claude_code_enabled": True, "gemini_cli_enabled": True, "antigravity_enabled": True,
+                "codex_api_fallback": False, "claude_code_api_fallback": False, "antigravity_api_fallback": False,
+                "gemini_cli_api_fallback": False,
+                "claude_binary": "", "gemini_binary": ""},
+    # v3.4 MCP gateway (POST /mcp, localhost only). token: when set, every MCP request needs "Authorization: Bearer <token>".
+    # Research write tools only create review CANDIDATES (never permanent memory) unless the researcher approves them.
+    "mcp": {"enabled": True, "expose_research": True, "allow_writes": True, "expose_sandbox": True, "token": "",
+            "rate_limit_per_min": 240, "audit": True},
 }
-SECTIONS_V32 = ("memory", "resources", "clearml", "codex", "workspace", "routing", "critic", "provenance")
-SECRET_FIELDS = {"clearml": ("access_key", "secret_key")}
+SECTIONS_V32 = ("memory", "resources", "clearml", "codex", "workspace", "routing", "critic", "provenance", "gateway", "mcp")
+SECRET_FIELDS = {"clearml": ("access_key", "secret_key"), "mcp": ("token",)}
 CHOICES = {("codex", "sandbox"): ("read-only", "workspace-write"), ("clearml", "mode"): ("offline", "server"),
+           ("codex", "windows_sandbox"): ("unelevated", "elevated", "config"),
            ("memory", "embed_engine"): ("auto", "ollama", "hashing")}
 
 _lock = threading.Lock()

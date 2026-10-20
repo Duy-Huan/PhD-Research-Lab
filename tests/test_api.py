@@ -25,7 +25,7 @@ class Api(unittest.TestCase):
         for p in ("/api/version", "/api/config", "/api/projects", "/api/memory/status", "/api/context/graph",
                   "/api/decisions", "/api/results", "/api/paper/project", "/api/sandbox/runs", "/api/tool/output/lit2plan", "/"):
             self.assertEqual(self.c.get(p).status_code, 200, p)
-        self.assertEqual(self.c.get("/api/version").json()["version"], "3.2.0")
+        self.assertEqual(self.c.get("/api/version").json()["version"], "4.0.0")
 
     def test_new_read_endpoints(self):
         for p in ("/api/dashboard", "/api/memory/v2/compile?q=test", "/api/memory/v2/plan", "/api/research", "/api/research/timeline",

@@ -155,6 +155,7 @@ class Workspace(unittest.TestCase):
 class Codex(unittest.TestCase):
     def test_disabled_and_missing_cli(self):
         cfg = copy.deepcopy(load_config())
+        cfg["codex"]["enabled"] = False
         self.assertEqual(A.CodexBackend(cfg).status().state, "disabled")
         cfg["codex"]["enabled"] = True
         B.clear_cache()

@@ -10,6 +10,7 @@ import sys
 import urllib.request
 
 URL = os.environ.get("PHDLAB_MCP_URL", "http://127.0.0.1:8765/mcp")
+TOKEN = os.environ.get("PHDLAB_MCP_TOKEN", "")  # v3.4: set when the app requires an MCP token (Configuration → MCP)
 
 
 def main():
@@ -21,8 +22,10 @@ def main():
             msg = json.loads(line)
         except ValueError:
             continue
-        req = urllib.request.Request(URL, data=json.dumps(msg).encode(), headers={"Content-Type": "application/json",
-                                                                                 "Accept": "application/json, text/event-stream"})
+        headers = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream"}
+        if TOKEN:
+            headers["Authorization"] = f"Bearer {TOKEN}"
+        req = urllib.request.Request(URL, data=json.dumps(msg).encode(), headers=headers)
         try:
             with urllib.request.urlopen(req, timeout=3700) as r:
                 body = r.read().decode()

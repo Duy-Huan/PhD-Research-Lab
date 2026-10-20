@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PhD Research Lab</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/app/img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/app/img/logo-192.png">
+<link rel="apple-touch-icon" href="/app/img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
 <!-- bundled locally: works offline / behind firewalls -->
@@ -43,11 +46,6 @@
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:14px/1.55 var(--sans)}
 button,input,select,textarea{font:inherit;color:inherit}
-.app{display:grid;grid-template-columns:320px minmax(0,1fr);height:100vh;overflow:hidden}
-aside{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:18px 16px 40px}
-.brand{font-family:var(--serif);font-size:20px;font-weight:700;line-height:1.2;margin-bottom:2px}
-.brand span{color:var(--accent)}
-.sub{color:var(--muted);font-size:12px;margin-bottom:18px}
 h3{font-family:var(--serif);font-size:15px;margin:20px 0 8px;color:var(--accent);font-weight:600;letter-spacing:.2px}
 label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
 input[type=text],input[type=password],select,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;outline:none}
@@ -78,9 +76,6 @@ textarea.code{font-family:var(--mono);font-size:12.5px;line-height:1.5}
 .dot.ok{background:var(--ok)} .dot.err{background:var(--err)}
 .status{font-size:12px;color:var(--muted);margin-top:6px;word-break:break-word}
 main{display:flex;flex-direction:column;min-width:0;min-height:0;height:100vh;overflow:hidden}
-nav{display:flex;gap:2px;padding:0 18px;border-bottom:1px solid var(--line);background:var(--panel);overflow-x:auto}
-nav button[data-tab]{background:none;border:0;border-bottom:2px solid transparent;padding:14px 14px 12px;cursor:pointer;color:var(--muted);white-space:nowrap}
-nav button[data-tab].on{color:var(--text);border-bottom-color:var(--accent)}
 .tab{display:none;padding:22px 26px 60px;overflow-y:auto;overflow-x:hidden;flex:1;min-height:0}
 .tab.on{display:block}
 .tab h2{font-family:var(--serif);font-size:24px;margin:0 0 4px}
@@ -108,7 +103,7 @@ nav button[data-tab].on{color:var(--text);border-bottom-color:var(--accent)}
 .badge.cloud{border-color:var(--cloud);color:var(--cloud)} .badge.local{border-color:var(--local);color:var(--local)}
 .badge.ok{border-color:var(--ok);color:var(--ok)} .badge.warn{border-color:var(--accent);color:var(--accent)}
 .drop{border:2px dashed var(--line);border-radius:var(--radius);padding:26px;text-align:center;color:var(--muted);cursor:pointer;transition:.15s}
-.drop.over,.drop:hover{border-color:var(--accent);color:var(--text);background:rgba(217,164,65,.05)}
+.drop.over,.drop:hover{border-color:var(--accent);color:var(--text);background:var(--accent-soft)}
 table.lib{width:100%;border-collapse:collapse;font-size:13px}
 table.lib th{text-align:left;color:var(--muted);font-weight:500;padding:8px 6px;border-bottom:1px solid var(--line)}
 table.lib td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
@@ -122,8 +117,6 @@ table.lib td.k{font-family:var(--mono);font-size:12px;color:var(--accent)}
 .themesw{display:flex;align-self:center;border:1px solid var(--line);border-radius:20px;overflow:hidden;margin-left:8px;flex:0 0 auto}
 .themesw button{background:none;border:0;padding:4px 10px;cursor:pointer;color:var(--muted);font-size:13px;font-weight:600}
 .themesw button.on{background:var(--accent);color:var(--on-accent)}
-body,.card,.out,aside,nav,.composer2,.ububble,input,select,textarea{transition:background-color .2s,border-color .2s,color .2s}
-.projtag{align-self:center;font-size:12.5px;color:var(--accent);border:1px solid var(--accent);border-radius:20px;padding:3px 12px;white-space:nowrap;max-width:320px;overflow:hidden;text-overflow:ellipsis}
 .chatpanel{display:flex;flex-direction:column;height:620px}
 .chatpanel.tall{height:calc(100vh - 230px);min-height:460px}
 .chathead{display:flex;gap:10px;align-items:baseline;margin-bottom:8px;flex-wrap:wrap}
@@ -162,7 +155,6 @@ body,.card,.out,aside,nav,.composer2,.ububble,input,select,textarea{transition:b
 .sessbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid var(--line)}
 .sessbar select{width:auto;min-width:240px;max-width:420px;padding:5px 8px;font-size:12.5px}
 .chk{display:flex;gap:6px;align-items:center;font-size:12.5px;color:var(--text);margin-top:10px}
-@media (max-width:1000px){.app{grid-template-columns:1fr;height:auto;overflow:visible}main{height:auto;overflow:visible}.tab{overflow:visible}aside{max-height:none;border-right:0;border-bottom:1px solid var(--line)}.grid2{grid-template-columns:1fr}}
 /* ---------- v2 Claude-style chat & rich rendering ---------- */
 .chatpanel{display:flex;flex-direction:column;height:700px}
 .chatpanel.tall{height:calc(100vh - 205px);min-height:480px}
@@ -183,7 +175,7 @@ body,.card,.out,aside,nav,.composer2,.ububble,input,select,textarea{transition:b
 .iconbtn:hover:not(:disabled){background:var(--panel2);color:var(--text)}
 .iconbtn:disabled{opacity:.35;cursor:default}
 .turn.ai{display:grid;grid-template-columns:30px minmax(0,1fr);gap:12px}
-.avatar{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#e0b15a,#c2703d);color:#1a1405;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;margin-top:2px}
+.avatar{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--on-accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;margin-top:2px}
 .avatar.big{width:44px;height:44px;font-size:24px;border-radius:12px;margin:0 auto 10px}
 .abody{min-width:0}
 .abody .md{line-height:1.7;font-size:14.5px}
@@ -216,7 +208,7 @@ body,.card,.out,aside,nav,.composer2,.ububble,input,select,textarea{transition:b
 .attchip.uploading{opacity:.7}
 .composer2{border:1px solid var(--line);border-radius:16px;background:var(--bg);padding:9px 10px 7px;margin-top:8px;transition:border-color .15s}
 .composer2:focus-within{border-color:var(--accent)}
-.composer2.over{border-style:dashed;border-color:var(--accent);background:rgba(217,164,65,.06)}
+.composer2.over{border-style:dashed;border-color:var(--accent);background:var(--accent-soft)}
 .composer2 textarea{border:0;background:transparent;resize:none;min-height:26px;max-height:240px;padding:4px 6px;font-family:var(--sans);font-size:14.5px;line-height:1.5;width:100%}
 .composer2 textarea:focus{outline:none;border:0}
 .ctools{display:flex;align-items:center;gap:2px;margin-top:4px}
@@ -351,7 +343,7 @@ details.fold>summary .status{margin:0;flex:1;overflow:hidden;text-overflow:ellip
 .wtabs button.on{color:var(--text);border-bottom-color:var(--accent)}
 .wtabs .cnt{font-size:11px;color:var(--accent)}
 #sec-editor{min-height:360px}
-textarea.live{border-color:var(--accent);box-shadow:0 0 0 3px rgba(217,164,65,.12)}
+textarea.live{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .secreview{max-height:560px;overflow-y:auto;padding-right:6px}
 .wsact{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:10px}
 .wsact .status{margin:0}
@@ -489,121 +481,62 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
 .texview.has .empty{display:none}
 .texview.busy::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.25)}
 .texerr{border:1px solid var(--err);border-radius:10px;background:rgba(224,108,108,.07);padding:8px 12px;margin-top:10px;font-size:12.5px}
-.texerr.warn{border-color:var(--accent);background:rgba(217,164,65,.07)}
+.texerr.warn{border-color:var(--accent);background:var(--accent-soft)}
 .texerr ul{margin:4px 0 0;padding-left:18px}
 .texerr li{margin:3px 0;cursor:pointer}
 .texerr li:hover{color:var(--accent2)}
 .texerr code{font-size:11.5px}
 .texok{color:var(--ok)}
 </style>
+<link rel="stylesheet" href="/app/shell.css">
 </head>
 <body>
 <div class="app">
 <!-- ================================================================ CONFIG SIDEBAR -->
-<aside>
-  <div class="brand">PhD Interactive<br><span>Autonomous Research Lab</span></div>
-  <div class="sub">Hybrid cloud AI + Ollama / LM Studio · <span id="app-version">v3.2.0</span></div>
-
-  <h3>📂 Research project</h3>
-  <div class="row"><select id="proj-select" title="Switch research project"></select></div>
-  <div class="row" style="margin-top:6px;flex-wrap:wrap;gap:6px">
-    <button class="btn small" id="proj-new">＋ New</button>
-    <button class="btn small" id="proj-open" title="Open an existing project folder (e.g. copied from another PC)">📂 Open…</button>
-    <button class="btn small" id="proj-rename" title="Rename project">✎</button>
-    <button class="btn small danger" id="proj-forget" title="Remove from list (files are kept)">✕</button>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></symbol><symbol id="i-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></symbol><symbol id="i-flask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2h12.4a1.5 1.5 0 0 0 1.3-2L14 9V3"/><path d="M7 15h10"/></symbol><symbol id="i-code" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></symbol><symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></symbol><symbol id="i-cap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></symbol><symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></symbol><symbol id="i-server" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="8" rx="2"/><rect x="2" y="13" width="20" height="8" rx="2"/><line x1="6" y1="7" x2="6.01" y2="7"/><line x1="6" y1="17" x2="6.01" y2="17"/></symbol><symbol id="i-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol><symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol><symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.8V4h6v6.8l3 3.2v2H6v-2z"/></symbol><symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol><symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol><symbol id="i-collapse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></symbol><symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></symbol><symbol id="i-cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></symbol><symbol id="i-cpu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></symbol><symbol id="i-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></symbol><symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol><symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol><symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol><symbol id="i-monitor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></symbol><symbol id="i-sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></symbol><symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol><symbol id="i-plug" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></symbol><symbol id="i-command" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></symbol></svg>
+<!-- ================================================================ NAVIGATION RAIL -->
+<aside class="rail" id="rail" aria-label="Main navigation">
+  <div class="rail-head">
+    <img class="logo" src="/app/img/logo-64.png" srcset="/app/img/logo-64.png 2x, /app/img/logo-128.png 4x" width="32" height="32" alt="PhD Research Lab logo">
+    <div class="brand-txt"><div class="brand">PhD Research Lab</div><div class="sub"><span id="app-version">v4.0.0</span></div></div>
+    <button class="rail-icon" id="rail-collapse" title="Collapse sidebar" aria-label="Collapse sidebar"><svg class="ic"><use href="#i-collapse"/></svg></button>
   </div>
-  <label>Data folder (workspace, chats, library, outputs)</label>
-  <div class="row"><input type="text" id="proj-data" readonly><button class="btn small" id="proj-browse" title="Browse… open another folder as a project">📁</button><button class="btn small" id="proj-open-folder" title="Open in Explorer">↗</button></div>
-  <label>References folder (full-text PDFs of this project)</label>
-  <div class="row"><input type="text" id="cfg-refs" placeholder="C:\Users\you\PhD\references"><button class="btn small" id="refs-browse" title="Browse… choose the references folder">📁</button><button class="btn small" id="open-refs" title="Open in Explorer">↗</button></div>
-  <div class="status">API keys and AI engines are shared by all projects.</div>
-
-  <h3>☁ Cloud AI providers</h3>
-  <label>Default cloud provider (used by agents set to "Default")</label>
-  <select id="cfg-default"></select>
-  <label>API keys — click a provider to edit</label>
-  <div id="prov-list" class="provlist"></div>
-  <div class="card" id="prov-editor" style="padding:12px;margin-top:8px">
-    <div class="row"><b id="prov-title" style="flex:1">Provider</b><a id="prov-link" class="status" target="_blank" rel="noopener" style="flex:0 0 auto;color:var(--accent2)">Get API key ↗</a></div>
-    <label>API key</label>
-    <input type="password" id="prov-key" placeholder="paste API key" autocomplete="off">
-    <label>Model</label>
-    <div class="row"><input type="text" id="prov-model" placeholder="model name"><button class="btn small" id="prov-list-models" title="Load the models your key can use">↻ List</button></div>
-    <label>Base URL <span class="status">(leave empty for default)</span></label>
-    <input type="text" id="prov-base">
-    <div class="row" style="margin-top:8px"><button class="btn small" id="prov-test">Test connection</button><span style="flex:1"></span><button class="btn small danger" id="prov-clear">Remove key</button></div>
-    <div class="status" id="prov-status"><span class="dot"></span>not tested</div>
-  </div>
-
-  <h3>🖥 LM Studio (local)</h3>
-  <label>Base URL</label>
-  <input type="text" id="cfg-lmurl" placeholder="http://localhost:1234/v1">
-  <label>Local model</label>
-  <div class="row"><input type="text" id="cfg-localmodel" placeholder="(first loaded model)"><button class="btn small" id="refresh-models" title="Reload models from LM Studio">↻</button></div>
-  <div class="status" id="st-local"><span class="dot"></span>not checked</div>
-  <div class="row" style="margin-top:6px;gap:6px"><label style="margin:0;flex:0 0 auto">Context</label><select id="lm-ctx" style="flex:1"><option value="">default</option><option>4096</option><option>8192</option><option>16384</option><option>32768</option></select></div>
-  <div class="lmlist" id="lm-list"></div>
-
-  <h3>🦙 Ollama (local)</h3>
-  <label>Base URL</label>
-  <input type="text" id="cfg-ollamaurl" placeholder="http://localhost:11434">
-  <label>Ollama model</label>
-  <div class="row"><input type="text" id="cfg-ollamamodel" placeholder="(loaded model)"><button class="btn small" id="ol-refresh" title="Reload Ollama models">↻</button></div>
-  <div class="status" id="st-ollama"><span class="dot"></span>not checked</div>
-  <div class="lmlist" id="ol-list"></div>
-  <div class="row" style="margin-top:6px;gap:6px"><input type="text" id="ol-pullname" placeholder="qwen2.5-coder:14b"><button class="btn small" id="ol-pull" title="Download a model from the Ollama library">⤓ Pull</button></div>
-  <div class="status" id="ol-pullst"></div>
-  <label class="chk"><input type="checkbox" id="cfg-fallback"> Fall back to Claude if local fails</label>
-
-  <h3>⚙ Agent engines</h3>
-  <div id="agent-modes"></div>
-  <div class="row" style="margin-top:8px">
-    <button class="btn small" data-allmode="local">All local</button>
-    <button class="btn small" data-allmode="cloud">All cloud</button>
-    <button class="btn small" data-allmode="default">Recommended</button>
-  </div>
-
-  <h3>🔎 Internet search</h3>
-  <div class="status" style="margin-top:0">Turn it on per chat with the 🌐 selector next to the message box. Papers come from OpenAlex, arXiv and Semantic Scholar (free, no key).</div>
-  <label>Web search engine</label>
-  <select id="cfg-webeng"><option value="duckduckgo">DuckDuckGo — free, no key</option><option value="tavily">Tavily — API key (free tier)</option><option value="brave">Brave Search — API key</option></select>
-  <div id="webkey-box"><label id="webkey-label">API key</label><input type="password" id="cfg-webkey" autocomplete="off" placeholder="paste API key"></div>
-  <div class="row"><div><label>Results per search</label><select id="cfg-nres"><option>5</option><option>8</option><option>12</option><option>20</option></select></div>
-    <div><label>Semantic Scholar key <span class="status">(optional)</span></label><input type="password" id="cfg-s2key" autocomplete="off"></div></div>
-  <label>E-mail for OpenAlex <span class="status">(optional, faster)</span></label><input type="text" id="cfg-mailto" placeholder="you@university.edu">
-  <label class="chk"><input type="checkbox" id="cfg-readpages"> Read the top web pages (more accurate, slower)</label>
-
-  <h3>🌐 AI output language (Tools 1, 2, 4)</h3>
-  <select id="cfg-outlang">
-    <option value="ui">Follow interface language</option>
-    <option value="en">Always English</option>
-    <option value="vi">Always Vietnamese</option>
-  </select>
-  <div class="status">Papers (LaTeX) are always written in English. Chats answer in the language you write in.</div>
-
-  <button class="btn primary" id="save-cfg" style="width:100%;margin-top:18px">Save configuration</button>
-  <div class="status">Stored locally in <code>data/config.json</code>. Each API key is only sent to its own provider.</div>
+  <button class="rail-proj" data-goto="settings" data-set="project" title="Active research project"><svg class="ic"><use href="#i-folder"/></svg><span class="lbl" id="proj-tag"></span></button>
+  <nav class="rail-nav" aria-label="Tools">
+    <div class="rail-group">Research</div>
+    <button data-tab="control" title="Control Center"><svg class="ic"><use href="#i-compass"/></svg><span class="lbl">Control Center</span></button>
+    <button data-tab="lit2plan" class="on" aria-current="page" title="Lit2Plan"><svg class="ic"><use href="#i-map"/></svg><span class="lbl">Lit2Plan</span></button>
+    <button data-tab="experiment" title="Experiment Design"><svg class="ic"><use href="#i-flask"/></svg><span class="lbl">Experiment Design</span></button>
+    <button data-tab="ide" title="Workspace &amp; Runs"><svg class="ic"><use href="#i-code"/></svg><span class="lbl">Workspace &amp; Runs</span></button>
+    <button data-tab="papers" title="Papers &amp; Writer"><svg class="ic"><use href="#i-book"/></svg><span class="lbl">Papers &amp; Writer</span></button>
+    <button data-tab="gateway" title="AI Gateway"><svg class="ic"><use href="#i-plug"/></svg><span class="lbl">AI Gateway</span></button>
+    <div class="rail-group">Knowledge</div>
+    <button data-tab="context" title="Context"><svg class="ic"><use href="#i-share"/></svg><span class="lbl">Context</span></button>
+    <button data-tab="masterclass" title="Masterclass"><svg class="ic"><use href="#i-cap"/></svg><span class="lbl">Masterclass</span></button>
+    <div class="rail-group">System</div>
+    <button data-tab="docker" title="Docker &amp; System"><svg class="ic"><use href="#i-server"/></svg><span class="lbl">Docker &amp; System</span></button>
+    <button data-tab="guide" title="Guide"><svg class="ic"><use href="#i-help"/></svg><span class="lbl">Guide</span></button>
+  </nav>
+  <nav class="rail-foot" aria-label="Utilities">
+    <button class="notesbtn" id="notes-open" title="Shared context: pinned notes visible to every tool's chat"><svg class="ic"><use href="#i-pin"/></svg><span class="lbl">Pinned notes</span><span class="count" id="notes-count">0</span></button>
+    <button data-tab="settings" title="Settings"><svg class="ic"><use href="#i-gear"/></svg><span class="lbl">Settings</span></button>
+  </nav>
 </aside>
 
 <main>
-<nav>
-  <button data-tab="control">🧭 Control Center</button>
-  <button data-tab="lit2plan" class="on">🛠️ Lit2Plan</button>
-  <button data-tab="experiment">🔬 Experiment Design</button>
-  <button data-tab="ide">💻 Workspace &amp; Runs</button>
-  <button data-tab="papers">📚 Papers &amp; Writer</button>
-  <button data-tab="masterclass">📖 Masterclass</button>
-  <button data-tab="context">🧠 Context</button>
-  <button data-tab="docker">🐳 Docker &amp; System</button>
-  <button data-tab="guide">📘 Guide</button>
-  <span style="flex:1"></span><button class="notesbtn" id="notes-open" title="Shared context: pinned notes visible to every tool's chat">📌 <span id="notes-count">0</span></button><span class="projtag" id="proj-tag" title="Active research project"></span>
-  <span class="themesw" id="lang-switch" title="Interface language">
-    <button data-ui-lang="en">EN</button><button data-ui-lang="vi">VI</button>
-  </span>
-  <span class="themesw" id="theme-switch" title="Appearance">
-    <button data-theme-mode="light" title="Light">☀</button><button data-theme-mode="dark" title="Dark">🌙</button><button data-theme-mode="auto" title="Follow system">🖥</button>
-  </span>
-</nav>
+<header class="topbar">
+  <button class="rail-icon only-mobile" id="rail-open" title="Open menu" aria-label="Open menu"><svg class="ic"><use href="#i-menu"/></svg></button>
+  <h1 class="page-title" id="page-title">Lit2Plan</h1>
+  <span style="flex:1"></span>
+  <button class="cmdk" id="cmdk-open" title="Search tools and settings (Ctrl+K)"><svg class="ic"><use href="#i-search"/></svg><span class="lbl">Search…</span><kbd>Ctrl K</kbd></button>
+  <button class="rail-icon" id="theme-quick" title="Toggle light / dark" aria-label="Toggle light / dark"><svg class="ic"><use href="#i-moon"/></svg></button>
+</header>
+<div class="cmdk-modal" id="cmdk" hidden><div class="cmdk-box" role="dialog" aria-modal="true" aria-label="Search">
+  <div class="cmdk-in"><svg class="ic"><use href="#i-search"/></svg><input type="text" id="cmdk-q" placeholder="Go to a tool or a setting…" aria-label="Go to a tool or a setting"></div>
+  <div class="cmdk-list" id="cmdk-list" role="listbox"></div>
+  <div class="cmdk-foot"><kbd>↑</kbd><kbd>↓</kbd> navigate <kbd>Enter</kbd> open <kbd>Esc</kbd> close</div>
+</div></div>
+<div class="rail-scrim" id="rail-scrim" hidden></div>
 
 <!-- ================================================================ TOOL 1 -->
 <section class="tab on" id="tab-lit2plan">
@@ -915,13 +848,14 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
 <section class="tab full" id="tab-context"></section>
 <section class="tab full" id="tab-docker"></section>
 <section class="tab full" id="tab-control"></section>
+<section class="tab full" id="tab-gateway"></section>
 
 <!-- ================================================================ GUIDE -->
 <section class="tab" id="tab-guide">
   <div class="guide-layout">
     <aside class="guide-side">
       <div class="glang"><button data-glang="vi">Tiếng Việt</button><button data-glang="en">English</button></div>
-      <input type="text" id="guide-search" placeholder="Search the guide… / Tìm trong hướng dẫn…">
+      <input type="text" id="guide-search" placeholder="Search the guide…">
       <div class="status" id="guide-count"></div>
       <div id="guide-toc"></div>
     </aside>
@@ -948,6 +882,136 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
     </div>
   </div>
 </section>
+<!-- ================================================================ SETTINGS (all configuration in one place) -->
+<section class="tab" id="tab-settings">
+  <div class="page-head"><h2>Settings</h2><p class="lead">API keys and AI engines are shared by all projects; the project block applies to the active project.</p></div>
+  <div class="settings">
+    <nav class="set-menu" aria-label="Settings sections">
+      <div class="set-search"><svg class="ic"><use href="#i-search"/></svg><input type="text" id="set-filter" placeholder="Search settings" aria-label="Search settings"></div>
+      <button data-set-go="project"><svg class="ic"><use href="#i-folder"/></svg><span>Research project</span></button><button data-set-go="cloud"><svg class="ic"><use href="#i-cloud"/></svg><span>Cloud AI providers</span></button><button data-set-go="local"><svg class="ic"><use href="#i-cpu"/></svg><span>Local AI</span></button><button data-set-go="agents"><svg class="ic"><use href="#i-layers"/></svg><span>Agent engines</span></button><button data-set-go="search"><svg class="ic"><use href="#i-globe"/></svg><span>Internet search</span></button><button data-set-go="appearance"><svg class="ic"><use href="#i-sun"/></svg><span>Language & appearance</span></button><button data-set-go="more"><svg class="ic"><use href="#i-sliders"/></svg><span>More settings</span></button>
+    </nav>
+    <div class="set-main">
+  <section class="set-card" id="set-project" data-set="project">
+    <header class="set-head"><svg class="ic"><use href="#i-folder"/></svg><div><h3>Research project</h3><p class="set-desc">Active project, data folder and references folder.</p></div></header>
+    <div class="set-body">
+  <div class="row"><select id="proj-select" title="Switch research project"></select></div>
+  <div class="row" style="margin-top:6px;flex-wrap:wrap;gap:6px">
+    <button class="btn small" id="proj-new">＋ New</button>
+    <button class="btn small" id="proj-open" title="Open an existing project folder (e.g. copied from another PC)">📂 Open…</button>
+    <button class="btn small" id="proj-rename" title="Rename project">✎</button>
+    <button class="btn small danger" id="proj-forget" title="Remove from list (files are kept)">✕</button>
+  </div>
+  <label>Data folder (workspace, chats, library, outputs)</label>
+  <div class="row"><input type="text" id="proj-data" readonly><button class="btn small" id="proj-browse" title="Browse… open another folder as a project">📁</button><button class="btn small" id="proj-open-folder" title="Open in Explorer">↗</button></div>
+  <label>References folder (full-text PDFs of this project)</label>
+  <div class="row"><input type="text" id="cfg-refs" placeholder="C:\Users\you\PhD\references"><button class="btn small" id="refs-browse" title="Browse… choose the references folder">📁</button><button class="btn small" id="open-refs" title="Open in Explorer">↗</button></div>
+  <div class="status">API keys and AI engines are shared by all projects.</div>
+    </div>
+  </section>
+  <section class="set-card" id="set-cloud" data-set="cloud">
+    <header class="set-head"><svg class="ic"><use href="#i-cloud"/></svg><div><h3>Cloud AI providers</h3><p class="set-desc">API keys, models and the default cloud provider.</p></div></header>
+    <div class="set-body">
+  <label>Default cloud provider (used by agents set to "Default")</label>
+  <select id="cfg-default"></select>
+  <label>API keys — click a provider to edit</label>
+  <div id="prov-list" class="provlist"></div>
+  <div class="card" id="prov-editor" style="padding:12px;margin-top:8px">
+    <div class="row"><b id="prov-title" style="flex:1">Provider</b><a id="prov-link" class="status" target="_blank" rel="noopener" style="flex:0 0 auto;color:var(--accent2)">Get API key ↗</a></div>
+    <label>API key</label>
+    <input type="password" id="prov-key" placeholder="paste API key" autocomplete="off">
+    <label>Model</label>
+    <div class="row"><input type="text" id="prov-model" placeholder="model name"><button class="btn small" id="prov-list-models" title="Load the models your key can use">↻ List</button></div>
+    <label>Base URL <span class="status">(leave empty for default)</span></label>
+    <input type="text" id="prov-base">
+    <div class="row" style="margin-top:8px"><button class="btn small" id="prov-test">Test connection</button><span style="flex:1"></span><button class="btn small danger" id="prov-clear">Remove key</button></div>
+    <div class="status" id="prov-status"><span class="dot"></span>not tested</div>
+  </div>
+    </div>
+  </section>
+  <section class="set-card" id="set-local" data-set="local">
+    <header class="set-head"><svg class="ic"><use href="#i-cpu"/></svg><div><h3>Local AI</h3><p class="set-desc">LM Studio and Ollama running on this computer.</p></div></header>
+    <div class="set-body">
+      <h4 class="set-sub">LM Studio</h4>
+  <label>Base URL</label>
+  <input type="text" id="cfg-lmurl" placeholder="http://localhost:1234/v1">
+  <label>Local model</label>
+  <div class="row"><input type="text" id="cfg-localmodel" placeholder="(first loaded model)"><button class="btn small" id="refresh-models" title="Reload models from LM Studio">↻</button></div>
+  <div class="status" id="st-local"><span class="dot"></span>not checked</div>
+  <div class="row" style="margin-top:6px;gap:6px"><label style="margin:0;flex:0 0 auto">Context</label><select id="lm-ctx" style="flex:1"><option value="">default</option><option>4096</option><option>8192</option><option>16384</option><option>32768</option></select></div>
+  <div class="lmlist" id="lm-list"></div>
+      <h4 class="set-sub">Ollama</h4>
+  <label>Base URL</label>
+  <input type="text" id="cfg-ollamaurl" placeholder="http://localhost:11434">
+  <label>Ollama model</label>
+  <div class="row"><input type="text" id="cfg-ollamamodel" placeholder="(loaded model)"><button class="btn small" id="ol-refresh" title="Reload Ollama models">↻</button></div>
+  <div class="status" id="st-ollama"><span class="dot"></span>not checked</div>
+  <div class="lmlist" id="ol-list"></div>
+  <div class="row" style="margin-top:6px;gap:6px"><input type="text" id="ol-pullname" placeholder="qwen2.5-coder:14b"><button class="btn small" id="ol-pull" title="Download a model from the Ollama library">⤓ Pull</button></div>
+  <div class="status" id="ol-pullst"></div>
+  <label class="chk"><input type="checkbox" id="cfg-fallback"> Fall back to Claude if local fails</label>
+    </div>
+  </section>
+  <section class="set-card" id="set-agents" data-set="agents">
+    <header class="set-head"><svg class="ic"><use href="#i-layers"/></svg><div><h3>Agent engines</h3><p class="set-desc">Which engine each agent uses.</p></div></header>
+    <div class="set-body">
+  <div id="agent-modes"></div>
+  <div class="row" style="margin-top:8px">
+    <button class="btn small" data-allmode="local">All local</button>
+    <button class="btn small" data-allmode="cloud">All cloud</button>
+    <button class="btn small" data-allmode="default">Recommended</button>
+  </div>
+    </div>
+  </section>
+  <section class="set-card" id="set-search" data-set="search">
+    <header class="set-head"><svg class="ic"><use href="#i-globe"/></svg><div><h3>Internet search</h3><p class="set-desc">Web search engine and scholarly sources.</p></div></header>
+    <div class="set-body">
+  <div class="status" style="margin-top:0">Turn it on per chat with the 🌐 selector next to the message box. Papers come from OpenAlex, arXiv and Semantic Scholar (free, no key).</div>
+  <label>Web search engine</label>
+  <select id="cfg-webeng"><option value="duckduckgo">DuckDuckGo — free, no key</option><option value="tavily">Tavily — API key (free tier)</option><option value="brave">Brave Search — API key</option></select>
+  <div id="webkey-box"><label id="webkey-label">API key</label><input type="password" id="cfg-webkey" autocomplete="off" placeholder="paste API key"></div>
+  <div class="row"><div><label>Results per search</label><select id="cfg-nres"><option>5</option><option>8</option><option>12</option><option>20</option></select></div>
+    <div><label>Semantic Scholar key <span class="status">(optional)</span></label><input type="password" id="cfg-s2key" autocomplete="off"></div></div>
+  <label>E-mail for OpenAlex <span class="status">(optional, faster)</span></label><input type="text" id="cfg-mailto" placeholder="you@university.edu">
+  <label class="chk"><input type="checkbox" id="cfg-readpages"> Read the top web pages (more accurate, slower)</label>
+    </div>
+  </section>
+  <section class="set-card" id="set-appearance" data-set="appearance">
+    <header class="set-head"><svg class="ic"><use href="#i-sun"/></svg><div><h3>Language & appearance</h3><p class="set-desc">Interface language, theme and AI output language.</p></div></header>
+    <div class="set-body">
+  <label>Interface language</label>
+  <span class="themesw seg2" id="lang-switch" title="Interface language">
+    <button data-ui-lang="en">EN</button><button data-ui-lang="vi">VI</button>
+  </span>
+  <label>Appearance</label>
+  <span class="themesw seg2" id="theme-switch" title="Appearance">
+    <button data-theme-mode="light" title="Light"><svg class="ic"><use href="#i-sun"/></svg><span>Light</span></button><button data-theme-mode="dark" title="Dark"><svg class="ic"><use href="#i-moon"/></svg><span>Dark</span></button><button data-theme-mode="auto" title="Follow system"><svg class="ic"><use href="#i-monitor"/></svg><span>Follow system</span></button>
+  </span>
+  <label>AI output language (Tools 1, 2, 4)</label>
+  <select id="cfg-outlang">
+    <option value="ui">Follow interface language</option>
+    <option value="en">Always English</option>
+    <option value="vi">Always Vietnamese</option>
+  </select>
+  <div class="status">Papers (LaTeX) are always written in English. Chats answer in the language you write in.</div>
+    </div>
+  </section>
+  <section class="set-card" id="set-more" data-set="more">
+    <header class="set-head"><svg class="ic"><use href="#i-sliders"/></svg><div><h3>More settings</h3><p class="set-desc">Settings that live next to the feature they control.</p></div></header>
+    <div class="set-body">
+      <div class="set-links">
+        <button class="set-link" data-goto="docker"><svg class="ic"><use href="#i-server"/></svg><span><b>Sandbox &amp; Docker</b><small>Image, CPU/RAM/GPU limits, local AI servers</small></span><svg class="ic chev"><use href="#i-arrow"/></svg></button>
+        <button class="set-link" data-goto="context"><svg class="ic"><use href="#i-share"/></svg><span><b>Memory</b><small>Automatic summarization, thresholds, context graph</small></span><svg class="ic chev"><use href="#i-arrow"/></svg></button>
+        <button class="set-link" data-goto="control" data-sub="integrations"><svg class="ic"><use href="#i-compass"/></svg><span><b>Integrations</b><small>ClearML, Codex, VS Code, Jupyter, resource policy</small></span><svg class="ic chev"><use href="#i-arrow"/></svg></button>
+        <button class="set-link" data-goto="ide"><svg class="ic"><use href="#i-code"/></svg><span><b>Git &amp; GitHub</b><small>Repository and GitHub token of the research code</small></span><svg class="ic chev"><use href="#i-arrow"/></svg></button>
+      </div>
+    </div>
+  </section>
+      <div class="set-empty" id="set-empty" hidden>No setting matches your search.</div>
+    </div>
+  </div>
+  <div class="set-savebar"><button class="btn primary" id="save-cfg">Save configuration</button>
+  <div class="status set-save-note">Stored locally in <code>data/config.json</code>. Each API key is only sent to its own provider.</div></div>
+</section>
 </main>
 </div>
 
@@ -969,11 +1033,11 @@ details.nadd>summary{cursor:pointer;color:var(--accent2);font-size:13px}
   <h4 id="pm-title">New research project</h4>
   <div id="pm-new">
     <label>Project name</label><input type="text" id="pm-name" placeholder="e.g. FOG sensor denoising">
-    <label>Data folder <span class="status">(empty = &lt;app&gt;/projects/&lt;name&gt;)</span></label><input type="text" id="pm-data" placeholder="D:\PhD\FOG-project">
-    <label>References folder <span class="status">(empty = &lt;data folder&gt;/references)</span></label><input type="text" id="pm-refs" placeholder="D:\PhD\FOG-project\references">
+    <label>Data folder <span class="status">(empty = &lt;app&gt;/projects/&lt;name&gt;)</span></label><input type="text" id="pm-data" placeholder="D:\PhD\FOG-project" data-browse="Select the DATA folder of the new project">
+    <label>References folder <span class="status">(empty = &lt;data folder&gt;/references)</span></label><input type="text" id="pm-refs" placeholder="D:\PhD\FOG-project\references" data-browse="Select the REFERENCES folder (full-text PDFs)">
   </div>
   <div id="pm-openbox" style="display:none">
-    <label>Existing project data folder</label><input type="text" id="pm-path" placeholder="D:\PhD\HSI-project">
+    <label>Existing project data folder</label><input type="text" id="pm-path" placeholder="D:\PhD\HSI-project" data-browse="Select an existing project data folder">
     <p class="status">Any folder works: if it has no project yet, a new one is initialised inside it (workspace/, references/, project_meta.json). Nothing is deleted.</p>
   </div>
   <div class="row" style="margin-top:12px"><span style="flex:1"></span><button class="btn" id="pm-cancel">Cancel</button><button class="btn primary" id="pm-ok">Create &amp; switch</button></div>
@@ -1428,7 +1492,7 @@ async function refreshLocal() {
 }
 function applyConfig() {
   $('#app-version').textContent = 'v' + CFG.version;
-  const PAGE_V = '3.2.0';
+  const PAGE_V = '4.0.0';
   if (CFG.version && CFG.version !== PAGE_V && !$('#vwarn')) {   // page and server from two different versions
     const b = document.createElement('div'); b.id = 'vwarn'; b.className = 'vwarn';
     b.textContent = I18N.tr(`This page is v${PAGE_V} but the server answering it is v${CFG.version}. Another copy of the lab is still running: close its black window, run run.bat again and press Ctrl+F5.`);
@@ -1526,7 +1590,7 @@ async function loadProjects() {
     $('#proj-select').value = act.data_dir;
     $('#proj-data').value = act.data_dir; $('#proj-data').title = act.data_dir;
     requestAnimationFrame(() => ['#proj-data', '#cfg-refs'].forEach(id => { const el = $(id); el.title = el.value; el.scrollLeft = el.scrollWidth; }));
-    $('#proj-tag').textContent = '📂 ' + act.name; document.title = `${act.name} · PhD Research Lab`;
+    $('#proj-tag').dataset.name = act.name; $('#proj-tag').textContent = act.name === 'Default project' ? I18N.tr(act.name) : act.name;  // user names are never translated document.title = `${act.name} · PhD Research Lab`;
     $('#proj-forget').disabled = !!act.is_default;
   } catch (e) { toast('Projects: ' + e.message, 'err'); }
 }
@@ -1681,6 +1745,35 @@ async function fsGo(path) {
     $$('#fs-modal [data-go]').forEach(el => el.onclick = () => fsGo(el.dataset.go));
   } catch (e) { toast(e.message, 'err'); }
 }
+// v3.4: every path input with data-browse="<dialog title>" gets a 📁 Browse button (also inputs rendered later)
+function attachBrowse(input) {
+  if (!input || input.dataset.browseReady) return;
+  input.dataset.browseReady = '1';
+  const btn = document.createElement('button');
+  btn.type = 'button'; btn.className = 'btn small browse-btn'; btn.title = 'Browse…'; btn.setAttribute('aria-label', 'Browse…');
+  btn.innerHTML = '<svg class="ic"><use href="#i-folder"/></svg><span>Browse…</span>';
+  const wrap = document.createElement('div'); wrap.className = 'row browse-row';
+  input.parentNode.insertBefore(wrap, input); wrap.appendChild(input); wrap.appendChild(btn);
+  btn.onclick = async () => {
+    const path = await browseFolder(I18N.tr(input.dataset.browse || 'Select folder'), input.value.trim());
+    if (!path) return;
+    input.value = path;
+    input.dispatchEvent(new Event('input', {bubbles: true})); input.dispatchEvent(new Event('change', {bubbles: true}));
+  };
+}
+$$('input[data-browse]').forEach(attachBrowse);
+new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => {
+  if (n.nodeType !== 1) return;
+  if (n.matches('input[data-browse]')) attachBrowse(n);
+  n.querySelectorAll && n.querySelectorAll('input[data-browse]').forEach(attachBrowse);
+}))).observe(document.body, {childList: true, subtree: true});
+// new project: picking the data folder suggests the name and the references folder
+$('#pm-data').addEventListener('change', () => {
+  const d = $('#pm-data').value.trim().replace(/[\\/]+$/, '');
+  if (!d) return;
+  if (!$('#pm-name').value.trim()) $('#pm-name').value = d.split(/[\\/]/).pop();
+  if (!$('#pm-refs').value.trim()) $('#pm-refs').placeholder = d + (d.includes('/') ? '/' : '\\') + 'references';
+});
 function fsClose(val) { $('#fs-modal').classList.remove('on'); if (FS_RESOLVE) FS_RESOLVE(val); FS_RESOLVE = null; }
 $('#fs-path').addEventListener('keydown', e => { if (e.key === 'Enter') fsGo($('#fs-path').value); });
 $('#fs-gobtn').onclick = () => fsGo($('#fs-path').value);
@@ -3460,5 +3553,9 @@ setTimeout(() => { try { const t = localStorage.getItem('last_tab'); if (t && t 
 <script src="/app/results.js"></script>
 <script src="/app/brief.js"></script>
 <script src="/app/control.js"></script>
+<script src="/app/envpanel.js"></script>
+<script src="/app/memory33.js"></script>
+<script src="/app/gateway.js"></script>
+<script src="/app/shell.js"></script>
 </body>
 </html>

@@ -41,7 +41,9 @@ def delete(item_id: str) -> None:
     _store.update(put)
 
 
-def papers(limit: int = 300) -> list:
+def papers(limit: int = 20000) -> list:
+    """v3.3: the whole library (v3.2 cut at 300 entries in key order, so a large library silently lost every paper whose
+    BibTeX key sorted late — found by the memory benchmark)."""
     try:
         from ..library import included
         return [{"key": e.get("key", ""), "title": e.get("title", ""), "year": e.get("year", ""), "venue": e.get("venue", ""),

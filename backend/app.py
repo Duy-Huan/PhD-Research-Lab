@@ -143,6 +143,8 @@ from .api_v31 import router as _v31_router  # noqa: E402
 app.include_router(_v31_router)
 from .api_v32 import router as _v32_router  # noqa: E402
 app.include_router(_v32_router)
+from .api_v33 import router as _v33_router  # noqa: E402  (v3.3 Context Memory + v3.4 Context Gateway)
+app.include_router(_v33_router)
 
 
 # ================================================================ configuration

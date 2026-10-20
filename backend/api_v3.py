@@ -171,7 +171,10 @@ async def sandbox_status(full: int = 1):
 
 @router.put("/api/sandbox/settings")
 def sandbox_settings(body: dict = Body(...)):
-    return {"settings": sandbox.save_settings(body)}
+    try:
+        return {"settings": sandbox.save_settings(body)}
+    except sandbox.SandboxError as e:
+        _err(e)
 
 
 @router.post("/api/sandbox/container")
@@ -781,15 +784,28 @@ def export_project():
 # ================================================================ MCP (Streamable HTTP, JSON responses)
 @router.post("/mcp")
 async def mcp(request: Request):
+    hdrs = {k.lower(): v for k, v in request.headers.items()}
+    code, why = mcp_server.guard(hdrs, request.client.host if request.client else "?")
+    if code:
+        mcp_server.audit({"denied": code, "reason": why})
+        return JSONResponse({"jsonrpc": "2.0", "id": None, "error": {"code": -32001, "message": why}}, code)
     try:
         payload = await request.json()
     except Exception:
         return JSONResponse({"jsonrpc": "2.0", "id": None, "error": {"code": -32700, "message": "Parse error"}}, 400)
+    sess = hdrs.get("mcp-session-id", "")[:80]
+    meta: dict = {}
     if isinstance(payload, list):
-        res = [r for r in [await run_in_threadpool(mcp_server.handle, m) for m in payload] if r]
-        return JSONResponse(res) if res else Response(status_code=202)
-    r = await run_in_threadpool(mcp_server.handle, payload)
-    return JSONResponse(r) if r else Response(status_code=202)
+        res = [r for r in [await run_in_threadpool(mcp_server.handle, m, sess, meta) for m in payload if isinstance(m, dict)] if r]
+        out = JSONResponse(res) if res else Response(status_code=202)
+    elif isinstance(payload, dict):
+        r = await run_in_threadpool(mcp_server.handle, payload, sess, meta)
+        out = JSONResponse(r) if r else Response(status_code=202)
+    else:
+        return JSONResponse({"jsonrpc": "2.0", "id": None, "error": {"code": -32600, "message": "Invalid request"}}, 400)
+    if meta.get("session_id"):
+        out.headers["Mcp-Session-Id"] = meta["session_id"]
+    return out
 
 
 @router.get("/mcp")
