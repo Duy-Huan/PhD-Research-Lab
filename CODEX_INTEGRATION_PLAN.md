@@ -26,7 +26,14 @@
 ## Đã làm (v3.2)
 `backend/integrations/agents.py` (CodexBackend, apply_event, persist), API `/api/codex/*`, Control Center → 🤖 Codex (chạy, theo dõi, hủy, Review in VS Code), cấu hình `codex.{enabled,binary,model,timeout_s}`, unit test mapping/trạng thái, test thật opt-in `PHDLAB_CODEX_LIVE=1`.
 
+## Kiểm chứng thật (codex-cli 0.163.0, Windows 11)
+- Không có `[windows] sandbox` trong `~/.codex/config.toml` → `codex doctor` báo *sandbox backend disabled* → mọi lệnh shell bị chặn (cả read-only lẫn workspace-write). App truyền `-c windows.sandbox=unelevated` cho từng lần chạy (setting `codex.windows_sandbox`: unelevated | elevated | config) — không sửa config chung của người dùng.
+- Read-only: đọc file bằng PowerShell được, ghi file bị chặn (exit 1, không có file). Workspace-write: sửa file trong workspace được, thay đổi lấy từ git.
+- `codex exec resume` không có `--sandbox` → dùng `-c sandbox_mode=…`.
+- Gọi `node <npm>/node_modules/@openai/codex/bin/codex.js` thay vì `codex.cmd` (tránh cmd.exe tách tham số).
+- Watchdog thời gian chạy là daemon timer (trước đó giữ tiến trình sống 30 phút).
+
 ## Chưa làm / cần quyết định
-1. Chưa kiểm chứng với CLI thật (chưa cài trên máy audit).
+1. ~~Kiểm chứng với CLI thật~~ — đã làm (xem trên).
 2. Chưa gom co-coding agent cũ và Codex dưới cùng một interface `AgentBackend` chung (đề xuất ở M5/M6 sau khi Codex được dùng thật).
 3. Liên kết run Codex ↔ hypothesis/experiment: trường `link` đã có trong API, UI chưa hiển thị chọn liên kết.

@@ -14,6 +14,8 @@ if not os.environ.get("PHDLAB_DATA_DIR"):
     os.environ["PHDLAB_DATA_DIR"] = _tmp
     atexit.register(lambda: shutil.rmtree(_tmp, ignore_errors=True))
 os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+# notebook kernels registered by tests (ipykernel install --user) must not land in the researcher's real Jupyter folder
+os.environ["JUPYTER_DATA_DIR"] = os.path.join(os.environ["PHDLAB_DATA_DIR"], "_jupyter")
 
 from backend import config  # noqa: E402
 

@@ -18,6 +18,28 @@ python -m unittest discover -s tests -p "test_*.py"
 - Live integrations are opt-in: `PHDLAB_CLEARML_LIVE=1`, `PHDLAB_CODEX_LIVE=1` (`tests/test_live_integrations.py`),
   `PHDLAB_LMSTUDIO_LIVE=1` (+ `PHDLAB_LMSTUDIO_MODEL`, loads and unloads a real model — `tests/test_vram_gate.py`).
 
+- v3.3/v3.4 test packages: `tests/memory_eval/` (golden research project + regression gate), `tests/providers/` (connector
+  contract with `fake_cli.py`, a fake vendor CLI that speaks the official JSONL formats), `tests/streaming/`, `tests/mcp/`,
+  `tests/context_gateway/`, `tests/security/`, `tests/integration/test_acceptance.py` (v3.4 §25 end to end). Every package
+  `__init__.py` imports `_env` first — keep it that way, discovery imports the package before the test module.
+
+## Benchmarks (v3.3/v3.4)
+```bash
+.venv/Scripts/python benchmarks/bench_memory.py --pipeline v33 --out docs/benchmarks/data/v33.json   # quality + latency
+.venv/Scripts/python benchmarks/bench_gateway.py --out docs/benchmarks/data/v34-gateway.json         # MCP / gateway
+```
+Numbers and method: `docs/benchmarks/`. The v3.2 baseline was measured on the unmodified HEAD in a separate git worktree.
+
+## Layout (v3.3 / v3.4 additions)
+| Path | Role |
+|---|---|
+| `backend/memory/state.py` · `engine.py` · `policy.py` | Research State · state-aware explainable retrieval · role policies + token Budget |
+| `backend/memory/evidence.py` · `trace.py` · `lifecycle.py` · `cache.py` | Claims/Evidence · provenance chain · memory candidates · fingerprint caches |
+| `backend/telemetry.py` | content-free spans, `/api/telemetry` |
+| `backend/gateway/` | Context Gateway: `connectors` (Codex, Claude Code, Antigravity, Gemini CLI), `events`, `context`, `service`, `policy`, `mcp_tools` |
+| `backend/api_v33.py` | REST API of the above |
+| `docs/architecture/`, `docs/integrations/`, `docs/security/`, `docs/benchmarks/` | audits, designs, final reports |
+
 ## Layout (v3.2 additions)
 | Path | Role |
 |---|---|
@@ -45,7 +67,8 @@ python -m unittest discover -s tests -p "test_*.py"
               "api_host": "http://localhost:8008", "web_host": "http://localhost:8080",
               "files_host": "http://localhost:8081", "access_key": "<from ClearML UI>", "secret_key": "<from ClearML UI>",
               "project": "PhD Research Lab", "queue": "default"},
-  "codex": {"enabled": false, "binary": "", "sandbox": "read-only", "model": "", "timeout_s": 1800},
+  "codex": {"enabled": true, "binary": "", "sandbox": "read-only", "model": "", "timeout_s": 1800,
+            "windows_sandbox": "unelevated"},   // unelevated | elevated | config (use ~/.codex/config.toml)
   "routing": {"online_check": true, "chains": {"live_critic": ["groq", "ollama", "@cloud"]},
               "provider_headers": {"ninerouter": {"X-9Router-Skills": "rtk"}}},
   "critic": {"enabled": true, "llm": true, "interval_chars": 700},

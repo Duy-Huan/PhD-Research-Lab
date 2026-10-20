@@ -72,7 +72,12 @@ def sb_dir() -> Path:
 
 
 DEFAULT_SETTINGS = {"mode": "auto", "image": "", "gpu": True, "memory_gb": 8, "cpus": 4, "shm_gb": 2,
-                    "network": True, "timeout_s": 6 * 3600, "self_debug_max": 4}
+                    "network": True, "timeout_s": 6 * 3600, "self_debug_max": 4,
+                    # v3.2: the local venv sees the packages of the Python that runs the app (clearml, torch, …)
+                    "inherit_packages": True,
+                    # v3.4 environments (envs.py): Python env = a project venv built from python_base, or python_base itself
+                    # ("existing"); auto_deps installs what the code imports before every run (deps.py)
+                    "python_mode": "venv", "python_base": "", "auto_deps": True, "torch_index": ""}
 
 
 def load_settings() -> dict:
@@ -93,8 +98,20 @@ def save_settings(patch: dict) -> dict:
             continue
         if k == "mode":
             s[k] = v if v in ("auto", "docker", "local") else "auto"
-        elif k in ("gpu", "network"):
+        elif k in ("gpu", "network", "inherit_packages", "auto_deps"):
             s[k] = bool(v)
+        elif k == "python_mode":
+            s[k] = v if v in ("venv", "existing") else "venv"
+        elif k == "python_base":
+            v = str(v or "").strip().strip('"')
+            if v and not (Path(v).is_file() and re.search(r"python[\d.]*(w)?(\.exe)?$", Path(v).name, re.I)):
+                raise SandboxError(f"Not a Python interpreter: {v}")
+            s[k] = v
+        elif k == "torch_index":
+            v = str(v or "").strip()
+            if v and not re.match(r"^https://[\w.-]+(/[\w./-]*)?$", v):
+                raise SandboxError("torch_index must be an https URL, e.g. https://download.pytorch.org/whl/cu124")
+            s[k] = v
         elif k in ("memory_gb", "cpus", "shm_gb", "timeout_s", "self_debug_max"):
             try:
                 s[k] = max(0, float(v)) if k in ("cpus",) else max(0, int(float(v)))
@@ -145,12 +162,22 @@ def docker_running(cache_s: float = 10) -> bool:
 
 
 def effective_mode(s: dict | None = None) -> str:
+    """local | docker. 'auto' (v3.4): Docker when the code needs a GPU framework and Docker runs, else the Python env."""
     s = s or load_settings()
-    if s["mode"] == "local":
-        return "local"
-    if s["mode"] == "docker":
-        return "docker"
-    return "docker" if docker_exe() and docker_running() else "local"
+    if s["mode"] in ("local", "docker"):
+        return s["mode"]
+    return choose_mode(s)[0]
+
+
+def choose_mode(s: dict | None = None) -> tuple[str, str]:
+    from . import deps
+    from .envs import choose
+    s = s or load_settings()
+    try:
+        plan = deps.plan_cached(code_dir())
+    except Exception:
+        plan = None
+    return choose(s, plan)
 
 
 def effective_image(s: dict) -> str:
@@ -383,15 +410,57 @@ def _pump(job: Job, pipe, stream: str):
             pass
 
 
+def _base_python(s: dict) -> str:
+    b = (s.get("python_base") or "").strip()
+    return b if b and Path(b).is_file() else sys.executable
+
+
+def _venv_dir(s: dict) -> Path:
+    base = _base_python(s)
+    if base == sys.executable:
+        return sb_dir() / "venv"  # v3.0-v3.3 location (kept: existing venvs and their packages stay in use)
+    return sb_dir() / ("venv-" + hashlib.sha1(str(Path(base).resolve()).lower().encode()).hexdigest()[:8])
+
+
+def local_python_info() -> dict:
+    s = load_settings()
+    if s.get("python_mode") == "existing":
+        return {"mode": "existing", "python": _base_python(s), "base": _base_python(s)}
+    v = _venv_dir(s)
+    return {"mode": "venv", "python": str(v / ("Scripts/python.exe" if IS_WIN else "bin/python")), "base": _base_python(s),
+            "venv": str(v), "created": (v / "pyvenv.cfg").exists()}
+
+
 def _local_python() -> str:
-    """Private venv for local mode (created on first use)."""
-    venv = sb_dir() / "venv"
+    """Python of the local environment. v3.4: python_mode 'existing' runs the chosen interpreter directly; 'venv' uses a
+    private venv of the project built from the chosen base interpreter (created on first use). With
+    settings.inherit_packages the venv also sees the base interpreter's packages (`include-system-site-packages`)."""
+    s0 = load_settings()
+    if s0.get("python_mode") == "existing":
+        return _base_python(s0)
+    venv = _venv_dir(s0)
     py = venv / ("Scripts/python.exe" if IS_WIN else "bin/python")
+    inherit = bool(load_settings().get("inherit_packages", True))
     if not py.exists():
-        r = subprocess.run([sys.executable, "-m", "venv", str(venv)], capture_output=True, text=True, creationflags=NO_WINDOW)
+        args = [_base_python(s0), "-m", "venv"] + (["--system-site-packages"] if inherit else []) + [str(venv)]
+        r = subprocess.run(args, capture_output=True, text=True, creationflags=NO_WINDOW)
         if r.returncode != 0 or not py.exists():
             return sys.executable
+    _sync_venv_inherit(venv, inherit)
     return str(py)
+
+
+def _sync_venv_inherit(venv: Path, inherit: bool) -> None:
+    """Keep pyvenv.cfg's include-system-site-packages in line with the setting (venvs created before v3.2 too)."""
+    cfg = venv / "pyvenv.cfg"
+    try:
+        txt = cfg.read_text("utf-8")
+        want = "true" if inherit else "false"
+        new = re.sub(r"(?im)^include-system-site-packages\s*=\s*\w+", f"include-system-site-packages = {want}", txt)
+        if new != txt:
+            cfg.write_text(new, "utf-8")
+    except OSError:
+        pass
 
 
 def _local_cmd(cmd: str) -> tuple[list | str, dict]:
@@ -399,7 +468,8 @@ def _local_cmd(cmd: str) -> tuple[list | str, dict]:
     env = dict(os.environ, PYTHONUNBUFFERED="1", MPLBACKEND="Agg", PYTHONIOENCODING="utf-8")
     bindir = str(Path(py).parent)
     env["PATH"] = bindir + os.pathsep + env.get("PATH", "")
-    env["VIRTUAL_ENV"] = str(Path(py).parent.parent)
+    if (Path(py).parent.parent / "pyvenv.cfg").exists():  # a venv (not an interpreter chosen as "existing")
+        env["VIRTUAL_ENV"] = str(Path(py).parent.parent)
     c = re.sub(r"^(python3?|py)(\s|$)", lambda m: f'"{py}"' + m.group(2), cmd.strip())
     c = re.sub(r"^pip3?(\s)", lambda m: f'"{py}" -m pip' + m.group(1), c)
     return c, env
@@ -410,7 +480,7 @@ def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | No
     if not cmd.strip():
         raise SandboxError("Empty command")
     s, _ = _capped_settings()
-    mode = effective_mode(s)
+    mode, mode_why = (s["mode"], "") if s["mode"] in ("local", "docker") else choose_mode(s)
     if kind == "run" and s.get("gpu") and (extra_env or {}).get("CUDA_VISIBLE_DEVICES") != "":
         from .resources import VramBusy, vram_gate
         try:  # researcher's rule: no GPU training while local LLMs sit in VRAM (refused before anything is created)
@@ -419,6 +489,19 @@ def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | No
             raise VramBusyError(str(e), e.models, e.vram_used_mb)
     job = _register(Job(kind, cmd, title))
     job.mode = mode
+    if mode_why:
+        job.add("sys", f"ℹ environment: auto → {'Docker' if mode == 'docker' else 'Python'} ({mode_why})")
+    deps_prefix = ""
+    if kind == "run" and s.get("auto_deps", True):
+        try:  # v3.4: install what the code needs inside the target environment, in this same job and log
+            from . import deps
+            plan = deps.plan_cached(code_dir())
+            if plan["count"] or plan["requirements_files"]:
+                deps.write(code_dir(), plan)
+                deps_prefix = "python .phdlab/ensure_deps.py && "
+                job.meta["deps"] = {"imports": len(plan["imports"]), "requirements_files": plan["requirements_files"]}
+        except Exception as e:
+            job.add("sys", f"⚠ dependency check skipped: {e}")
     if kind == "run":
         job.run_dir = runs_dir() / job.id
         job.run_dir.mkdir(parents=True, exist_ok=True)
@@ -441,7 +524,8 @@ def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | No
             except Exception as e:
                 job.add("sys", f"⚠ resource governor skipped: {e}")
         env.update(gpu_env)
-        job.meta["environment"] = {"mode": mode, "image": effective_image(s) if mode == "docker" else "local venv",
+        job.meta["environment"] = {"mode": mode, "image": effective_image(s) if mode == "docker" else "",
+                                   "python": "" if mode == "docker" else _local_python(),
                                    "gpu": bool(s.get("gpu")) and (extra_env or {}).get("CUDA_VISIBLE_DEVICES", gpu_env.get("CUDA_VISIBLE_DEVICES")) != "",
                                    "memory_gb": s.get("memory_gb"), "cpus": s.get("cpus")}
     env.update(extra_env or {})
@@ -451,7 +535,11 @@ def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | No
             env.update(run_env(f"/runs/{job.id}" if mode == "docker" else str(job.run_dir)))
         except Exception:
             pass
+    if s.get("torch_index"):
+        env["PHDLAB_TORCH_INDEX"] = s["torch_index"]
     if mode == "docker":
+        env["PHDLAB_IN_DOCKER"] = "1"
+        cmd = deps_prefix + cmd
         st = ensure_container()
         if st.get("warning"):
             job.add("sys", "⚠ " + st["warning"])
@@ -467,12 +555,12 @@ def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | No
         job.add("sys", f"$ {cmd}    [docker · {st.get('image')}{' · GPU' if st.get('gpu') else ''}]")
     else:
         env["RUN_DIR"] = str(job.run_dir) if job.run_dir else str(sb_dir())
-        argv, base_env = _local_cmd(cmd)
+        argv, base_env = _local_cmd(deps_prefix + cmd)
         base_env.update(env)
         popen_kw = {"shell": True, "cwd": str(code_dir()), "env": base_env}
         if not IS_WIN:
             popen_kw["start_new_session"] = True
-        job.add("sys", f"$ {cmd}    [local · {Path(_local_python()).parent.parent.name}]")
+        job.add("sys", f"$ {cmd}    [python · {_local_python()}]")
     try:
         job.proc = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.DEVNULL,
                                     text=True, encoding="utf-8", errors="replace", bufsize=1,
@@ -598,6 +686,9 @@ def run_blocking(cmd: str, timeout: int = 600, kind: str = "run", title: str = "
 def pull_image(image: str) -> Job:
     if not docker_exe():
         raise SandboxError("Docker is not installed")
+    from .envs import valid_image
+    if not valid_image(image):
+        raise SandboxError(f"Invalid image name: {image!r} (e.g. pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime)")
     job = _register(Job("pull", f"docker pull {image}", f"Pull {image}"))
     job.mode = "docker"
     job.proc = subprocess.Popen([docker_exe(), "pull", image], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,

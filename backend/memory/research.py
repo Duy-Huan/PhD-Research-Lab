@@ -167,15 +167,46 @@ def update_experiment(eid: str, patch: dict) -> dict:
     return _store.update(put)
 
 
-def add_failure(text: str, hypothesis_id: str = "", run_id: str = "", reason: str = "") -> dict:
+FAIL_FIELDS = ("experiment_id", "model", "dataset", "environment", "configuration", "error", "cause", "observation", "lesson",
+               "avoidance_rule")
+
+
+def add_failure(text: str, hypothesis_id: str = "", run_id: str = "", reason: str = "", **structured) -> dict:
+    """A validated failure (v3.3 failure memory): what failed + structured fields (model, dataset, environment,
+    configuration, error, cause, observation, lesson, avoidance_rule) so it is found again when a similar experiment is
+    planned. `reason` stays the free-text cause of v3.2 records."""
     if not (text or "").strip():
         raise ResearchError("Describe the failure")
+    unknown = set(structured) - set(FAIL_FIELDS) - {"origin"}
+    if unknown:
+        raise ResearchError(f"Unknown failure field(s): {', '.join(sorted(unknown))}")
+    eid = structured.get("experiment_id") or ""
+    if eid and not any(e["id"] == eid for e in load()["experiments"]):
+        raise ResearchError(f"Experiment {eid} not found")
 
     def put(st):
         f = {"id": _next_id(st, "FAIL"), "text": text.strip()[:2000], "hypothesis_id": hypothesis_id[:20],
-             "run_id": run_id[:80], "reason": reason[:1000], "validated": True, "created": now()}
+             "run_id": run_id[:80], "reason": reason[:1000], "validated": True, "created": now(),
+             "origin": str(structured.get("origin") or "human")[:60]}
+        for k in FAIL_FIELDS:
+            f[k] = str(structured.get(k) or "")[:1000]
+        if not f["cause"] and reason:
+            f["cause"] = reason[:1000]
         st["failures"].append(f)
         return f
+    return _store.update(put)
+
+
+def update_failure(fid: str, patch: dict) -> dict:
+    def put(st):
+        for f in st["failures"]:
+            if f["id"] == fid:
+                for k in FAIL_FIELDS + ("text", "reason"):
+                    if k in patch:
+                        f[k] = str(patch[k] or "")[:2000]
+                f["updated"] = now()
+                return f
+        raise ResearchError(f"Failure {fid} not found")
     return _store.update(put)
 
 

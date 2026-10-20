@@ -20,6 +20,8 @@ class ConfigV32(unittest.TestCase):
         self.assertTrue(C.DEFAULTS["clearml"]["enabled"])
         self.assertEqual(cfg["clearml"]["mode"], "offline")  # ClearML through the Python SDK, no server needed
         self.assertTrue(C.DEFAULTS["clearml"]["auto_record"])
+        self.assertTrue(C.DEFAULTS["codex"]["enabled"])
+        self.assertEqual(cfg["codex"]["windows_sandbox"], "unelevated")
         self.assertTrue(cfg["resources"]["require_unload"])  # GPU runs refused while LLMs hold VRAM
         self.assertNotIn("jit_unload", cfg["resources"])  # no automatic unloading
 

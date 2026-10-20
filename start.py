@@ -23,7 +23,7 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 HOST = "127.0.0.1"
-APP_VERSION = "3.2.0"   # must match backend/config.py - a mismatch means files from two versions were mixed
+APP_VERSION = "4.0.0"   # must match backend/config.py - a mismatch means files from two versions were mixed
 # Files that must exist for this version (an incomplete copy or a partial upgrade is the most common failure)
 REQUIRED_FILES = [
     "backend/__init__.py", "backend/app.py", "backend/config.py", "backend/llm.py", "backend/library.py",
@@ -47,6 +47,13 @@ REQUIRED_FILES = [
     "backend/resources.py", "backend/provenance.py",
     "backend/critic.py", "backend/llm_router.py", "backend/connectors/__init__.py", "backend/connectors/base.py",
     "backend/connectors/registry.py", "frontend/app/control.js",
+    # v4.0: research-state-aware Context Memory, Context Gateway + MCP research tools, environments, app shell
+    "backend/api_v33.py", "backend/telemetry.py", "backend/envs.py", "backend/deps.py", "backend/memory/state.py",
+    "backend/memory/engine.py", "backend/memory/policy.py", "backend/memory/evidence.py", "backend/memory/trace.py",
+    "backend/memory/lifecycle.py", "backend/memory/cache.py", "backend/gateway/__init__.py", "backend/gateway/connectors.py",
+    "backend/gateway/events.py", "backend/gateway/context.py", "backend/gateway/service.py", "backend/gateway/policy.py",
+    "backend/gateway/mcp_tools.py", "frontend/app/shell.css", "frontend/app/shell.js", "frontend/app/envpanel.js",
+    "frontend/app/memory33.js", "frontend/app/gateway.js", "frontend/app/img/logo-64.png",
 ]
 UPGRADE_HELP = """How to fix (takes 1 minute):
   1. Extract the WHOLE new zip into a NEW, empty folder (do not copy single files over an old version).

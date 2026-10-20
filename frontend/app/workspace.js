@@ -20,6 +20,7 @@
       <div id="ws-vsnote"></div>
       <div class="cxgrid" style="grid-template-columns:minmax(0,1.35fr) minmax(330px,1fr)">
         <div>
+          <div class="card" id="ws-env"></div>
           <div class="card"><h4>▶ ${T('Run in the sandbox')} <span class="status" style="margin:0" id="ws-mode"></span></h4>
             <div class="row"><input type="text" id="ws-cmd" list="ws-cmdlist" placeholder="python train.py --epochs 2"><datalist id="ws-cmdlist"></datalist>
               <button class="btn primary" id="ws-run" style="flex:0">▶ ${T('Run')}</button><button class="btn" id="ws-stop" style="flex:0" disabled>■ ${T('Stop')}</button></div>
@@ -55,18 +56,41 @@
     const vs = w.vscode, ok = vs.ok, ex = vs.extra || {};
     $('#ws-actions').innerHTML = `
       <button class="btn primary" data-open="folder" ${ok ? '' : 'disabled'}>🚀 ${T('Open in VS Code')}</button>
-      <button class="btn" data-open="devcontainer" ${ok && ex.dev_containers_ext && w.devcontainer ? '' : 'disabled'} title="${esc(T('Needs the Dev Containers extension and a generated environment (Control Center → Workspace)'))}">🐳 ${T('Dev Container')}</button>
+      <button class="btn" data-open="devcontainer" ${ok ? '' : 'disabled'} title="${esc(T(ex.dev_containers_ext && w.devcontainer ? 'Reopen the workspace inside the dev container' : 'Installs the Dev Containers extension and generates .devcontainer/ from the sandbox image when missing'))}">🐳 ${T('Dev Container')}</button>
       <button class="btn" id="ws-seed" title="${esc(T('Create the code workspace from the Tool 2 blueprint'))}">🧬 ${T('Start from blueprint')}</button>
+      <button class="btn" id="ws-jup" ${w.jupyter.ok ? '' : 'disabled'} title="${esc(w.jupyter.ok ? (w.jupyter.version || 'JupyterLab') : w.jupyter.detail)}">📓 Jupyter</button>
+      <button class="btn" id="ws-nb" ${w.jupyter.ok ? '' : 'disabled'} title="${esc(T('New research notebook (project context, git commit, ClearML task)'))}">＋ ${T('Notebook')}</button>
       <button class="btn" id="ws-codex">🤖 ${T('Codex runs')}</button>`;
     const notes = [];
     if (!ok) notes.push(`⚠ VS Code: ${esc(vs.detail)} ${(vs.setup || []).map(esc).join(' · ')}`);
     else if (!ex.codex_ext) notes.push(`${T('The Codex extension for VS Code is not installed.')} <button class="btn small" id="ws-instcodex">⤓ ${T('Install Codex extension')}</button> <span class="status" style="margin:0">(${CODEX_EXT}, ${T('sign in with your ChatGPT account inside VS Code')})</span>`);
     else notes.push(`✓ ${T('Codex extension installed — open the workspace in VS Code and use the Codex panel.')}`);
     $('#ws-vsnote').innerHTML = `<div class="status" style="margin:0 0 10px">${notes.join('<br>')} · <code>${esc(w.targets.code)}</code>${w.git && w.git.short ? ` · ⑂ ${esc(w.git.branch)} <code>${esc(w.git.short)}</code>${w.git.dirty ? ' ✎' : ''}` : ''}</div>`;
-    $$('#ws-actions [data-open]').forEach(b => b.onclick = () => busy(b, async () => {
-      const r = await api('/api/workspace/open', {method: 'POST', body: {target: 'code', mode: b.dataset.open}}); toast(r.note, 'ok'); }));
+    $$('#ws-actions [data-open]').forEach(b => b.onclick = () => {
+      if (b.dataset.open === 'devcontainer' && !(ex.dev_containers_ext && w.devcontainer)) {
+        const todo = [!ex.dev_containers_ext && T('install the VS Code “Dev Containers” extension'), !w.devcontainer && T('generate .devcontainer/ (Dockerfile + devcontainer.json) from the sandbox image')].filter(Boolean);
+        if (!confirm(`${T('To open the Dev Container PhD-Lab will')}:\n• ${todo.join('\n• ')}\n\n${T('Continue?')}`)) return;
+      }
+      busy(b, async () => {
+        const r = await api('/api/workspace/open', {method: 'POST', body: {target: 'code', mode: b.dataset.open}});
+        toast([...(r.steps || []), T(r.note || '')].filter(Boolean).join(' · '), 'ok'); if (r.steps && r.steps.length) loadWorkspace();
+      });
+    });
     $('#ws-seed').onclick = e => busy(e.target, async () => { const r = await api('/api/ide/seed', {method: 'POST'}); toast(r.created.length ? `${T('Created')}: ${r.created.join(', ')}` : T('The workspace already has these files'), 'ok'); refreshGit(true); });
     $('#ws-codex').onclick = () => { document.querySelector('nav button[data-tab=control]').click(); setTimeout(() => window.CONTROL_API && CONTROL_API.show('codex'), 300); };
+    // the tab is opened synchronously on click (popup blockers), then pointed at Jupyter once it answers
+    const openJupyter = async (nbName) => {
+      const win = window.open('about:blank', '_blank');
+      try {
+        const r = await api('/api/jupyter/launch', {method: 'POST', body: {target: 'code'}});
+        if (r.kernel) toast(r.kernel.registered ? `${T('Notebook kernel')}: PhD-Lab · ${T('project environment')} (${r.kernel.python})` : `${T('Notebook kernel')}: ${r.kernel.detail || ''}`, r.kernel.registered ? 'ok' : '');
+        let url = r.url;
+        if (nbName != null) { const nb = await api('/api/jupyter/notebook', {method: 'POST', body: {name: nbName}}); url = nb.url || url; toast(`${T('Created')} ${nb.path}`, 'ok'); }
+        if (win) win.location = url; else window.open(url, '_blank');
+      } catch (e) { if (win) win.close(); throw e; }
+    };
+    if ($('#ws-jup')) $('#ws-jup').onclick = e => busy(e.target, () => openJupyter(null), T('Starting…'));
+    if ($('#ws-nb')) $('#ws-nb').onclick = e => { const n = prompt(T('Notebook name'), 'experiment'); if (n) busy(e.target, () => openJupyter(n), T('Starting…')); };
     const inst = $('#ws-instcodex');
     if (inst) inst.onclick = () => busy(inst, async () => { await api('/api/workspace/extension', {method: 'POST', body: {id: CODEX_EXT}}); toast(T('Codex extension installed in VS Code'), 'ok'); loadWorkspace(); });
   }
@@ -413,7 +437,7 @@
     if (!W.inited) { W.inited = true; build(); setInterval(() => { if (root().classList.contains('on')) { refreshMode(); refreshVram(); } }, 15000); }
     loadWorkspace(); refreshMode(); refreshVram(); loadRuns(); refreshGit(true);
   }
-  window.addEventListener('tab-shown', e => { if (e.detail === 'ide') init(); });
+  window.addEventListener('tab-shown', e => { if (e.detail === 'ide') { init(); window.ENV_PANEL && ENV_PANEL.render(); } });
   // kept for callers of the former Code IDE: opening a file now opens it in VS Code
-  window.IDE_API = {openFile, init, sendAgent, state: W};
+  window.IDE_API = {openFile, init, sendAgent, state: W, followJob, startJob};
 })();

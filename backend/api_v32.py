@@ -118,8 +118,9 @@ async def research_exp_put(eid: str, body: dict = Body(...)):
 
 @router.post("/api/research/failures")
 async def research_fail_add(body: dict = Body(...)):
+    extra = {k: str(body[k]) for k in RM.FAIL_FIELDS if body.get(k)}  # v3.3 structured failure memory (optional)
     return await _call(RM.add_failure, str(body.get("text", "")), str(body.get("hypothesis_id", "")),
-                       str(body.get("run_id", "")), str(body.get("reason", "")))
+                       str(body.get("run_id", "")), str(body.get("reason", "")), **extra)
 
 
 @router.delete("/api/research/{item_id}")
@@ -219,6 +220,13 @@ async def environment_write(body: dict = Body(default={})):
 async def jupyter_launch(body: dict = Body(default={})):
     from .integrations import workspace as W
     return await _call(W.jupyter_launch, body.get("target", "code"), code=409)
+
+
+@router.post("/api/jupyter/notebook")
+async def jupyter_notebook(body: dict = Body(default={})):
+    """Research notebook template (project context, git commit, ClearML task) in code/notebooks/."""
+    from .integrations import workspace as W
+    return await _call(W.create_notebook, str(body.get("name", "")), code=409)
 
 
 @router.post("/api/jupyter/stop")

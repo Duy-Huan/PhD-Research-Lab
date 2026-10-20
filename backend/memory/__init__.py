@@ -19,8 +19,9 @@ import threading
 from datetime import datetime, timezone
 
 from ..config import data_dir, load_config, workspace
+from .store import bump as _bump, replace_retry as _replace
 
-_lock = threading.Lock()
+_lock = threading.RLock()  # v3.3: re-entrant — load() takes it too (update() → load())
 SUMMARY_CHARS = 30_000
 
 
@@ -41,17 +42,26 @@ def mem_dir():
 
 EMPTY = {"version": 1, "tier2": [], "tier3": {"goals": [], "hypotheses": [], "constraints": [], "best_metrics": {},
                                              "references": [], "notes": ""},
-         "decisions": [], "summarized": {}, "runs_summarized": [], "stats": {}}
+         "decisions": [], "summarized": {}, "runs_summarized": [], "stats": {}, "tier2_archive": []}
 
 
 def load() -> dict:
+    from .store import read_retry
     f = mem_dir() / "project_state.json"
     st = json.loads(json.dumps(EMPTY))
+    with _lock:
+        return _load_into(f, st, read_retry)
+
+
+def _load_into(f, st, read_retry) -> dict:
     if f.exists():
         try:
-            d = json.loads(f.read_text("utf-8"))
+            d = json.loads(read_retry(f))
             st.update({k: v for k, v in d.items() if k in st})
             st["tier3"] = {**EMPTY["tier3"], **(d.get("tier3") or {})}
+        except ValueError:
+            from .store import quarantine
+            quarantine(f)  # v3.3: keep the damaged file instead of overwriting it with an empty state
         except Exception:
             pass
     return st
@@ -62,7 +72,8 @@ def save(st: dict) -> dict:
         f = mem_dir() / "project_state.json"
         tmp = f.with_suffix(".json.tmp")
         tmp.write_text(json.dumps(st, ensure_ascii=False, indent=1), "utf-8")
-        os.replace(tmp, f)
+        _replace(tmp, f)
+        _bump()
     return st
 
 
@@ -73,7 +84,8 @@ def update(fn) -> dict:
         f = mem_dir() / "project_state.json"
         tmp = f.with_suffix(".json.tmp")
         tmp.write_text(json.dumps(st, ensure_ascii=False, indent=1), "utf-8")
-        os.replace(tmp, f)
+        _replace(tmp, f)
+        _bump()
     return st
 
 
@@ -81,10 +93,24 @@ def update(fn) -> dict:
 KINDS = ("direction", "hypothesis", "gap", "constraint", "rejected", "other")
 
 
-def add_decision(text: str, kind: str = "direction", source: str = "", locked: bool = True) -> dict:
+def add_decision(text: str, kind: str = "direction", source: str = "", locked: bool = True, evidence_ids=None,
+                 origin: str = "human", provider: str = "", session: str = "", supersedes: str = "") -> dict:
+    """v3.3: a decision may cite evidence (EVID-/EXP-/CLM- ids), carries who made it (origin/provider/session) and may
+    supersede an older decision — the old one is unlocked and marked, never deleted (temporal correctness)."""
+    refs = [str(e).strip()[:20] for e in (evidence_ids or []) if str(e).strip()][:20]
     d = {"id": "D" + secrets.token_hex(3), "text": text.strip()[:4000], "kind": kind if kind in KINDS else "other",
-         "locked": bool(locked), "source": source[:200], "created": _now()}
-    update(lambda st: st["decisions"].append(d))
+         "locked": bool(locked), "source": source[:200], "created": _now(), "evidence_ids": refs, "origin": origin[:60],
+         "provider": provider[:40], "session": session[:80]}
+
+    def fn(st):
+        if supersedes:
+            old = next((x for x in st["decisions"] if x["id"] == supersedes), None)
+            if not old:
+                raise ValueError(f"Decision {supersedes} not found")
+            old.update(locked=False, superseded_by=d["id"], updated=_now())
+            d["supersedes"] = supersedes
+        st["decisions"].append(d)
+    update(fn)
     return d
 
 
@@ -302,11 +328,16 @@ async def _consolidate(max_episodes: int = 40, batch: int = 12):
     except Exception:
         return
     title, body = _split_title(r["text"], f"Period summary {old[0]['created'][:10]} → {old[-1]['created'][:10]}")
+    # v3.3: the period summary inherits the raw-page pointers and entity links of what it merges (provenance survives),
+    # and the merged episodes move to tier2_archive (kept, no longer injected) instead of being dropped.
     merged = {"id": "E" + secrets.token_hex(3), "created": _now(), "source": "consolidated", "title": title, "summary": body,
-              "period": [old[0]["created"], old[-1]["created"]], "merged": [e["id"] for e in old], "engine": r.get("engine")}
+              "period": [old[0]["created"], old[-1]["created"]], "merged": [e["id"] for e in old], "engine": r.get("engine"),
+              "pages": list(dict.fromkeys(p for e in old for p in (e.get("pages") or []))),
+              "links": list(dict.fromkeys([l for e in old for l in (e.get("links") or [])] + [e["id"] for e in old]))}
     ids = {e["id"] for e in old}
 
     def put(st2):
+        st2["tier2_archive"] = (st2.get("tier2_archive") or []) + [e for e in st2["tier2"] if e["id"] in ids]
         st2["tier2"] = [merged] + [e for e in st2["tier2"] if e["id"] not in ids]
     update(put)
 

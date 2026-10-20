@@ -151,7 +151,7 @@
           <div><label class="chk"><input type="checkbox" id="cc-env-gpu" checked> 🎮 GPU (CUDA)</label></div>
           <div><label>PyTorch · CUDA</label><select id="cc-env-img">${opts.gpu_images.map(i => `<option value="${esc(i.torch)}|${esc(i.cuda)}">torch ${esc(i.torch)} · CUDA ${esc(i.cuda)}</option>`).join('')}</select></div>
           <div><label>Python (CPU)</label><select id="cc-env-py">${opts.python_versions.map(v => `<option ${v === '3.11' ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
-          <div style="grid-column:1/-1"><label>${T('Datasets folder (mounted read-only at /datasets, optional)')}</label><input type="text" id="cc-env-ds" placeholder="D:/datasets/pavia"></div></div>
+          <div style="grid-column:1/-1"><label>${T('Datasets folder (mounted read-only at /datasets, optional)')}</label><input type="text" id="cc-env-ds" placeholder="D:/datasets/pavia" data-browse="${esc(T('Select the datasets folder'))}"></div></div>
         <div class="row" style="gap:6px;margin-top:10px"><button class="btn" id="cc-env-prev" style="flex:0">👁 ${T('Preview')}</button><button class="btn primary" id="cc-env-write" style="flex:0">💾 ${T('Write files')}</button></div>
         <pre class="joblog" id="cc-env-out" hidden></pre></div></div>`;
     const spec = () => { const [torch, cuda] = $('#cc-env-img').value.split('|'); return {gpu: $('#cc-env-gpu').checked, torch, cuda, python: $('#cc-env-py').value, datasets_dir: $('#cc-env-ds').value.trim()}; };
@@ -168,7 +168,8 @@
         r = await api('/api/workspace/environment', {method: 'POST', body: {spec: spec(), overwrite: true}}); }
       toast(`${T('Written')}: ${r.written.join(', ')}`, 'ok'); show('workspace');
     });
-    if ($('#cc-jup')) $('#cc-jup').onclick = e => busy(e.target, async () => { const r = await api('/api/jupyter/launch', {method: 'POST', body: {target: 'code'}}); window.open(r.url, '_blank', 'noopener'); });
+    if ($('#cc-jup')) $('#cc-jup').onclick = e => { const win = window.open('about:blank', '_blank');
+      busy(e.target, async () => { try { const r = await api('/api/jupyter/launch', {method: 'POST', body: {target: 'code'}}); if (win) win.location = r.url; } catch (err) { if (win) win.close(); throw err; } }); };
     if ($('#cc-jup-stop')) $('#cc-jup-stop').onclick = e => busy(e.target, async () => { await api('/api/jupyter/stop', {method: 'POST'}); toast(T('Jupyter stopped'), 'ok'); show('workspace'); });
   }
 
@@ -212,7 +213,9 @@
         <div class="dform"><div><label class="chk"><input type="checkbox" id="cx-en" ${cx.enabled ? 'checked' : ''}> ${T('Enabled')}</label></div>
           <div><label>${T('CLI path (empty = PATH)')}</label><input type="text" id="cx-bin" value="${esc(cx.binary)}"></div>
           <div><label>${T('Model (optional)')}</label><input type="text" id="cx-model" value="${esc(cx.model)}"></div>
-          <div><label>${T('Time limit (s)')}</label><input type="text" id="cx-to" value="${esc(cx.timeout_s)}"></div></div>
+          <div><label>${T('Time limit (s)')}</label><input type="text" id="cx-to" value="${esc(cx.timeout_s)}"></div>
+          <div><label>${T('Windows sandbox')}</label><select id="cx-ws">${[['unelevated', T('unelevated — restricted token, no admin')], ['elevated', T('elevated — stronger, needs one-time admin setup')], ['config', T('use ~/.codex/config.toml')]]
+            .map(([v, l]) => `<option value="${v}" ${(cx.windows_sandbox || 'unelevated') === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></div></div>
         <p class="status">${T('Authentication stays in the Codex CLI (codex login, or CODEX_API_KEY) — this app never stores it. ChatGPT-plan login and API-key billing are different accounts.')}</p>
         <div class="row"><button class="btn primary small" id="cx-save" style="flex:0">💾 ${T('Save & test')}</button></div></div></div>`;
     $('#cm-save').onclick = e => busy(e.target, async () => {
@@ -225,7 +228,7 @@
       const r = await api('/api/integrations/clearml/install', {method: 'POST'}); toast(`${T('ClearML SDK installed')} (${r.python})`, 'ok'); show('integrations', true);
     }, T('Installing…'));
     $('#cx-save').onclick = e => busy(e.target, async () => {
-      await api('/api/config', {method: 'POST', body: {codex: {enabled: $('#cx-en').checked, binary: $('#cx-bin').value.trim(), model: $('#cx-model').value.trim(), timeout_s: $('#cx-to').value}}});
+      await api('/api/config', {method: 'POST', body: {codex: {enabled: $('#cx-en').checked, binary: $('#cx-bin').value.trim(), model: $('#cx-model').value.trim(), timeout_s: $('#cx-to').value, windows_sandbox: $('#cx-ws').value}}});
       show('integrations', true);
     });
     body.querySelectorAll('[data-sync]').forEach(b => b.onclick = () => busy(b, async () => {
@@ -357,7 +360,7 @@
           <pre class="joblog" style="max-height:420px">${esc(r.text)}</pre><h4>${T('Memory map (LOD 1)')}</h4><pre class="joblog">${esc(r.skeleton)}</pre>`;
       } catch (e) { out.innerHTML = `<div class="status">⚠ ${esc(e.message)}</div>`; }
     };
-    $('#cc-mgo').onclick = go; $('#cc-mq').onkeydown = e => e.key === 'Enter' && go();
+    $('#cc-mgo').onclick = go; $('#cc-mq').onkeydown = e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); go(); } };  // never return false: it cancels Space
     $('#cc-mcomp').onclick = e => busy(e.target, async () => { const r = await api('/api/memory/v2/compress', {method: 'POST', body: {force: true}}); const o = $('#cc-mcomp-out'); o.hidden = false; o.textContent = JSON.stringify(r, null, 1); });
     api('/api/memory/pages?limit=30').then(r => { $('#cc-pages').innerHTML = r.pages.length ? `<table class="dtable">${r.pages.map(p => `<tr><td class="mono">${esc(p.id)}</td><td>${esc(p.header || p.source)}</td><td>${p.tokens}</td><td><button class="btn small" data-page="${esc(p.id)}">👁</button></td></tr>`).join('')}</table>` : empty('No page yet — pages are written when memory is compressed.');
       $$('#cc-pages [data-page]').forEach(b => b.onclick = async () => { const pg = await api('/api/memory/pages/' + b.dataset.page); const o = $('#cc-mcomp-out'); o.hidden = false; o.textContent = pg.content; });
@@ -378,7 +381,7 @@
       const res = await api(`/api/connectors/${$('#cc-dsc').value}/search`, {method: 'POST', body: {query: $('#cc-dsq').value, limit: 15}});
       $('#cc-dsout').innerHTML = res.items.length ? `<table class="dtable">${res.items.map(it => `<tr><td><a href="${esc(it.url)}" target="_blank" rel="noopener">${esc(it.title || it.id)}</a></td><td class="status">${esc(it.summary || '')}</td><td class="mono">${esc(it.load || '')}</td></tr>`).join('')}</table>` : empty('No results.');
     });
-    $('#cc-dsgo').onclick = go; $('#cc-dsq').onkeydown = e => e.key === 'Enter' && go();
+    $('#cc-dsgo').onclick = go; $('#cc-dsq').onkeydown = e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); go(); } };  // never return false: it cancels Space
   }
 
   function init() {

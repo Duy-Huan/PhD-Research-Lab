@@ -1,4 +1,4 @@
-# PhD Interactive Autonomous Research Lab — v3.2.0
+# PhD Interactive Autonomous Research Lab — v4.0.0
 
 A local desktop web app for Windows 11 (and Linux/macOS) that runs an end-to-end research workflow on a **hybrid AI architecture**: any of 14 cloud AI providers for deep reasoning and academic writing, plus local models in **Ollama** (recommended) or **LM Studio** for fast, private, zero-cost work.
 
