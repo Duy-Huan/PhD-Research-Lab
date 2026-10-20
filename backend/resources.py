@@ -179,7 +179,7 @@ def unload_local_models(cfg: dict | None = None, log=None) -> dict:
     cfg = cfg or load_config()
     rc = cfg["resources"]
     log = log or (lambda _m: None)
-    rep = {"unloaded": [], "errors": [], "vram_before_mb": None, "vram_after_mb": None, "waited_s": 0.0}
+    rep = {"unloaded": [], "errors": [], "vram_before_mb": None, "vram_after_mb": None, "waited_s": 0.0, "lmstudio_method": ""}
     g = (gpus(0) or [None])[0]
     rep["vram_before_mb"] = g.get("vram_used_mb") if g else None
     models = loaded_local_models(cfg)
@@ -191,8 +191,9 @@ def unload_local_models(cfg: dict | None = None, log=None) -> dict:
             rep["errors"].append(f"ollama {m}: {e}")
     if models["lmstudio"]:
         try:
-            _run_async(local_ai.lmstudio_unload(cfg["lmstudio_base_url"], ""))
+            r = _run_async(local_ai.lmstudio_unload(cfg["lmstudio_base_url"], ""))
             rep["unloaded"] += [f"lmstudio:{m}" for m in models["lmstudio"]]
+            rep["lmstudio_method"] = r.get("method", "")  # rest-v1 | rest | lms (CLI, only as a last resort)
         except Exception as e:
             rep["errors"].append(f"lmstudio: {e}")
     if not rep["unloaded"]:

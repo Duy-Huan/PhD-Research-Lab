@@ -113,7 +113,9 @@ class LMStudioLive(unittest.TestCase):
         from backend import local_ai
         cfg = load_config()
         model = os.environ.get("PHDLAB_LMSTUDIO_MODEL", "nvidia/nemotron-3-nano-4b")
-        _env.run_async(local_ai.lmstudio_load(cfg["lmstudio_base_url"], model))
+        loaded = _env.run_async(local_ai.lmstudio_load(cfg["lmstudio_base_url"], model, 4096))
+        if not local_ai.lms_cli():  # without the lms CLI everything must go through LM Studio's REST API
+            self.assertIn(loaded["method"], ("rest", "jit"))
         try:
             loaded = R.loaded_local_models(cfg)["lmstudio"]
             self.assertTrue(any(model in m for m in loaded), loaded)
@@ -122,6 +124,8 @@ class LMStudioLive(unittest.TestCase):
         finally:
             rep = R.unload_local_models(cfg)
         self.assertTrue(rep["unloaded"], rep)
+        if not local_ai.lms_cli():
+            self.assertEqual(rep["lmstudio_method"], "rest-v1")
         R.vram_gate(cfg)  # free again → no exception
         self.assertEqual(R.loaded_local_models(cfg)["lmstudio"], [])
         print(f"\nLM Studio live: VRAM {rep['vram_before_mb']} → {rep['vram_after_mb']} MB in {rep['waited_s']} s")
