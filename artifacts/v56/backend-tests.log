@@ -1,0 +1,40 @@
+.venv/Scripts/python : ................................................................................................
+...................s...s..................................................................................EOF marker
+not found
+At line:2 char:1
++ .venv/Scripts/python -B tools/run_tests.py *> artifacts/v56/backend-t ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (..................arker not found:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+............................................................ss.........................................................
+.......................................................................................................................
+..........s........................s...................................................................................
+.......................E.....................s.........
+======================================================================
+ERROR: test_pdf_through_the_local_browser (test_v51_features.Export.test_pdf_through_the_local_browser)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\git-repo\PhD-Research-Lab\tests\test_v51_features.py", line 371, in test_pdf_through_the_local_browser
+    pdf, name, mime = EX.export("pdf", "B�o c�o", "# Xin ch�o\n\n$E=mc^2$")
+                      ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\git-repo\PhD-Research-Lab\backend\paper\export.py", line 581, in export
+    return html_to_pdf(doc), safe_name(title, "pdf"), MIME["pdf"]
+           ~~~~~~~~~~~^^^^^
+  File "D:\git-repo\PhD-Research-Lab\backend\paper\export.py", line 544, in html_to_pdf
+    raise ExportError("The browser did not produce a PDF")
+backend.paper.export.ExportError: The browser did not produce a PDF
+
+----------------------------------------------------------------------
+Ran 614 tests in 319.211s
+
+FAILED (errors=1, skipped=7)
+[memory] config.json is not valid JSON � kept a copy as config.json.corrupt-20261021T173755
+[memory] run.json is not valid JSON � kept a copy as run.json.corrupt-20261021T173802
+[memory] run.json is not valid JSON � kept a copy as run.json.corrupt-20261021T173900
+[memory] index.json is not valid JSON � kept a copy as index.json.corrupt-20261021T173921
+[memory] library.json is not valid JSON � kept a copy as library.json.corrupt-20261021T173922
+[memory] shared_context.json is not valid JSON � kept a copy as shared_context.json.corrupt-20261021T173923
+[memory] shared_context.json is not valid JSON � kept a copy as shared_context.json.corrupt-20261021T173934
+[memory] research.json is not valid JSON � kept a copy as research.json.corrupt-20261021T173937
+[memory] context_graph.json is not valid JSON � kept a copy as context_graph.json.corrupt-20261021T174030

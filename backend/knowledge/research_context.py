@@ -8,6 +8,12 @@ def resolve(tid: str, sid: str, expanded: bool = False) -> dict | None:
     from backend.agent.project_context import src
     kind, _, key = sid.partition(":")
     try:
+        if kind=="claim":
+            from backend.knowledge import governance
+            claim=governance.get(tid,key)
+            if claim["status"]=="human_approved":claim=governance.evaluate(tid,key)
+            text=f"Scientific claim {key}; workflow status {claim['status']} (not universal scientific validity).\n{claim['payload']['text']}\nEvidence IDs: {[e['payload']['source_id'] for e in claim['evidence']]}"
+            return src(sid,"scientific_claim","Claim "+key,text,"untrusted","explicitly selected claim with review status")
         if kind == "paper":
             p = corpus.paper(tid, key)
             text = f"{p['title']} | DOI {p['doi'] or 'unknown'} | L{p['level']} | flags {p['flags']}\nAbstract metadata (not full-text verification):\n{p['abstract']}"

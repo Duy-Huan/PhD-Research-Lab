@@ -93,8 +93,16 @@ CREATE TABLE IF NOT EXISTS experiment_protocols(id TEXT PRIMARY KEY,topic_id TEX
 CREATE TABLE IF NOT EXISTS dataset_versions(id TEXT PRIMARY KEY,topic_id TEXT NOT NULL REFERENCES topics(id),fingerprint TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(topic_id,fingerprint));
 CREATE TABLE IF NOT EXISTS experiment_runs(id TEXT PRIMARY KEY,topic_id TEXT NOT NULL REFERENCES topics(id),protocol_id TEXT NOT NULL REFERENCES experiment_protocols(id),mission_id TEXT NOT NULL REFERENCES missions(id),approval_nonce TEXT UNIQUE NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS experiment_trials(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES experiment_runs(id),trial_key TEXT NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(run_id,trial_key));
+CREATE TABLE IF NOT EXISTS scientific_claims(id TEXT PRIMARY KEY,topic_id TEXT NOT NULL REFERENCES topics(id),parent_id TEXT,status TEXT NOT NULL,payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS claim_evidence(id TEXT PRIMARY KEY,claim_id TEXT NOT NULL REFERENCES scientific_claims(id),payload TEXT NOT NULL,hash TEXT NOT NULL);
+CREATE TRIGGER IF NOT EXISTS evidence_no_update BEFORE UPDATE ON claim_evidence BEGIN SELECT RAISE(ABORT,'evidence snapshots are immutable'); END;
+CREATE TRIGGER IF NOT EXISTS evidence_no_delete BEFORE DELETE ON claim_evidence BEGIN SELECT RAISE(ABORT,'evidence snapshots are immutable'); END;
+CREATE TABLE IF NOT EXISTS claim_checks(id TEXT PRIMARY KEY,claim_id TEXT NOT NULL REFERENCES scientific_claims(id),at TEXT NOT NULL,payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS citation_receipts(id TEXT PRIMARY KEY,topic_id TEXT NOT NULL REFERENCES topics(id),doi TEXT NOT NULL,payload TEXT NOT NULL,at TEXT NOT NULL);
+CREATE TRIGGER IF NOT EXISTS protocol_snapshot_immutable BEFORE UPDATE OF id,payload,digest,topic_id,parent_id,revision ON experiment_protocols BEGIN SELECT RAISE(ABORT,'protocol snapshot is immutable'); END;
+CREATE TRIGGER IF NOT EXISTS claim_text_immutable BEFORE UPDATE ON scientific_claims WHEN NEW.id IS NOT OLD.id OR NEW.topic_id IS NOT OLD.topic_id OR NEW.parent_id IS NOT OLD.parent_id OR json_extract(NEW.payload,'$.text') IS NOT json_extract(OLD.payload,'$.text') OR json_extract(NEW.payload,'$.kind') IS NOT json_extract(OLD.payload,'$.kind') BEGIN SELECT RAISE(ABORT,'amend the claim through a new revision'); END;
 """
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 _schema_lock = threading.RLock()
 
 
@@ -137,7 +145,7 @@ def db():
             c.executescript(SCHEMA)
             if version < SCHEMA_VERSION:
                 c.execute(f"PRAGMA user_version={SCHEMA_VERSION}")
-            c.execute("INSERT OR IGNORE INTO meta VALUES('schema',?)", (str(SCHEMA_VERSION),))
+            c.execute("INSERT INTO meta VALUES('schema',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", (str(SCHEMA_VERSION),))
             c.execute("INSERT OR IGNORE INTO meta VALUES('project_id',?)", (uid(),))
             c.commit()
         c.execute("BEGIN IMMEDIATE")

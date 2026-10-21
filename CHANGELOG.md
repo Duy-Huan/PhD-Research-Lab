@@ -1,5 +1,11 @@
 # Changelog
 
+## v5.6.0-preview.1 — 2026-10-22
+
+- Added immutable scientific claim/evidence revisions, deterministic page quote/citation checks, explicit Crossref resolution, independent numerical artifact verification and fresh-process reproduction checks.
+- Added Review Room (`/claims`), human decisions with append-only audit, scoped claim context and verification-status appendices in manuscript exports. No automatic promotion into memory or publication.
+- SQLite schema 4 backs up v3 before migration. Hardened mission discovery/download accounting, protocol snapshots and missing-engine failure recording. See `docs/release-v5.6.md` for qualification limits and evidence.
+
 ## v5.5.0-preview.1 — 2026-10-22
 
 - Added immutable versioned experiment protocols, generated dataset/split fingerprints, single-use approval nonces, fixed baselines, multi-seed trials, actual per-sample MSE/PSNR artifacts and validation-only candidate selection.

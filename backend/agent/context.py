@@ -148,7 +148,7 @@ def compile(session: dict, question: str, eff: dict, extra: list | None = None) 
         for sid in selected:
             if topic_id and not sid.startswith("att:"):
                 s = RC.resolve(topic_id, sid, expanded=mode == "expanded")
-            elif not topic_id and sid.startswith(("paper:", "evidence:", "artifact:")):
+            elif not topic_id and sid.startswith(("paper:", "evidence:", "artifact:", "claim:")):
                 s = None  # Topic must be explicit; never search every topic for an ID.
             else:
                 s = resolve_source(sid, expanded=mode == "expanded")

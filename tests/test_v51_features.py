@@ -407,7 +407,7 @@ class NotesGuideLanguage(unittest.TestCase):
     def test_language_of_app_messages_and_agent_instructions(self):
         from backend.agent import dashboard, launch, orchestrator
         config.save_config({"ui": {"language": "en", "prose_font": "serif"}})
-        self.assertEqual(config.load_config()["ui"], {"language": "en", "prose_font": "serif"})
+        self.assertEqual(config.load_config()["ui"], {**config.DEFAULTS["ui"], "language": "en", "prose_font": "serif"})
         self.assertEqual((i18n.lang(), i18n.L("vi", "en")), ("en", "en"))
         self.assertIn("**Project:**", dashboard.status_text())
         self.assertIn("**/ commands**", launch.help_text())

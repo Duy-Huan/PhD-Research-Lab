@@ -547,7 +547,7 @@ def html_to_pdf(document: str, timeout: int = 90) -> bytes:
 
 # ------------------------------------------------------------------ one entry point
 def export(fmt: str, title: str = "", markdown: str = "", html: str = "", images: dict | None = None,
-           lang: str = "vi") -> tuple[bytes, str, str]:
+           lang: str = "vi", topic_id: str = "") -> tuple[bytes, str, str]:
     """→ (bytes, file name, media type). html (rendered by the UI) is preferred for .html / .pdf when given."""
     if fmt not in FORMATS:
         raise ExportError(f"format must be one of {', '.join(FORMATS)}")
@@ -555,6 +555,11 @@ def export(fmt: str, title: str = "", markdown: str = "", html: str = "", images
         raise ExportError("Nothing to export")
     if len(markdown or "") + len(html or "") > 8_000_000:
         raise ExportError("Document is too large to export")
+    from backend.knowledge.governance import appendix
+    verification=appendix(topic_id)
+    if verification:
+        markdown=(markdown or "")+"\n\n"+verification
+        if html:html=html+"\n"+markdown_html(verification)
     if fmt == "md":
         return (f"# {title}\n\n" if title else "").encode() + clean(markdown).encode("utf-8"), safe_name(title, "md"), MIME["md"]
     if fmt == "tex":

@@ -41,7 +41,7 @@
     epoch++;
     if (request) request.abort();
     const nav = h("div.research-nav", {}, [["papers", tr("Paper", "Papers")], ["topics", "Topics"], ["workspaces", "Workspaces"], ["artifacts", tr("Nguồn gốc", "Provenance")], ["jobs", "Jobs"]]
-      .concat([["missions", "Missions"],["protocols","Experiments"]]).map(([key, title]) => button(title, () => R.open(key), key === mode ? "accent" : "ghost")));
+      .concat([["missions", "Missions"],["protocols","Experiments"],["claims","Review Room"]]).map(([key, title]) => button(title, () => R.open(key), key === mode ? "accent" : "ghost")));
     const body = h("div.research-body", { dataset: { mode } });
     PL.panels.open(tr("Không gian nghiên cứu", "Research workspace"), h("div", {}, nav, body), { kind: "research", arg: mode });
     body.append(h("p.muted", {}, tr("Đang tải…", "Loading…")));
@@ -64,6 +64,7 @@
       else if (mode === "jobs") await renderJobs(body, revision);
       else if (mode === "missions") await renderMissions(body, revision);
       else if (mode === "protocols") await renderProtocols(body, revision);
+      else if (mode === "claims") await renderClaims(body, revision);
     } catch (e) { if (revision === epoch) { body.replaceChildren(h("p.error", {}, e.message), button(tr("Thử lại", "Retry"), () => R.open(mode))); } }
   };
 
@@ -253,7 +254,7 @@
     if (action.availability !== "available") { PL.toast("Action unavailable"); return; }
     if (view === "library") return PL.panels.library();
     if (view === "settings") return PL.settings.open();
-    if (["papers", "topics", "workspaces", "artifacts", "jobs", "missions", "protocols"].includes(view)) return R.open(view);
+    if (["papers", "topics", "workspaces", "artifacts", "jobs", "missions", "protocols", "claims"].includes(view)) return R.open(view);
     throw new Error("Unregistered UI component");
   };
   async function renderMissions(body, revision) {
@@ -262,12 +263,12 @@
       PL.modal({title:"Mission preview · creation does not execute",body:plan,actions:[{label:"Cancel"},{label:"Create draft",kind:"accent",onClick:async()=>{
         const r=await PL.safe(()=>PL.post(base()+"/missions",JSON.parse(plan.value)));if(!r)return false;await R.open("missions");return true;
       }}]});
-    }),button("Refresh",()=>R.open("missions")));
+    }),button("Draft with AI · one call",async()=>{const objective=await PL.prompt("AI planning uses the configured provider","One reasoning/network call creates a draft; it cannot approve execution","");if(objective){await PL.post(base()+"/missions/plan",{objective,allow_reasoning:true});await R.open("missions");}}),button("Refresh",()=>R.open("missions")));
     const result=await PL.get(base()+"/missions");if(revision!==epoch)return;
     for(const m of result.missions)body.append(h("article.research-card",{},h("b",{},m.payload.spec.objective+" · "+m.status),
       h("p.muted",{},"Permissions: "+m.payload.spec.permissions.join(", ")+" · reasoning calls "+m.payload.reasoning_calls+" · "+m.payload.active_seconds.toFixed(2)+"s"),
       h("details",{},h("summary",{},"Review immutable plan & limits"),h("pre",{},JSON.stringify(m.payload.spec,null,2))),
-      ...m.tasks.map(t=>h("details",{},h("summary",{},t.id+" · "+t.status),h("pre",{},JSON.stringify(t.payload,null,2)))),
+      ...m.tasks.map(t=>h("details",{},h("summary",{},t.id+" · "+t.status),h("pre",{},JSON.stringify(t.payload,null,2)),["failed","interrupted"].includes(t.status)?button("Reconcile / retry task",async()=>{const reconcile_note=await PL.prompt("Retry requires fresh mission approval","Confirm known admission outcome; never repeat an uncertain external action blindly","");if(reconcile_note){await PL.post(base()+"/missions/"+m.id+"/retry",{task_id:t.id,reconcile_note});await R.open("missions");}}):null)),
       ["draft","paused","failed","interrupted"].includes(m.status)?button("Approve this plan",async()=>{const note=await PL.prompt("Approve exact plan","Review permissions, engine, limits and scientific intent","");if(note){await PL.post(base()+"/missions/"+m.id+"/approve",{plan_digest:m.payload.plan_digest,note});await R.open("missions");}}):null,
       button("Cancel",async()=>{await PL.post(base()+"/missions/"+m.id+"/cancel");await R.open("missions");})));
   }
@@ -280,7 +281,21 @@
     for(const p of r.protocols)body.append(h("article.research-card",{},h("b",{},p.payload.spec.hypothesis+" · revision "+p.revision),h("pre",{},JSON.stringify(p.payload,null,2)),
       button("Approve fixed protocol",async()=>{const note=await PL.prompt("Protocol approval","Review splits, metrics, baseline, CPU/time/storage limits","");if(note){await PL.post(base()+"/protocols/"+p.id+"/approve",{digest:p.digest,note});await R.open("protocols");}}),
       p.approval?button("Prepare execution mission",async()=>{await PL.post(base()+"/protocols/"+p.id+"/mission");await R.open("missions");}):null));
-    for(const run of r.runs)body.append(h("details.research-card",{},h("summary",{},run.id+" · "+run.status+" · scientific review pending"),h("pre",{},JSON.stringify(run.payload,null,2)),...run.trials.map(t=>h("details",{},h("summary",{},t.trial_key+" · "+t.status),h("pre",{},JSON.stringify(t.payload,null,2))))));
+    for(const run of r.runs)body.append(h("details.research-card",{},h("summary",{},run.id+" · "+run.status+" · scientific review pending"),h("a.btn.sm",{href:base()+"/experiments/"+run.id+"/verification",target:"_blank",rel:"noopener"},"Independent artifact checks"),h("pre",{},JSON.stringify(run.payload,null,2)),...run.trials.map(t=>h("details",{},h("summary",{},t.trial_key+" · "+t.status),h("pre",{},JSON.stringify(t.payload,null,2))))));
+  }
+  async function renderClaims(body,revision) {
+    body.append(h("p.muted",{},"Source claim ≠ measurement ≠ interpretation ≠ human decision. Checks do not guarantee correctness or novelty."),
+      button("Propose claim",()=>{
+        const text=h("textarea.input",{rows:14,"aria-label":"Claim JSON"},JSON.stringify({text:"Pending scientific claim",kind:"source_claim",evidence:R.sources().map(source_id=>({source_id,quote:""}))},null,2));
+        PL.modal({title:"Claim with exact evidence IDs / quotes",body:text,actions:[{label:"Cancel"},{label:"Propose (not approve)",kind:"accent",onClick:async()=>{const r=await PL.safe(()=>PL.post(base()+"/claims",JSON.parse(text.value)));if(!r)return false;await R.open("claims");return true;}}]});
+      }),button("Resolve DOI · network",async()=>{const doi=await PL.prompt("Authorize Crossref metadata lookup","One network lookup; metadata does not certify scientific correctness","");if(doi){await PL.post(base()+"/citations/resolve",{doi,allow_network:true});await R.open("claims");}}),button("Refresh",()=>R.open("claims")),h("a.btn.sm",{href:base()+"/claims/export",download:"scientific-review.md"},"Export claim statuses"),button("Audit",async()=>{const r=await PL.get(base()+"/audit");PL.modal({title:r.project_chain_valid?"Audit chain valid":"Audit discrepancy",body:h("pre",{},JSON.stringify(r,null,2)),actions:[{label:"Close"}]});}));
+    const r=await PL.get(base()+"/claims");if(revision!==epoch)return;
+    for(const c of r.claims)body.append(h("article.research-card",{},h("div.claim-evidence-grid",{},h("section",{},h("b",{},c.status+" · "+c.payload.kind),h("p",{},c.payload.text),
+      button("Use in chat",()=>R.toggle("claim:"+c.id,"Claim · "+c.status,true))),h("section",{},
+      ...c.evidence.map(e=>{const p=e.payload.provenance;return h("details",{},h("summary",{},"Source "+e.payload.source_id),p&&p.paper_id?h("a.btn.sm",{href:base()+"/papers/"+p.paper_id+"/pdf/"+p.version_id+"#page="+p.page,target:"_blank",rel:"noopener"},"Open source page"):null,e.payload.source_id.startsWith("experiment:")?h("a.btn.sm",{href:base()+"/experiments/"+e.payload.source_id.slice(11)+"/verification",target:"_blank",rel:"noopener"},"Verify measured artifacts"):null,h("pre",{},JSON.stringify(e.payload,null,2)));}),
+      ...c.checks.slice(0,1).map(v=>h("details",{},h("summary",{},"Independent checks: "+v.outcome),h("pre",{},JSON.stringify(v,null,2)))))),
+      !["rejected","retracted"].includes(c.status)?button("Check evidence",async()=>{await PL.post(base()+"/claims/"+c.id+"/check");await R.open("claims");}):null,
+      ...["approve","contest","reject","retract","reopen"].map(action=>button(action,async()=>{const note=await PL.prompt("Human scientific decision: "+action,"Review evidence, discrepancies, limitations and uncertainty","");if(note){await PL.post(base()+"/claims/"+c.id+"/decision",{action,note});await R.open("claims");}}))));
   }
   R.command = function (text) {
     const match = /^\/([\w-]+)(?:\s.*)?$/.exec(text);

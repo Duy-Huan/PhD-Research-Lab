@@ -326,6 +326,7 @@
   /** Export {title, markdown, els:[rendered answer nodes]} to fmt; PDF falls back to the browser's print dialog. */
   T.exportAs = async function (fmt, doc) {
     const body = { format: fmt, title: doc.title || "", markdown: doc.markdown || "" };
+    if(PL.research && PL.research.tid)body.topic_id=PL.research.tid;
     if (fmt === "pdf" || fmt === "html") body.html = printableHtml(doc.els || []);
     if (fmt === "docx" || fmt === "tex") body.images = Object.assign({}, ...(await Promise.all((doc.els || []).map(figureImages))));
     PL.toast(PL.t("Đang xuất {0}…", fmt.toUpperCase()));

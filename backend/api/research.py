@@ -23,6 +23,56 @@ from backend.agent import missions
 from backend.agent.mission_contracts import MissionSpec
 from backend.execution import protocols
 from backend.execution.protocol_contracts import ExperimentProtocol
+from backend.knowledge import governance as G
+
+
+@router.get("/topics/{tid}/claims")
+async def claims(tid:str):return {"claims":await call(G.listing,tid)}
+
+
+@router.post("/topics/{tid}/claims")
+async def claim_create(tid:str,body:G.ClaimInput,parent_id:str=""):
+    return await call(G.create,tid,body,parent_id)
+
+
+@router.post("/topics/{tid}/claims/{cid}/check")
+async def claim_check(tid:str,cid:str):return await call(G.evaluate,tid,cid)
+
+
+class ClaimDecision(G.Contract):
+    action:str
+    note:str=Field(min_length=1,max_length=8000)
+
+
+@router.post("/topics/{tid}/claims/{cid}/decision")
+async def claim_decide(tid:str,cid:str,body:ClaimDecision):return await call(G.decide,tid,cid,body.action,body.note)
+
+
+@router.post("/topics/{tid}/citations/resolve")
+async def citation_resolve(tid:str,body:dict=Body(...)):
+    if body.get("allow_network") is not True:raise HTTPException(400,"Explicit network authorization required")
+    try:return await G.resolve_citation(tid,str(body.get("doi") or ""))
+    except Exception as exc:raise HTTPException(400,"Citation unresolved: "+type(exc).__name__)
+
+
+@router.get("/topics/{tid}/audit")
+async def audit(tid:str):
+    from backend.agent.decision_ledger import export
+    return await call(export,tid)
+
+
+@router.get("/topics/{tid}/claims/export",response_class=PlainTextResponse)
+async def claim_export(tid:str):return await call(G.export_markdown,tid)
+
+
+@router.get("/topics/{tid}/prior-art")
+async def prior_art(tid:str,q:str=""):return await call(G.prior_art,tid,q[:2000])
+
+
+@router.get("/topics/{tid}/experiments/{rid}/verification")
+async def experiment_verification(tid:str,rid:str):
+    from backend.knowledge.verification import verify_run
+    return await call(verify_run,tid,rid)
 
 
 @router.get("/topics/{tid}/protocols")

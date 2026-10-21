@@ -106,7 +106,7 @@ def clean_overrides(ov: dict) -> dict:
 
 
 def clean_sources(v) -> list:
-    if not isinstance(v, list) or any(not isinstance(x, str) or not re.fullmatch(r"(ref|mem|run|note|att|paper|evidence|artifact):[\w.:@/+-]{1,120}", x)
+    if not isinstance(v, list) or any(not isinstance(x, str) or not re.fullmatch(r"(ref|mem|run|note|att|paper|evidence|artifact|claim):[\w.:@/+-]{1,120}", x)
                                       for x in v):
         raise AIWSError("sources must be a list of ids like ref:<key>, mem:<id>, run:<id>, note:<id>, att:<id>")
     return list(dict.fromkeys(v))[:100]

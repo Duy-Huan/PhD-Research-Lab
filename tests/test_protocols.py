@@ -43,6 +43,15 @@ class Protocols(unittest.TestCase):
         self.assertEqual(r["payload"]["comparison"]["recommendation"],"no_supported_improvement")
         self.assertIsNone(r["payload"]["comparison"]["normal_approx_ci95"])
 
+    def test_unavailable_pinned_docker_retains_failed_trial(self):
+        p=self.protocol(engine="docker",docker_image="python@sha256:"+"a"*64)
+        with patch("backend.execution.sandbox.docker_running",return_value=False):
+            m,r=self.execute(p)
+        self.assertEqual(m["status"],"failed")
+        self.assertEqual(r["status"],"failed")
+        self.assertEqual(r["trials"][0]["status"],"failed")
+        self.assertIn("unavailable",r["trials"][0]["payload"]["error"])
+
     def test_protocol_drift_and_reuse_approval_blocked(self):
         p=self.protocol();m,r=self.execute(p)
         second=P.mission_draft(self.tid,p["id"]);M.approve(self.tid,second["id"],second["payload"]["plan_digest"],"Attempt duplicated approval")

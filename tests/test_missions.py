@@ -82,5 +82,15 @@ class Missions(unittest.TestCase):
         self.assertEqual(r.status_code,200);self.assertEqual(r.json()["status"],"draft")
         self.assertEqual(client.post(f"/api/research/topics/{self.tid}/missions/plan",json={"objective":"reason"}).status_code,400)
 
+    def test_child_reasoning_charges_aggregate_ancestor_budget(self):
+        parent=M.create(self.spec(permissions=["workspace_write","reasoning","network"]))
+        ids=corpus.ingest(self.tid,[{"title":"First fixture","source":"fixture"},{"title":"Second fixture","source":"fixture"}])["paper_ids"]
+        children=[self.approve(M.create(self.spec(parent_mission_id=parent["id"],permissions=["workspace_write","reasoning","network"],tasks=[{"id":"compare","capability":"paper.compare","preferred_engine":"app","args":{"paper_ids":ids}}]))) for _ in range(2)]
+        with patch("backend.providers.models.call_agent",new=AsyncMock(return_value={"text":"Fixture only"})) as model:
+            for _ in range(5):asyncio.run(M.tick())
+            self.assertEqual(model.await_count,1)
+        self.assertEqual(M.get(parent["id"])["payload"]["reasoning_calls"],1)
+        self.assertEqual(M.get(children[1]["id"])["status"],"paused")
+
 
 if __name__=="__main__":unittest.main()

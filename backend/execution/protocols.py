@@ -115,13 +115,13 @@ async def _trial(tid,rid,protocol,alpha,split,remaining,cancelled):
     payload={"request":request,"protocol_digest":protocol["digest"],"dataset_fingerprint":protocol["payload"]["dataset_fingerprint"],"worker_sha256":worker_hash(),"started":S.now(),"folder":str(folder)}
     with S.db() as c:c.execute("INSERT INTO experiment_trials VALUES(?,?,?,?,?)",(trial_id,rid,key,"running",S.dumps(payload)))
     name="phdlab-protocol-"+trial_id[:8]
-    if spec["engine"]=="docker":
-        from backend.execution import sandbox
-        if not sandbox.docker_running() or not sandbox.image_present(spec["docker_image"]):raise ValueError("Pinned Docker image/daemon unavailable; no pull or fallback performed")
-        argv=[sandbox.docker_exe(),"run","--rm","--name",name,"--network","none","--read-only","--memory","512m","--cpus","1","--pids-limit","64","--cap-drop","ALL","--security-opt","no-new-privileges","--tmpfs","/tmp","-v",str(folder)+":/out","-v",str(WORKER)+":/runner.py:ro",spec["docker_image"],"python","-I","-B","/runner.py","/out/request.json","/out/observations.json"]
-    else:argv=[sys.executable,"-I","-B",str(WORKER),str(input_path),str(output)]
     proc=None;started=time.monotonic()
     try:
+        if spec["engine"]=="docker":
+            from backend.execution import sandbox
+            if not sandbox.docker_running() or not sandbox.image_present(spec["docker_image"]):raise ValueError("Pinned Docker image/daemon unavailable; no pull or fallback performed")
+            argv=[sandbox.docker_exe(),"run","--rm","--name",name,"--network","none","--read-only","--memory","512m","--cpus","1","--pids-limit","64","--cap-drop","ALL","--security-opt","no-new-privileges","--tmpfs","/tmp","-v",str(folder)+":/out","-v",str(WORKER)+":/runner.py:ro",spec["docker_image"],"python","-I","-B","/runner.py","/out/request.json","/out/observations.json"]
+        else:argv=[sys.executable,"-I","-B",str(WORKER),str(input_path),str(output)]
         with S.safe_child(folder,"stdout.log").open("wb") as stdout,S.safe_child(folder,"stderr.log").open("wb") as stderr:
             proc=subprocess.Popen(argv,cwd=str(folder),env=minimal_env(),stdin=subprocess.DEVNULL,stdout=stdout,stderr=stderr,shell=False,creationflags=NO_WINDOW,start_new_session=__import__('os').name!='nt')
             while proc.poll() is None:

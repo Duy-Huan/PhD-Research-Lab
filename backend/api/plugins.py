@@ -2,7 +2,7 @@
 manuscript writer and document export (.md · .tex · .docx · .html · .pdf)."""
 from __future__ import annotations
 
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, Response
 
@@ -182,7 +182,12 @@ def export_caps():
     return {"formats": list(EX.FORMATS), "pdf": bool(EX.browser())}
 
 
-@router.post("/api/export")
+async def export_project_scope():
+    with project_scope(data_dir()):
+        yield
+
+
+@router.post("/api/export", dependencies=[Depends(export_project_scope)])
 async def export(body: dict = Body(...)):
     """{format: md|tex|docx|html|pdf, title, markdown, html?, images?: {"chart-0": dataURL}} → the file (a copy is kept in
     <workspace>/exports/)."""
@@ -190,9 +195,13 @@ async def export(body: dict = Body(...)):
     fmt = str(body.get("format") or "")
     images = body.get("images") if isinstance(body.get("images"), dict) else {}
     lang = (load_config().get("ui") or {}).get("language", "vi")
+    topic_id=str(body.get("topic_id") or "")
+    if topic_id:
+        from backend.knowledge.research_store import get_topic
+        await call(get_topic,topic_id)
     try:
         data, name, mime = await run_in_threadpool(EX.export, fmt, str(body.get("title") or "")[:200],
-                                                   str(body.get("markdown") or ""), str(body.get("html") or ""), images, lang)
+                                                   str(body.get("markdown") or ""), str(body.get("html") or ""), images, lang, **({"topic_id":topic_id} if topic_id else {}))
     except EX.ExportError as e:
         raise HTTPException(501 if "No Edge" in str(e) else 400, str(e))
     await run_in_threadpool(EX.save_copy, data, name)

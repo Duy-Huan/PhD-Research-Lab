@@ -2,6 +2,7 @@
 QUICK = {
     "mission": ("Supervised missions", "missions"),
     "experiment": ("Fixed experiment protocols", "protocols"),
+    "claims": ("Scientific Review Room", "claims"),
     "find": ("Paper Explorer", "papers"), "library": ("Curated library", "library"),
     "topic": ("Topic Manager", "topics"), "workspace": ("Engine workspaces", "workspaces"),
     "sync": ("Workspace synchronization", "workspaces"), "artifacts": ("Artifacts and provenance", "artifacts"),

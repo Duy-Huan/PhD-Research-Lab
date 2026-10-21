@@ -57,7 +57,7 @@ def _reset_review(c, pid: str):
 
 
 def ingest(tid: str, records: list[dict]) -> dict:
-    added, duplicates, conflicts = [], 0, []
+    added, duplicates, conflicts, paper_ids = [], 0, [], []
     with S.db() as c:
         profile = S.topic(c, tid)
         for record in records[:1000]:
@@ -92,12 +92,13 @@ def ingest(tid: str, records: list[dict]) -> dict:
             matched = [k for k in profile["keywords"] if k.casefold() in (p["title"] + " " + p["abstract"]).casefold()]
             cursor = c.execute("INSERT OR IGNORE INTO paper_topics(topic_id,paper_id,payload) VALUES(?,?,?)",
                                (tid, pid, S.dumps({"matched_terms": matched, "relevance": len(matched), "score_kind": "lexical_matches"})))
+            paper_ids.append(pid)
             if cursor.rowcount:
                 added.append(pid)
                 S.event(c, tid, "paper.discovered", {"paper_id": pid, "source": p["source"], "fidelity": "user_imported"})
             else:
                 duplicates += 1
-    return {"added": added, "duplicates": duplicates, "conflicts": conflicts}
+    return {"added": added, "duplicates": duplicates, "conflicts": conflicts,"paper_ids":list(dict.fromkeys(paper_ids))}
 
 
 def _paper(c, tid: str, pid: str) -> dict:

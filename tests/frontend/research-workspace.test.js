@@ -98,3 +98,41 @@ test('quick palette opens a whitelisted panel; topic sources are removable', asy
   await h.click('#research-chips button');
   assert.equal(h.w.PL.research.selected.size,0);
 });
+
+test('Review Room checks evidence and records an explicit decision without a chat turn', async () => {
+  const claim = {id:'claim1',status:'contested',payload:{kind:'source_claim',text:'Pending bounded claim'},evidence:[{payload:{source_id:'evidence:chunk1',quote:'Exact passage'}}],checks:[{outcome:'failed',checks:[{check:'quote_span',status:'failed'}]}]};
+  const h = await page({
+    [`GET /api/research/topics/${TID}/claims`]: () => ({claims:[claim]}),
+    [`GET /api/research/topics/${TID}/audit`]: () => ({project_chain_valid:true,entries:[]}),
+  });
+  const composer=h.$('#input');
+  await h.w.PL.research.open('claims');
+  assert.equal(h.$('#input'),composer);
+  assert.match(h.$('.research-body').textContent,/Exact passage/);
+  assert.match(h.$('.research-body').textContent,/quote_span/);
+  await h.clickText('.research-body button','Check evidence');
+  assert.equal(h.server.calledWith('POST',`/api/research/topics/${TID}/claims/claim1/check`).length,1);
+  h.w.PL.prompt=async()=> 'Human reviewed discrepancy';
+  await h.clickText('.research-card button','contest');
+  assert.deepEqual(h.server.last('POST',`/api/research/topics/${TID}/claims/claim1/decision`).body,{action:'contest',note:'Human reviewed discrepancy'});
+  await h.clickText('.research-body button','Use in chat');
+  assert.deepEqual(Array.from(h.w.PL.research.sources()),['claim:claim1']);
+  await h.clickText('.research-body button','Audit');
+  assert.match(h.w.document.body.textContent,/Audit chain valid/);
+  noTurns(h);assert.deepEqual(h.errors,[]);
+});
+
+test('mission retries and protocol approval use explicit controls and exact digests', async () => {
+  const h=await page({
+    [`GET /api/research/topics/${TID}/missions`]:()=>({missions:[{id:'m1',status:'failed',payload:{spec:{objective:'Bounded task',permissions:['workspace_write']},reasoning_calls:0,active_seconds:0,plan_digest:'plan-sha'},tasks:[{id:'inspect',status:'failed',payload:{error:'Interrupted'}}]}]}),
+    [`GET /api/research/topics/${TID}/protocols`]:()=>({protocols:[{id:'p1',revision:1,digest:'protocol-sha',payload:{spec:{hypothesis:'Fixed offline fixture'}},approval:null}],runs:[]}),
+  });
+  h.w.PL.prompt=async()=> 'Reviewed exact plan';
+  await h.w.PL.research.open('missions');
+  await h.clickText('.research-body button','Reconcile / retry task');
+  assert.deepEqual(h.server.last('POST',`/api/research/topics/${TID}/missions/m1/retry`).body,{task_id:'inspect',reconcile_note:'Reviewed exact plan'});
+  await h.w.PL.research.open('protocols');
+  await h.clickText('.research-body button','Approve fixed protocol');
+  assert.deepEqual(h.server.last('POST',`/api/research/topics/${TID}/protocols/p1/approve`).body,{digest:'protocol-sha',note:'Reviewed exact plan'});
+  noTurns(h);assert.deepEqual(h.errors,[]);
+});

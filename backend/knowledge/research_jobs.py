@@ -167,6 +167,8 @@ async def execute(job: dict):
         profile = S.get_topic(tid)
         if payload.get("metadata_limit"):
             profile["metadata_limit"] = min(profile["metadata_limit"],max(1,int(payload["metadata_limit"])))
+        if payload.get("mission_id"):
+            profile["auto_download"]=False  # Mission download steps and limits are explicit, never a hidden topic side effect.
         if profile["archived"] or (payload.get("scheduled") and job["kind"] == "discover" and not profile["enabled"]):
             _update(jid, "cancelled", {**payload, "reason": "Topic archived or scheduled discovery disabled"})
             return
