@@ -1,5 +1,11 @@
 # Changelog
 
+## v6.0.0-preview.1 — 2026-10-22
+
+- Added opt-in supervised lifecycle, immutable project charters, explicit cross-topic report grants, scheduling/deadlines/review and charter budget accounting on the existing Mission worker.
+- Fixed-backend reasoning never silently falls back to a paid API; opaque native billing requires explicit approval. Quota errors persist a cooldown. Added Mission Monitor, report/artifact APIs and reproducible research harness.
+- SQLite schema 5 backs up schema 4. This remains experimental pending live scientific pilot, Docker/GPU and native-provider qualification.
+
 ## v5.6.0-preview.1 — 2026-10-22
 
 - Added immutable scientific claim/evidence revisions, deterministic page quote/citation checks, explicit Crossref resolution, independent numerical artifact verification and fresh-process reproduction checks.

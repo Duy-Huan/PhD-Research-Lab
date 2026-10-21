@@ -161,8 +161,8 @@ class Governance(unittest.TestCase):
             self.assertEqual(old.execute("PRAGMA user_version").fetchone()[0],3)
             self.assertTrue(old.execute("SELECT id FROM topics WHERE id=?",(self.tid,)).fetchone())
         with S.db() as c:
-            self.assertEqual(c.execute("PRAGMA user_version").fetchone()[0],4)
-            self.assertEqual(c.execute("SELECT value FROM meta WHERE key='schema'").fetchone()[0],"4")
+            self.assertEqual(c.execute("PRAGMA user_version").fetchone()[0],S.SCHEMA_VERSION)
+            self.assertEqual(c.execute("SELECT value FROM meta WHERE key='schema'").fetchone()[0],str(S.SCHEMA_VERSION))
         self.assertEqual(G.listing(self.tid),[])
 
     def test_append_only_amendment_and_bounded_novelty(self):

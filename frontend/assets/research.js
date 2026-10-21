@@ -41,7 +41,7 @@
     epoch++;
     if (request) request.abort();
     const nav = h("div.research-nav", {}, [["papers", tr("Paper", "Papers")], ["topics", "Topics"], ["workspaces", "Workspaces"], ["artifacts", tr("Nguồn gốc", "Provenance")], ["jobs", "Jobs"]]
-      .concat([["missions", "Missions"],["protocols","Experiments"],["claims","Review Room"]]).map(([key, title]) => button(title, () => R.open(key), key === mode ? "accent" : "ghost")));
+      .concat([["monitor","Mission Monitor"],["missions", "Missions"],["protocols","Experiments"],["claims","Review Room"]]).map(([key, title]) => button(title, () => R.open(key), key === mode ? "accent" : "ghost")));
     const body = h("div.research-body", { dataset: { mode } });
     PL.panels.open(tr("Không gian nghiên cứu", "Research workspace"), h("div", {}, nav, body), { kind: "research", arg: mode });
     body.append(h("p.muted", {}, tr("Đang tải…", "Loading…")));
@@ -65,6 +65,7 @@
       else if (mode === "missions") await renderMissions(body, revision);
       else if (mode === "protocols") await renderProtocols(body, revision);
       else if (mode === "claims") await renderClaims(body, revision);
+      else if (mode === "monitor") await renderMonitor(body, revision);
     } catch (e) { if (revision === epoch) { body.replaceChildren(h("p.error", {}, e.message), button(tr("Thử lại", "Retry"), () => R.open(mode))); } }
   };
 
@@ -254,7 +255,7 @@
     if (action.availability !== "available") { PL.toast("Action unavailable"); return; }
     if (view === "library") return PL.panels.library();
     if (view === "settings") return PL.settings.open();
-    if (["papers", "topics", "workspaces", "artifacts", "jobs", "missions", "protocols", "claims"].includes(view)) return R.open(view);
+    if (["papers", "topics", "workspaces", "artifacts", "jobs", "missions", "protocols", "claims", "monitor"].includes(view)) return R.open(view);
     throw new Error("Unregistered UI component");
   };
   async function renderMissions(body, revision) {
@@ -269,8 +270,29 @@
       h("p.muted",{},"Permissions: "+m.payload.spec.permissions.join(", ")+" · reasoning calls "+m.payload.reasoning_calls+" · "+m.payload.active_seconds.toFixed(2)+"s"),
       h("details",{},h("summary",{},"Review immutable plan & limits"),h("pre",{},JSON.stringify(m.payload.spec,null,2))),
       ...m.tasks.map(t=>h("details",{},h("summary",{},t.id+" · "+t.status),h("pre",{},JSON.stringify(t.payload,null,2)),["failed","interrupted"].includes(t.status)?button("Reconcile / retry task",async()=>{const reconcile_note=await PL.prompt("Retry requires fresh mission approval","Confirm known admission outcome; never repeat an uncertain external action blindly","");if(reconcile_note){await PL.post(base()+"/missions/"+m.id+"/retry",{task_id:t.id,reconcile_note});await R.open("missions");}}):null)),
-      ["draft","paused","failed","interrupted"].includes(m.status)?button("Approve this plan",async()=>{const note=await PL.prompt("Approve exact plan","Review permissions, engine, limits and scientific intent","");if(note){await PL.post(base()+"/missions/"+m.id+"/approve",{plan_digest:m.payload.plan_digest,note});await R.open("missions");}}):null,
+      ["draft","awaiting_approval","paused"].includes(m.status)?button("Approve this plan",async()=>{const note=await PL.prompt("Approve exact plan","Review permissions, engine, limits and scientific intent","");if(note){await PL.post(base()+"/missions/"+m.id+"/approve",{plan_digest:m.payload.plan_digest,note});await R.open("missions");}}):null,
       button("Cancel",async()=>{await PL.post(base()+"/missions/"+m.id+"/cancel");await R.open("missions");})));
+  }
+  R.editContract=function(title,initial,submit) {
+    const text=h("textarea.input",{rows:18,"aria-label":title},JSON.stringify(initial,null,2));
+    PL.modal({title,body:text,actions:[{label:"Cancel"},{label:"Save draft",kind:"accent",onClick:async()=>{const result=await PL.safe(()=>submit(JSON.parse(text.value)));return result?true:false;}}]});
+  };
+  async function renderMonitor(body,revision) {
+    const [settings,project,result]=await Promise.all([PL.get("/api/research/os-settings"),PL.get("/api/research/charters"),PL.get(base()+"/missions")]);if(revision!==epoch)return;
+    body.append(h("p.muted",{},"Experimental supervised operation. Runs while this app and machine are active. Exact approvals, finite budgets, no hidden API billing; mission completion does not approve scientific claims."),
+      button(settings.enabled?"Disable Research OS":"Enable experimental Research OS",async()=>{await PL.put("/api/research/os-settings",{enabled:!settings.enabled});await R.open("monitor");}),
+      button("New project charter",()=>R.editContract("Project charter JSON",{goal:"Medical Image Restoration",topics:[{topic_id:R.tid,goal:(topic()||{}).title||"Research topic"}],permissions:["workspace_write"],retrieval:[],max_reasoning_calls:0,max_active_seconds:600},async spec=>{const result=await PL.post("/api/research/charters",spec);await R.open("monitor");return result;})),
+      button("New supervised mission",()=>R.editContract("Supervised mission JSON",{topic_id:R.tid,objective:"Inspect scoped evidence and report",permissions:["workspace_write"],control:{success_criteria:["Evidence report is available for human review"],allowed_engines:["deterministic"],end_date:new Date(Date.now()+86400000).toISOString(),allow_api_billing:false},tasks:[{id:"inspect",capability:"paper.inspect",args:{paper_ids:R.sources().filter(s=>s.startsWith("paper:")).map(s=>s.slice(6)),limit:2}},{id:"report",capability:"mission.report",depends_on:["inspect"]}]},async spec=>{const result=await PL.post(base()+"/missions",spec);await R.open("monitor");return result;})),button("Refresh",()=>R.open("monitor")));
+    for(const ch of project.charters)body.append(h("details.research-card",{},h("summary",{},"Charter: "+ch.payload.goal),h("pre",{},JSON.stringify(ch,null,2))));
+    for(const m of result.missions.filter(m=>m.payload.spec.control)) {
+      const url=base()+"/missions/"+m.id;
+      body.append(h("article.research-card",{},h("b",{},m.payload.spec.objective+" · "+m.status),h("p",{},m.payload.blocking_reason||"Next decision: "+(m.status==="awaiting_review"?"Human mission review":"Inspect plan and approvals")),h("p.muted",{},"Reasoning requests: "+m.payload.reasoning_calls+" · active seconds: "+m.payload.active_seconds.toFixed(2)+" · token/currency cost unknown"),h("details",{},h("summary",{},"Brief, limits and run history"),h("pre",{},JSON.stringify(m,null,2))),
+        m.status==="draft"?button("Request approval",async()=>{await PL.post(url+"/request-approval");await R.open("monitor");}):null,
+        ["draft","awaiting_approval","paused"].includes(m.status)?button("Approve / resume exact plan",async()=>{const note=await PL.prompt("Review permissions, engines, API billing and limits","Approval note","");if(note){await PL.post(url+"/approve",{plan_digest:m.payload.plan_digest,note});await R.open("monitor");}}):null,
+        ["queued","scheduled","running"].includes(m.status)?button("Pause",async()=>{const note=await PL.prompt("Pause after current bounded work","Pause note","");if(note){await PL.post(url+"/pause",{note});await R.open("monitor");}}):null,
+        m.status==="awaiting_review"?button("Complete human review",async()=>{const note=await PL.prompt("Mission completion is separate from approving scientific claims","Review note","");if(note){await PL.post(url+"/review",{note});await R.open("monitor");}}):null,
+        h("a.btn.sm",{href:url+"/report",target:"_blank",rel:"noopener"},"Evidence report bundle"),button("Cancel",async()=>{await PL.post(url+"/cancel");await R.open("monitor");})));
+    }
   }
   async function renderProtocols(body,revision) {
     body.append(h("p.muted",{},"Fixed protocol → human approval → mission draft → approve mission. CPU toy benchmark; no GPU or paid inference."),button("New protocol revision",()=>{

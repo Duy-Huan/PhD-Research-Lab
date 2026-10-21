@@ -1,5 +1,6 @@
 """Typed control-plane contracts. Data from a model cannot enlarge these permissions."""
 from typing import Literal
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
@@ -27,6 +28,30 @@ class Task(Contract):
     fallback_engines: list[Literal["feynman", "openscience", "app"]] = Field(default_factory=list, max_length=2)
 
 
+class MissionControl(Contract):
+    charter_id: str = ""
+    charter_digest: str = ""
+    hypothesis_id: str = Field(default="",max_length=200)
+    exclusions: list[str] = Field(default_factory=list,max_length=20)
+    success_criteria: list[str] = Field(min_length=1,max_length=20)
+    allowed_engines: list[Literal["deterministic","feynman","openscience","app"]] = Field(default_factory=lambda:["deterministic"],min_length=1,max_length=4)
+    app_backend: str = Field(default="ollama",max_length=80)
+    app_model: str = Field(default="",max_length=200)
+    allow_api_billing: bool = False
+    not_before: datetime|None = None
+    end_date: datetime
+    max_wall_seconds: int = Field(default=3600,ge=1,le=86400)
+    priority: int = Field(default=0,ge=0,le=10)
+    review_required: Literal[True] = True
+    predecessor_id: str = ""
+
+    @model_validator(mode="after")
+    def dates(self):
+        if self.end_date.tzinfo is None or (self.not_before and self.not_before.tzinfo is None):raise ValueError("Mission dates require an explicit timezone")
+        if self.not_before and self.not_before>=self.end_date:raise ValueError("Schedule must precede mission end date")
+        return self
+
+
 class MissionSpec(Contract):
     topic_id: str
     objective: str = Field(min_length=1, max_length=8000)
@@ -39,6 +64,7 @@ class MissionSpec(Contract):
     routing_mode: Literal["manual", "assisted"] = "manual"
     owner: str = Field(default="researcher", min_length=1, max_length=100)
     parent_mission_id: str = ""
+    control: MissionControl|None = None
     tasks: list[Task] = Field(min_length=1, max_length=24)
 
     @model_validator(mode="after")

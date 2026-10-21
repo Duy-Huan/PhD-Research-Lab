@@ -24,6 +24,55 @@ from backend.agent.mission_contracts import MissionSpec
 from backend.execution import protocols
 from backend.execution.protocol_contracts import ExperimentProtocol
 from backend.knowledge import governance as G
+from backend.agent import research_os as OS
+
+
+class OSSettings(G.Contract):
+    enabled:bool
+
+
+class ReviewNote(G.Contract):
+    note:str=Field(min_length=1,max_length=4000)
+
+
+@router.get("/os-settings")
+async def os_settings():return {"enabled":OS.enabled(),"experimental":True,"max_parallel_tasks":1}
+
+
+@router.put("/os-settings")
+async def os_settings_update(body:OSSettings):
+    from backend.core.config import save_config
+    await call(save_config,{"research_os":{"enabled":body.enabled}})
+    return await os_settings()
+
+
+@router.get("/charters")
+async def charter_list():return {"charters":await call(OS.charters)}
+
+
+@router.post("/charters")
+async def charter_create(body:OS.ProjectCharter):return await call(OS.create_charter,body)
+
+
+@router.post("/topics/{tid}/missions/{mid}/request-approval")
+async def mission_request(tid:str,mid:str):return await call(OS.request_approval,tid,mid)
+
+
+@router.post("/topics/{tid}/missions/{mid}/pause")
+async def mission_pause(tid:str,mid:str,body:ReviewNote):return await call(OS.pause,tid,mid,body.note)
+
+
+@router.post("/topics/{tid}/missions/{mid}/review")
+async def mission_review(tid:str,mid:str,body:ReviewNote):return await call(OS.review,tid,mid,body.note)
+
+
+@router.get("/topics/{tid}/missions/{mid}/report")
+async def mission_bundle(tid:str,mid:str):return await call(OS.report,tid,mid)
+
+
+@router.get("/topics/{tid}/missions/{mid}/artifacts/{task_id}/{index}")
+async def mission_artifact(tid:str,mid:str,task_id:str,index:int):
+    return FileResponse(await call(OS.artifact,tid,mid,task_id,index),media_type="application/octet-stream")
 
 
 @router.get("/topics/{tid}/claims")

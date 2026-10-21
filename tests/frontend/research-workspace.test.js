@@ -136,3 +136,18 @@ test('mission retries and protocol approval use explicit controls and exact dige
   assert.deepEqual(h.server.last('POST',`/api/research/topics/${TID}/protocols/p1/approve`).body,{digest:'protocol-sha',note:'Reviewed exact plan'});
   noTurns(h);assert.deepEqual(h.errors,[]);
 });
+
+test('Mission Monitor preserves composer and uses direct scheduling/review controls',async()=>{
+  const h=await page({
+    'GET /api/research/os-settings':()=>({enabled:false}),
+    'GET /api/research/charters':()=>({charters:[]}),
+    [`GET /api/research/topics/${TID}/missions`]:()=>({missions:[{id:'supervised',status:'awaiting_review',payload:{spec:{objective:'Bounded mission',control:{}},reasoning_calls:0,active_seconds:1},tasks:[]}]}),
+  });
+  const composer=h.$('#input');await h.w.PL.research.open('monitor');assert.equal(h.$('#input'),composer);
+  h.w.PL.prompt=async()=> 'Human inspected report';
+  await h.clickText('.research-body button','Enable experimental Research OS');
+  assert.deepEqual(h.server.last('PUT','/api/research/os-settings').body,{enabled:true});
+  await h.clickText('.research-body button','Complete human review');
+  assert.deepEqual(h.server.last('POST',`/api/research/topics/${TID}/missions/supervised/review`).body,{note:'Human inspected report'});
+  noTurns(h);assert.deepEqual(h.errors,[]);
+});

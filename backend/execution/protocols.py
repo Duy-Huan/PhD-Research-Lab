@@ -168,7 +168,7 @@ async def execute(tid,pid,mission_id,expected_digest,expected_nonce):
             if c.execute("SELECT 1 FROM experiment_runs WHERE approval_nonce=?",(expected_nonce,)).fetchone():raise ValueError("Protocol approval already consumed; explicit new approval required")
             c.execute("INSERT INTO experiment_runs VALUES(?,?,?,?,?,?,?)",(rid,tid,pid,mission_id,expected_nonce,"running",S.dumps(payload)));admitted=True
             L.append(c,tid,rid,"experiment.admitted",{"protocol_id":pid,**payload})
-        cancelled=lambda:missions.get(mission_id,tid)["status"]=="cancelled"
+        cancelled=lambda:missions.is_stopped(mission_id)
         results=[]
         for alpha in [0.0,*spec.alphas]:
             remaining=spec.max_seconds-(time.monotonic()-started)
