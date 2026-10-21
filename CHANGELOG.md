@@ -1,5 +1,11 @@
 # Changelog
 
+## v5.4.0-preview.1 — 2026-10-22
+
+- Added typed capability/skill descriptors, validated Topic Mission DAGs, explicit engine routing/fallback, digest-bound expiring approvals, admission keys, bounded reasoning/time/delegation and append-only hash-linked audit events.
+- Existing research worker drives missions sequentially; completed steps do not rerun, uncertain admissions require reconciliation and fresh approval. Added a Missions drawer and deterministic `/mission` action.
+- Additive SQLite schema 2 migration saves a v1 backup. Existing chat, native engines, research runs, SKB and memory remain separate. Arbitrary shell/code/GPU tasks are not enabled by this new gateway.
+
 ## v5.3.0-preview.1 — 2026-10-21 — Topic SKB and federated workspaces
 
 - Audited the five v5.1–v5.3 target documents against the existing checkout. Preserved project folders, chats, legacy library, memory and existing engine dispatch.

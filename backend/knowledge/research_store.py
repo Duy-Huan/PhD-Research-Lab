@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import sqlite3
 import uuid
+import threading
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -82,7 +83,15 @@ CREATE TABLE IF NOT EXISTS jobs(id TEXT PRIMARY KEY, topic_id TEXT NOT NULL REFE
 CREATE UNIQUE INDEX IF NOT EXISTS one_active_job ON jobs(topic_id,kind) WHERE status IN ('queued','running','cancelling');
 CREATE TABLE IF NOT EXISTS findings(id TEXT PRIMARY KEY, topic_id TEXT NOT NULL REFERENCES topics(id),
  status TEXT NOT NULL, payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS missions(id TEXT PRIMARY KEY, topic_id TEXT NOT NULL REFERENCES topics(id),status TEXT NOT NULL,payload TEXT NOT NULL,created TEXT NOT NULL,updated TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS mission_tasks(mission_id TEXT NOT NULL REFERENCES missions(id),id TEXT NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(mission_id,id));
+CREATE TABLE IF NOT EXISTS mission_attempts(key TEXT PRIMARY KEY,mission_id TEXT NOT NULL REFERENCES missions(id),task_id TEXT NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS decision_ledger(seq INTEGER PRIMARY KEY AUTOINCREMENT,topic_id TEXT NOT NULL REFERENCES topics(id),entity_id TEXT NOT NULL,kind TEXT NOT NULL,at TEXT NOT NULL,payload TEXT NOT NULL,previous_hash TEXT NOT NULL,hash TEXT UNIQUE NOT NULL);
+CREATE TRIGGER IF NOT EXISTS ledger_no_update BEFORE UPDATE ON decision_ledger BEGIN SELECT RAISE(ABORT,'ledger is append only'); END;
+CREATE TRIGGER IF NOT EXISTS ledger_no_delete BEFORE DELETE ON decision_ledger BEGIN SELECT RAISE(ABORT,'ledger is append only'); END;
 """
+SCHEMA_VERSION = 2
+_schema_lock = threading.RLock()
 
 
 def safe_child(root: Path, *parts: str) -> Path:
@@ -112,15 +121,21 @@ def db():
     c.row_factory = sqlite3.Row
     try:
         c.execute("PRAGMA foreign_keys=ON")
-        version = c.execute("PRAGMA user_version").fetchone()[0]
-        if version > 1:
-            raise ValueError("Research store was created by a newer version; upgrade PhD Lab before opening it")
-        c.executescript(SCHEMA)
-        if version < 1:
-            c.execute("PRAGMA user_version=1")
-        c.execute("INSERT OR IGNORE INTO meta VALUES('schema','1')")
-        c.execute("INSERT OR IGNORE INTO meta VALUES('project_id',?)", (uid(),))
-        c.commit()
+        with _schema_lock:
+            version = c.execute("PRAGMA user_version").fetchone()[0]
+            if version > SCHEMA_VERSION:
+                raise ValueError("Research store was created by a newer version; upgrade PhD Lab before opening it")
+            if 0 < version < SCHEMA_VERSION:
+                backup = safe_child(store_dir(), f"research.v{version}.sqlite3.bak")
+                if not backup.exists():
+                    with sqlite3.connect(backup) as target:
+                        c.backup(target)
+            c.executescript(SCHEMA)
+            if version < SCHEMA_VERSION:
+                c.execute(f"PRAGMA user_version={SCHEMA_VERSION}")
+            c.execute("INSERT OR IGNORE INTO meta VALUES('schema',?)", (str(SCHEMA_VERSION),))
+            c.execute("INSERT OR IGNORE INTO meta VALUES('project_id',?)", (uid(),))
+            c.commit()
         c.execute("BEGIN IMMEDIATE")
         yield c
         c.commit()

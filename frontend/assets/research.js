@@ -41,7 +41,7 @@
     epoch++;
     if (request) request.abort();
     const nav = h("div.research-nav", {}, [["papers", tr("Paper", "Papers")], ["topics", "Topics"], ["workspaces", "Workspaces"], ["artifacts", tr("Nguồn gốc", "Provenance")], ["jobs", "Jobs"]]
-      .map(([key, title]) => button(title, () => R.open(key), key === mode ? "accent" : "ghost")));
+      .concat([["missions", "Missions"]]).map(([key, title]) => button(title, () => R.open(key), key === mode ? "accent" : "ghost")));
     const body = h("div.research-body", { dataset: { mode } });
     PL.panels.open(tr("Không gian nghiên cứu", "Research workspace"), h("div", {}, nav, body), { kind: "research", arg: mode });
     body.append(h("p.muted", {}, tr("Đang tải…", "Loading…")));
@@ -62,6 +62,7 @@
       else if (mode === "workspaces") await renderWorkspaces(body, revision);
       else if (mode === "artifacts") await renderArtifacts(body, revision);
       else if (mode === "jobs") await renderJobs(body, revision);
+      else if (mode === "missions") await renderMissions(body, revision);
     } catch (e) { if (revision === epoch) { body.replaceChildren(h("p.error", {}, e.message), button(tr("Thử lại", "Retry"), () => R.open(mode))); } }
   };
 
@@ -251,9 +252,24 @@
     if (action.availability !== "available") { PL.toast("Action unavailable"); return; }
     if (view === "library") return PL.panels.library();
     if (view === "settings") return PL.settings.open();
-    if (["papers", "topics", "workspaces", "artifacts", "jobs"].includes(view)) return R.open(view);
+    if (["papers", "topics", "workspaces", "artifacts", "jobs", "missions"].includes(view)) return R.open(view);
     throw new Error("Unregistered UI component");
   };
+  async function renderMissions(body, revision) {
+    body.append(button("New mission / JSON plan", () => {
+      const plan=h("textarea.input",{rows:16,"aria-label":"Mission JSON plan"},JSON.stringify({topic_id:R.tid,objective:"Inspect selected topic evidence",permissions:["workspace_write"],tasks:[{id:"inspect",capability:"paper.inspect",args:{paper_ids:R.sources().filter(s=>s.startsWith("paper:")).map(s=>s.slice(6)),limit:2}},{id:"report",capability:"mission.report",depends_on:["inspect"]}]},null,2));
+      PL.modal({title:"Mission preview · creation does not execute",body:plan,actions:[{label:"Cancel"},{label:"Create draft",kind:"accent",onClick:async()=>{
+        const r=await PL.safe(()=>PL.post(base()+"/missions",JSON.parse(plan.value)));if(!r)return false;await R.open("missions");return true;
+      }}]});
+    }),button("Refresh",()=>R.open("missions")));
+    const result=await PL.get(base()+"/missions");if(revision!==epoch)return;
+    for(const m of result.missions)body.append(h("article.research-card",{},h("b",{},m.payload.spec.objective+" · "+m.status),
+      h("p.muted",{},"Permissions: "+m.payload.spec.permissions.join(", ")+" · reasoning calls "+m.payload.reasoning_calls+" · "+m.payload.active_seconds.toFixed(2)+"s"),
+      h("details",{},h("summary",{},"Review immutable plan & limits"),h("pre",{},JSON.stringify(m.payload.spec,null,2))),
+      ...m.tasks.map(t=>h("details",{},h("summary",{},t.id+" · "+t.status),h("pre",{},JSON.stringify(t.payload,null,2)))),
+      ["draft","paused","failed","interrupted"].includes(m.status)?button("Approve this plan",async()=>{const note=await PL.prompt("Approve exact plan","Review permissions, engine, limits and scientific intent","");if(note){await PL.post(base()+"/missions/"+m.id+"/approve",{plan_digest:m.payload.plan_digest,note});await R.open("missions");}}):null,
+      button("Cancel",async()=>{await PL.post(base()+"/missions/"+m.id+"/cancel");await R.open("missions");})));
+  }
   R.command = function (text) {
     const match = /^\/([\w-]+)(?:\s.*)?$/.exec(text);
     const action = match && R.actions.find(a => a.name === match[1]);

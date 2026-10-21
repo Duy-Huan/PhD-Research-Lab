@@ -19,6 +19,57 @@ async def bind_project():
 
 router = APIRouter(prefix="/api/research", tags=["research-workspace"], dependencies=[Depends(bind_project)])
 
+from backend.agent import missions
+from backend.agent.mission_contracts import MissionSpec
+
+
+@router.get("/mission-capabilities")
+async def mission_capabilities():
+    from backend.agent.capabilities import catalog
+    return {"capabilities":catalog(),"max_concurrency":1,"automatic_delegation":False}
+
+
+@router.get("/topics/{tid}/missions")
+async def mission_list(tid: str):
+    return {"missions":await call(missions.listing,tid)}
+
+
+@router.post("/topics/{tid}/missions")
+async def mission_create(tid: str, body: MissionSpec):
+    if tid!=body.topic_id:raise HTTPException(400,"Topic mismatch")
+    return await call(missions.create,body)
+
+
+@router.post("/topics/{tid}/missions/plan")
+async def mission_plan(tid: str, body: dict = Body(...)):
+    await call(S.get_topic,tid)
+    if body.get("allow_reasoning") is not True:raise HTTPException(400,"AI planning requires explicit reasoning/network permission")
+    from backend.providers.models import call_agent, extract_json
+    from backend.agent.capabilities import catalog
+    import json
+    objective=str(body.get("objective") or "").strip()[:8000]
+    if not objective:raise HTTPException(400,"Objective required")
+    answer=await call_agent("research","Return a JSON MissionSpec draft only. Never claim approval. Do not invent paper IDs. Schema: "+json.dumps(MissionSpec.model_json_schema())+" Capabilities: "+json.dumps(catalog()),objective,max_tokens=4000,temperature=0)
+    try:
+        plan=extract_json(answer["text"]);plan["topic_id"]=tid;plan["parent_mission_id"]=""
+        return await call(missions.create,MissionSpec.model_validate(plan))
+    except ValueError as exc:raise HTTPException(400,"Planner draft rejected: "+str(exc)[:500])
+
+
+@router.post("/topics/{tid}/missions/{mid}/approve")
+async def mission_approve(tid: str, mid: str, body: dict = Body(...)):
+    return await call(missions.approve,tid,mid,str(body.get("plan_digest") or ""),str(body.get("note") or ""),int(body.get("expires_minutes",60)))
+
+
+@router.post("/topics/{tid}/missions/{mid}/cancel")
+async def mission_cancel(tid: str, mid: str):
+    return await call(missions.cancel,tid,mid)
+
+
+@router.post("/topics/{tid}/missions/{mid}/retry")
+async def mission_retry(tid: str, mid: str, body: dict = Body(...)):
+    return await call(missions.retry,tid,mid,str(body.get("task_id") or ""),str(body.get("reconcile_note") or ""))
+
 
 @router.get("/capabilities")
 async def capabilities():

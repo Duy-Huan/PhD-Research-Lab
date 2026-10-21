@@ -165,6 +165,8 @@ async def execute(job: dict):
             return
     try:
         profile = S.get_topic(tid)
+        if payload.get("metadata_limit"):
+            profile["metadata_limit"] = min(profile["metadata_limit"],max(1,int(payload["metadata_limit"])))
         if profile["archived"] or (payload.get("scheduled") and job["kind"] == "discover" and not profile["enabled"]):
             _update(jid, "cancelled", {**payload, "reason": "Topic archived or scheduled discovery disabled"})
             return
@@ -255,12 +257,16 @@ async def worker(stop: asyncio.Event):
                         with S.db() as c:
                             c.execute("UPDATE jobs SET status='interrupted',updated=? WHERE status IN ('running','cancelling')", (S.now(),))
                         recovered.add(str(path))
+                        from backend.agent import missions
+                        await asyncio.to_thread(missions.recover)
                     await asyncio.to_thread(schedule_due)
                     with S.db() as c:
                         row = c.execute("SELECT * FROM jobs WHERE status='queued' ORDER BY created LIMIT 1").fetchone()
                         queued = {**dict(row), "payload": json.loads(row["payload"])} if row else None
                     if queued:
                         await execute(queued)
+                    from backend.agent import missions
+                    await missions.tick()
                 except asyncio.CancelledError:
                     raise
                 except Exception:

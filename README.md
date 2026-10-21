@@ -1,6 +1,8 @@
-# PhD Research Lab - v5.3.0-preview.1
+# PhD Research Lab - v5.4.0-preview.1
 
 A local research workspace with one project chat, a browser interface and a terminal client sharing the same FastAPI backend. Research and Reviewer agents use Markdown skills; a utility model handles background extraction and memory work.
+
+**Supervised Missions:** open Topics · SKB → Missions (`/mission`) to create a typed task DAG, review exact permissions/limits and approve its digest before execution. Deterministic capabilities bypass inference; comparisons require an explicitly selected engine and reasoning budget. Interrupted admissions pause for reconciliation. See [v5.4 release and API guide](docs/release-v5.4.md).
 
 ## Topic knowledge and independent engine workspaces (preview)
 
