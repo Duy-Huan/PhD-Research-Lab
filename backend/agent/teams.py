@@ -88,7 +88,13 @@ def admit(c,m,task,key):
         existing=c.execute("SELECT payload FROM task_handoffs WHERE mission_id=? AND task_id=? AND dependency_id=?",(m["id"],task.id,dep)).fetchone()
         if existing and json.loads(existing[0])!=payload:raise ValueError("Dependency output changed after handoff")
         c.execute("INSERT OR IGNORE INTO task_handoffs VALUES(?,?,?,?,?,?)",(S.uid(),m["id"],m["topic_id"],task.id,dep,S.dumps(payload)))
-    c.execute("UPDATE mission_attempts SET payload=? WHERE key=?",(S.dumps({"owner":own,"verifier":assignments[task.id]["verifier"],"started_at":S.now(),"queue_seconds":max(0,(datetime.now(timezone.utc)-datetime.fromisoformat(m["created"])).total_seconds())}),key))
+    ready=[datetime.fromisoformat(m["payload"]["approval"]["at"])]
+    scheduled=(m["payload"]["spec"].get("control") or {}).get("not_before")
+    if scheduled:ready.append(datetime.fromisoformat(scheduled))
+    for dep in task.depends_on:
+        row=c.execute("SELECT json_extract(payload,'$.ended_at') FROM mission_attempts WHERE mission_id=? AND task_id=? AND status='completed' ORDER BY rowid DESC LIMIT 1",(m["id"],dep)).fetchone()
+        if row and row[0]:ready.append(datetime.fromisoformat(row[0]))
+    c.execute("UPDATE mission_attempts SET payload=? WHERE key=?",(S.dumps({"owner":own,"verifier":assignments[task.id]["verifier"],"started_at":S.now(),"queue_seconds":max(0,(datetime.now(timezone.utc)-max(ready)).total_seconds())}),key))
 
 
 def monitor(tid,mid):
@@ -128,6 +134,7 @@ def replan(tid,mid,task_id,engine,note):
     from backend.agent import missions as M
     if not note.strip():raise ValueError("Replan review note required")
     m=M.get(mid,tid);data=m["payload"]["spec"];team=data.get("team")
+    if data.get("collaboration"):raise ValueError("Workstream charter changes require a manually reviewed new Mission version; automatic reassignment is single-team only")
     if not team or m["status"] not in ("failed","paused"):raise ValueError("Replan only a failed/paused team mission")
     target=next((t for t in m["tasks"] if t["id"]==task_id),None)
     if not target or target["status"] not in ("failed","pending") or target["payload"]["spec"]["capability"]!="paper.compare":raise ValueError("Only a known failed/unadmitted reasoning task can be reassigned; reconcile uncertain admissions first")

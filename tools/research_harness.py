@@ -20,7 +20,7 @@ sys.path[:0]=[str(ROOT),str(ROOT/"tests")]
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--stage",choices=["6.0","6.2"],default="6.0")
+    parser.add_argument("--stage",choices=["6.0","6.2","6.3"],default="6.0")
     parser.add_argument("--probe-engines",action="store_true")
     args=parser.parse_args()
     with tempfile.TemporaryDirectory(prefix="phdlab-harness-") as temporary:
@@ -33,7 +33,7 @@ def main():
         from backend.execution import protocols as P
         from backend.execution.protocol_contracts import ExperimentProtocol
         from backend.research_engines import workspaces as W
-        config.save_config({"research_os":{"enabled":True,"team_enabled":args.stage!="6.0"},"clearml":{"auto_record":False},"memory":{"embed_engine":"hashing"}})
+        config.save_config({"research_os":{"enabled":True,"team_enabled":args.stage!="6.0","multi_team_enabled":args.stage=="6.3"},"clearml":{"auto_record":False},"memory":{"embed_engine":"hashing"}})
         a=S.save_topic(S.TopicInput(title="MRI Denoising (generated acceptance fixture)"))["id"]
         b=S.save_topic(S.TopicInput(title="CT Restoration (workspace fixture)"))["id"]
         ch=O.create_charter(O.ProjectCharter(goal="Medical Image Restoration — offline harness",topics=[O.TopicGoal(topic_id=a,goal="MRI"),O.TopicGoal(topic_id=b,parent_topic_id=a,goal="CT")],permissions=["workspace_write","compute"],max_reasoning_calls=0))
@@ -45,15 +45,25 @@ def main():
             spec=MissionSpec(topic_id=tid,objective=name,permissions=permissions,control=common,tasks=tasks)
             if args.stage!="6.0":
                 from backend.agent import teams
-                spec=teams.propose(spec,mode);tasks=spec.tasks
+                spec=teams.propose(spec,"adaptive" if args.stage=="6.3" else mode)
+                if mode=="multi":
+                    from backend.agent import collaboration
+                    spec=collaboration.partition(spec)
+                tasks=spec.tasks
             m=M.create(spec);O.request_approval(tid,m["id"]);M.approve(tid,m["id"],m["payload"]["plan_digest"],"Harness approval of fixed offline work; not a scientific endorsement")
             for _ in range(len(tasks)+2):asyncio.run(M.tick())
             m=M.get(m["id"]);assert m["status"]=="awaiting_review",m
+            extra_reviews=0
+            if spec.collaboration:
+                from backend.agent import collaboration
+                for dispute in collaboration.monitor(tid,m["id"])["disputes"]:
+                    if dispute["status"]=="open":
+                        collaboration.resolve(tid,m["id"],dispute["id"],dispute["revision"],"Harness simulated PI follow-up: technical evidence retained, no scientific claim approved");extra_reviews+=1
             O.review(tid,m["id"],"Harness simulated oversight; scientific claims remain separate")
             attempts=sum(t["payload"]["attempts"] for t in m["tasks"])
-            rows.append({"workflow":name,"mode":mode,"logical_roles":len(spec.team.agents) if spec.team else 1,"wall_seconds":time.perf_counter()-start,"executions":attempts,"verified_completion":True,"quality_indicator":"Bounded technical contract completion, not a scientific quality score","reasoning_calls":m["payload"]["reasoning_calls"],"provider_tokens":None,"currency_cost":None,"gpu_seconds":0,"human_gate_actions":3,"retries":sum(max(0,t["payload"]["attempts"]-1) for t in m["tasks"]),"mission_id":m["id"]})
+            rows.append({"workflow":name,"mode":mode,"logical_roles":len(spec.team.agents) if spec.team else 1,"workstreams":len(spec.collaboration.workstreams) if spec.collaboration else 1,"wall_seconds":time.perf_counter()-start,"executions":attempts,"verified_completion":True,"quality_indicator":"Bounded technical contract completion, not a scientific quality score","reasoning_calls":m["payload"]["reasoning_calls"],"provider_tokens":None,"currency_cost":None,"gpu_seconds":0,"human_gate_actions":3+extra_reviews,"retries":sum(max(0,t["payload"]["attempts"]-1) for t in m["tasks"]),"mission_id":m["id"]})
             mission_ids.append((tid,m["id"]));return m
-        modes=["single"] if args.stage=="6.0" else ["single","fixed","adaptive"]
+        modes=["single"] if args.stage=="6.0" else ["single","multi"] if args.stage=="6.3" else ["single","fixed","adaptive"]
         for mode in modes:execute("Literature inspection",a,[{"id":"inspect","capability":"paper.inspect","args":{"paper_ids":records["paper_ids"][:2]}},{"id":"report","capability":"mission.report","depends_on":["inspect"]}],["workspace_write"],mode)
         workspaces=[]
         for engine in ("openscience","feynman"):
@@ -64,7 +74,9 @@ def main():
         for mode in modes:
             for repeat in range(2):
                 protocol=P.approve(a,protocol["id"],protocol["digest"],"Harness fixed CPU approval / independent fresh-process reproduction")
-                execute("CPU reproducibility "+str(repeat+1),a,[{"id":"experiment","capability":"experiment.run","args":{"protocol_id":protocol["id"],"protocol_digest":protocol["digest"],"approval_nonce":protocol["approval"]["nonce"]}},{"id":"report","capability":"mission.report","depends_on":["experiment"]}],["workspace_write","compute"],mode)
+                cpu_tasks=[{"id":"experiment","capability":"experiment.run","args":{"protocol_id":protocol["id"],"protocol_digest":protocol["digest"],"approval_nonce":protocol["approval"]["nonce"]}},{"id":"report","capability":"mission.report","depends_on":["experiment"]}]
+                if args.stage=="6.3":cpu_tasks.insert(0,{"id":"inspect","capability":"paper.inspect","args":{"paper_ids":records["paper_ids"][:2]}});cpu_tasks[-1]["depends_on"].append("inspect")
+                execute("CPU reproducibility "+str(repeat+1),a,cpu_tasks,["workspace_write","compute"],mode)
         verification=V.verify_run(a,P.runs(a)[0]["id"]);assert verification["status"]=="passed" and verification["reproduction_run_id"]
         fake=G.create(a,G.ClaimInput(text="Invented paper claim",evidence=[G.EvidenceInput(source_id="doi:10.1234/harness-unresolved")]))
         assert G.evaluate(a,fake["id"])["checks"][0]["outcome"]=="unverifiable"
@@ -98,9 +110,43 @@ def main():
                 for trial in run["trials"]:
                     folder=Path(trial["payload"]["artifact"]["path"]).parent
                     for name in ("request.json","observations.json","stdout.log","stderr.log"):archive.write(folder/name,f"{run['id']}/{trial['id']}/{name}")
+            for tid,mid in mission_ids:
+                for task in M.get(mid,tid)["tasks"]:
+                    for index,ref in enumerate(task["payload"].get("result",{}).get("artifacts",[])):
+                        path=O.artifact(tid,mid,task["id"],index)
+                        archive.write(path,f"missions/{mid}/{task['id']}/{path.name}")
             for tid,audit in zip((a,b),audits):archive.writestr("audit/"+tid+".json",json.dumps(audit,ensure_ascii=False))
-        report={"version":config.APP_VERSION,"at":S.now(),"status":"passed","scope":"Real local software and CPU workers; synthetic literature/workspace fixtures; no live inference/GPU or scientific endorsement","rows":rows,"verification":verification,"restart":{"uncertain_status":"interrupted","automatically_repeated":False},"claims":{"unresolved_doi":"unverifiable"},"mission_reports":[O.report(tid,mid) for tid,mid in mission_ids],"engine_probes":probes,"limitations":["No real scientific pilot signoff","No live provider billing, quota or native inference qualification","Wall time includes durable SQLite/worker overhead, not model productivity","Portable JSON paths are redacted; original hash-verifiable audits and raw measurements are in measurements.zip"]}
+        import hashlib
+        with zipfile.ZipFile(output/"measurements.zip") as archive:
+            assert archive.testzip() is None
+            for run in P.runs(a):
+                for trial in run["trials"]:
+                    assert hashlib.sha256(archive.read(f"{run['id']}/{trial['id']}/observations.json")).hexdigest()==trial["payload"]["artifact"]["sha256"]
+            events=sorted([e for audit in audits for e in audit["events"]],key=lambda e:e["seq"]);previous=""
+            for event in events:
+                item={k:event[k] for k in ("topic_id","entity_id","kind","at","previous_hash","payload")}
+                assert item["previous_hash"]==previous and L.digest(item)==event["hash"]
+                previous=event["hash"]
+        snapshots=[]
+        for tid,mid in mission_ids:
+            m=M.get(mid,tid);snapshot={"project_id":S.project_id(),"topic_id":tid,"mission":m}
+            if m["payload"]["spec"].get("collaboration"):
+                from backend.agent import collaboration
+                snapshot["collaboration"]={k:v for k,v in collaboration.monitor(tid,mid).items() if k!="mission"}
+            snapshots.append(snapshot)
+        source_files=sorted([*ROOT.glob("backend/**/*.py"),*ROOT.glob("frontend/assets/*.js"),*ROOT.glob("frontend/assets/*.css"),*ROOT.glob("tools/*.py"),ROOT/"frontend/index.html",ROOT/"start.py",ROOT/"requirements.txt"])
+        source_hashes={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in source_files}
+        identity={"source_tree_sha256":L.digest(source_hashes),"files":source_hashes,"git_parent_commit":None,"git_dirty":None,"note":"Exact source bytes are fingerprinted; parent commit plus dirty flag honestly describes a pre-commit acceptance run"}
+        try:
+            identity["git_parent_commit"]=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True,stderr=subprocess.DEVNULL).strip()
+            identity["git_dirty"]=bool(subprocess.check_output(["git","status","--porcelain"],cwd=ROOT,text=True,stderr=subprocess.DEVNULL).strip())
+        except (OSError,subprocess.CalledProcessError):pass
+        report={"version":config.APP_VERSION,"at":S.now(),"source_identity":identity,"status":"passed","scope":"Real local software and CPU workers; synthetic literature/workspace fixtures; no live inference/GPU or scientific endorsement","rows":rows,"verification":verification,"experiment_runs":P.runs(a),"restart":{"uncertain_status":"interrupted","automatically_repeated":False},"claims":{"unresolved_doi":"unverifiable"},"mission_reports":snapshots,"engine_probes":probes,"limitations":["No real scientific pilot signoff","No live provider billing, quota or native inference qualification","Wall time includes durable SQLite/worker overhead, not model productivity","Portable JSON paths are redacted; original hash-verifiable audits and raw measurements are in measurements.zip"]}
         (output/"harness.json").write_text(json.dumps(portable(report),indent=2,ensure_ascii=False),"utf-8")
+        lines=["# Measured local research harness", "Synthetic literature/workspace fixtures; actual local code and CPU workers. These serial samples do not establish a productivity or scientific quality advantage.", "| Workflow | Mode | Domains | Logical roles | Wall seconds | Task executions | Technical completion |", "|---|---|---:|---:|---:|---:|---|"]
+        for row in rows:lines.append(f"| {row['workflow']} | {row['mode']} | {row['workstreams']} | {row['logical_roles']} | {row['wall_seconds']:.3f} | {row['executions']} | {row['verified_completion']} |")
+        lines.append("\nProvider tokens/currency are unknown; GPU time is zero. Simulated review actions and retries are recorded per row in harness.json. Raw artifact hashes, ZIP integrity and the original merged audit chain were checked after packaging.")
+        (output/"benchmark.md").write_text("\n\n".join(lines[:2])+"\n\n"+"\n".join(lines[2:]),"utf-8")
         print(json.dumps({"status":"passed","version":config.APP_VERSION,"workflows":len(rows),"cpu_reproduction":verification["status"],"evidence":str(output)}))
 
 

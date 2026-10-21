@@ -1,10 +1,12 @@
-# PhD Research Lab - v6.2.0-preview.1
+# PhD Research Lab - v6.3.0-preview.1
 
 A local research workspace with one project chat, a browser interface and a terminal client sharing the same FastAPI backend. Research and Reviewer agents use Markdown skills; a utility model handles background extraction and memory work.
 
 **Supervised Research OS (opt-in):** `/monitor` adds immutable project charters, directed cross-topic report grants, scheduled missions, deadlines, aggregate budgets, explicit provider/billing controls, persisted quota cooldown and a final human review gate. Enable it in Mission Monitor; existing v5 missions retain their behavior. Run `python -B tools/research_harness.py --stage 6.0` for isolated acceptance. See [v6.0 release](docs/release-v6.0.md).
 
 **Team harness (opt-in):** `/team` composes editable single/fixed/adaptive logical roles from registered capabilities, assigns exactly one owner per task and independent deterministic reviewers for scientific outputs. Durable handoffs, quota/recovery controls and bounded replan drafts use the same Mission worker. Benchmark with `python -B tools/research_harness.py --stage 6.2`; see [team architecture and limits](docs/architecture/v6.2_team_composition.md).
+
+**Workstreams (opt-in):** `/workstreams` proposes subordinate team charters for independent branches, with shared mission limits, immutable evidence handoffs, receiving acknowledgments, version-checked canonical output references and PI dispute decisions. Simple work falls back to one team. `python -B tools/research_harness.py --stage 6.3` compares the same three local workflow families against a single adaptive team. See [v6.3 architecture and operations](docs/architecture/v6.3_multi_team_collaboration.md). All new autonomy flags default to false.
 
 **Supervised Missions:** open Topics · SKB → Missions (`/mission`) to create a typed task DAG, review exact permissions/limits and approve its digest before execution. Deterministic capabilities bypass inference; comparisons require an explicitly selected engine and reasoning budget. Interrupted admissions pause for reconciliation. See [v5.4 release and API guide](docs/release-v5.4.md).
 

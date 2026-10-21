@@ -165,3 +165,20 @@ test('Team Monitor shows logical ownership and enables teams without invoking a 
   assert.match(h.w.document.body.textContent,/Durable task envelopes/);
   noTurns(h);assert.deepEqual(h.errors,[]);
 });
+
+test('Workstreams show receipts and resolve disputes with a versioned human note',async()=>{
+  const mission={id:'multi1',status:'awaiting_review',payload:{spec:{objective:'Bounded domains',collaboration:{rationale:'Independent branches',workstreams:[{id:'verification',objective:'Check raw evidence',task_ids:['check']}]}}},tasks:[{id:'check',status:'completed'}]};
+  const h=await page({
+    'GET /api/research/os-settings':()=>({enabled:true,team_enabled:true,multi_team_enabled:false}),
+    [`GET /api/research/topics/${TID}/missions`]:()=>({missions:[mission]}),
+    [`GET /api/research/topics/${TID}/missions/multi1/workstreams`]:()=>({usage:[],messages:[{status:'acknowledged'}],receipts:[{}],canonical_outputs:[],disputes:[{id:'d1',status:'open',revision:2,payload:{reason:'Unsupported improvement'}}]}),
+  });
+  const composer=h.$('#input');await h.w.PL.research.open('workstreams');assert.equal(h.$('#input'),composer);
+  assert.match(h.$('.research-body').textContent,/receipts: 1/);
+  await h.clickText('.research-body button','Enable experimental multi-team');
+  assert.deepEqual(h.server.last('PUT','/api/research/os-settings').body,{enabled:true,team_enabled:true,multi_team_enabled:true});
+  h.w.PL.prompt=async()=> 'Leave scientific claim pending; request raw data';
+  await h.clickText('.research-body button','Resolve with PI note');
+  assert.deepEqual(h.server.last('POST',`/api/research/topics/${TID}/missions/multi1/disputes/d1/resolve`).body,{expected_revision:2,note:'Leave scientific claim pending; request raw data'});
+  noTurns(h);assert.deepEqual(h.errors,[]);
+});

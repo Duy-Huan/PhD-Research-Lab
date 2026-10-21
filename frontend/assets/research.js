@@ -41,7 +41,7 @@
     epoch++;
     if (request) request.abort();
     const nav = h("div.research-nav", {}, [["papers", tr("Paper", "Papers")], ["topics", "Topics"], ["workspaces", "Workspaces"], ["artifacts", tr("Nguồn gốc", "Provenance")], ["jobs", "Jobs"]]
-      .concat([["monitor","Mission Monitor"],["teams","Teams"],["missions", "Missions"],["protocols","Experiments"],["claims","Review Room"]]).map(([key, title]) => button(title, () => R.open(key), key === mode ? "accent" : "ghost")));
+      .concat([["monitor","Mission Monitor"],["teams","Teams"],["workstreams","Workstreams"],["missions", "Missions"],["protocols","Experiments"],["claims","Review Room"]]).map(([key, title]) => button(title, () => R.open(key), key === mode ? "accent" : "ghost")));
     const body = h("div.research-body", { dataset: { mode } });
     PL.panels.open(tr("Không gian nghiên cứu", "Research workspace"), h("div", {}, nav, body), { kind: "research", arg: mode });
     body.append(h("p.muted", {}, tr("Đang tải…", "Loading…")));
@@ -67,6 +67,7 @@
       else if (mode === "claims") await renderClaims(body, revision);
       else if (mode === "monitor") await renderMonitor(body, revision);
       else if (mode === "teams") await renderTeams(body, revision);
+      else if (mode === "workstreams") await renderWorkstreams(body, revision);
     } catch (e) { if (revision === epoch) { body.replaceChildren(h("p.error", {}, e.message), button(tr("Thử lại", "Retry"), () => R.open(mode))); } }
   };
 
@@ -256,7 +257,7 @@
     if (action.availability !== "available") { PL.toast("Action unavailable"); return; }
     if (view === "library") return PL.panels.library();
     if (view === "settings") return PL.settings.open();
-    if (["papers", "topics", "workspaces", "artifacts", "jobs", "missions", "protocols", "claims", "monitor", "teams"].includes(view)) return R.open(view);
+    if (["papers", "topics", "workspaces", "artifacts", "jobs", "missions", "protocols", "claims", "monitor", "teams", "workstreams"].includes(view)) return R.open(view);
     throw new Error("Unregistered UI component");
   };
   async function renderMissions(body, revision) {
@@ -313,6 +314,26 @@
         button("Inspect handoffs and usage",async()=>{const data=await PL.get(base()+"/missions/"+m.id+"/team");PL.modal({title:"Durable task envelopes and execution records",body:h("pre",{},JSON.stringify(data,null,2)),actions:[{label:"Close"}]});}),
         button("Mission approvals / pause / review",()=>R.open("monitor")),
         ["failed","paused"].includes(m.status)?button("Propose bounded reassignment",()=>R.editContract("Reassign only known failed work",{task_id:(m.tasks.find(t=>t.status==="failed")||{}).id||"",engine:"app",note:""},async body=>{const draft=await PL.post(base()+"/missions/"+m.id+"/replan",body);await R.open("monitor");return draft;})):null));
+    }
+  }
+  async function renderWorkstreams(body,revision) {
+    const [settings,result]=await Promise.all([PL.get("/api/research/os-settings"),PL.get(base()+"/missions")]);if(revision!==epoch)return;
+    body.append(h("p.muted",{},"Subordinate workstreams share the existing bounded worker. Cross-topic execution is isolated. Handoffs have source hashes and receipts; disagreements require a recorded PI decision."),
+      button(settings.multi_team_enabled?"Disable multi-team":"Enable experimental multi-team",async()=>{await PL.put("/api/research/os-settings",{enabled:settings.enabled,team_enabled:settings.team_enabled,multi_team_enabled:!settings.multi_team_enabled});await R.open("workstreams");}),
+      button("Propose workstreams",()=>R.editContract("Partition a supervised Mission",{topic_id:R.tid,objective:"Inspect evidence and report",permissions:["workspace_write"],control:{success_criteria:["Owned evidence and review"],end_date:new Date(Date.now()+86400000).toISOString()},tasks:[{id:"inspect",capability:"paper.inspect"},{id:"report",capability:"mission.report",depends_on:["inspect"]}]},async spec=>{
+        const proposal=await PL.post("/api/research/workstreams/propose",spec);
+        setTimeout(()=>R.editContract("Review team charters, handoffs and budgets",proposal.spec,async edited=>{const draft=await PL.post(base()+"/missions",edited);await R.open("monitor");return draft;}),0);return proposal;
+      })),button("Refresh",()=>R.open("workstreams")));
+    for(const m of result.missions.filter(m=>m.payload.spec.collaboration)) {
+      const url=base()+"/missions/"+m.id;
+      const view=await PL.get(url+"/workstreams");if(revision!==epoch)return;
+      body.append(h("article.research-card",{},h("b",{},m.payload.spec.objective+" · "+m.status),h("p",{},m.payload.spec.collaboration.rationale),
+        ...m.payload.spec.collaboration.workstreams.map(w=>h("details",{},h("summary",{},w.id+" · "+w.objective),h("pre",{},JSON.stringify({charter:w,usage:view.usage.find(u=>u.team_id===w.id),tasks:m.tasks.filter(t=>w.task_ids.includes(t.id)).map(t=>({id:t.id,status:t.status}))},null,2)))),
+        h("p",{},"Handoffs: "+view.messages.length+" · receipts: "+view.receipts.length+" · open disputes: "+view.disputes.filter(d=>d.status==="open").length),
+        h("details",{},h("summary",{},"Evidence bundles, acknowledgments and output revisions"),h("pre",{},JSON.stringify({messages:view.messages,receipts:view.receipts,outputs:view.canonical_outputs},null,2))),
+        ...view.disputes.map(d=>h("div.research-card",{},h("b",{},d.status+" · "+d.payload.reason),h("pre",{},JSON.stringify(d.payload,null,2)),d.status==="open"?button("Resolve with PI note",async()=>{const note=await PL.prompt("Resolution does not approve a scientific claim","Human decision and follow-up","");if(note){await PL.post(url+"/disputes/"+d.id+"/resolve",{expected_revision:d.revision,note});await R.open("workstreams");}}):null)),
+        button("Register canonical output",()=>{const source=m.tasks.find(t=>t.payload&&t.payload.result&&t.payload.result.artifacts&&t.payload.result.artifacts.length);const owner=source&&m.payload.spec.collaboration.workstreams.find(w=>w.task_ids.includes(source.id));R.editContract("Compare-and-swap output reference",{team_id:owner?owner.id:"",key:"research-report",source_task:source?source.id:"report",artifact_index:0,expected_revision:0,note:""},async body=>{const output=await PL.post(url+"/outputs",body);await R.open("workstreams");return output;});}),
+        button("Mission approvals / pause / review",()=>R.open("monitor")),h("a.btn.sm",{href:url+"/report",target:"_blank",rel:"noopener"},"Mission evidence")));
     }
   }
   async function renderProtocols(body,revision) {

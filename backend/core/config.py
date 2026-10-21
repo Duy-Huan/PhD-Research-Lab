@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "6.2.0-preview.1"
+APP_VERSION = "6.3.0-preview.1"
 
 ROOT = Path(__file__).resolve().parents[2]
 # PHDLAB_DATA_DIR (v3.2) moves ALL user data elsewhere — used by the test suite so it never touches the real data/.
@@ -238,7 +238,7 @@ DEFAULTS["openscience"] = {
 # v5.1 interface language (UI strings + the language the agents answer in) and the reading font of answers
 DEFAULTS["ui"] = {"language": "vi", "prose_font": "sans", "paper_explorer_v2": True, "discovery_inbox": True,
                   "contextual_actions": True, "topic_scheduler_ui": True}
-DEFAULTS["research_os"] = {"enabled":False,"team_enabled":False}
+DEFAULTS["research_os"] = {"enabled":False,"team_enabled":False,"multi_team_enabled":False}
 # v5.1 automatic venue ranking: CORE conference ranks are downloaded (refreshed after refresh_days); SCImago journal
 # exports cannot be fetched automatically (bot protection), so a scimagojr*.csv saved in Downloads is imported by itself.
 DEFAULTS["ranking"] = {"auto": True, "core_source": "ICORE2026", "watch_downloads": True, "refresh_days": 30}

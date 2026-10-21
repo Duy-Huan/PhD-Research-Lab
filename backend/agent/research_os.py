@@ -76,6 +76,8 @@ def create_charter(body:ProjectCharter):
 def validate(spec:MissionSpec):
     from backend.agent import teams
     teams.validate(spec)
+    from backend.agent import collaboration
+    collaboration.validate(spec)
     control=spec.control
     if not control:return
     from backend.core.config import PROVIDERS
@@ -129,6 +131,9 @@ def review(tid,mid,note):
     with S.db() as c:
         m=M._get(c,mid,tid)
         if m["status"]!="awaiting_review":raise ValueError("Mission is not awaiting review")
+        from backend.agent.collaboration import review_blocker
+        blocked=review_blocker(c,m)
+        if blocked:raise ValueError(blocked)
         c.execute("UPDATE missions SET status='completed',updated=? WHERE id=?",(S.now(),mid))
         L.append(c,tid,mid,"mission.reviewed",{"by":"researcher","note":note,"scientific_claims_not_implicitly_approved":True})
     return M.get(mid,tid)
@@ -156,6 +161,9 @@ def gate(c,m,task=None):
     if m["payload"]["spec"].get("team"):
         from backend.agent import teams
         if not teams.enabled():return "Team execution is disabled"
+    from backend.agent import collaboration
+    blocked=collaboration.gate(c,m,task)
+    if blocked:return blocked
     if now>=datetime.fromisoformat(control["end_date"]):return "Mission end date reached"
     if control.get("not_before") and now<datetime.fromisoformat(control["not_before"]):return "Scheduled for "+control["not_before"]
     if p.get("started_at") and (now-datetime.fromisoformat(p["started_at"])).total_seconds()>=control["max_wall_seconds"]:return "Mission wall-time budget exhausted"
@@ -223,5 +231,6 @@ def artifact(tid,mid,task_id,index):
     path=Path(ref["path"])
     if not path.is_relative_to(S.store_dir()):raise ValueError("Artifact outside research store")
     path=S.safe_child(S.store_dir(),*path.relative_to(S.store_dir()).parts)
+    if path.stat().st_size!=ref["bytes"] or ref["bytes"]>m["payload"]["spec"]["limits"]["max_artifact_mb"]*1024*1024:raise ValueError("Artifact size/budget mismatch")
     if hashlib.sha256(path.read_bytes()).hexdigest()!=ref["sha256"]:raise ValueError("Artifact checksum mismatch")
     return path

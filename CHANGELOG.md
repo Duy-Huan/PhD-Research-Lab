@@ -1,5 +1,11 @@
 # Changelog
 
+## v6.3.0-preview.1 — 2026-10-22
+
+- Added optional bounded workstream charters, schema-validated cross-team evidence messages/receipts, partitioned resource accounting, optimistic canonical output revisions and human dispute resolution on the existing Mission runtime.
+- Findings reuse scientific claim governance without automatic memory promotion. Task reports have separate owned paths. Recovery now resumes committed task boundaries while uncertain admissions still require reconciliation.
+- Added Workstreams UI and three-workflow comparative harness with raw CPU/audit artifacts. Schema 7 backs up schema 6; `research_os.multi_team_enabled=false` remains the default. Teams execute serially; stable live scientific autonomy is not claimed.
+
 ## v6.2.0-preview.1 — 2026-10-22
 
 - Added the missing v6.1 compatibility harness as typed logical roles/assignments on existing Missions, deterministic single/fixed/adaptive proposals, durable task envelopes and independent raw-evidence verification.

@@ -100,6 +100,53 @@ class VerificationResult(Contract):
     limitations:list[str]=Field(default_factory=list)
 
 
+class Workstream(Contract):
+    id:str=Field(pattern=r"^[a-z][a-z0-9_-]{0,39}$")
+    topic_id:str
+    objective:str=Field(min_length=1,max_length=2000)
+    task_ids:list[str]=Field(min_length=1,max_length=24)
+    depends_on:list[str]=Field(default_factory=list,max_length=4)
+    permissions:list[Literal["network","workspace_write","reasoning","compute"]]=Field(default_factory=list)
+    engines:list[Literal["deterministic","feynman","openscience","app"]]=Field(default_factory=lambda:["deterministic"])
+    max_reasoning_calls:int=Field(default=0,ge=0,le=3)
+    max_active_seconds:int=Field(ge=1,le=3600)
+    max_artifact_mb:int=Field(ge=1,le=128)
+    deliverables:list[str]=Field(min_length=1,max_length=10)
+    evidence_requirements:list[str]=Field(default_factory=lambda:["Owned versioned source/run/artifact references; no self-certification"],max_length=10)
+
+
+class CollaborationPlan(Contract):
+    workstreams:list[Workstream]=Field(min_length=1,max_length=4)
+    max_teams:int=Field(default=4,ge=1,le=4)
+    max_handoffs:int=Field(default=64,ge=1,le=128)
+    rationale:str=Field(min_length=1,max_length=2000)
+
+
+class ArtifactReference(Contract):
+    path:str
+    sha256:str=Field(pattern=r"^[a-f0-9]{64}$")
+    bytes:int=Field(ge=0)
+
+
+class EvidenceBundle(Contract):
+    result_digest:str=Field(pattern=r"^[a-f0-9]{64}$")
+    source_refs:list[str]=Field(default_factory=list,max_length=100)
+    artifacts:list[ArtifactReference]=Field(default_factory=list,max_length=100)
+    trust:Literal["unverified"]="unverified"
+
+
+class WorkOrder(Contract):
+    project_id:str
+    mission_id:str
+    topic_id:str
+    source_team:str
+    target_team:str
+    source_task:str
+    target_task:str
+    evidence:EvidenceBundle
+    expected_output:Literal["ExecutionResult/1.0"]="ExecutionResult/1.0"
+
+
 class MissionSpec(Contract):
     topic_id: str
     objective: str = Field(min_length=1, max_length=8000)
@@ -114,6 +161,7 @@ class MissionSpec(Contract):
     parent_mission_id: str = ""
     control: MissionControl|None = None
     team: TeamPlan|None = None
+    collaboration: CollaborationPlan|None = None
     tasks: list[Task] = Field(min_length=1, max_length=24)
 
     @model_validator(mode="after")

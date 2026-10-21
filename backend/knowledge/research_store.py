@@ -103,12 +103,24 @@ CREATE TABLE IF NOT EXISTS project_charters(id TEXT PRIMARY KEY,digest TEXT NOT 
 CREATE TABLE IF NOT EXISTS charter_usage(charter_id TEXT PRIMARY KEY REFERENCES project_charters(id),reasoning_calls INTEGER NOT NULL DEFAULT 0,active_seconds REAL NOT NULL DEFAULT 0);
 CREATE TABLE IF NOT EXISTS provider_breakers(provider TEXT PRIMARY KEY,until_at TEXT NOT NULL,payload TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS task_handoffs(id TEXT PRIMARY KEY,mission_id TEXT NOT NULL REFERENCES missions(id),topic_id TEXT NOT NULL REFERENCES topics(id),task_id TEXT NOT NULL,dependency_id TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(mission_id,task_id,dependency_id));
+CREATE TABLE IF NOT EXISTS workstream_usage(mission_id TEXT NOT NULL REFERENCES missions(id),team_id TEXT NOT NULL,reasoning_calls INTEGER NOT NULL DEFAULT 0,active_seconds REAL NOT NULL DEFAULT 0,artifact_bytes INTEGER NOT NULL DEFAULT 0,PRIMARY KEY(mission_id,team_id));
+CREATE TABLE IF NOT EXISTS collaboration_messages(id TEXT PRIMARY KEY,mission_id TEXT NOT NULL REFERENCES missions(id),topic_id TEXT NOT NULL REFERENCES topics(id),source_task TEXT NOT NULL,target_task TEXT NOT NULL,status TEXT NOT NULL,digest TEXT NOT NULL,payload TEXT NOT NULL,created TEXT NOT NULL,UNIQUE(mission_id,source_task,target_task));
+CREATE TABLE IF NOT EXISTS handoff_receipts(message_id TEXT PRIMARY KEY REFERENCES collaboration_messages(id),receiver_team TEXT NOT NULL,payload TEXT NOT NULL,at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS collaboration_disputes(id TEXT PRIMARY KEY,mission_id TEXT NOT NULL REFERENCES missions(id),topic_id TEXT NOT NULL REFERENCES topics(id),status TEXT NOT NULL,revision INTEGER NOT NULL,payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS canonical_outputs(topic_id TEXT NOT NULL REFERENCES topics(id),output_key TEXT NOT NULL,revision INTEGER NOT NULL,payload TEXT NOT NULL,PRIMARY KEY(topic_id,output_key));
+CREATE TABLE IF NOT EXISTS canonical_revisions(id TEXT PRIMARY KEY,topic_id TEXT NOT NULL REFERENCES topics(id),output_key TEXT NOT NULL,revision INTEGER NOT NULL,payload TEXT NOT NULL,UNIQUE(topic_id,output_key,revision));
+CREATE TRIGGER IF NOT EXISTS message_snapshot_immutable BEFORE UPDATE OF id,mission_id,topic_id,source_task,target_task,digest,payload ON collaboration_messages BEGIN SELECT RAISE(ABORT,'work orders are immutable'); END;
+CREATE TRIGGER IF NOT EXISTS receipt_immutable BEFORE UPDATE ON handoff_receipts BEGIN SELECT RAISE(ABORT,'receipts are immutable'); END;
+CREATE TRIGGER IF NOT EXISTS canonical_history_immutable BEFORE UPDATE ON canonical_revisions BEGIN SELECT RAISE(ABORT,'canonical history is immutable'); END;
+CREATE TRIGGER IF NOT EXISTS canonical_history_no_delete BEFORE DELETE ON canonical_revisions BEGIN SELECT RAISE(ABORT,'canonical history is append only'); END;
+CREATE TRIGGER IF NOT EXISTS receipt_no_delete BEFORE DELETE ON handoff_receipts BEGIN SELECT RAISE(ABORT,'receipts are append only'); END;
+CREATE TRIGGER IF NOT EXISTS message_no_delete BEFORE DELETE ON collaboration_messages BEGIN SELECT RAISE(ABORT,'work orders are append only'); END;
 CREATE TRIGGER IF NOT EXISTS task_handoff_immutable BEFORE UPDATE ON task_handoffs BEGIN SELECT RAISE(ABORT,'handoff snapshots are immutable'); END;
 CREATE TRIGGER IF NOT EXISTS charter_immutable BEFORE UPDATE ON project_charters BEGIN SELECT RAISE(ABORT,'create a new charter revision'); END;
 CREATE TRIGGER IF NOT EXISTS protocol_snapshot_immutable BEFORE UPDATE OF id,payload,digest,topic_id,parent_id,revision ON experiment_protocols BEGIN SELECT RAISE(ABORT,'protocol snapshot is immutable'); END;
 CREATE TRIGGER IF NOT EXISTS claim_text_immutable BEFORE UPDATE ON scientific_claims WHEN NEW.id IS NOT OLD.id OR NEW.topic_id IS NOT OLD.topic_id OR NEW.parent_id IS NOT OLD.parent_id OR json_extract(NEW.payload,'$.text') IS NOT json_extract(OLD.payload,'$.text') OR json_extract(NEW.payload,'$.kind') IS NOT json_extract(OLD.payload,'$.kind') BEGIN SELECT RAISE(ABORT,'amend the claim through a new revision'); END;
 """
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 _schema_lock = threading.RLock()
 
 

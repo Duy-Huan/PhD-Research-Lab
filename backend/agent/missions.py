@@ -37,7 +37,12 @@ def _ancestors(c,m):
 
 
 def create(spec: MissionSpec) -> dict:
-    OS.validate(spec)
+    try:OS.validate(spec)
+    except ValueError as exc:
+        with S.db() as c:
+            S.topic(c,spec.topic_id)
+            L.append(c,spec.topic_id,S.uid(),"policy.mission_rejected",{"reason":str(exc)[:500],"authority_expanded":False})
+        raise
     RC.validate_sources(spec.topic_id,spec.inputs)
     required = set()
     for task in spec.tasks:
@@ -95,6 +100,8 @@ def create(spec: MissionSpec) -> dict:
         c.execute("INSERT INTO missions VALUES(?,?,?,?,?,?)",(mid,spec.topic_id,"draft",S.dumps(payload),at,at))
         for task in spec.tasks:
             c.execute("INSERT INTO mission_tasks VALUES(?,?,?,?)",(mid,task.id,"pending",S.dumps({"spec":task.model_dump(),"attempts":0})))
+        from backend.agent import collaboration
+        collaboration.register(c,mid,spec)
         L.append(c,spec.topic_id,mid,"mission.created",{"plan_digest":payload["plan_digest"],"required_permissions":sorted(required),"owner":spec.owner})
         return _get(c,mid)
 
@@ -145,10 +152,12 @@ def retry(tid: str, mid: str, task_id: str, reconcile_note: str = ""):
 
 def recover():
     with S.db() as c:
-        for m in list(c.execute("SELECT id,topic_id FROM missions WHERE status='running'")):
+        for m in list(c.execute("SELECT id,topic_id,status FROM missions WHERE status='running' OR id IN (SELECT mission_id FROM mission_tasks WHERE status='running')")):
+            uncertain=c.execute("SELECT 1 FROM mission_tasks WHERE mission_id=? AND status='running'",(m["id"],)).fetchone()
             c.execute("UPDATE mission_tasks SET status='interrupted' WHERE mission_id=? AND status='running'",(m["id"],))
-            c.execute("UPDATE missions SET status='interrupted',updated=? WHERE id=?",(S.now(),m["id"]))
-            L.append(c,m["topic_id"],m["id"],"mission.recovery_required",{"reason":"Interrupted admissions are never automatically repeated"})
+            state=m["status"] if m["status"] in ("paused","cancelled") else "interrupted" if uncertain else "queued"
+            c.execute("UPDATE missions SET status=?,updated=? WHERE id=?",(state,S.now(),m["id"]))
+            L.append(c,m["topic_id"],m["id"],"mission.recovery_required" if uncertain else "mission.checkpoint_recovered",{"reason":"Uncertain admissions never repeat; committed dependency boundaries can resume","state":state})
 
 
 def is_stopped(mid):return get(mid)["status"] in ("paused","cancelled","failed","interrupted")
@@ -214,7 +223,7 @@ async def _dispatch(m,task,key) -> ExecutionResult:
             output = {"text":answer.text,"routing":routing,"paper_ids":ids,"native_session_id":answer.native_session_id,"native_run_id":answer.native_run_id,"provenance":answer.provenance}
         return ExecutionResult(status="completed",engine=routing["engine"],output=output,limitations=["Scientific review pending; external session visibility is partial"])
     if task.capability == "mission.report":
-        folder = S.safe_child(S.store_dir(),"missions",mid)
+        folder = S.safe_child(S.store_dir(),"missions",mid,task.id)
         folder.mkdir(parents=True,exist_ok=True)
         path = S.safe_child(folder,"evidence-report.json")
         raw = S.dumps({"mission_id":mid,"topic_id":tid,"project_id":S.project_id(),"tasks":m["tasks"],"scientific_review":"pending"}).encode()
@@ -304,6 +313,8 @@ async def tick():
             c.execute("INSERT INTO mission_attempts VALUES(?,?,?,?,?)",(key,m["id"],task.id,"admitted","{}"))
             from backend.agent import teams
             teams.admit(c,current,task,key)
+            from backend.agent import collaboration
+            collaboration.admit(c,current,task)
             p=current["payload"]
             if routing:p["last_routing"]=routing
             p.setdefault("started_at",S.now())
@@ -316,7 +327,10 @@ async def tick():
             c.execute("UPDATE missions SET status='running',payload=? WHERE id=?",(S.dumps(p),m["id"]))
             L.append(c,m["topic_id"],m["id"],"task.admitted",{"task_id":task.id,"idempotency_key":key})
         admitted=True
-        with S.db() as c:remaining=OS.time_remaining(c,_get(c,m["id"]))
+        with S.db() as c:
+            execution_mission=_get(c,m["id"])
+            from backend.agent import collaboration
+            remaining=min(OS.time_remaining(c,execution_mission),collaboration.remaining(c,execution_mission,task))
         remaining=min([remaining,*[a["payload"]["spec"]["limits"]["max_seconds"]-a["payload"]["active_seconds"] for a in ancestors]])
         execution=get(m["id"])
         if routing:execution["_routing"]=routing
@@ -350,12 +364,16 @@ async def tick():
                 current=_get(c,m["id"]);tp=next(t["payload"] for t in current["tasks"] if t["id"]==task.id)
                 tp["result"]=locals().get("value",{"error":"Admission interrupted"})
                 outcome=locals().get("status","interrupted")
+                from backend.agent import collaboration
+                outcome=collaboration.check_output(c,current,task,tp["result"],outcome)
                 c.execute("UPDATE mission_tasks SET status=?,payload=? WHERE mission_id=? AND id=?",(outcome,S.dumps(tp),m["id"],task.id))
                 c.execute("UPDATE mission_attempts SET status=? WHERE key=?",(outcome,key))
                 elapsed=time.monotonic()-started
                 c.execute("UPDATE mission_attempts SET payload=json_set(payload,'$.elapsed_seconds',?,'$.ended_at',?) WHERE key=?",(elapsed,S.now(),key))
-                tp["execution_record"]={"attempt_key":key,"elapsed_seconds":elapsed,"outcome":outcome,"provider_usage":None,"verification_status":"unverified"}
+                verification=tp["result"].get("output",{}).get("status","unverified") if task.capability in ("experiment.verify","artifact.verify") else "unverified"
+                tp["execution_record"]={"attempt_key":key,"elapsed_seconds":elapsed,"outcome":outcome,"provider_usage":None,"verification_status":verification}
                 c.execute("UPDATE mission_tasks SET payload=? WHERE mission_id=? AND id=?",(S.dumps(tp),m["id"],task.id))
+                collaboration.settle(c,current,task,tp["result"],outcome,elapsed)
                 current["payload"]["active_seconds"]+=elapsed
                 OS.charge(c,current,seconds=elapsed)
                 for ancestor in _ancestors(c,current):

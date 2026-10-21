@@ -30,6 +30,7 @@ from backend.agent import research_os as OS
 class OSSettings(G.Contract):
     enabled:bool
     team_enabled:bool|None=None
+    multi_team_enabled:bool|None=None
 
 
 class ReviewNote(G.Contract):
@@ -38,8 +39,8 @@ class ReviewNote(G.Contract):
 
 @router.get("/os-settings")
 async def os_settings():
-    from backend.agent import teams
-    return {"enabled":OS.enabled(),"team_enabled":teams.enabled(),"experimental":True,"max_parallel_tasks":1}
+    from backend.agent import teams,collaboration
+    return {"enabled":OS.enabled(),"team_enabled":teams.enabled(),"multi_team_enabled":collaboration.enabled(),"experimental":True,"max_parallel_tasks":1}
 
 
 @router.put("/os-settings")
@@ -107,6 +108,86 @@ class Reassignment(ReviewNote):
 async def team_replan(tid:str,mid:str,body:Reassignment):
     from backend.agent.teams import replan
     return await call(replan,tid,mid,body.task_id,body.engine,body.note)
+
+
+@router.post("/workstreams/propose")
+async def workstream_propose(body:MissionSpec,max_teams:int=4):
+    from backend.agent import collaboration as CO
+    proposal=await call(CO.partition,body,max_teams)
+    await call(OS.validate,proposal)
+    return {"spec":proposal.model_dump(mode="json"),"execution_started":False}
+
+
+@router.get("/topics/{tid}/missions/{mid}/workstreams")
+async def workstream_monitor(tid:str,mid:str):
+    from backend.agent import collaboration as CO
+    return await call(CO.monitor,tid,mid)
+
+
+class HandoffRequest(G.Contract):
+    source_task:str
+    target_task:str
+
+
+class ReceiptRequest(G.Contract):
+    receiver_team:str
+
+
+@router.post("/topics/{tid}/missions/{mid}/handoffs")
+async def workstream_publish(tid:str,mid:str,body:HandoffRequest):
+    from backend.agent import collaboration as CO
+    return await call(CO.publish,tid,mid,body.source_task,body.target_task)
+
+
+@router.post("/topics/{tid}/missions/{mid}/handoffs/{hid}/ack")
+async def workstream_receive(tid:str,mid:str,hid:str,body:ReceiptRequest):
+    from backend.agent import collaboration as CO
+    return await call(CO.receive,tid,mid,hid,body.receiver_team)
+
+
+class CanonicalRequest(ReviewNote):
+    team_id:str
+    key:str=Field(pattern=r"^[a-zA-Z0-9_.-]{1,80}$")
+    source_task:str
+    artifact_index:int=Field(default=0,ge=0)
+    expected_revision:int=Field(ge=0)
+
+
+@router.post("/topics/{tid}/missions/{mid}/outputs")
+async def workstream_output(tid:str,mid:str,body:CanonicalRequest):
+    from backend.agent import collaboration as CO
+    return await call(CO.canonical,tid,mid,body.team_id,body.key,body.source_task,body.artifact_index,body.expected_revision,body.note)
+
+
+class DisputeRequest(ReviewNote):
+    team_id:str
+    claim_ids:list[str]=Field(default_factory=list,max_length=10)
+
+
+@router.post("/topics/{tid}/missions/{mid}/disputes")
+async def workstream_dispute(tid:str,mid:str,body:DisputeRequest):
+    from backend.agent import collaboration as CO
+    return await call(CO.dispute,tid,mid,body.team_id,body.note,body.claim_ids)
+
+
+class DisputeResolution(ReviewNote):
+    expected_revision:int=Field(ge=1)
+
+
+@router.post("/topics/{tid}/missions/{mid}/disputes/{did}/resolve")
+async def workstream_resolve(tid:str,mid:str,did:str,body:DisputeResolution):
+    from backend.agent import collaboration as CO
+    return await call(CO.resolve,tid,mid,did,body.expected_revision,body.note)
+
+
+class FindingRequest(G.ClaimInput):
+    team_id:str
+
+
+@router.post("/topics/{tid}/missions/{mid}/findings")
+async def workstream_finding(tid:str,mid:str,body:FindingRequest):
+    from backend.agent import collaboration as CO
+    return await call(CO.finding,tid,mid,body.team_id,G.ClaimInput.model_validate(body.model_dump(exclude={"team_id"})))
 
 
 @router.get("/topics/{tid}/claims")
