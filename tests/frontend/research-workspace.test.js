@@ -151,3 +151,17 @@ test('Mission Monitor preserves composer and uses direct scheduling/review contr
   assert.deepEqual(h.server.last('POST',`/api/research/topics/${TID}/missions/supervised/review`).body,{note:'Human inspected report'});
   noTurns(h);assert.deepEqual(h.errors,[]);
 });
+
+test('Team Monitor shows logical ownership and enables teams without invoking a model',async()=>{
+  const h=await page({
+    'GET /api/research/os-settings':()=>({enabled:true,team_enabled:false}),
+    [`GET /api/research/topics/${TID}/missions`]:()=>({missions:[{id:'team1',status:'draft',payload:{spec:{objective:'Team draft',team:{mode:'adaptive',agents:[{id:'worker1',purpose:'Inspect source'}],assignments:[{task_id:'inspect',owner:'worker1',verifier:''}]}},reasoning_calls:0,active_seconds:0},tasks:[{id:'inspect',status:'pending'}]}]}),
+    [`GET /api/research/topics/${TID}/missions/team1/team`]:()=>({active_agents:[],cost:null,handoffs:[]}),
+  });
+  await h.w.PL.research.open('teams');assert.match(h.$('.research-body').textContent,/inspect → worker1/);
+  await h.clickText('.research-body button','Enable experimental teams');
+  assert.deepEqual(h.server.last('PUT','/api/research/os-settings').body,{enabled:true,team_enabled:true});
+  await h.clickText('.research-body button','Inspect handoffs and usage');
+  assert.match(h.w.document.body.textContent,/Durable task envelopes/);
+  noTurns(h);assert.deepEqual(h.errors,[]);
+});

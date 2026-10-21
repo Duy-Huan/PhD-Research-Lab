@@ -102,11 +102,13 @@ CREATE TABLE IF NOT EXISTS citation_receipts(id TEXT PRIMARY KEY,topic_id TEXT N
 CREATE TABLE IF NOT EXISTS project_charters(id TEXT PRIMARY KEY,digest TEXT NOT NULL,payload TEXT NOT NULL,created TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS charter_usage(charter_id TEXT PRIMARY KEY REFERENCES project_charters(id),reasoning_calls INTEGER NOT NULL DEFAULT 0,active_seconds REAL NOT NULL DEFAULT 0);
 CREATE TABLE IF NOT EXISTS provider_breakers(provider TEXT PRIMARY KEY,until_at TEXT NOT NULL,payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS task_handoffs(id TEXT PRIMARY KEY,mission_id TEXT NOT NULL REFERENCES missions(id),topic_id TEXT NOT NULL REFERENCES topics(id),task_id TEXT NOT NULL,dependency_id TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(mission_id,task_id,dependency_id));
+CREATE TRIGGER IF NOT EXISTS task_handoff_immutable BEFORE UPDATE ON task_handoffs BEGIN SELECT RAISE(ABORT,'handoff snapshots are immutable'); END;
 CREATE TRIGGER IF NOT EXISTS charter_immutable BEFORE UPDATE ON project_charters BEGIN SELECT RAISE(ABORT,'create a new charter revision'); END;
 CREATE TRIGGER IF NOT EXISTS protocol_snapshot_immutable BEFORE UPDATE OF id,payload,digest,topic_id,parent_id,revision ON experiment_protocols BEGIN SELECT RAISE(ABORT,'protocol snapshot is immutable'); END;
 CREATE TRIGGER IF NOT EXISTS claim_text_immutable BEFORE UPDATE ON scientific_claims WHEN NEW.id IS NOT OLD.id OR NEW.topic_id IS NOT OLD.topic_id OR NEW.parent_id IS NOT OLD.parent_id OR json_extract(NEW.payload,'$.text') IS NOT json_extract(OLD.payload,'$.text') OR json_extract(NEW.payload,'$.kind') IS NOT json_extract(OLD.payload,'$.kind') BEGIN SELECT RAISE(ABORT,'amend the claim through a new revision'); END;
 """
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 _schema_lock = threading.RLock()
 
 

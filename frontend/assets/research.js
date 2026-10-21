@@ -41,7 +41,7 @@
     epoch++;
     if (request) request.abort();
     const nav = h("div.research-nav", {}, [["papers", tr("Paper", "Papers")], ["topics", "Topics"], ["workspaces", "Workspaces"], ["artifacts", tr("Nguồn gốc", "Provenance")], ["jobs", "Jobs"]]
-      .concat([["monitor","Mission Monitor"],["missions", "Missions"],["protocols","Experiments"],["claims","Review Room"]]).map(([key, title]) => button(title, () => R.open(key), key === mode ? "accent" : "ghost")));
+      .concat([["monitor","Mission Monitor"],["teams","Teams"],["missions", "Missions"],["protocols","Experiments"],["claims","Review Room"]]).map(([key, title]) => button(title, () => R.open(key), key === mode ? "accent" : "ghost")));
     const body = h("div.research-body", { dataset: { mode } });
     PL.panels.open(tr("Không gian nghiên cứu", "Research workspace"), h("div", {}, nav, body), { kind: "research", arg: mode });
     body.append(h("p.muted", {}, tr("Đang tải…", "Loading…")));
@@ -66,6 +66,7 @@
       else if (mode === "protocols") await renderProtocols(body, revision);
       else if (mode === "claims") await renderClaims(body, revision);
       else if (mode === "monitor") await renderMonitor(body, revision);
+      else if (mode === "teams") await renderTeams(body, revision);
     } catch (e) { if (revision === epoch) { body.replaceChildren(h("p.error", {}, e.message), button(tr("Thử lại", "Retry"), () => R.open(mode))); } }
   };
 
@@ -255,7 +256,7 @@
     if (action.availability !== "available") { PL.toast("Action unavailable"); return; }
     if (view === "library") return PL.panels.library();
     if (view === "settings") return PL.settings.open();
-    if (["papers", "topics", "workspaces", "artifacts", "jobs", "missions", "protocols", "claims", "monitor"].includes(view)) return R.open(view);
+    if (["papers", "topics", "workspaces", "artifacts", "jobs", "missions", "protocols", "claims", "monitor", "teams"].includes(view)) return R.open(view);
     throw new Error("Unregistered UI component");
   };
   async function renderMissions(body, revision) {
@@ -292,6 +293,26 @@
         ["queued","scheduled","running"].includes(m.status)?button("Pause",async()=>{const note=await PL.prompt("Pause after current bounded work","Pause note","");if(note){await PL.post(url+"/pause",{note});await R.open("monitor");}}):null,
         m.status==="awaiting_review"?button("Complete human review",async()=>{const note=await PL.prompt("Mission completion is separate from approving scientific claims","Review note","");if(note){await PL.post(url+"/review",{note});await R.open("monitor");}}):null,
         h("a.btn.sm",{href:url+"/report",target:"_blank",rel:"noopener"},"Evidence report bundle"),button("Cancel",async()=>{await PL.post(url+"/cancel");await R.open("monitor");})));
+    }
+  }
+  async function renderTeams(body,revision) {
+    const [settings,result]=await Promise.all([PL.get("/api/research/os-settings"),PL.get(base()+"/missions")]);if(revision!==epoch)return;
+    const template=select([["adaptive","Adaptive minimal team"],["single","Single worker + required verifier"],["fixed","Fixed team template"]],"adaptive");
+    body.append(h("p.muted",{},"Logical bounded roles on the existing worker; one task at a time. Suggested roles are not running model processes. Source text cannot grant permissions."),template,
+      button(settings.team_enabled?"Disable teams":"Enable experimental teams",async()=>{await PL.put("/api/research/os-settings",{enabled:settings.enabled,team_enabled:!settings.team_enabled});await R.open("teams");}),
+      button("Propose team",()=>R.editContract("Mission to compose",{topic_id:R.tid,objective:"Inspect and report selected evidence",permissions:["workspace_write"],control:{success_criteria:["Scoped evidence report"],end_date:new Date(Date.now()+86400000).toISOString()},tasks:[{id:"inspect",capability:"paper.inspect",args:{paper_ids:R.sources().filter(s=>s.startsWith("paper:")).map(s=>s.slice(6))}},{id:"report",capability:"mission.report",depends_on:["inspect"]}]},async spec=>{
+        const proposal=await PL.post("/api/research/teams/propose?mode="+template.value,spec);
+        // Open the editable proposal after closing the first modal.
+        setTimeout(()=>R.editContract("Review roles, permissions and assignments",proposal.spec,async edited=>{const draft=await PL.post(base()+"/missions",edited);await R.open("monitor");return draft;}),0);return proposal;
+      })),button("Capability evidence",async()=>{const registry=await PL.get("/api/research/team-capabilities");PL.modal({title:"Registered capabilities and observed outcomes",body:h("pre",{},JSON.stringify(registry,null,2)),actions:[{label:"Close"}]});}),button("Refresh",()=>R.open("teams")));
+    for(const m of result.missions.filter(m=>m.payload.spec.team)) {
+      const team=m.payload.spec.team;
+      body.append(h("article.research-card",{},h("b",{},m.payload.spec.objective+" · "+m.status+" · "+team.mode),h("p",{},m.payload.blocking_reason||"No reported blocker"),
+        ...team.agents.map(role=>h("details",{},h("summary",{},role.id+" · logical role · "+role.purpose),h("pre",{},JSON.stringify(role,null,2)))),
+        ...team.assignments.map(a=>h("p",{},a.task_id+" → "+a.owner+(a.verifier?" · verifier "+a.verifier:"")+" · "+((m.tasks.find(t=>t.id===a.task_id)||{}).status||"planned"))),
+        button("Inspect handoffs and usage",async()=>{const data=await PL.get(base()+"/missions/"+m.id+"/team");PL.modal({title:"Durable task envelopes and execution records",body:h("pre",{},JSON.stringify(data,null,2)),actions:[{label:"Close"}]});}),
+        button("Mission approvals / pause / review",()=>R.open("monitor")),
+        ["failed","paused"].includes(m.status)?button("Propose bounded reassignment",()=>R.editContract("Reassign only known failed work",{task_id:(m.tasks.find(t=>t.status==="failed")||{}).id||"",engine:"app",note:""},async body=>{const draft=await PL.post(base()+"/missions/"+m.id+"/replan",body);await R.open("monitor");return draft;})):null));
     }
   }
   async function renderProtocols(body,revision) {

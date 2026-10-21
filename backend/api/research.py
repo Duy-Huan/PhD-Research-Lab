@@ -29,6 +29,7 @@ from backend.agent import research_os as OS
 
 class OSSettings(G.Contract):
     enabled:bool
+    team_enabled:bool|None=None
 
 
 class ReviewNote(G.Contract):
@@ -36,13 +37,15 @@ class ReviewNote(G.Contract):
 
 
 @router.get("/os-settings")
-async def os_settings():return {"enabled":OS.enabled(),"experimental":True,"max_parallel_tasks":1}
+async def os_settings():
+    from backend.agent import teams
+    return {"enabled":OS.enabled(),"team_enabled":teams.enabled(),"experimental":True,"max_parallel_tasks":1}
 
 
 @router.put("/os-settings")
 async def os_settings_update(body:OSSettings):
     from backend.core.config import save_config
-    await call(save_config,{"research_os":{"enabled":body.enabled}})
+    await call(save_config,{"research_os":{k:v for k,v in body.model_dump(exclude_unset=True).items() if k!="schema_version" and v is not None}})
     return await os_settings()
 
 
@@ -73,6 +76,37 @@ async def mission_bundle(tid:str,mid:str):return await call(OS.report,tid,mid)
 @router.get("/topics/{tid}/missions/{mid}/artifacts/{task_id}/{index}")
 async def mission_artifact(tid:str,mid:str,task_id:str,index:int):
     return FileResponse(await call(OS.artifact,tid,mid,task_id,index),media_type="application/octet-stream")
+
+
+@router.get("/team-capabilities")
+async def team_capabilities():
+    from backend.agent.teams import registry
+    return await call(registry)
+
+
+@router.post("/teams/propose")
+async def team_propose(body:MissionSpec,mode:str="adaptive"):
+    from backend.agent.teams import propose
+    proposal=await call(propose,body,mode)
+    await call(OS.validate,proposal)
+    return {"spec":proposal.model_dump(mode="json"),"execution_started":False}
+
+
+@router.get("/topics/{tid}/missions/{mid}/team")
+async def team_monitor(tid:str,mid:str):
+    from backend.agent.teams import monitor
+    return await call(monitor,tid,mid)
+
+
+class Reassignment(ReviewNote):
+    task_id:str
+    engine:str
+
+
+@router.post("/topics/{tid}/missions/{mid}/replan")
+async def team_replan(tid:str,mid:str,body:Reassignment):
+    from backend.agent.teams import replan
+    return await call(replan,tid,mid,body.task_id,body.engine,body.note)
 
 
 @router.get("/topics/{tid}/claims")

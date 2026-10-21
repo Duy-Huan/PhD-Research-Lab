@@ -74,6 +74,8 @@ def create_charter(body:ProjectCharter):
 
 
 def validate(spec:MissionSpec):
+    from backend.agent import teams
+    teams.validate(spec)
     control=spec.control
     if not control:return
     from backend.core.config import PROVIDERS
@@ -151,6 +153,9 @@ def gate(c,m,task=None):
     if not control:return ""
     p=m["payload"];now=datetime.now(timezone.utc)
     if not enabled():return "Research OS is disabled"
+    if m["payload"]["spec"].get("team"):
+        from backend.agent import teams
+        if not teams.enabled():return "Team execution is disabled"
     if now>=datetime.fromisoformat(control["end_date"]):return "Mission end date reached"
     if control.get("not_before") and now<datetime.fromisoformat(control["not_before"]):return "Scheduled for "+control["not_before"]
     if p.get("started_at") and (now-datetime.fromisoformat(p["started_at"])).total_seconds()>=control["max_wall_seconds"]:return "Mission wall-time budget exhausted"

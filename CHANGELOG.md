@@ -1,5 +1,11 @@
 # Changelog
 
+## v6.2.0-preview.1 — 2026-10-22
+
+- Added the missing v6.1 compatibility harness as typed logical roles/assignments on existing Missions, deterministic single/fixed/adaptive proposals, durable task envelopes and independent raw-evidence verification.
+- Added bounded failure reassignment into a fresh draft with remaining budgets, capability outcome counts, Team Monitor and a comparative three-workflow harness. Execution remains serial; no multi-agent productivity advantage is claimed.
+- Schema 6 preserves a schema5 backup; `research_os.team_enabled=false` by default. Native/provider and parallel execution qualification remain explicit external gates.
+
 ## v6.0.0-preview.1 — 2026-10-22
 
 - Added opt-in supervised lifecycle, immutable project charters, explicit cross-topic report grants, scheduling/deadlines/review and charter budget accounting on the existing Mission worker.

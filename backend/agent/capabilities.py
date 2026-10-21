@@ -39,9 +39,17 @@ class Report(Contract):
     title: str = Field(default="Mission evidence report", max_length=200)
 
 
+class Verify(Contract):
+    from_task:str=""
+    run_id:str=""
+
+
 INPUTS = {"paper.discover": Discover, "paper.download": PaperIDs, "paper.inspect": PaperIDs,
           "paper.compare": Compare, "workspace.sync": Sync, "mission.report": Report,"experiment.run":ProtocolRef}
+INPUTS.update({"experiment.verify":Verify,"artifact.verify":Verify})
 META = {
+    "experiment.verify": ("Independently check raw experiment artifacts",True,[],["deterministic"]),
+    "artifact.verify": ("Check artifact hashes without certifying scientific interpretation",True,[],["deterministic"]),
     "experiment.run": ("Run an approved immutable CPU/Docker protocol",True,["compute","workspace_write"],["deterministic"]),
     "paper.discover": ("Discover topic metadata", True, ["network", "workspace_write"], ["deterministic"]),
     "paper.download": ("Resolve/download bounded OA PDFs", True, ["network", "workspace_write"], ["deterministic"]),

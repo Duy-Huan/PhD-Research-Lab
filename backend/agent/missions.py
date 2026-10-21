@@ -69,6 +69,12 @@ def create(spec: MissionSpec) -> dict:
             seen.add(parent)
             p = _get(c,parent,spec.topic_id)
             ancestor = p["payload"]["spec"]
+            policy=ancestor.get("control")
+            if policy:
+                child=spec.control
+                if not child or not set(child.allowed_engines)<=set(policy["allowed_engines"]) or (child.allow_api_billing and not policy["allow_api_billing"]) or child.charter_id!=policy["charter_id"] or child.charter_digest!=policy["charter_digest"] or child.end_date>datetime.fromisoformat(policy["end_date"]) or child.max_wall_seconds>policy["max_wall_seconds"]:
+                    raise ValueError("Child cannot drop or expand supervised parent policy")
+                if ancestor.get("team") and (not spec.team or spec.team.max_agents>ancestor["team"]["max_agents"]):raise ValueError("Child cannot bypass parent team limits")
             reserved=p["payload"].get("delegated_tasks",0)+len(spec.tasks)
             if len(ancestor["tasks"])+reserved>ancestor["limits"]["max_hops"]:
                 raise ValueError("Parent aggregate hop budget exhausted")
@@ -169,7 +175,7 @@ async def _dispatch(m,task,key) -> ExecutionResult:
         ids = _papers(m,task)
         job = J.enqueue(tid,kind,{"paper_ids":ids,"mission_id":mid,"metadata_limit":task.args.get("limit",10)})
         with S.db() as c:
-            c.execute("UPDATE mission_attempts SET payload=? WHERE key=?",(S.dumps({"job_id":job["id"]}),key))
+            c.execute("UPDATE mission_attempts SET payload=json_set(payload,'$.job_id',?) WHERE key=?",(job["id"],key))
         await J.execute(job)
         job = next(j for j in J.list_jobs(tid) if j["id"] == job["id"])
         if job["status"] != "completed":
@@ -221,6 +227,10 @@ async def _dispatch(m,task,key) -> ExecutionResult:
         from backend.execution import protocols
         result = await protocols.execute(tid,task.args["protocol_id"],mission_id=mid,expected_digest=task.args["protocol_digest"],expected_nonce=task.args["approval_nonce"])
         return ExecutionResult(status="completed",output=result)
+    if task.capability in ("experiment.verify","artifact.verify"):
+        from backend.agent.teams import verify
+        result=await asyncio.to_thread(verify,m,task)
+        return ExecutionResult(status="completed",output=result,limitations=["Technical task completion does not approve a scientific claim"])
     raise ValueError("Capability unavailable")
 
 
@@ -292,6 +302,8 @@ async def tick():
             changed=c.execute("UPDATE mission_tasks SET status='running',payload=? WHERE mission_id=? AND id=? AND status='pending'",(S.dumps({**taskrow["payload"],"attempts":taskrow["payload"]["attempts"]+1}),m["id"],task.id))
             if not changed.rowcount:return
             c.execute("INSERT INTO mission_attempts VALUES(?,?,?,?,?)",(key,m["id"],task.id,"admitted","{}"))
+            from backend.agent import teams
+            teams.admit(c,current,task,key)
             p=current["payload"]
             if routing:p["last_routing"]=routing
             p.setdefault("started_at",S.now())
@@ -318,6 +330,13 @@ async def tick():
         from backend.core.telemetry import redact
         status="interrupted" if isinstance(exc,asyncio.TimeoutError) or getattr(exc,"job_id","") else "failed"
         value={"error":redact(str(exc))[:1000],"engine_job_id":getattr(exc,"job_id","")}
+        if not admitted:
+            with S.db() as c:
+                current=_get(c,m["id"])
+                if current["status"] not in ("cancelled","paused","completed"):
+                    current["payload"]["blocking_reason"]=value["error"]
+                    c.execute("UPDATE missions SET status='paused',payload=? WHERE id=?",(S.dumps(current["payload"]),m["id"]))
+                    L.append(c,m["topic_id"],m["id"],"mission.admission_blocked",value)
         if m["payload"]["spec"].get("control") and task.capability=="paper.compare":
             import re
             if getattr(exc,"kind","") in ("quota","rate_limit") or re.search(r"(?i)rate.?limit|429|quota|usage limit",str(exc)):
@@ -334,6 +353,9 @@ async def tick():
                 c.execute("UPDATE mission_tasks SET status=?,payload=? WHERE mission_id=? AND id=?",(outcome,S.dumps(tp),m["id"],task.id))
                 c.execute("UPDATE mission_attempts SET status=? WHERE key=?",(outcome,key))
                 elapsed=time.monotonic()-started
+                c.execute("UPDATE mission_attempts SET payload=json_set(payload,'$.elapsed_seconds',?,'$.ended_at',?) WHERE key=?",(elapsed,S.now(),key))
+                tp["execution_record"]={"attempt_key":key,"elapsed_seconds":elapsed,"outcome":outcome,"provider_usage":None,"verification_status":"unverified"}
+                c.execute("UPDATE mission_tasks SET payload=? WHERE mission_id=? AND id=?",(S.dumps(tp),m["id"],task.id))
                 current["payload"]["active_seconds"]+=elapsed
                 OS.charge(c,current,seconds=elapsed)
                 for ancestor in _ancestors(c,current):

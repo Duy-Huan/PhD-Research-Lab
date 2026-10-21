@@ -1,5 +1,6 @@
 """Whitelisted UI contributions. Descriptors never execute third-party JavaScript."""
 QUICK = {
+    "team": ("Team proposal and assignments", "teams"),
     "monitor": ("Supervised Mission Monitor", "monitor"),
     "mission": ("Supervised missions", "missions"),
     "experiment": ("Fixed experiment protocols", "protocols"),

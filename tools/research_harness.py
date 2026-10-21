@@ -20,7 +20,7 @@ sys.path[:0]=[str(ROOT),str(ROOT/"tests")]
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--stage",choices=["6.0"],default="6.0")
+    parser.add_argument("--stage",choices=["6.0","6.2"],default="6.0")
     parser.add_argument("--probe-engines",action="store_true")
     args=parser.parse_args()
     with tempfile.TemporaryDirectory(prefix="phdlab-harness-") as temporary:
@@ -33,33 +33,38 @@ def main():
         from backend.execution import protocols as P
         from backend.execution.protocol_contracts import ExperimentProtocol
         from backend.research_engines import workspaces as W
-        config.save_config({"research_os":{"enabled":True},"clearml":{"auto_record":False},"memory":{"embed_engine":"hashing"}})
+        config.save_config({"research_os":{"enabled":True,"team_enabled":args.stage!="6.0"},"clearml":{"auto_record":False},"memory":{"embed_engine":"hashing"}})
         a=S.save_topic(S.TopicInput(title="MRI Denoising (generated acceptance fixture)"))["id"]
         b=S.save_topic(S.TopicInput(title="CT Restoration (workspace fixture)"))["id"]
         ch=O.create_charter(O.ProjectCharter(goal="Medical Image Restoration — offline harness",topics=[O.TopicGoal(topic_id=a,goal="MRI"),O.TopicGoal(topic_id=b,parent_topic_id=a,goal="CT")],permissions=["workspace_write","compute"],max_reasoning_calls=0))
         records=K.ingest(a,[{"title":f"Synthetic literature fixture {i}","source":"harness_fixture","abstract":"Untrusted fixture, never evidence of a real publication."} for i in range(10)])
         common={"success_criteria":["Deterministic evidence available for human review"],"charter_id":ch["id"],"charter_digest":ch["digest"],"end_date":(datetime.now(timezone.utc)+timedelta(hours=1)).isoformat()}
         rows=[];mission_ids=[]
-        def execute(name,tid,tasks,permissions):
+        def execute(name,tid,tasks,permissions,mode="single"):
             start=time.perf_counter()
             spec=MissionSpec(topic_id=tid,objective=name,permissions=permissions,control=common,tasks=tasks)
+            if args.stage!="6.0":
+                from backend.agent import teams
+                spec=teams.propose(spec,mode);tasks=spec.tasks
             m=M.create(spec);O.request_approval(tid,m["id"]);M.approve(tid,m["id"],m["payload"]["plan_digest"],"Harness approval of fixed offline work; not a scientific endorsement")
             for _ in range(len(tasks)+2):asyncio.run(M.tick())
             m=M.get(m["id"]);assert m["status"]=="awaiting_review",m
             O.review(tid,m["id"],"Harness simulated oversight; scientific claims remain separate")
             attempts=sum(t["payload"]["attempts"] for t in m["tasks"])
-            rows.append({"workflow":name,"mode":"single","wall_seconds":time.perf_counter()-start,"executions":attempts,"verified_completion":True,"reasoning_calls":m["payload"]["reasoning_calls"],"provider_tokens":None,"currency_cost":None,"gpu_seconds":0,"human_gate_actions":3,"retries":sum(max(0,t["payload"]["attempts"]-1) for t in m["tasks"]),"mission_id":m["id"]})
+            rows.append({"workflow":name,"mode":mode,"logical_roles":len(spec.team.agents) if spec.team else 1,"wall_seconds":time.perf_counter()-start,"executions":attempts,"verified_completion":True,"quality_indicator":"Bounded technical contract completion, not a scientific quality score","reasoning_calls":m["payload"]["reasoning_calls"],"provider_tokens":None,"currency_cost":None,"gpu_seconds":0,"human_gate_actions":3,"retries":sum(max(0,t["payload"]["attempts"]-1) for t in m["tasks"]),"mission_id":m["id"]})
             mission_ids.append((tid,m["id"]));return m
-        execute("Literature inspection",a,[{"id":"inspect","capability":"paper.inspect","args":{"paper_ids":records["paper_ids"][:2]}},{"id":"report","capability":"mission.report","depends_on":["inspect"]}],["workspace_write"])
+        modes=["single"] if args.stage=="6.0" else ["single","fixed","adaptive"]
+        for mode in modes:execute("Literature inspection",a,[{"id":"inspect","capability":"paper.inspect","args":{"paper_ids":records["paper_ids"][:2]}},{"id":"report","capability":"mission.report","depends_on":["inspect"]}],["workspace_write"],mode)
         workspaces=[]
         for engine in ("openscience","feynman"):
             w=W.link(b,W.WorkspaceInput(engine=engine));path=Path(w["path"])/"fixture.md"
             path.write_text("# Harness fixture\nNot an external engine session.\n","utf-8");os.utime(path,(time.time()-10,time.time()-10));workspaces.append(w)
-        execute("Federated artifact reconciliation",b,[{"id":"science","capability":"workspace.sync","args":{"workspace_id":workspaces[0]["id"]}},{"id":"feynman","capability":"workspace.sync","args":{"workspace_id":workspaces[1]["id"]}},{"id":"report","capability":"mission.report","depends_on":["science","feynman"]}],["workspace_write"])
+        for mode in modes:execute("Federated artifact reconciliation",b,[{"id":"science","capability":"workspace.sync","args":{"workspace_id":workspaces[0]["id"]}},{"id":"feynman","capability":"workspace.sync","args":{"workspace_id":workspaces[1]["id"]}},{"id":"report","capability":"mission.report","depends_on":["science","feynman"]}],["workspace_write"],mode)
         protocol=P.create(ExperimentProtocol(topic_id=a,hypothesis="Fixed smoothing reduces noise in generated smooth images"))
-        for repeat in range(2):
-            protocol=P.approve(a,protocol["id"],protocol["digest"],"Harness fixed CPU approval / independent fresh-process reproduction")
-            execute("CPU reproducibility "+str(repeat+1),a,[{"id":"experiment","capability":"experiment.run","args":{"protocol_id":protocol["id"],"protocol_digest":protocol["digest"],"approval_nonce":protocol["approval"]["nonce"]}},{"id":"report","capability":"mission.report","depends_on":["experiment"]}],["workspace_write","compute"])
+        for mode in modes:
+            for repeat in range(2):
+                protocol=P.approve(a,protocol["id"],protocol["digest"],"Harness fixed CPU approval / independent fresh-process reproduction")
+                execute("CPU reproducibility "+str(repeat+1),a,[{"id":"experiment","capability":"experiment.run","args":{"protocol_id":protocol["id"],"protocol_digest":protocol["digest"],"approval_nonce":protocol["approval"]["nonce"]}},{"id":"report","capability":"mission.report","depends_on":["experiment"]}],["workspace_write","compute"],mode)
         verification=V.verify_run(a,P.runs(a)[0]["id"]);assert verification["status"]=="passed" and verification["reproduction_run_id"]
         fake=G.create(a,G.ClaimInput(text="Invented paper claim",evidence=[G.EvidenceInput(source_id="doi:10.1234/harness-unresolved")]))
         assert G.evaluate(a,fake["id"])["checks"][0]["outcome"]=="unverifiable"

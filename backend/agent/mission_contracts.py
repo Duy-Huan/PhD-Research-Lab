@@ -52,6 +52,54 @@ class MissionControl(Contract):
         return self
 
 
+class AgentRole(Contract):
+    id:str=Field(pattern=r"^[a-z][a-z0-9_-]{0,39}$")
+    purpose:str=Field(min_length=1,max_length=1000)
+    capabilities:list[str]=Field(min_length=1,max_length=20)
+    permissions:list[Literal["network","workspace_write","reasoning","compute"]]=Field(default_factory=list)
+    engines:list[Literal["deterministic","feynman","openscience","app"]]=Field(min_length=1,max_length=4)
+    expected_value:str=Field(min_length=1,max_length=1000)
+    termination:str=Field(default="Assigned bounded tasks complete or admission stops",max_length=1000)
+
+
+class TaskAssignment(Contract):
+    task_id:str
+    owner:str
+    verifier:str=""
+    acceptance:list[str]=Field(min_length=1,max_length=10)
+    output_contract:Literal["ExecutionResult/1.0"]="ExecutionResult/1.0"
+
+
+class TeamPlan(Contract):
+    mode:Literal["single","fixed","adaptive"]="adaptive"
+    agents:list[AgentRole]=Field(min_length=1,max_length=4)
+    assignments:list[TaskAssignment]=Field(min_length=1,max_length=24)
+    max_agents:int=Field(default=3,ge=1,le=4)
+    max_parallel_tasks:Literal[1]=1
+    max_replans:int=Field(default=2,ge=0,le=2)
+    generation:int=Field(default=0,ge=0,le=2)
+
+
+class TaskEnvelope(Contract):
+    mission_id:str
+    topic_id:str
+    task_id:str
+    sender:str
+    receiver:str
+    dependency_task_id:str
+    input_digest:str=Field(pattern=r"^[a-f0-9]{64}$")
+    artifact_refs:list[dict]=Field(default_factory=list,max_length=100)
+    trust:Literal["untrusted"]="untrusted"
+
+
+class VerificationResult(Contract):
+    status:Literal["unverified","verified","failed"]
+    method:str
+    evidence_refs:list[str]=Field(default_factory=list)
+    checks:list[dict]=Field(default_factory=list)
+    limitations:list[str]=Field(default_factory=list)
+
+
 class MissionSpec(Contract):
     topic_id: str
     objective: str = Field(min_length=1, max_length=8000)
@@ -65,6 +113,7 @@ class MissionSpec(Contract):
     owner: str = Field(default="researcher", min_length=1, max_length=100)
     parent_mission_id: str = ""
     control: MissionControl|None = None
+    team: TeamPlan|None = None
     tasks: list[Task] = Field(min_length=1, max_length=24)
 
     @model_validator(mode="after")
