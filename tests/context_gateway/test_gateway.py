@@ -1,10 +1,11 @@
 import _env  # noqa: F401  (must be first)
+import json
 import unittest
 from unittest import mock
 
-from backend.gateway import connectors as C, service as GS
-from backend.gateway.context import SCHEMA_VERSION, canonical_packet, provider_context
-from backend.gateway.policy import allowed_classes, sanitize, set_sensitivity
+from backend.providers import cli as C, gateway as GS
+from backend.providers.context_packet import SCHEMA_VERSION, canonical_packet, provider_context
+from backend.providers.privacy import allowed_classes, sanitize, set_sensitivity
 from memory_eval import golden
 from providers.fakes import fake
 
@@ -15,11 +16,16 @@ def fakes(**modes):
     return mock.patch.dict(C.CONNECTORS, {p: fake(p, modes.get(p, "ok")) for p in ("codex", "claude_code", "antigravity", "gemini_cli")})
 
 
+def send(rid):
+    GS.send(rid)
+    GS.REQS[rid]["thread"].join(20)
+
+
 class Gateway(unittest.TestCase):
     def setUp(self):
         _env.fresh_project("gw34")
         _env.config.save_config({"memory": {"embed_engine": "hashing"},
-                                 "gateway": {"review_before_external": False, "allow_internal": True, "allow_sensitive": False}})
+                                 "gateway": {"allow_internal": True, "allow_sensitive": False}})
         golden.seed()
         C._last_error.clear()
 
@@ -37,16 +43,16 @@ class Gateway(unittest.TestCase):
         a = provider_context(Q, "codex", role="experiment_designer")
         b = provider_context(Q, "antigravity", role="experiment_designer")
         self.assertEqual(a["prompt"], b["prompt"])
+        sid = ""
         with fakes():
-            out = GS.compare(Q, ["codex", "claude_code", "antigravity"], role="experiment_designer")
-            self.assertTrue(out["same_context"])
-            for r in out["requests"]:
-                GS.REQS[r["id"]]["thread"].join(20)
+            for p in ("codex", "claude_code", "antigravity"):
+                r = GS.prepare(Q, p, role="experiment_designer", session_id=sid)
+                sid = r["session_id"]
+                self.assertEqual(r["prompt"], a["prompt"])
+                send(r["id"])
                 full = GS.get(r["id"])
                 self.assertEqual(full["status"], "completed", full["errors"])
                 self.assertIn("hyp=True", full["answer"])
-            sess = GS.get_session(out["session_id"])
-            self.assertEqual({x["provider"] for x in sess["requests"]}, {"codex", "claude_code", "antigravity"})
 
     def test_sensitivity_enforced_before_sending(self):
         set_sensitivity("FAIL-001", "RESTRICTED")
@@ -54,27 +60,29 @@ class Gateway(unittest.TestCase):
             r = GS.prepare(Q, "claude_code", role="experiment_designer")
             self.assertIn("FAIL-001", r["blocked"])
             self.assertNotIn("FAIL-001", r["prompt"])
-            GS.send(r["id"], wait=True)
+            send(r["id"])
             self.assertIn("restricted=False", GS.get(r["id"])["answer"])
 
-    def test_review_mode_holds_and_allows_edit(self):
-        _env.config.save_config({"gateway": {"review_before_external": True}})
+    def test_cancel_before_sending_and_bad_ids(self):
         with fakes():
             r = GS.prepare(Q, "codex")
-            self.assertEqual(r["status"], "review")
-            self.assertEqual(GS.events(r["id"])["events"], [])  # nothing left the machine
-            out = GS.send(r["id"], edited_prompt="Only this: is HYPE-002 still open? token sk-abcdefghijklmnopqrstu123", wait=True)
-            self.assertTrue(out["edited"])
-            full = GS.get(r["id"])
-            self.assertEqual(full["status"], "completed")
-            self.assertNotIn("sk-abcdefghijklmnopqrstu123", full["prompt"])
-            r2 = GS.prepare(Q, "codex")
-            self.assertEqual(GS.cancel(r2["id"])["status"], "cancelled")
+            self.assertEqual(r["status"], "ready")
+            self.assertEqual(GS.events(r["id"])["events"], [])  # nothing left the machine yet
+            self.assertEqual(GS.cancel(r["id"])["status"], "cancelled")
+            with self.assertRaises(GS.GatewayError):
+                GS.send(r["id"])
+            with self.assertRaises(GS.GatewayError):
+                GS.cancel(r["id"])
+        for bad in ("nope", "gw-0000000000"):
+            with self.assertRaises(GS.GatewayError):
+                GS.get(bad)
+        with self.assertRaises(GS.GatewayError):
+            GS.prepare("  ", "codex")
 
     def test_no_automatic_fallback(self):
         with fakes(codex="auth"):
             r = GS.prepare(Q, "codex")
-            GS.send(r["id"], wait=True)
+            send(r["id"])
             self.assertEqual(GS.get(r["id"])["status"], "failed")
             r2 = GS.prepare(Q, "codex")
             out = GS.send(r2["id"])  # now known AUTH_EXPIRED → refused up-front, alternatives offered, nothing sent
@@ -92,27 +100,12 @@ class Gateway(unittest.TestCase):
             with self.assertRaises(GS.GatewayError):
                 GS.prepare(Q, "antigravity")
 
-    def test_write_back_is_candidate_with_provenance(self):
-        from backend import memory as M
-        from backend.memory import lifecycle
-        with fakes():
-            r = GS.prepare(Q, "claude_code")
-            GS.send(r["id"], wait=True)
-            c = GS.propose(r["id"], "decision", "Test SwinIR-small with window 8 next, batch 4")
-            self.assertEqual(c["status"], "pending")
-            self.assertEqual(c["origin"]["provider"], "claude_code")
-            self.assertEqual(c["origin"]["request_id"], r["id"])
-            n = len(M.load()["decisions"])
-            lifecycle.approve(c["id"])
-            self.assertEqual(len(M.load()["decisions"]), n + 1)
-
     def test_audit_has_metadata_only(self):
         with fakes():
             r = GS.prepare("my unpublished idea about spectral priors", "gemini_cli")
-            GS.send(r["id"], wait=True)
-        log = GS.read_audit()
-        self.assertEqual([e["event"] for e in log[-2:]], ["prepared", "completed"])
+            send(r["id"])
         raw = (_env.config.data_dir() / "gateway" / "audit.jsonl").read_text("utf-8")
+        self.assertEqual([json.loads(x)["event"] for x in raw.splitlines()[-2:]], ["prepared", "completed"])
         self.assertNotIn("unpublished idea", raw)
         self.assertNotIn("Objective", raw)
 
@@ -122,22 +115,6 @@ class Gateway(unittest.TestCase):
         self.assertNotIn("sk-abcdefghijklmnop1234", t)
         self.assertEqual(set(notes), {"credentials redacted", "source code withheld"})
 
-    def test_streaming_events_endpoint(self):
-        import warnings
-        warnings.filterwarnings("ignore")
-        from fastapi.testclient import TestClient
-        from backend.app import app
-        c = TestClient(app)
-        with fakes():
-            r = c.post("/api/gateway/requests", json={"query": Q, "provider": "antigravity", "send": True}).json()
-            GS.REQS[r["id"]]["thread"].join(20)
-            body = c.get(f"/api/gateway/requests/{r['id']}/stream").text
-            self.assertIn('"type": "request_started"', body)
-            self.assertIn('"type": "text_delta"', body)
-            self.assertIn("event: end", body)
-            self.assertEqual(c.get("/api/gateway/requests/gw-nothere123").status_code, 404)
-            prov = c.get("/api/gateway/providers").json()
-            self.assertFalse(prov["chatgpt_web"]["supported"])
 
 
 if __name__ == "__main__":

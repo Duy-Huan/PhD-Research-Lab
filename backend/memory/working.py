@@ -3,43 +3,11 @@ doing right now (current_task) and the runtime state of the agents. Short-lived,
 live in research.py / knowledge.py and the legacy Tier 2/3 store."""
 from __future__ import annotations
 
-from . import mem_dir, tier1
-from .store import JsonStore, now
+from backend.memory import mem_dir, tier1
+from backend.memory.store import JsonStore, now
 
 _store = JsonStore(lambda: mem_dir() / "working.json", {"current_task": {}, "agents": {}, "focus": {}}, versioned=False)
 MAX_TASK = 1200
-
-
-def note_task(tool: str, text: str, session_id: str = "") -> None:
-    """Remember the latest request the researcher made (called when an agent receives a new request)."""
-    text = (text or "").strip()
-    if not text:
-        return
-
-    def put(st):
-        st["current_task"] = {"tool": tool, "text": text[:MAX_TASK], "session": session_id, "updated": now()}
-    _store.update(put)
-
-
-def set_focus(hypothesis_id: str = "", experiment_id: str = "") -> dict:
-    """v3.3: the researcher's explicit focus (active hypothesis / current experiment) of the Research State."""
-    from . import research
-    rs = research.load()
-    if hypothesis_id and not any(h["id"] == hypothesis_id for h in rs["hypotheses"]):
-        raise research.ResearchError(f"Hypothesis {hypothesis_id} not found")
-    if experiment_id and not any(e["id"] == experiment_id for e in rs["experiments"]):
-        raise research.ResearchError(f"Experiment {experiment_id} not found")
-
-    def put(st):
-        st["focus"] = {"hypothesis_id": hypothesis_id, "experiment_id": experiment_id, "updated": now()}
-        return st["focus"]
-    return _store.update(put)
-
-
-def set_agent_state(agent: str, state: str, detail: str = "") -> None:
-    def put(st):
-        st["agents"][agent] = {"state": state[:40], "detail": detail[:300], "updated": now()}
-    _store.update(put)
 
 
 def get() -> dict:
@@ -49,7 +17,7 @@ def get() -> dict:
 def _jobs_lines(limit: int = 3) -> list:
     out = []
     try:
-        from ..sandbox import JOBS, list_runs
+        from backend.execution.sandbox import JOBS, list_runs
         running = [j for j in JOBS.values() if j.status == "running"]
         for j in running[:limit]:
             out.append(f"- RUNNING {j.kind} `{j.cmd[:100]}` ({j.mode}, id {j.id})")

@@ -14,8 +14,8 @@ import hashlib
 import re
 import secrets
 
-from . import mem_dir
-from .store import JsonStore, now
+from backend.memory import mem_dir
+from backend.memory.store import JsonStore, now
 
 _index = JsonStore(lambda: mem_dir() / "pages.json", {"pages": []}, versioned=False)
 ID_RE = re.compile(r"^P[0-9a-f]{8}$")
@@ -49,13 +49,3 @@ def add_page(kind: str, source: str, span, content: str, header: str = "") -> di
 
 def list_pages(limit: int = 200) -> list:
     return _index.load()["pages"][-limit:]
-
-
-def get_page(pid: str) -> dict:
-    if not ID_RE.match(pid or ""):
-        raise ValueError("Invalid page id")
-    meta = next((p for p in _index.load()["pages"] if p["id"] == pid), None)
-    if not meta:
-        raise KeyError(pid)
-    f = _dir() / f"{pid}.txt"
-    return {**meta, "content": f.read_text("utf-8", errors="replace") if f.exists() else ""}

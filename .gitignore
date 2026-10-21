@@ -9,3 +9,16 @@ data/project_meta.json
 claude/
 # v4.0: all runtime data of the default project (memory, runs, code workspace, sandbox, telemetry, API keys)
 data/
+
+# coverage (dev)
+.coverage
+htmlcov/
+coverage.json
+
+# Generated regression and coverage artifacts
+artifacts/backend-regression/
+
+# v4.2 frontend test dependencies and reports (dev)
+tests/frontend/node_modules/
+artifacts/frontend-coverage/
+artifacts/backend-regression-v42/

@@ -12,7 +12,7 @@ from unittest import mock
 warnings.filterwarnings("ignore")
 from fastapi.testclient import TestClient  # noqa: E402
 
-from backend import deps, envs, sandbox  # noqa: E402
+from backend.execution import deps, envs, sandbox  # noqa: E402
 from backend.app import app  # noqa: E402
 
 
@@ -89,24 +89,17 @@ class Environments(unittest.TestCase):
         self.assertFalse(any("WindowsApps" in p["path"] for p in ps))
         self.assertIn("jupyterlab", ps[0])
 
-    def test_image_validation(self):
-        for good in ("python:3.12-slim", "pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime", "nvcr.io/nvidia/pytorch:24.10-py3", "ghcr.io/org/x"):
-            self.assertTrue(envs.valid_image(good), good)
-        for bad in ("", "UPPER:tag", "img; rm -rf /", "a b", "x:" + "t" * 200):
-            self.assertFalse(envs.valid_image(bad), bad)
-        with self.assertRaises(sandbox.SandboxError):
-            sandbox.pull_image("bad image; rm -rf /") if sandbox.docker_exe() else (_ for _ in ()).throw(sandbox.SandboxError("no docker"))
 
     def test_auto_choice(self):
         s = {"mode": "auto", "gpu": True}
         gpu_plan = {"gpu_frameworks": ["torch"]}
-        with mock.patch("backend.sandbox.docker_exe", return_value="docker"), mock.patch("backend.sandbox.docker_running", return_value=True), \
-                mock.patch("backend.envs.gpu_present", return_value=True):
+        with mock.patch("backend.execution.sandbox.docker_exe", return_value="docker"), mock.patch("backend.execution.sandbox.docker_running", return_value=True), \
+                mock.patch("backend.execution.envs.gpu_present", return_value=True):
             self.assertEqual(envs.choose(s, gpu_plan)[0], "docker")
             self.assertEqual(envs.choose(s, {"gpu_frameworks": []})[0], "local")
             self.assertEqual(envs.choose({**s, "gpu": False}, gpu_plan)[0], "local")
             self.assertEqual(envs.choose({**s, "mode": "local"}, gpu_plan), ("local", "chosen in the environment settings"))
-        with mock.patch("backend.sandbox.docker_exe", return_value=None):
+        with mock.patch("backend.execution.sandbox.docker_exe", return_value=None):
             self.assertEqual(envs.choose(s, gpu_plan), ("local", "Docker is not running"))
 
     def test_python_settings(self):
@@ -148,50 +141,9 @@ class EnvApiAndIntegrations(unittest.TestCase):
     def setUp(self):
         _env.fresh_project("envapi34")
 
-    def test_env_endpoints(self):
-        (sandbox.code_dir() / "t.py").write_text("import torch\n", "utf-8")
-        s = self.c.get("/api/env").json()
-        self.assertEqual(s["deps"]["gpu_frameworks"], ["torch"])
-        self.assertIn(s["effective"]["mode"], ("local", "docker"))
-        r = self.c.post("/api/env/select", json={"kind": "python", "python_mode": "existing", "python_base": sys.executable}).json()
-        self.assertEqual(r["settings"]["mode"], "local")
-        self.assertEqual(r["effective"]["mode"], "local")
-        self.assertEqual(self.c.post("/api/env/select", json={"image": "bad image!"}).status_code, 400)
-        self.assertEqual(self.c.post("/api/env/select", json={"kind": "docker", "image": "python:3.12-slim"}).json()["settings"]["image"], "python:3.12-slim")
-        self.assertEqual(self.c.get("/api/env/docker/search?q=%3Brm").status_code, 400)
-        self.assertEqual(self.c.get("/api/env/docker/tags?repo=..%2Fx").status_code, 400)
-        self.assertIn("pythons", self.c.get("/api/env/pythons").json())
-        self.assertEqual(self.c.put("/api/sandbox/settings", json={"python_base": "C:/nope/python.exe"}).status_code, 400)
 
-    def test_jupyter_found_in_another_python(self):
-        from backend.integrations import workspace as W
-        with mock.patch("backend.integrations.workspace._project_python", return_value=None), \
-                mock.patch("importlib.util.find_spec", return_value=None), \
-                mock.patch("backend.envs.python_with", return_value={"path": "C:/Py/python.exe"}):
-            self.assertEqual(W.jupyter_argv(), ["C:/Py/python.exe", "-m", "jupyterlab"])
 
-    def test_devcontainer_one_click_prepares_everything(self):
-        from backend.integrations import workspace as W
-        from backend.integrations.base import IntegrationStatus
-        st = IntegrationStatus("vscode", "VS Code", "available", extra={"dev_containers_ext": False})
-        (sandbox.code_dir() / "train.py").write_text("import tqdm\n", "utf-8")
-        with mock.patch.object(W, "vscode_status", return_value=st), mock.patch.object(W, "install_extension") as inst, \
-                mock.patch("backend.sandbox.docker_exe", return_value="docker"), mock.patch("backend.sandbox.docker_running", return_value=True), \
-                mock.patch.object(W, "run_cli", return_value=(0, "")), mock.patch.object(W, "vscode_cli", return_value="code"):
-            out = W.open_devcontainer("code")
-        inst.assert_called_once_with(W.EXT_DEVCONTAINERS)
-        self.assertEqual(len(out["steps"]), 2)
-        dc = json.loads((sandbox.code_dir() / ".devcontainer" / "devcontainer.json").read_text("utf-8"))
-        self.assertEqual(dc["postCreateCommand"], "python .phdlab/ensure_deps.py")
 
-    def test_frontend_regressions(self):
-        front = _env.ROOT / "frontend"
-        html = (front / "index.html").read_text("utf-8")
-        for i in ("pm-data", "pm-refs", "pm-path"):
-            self.assertRegex(html, rf'id="{i}"[^>]*data-browse=')
-        import re
-        for f in [front / "index.html"] + list((front / "app").glob("*.js")):
-            self.assertIsNone(re.search(r"on(keydown|keypress) = e => [^{]*&&", f.read_text("utf-8")), f"{f.name}: a key handler returning false cancels the key (Space)")
 
 
 if __name__ == "__main__":

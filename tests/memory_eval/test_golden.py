@@ -7,7 +7,7 @@ while harmless reordering does not.
 import _env  # noqa: F401  (must be first)
 import unittest
 
-from backend import config
+from backend.core import config
 from backend.memory import compiler, engine
 from memory_eval import golden
 

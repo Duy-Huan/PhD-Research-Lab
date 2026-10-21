@@ -14,23 +14,23 @@ from __future__ import annotations
 import threading
 from collections import OrderedDict
 
-from .store import GENERATION
+from backend.memory.store import GENERATION
 
 _lock = threading.Lock()
 
 
 def _sources() -> list:
-    from ..config import data_dir
-    from . import mem_dir
+    from backend.core.config import data_dir
+    from backend.memory import mem_dir
     d, m = data_dir(), mem_dir()
-    files = [m / "project_state.json", m / "research.json", m / "knowledge.json", m / "evidence.json", d / "library.json"]
+    files = [m / "project_state.json", m / "research.json", m / "evidence.json", m / "knowledge.json", d / "library.json"]
     try:
-        from ..context_hub import _notes_path
+        from backend.memory.notes import _notes_path
         files.append(_notes_path())
     except Exception:
         pass
     try:
-        from ..context_graph import _overlay_path
+        from backend.memory.graph import _overlay_path
         files.append(_overlay_path())
     except Exception:
         pass
@@ -38,7 +38,7 @@ def _sources() -> list:
 
 
 def fingerprint() -> tuple:
-    from ..config import data_dir
+    from backend.core.config import data_dir
     sig = []
     for f in _sources():
         try:
@@ -89,6 +89,7 @@ VECTORS = LRU(8000)   # (engine, sha1(text)) → unit vector (content-addressed:
 
 
 def clear_all() -> None:
+    """Drop every in-process cache (a project switch: nothing of the previous project may be served)."""
     for c in (NODES, RESULTS, VECTORS):
         c.clear()
 

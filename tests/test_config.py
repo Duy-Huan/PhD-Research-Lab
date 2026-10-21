@@ -2,7 +2,7 @@ import _env  # noqa: F401  (must be first)
 import json
 import unittest
 
-from backend import config as C
+from backend.core import config as C
 
 
 class ConfigV32(unittest.TestCase):
@@ -18,7 +18,7 @@ class ConfigV32(unittest.TestCase):
         self.assertEqual(cfg["memory"]["chunk_tokens"], 3500)
         self.assertEqual(cfg["codex"]["sandbox"], "read-only")
         self.assertTrue(C.DEFAULTS["clearml"]["enabled"])
-        self.assertEqual(cfg["clearml"]["mode"], "offline")  # ClearML through the Python SDK, no server needed
+        self.assertNotIn("mode", cfg["clearml"])  # ClearML records offline sessions only, no server
         self.assertTrue(C.DEFAULTS["clearml"]["auto_record"])
         self.assertTrue(C.DEFAULTS["codex"]["enabled"])
         self.assertEqual(cfg["codex"]["windows_sandbox"], "unelevated")
@@ -26,34 +26,30 @@ class ConfigV32(unittest.TestCase):
         self.assertNotIn("jit_unload", cfg["resources"])  # no automatic unloading
 
     def test_coercion_and_choices(self):
-        cfg = C.save_config({"memory": {"high_watermark_tokens": "12000", "unknown_key": 5, "embed_engine": "bogus"},
-                             "codex": {"sandbox": "danger-full-access"}, "resources": {"require_unload": "false"},
-                             "clearml": {"mode": "cloud-magic"}})
-        self.assertEqual(cfg["memory"]["high_watermark_tokens"], 12000)
-        self.assertNotIn("unknown_key", cfg["memory"])
-        self.assertEqual(cfg["memory"]["embed_engine"], "auto")
-        self.assertEqual(cfg["codex"]["sandbox"], "read-only")  # never danger-full-access
-        self.assertEqual(cfg["clearml"]["mode"], "offline")
-        self.assertFalse(cfg["resources"]["require_unload"])
-        C.save_config({"memory": {"high_watermark_tokens": 16000}, "resources": {"require_unload": True}})
+        try:
+            cfg = C.save_config({"memory": {"high_watermark_tokens": "12000", "unknown_key": 5, "embed_engine": "bogus"},
+                                 "codex": {"sandbox": "danger-full-access"}, "resources": {"require_unload": "false"},
+                                 "clearml": {"mode": "cloud-magic"}})
+            self.assertEqual(cfg["memory"]["high_watermark_tokens"], 12000)
+            self.assertNotIn("unknown_key", cfg["memory"])
+            self.assertNotIn("mode", cfg["clearml"])
+            self.assertEqual(cfg["memory"]["embed_engine"], "auto")
+            self.assertEqual(cfg["codex"]["sandbox"], "read-only")  # never danger-full-access
+            self.assertFalse(cfg["resources"]["require_unload"])
+        finally:
+            C.save_config({"memory": {"high_watermark_tokens": 16000}, "resources": {"require_unload": True}})
 
     def test_secret_masking_and_masked_value_keeps_secret(self):
-        C.save_config({"clearml": {"access_key": "AK1234567890XYZ", "secret_key": "SECRETSECRET123456"}})
-        pub = C.public_config(C.load_config())
-        self.assertNotIn("SECRETSECRET123456", json.dumps(pub))
-        self.assertTrue(pub["clearml"]["has_secret_key"])
-        C.save_config({"clearml": {"secret_key": pub["clearml"]["secret_key"]}})  # masked echo from the UI
-        self.assertEqual(C.load_config()["clearml"]["secret_key"], "SECRETSECRET123456")
-        C.save_config({"clearml": {"access_key": "", "secret_key": ""}})
+        try:
+            C.save_config({"mcp": {"token": "SECRETSECRET123456"}})
+            pub = C.public_config(C.load_config())
+            self.assertNotIn("SECRETSECRET123456", json.dumps(pub))
+            self.assertTrue(pub["mcp"]["has_token"])
+            C.save_config({"mcp": {"token": pub["mcp"]["token"]}})  # masked echo from the UI
+            self.assertEqual(C.load_config()["mcp"]["token"], "SECRETSECRET123456")
+        finally:
+            C.save_config({"mcp": {"token": ""}})
 
-    def test_auto_mode_and_new_providers(self):
-        self.assertTrue(C._valid_mode("auto"))
-        for pid in ("deepinfra", "ninerouter", "omniroute"):
-            self.assertIn(pid, C.PROVIDERS)
-        self.assertTrue(C.PROVIDERS["ninerouter"]["local_gateway"])
-        cfg = C.save_config({"agent_modes": {"critic": "auto", "author": "nonsense"}})
-        self.assertEqual(cfg["agent_modes"]["critic"], "auto")
-        self.assertNotEqual(cfg["agent_modes"]["author"], "nonsense")
 
 
 if __name__ == "__main__":

@@ -16,8 +16,8 @@ from datetime import datetime, timezone
 
 import httpx
 
-from .embeddings import get_embedder, similarity, tokenize
-from .lod import MemoryNode
+from backend.memory.embeddings import get_embedder, similarity, tokenize
+from backend.memory.lod import MemoryNode
 
 
 class BM25:

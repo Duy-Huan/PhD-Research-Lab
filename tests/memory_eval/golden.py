@@ -12,7 +12,7 @@ import json
 import time
 
 from backend import memory as M
-from backend.memory import knowledge, research
+from backend.memory import notes, research
 
 OBJECTIVE = "Hyperspectral image denoising on the CAVE dataset with lightweight transformers that fit a 12 GB GPU"
 CONSTRAINT = "Hardware: single NVIDIA RTX 3060 with 12 GB VRAM — batch size and attention window must fit 12 GB"
@@ -37,7 +37,7 @@ PAPERS = [
 
 
 def _papers(extra: int = 0) -> None:
-    from backend.library import load_library, save_library
+    from backend.knowledge.library import load_library, save_library
     lib = load_library()
     for key, title, year, abstract in PAPERS:
         lib[f"{key}.pdf"] = {"key": key, "title": title, "year": str(year), "abstract": abstract, "authors": [], "venue": "",
@@ -82,9 +82,10 @@ def seed() -> dict:
                          reason="Spectral detail removed by the total variation term.")
     ids["dec_dataset"] = M.add_decision("Use CAVE-v2 as the primary benchmark dataset for every comparison", kind="direction")["id"]
     ids["dec_tv"] = M.add_decision("Do not use a total variation prior again", kind="rejected")["id"]
-    knowledge.add("concept", "PSNR", "Peak signal-to-noise ratio in dB; the main denoising quality metric of this project.")
-    knowledge.add("method", "Shifted window attention", "Swin-style local window self-attention with shifted windows.",
-                  refs=["liang2021swinir"])
+    # v4.2 keeps curated concepts and methods in approved project notes rather than a second knowledge store.
+    notes.add_note("data", "PSNR: Peak signal-to-noise ratio in dB; the main denoising quality metric of this project.")
+    notes.add_note("data", "Shifted window attention: Swin-style local window self-attention with shifted windows. "
+                   "Reference: liang2021swinir")
 
     def eps(st):
         for i, (title, summary) in enumerate([

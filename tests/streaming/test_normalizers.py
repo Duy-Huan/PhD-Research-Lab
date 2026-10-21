@@ -1,7 +1,7 @@
 import _env  # noqa: F401  (must be first)
 import unittest
 
-from backend.gateway import events as E
+from backend.providers import events as E
 
 
 class Normalizers(unittest.TestCase):

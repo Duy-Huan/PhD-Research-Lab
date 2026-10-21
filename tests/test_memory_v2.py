@@ -5,11 +5,17 @@ from unittest import mock
 
 from backend import memory as M
 from backend.memory import compiler, compressor, lod, pages, research, retrieval
-from backend.memory.embeddings import cosine, hashing_vector, tokenize
+from backend.memory.embeddings import hashing_vector, tokenize
+
+
+def cosine(a: list, b: list) -> float:
+    import math
+    dot = sum(x * y for x, y in zip(a, b))
+    return dot / ((math.sqrt(sum(x * x for x in a)) or 1.0) * (math.sqrt(sum(y * y for y in b)) or 1.0))
 
 
 def _session(sid, tool, msgs, updated="2026-01-01T00:00:00+00:00"):
-    from backend.chat_store import _sess_dir
+    from backend.agent.sessions import _dir as _sess_dir
     d = _sess_dir()
     d.mkdir(parents=True, exist_ok=True)
     (d / f"{sid}.json").write_text(json.dumps({"id": sid, "tool": tool, "title": f"chat {sid}", "updated": updated,
@@ -27,18 +33,6 @@ class ResearchMemory(unittest.TestCase):
         self.assertEqual([h["id"] for h in b], ["HYPE-001", "HYPE-002", "HYPE-003"])
         self.assertIn("Pavia", research.load()["hypotheses"][0]["text"])
 
-    def test_experiment_requires_known_hypothesis_and_links(self):
-        h = research.add_hypothesis("Saturated loss stabilises training")
-        with self.assertRaises(research.ResearchError):
-            research.add_experiment({"title": "x", "hypothesis_id": "HYPE-999"})
-        e = research.add_experiment({"title": "baseline", "hypothesis_id": h["id"], "clearml_task_id": "a" * 32,
-                                     "verdict": "supports", "conclusion": "PSNR +1.2 dB"})
-        self.assertEqual(e["id"], "EXP-001")
-        self.assertEqual(e["verdict"], "supports")
-        kinds = [ev["kind"] for ev in research.timeline()]
-        self.assertEqual(kinds[:2], ["hypothesis", "experiment"])
-        research.delete(e["id"])
-        self.assertEqual(research.load()["experiments"], [])
 
     def test_failure_validation(self):
         with self.assertRaises(research.ResearchError):
@@ -47,17 +41,6 @@ class ResearchMemory(unittest.TestCase):
         self.assertTrue(f["validated"])
 
 
-class PageStore(unittest.TestCase):
-    def setUp(self):
-        _env.fresh_project("pages")
-
-    def test_write_once_and_dedupe(self):
-        p1 = pages.add_page("chat", "chat:data:s1", [1, 4], "USER: hello\nASSISTANT: hi")
-        p2 = pages.add_page("chat", "chat:data:s1", [1, 4], "USER: hello\nASSISTANT: hi")
-        self.assertEqual(p1["id"], p2["id"])
-        self.assertEqual(pages.get_page(p1["id"])["content"], "USER: hello\nASSISTANT: hi")
-        with self.assertRaises(ValueError):
-            pages.get_page("../../etc/passwd")
 
 
 class Retrieval(unittest.TestCase):
@@ -123,30 +106,11 @@ class Compressor(unittest.TestCase):
         self.cfg["memory"]["high_watermark_tokens"] = 10 ** 9
         self.assertFalse(compressor.plan(self.cfg)["trigger"])
 
-    def test_compress_writes_pages_episode_links_and_pointer(self):
-        memo = json.dumps({"title": "Plan discussion", "summary": "Chose spectral attention.", "decisions": ["use Pavia"],
-                           "metrics": [{"name": "psnr", "value": "31.2", "context": "x4"}]})
-
-        async def fake(agent, system, user=None, messages=None, max_tokens=0, temperature=0):
-            return {"text": memo, "engine": "fake"}
-        with mock.patch("backend.llm.call_agent", side_effect=fake):
-            rep = _env.run_async(compressor.compress(cfg=self.cfg))
-        self.assertGreaterEqual(rep["episodes"], 1, rep)
-        st = M.load()
-        ep = st["tier2"][-1]
-        self.assertEqual(ep["pipeline"], "v2")
-        self.assertTrue(ep["pages"])
-        self.assertIn("**Decisions:**", ep["summary"])
-        self.assertTrue(any(l.startswith("run:20260101-120000-") for l in ep["links"]))
-        self.assertTrue(any(l.startswith("git:a1b2c3d") for l in ep["links"]))
-        self.assertEqual(st["summarized"]["sA"], ep["turns"][1])
-        raw = pages.get_page(ep["pages"][0])["content"]
-        self.assertIn("turn 0", raw)  # the raw turns are kept losslessly
 
     def test_failed_chunk_does_not_advance_pointer(self):
         async def boom(*a, **k):
             raise RuntimeError("model offline")
-        with mock.patch("backend.llm.call_agent", side_effect=boom):
+        with mock.patch("backend.providers.models.call_agent", side_effect=boom):
             rep = _env.run_async(compressor.compress(cfg=self.cfg))
         self.assertEqual(rep["episodes"], 0)
         self.assertTrue(rep["errors"])

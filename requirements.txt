@@ -13,3 +13,6 @@ GitPython>=3.1.40
 #   pip install "clearml>=2.0"      (or Control Center -> Integrations -> Install ClearML SDK)
 # Not needed: Docker, GPU and system monitoring use the docker / nvidia-smi command-line tools,
 # so no native Python packages (docker-py, psutil, pynvml) are installed.
+# Terminal chat (`phdlab`): input with completion menu + Markdown rendering (pure Python)
+prompt_toolkit>=3.0.47
+rich>=13.7

@@ -1,0 +1,167 @@
+{
+ "generated": "2026-10-21 09:55:52",
+ "criteria": {
+  "context_recovery": {
+   "tests": [
+    {
+     "id": "P0_Context.test_a_new_session_after_a_restart_knows_the_project",
+     "status": "passed",
+     "evidence": {
+      "sources": 8,
+      "recovered": [
+       "outline",
+       "decision",
+       "hypothesis"
+      ]
+     }
+    }
+   ]
+  },
+  "permissions_resources": {
+   "tests": [
+    {
+     "id": "P0_Permissions.test_cli_agents_cannot_reach_the_app",
+     "status": "passed",
+     "evidence": {
+      "app_source": "denied",
+      "secrets": "denied",
+      "local_network": "denied"
+     }
+    },
+    {
+     "id": "P0_Permissions.test_hardware_guard_and_budget",
+     "status": "passed",
+     "evidence": {
+      "second_gpu_job": "blocked",
+      "budget_overrun": "budget of 0.03 min reached — job stopped"
+     }
+    },
+    {
+     "id": "P0_Permissions.test_nothing_risky_runs_without_approval",
+     "status": "passed",
+     "evidence": {
+      "approval_state": "APPROVAL_PENDING",
+      "jobs_started": 0,
+      "code_without_approval": "refused"
+     }
+    }
+   ]
+  },
+  "progress_tracking": {
+   "tests": [
+    {
+     "id": "P0_Progress.test_one_timeline_for_ui_cli_and_chat",
+     "status": "passed",
+     "evidence": {
+      "events": 12,
+      "steps": [
+       "S1:app:done",
+       "S2:phdlab:done",
+       "S3:phdlab:done"
+      ],
+      "states": [
+       "CREATED",
+       "PLANNED",
+       "RUNNING",
+       "VERIFYING",
+       "RUNNING",
+       "COMPLETED"
+      ]
+     }
+    }
+   ]
+  },
+  "workflow_recovery": {
+   "tests": [
+    {
+     "id": "P0_Recovery.test_oom_is_recovered_without_duplicate_jobs",
+     "status": "passed",
+     "evidence": {
+      "states": [
+       "CREATED",
+       "PLANNED",
+       "APPROVAL_PENDING",
+       "RUNNING",
+       "FAILED",
+       "RECOVERING",
+       "RUNNING",
+       "VERIFYING",
+       "RUNNING",
+       "COMPLETED"
+      ],
+      "jobs": 2,
+      "change": "python train.py --batch-size 16 --grad-accum 2"
+     }
+    },
+    {
+     "id": "P0_Recovery.test_restart_reuses_the_finished_job",
+     "status": "passed",
+     "evidence": {
+      "after_restart": "COMPLETED",
+      "duplicate_jobs": 0
+     }
+    }
+   ]
+  },
+  "research_code_experiment": {
+   "tests": [
+    {
+     "id": "P1_EndToEnd.test_idea_to_measured_result",
+     "status": "passed",
+     "evidence": {
+      "steps": [
+       "plan:app",
+       "code:app",
+       "experiment:python",
+       "verify_metrics:phdlab",
+       "report:phdlab"
+      ],
+      "metrics": {
+       "acc": 0.91
+      },
+      "job": "20261021-095544-cdd1"
+     }
+    }
+   ]
+  },
+  "evidence": {
+   "tests": [
+    {
+     "id": "P1_Evidence.test_claims_need_evidence",
+     "status": "passed",
+     "evidence": {
+      "no_metrics": "NEEDS_USER_ACTION",
+      "verified_pin_without_run": "refused",
+      "unmatched_citations": 2
+     }
+    }
+   ]
+  },
+  "prompt_workflow": {
+   "tests": [
+    {
+     "id": "P1_Prompt.test_plain_prompts_trigger_workflows",
+     "status": "passed",
+     "evidence": {
+      "read_only": "auto-started /lit",
+      "risky": "proposal /idea awaiting approval",
+      "tool_chosen_by_user": false
+     }
+    }
+   ]
+  },
+  "provider_swap": {
+   "tests": [
+    {
+     "id": "P1_Providers.test_swapping_providers_keeps_the_state",
+     "status": "passed",
+     "evidence": {
+      "run_provider": "feynman → app",
+      "conversation_messages_kept": 4
+     }
+    }
+   ]
+  }
+ },
+ "suite": "tests/acceptance/test_research_os.py"
+}

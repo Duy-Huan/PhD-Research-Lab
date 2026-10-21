@@ -21,10 +21,10 @@ import json
 import re
 import secrets
 
-from . import (SUMMARY_SYS, _consolidate, _running, _sessions, _split_title, _summarize_runs, load, refresh_tier3,
+from backend.memory import (SUMMARY_SYS, _consolidate, _running, _sessions, _split_title, _summarize_runs, load, refresh_tier3,
                tier1, tokens, update)
-from .pages import add_page
-from .store import now
+from backend.memory.pages import add_page
+from backend.memory.store import now
 
 MEMO_SYS = """You are the Memory Summarization Agent of a long-running PhD research project. Compress the excerpt into a
 memo another AI can rely on months later. Keep every concrete fact: decisions (chosen AND rejected directions), hypotheses
@@ -62,7 +62,7 @@ def entities(text: str) -> list:
 
 def parse_memo(text: str, fallback_title: str) -> dict:
     """Strict JSON memo → normalised dict; free text → {title, summary} (kept verbatim, never re-invented)."""
-    from ..llm import extract_json
+    from backend.providers.models import extract_json
     try:
         d = extract_json(text)
         if not isinstance(d, dict) or not str(d.get("summary") or "").strip():
@@ -150,14 +150,14 @@ def _chunks(msgs: list, start: int, end: int, chunk_tokens: int) -> list:
 
 
 async def _llm(agent_sys: str, user: str, timeout: float, sem: asyncio.Semaphore) -> dict:
-    from ..llm import call_agent
+    from backend.providers.models import call_agent
     async with sem:
         return await asyncio.wait_for(call_agent("summarizer", agent_sys, user, max_tokens=1100, temperature=0.1), timeout)
 
 
 async def compress(force: bool = False, cfg: dict | None = None) -> dict:
     """Run one compression pass. Returns a report; never raises for a single failed chunk."""
-    from ..config import load_config
+    from backend.core.config import load_config
     cfg = cfg or load_config()
     mc = cfg["memory"]
     if _running["busy"]:

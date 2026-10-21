@@ -1,25 +1,23 @@
-"""Hierarchical project memory (v3.0) — <project data>/memory/project_state.json
+"""Hierarchical project memory — <project data>/memory/project_state.json
 
-Tier 1  Working memory    recent chat turns of every tool + latest sandbox logs (computed live, not copied)
-Tier 2  Episodic memory   rolling summaries written by the background Summarization Agent (local model by default)
+Tier 1  Working memory    recent chat turns + latest run logs (computed live, not copied)
+Tier 2  Episodic memory   rolling summaries written by the background compressor (memory/compressor.py)
 Tier 3  Long-term store   goals, hypotheses, constraints, locked decisions, validated references, best metrics
 
-The summarizer runs in the background when Tier 1 exceeds a token threshold (or on demand). It compresses old
-chat turns and finished runs into structured episodes, so local 14B models never overflow their context while the
-whole multi-month history stays available to every agent.
+The background worker compresses old chat turns and finished runs into episodes when Tier 1 passes the high watermark,
+so local 14B models never overflow their context while the whole multi-month history stays available to every agent.
 """
 from __future__ import annotations
 
 import asyncio
 import json
-import os
 import re
 import secrets
 import threading
 from datetime import datetime, timezone
 
-from ..config import data_dir, load_config, workspace
-from .store import bump as _bump, replace_retry as _replace
+from backend.core.config import data_dir, load_config
+from backend.memory.store import bump as _bump, replace_retry as _replace
 
 _lock = threading.RLock()  # v3.3: re-entrant — load() takes it too (update() → load())
 SUMMARY_CHARS = 30_000
@@ -46,7 +44,7 @@ EMPTY = {"version": 1, "tier2": [], "tier3": {"goals": [], "hypotheses": [], "co
 
 
 def load() -> dict:
-    from .store import read_retry
+    from backend.memory.store import read_retry
     f = mem_dir() / "project_state.json"
     st = json.loads(json.dumps(EMPTY))
     with _lock:
@@ -60,7 +58,7 @@ def _load_into(f, st, read_retry) -> dict:
             st.update({k: v for k, v in d.items() if k in st})
             st["tier3"] = {**EMPTY["tier3"], **(d.get("tier3") or {})}
         except ValueError:
-            from .store import quarantine
+            from backend.memory.store import quarantine
             quarantine(f)  # v3.3: keep the damaged file instead of overwriting it with an empty state
         except Exception:
             pass
@@ -114,39 +112,9 @@ def add_decision(text: str, kind: str = "direction", source: str = "", locked: b
     return d
 
 
-def edit_decision(did: str, patch: dict) -> dict:
-    out = {}
-
-    def fn(st):
-        for d in st["decisions"]:
-            if d["id"] == did:
-                for k in ("text", "kind", "locked"):
-                    if k in patch:
-                        d[k] = (patch[k] if k != "kind" or patch[k] in KINDS else d[k])
-                d["updated"] = _now()
-                out.update(d)
-    update(fn)
-    return out
-
-
-def delete_decision(did: str):
-    update(lambda st: st.__setitem__("decisions", [d for d in st["decisions"] if d["id"] != did]))
-
-
-def decisions_block(st: dict | None = None, purged: set | None = None) -> str:
-    st = st or load()
-    purged = purged or set()
-    ds = [d for d in st["decisions"] if d.get("locked") and d["id"] not in purged]
-    if not ds:
-        return ""
-    icon = {"direction": "✅ CHOSEN DIRECTION", "hypothesis": "🧪 HYPOTHESIS", "gap": "🎯 TARGET GAP", "constraint": "📏 CONSTRAINT",
-            "rejected": "🚫 REJECTED (do not propose again)", "other": "📌 DECISION"}
-    return "\n".join(f"- [{d['id']}] {icon.get(d['kind'], 'DECISION')}: {d['text']}" for d in ds)
-
-
 # ------------------------------------------------------------------ tier 1 (computed)
 def _sessions():
-    from ..chat_store import _sess_dir
+    from backend.agent.sessions import _dir as _sess_dir
     out = []
     for f in _sess_dir().glob("*.json"):
         if f.name.startswith("_"):
@@ -174,7 +142,7 @@ def tier1(st: dict | None = None) -> dict:
         total += t
     runs_tok = 0
     try:
-        from ..sandbox import list_runs, runs_dir
+        from backend.execution.sandbox import list_runs, runs_dir
         for r in list_runs(30):
             if r["id"] in st["runs_summarized"]:
                 continue
@@ -213,74 +181,15 @@ def _split_title(text: str, fallback: str) -> tuple[str, str]:
 _running = {"busy": False}
 
 
-async def summarize(force: bool = False, max_sessions: int = 6) -> dict:
-    """Compress old chat turns and finished runs into Tier-2 episodes; refresh Tier 3. Returns a report.
-    v3.2: with memory.v2_pipeline (default) the watermark compressor (memory/compressor.py) does the work."""
-    from ..llm import call_agent
-    if load_config()["memory"].get("v2_pipeline", True):
-        from .compressor import compress
-        return await compress(force=force)
-    if _running["busy"]:
-        return {"skipped": "already running"}
-    _running["busy"] = True
-    report = {"episodes": 0, "sessions": [], "runs": 0, "errors": []}
-    try:
-        cfg = load_config()["memory"]
-        keep = int(cfg["keep_recent_turns"])
-        st = load()
-        t1 = tier1(st)
-        if not force and t1["tokens"] < int(cfg["tier1_threshold_tokens"]):
-            refresh_tier3()
-            return {**report, "skipped": "below threshold", "tier1_tokens": t1["tokens"]}
-        sess_by_id = {s["id"]: s for s in _sessions()}
-        for info in [x for x in t1["sessions"] if x["compressible"] > 0][:max_sessions]:
-            s = sess_by_id.get(info["id"])
-            if not s:
-                continue
-            done = info["summarized"]
-            upto = len(s["messages"]) - keep
-            chunk, used = [], 0
-            for i in range(done, upto):
-                m = s["messages"][i]
-                line = f"{m['role'].upper()}: {m['content'][:6000]}"
-                if used + len(line) > SUMMARY_CHARS and chunk:
-                    upto = i
-                    break
-                chunk.append(line)
-                used += len(line)
-            if not chunk:
-                continue
-            try:
-                r = await call_agent("summarizer", SUMMARY_SYS,
-                                     f"TOOL: {s.get('tool')} · SESSION: {s.get('title', '')}\n\nCONVERSATION EXCERPT (turns {done + 1}-{upto}):\n\n" + "\n\n".join(chunk),
-                                     max_tokens=900, temperature=0.1)
-            except Exception as e:
-                report["errors"].append(f"{s.get('title', s['id'])}: {e}")
-                continue
-            title, body = _split_title(r["text"], f"{s.get('tool')} · {s.get('title', '')}")
-            ep = {"id": "E" + secrets.token_hex(3), "created": _now(), "source": f"chat:{s.get('tool')}:{s['id']}", "tool": s.get("tool"),
-                  "session": s["id"], "title": title, "summary": body, "turns": [done + 1, upto], "engine": r.get("engine"),
-                  "compressed_tokens": tokens(used)}
-
-            def put(st2, ep=ep, sid=s["id"], upto=upto):
-                st2["tier2"].append(ep)
-                st2["summarized"][sid] = upto
-            update(put)
-            report["episodes"] += 1
-            report["sessions"].append(s.get("title", s["id"]))
-        report["runs"] = await _summarize_runs(force)
-        report["episodes"] += 1 if report["runs"] else 0
-        await _consolidate()
-        refresh_tier3()
-        update(lambda st2: st2["stats"].update(last_summary=_now(), last_report={k: v for k, v in report.items() if k != "sessions"}))
-        return report
-    finally:
-        _running["busy"] = False
+async def summarize(force: bool = False) -> dict:
+    """Compress old chat turns and finished runs into Tier-2 episodes; refresh Tier 3 (memory/compressor.py)."""
+    from backend.memory.compressor import compress
+    return await compress(force=force)
 
 
 async def _summarize_runs(force: bool) -> int:
-    from ..llm import call_agent
-    from ..sandbox import list_runs
+    from backend.providers.models import call_agent
+    from backend.execution.sandbox import list_runs
     st = load()
     pend = [r for r in list_runs(60) if r["id"] not in st["runs_summarized"] and r.get("status") in ("done", "failed", "stopped")]
     if len(pend) < (1 if force else 3):
@@ -295,8 +204,8 @@ async def _summarize_runs(force: bool) -> int:
     links = [f"run:{x['id']}" for x in pend]
     pages = []
     try:  # v3.2: raw run list snapshotted into the page-store + entity links (task ids, commits) for graph retrieval
-        from .pages import add_page
-        from .compressor import entities
+        from backend.memory.pages import add_page
+        from backend.memory.compressor import entities
         raw = "\n".join(lines)
         pages = [add_page("runs", "runs", [pend[-1]["id"], pend[0]["id"]], raw, header=title)["id"]]
         links = list(dict.fromkeys(links + entities(raw + "\n" + r["text"])))
@@ -315,7 +224,7 @@ async def _summarize_runs(force: bool) -> int:
 
 async def _consolidate(max_episodes: int = 40, batch: int = 12):
     """Rolling memory: when Tier 2 grows too long, merge the oldest episodes into one period summary."""
-    from ..llm import call_agent
+    from backend.providers.models import call_agent
     st = load()
     eps = [e for e in st["tier2"] if not e.get("pinned")]
     if len(eps) <= max_episodes:
@@ -343,132 +252,24 @@ async def _consolidate(max_episodes: int = 40, batch: int = 12):
 
 
 # ------------------------------------------------------------------ tier 3
-def _plan_sections(md: str) -> dict:
-    out = {"goals": [], "hypotheses": []}
-    m = re.search(r"##\s*1\.[^\n]*\n(.+?)(?=\n##\s)", md, re.S)
-    if m:
-        first = re.split(r"\n\s*\n", m.group(1).strip())[0]
-        out["goals"] = [re.sub(r"\s+", " ", first)[:600]]
-    m = re.search(r"##\s*5\.[^\n]*\n(.+?)(?=\n##\s|\Z)", md, re.S)
-    if m:
-        hs = re.findall(r"(?:^|\n)\s*(?:[-*]\s*)?\**(H\d+)\**[:.)\s-]+(.+)", m.group(1))
-        out["hypotheses"] = [f"{h}: {re.sub(r'[*`]', '', t).strip()[:300]}" for h, t in hs][:8]
-    return out
-
-
 def refresh_tier3() -> dict:
-    """Fill the automatic parts of Tier 3 (best metrics, references, goals/hypotheses from Lit2Plan when not set by hand)."""
+    """Fill the automatic parts of Tier 3: best measured metrics and the validated references of the library."""
     try:
-        from ..sandbox import best_metrics
+        from backend.execution.sandbox import best_metrics
         bm = best_metrics()
     except Exception:
         bm = {}
     try:
-        from ..library import included
+        from backend.knowledge.library import included
         refs = [e["key"] for e in included()]
     except Exception:
         refs = []
-    plan = ""
-    f = workspace() / "lit2plan.md"
-    if f.exists():
-        plan = f.read_text("utf-8")
 
     def fn(st):
-        t3 = st["tier3"]
-        t3["best_metrics"] = bm
-        t3["references"] = refs
-        if plan:
-            ps = _plan_sections(plan)
-            if not t3.get("goals_manual") and ps["goals"]:
-                t3["goals"] = ps["goals"]
-            if not t3.get("hypotheses_manual") and ps["hypotheses"]:
-                t3["hypotheses"] = ps["hypotheses"]
+        st["tier3"]["best_metrics"] = bm
+        st["tier3"]["references"] = refs
     st = update(fn)
-    try:  # v3.2: every plan hypothesis gets a stable HYPE-NNN id in Research Memory (customer scenario 1)
-        from .research import sync_from_plan
-        sync_from_plan(st["tier3"].get("hypotheses") or [])
-    except Exception:
-        pass
     return st
-
-
-def set_tier3(patch: dict) -> dict:
-    def fn(st):
-        for k in ("goals", "hypotheses", "constraints"):
-            if k in patch and isinstance(patch[k], list):
-                st["tier3"][k] = [str(x).strip()[:1000] for x in patch[k] if str(x).strip()]
-                st["tier3"][f"{k}_manual"] = True
-        if "notes" in patch:
-            st["tier3"]["notes"] = str(patch["notes"])[:8000]
-    return update(fn)
-
-
-# ------------------------------------------------------------------ context for agents
-def memory_block(tool: str = "", session_id: str = "", budget: int = 9000, purged: set | None = None) -> str:
-    """Tier 3 + relevant Tier 2 episodes, ready to append to an agent's system prompt."""
-    st = load()
-    purged = purged or set()
-    t3 = st["tier3"]
-    parts = []
-    if t3.get("goals"):
-        parts.append("Research goals:\n" + "\n".join(f"- {g}" for g in t3["goals"]))
-    if t3.get("hypotheses"):
-        parts.append("Hypotheses:\n" + "\n".join(f"- {h}" for h in t3["hypotheses"]))
-    if t3.get("constraints"):
-        parts.append("Constraints:\n" + "\n".join(f"- {c}" for c in t3["constraints"]))
-    bm = {k: v for k, v in (t3.get("best_metrics") or {}).items() if f"metric:{k}" not in purged}
-    if bm:
-        parts.append("Best metrics so far: " + ", ".join(f"{k}={v['value']:.4g} ({v['direction']})" for k, v in list(bm.items())[:20]))
-    eps = [e for e in st["tier2"] if e["id"] not in purged]
-    mine = [e for e in eps if session_id and e.get("session") == session_id]
-    others = [e for e in reversed(eps) if e not in mine]
-    used, chosen = 0, []
-    for e in mine + others:
-        txt = f"### {e['title']} ({e['created'][:10]}, {e.get('source', '')})\n{e['summary']}"
-        if used + len(txt) > budget:
-            break
-        chosen.append(txt)
-        used += len(txt)
-    if chosen:
-        parts.append("Episodic memory (summaries of earlier work; the earlier turns of THIS conversation are summarized first):\n\n" + "\n\n".join(chosen))
-    return "\n\n".join(parts)
-
-
-def status() -> dict:
-    st = load()
-    cfg = load_config()["memory"]
-    t1 = tier1(st)
-    t2_tok = sum(tokens(e.get("summary", "")) for e in st["tier2"])
-    out = {"tier1": t1, "tier2": {"count": len(st["tier2"]), "tokens": t2_tok, "episodes": list(reversed(st["tier2"]))},
-           "tier3": st["tier3"], "decisions": st["decisions"], "settings": cfg, "stats": st.get("stats", {}),
-           "busy": _running["busy"]}
-    try:  # v3.2 additions (page-store, research memory counts, active watermark)
-        from . import pages, research
-        rs = research.load()
-        out["v2"] = {"enabled": bool(cfg.get("v2_pipeline", True)), "pages": len(pages.list_pages(100000)),
-                     "high": cfg["high_watermark_tokens"], "low": cfg["low_watermark_tokens"], "chunk": cfg["chunk_tokens"],
-                     "hypotheses": len(rs["hypotheses"]), "experiments": len(rs["experiments"]), "failures": len(rs["failures"])}
-    except Exception as e:
-        out["v2"] = {"error": str(e)}
-    return out
-
-
-def delete_episode(eid: str):
-    update(lambda st: st.__setitem__("tier2", [e for e in st["tier2"] if e["id"] != eid]))
-
-
-def edit_episode(eid: str, patch: dict) -> dict:
-    out = {}
-
-    def fn(st):
-        for e in st["tier2"]:
-            if e["id"] == eid:
-                for k in ("title", "summary", "pinned"):
-                    if k in patch:
-                        e[k] = patch[k]
-                out.update(e)
-    update(fn)
-    return out
 
 
 # ------------------------------------------------------------------ background worker
@@ -479,8 +280,7 @@ async def worker(stop_event: asyncio.Event):
         try:
             cfg = load_config()["memory"]
             if cfg.get("auto_summarize", True):
-                limit = int(cfg["high_watermark_tokens"] if cfg.get("v2_pipeline", True) else cfg["tier1_threshold_tokens"])
-                if tier1()["tokens"] >= limit:
+                if tier1()["tokens"] >= int(cfg["high_watermark_tokens"]):
                     await summarize(force=False)
                 update(lambda st: st["stats"].update(last_check=_now()))
             delay = max(30, int(cfg.get("interval_s", 180)))
@@ -494,3 +294,16 @@ async def worker(stop_event: asyncio.Event):
             await asyncio.wait_for(stop_event.wait(), timeout=delay)
         except asyncio.TimeoutError:
             pass
+
+
+def set_tier3(patch: dict) -> dict:
+    """Long-term project memory (goals, hypotheses, constraints, notes). The research outline writes its topic and
+    direction here, so every agent and the research state see the current goal (agent/outline.py)."""
+    def fn(st):
+        for k in ("goals", "hypotheses", "constraints"):
+            if k in patch and isinstance(patch[k], list):
+                st["tier3"][k] = [str(x).strip()[:1000] for x in patch[k] if str(x).strip()]
+                st["tier3"][f"{k}_manual"] = True
+        if "notes" in patch:
+            st["tier3"]["notes"] = str(patch["notes"])[:8000]
+    return update(fn)

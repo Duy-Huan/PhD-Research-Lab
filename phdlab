@@ -1,0 +1,5 @@
+#!/bin/sh
+# PhD Research Lab command-line client (shares the backend with the browser UI). Usage: ./phdlab --help
+D="$(cd "$(dirname "$0")" && pwd)"
+PY="$D/.venv/bin/python"; [ -x "$PY" ] || PY="$D/.venv/Scripts/python.exe"; [ -x "$PY" ] || PY=python3
+PYTHONPATH="$D${PYTHONPATH:+:$PYTHONPATH}" PYTHONIOENCODING=utf-8 exec "$PY" -m backend.cli "$@"

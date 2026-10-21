@@ -84,8 +84,8 @@ def _norm(t: str) -> str:
 
 def collect(purged: set | None = None) -> list:
     """All memory nodes of the active project (purged ones excluded)."""
-    from . import load as load_legacy
-    from . import knowledge, research
+    from backend.memory import load as load_legacy
+    from backend.memory import knowledge, research
     purged = purged or set()
     st = load_legacy()
     rs = research.load()
@@ -97,7 +97,8 @@ def collect(purged: set | None = None) -> list:
             nodes.append(n)
 
     # ---- research tier: hypotheses (stable HYPE ids), plan hypotheses without an id, decisions, experiments, failures
-    purged_hyp_text = {_norm(h) for i, h in enumerate(t3.get("hypotheses") or []) if f"hyp:{i}" in purged}
+    purged_hyp_text = {_norm(text) for i, h in enumerate(t3.get("hypotheses") or []) if f"hyp:{i}" in purged
+                       for text in (h, re.sub(r"^\s*H\d+\s*[:.)-]\s*", "", h))}
     known = set()
     for h in rs["hypotheses"]:
         known.add(_norm(h["text"]))
@@ -143,7 +144,7 @@ def collect(purged: set | None = None) -> list:
 
     # ---- evidence tier (v3.3): claims and evidence with provenance pointers
     try:
-        from . import evidence as EV
+        from backend.memory import evidence as EV
         es = EV.load()
         for c in es["claims"]:
             add(MemoryNode(c["id"], "evidence", "claim", c["id"], _one_line(c["text"]), c["text"][:600], ts=c["updated"],
@@ -172,31 +173,23 @@ def collect(purged: set | None = None) -> list:
                        e.get("summary", ""), pages=list(e.get("pages") or []), links=list(e.get("links") or []),
                        ts=e.get("created", ""), pinned=bool(e.get("pinned")), status=e.get("source", "")))
     try:
-        from ..context_hub import load_notes
+        from backend.memory.notes import load_notes
         for n in load_notes()[-60:]:
             add(MemoryNode(f"note:{n['id']}", "working", "note", f"note:{n['id']}", _one_line(n["text"]), n["text"][:800], ts=n.get("ts", "")))
     except Exception:
         pass
 
-    # ---- knowledge tier: papers (live from the library), concepts, methods
+    # ---- knowledge tier: papers (live from the library)
     for p in knowledge.papers():
         if not p["key"]:
             continue
         add(MemoryNode(f"lit:{p['key']}", "knowledge", "paper", p["key"], _one_line(f"{p['title']} ({p['year']})"),
                        _one_line(p["abstract"], 400), p["abstract"], refs={"bib": p["key"], "venue": p.get("venue", "")},
                        meta={"source_type": "paper"}))
-    kn = knowledge.load()
-    for c in kn["concepts"]:
-        add(MemoryNode(c["id"], "knowledge", "concept", c["name"], _one_line(c["name"] + ": " + c["text"]), c["text"][:600],
-                       links=[f"lit:{r}" for r in c.get("refs", [])], ts=c["created"]))
-    for m in kn["methods"]:
-        add(MemoryNode(m["id"], "knowledge", "method", m["name"], _one_line(m["name"] + ": " + m["text"]), m["text"][:600],
-                       links=[f"lit:{r}" for r in m.get("refs", [])], ts=m["created"], refs={"code": m.get("code_ref", "")},
-                       meta={"source_type": "method", "has_code": "yes" if m.get("code_ref") else ""}))
 
     # ---- researcher-controlled overlay of the context graph: pins, custom nodes, extra edges
     try:
-        from ..context_graph import load_overlay
+        from backend.memory.graph import load_overlay
         ov = load_overlay()
         by_id = {n.id: n for n in nodes}
         for nid, o in ov["nodes"].items():

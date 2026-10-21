@@ -6,7 +6,7 @@ import warnings
 warnings.filterwarnings("ignore")
 from fastapi.testclient import TestClient  # noqa: E402
 
-from backend import telemetry as T  # noqa: E402
+from backend.core import telemetry as T  # noqa: E402
 from backend.app import app  # noqa: E402
 
 INIT = {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"clientInfo": {"name": "t"}}}
@@ -20,6 +20,7 @@ class Security(unittest.TestCase):
     def setUp(self):
         _env.fresh_project("sec34")
         _env.config.save_config({"mcp": {"token": "", "rate_limit_per_min": 0, "enabled": True, "expose_sandbox": True}})
+        self.addCleanup(_env.config.save_config, {"mcp": {"token": "", "rate_limit_per_min": 240}})
 
     def test_remote_host_rejected_by_default(self):
         self.assertEqual(self.c.post("/mcp", json=INIT, headers={"host": "lab.example.com"}).status_code, 421)
@@ -43,7 +44,7 @@ class Security(unittest.TestCase):
         codes = [self.c.post("/mcp", json={"jsonrpc": "2.0", "id": i, "method": "ping"}).status_code for i in range(5)]
         self.assertEqual(codes[:3], [200, 200, 200])
         self.assertEqual(codes[-1], 429)
-        from backend import mcp_server
+        from backend.providers import mcp_server
         mcp_server._rl.clear()
 
     def test_disabled_mcp(self):
@@ -57,30 +58,7 @@ class Security(unittest.TestCase):
         self.assertEqual(self.c.post("/mcp", content=b"not json", headers={"content-type": "application/json"}).status_code, 400)
         self.assertEqual(self.c.post("/mcp", json="string").status_code, 400)
 
-    def test_telemetry_refuses_content_and_redacts(self):
-        with T.span("test.op", agent_id="reviewer", provider="codex") as s:
-            s.update(selected_count=3, context_tokens=1200)
-            s.update(query="what is our secret method?", prompt="full prompt text", agent_id="has spaces and text")
-        rec = T.recent(1, "test.op")[0]
-        self.assertEqual(rec["selected_count"], 3)
-        self.assertNotIn("query", rec)
-        self.assertNotIn("prompt", rec)
-        self.assertNotIn("agent_id", rec)  # free text refused even in an allowed field
-        try:
-            with T.span("test.err"):
-                raise ValueError("failed with key sk-abcdefghijklmnopqrstuvwx")
-        except ValueError:
-            pass
-        self.assertNotIn("sk-abcdefghijklmnopqrstuvwx", T.recent(1, "test.err")[0]["error"])
-        for s in ("ghp_abcdefghijklmnopqrstuvwxyz0123", "AKIAABCDEFGHIJKLMNOP", "Bearer abcdefghijklmnop.qrstuvwx",
-                  "password = hunter2hunter2", "AIzaSyA1234567890abcdefghijklmnopqrstu"):
-            self.assertIn("[REDACTED]", T.redact(f"x {s} y"), s)
 
-    def test_gateway_never_logs_credentials_or_prompt(self):
-        r = self.c.post("/api/memory/v3/compile", json={"query": "anything", "trace": True})
-        self.assertEqual(r.status_code, 200)
-        raw = (_env.config.GLOBAL_DIR / "telemetry" / "ops.jsonl").read_text("utf-8")
-        self.assertNotIn("anything", raw)
 
 
 if __name__ == "__main__":

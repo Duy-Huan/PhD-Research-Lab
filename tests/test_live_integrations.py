@@ -8,13 +8,13 @@ import os
 import time
 import unittest
 
-from backend.config import save_config
+from backend.core.config import save_config
 
 
 @unittest.skipUnless(os.environ.get("PHDLAB_CLEARML_LIVE") == "1", "set PHDLAB_CLEARML_LIVE=1 to run against a real ClearML server")
 class ClearMLLive(unittest.TestCase):
     def test_create_log_read(self):
-        from backend.integrations.experiment import ClearMLAdapter
+        from backend.execution.tracker import ClearMLAdapter
         save_config({"clearml": {"enabled": True, "api_host": os.environ.get("CLEARML_API_HOST", ""),
                                  "web_host": os.environ.get("CLEARML_WEB_HOST", ""), "files_host": os.environ.get("CLEARML_FILES_HOST", ""),
                                  "access_key": os.environ.get("CLEARML_API_ACCESS_KEY", ""),
@@ -34,21 +34,22 @@ class ClearMLLive(unittest.TestCase):
 @unittest.skipUnless(os.environ.get("PHDLAB_CODEX_LIVE") == "1", "set PHDLAB_CODEX_LIVE=1 to run one real read-only Codex task")
 class CodexLive(unittest.TestCase):
     def test_read_only_run(self):
-        from backend.integrations import agents as A
-        from backend.sandbox import code_dir
+        from pathlib import Path
+        from backend.providers.cli import CodexConnector
+        from backend.providers import cli_space as W
         _env.fresh_project("codex-live")
-        (code_dir() / "hello.py").write_text("def add(a, b):\n    return a + b\n", "utf-8")
-        save_config({"codex": {"enabled": True}})
-        run = A.CodexBackend().start_run("Read hello.py and answer in one sentence what add() returns. Do not modify files.")
-        t0 = time.time()
-        while A.get_run(run["id"])["status"] in ("starting", "running") and time.time() - t0 < 600:
-            time.sleep(2)
-        r = A.get_run(run["id"])
-        self.assertEqual(r["status"], "completed", r.get("errors"))
-        self.assertEqual(r["permission_mode"], "read-only")
-        self.assertTrue(r["thread_id"])
-        self.assertEqual(r["changed_files"], [])
-        self.assertTrue(r["final_message"])
+        save_config({"gateway": {"codex_enabled": True}})
+        session = W.open_session("codex", f"live-{time.time_ns()}", "review", W.check_profile("codex", "review"))
+        hello = Path(session["cwd"]) / "hello.py"
+        source = "def add(a, b):\n    return a + b\n"
+        hello.write_text(source, "utf-8")
+        events = list(CodexConnector().stream_message(
+            "Read hello.py and answer in one sentence what add() returns. Do not modify files.",
+            {"cwd": session["cwd"], "profile": "review", "timeout_s": 120}))
+        self.assertFalse([e for e in events if e["type"] == "error"], events)
+        self.assertTrue(any(e["type"] == "request_completed" and e["exit_code"] == 0 for e in events), events)
+        self.assertTrue(any(e["type"] == "text_delta" and e.get("text") for e in events), events)
+        self.assertEqual(hello.read_text("utf-8"), source)
 
 
 if __name__ == "__main__":

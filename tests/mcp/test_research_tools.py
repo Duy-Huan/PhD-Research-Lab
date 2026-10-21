@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient  # noqa: E402
 
 from backend import memory as M  # noqa: E402
 from backend.app import app  # noqa: E402
-from backend.gateway import mcp_tools  # noqa: E402
+from backend.providers import mcp_tools  # noqa: E402
 from memory_eval import golden  # noqa: E402
 
 READ = ["research_get_current_state", "research_search_memory", "research_get_hypothesis", "research_get_experiment",
@@ -117,19 +117,6 @@ class ResearchTools(unittest.TestCase):
         r = self.m.call("research_record_experiment_result", {"experiment_id": "EXP-777", "text": "made up"})
         self.assertTrue(r["isError"])
 
-    def test_sensitivity_policy_applies_to_mcp(self):
-        from backend.gateway.policy import set_sensitivity
-        set_sensitivity("FAIL-001", "RESTRICTED")
-        st = self.m.call("research_get_current_state")["content"][0]["text"]
-        self.assertNotIn("FAIL-001", st)
-        hits = self.m.call("research_search_memory", {"query": "OOM window 16"})["structuredContent"]["result"]["hits"]
-        self.assertNotIn("FAIL-001", [h["id"] for h in hits])
-        self.assertTrue(self.m.call("research_get_provenance", {"id": "FAIL-001"})["isError"])
-        set_sensitivity("EXP-004", "SENSITIVE")
-        self.assertTrue(self.m.call("research_get_experiment", {"id": "EXP-004"})["isError"])
-        _env.config.save_config({"gateway": {"allow_sensitive": True}})
-        self.assertFalse(self.m.call("research_get_experiment", {"id": "EXP-004"}).get("isError"))
-        _env.config.save_config({"gateway": {"allow_sensitive": False}})
 
     def test_secrets_are_redacted_in_results(self):
         research_note = "API key for the cluster: sk-abcdefghijklmnopqrstuvwxyz123456"

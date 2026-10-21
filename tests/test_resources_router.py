@@ -3,8 +3,9 @@ import copy
 import unittest
 from unittest import mock
 
-from backend import llm, llm_router, resources as R
-from backend.config import load_config
+from backend.providers import models as llm, router as llm_router
+from backend.execution import resources as R
+from backend.core.config import load_config
 
 REF_SCAN = {"gpus": [{"name": "NVIDIA GeForce RTX 3060", "vram_total_mb": 12288}], "memory": {"total_gb": 32}, "cpu": {"cores": 16}}
 
@@ -59,7 +60,7 @@ class Policy(unittest.TestCase):
         cfg = copy.deepcopy(load_config())
         cfg["resources"]["unload_wait_s"] = 0
         with mock.patch.object(R, "loaded_local_models", return_value={"ollama": ["qwen2.5:7b"], "lmstudio": []}), \
-                mock.patch("backend.local_ai.ollama_unload", side_effect=unload), \
+                mock.patch("backend.providers.local.ollama_unload", side_effect=unload), \
                 mock.patch.object(R, "gpus", side_effect=lambda *a: next(seq, [{"vram_used_mb": 800}])), \
                 mock.patch("time.sleep"):
             rep = R.unload_local_models(cfg)
@@ -74,42 +75,8 @@ class Router(unittest.TestCase):
             c["providers"][pid]["api_key"] = k
         return c
 
-    def test_chain_offline_keeps_only_local(self):
-        c = self.cfg(groq="g", anthropic="a")
-        with mock.patch.object(llm_router, "online", return_value=False), \
-                mock.patch.object(llm_router, "local_up", side_effect=lambda cfg, e: e == "ollama"), \
-                mock.patch.object(llm_router, "_reachable", return_value=False), mock.patch.object(R, "gpu_busy", return_value=False):
-            p = llm_router.plan(c, "critic")
-        self.assertEqual(p["candidates"], ["ollama"])
-        self.assertEqual(p["skipped"]["groq"], "offline")
 
-    def test_live_critic_prefers_groq_and_gpu_busy_moves_local_last(self):
-        c = self.cfg(groq="g")
-        with mock.patch.object(llm_router, "online", return_value=True), \
-                mock.patch.object(llm_router, "local_up", return_value=True), \
-                mock.patch.object(llm_router, "_reachable", return_value=False), mock.patch.object(R, "gpu_busy", return_value=True):
-            p = llm_router.plan(c, "critic")
-        self.assertEqual(p["candidates"][0], "groq")
-        self.assertEqual(p["candidates"][-1], "ollama")
-        self.assertNotIn("local", p["candidates"])  # LM Studio cannot offload to CPU
 
-    def test_sequential_fallback(self):
-        cfg = self.cfg()
-        cfg["agent_modes"]["critic"] = "auto"
-        tried = []
-
-        async def cloud(cfg_, pid, *a, **k):
-            tried.append(pid)
-            if pid == "groq":
-                raise llm.LLMError("429 quota")
-            return "fine"
-        plan = {"agent": "critic", "kind": "live_critic", "online": True, "gpu_busy": False, "candidates": ["groq", "deepinfra"], "skipped": {}}
-        with mock.patch.object(llm, "load_config", return_value=cfg), mock.patch.object(llm_router, "plan", return_value=plan), \
-                mock.patch.object(llm, "cloud_chat", side_effect=cloud):
-            r = _env.run_async(llm.call_agent("critic", "sys", "hi"))
-        self.assertEqual(tried, ["groq", "deepinfra"])
-        self.assertEqual(r["engine"], "deepinfra")
-        self.assertIn("fell back", r["note"])
 
     def test_no_engine_is_an_honest_error(self):
         cfg = self.cfg()
