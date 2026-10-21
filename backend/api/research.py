@@ -21,6 +21,27 @@ router = APIRouter(prefix="/api/research", tags=["research-workspace"], dependen
 
 from backend.agent import missions
 from backend.agent.mission_contracts import MissionSpec
+from backend.execution import protocols
+from backend.execution.protocol_contracts import ExperimentProtocol
+
+
+@router.get("/topics/{tid}/protocols")
+async def protocol_list(tid:str):return {"protocols":await call(protocols.listing,tid),"runs":await call(protocols.runs,tid)}
+
+
+@router.post("/topics/{tid}/protocols")
+async def protocol_create(tid:str,body:ExperimentProtocol,parent_id:str=""):
+    if tid!=body.topic_id:raise HTTPException(400,"Topic mismatch")
+    return await call(protocols.create,body,parent_id)
+
+
+@router.post("/topics/{tid}/protocols/{pid}/approve")
+async def protocol_approve(tid:str,pid:str,body:dict=Body(...)):
+    return await call(protocols.approve,tid,pid,str(body.get("digest") or ""),str(body.get("note") or ""))
+
+
+@router.post("/topics/{tid}/protocols/{pid}/mission")
+async def protocol_mission(tid:str,pid:str):return await call(protocols.mission_draft,tid,pid)
 
 
 @router.get("/mission-capabilities")

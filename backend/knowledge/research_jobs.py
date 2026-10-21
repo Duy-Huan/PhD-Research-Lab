@@ -259,6 +259,8 @@ async def worker(stop: asyncio.Event):
                         recovered.add(str(path))
                         from backend.agent import missions
                         await asyncio.to_thread(missions.recover)
+                        from backend.execution import protocols
+                        await asyncio.to_thread(protocols.recover)
                     await asyncio.to_thread(schedule_due)
                     with S.db() as c:
                         row = c.execute("SELECT * FROM jobs WHERE status='queued' ORDER BY created LIMIT 1").fetchone()

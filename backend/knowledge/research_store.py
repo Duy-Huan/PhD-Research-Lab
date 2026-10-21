@@ -89,8 +89,12 @@ CREATE TABLE IF NOT EXISTS mission_attempts(key TEXT PRIMARY KEY,mission_id TEXT
 CREATE TABLE IF NOT EXISTS decision_ledger(seq INTEGER PRIMARY KEY AUTOINCREMENT,topic_id TEXT NOT NULL REFERENCES topics(id),entity_id TEXT NOT NULL,kind TEXT NOT NULL,at TEXT NOT NULL,payload TEXT NOT NULL,previous_hash TEXT NOT NULL,hash TEXT UNIQUE NOT NULL);
 CREATE TRIGGER IF NOT EXISTS ledger_no_update BEFORE UPDATE ON decision_ledger BEGIN SELECT RAISE(ABORT,'ledger is append only'); END;
 CREATE TRIGGER IF NOT EXISTS ledger_no_delete BEFORE DELETE ON decision_ledger BEGIN SELECT RAISE(ABORT,'ledger is append only'); END;
+CREATE TABLE IF NOT EXISTS experiment_protocols(id TEXT PRIMARY KEY,topic_id TEXT NOT NULL REFERENCES topics(id),parent_id TEXT,revision INTEGER NOT NULL,digest TEXT NOT NULL,payload TEXT NOT NULL,approval TEXT);
+CREATE TABLE IF NOT EXISTS dataset_versions(id TEXT PRIMARY KEY,topic_id TEXT NOT NULL REFERENCES topics(id),fingerprint TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(topic_id,fingerprint));
+CREATE TABLE IF NOT EXISTS experiment_runs(id TEXT PRIMARY KEY,topic_id TEXT NOT NULL REFERENCES topics(id),protocol_id TEXT NOT NULL REFERENCES experiment_protocols(id),mission_id TEXT NOT NULL REFERENCES missions(id),approval_nonce TEXT UNIQUE NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS experiment_trials(id TEXT PRIMARY KEY,run_id TEXT NOT NULL REFERENCES experiment_runs(id),trial_key TEXT NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(run_id,trial_key));
 """
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 _schema_lock = threading.RLock()
 
 

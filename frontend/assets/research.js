@@ -41,7 +41,7 @@
     epoch++;
     if (request) request.abort();
     const nav = h("div.research-nav", {}, [["papers", tr("Paper", "Papers")], ["topics", "Topics"], ["workspaces", "Workspaces"], ["artifacts", tr("Nguồn gốc", "Provenance")], ["jobs", "Jobs"]]
-      .concat([["missions", "Missions"]]).map(([key, title]) => button(title, () => R.open(key), key === mode ? "accent" : "ghost")));
+      .concat([["missions", "Missions"],["protocols","Experiments"]]).map(([key, title]) => button(title, () => R.open(key), key === mode ? "accent" : "ghost")));
     const body = h("div.research-body", { dataset: { mode } });
     PL.panels.open(tr("Không gian nghiên cứu", "Research workspace"), h("div", {}, nav, body), { kind: "research", arg: mode });
     body.append(h("p.muted", {}, tr("Đang tải…", "Loading…")));
@@ -63,6 +63,7 @@
       else if (mode === "artifacts") await renderArtifacts(body, revision);
       else if (mode === "jobs") await renderJobs(body, revision);
       else if (mode === "missions") await renderMissions(body, revision);
+      else if (mode === "protocols") await renderProtocols(body, revision);
     } catch (e) { if (revision === epoch) { body.replaceChildren(h("p.error", {}, e.message), button(tr("Thử lại", "Retry"), () => R.open(mode))); } }
   };
 
@@ -252,7 +253,7 @@
     if (action.availability !== "available") { PL.toast("Action unavailable"); return; }
     if (view === "library") return PL.panels.library();
     if (view === "settings") return PL.settings.open();
-    if (["papers", "topics", "workspaces", "artifacts", "jobs", "missions"].includes(view)) return R.open(view);
+    if (["papers", "topics", "workspaces", "artifacts", "jobs", "missions", "protocols"].includes(view)) return R.open(view);
     throw new Error("Unregistered UI component");
   };
   async function renderMissions(body, revision) {
@@ -269,6 +270,17 @@
       ...m.tasks.map(t=>h("details",{},h("summary",{},t.id+" · "+t.status),h("pre",{},JSON.stringify(t.payload,null,2)))),
       ["draft","paused","failed","interrupted"].includes(m.status)?button("Approve this plan",async()=>{const note=await PL.prompt("Approve exact plan","Review permissions, engine, limits and scientific intent","");if(note){await PL.post(base()+"/missions/"+m.id+"/approve",{plan_digest:m.payload.plan_digest,note});await R.open("missions");}}):null,
       button("Cancel",async()=>{await PL.post(base()+"/missions/"+m.id+"/cancel");await R.open("missions");})));
+  }
+  async function renderProtocols(body,revision) {
+    body.append(h("p.muted",{},"Fixed protocol → human approval → mission draft → approve mission. CPU toy benchmark; no GPU or paid inference."),button("New protocol revision",()=>{
+      const text=h("textarea.input",{rows:16,"aria-label":"Experiment protocol JSON"},JSON.stringify({topic_id:R.tid,hypothesis:"Smoothing reduces Gaussian noise in generated smooth images",seeds:[11,23,37],alphas:[0.5,1.0],max_trials:6,max_seconds:120},null,2));
+      PL.modal({title:"Pre-register scientific intent & budgets",body:text,actions:[{label:"Cancel"},{label:"Create immutable protocol",kind:"accent",onClick:async()=>{const r=await PL.safe(()=>PL.post(base()+"/protocols",JSON.parse(text.value)));if(!r)return false;await R.open("protocols");return true;}}]});
+    }),button("Refresh",()=>R.open("protocols")));
+    const r=await PL.get(base()+"/protocols");if(revision!==epoch)return;
+    for(const p of r.protocols)body.append(h("article.research-card",{},h("b",{},p.payload.spec.hypothesis+" · revision "+p.revision),h("pre",{},JSON.stringify(p.payload,null,2)),
+      button("Approve fixed protocol",async()=>{const note=await PL.prompt("Protocol approval","Review splits, metrics, baseline, CPU/time/storage limits","");if(note){await PL.post(base()+"/protocols/"+p.id+"/approve",{digest:p.digest,note});await R.open("protocols");}}),
+      p.approval?button("Prepare execution mission",async()=>{await PL.post(base()+"/protocols/"+p.id+"/mission");await R.open("missions");}):null));
+    for(const run of r.runs)body.append(h("details.research-card",{},h("summary",{},run.id+" · "+run.status+" · scientific review pending"),h("pre",{},JSON.stringify(run.payload,null,2)),...run.trials.map(t=>h("details",{},h("summary",{},t.trial_key+" · "+t.status),h("pre",{},JSON.stringify(t.payload,null,2))))));
   }
   R.command = function (text) {
     const match = /^\/([\w-]+)(?:\s.*)?$/.exec(text);

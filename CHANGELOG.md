@@ -1,5 +1,11 @@
 # Changelog
 
+## v5.5.0-preview.1 — 2026-10-22
+
+- Added immutable versioned experiment protocols, generated dataset/split fingerprints, single-use approval nonces, fixed baselines, multi-seed trials, actual per-sample MSE/PSNR artifacts and validation-only candidate selection.
+- Added bounded trusted Python and pinned-image offline Docker worker contracts, existing CPU resource admission, cancellation/time/storage limits, retained negative/failed/interrupted trials and explicit reproduction approval. No arbitrary generated code, GPU or paid inference is enabled.
+- Added Experiments drawer and `/experiment`, linked protocol execution through the v5.4 mission gateway. Schema 3 migration backs up v2. Existing custom experiment/Optuna/ClearML workflows remain available separately.
+
 ## v5.4.0-preview.1 — 2026-10-22
 
 - Added typed capability/skill descriptors, validated Topic Mission DAGs, explicit engine routing/fallback, digest-bound expiring approvals, admission keys, bounded reasoning/time/delegation and append-only hash-linked audit events.

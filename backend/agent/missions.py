@@ -36,6 +36,11 @@ def create(spec: MissionSpec) -> dict:
             raise ValueError("from_task must be an explicit dependency")
         for pid in task.args.get("paper_ids",[]):
             corpus.paper(spec.topic_id,pid)
+        if task.capability=="experiment.run":
+            from backend.execution.protocols import get as protocol
+            p=protocol(spec.topic_id,task.args["protocol_id"])
+            if not p["approval"] or p["digest"]!=task.args["protocol_digest"] or p["approval"]["nonce"]!=task.args["approval_nonce"]:
+                raise ValueError("Experiment protocol approval/digest mismatch")
         if task.capability == "workspace.sync":
             from backend.research_engines.workspaces import get as workspace
             if workspace(task.args["workspace_id"])["topic_id"] != spec.topic_id:
@@ -193,7 +198,7 @@ async def _dispatch(m,task,key) -> ExecutionResult:
         return ExecutionResult(status="completed",output={"report":str(path)},artifacts=[ArtifactManifest(path=str(path),sha256=__import__('hashlib').sha256(raw).hexdigest(),bytes=len(raw))])
     if task.capability == "experiment.run":
         from backend.execution import protocols
-        result = await protocols.execute(tid,task.args["protocol_id"],mission_id=mid)
+        result = await protocols.execute(tid,task.args["protocol_id"],mission_id=mid,expected_digest=task.args["protocol_digest"],expected_nonce=task.args["approval_nonce"])
         return ExecutionResult(status="completed",output=result)
     raise ValueError("Capability unavailable")
 

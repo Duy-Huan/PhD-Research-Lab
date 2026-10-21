@@ -2,6 +2,7 @@
 from typing import Literal
 from pydantic import Field
 from backend.agent.mission_contracts import Contract, Task
+from backend.execution.protocol_contracts import ProtocolRef
 
 
 class Capability(Contract):
@@ -39,8 +40,9 @@ class Report(Contract):
 
 
 INPUTS = {"paper.discover": Discover, "paper.download": PaperIDs, "paper.inspect": PaperIDs,
-          "paper.compare": Compare, "workspace.sync": Sync, "mission.report": Report}
+          "paper.compare": Compare, "workspace.sync": Sync, "mission.report": Report,"experiment.run":ProtocolRef}
 META = {
+    "experiment.run": ("Run an approved immutable CPU/Docker protocol",True,["compute","workspace_write"],["deterministic"]),
     "paper.discover": ("Discover topic metadata", True, ["network", "workspace_write"], ["deterministic"]),
     "paper.download": ("Resolve/download bounded OA PDFs", True, ["network", "workspace_write"], ["deterministic"]),
     "paper.inspect": ("Inspect scoped metadata and source versions", True, [], ["deterministic"]),
