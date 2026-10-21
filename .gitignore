@@ -27,3 +27,5 @@ artifacts/backend-regression-v42/
 artifacts/full-validation/frontend-v8*/
 artifacts/full-validation/**/html/
 artifacts/full-validation/coverage-strict-html/
+
+upgrade/
