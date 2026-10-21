@@ -1,0 +1,8 @@
+{
+  "tests": 88,
+  "line_percent": 100.0,
+  "branch_percent": 95.99,
+  "function_percent": 95.03,
+  "passed": true,
+  "scope": "all first-party frontend/assets/*.js loaded by the real page; third-party vendor assets excluded"
+}

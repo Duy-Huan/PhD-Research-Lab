@@ -59,7 +59,7 @@ def versions(session_id: str = "") -> dict:
                  "code/.phdlab-code.json"):
         v[name] = signature(root / name)
     for pattern in ("runs/*/run.json", "runs/*/metrics_parsed.json", "runs/*/stdout.log", "runs/*/stderr.log",
-                    "workspace/research_runs/RR-*.json"):
+                    "workspace/research_runs/RR-*.json", "compute/rc-*/run.json"):
         v[pattern] = [(str(p.relative_to(root)), signature(p)) for p in sorted(root.glob(pattern))]
     # Only another conversation's summary is a context source. Saving last_manifest or appending SSE events in this
     # session does not change it; reading raw session file mtimes would defeat caching on every turn.

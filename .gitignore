@@ -22,3 +22,8 @@ artifacts/backend-regression/
 tests/frontend/node_modules/
 artifacts/frontend-coverage/
 artifacts/backend-regression-v42/
+
+# Rebuildable raw instrumentation and HTML; retain compact validation evidence.
+artifacts/full-validation/frontend-v8*/
+artifacts/full-validation/**/html/
+artifacts/full-validation/coverage-strict-html/

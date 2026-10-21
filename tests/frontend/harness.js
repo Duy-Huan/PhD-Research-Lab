@@ -71,7 +71,7 @@ function resp(o) {
   const chunks = o.sse ? o.sse.map((e) => (typeof e === 'string' ? e : `data: ${JSON.stringify(e)}\n\n`)) : null;
   return {
     ok: status < 400, status, statusText: o.statusText || '', headers: {get: (k) => (k.toLowerCase() === 'content-type' ? ct : null)},
-    json: async () => JSON.parse(text), text: async () => text,
+    json: async () => JSON.parse(text), text: async () => text, blob: async () => ({size: text.length, type: ct}),
     body: chunks ? {getReader() {
       let i = 0;
       return {read: async () => (i < chunks.length ? {value: new TextEncoder().encode(chunks[i++]), done: false} : {value: undefined, done: true})};

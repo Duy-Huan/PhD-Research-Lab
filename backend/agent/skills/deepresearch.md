@@ -2,6 +2,8 @@
 name: deepresearch
 title: Nghiên cứu sâu
 description: Điều tra kỹ một chủ đề, nhiều nguồn, có trích dẫn (Feynman deepresearch)
+title_en: Deep research
+description_en: Multi-source deep research report on a question
 usage: <câu hỏi / chủ đề>
 category: research
 agent: research

@@ -28,11 +28,15 @@ def clearml_dir() -> Path:
     return d
 
 
-def run_worker(cmd: str, args: dict, timeout: int = 900) -> dict:
-    env = {k: v for k, v in os.environ.items() if not k.startswith(("CLEARML_", "TRAINS_"))}
+def run_worker(cmd: str, args: dict, timeout: int = 900, online: bool = False) -> dict:
+    if online and not load_config()["clearml"].get("server_enabled"):
+        raise IntegrationError("Enable ClearML Server integration and configure clearml.conf first")
+    env = {k: v for k, v in os.environ.items() if online or not k.startswith(("CLEARML_", "TRAINS_"))}
+    if online:
+        env["CLEARML_OFFLINE_MODE"] = "0"
     env.update(PYTHONIOENCODING="utf-8", PYTHONUNBUFFERED="1", CLEARML_CACHE_DIR=str(clearml_dir()))
     try:
-        r = subprocess.run([sys.executable, str(WORKER)], input=json.dumps({"cmd": cmd, "args": args, "offline": True}),
+        r = subprocess.run([sys.executable, str(WORKER)], input=json.dumps({"cmd": cmd, "args": args, "offline": not online}),
                            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout, env=env,
                            cwd=str(data_dir()), creationflags=NO_WINDOW)
     except subprocess.TimeoutExpired:

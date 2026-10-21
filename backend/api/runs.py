@@ -23,7 +23,8 @@ async def runs_create(body: dict = Body(...)):
     from backend.agent import launch, sessions
     sid = str(body.get("session_id") or "")
     sess = await call(sessions.get, sid) if sid else None
-    return await call(launch.from_skill, str(body.get("skill", "")), str(body.get("input", "")), sess)
+    return await call(launch.from_skill, str(body.get("skill", "")), str(body.get("input", "")), sess,
+                      engine_mode=str(body.get("engine_mode") or ""))
 
 
 @router.get("/api/runs/{rid}")

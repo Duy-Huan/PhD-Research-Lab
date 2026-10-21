@@ -119,6 +119,57 @@ def list_sessions(module: str = "", entity_id: str = "", q: str = "", archived: 
     return sorted(out, key=lambda x: -x["updated"])[:limit]
 
 
+NOTE_FIELDS = {"message_id": 64, "quote": 2000, "prefix": 120, "suffix": 120, "text": 4000}
+
+
+def _clean_note(body: dict) -> dict:
+    n = {k: str(body.get(k) or "")[:limit] for k, limit in NOTE_FIELDS.items() if k in body}
+    if isinstance(body.get("point"), dict):  # a data point of a chart: {chart, series, x, y, label}
+        n["point"] = {k: str(v)[:120] for k, v in body["point"].items() if k in ("chart", "series", "x", "y", "label")}
+    if body.get("status") in ("open", "resolved"):
+        n["status"] = body["status"]
+    return n
+
+
+def add_note(sid: str, body: dict) -> dict:
+    """A researcher's note pinned to a passage or a chart point of a message (shown as a highlight in the answer)."""
+    n = _clean_note(body)
+    if not n.get("message_id") or not (n.get("quote") or n.get("point")):
+        raise AIWSError("A note needs the message and the passage (or chart point) it refers to")
+    note = {"id": new_id("nt", 4), "created": now(), "status": "open", "text": "", **n}
+
+    def fn(s):
+        if not any(m["id"] == note["message_id"] for m in s["messages"]):
+            raise AIWSError("Message not found in this conversation")
+        s.setdefault("notes", []).append(note)
+        return note
+    out = update(sid, fn)
+    emit(sid, "session.updated", note=note["id"])
+    return out
+
+
+def update_note(sid: str, nid: str, body: dict) -> dict:
+    patch = {k: v for k, v in _clean_note(body).items() if k in ("text", "status")}
+
+    def fn(s):
+        n = next((x for x in s.get("notes") or [] if x["id"] == nid), None)
+        if not n:
+            raise AIWSError("Note not found")
+        n.update(patch, updated=now())
+        return n
+    return update(sid, fn)
+
+
+def delete_note(sid: str, nid: str) -> dict:
+    def fn(s):
+        before = len(s.get("notes") or [])
+        s["notes"] = [x for x in s.get("notes") or [] if x["id"] != nid]
+        if len(s["notes"]) == before:
+            raise AIWSError("Note not found")
+        return {"deleted": nid}
+    return update(sid, fn)
+
+
 def rename(sid: str, title: str) -> dict:
     title = (title or "").strip()[:120]
     if not title:

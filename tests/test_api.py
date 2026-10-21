@@ -221,6 +221,9 @@ class Api(unittest.TestCase):
     def test_runs_and_memory(self):
         s = sessions.create("t")
         r = self.ok("POST", "/api/runs", json={"skill": "lit", "input": "vit", "session_id": s["id"]})
+        self.assertEqual(runs.wait(r["id"], 30)["status"], "NEEDS_USER_ACTION")
+        self.ok("POST", f"/api/runs/{r['id']}/provider", json={"step": "S1", "provider": "app"})
+        self.ok("POST", f"/api/runs/{r['id']}/resume", json={"accept": False})
         self.assertEqual(runs.wait(r["id"], 30)["status"], "COMPLETED")
         self.assertTrue(self.ok("GET", "/api/runs")["runs"])
         self.assertEqual(self.ok("GET", f"/api/runs/{r['id']}")["id"], r["id"])

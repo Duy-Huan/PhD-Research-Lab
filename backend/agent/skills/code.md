@@ -2,6 +2,8 @@
 name: code
 title: Viết code
 description: Giao tác vụ code cho coding provider (Claude Code / Codex / Gemini / Antigravity) hoặc mô hình của ứng dụng
+title_en: Code
+description_en: Write or change experiment code with a coding provider (you review the diff)
 usage: <tác vụ>
 category: experiment
 agent: research

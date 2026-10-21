@@ -120,11 +120,26 @@ def review_stage(rid: str, body: dict = Body(...)):
             def put(s):
                 s["issues"] = issues
                 s["fixes"] = {}
+                s["guide"] = None  # a new issue list makes the old revision guide stale
             RX.update_state(rid, put)
             return {"issues": issues}
         return sse_job("reviewer", RP.ISSUES_SYS, RP.issues_user(_paper(rid), RX.reviews_digest(st),
                                                                  (st.get("meta") or {}).get("text", "(none)"), RP.venue_brief(v)),
                        fin, max_tokens=12000, temperature=0.1, start={"stage": stage})
+    if stage == "guide":
+        if not st["issues"]:
+            raise HTTPException(400, "Extract the issue list first")
+        from backend.core.i18n import lang
+
+        def fin(m):
+            rec = {"text": m["text"], "engine": m["engine"], "ts": RX._now()}
+            RX.update_state(rid, lambda s: s.__setitem__("guide", rec))
+            return {"guide": rec}
+        return sse_job("reviewer", RP.GUIDE_SYS, RP.guide_user(RP.venue_brief(v), meta.get("title", ""),
+                                                               (st.get("meta") or {}).get("text", "(none)"),
+                                                               RX.reviews_digest(st, 15000), RX.issues_digest(st),
+                                                               RX.fixes_digest(st), body.get("language") or lang()),
+                       fin, max_tokens=12000, temperature=0.2, start={"stage": stage})
     if stage == "response":
         def fin(m):
             rec = {"text": m["text"], "engine": m["engine"], "ts": RX._now()}
@@ -179,9 +194,27 @@ async def review_apply(rid: str, body: dict = Body(default={})):
 
 
 @router.get("/api/review/{rid}/download/{kind}")
-def review_download(rid: str, kind: str):
+def review_download(rid: str, kind: str, format: str = "md"):
+    """report | fixes | guide | response as .md (default) or format=pdf | docx | tex | html; source = revised .tex."""
     m = RX.load_meta(rid)
     stem = re.sub(r"[^\w\-]+", "_", Path(m.get("file", "paper")).stem)[:40]
+    if kind in ("report", "fixes", "guide", "response") and format != "md":
+        from backend.paper import export as EX
+        try:
+            md = {"report": RX.report_md, "fixes": RX.fixes_md, "guide": RX.guide_md}[kind](rid) if kind != "response"                 else (RX.load_state(rid).get("response") or {}).get("text", "")
+            title = {"report": "Review report", "fixes": "Proposed fixes", "guide": "Revision guide",
+                     "response": "Response to reviewers"}[kind]
+            data, name, mime = EX.export(format, f"{title} — {m.get('title') or stem}", md)
+        except (EX.ExportError, RX.ReviewError) as e:
+            raise HTTPException(501 if "No Edge" in str(e) else 400, str(e))
+        ext = name.rsplit(".", 1)[-1]
+        return Response(data, media_type=mime, headers={"Content-Disposition": f'attachment; filename="{kind}_{stem}.{ext}"'})
+    if kind == "guide":
+        try:
+            body = RX.guide_md(rid)
+        except RX.ReviewError as e:
+            raise HTTPException(400, str(e))
+        return Response(body, media_type="text/markdown", headers={"Content-Disposition": f'attachment; filename="revision_guide_{stem}.md"'})
     if kind in ("report", "fixes"):
         body = RX.report_md(rid) if kind == "report" else RX.fixes_md(rid)
         name = "review_report" if kind == "report" else "proposed_fixes"

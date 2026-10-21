@@ -23,7 +23,37 @@ import time
 from backend.providers import cli as C
 
 REQS: dict = {}
-_lock = threading.Lock()
+_lock = threading.RLock()
+_changed = threading.Condition(_lock)
+EVENT_WINDOW = 512
+
+
+def _publish(r: dict, event: dict) -> dict:
+    """Bounded hot window with durable replay; cursors remain absolute offsets."""
+    from backend.core.telemetry import redact
+    from pathlib import Path
+    def clean(value):
+        if isinstance(value, str):
+            return redact(value)
+        if isinstance(value, dict):
+            return {k: clean(v) for k, v in value.items()}
+        if isinstance(value, list):
+            return [clean(v) for v in value]
+        return value
+    event = clean(event)
+    with _changed:
+        path = Path(r["project_dir"]) / "gateway" / "requests" / (r["id"] + ".events.jsonl")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(event, ensure_ascii=False) + "\n")
+        r["events"].append(event)
+        if len(r["events"]) > EVENT_WINDOW:
+            del r["events"][:-EVENT_WINDOW]
+        r["event_count"] = r.get("event_count", 0) + 1
+        if event.get("type") not in ("request_started", "request_completed", "request_cancelled"):
+            r.setdefault("timings_ms", {}).setdefault("first_event", round((time.perf_counter() - r["_clock"]) * 1000, 2))
+        _changed.notify_all()
+    return event
 RID_RE = re.compile(r"^gw-[0-9a-f]{10}$")
 SID_RE = re.compile(r"^gs-[0-9a-f]{8}$")
 
@@ -57,8 +87,12 @@ def _persist(r: dict) -> None:
     try:
         folder = Path(r.get("project_dir") or data_dir()) / "gateway" / "requests"
         folder.mkdir(parents=True, exist_ok=True)
-        (folder / f"{r['id']}.json").write_text(json.dumps({k: v for k, v in r.items() if k != "thread"}, indent=1,
-                                                                      default=str), "utf-8")
+        target = folder / f"{r['id']}.json"
+        tmp = target.with_name(target.name + ".tmp-" + secrets.token_hex(4))
+        tmp.write_text(json.dumps({k: v for k, v in r.items() if k != "thread" and not k.startswith("_")}, indent=1,
+                                  default=str), "utf-8")
+        from backend.memory.store import replace_retry
+        replace_retry(tmp, target)
     except OSError:
         pass
 
@@ -90,10 +124,13 @@ def _summary(r: dict) -> dict:
 
 def prepare(query: str, provider: str, role: str = "", session_id: str = "", profile: str = "", allow_weaker: bool = False,
             module_context: str = "", memory: bool = True) -> dict:
+    clock = time.perf_counter()
     from backend.core.config import load_config, data_dir
     from backend.core.telemetry import new_request_id
     from backend.providers.context_packet import provider_context
     query = (query or "").strip()
+    from backend.core.telemetry import redact
+    query = redact(query)
     if not query:
         raise GatewayError("Ask a question")
     cfg = load_config()
@@ -124,7 +161,10 @@ def prepare(query: str, provider: str, role: str = "", session_id: str = "", pro
          "blocked": pc["blocked"], "sanitize": pc["sanitize"], "sensitivity_allowed": pc["sensitivity_allowed"],
          "status": "ready", "health_state": h["state"], "created": time.time(), "ended": None,
          "events": [], "answer": "", "errors": [], "resume_session": resume_session, "provider_session": "",
-         "profile": profile, "isolation": iso, "project_dir": str(data_dir().resolve())}
+         "profile": profile, "isolation": iso, "project_dir": str(data_dir().resolve()),
+         "_clock": clock, "event_count": 0,
+         "timings_ms": {"context": round((time.perf_counter() - t0) * 1000, 2),
+                        "prepare": round((time.perf_counter() - clock) * 1000, 2)}}
     with _lock:
         REQS[rid] = r
     _session_add(sid, rid, provider)
@@ -136,8 +176,8 @@ def prepare(query: str, provider: str, role: str = "", session_id: str = "", pro
 
 
 def public(r: dict) -> dict:
-    out = {k: v for k, v in r.items() if k not in ("thread", "events")}
-    out["event_count"] = len(r.get("events") or [])
+    out = {k: v for k, v in r.items() if k not in ("thread", "events") and not k.startswith("_")}
+    out["event_count"] = r.get("event_count", len(r.get("events") or []))
     return out
 
 
@@ -153,7 +193,12 @@ def get(rid: str) -> dict:
     f = _dir("requests") / f"{rid}.json"
     if not f.exists():
         raise GatewayError("Request not found")
-    return json.loads(f.read_text("utf-8"))
+    r = json.loads(f.read_text("utf-8"))
+    if r.get("status") in ("starting", "running"):
+        r.update(status="failed", ended=time.time())
+        r.setdefault("errors", []).append("CLI process lost after restart; partial outputs retained. Resume explicitly.")
+        _persist(r)
+    return r
 
 
 def send(rid: str, base_url: str = "", mcp: dict | None = None, model: str = "", reasoning: str = "") -> dict:
@@ -162,8 +207,25 @@ def send(rid: str, base_url: str = "", mcp: dict | None = None, model: str = "",
     r = get(rid)
     if rid not in REQS:
         raise GatewayError("Request is no longer active (app restarted) — prepare it again")
-    if r["status"] != "ready":
-        raise GatewayError(f"Request is {r['status']}")
+    with _changed:
+        if r["status"] != "ready":
+            if r["status"] in ("cancelled", "failed"):
+                raise GatewayError(f"Request is {r['status']}")
+            return public(r)  # same request id is an idempotency key; never launch twice
+        r["status"] = "starting"
+        r["_cancel"] = threading.Event()
+    try:
+        return _send(r, base_url, mcp, model, reasoning)
+    except Exception:
+        with _changed:
+            r.update(status="failed", ended=time.time())
+            _changed.notify_all()
+        _persist(r)
+        raise
+
+
+def _send(r, base_url, mcp, model, reasoning):
+    rid = r["id"]
     conn = C.get(r["provider"])
     h = conn.health()
     if h["state"] in ("DISCONNECTED", "UNAVAILABLE", "AUTH_EXPIRED", "RATE_LIMITED", "ERROR"):
@@ -185,7 +247,7 @@ def send(rid: str, base_url: str = "", mcp: dict | None = None, model: str = "",
                                              "profile": profile, "isolation": r.get("isolation")})
     r["workspace"] = sess["dir"]
     ctx = {"request_id": rid, "resume_session": r.get("resume_session", ""), "cwd": sess["cwd"], "profile": profile,
-           "_session": sess}
+           "_session": sess, "_cancel": r["_cancel"], "_timings_ms": r["timings_ms"]}
     if model:
         ctx["model"] = model
     if reasoning:
@@ -206,7 +268,16 @@ def send(rid: str, base_url: str = "", mcp: dict | None = None, model: str = "",
 def _run(r: dict, conn, ctx: dict) -> None:
     from backend.core.config import project_scope, data_dir
     with project_scope(r.get("project_dir") or data_dir()):
-        _run_scoped(r, conn, ctx)
+        try:
+            _run_scoped(r, conn, ctx)
+        except Exception as e:
+            from backend.core.telemetry import redact
+            r["errors"].append(redact(f"{type(e).__name__}: {e}")[:300])
+            r.update(status="failed", ended=time.time())
+            _persist(r)
+        finally:
+            with _changed:
+                _changed.notify_all()
 
 
 def _run_scoped(r: dict, conn, ctx: dict) -> None:
@@ -218,6 +289,10 @@ def _run_scoped(r: dict, conn, ctx: dict) -> None:
 
 def _run_inner(r: dict, conn, ctx: dict) -> None:
     from backend.core.telemetry import span
+    from backend.core.config import data_dir
+    r.setdefault("_clock", time.perf_counter())
+    r.setdefault("timings_ms", {})
+    r.setdefault("project_dir", str(data_dir().resolve()))
     first = None
     t0 = time.perf_counter()
     text = []
@@ -225,10 +300,11 @@ def _run_inner(r: dict, conn, ctx: dict) -> None:
         with span("gateway.request", request_id=r["id"], provider=r["provider"], session_id=r["session_id"], streaming=True,
                   context_tokens=r["context_tokens"], context_version=r["context_version"]) as sp:
             for e in conn.stream_message(r["prompt"], ctx):
-                r["events"].append(e)
+                e = _publish(r, e)
                 if e["type"] == "text_delta":
                     if first is None:
                         first = time.perf_counter() - t0
+                        r["timings_ms"]["first_token"] = round((time.perf_counter() - r["_clock"]) * 1000, 2)
                     text.append(e.get("text", ""))
                 elif e["type"] == "status" and e.get("state") == "result" and e.get("final_text"):
                     r["answer"] = e["final_text"]
@@ -241,18 +317,23 @@ def _run_inner(r: dict, conn, ctx: dict) -> None:
             if not r["answer"]:
                 r["answer"] = "".join(text)
             if r["status"] == "running":
-                r["status"] = "failed" if r["errors"] and not r["answer"] else "completed"
+                r["status"] = "failed" if r["errors"] else "completed"
             sp.update(status=r["status"])
     except C.ProviderError as e:
-        r["errors"].append(str(e))
+        from backend.core.telemetry import redact
+        r["errors"].append(redact(str(e)))
         r["status"] = "failed"
         r["health_state"] = e.state
-        r["events"].append({"type": "error", "message": str(e), "ts": time.time()})
+        _publish(r, {"type": "error", "message": str(e), "ts": time.time()})
     except Exception as e:  # never leave a request "running"
-        r["errors"].append(f"{type(e).__name__}: {e}"[:300])
+        from backend.core.telemetry import redact
+        r["errors"].append(redact(f"{type(e).__name__}: {e}")[:300])
         r["status"] = "failed"
     finally:
+        if not r["answer"]:
+            r["answer"] = "".join(text)  # a provider exception must not discard streamed findings
         r["ended"] = time.time()
+        r["timings_ms"]["total"] = round((time.perf_counter() - r["_clock"]) * 1000, 2)
         r["first_token_s"] = round(first, 3) if first is not None else None
         if ctx.get("_session"):
             from backend.providers.cli_space import write_output
@@ -265,18 +346,47 @@ def _run_inner(r: dict, conn, ctx: dict) -> None:
 
 def cancel(rid: str) -> dict:
     r = get(rid)
-    if r.get("status") not in ("running", "ready"):
-        raise GatewayError(f"Request is {r.get('status')}")
-    if r["status"] == "ready":
-        r["status"] = "cancelled"
-        _persist(r)
-        return public(r)
+    with _changed:
+        if r.get("status") not in ("running", "ready", "starting"):
+            raise GatewayError(f"Request is {r.get('status')}")
+        if r["status"] == "ready":
+            r.update(status="cancelled", ended=time.time())
+            _changed.notify_all()
+            _persist(r)
+            return public(r)
+        r["_cancel"].set()  # also covers cancellation before Popen / while waiting for a lease
     out = C.get(r["provider"]).cancel(rid)
+    with _changed:
+        _changed.notify_all()
     audit("cancel", request_id=rid, provider=r["provider"])
     return {**public(r), "cancel": out}
 
 
 def events(rid: str, after: int = 0) -> dict:
     r = get(rid)
-    ev = (r.get("events") or [])[after:]
-    return {"id": rid, "status": r.get("status"), "events": ev, "next": after + len(ev)}
+    from pathlib import Path
+    after = max(0, after)
+    with _changed:
+        count = r.get("event_count", len(r.get("events") or []))
+        base = count - len(r.get("events") or [])
+        if after >= base:
+            ev = (r.get("events") or [])[after - base:after - base + EVENT_WINDOW]
+        else:
+            path = Path(r["project_dir"]) / "gateway" / "requests" / (rid + ".events.jsonl")
+            from itertools import islice
+            with path.open(encoding="utf-8") as f:
+                ev = [json.loads(line) for line in islice(f, after, after + EVENT_WINDOW)]
+        return {"id": rid, "status": r.get("status"), "events": ev, "next": after + len(ev)}
+
+
+def wait_events(rid: str, after: int = 0, timeout: float = 1.0) -> dict:
+    end = time.monotonic() + min(15.0, max(0.0, timeout))
+    with _changed:
+        while True:
+            batch = events(rid, after)
+            if batch["events"] or batch["status"] not in ("ready", "starting", "running"):
+                return batch
+            left = end - time.monotonic()
+            if left <= 0:
+                return batch
+            _changed.wait(left)

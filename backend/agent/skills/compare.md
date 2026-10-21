@@ -2,6 +2,8 @@
 name: compare
 title: So sánh nguồn
 description: So sánh nhiều phương pháp / bài báo thành ma trận đồng thuận – bất đồng
+title_en: Compare
+description_en: Compare methods, papers or results side by side
 usage: <chủ đề hoặc danh sách phương pháp>
 category: research
 agent: research

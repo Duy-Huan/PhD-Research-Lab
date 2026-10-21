@@ -32,6 +32,15 @@ def set_config(body: dict = Body(...)):
 
 
 # ------------------------------------------------------------------ models
+@router.post("/api/models/cli/codex")
+async def codex_catalog():
+    from backend.providers.app_server import model_catalog
+    models = await call(model_catalog)
+    cfg = load_config()
+    save_config({"gateway": {"cli_models": {**cfg["gateway"].get("cli_models", {}), "codex": models}}})
+    return {"models": models, "entitlement_verified": False}
+
+
 @router.get("/api/models")
 async def models():
     """The chat's model picker: the agents (what engine/model each one uses now) and every selectable provider id."""

@@ -61,7 +61,7 @@ class Faults(unittest.TestCase):
         c = copy.deepcopy(self.cfg)
         c["default_cloud"] = "openai"
         c["providers"]["openai"]["api_key"] = "test-key"
-        c["routing"].update(online_check=False, chains={"general": ["ollama", "local", "@cloud", "missing", "ollama"]})
+        c["routing"].update(online_check=False, capability_aware=False, chains={"general": ["ollama", "local", "@cloud", "missing", "ollama"]})
         with mock.patch.object(RT, "local_up", return_value=True), \
                 mock.patch("backend.execution.resources.gpu_busy", return_value=True):
             plan = RT.plan(c, "unknown")

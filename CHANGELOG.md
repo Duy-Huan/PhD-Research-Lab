@@ -1,5 +1,26 @@
 # Changelog
 
+## OpenScience integration preview — 2026-10-21
+
+- Added a typed research-engine boundary and lazy Feynman/OpenScience adapters. OpenScience uses the pinned official source-preview Python SDK against an externally managed loopback runtime; native skills remain upstream.
+- Added opt-in routing modes, explicit approvals, durable admission/recovery journals, bounded event observation, live once/reject decisions, cancellation settlement and checksum-verified artifact collection in existing research runs/chat.
+- Added evidence manifests and existing Results pin proposals without claiming generated output is a verified ClearML experiment. Default chat/Feynman behavior is retained while disabled.
+- Audited upstream commit `d720862157d146d52b6faae1e5aff9d3973ed918`; real isolated protocol/auth/policy checks passed on installed runtime 2.0.152 without model inference. Scientific acceptance and supervised ClearML compute handoff remain pending. See `docs/openscience-integration.md`.
+
+## v5.1.0 — 2026-10-21 — Chat tools, notes, export, EN/VI, GitHub skill plugins, AI-Scientist-v2, automatic ranking
+
+- **Chat tools**: interactive charts (```` ```chart ````: line / bar / scatter / area, error bars, data table, PNG/SVG), sanitised SVG figures and mermaid diagrams (vendored, loaded on demand). The agents are told how to produce them and to plot only measured or given values.
+- **Notes on answers**: select a passage or click a chart point to pin a note; highlights and numbered badges in the answer, a Notes panel (resolve, edit, delete, jump), "Send notes to AI". API: `/api/chat/sessions/{sid}/notes`.
+- **Export** of an answer or a whole conversation to PDF (headless Edge/Chrome, print-dialog fallback), Word .docx (pure Python WordprocessingML with figures), LaTeX (.tex / .zip with figures), Markdown and HTML (`POST /api/export`; copies in `workspace/exports/`).
+- **Interface language** Tiếng Việt / English (Settings → Appearance & language): all UI strings, app-written messages (help, status, run notices), skill titles, and the language the agents answer in. Answer font Sans (default, best for Vietnamese) or Serif; Palatino/Charter, which misplace stacked Vietnamese diacritics, are no longer used.
+- **GitHub skill plugins** stored in `data/plugins/` (one commit snapshot, zip-slip / link / size checks, never executed), Agent Skills `SKILL.md` and PhD Lab skill files, enabled per project, per-skill switches, update and remove.
+- **AI-Scientist-v2 integration** (paper writing backend): prompts read from the repository source with `ast`; `/ais-idea`, `/ais-review`, `/ais-write` and a full manuscript in the ICML / ICBINB template (Write paper panel) with bibliography check, PDF compile and the license-required disclosure.
+- **Automatic venue ranking**: CORE conference ranks downloaded and refreshed automatically; SCImago CSVs saved in Downloads imported by themselves; ranking badges in search results and the library, "Check rankings" for the whole library, venue lookup in the review settings. Data moved to `data/plugins/ranking/` (the old file migrates).
+- **Paper review**: a Revision guide stage (step-by-step fixes per issue, plan, criteria, checklist) with an automatic fallback; guide, report, fixes and response letter download as .md, .pdf, .docx or .tex.
+- **System status**: the acceptance checklist table was removed from the dashboard.
+- **Performance**: answers render keyed (unchanged messages, run cards, charts and text selections are never rebuilt on refresh), streamed text is painted once per frame with the first words at once, Markdown is cached, off-screen messages skip layout (`content-visibility`), refresh bursts are coalesced, the conversation list refresh is debounced.
+- **Fixes**: provider labels updated when the model list arrives; buttons of a proposal stayed disabled after a failed decision; `PL.prompt` Enter left a key listener behind; download icon; a half-streamed code fence swallowed the rest of the answer; keyboard navigation in popup menus.
+
 ## v5.0.0 — 2026-10-21 — Unified research chat and continued refactor
 
 - Replaced the former tabbed frontend with project chat, a minimal dashboard, manuscript review and centralized Settings. The terminal chat uses the same backend state and approval rules.

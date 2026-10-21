@@ -49,12 +49,17 @@ async def lifespan(_app):
 
 
 def _warm() -> None:
-    """Probe the CLI providers once in the background, so the model picker opens instantly."""
+    """Probe the CLI providers once in the background, so the model picker opens instantly; refresh venue rankings."""
     try:
         from backend.providers import registry, research
         registry.registry()
         research.describe_all()
     except Exception:
+        pass
+    try:
+        from backend.knowledge import ranking
+        ranking.auto_refresh(load_config())
+    except Exception:  # offline start: the previous ranking data stays in use
         pass
 
 

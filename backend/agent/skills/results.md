@@ -2,6 +2,8 @@
 name: results
 title: Phân tích kết quả
 description: Đọc các run đã đo, so sánh, phân tích thất bại, đề xuất bước tiếp
+title_en: Results
+description_en: Summarise measured results and their evidence
 usage: [câu hỏi]
 category: experiment
 agent: research

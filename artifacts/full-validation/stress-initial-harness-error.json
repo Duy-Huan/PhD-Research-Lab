@@ -1,0 +1,183 @@
+{
+  "schema_version": "1.0",
+  "workers": 16,
+  "rounds": 3,
+  "real_model_calls": 0,
+  "cloud_jobs": 0,
+  "phases": [
+    {
+      "round": 1,
+      "name": "gateway-streaming",
+      "events": 3200,
+      "subscribers": 3,
+      "durable_replay_verified": true,
+      "hot_window": 512,
+      "publish_latency": {
+        "count": 3200,
+        "p50_ms": 10.223,
+        "p95_ms": 11.653,
+        "max_ms": 15.499
+      },
+      "passed": true,
+      "elapsed_s": 2.212
+    },
+    {
+      "round": 1,
+      "name": "concurrent-state",
+      "writers": 16,
+      "messages": 320,
+      "unique_ids": 320,
+      "passed": true,
+      "elapsed_s": 1.698
+    },
+    {
+      "round": 1,
+      "name": "resource-contention",
+      "active": 0,
+      "peak": 1,
+      "completed": 320,
+      "passed": true,
+      "elapsed_s": 2.161
+    },
+    {
+      "round": 1,
+      "name": "subprocess-timeout-cleanup",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 214, in main\n    result.update(run(), passed=True)\n                  ~~~^^\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 209, in <lambda>\n    (\"subprocess-timeout-cleanup\", lambda: process_stress(args.workers)),\n                                           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 141, in process_stress\n    events = list(pool.map(worker, range(workers)))\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\_base.py\", line 645, in result_iterator\n    yield _result_or_cancel(fs.pop())\n          ~~~~~~~~~~~~~~~~~^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\_base.py\", line 312, in _result_or_cancel\n    return fut.result(timeout)\n           ~~~~~~~~~~^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\_base.py\", line 454, in result\n    return self.__get_result()\n           ~~~~~~~~~~~~~~~~~^^\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\_base.py\", line 396, in __get_result\n    raise self._exception\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\thread.py\", line 86, in run\n    result = ctx.run(self.task)\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\thread.py\", line 73, in run\n    return fn(*args, **kwargs)\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 133, in worker\n    events = list(connector.stream_message(\"fixture\", {\"request_id\": f\"stress-{i}\",\n                  \"cwd\": str(config.data_dir()), \"timeout_s\": .3 if i % 3 == 0 else 10}))\n  File \"D:\\git-repo\\PhD-Research-Lab\\backend\\providers\\cli.py\", line 241, in stream_message\n    raise ProviderError(\"CLI working directory is not a PhD-Lab session workspace\", \"ERROR\")\nbackend.providers.cli.ProviderError: CLI working directory is not a PhD-Lab session workspace\n",
+      "elapsed_s": 0.07
+    },
+    {
+      "round": 1,
+      "name": "http-load",
+      "transport": "actual loopback HTTP",
+      "clients": 16,
+      "latency": {
+        "count": 480,
+        "p50_ms": 29.191,
+        "p95_ms": 60.144,
+        "max_ms": 105.649
+      },
+      "errors": 0,
+      "lifespan": "off; startup/recovery is covered by regression, this phase isolates HTTP admission",
+      "passed": true,
+      "elapsed_s": 1.675
+    },
+    {
+      "round": 2,
+      "name": "gateway-streaming",
+      "events": 3200,
+      "subscribers": 3,
+      "durable_replay_verified": true,
+      "hot_window": 512,
+      "publish_latency": {
+        "count": 3200,
+        "p50_ms": 9.972,
+        "p95_ms": 15.182,
+        "max_ms": 26.44
+      },
+      "passed": true,
+      "elapsed_s": 2.168
+    },
+    {
+      "round": 2,
+      "name": "concurrent-state",
+      "writers": 16,
+      "messages": 320,
+      "unique_ids": 320,
+      "passed": true,
+      "elapsed_s": 1.736
+    },
+    {
+      "round": 2,
+      "name": "resource-contention",
+      "active": 0,
+      "peak": 1,
+      "completed": 320,
+      "passed": true,
+      "elapsed_s": 2.155
+    },
+    {
+      "round": 2,
+      "name": "subprocess-timeout-cleanup",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 214, in main\n    result.update(run(), passed=True)\n                  ~~~^^\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 209, in <lambda>\n    (\"subprocess-timeout-cleanup\", lambda: process_stress(args.workers)),\n                                           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 141, in process_stress\n    events = list(pool.map(worker, range(workers)))\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\_base.py\", line 645, in result_iterator\n    yield _result_or_cancel(fs.pop())\n          ~~~~~~~~~~~~~~~~~^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\_base.py\", line 312, in _result_or_cancel\n    return fut.result(timeout)\n           ~~~~~~~~~~^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\_base.py\", line 454, in result\n    return self.__get_result()\n           ~~~~~~~~~~~~~~~~~^^\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\_base.py\", line 396, in __get_result\n    raise self._exception\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\thread.py\", line 86, in run\n    result = ctx.run(self.task)\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\thread.py\", line 73, in run\n    return fn(*args, **kwargs)\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 133, in worker\n    events = list(connector.stream_message(\"fixture\", {\"request_id\": f\"stress-{i}\",\n                  \"cwd\": str(config.data_dir()), \"timeout_s\": .3 if i % 3 == 0 else 10}))\n  File \"D:\\git-repo\\PhD-Research-Lab\\backend\\providers\\cli.py\", line 241, in stream_message\n    raise ProviderError(\"CLI working directory is not a PhD-Lab session workspace\", \"ERROR\")\nbackend.providers.cli.ProviderError: CLI working directory is not a PhD-Lab session workspace\n",
+      "elapsed_s": 0.064
+    },
+    {
+      "round": 2,
+      "name": "http-load",
+      "transport": "actual loopback HTTP",
+      "clients": 16,
+      "latency": {
+        "count": 480,
+        "p50_ms": 31.66,
+        "p95_ms": 62.036,
+        "max_ms": 92.803
+      },
+      "errors": 0,
+      "lifespan": "off; startup/recovery is covered by regression, this phase isolates HTTP admission",
+      "passed": true,
+      "elapsed_s": 1.32
+    },
+    {
+      "round": 3,
+      "name": "gateway-streaming",
+      "events": 3200,
+      "subscribers": 3,
+      "durable_replay_verified": true,
+      "hot_window": 512,
+      "publish_latency": {
+        "count": 3200,
+        "p50_ms": 10.054,
+        "p95_ms": 14.312,
+        "max_ms": 20.228
+      },
+      "passed": true,
+      "elapsed_s": 2.128
+    },
+    {
+      "round": 3,
+      "name": "concurrent-state",
+      "writers": 16,
+      "messages": 320,
+      "unique_ids": 320,
+      "passed": true,
+      "elapsed_s": 1.778
+    },
+    {
+      "round": 3,
+      "name": "resource-contention",
+      "active": 0,
+      "peak": 1,
+      "completed": 320,
+      "passed": true,
+      "elapsed_s": 2.423
+    },
+    {
+      "round": 3,
+      "name": "subprocess-timeout-cleanup",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 214, in main\n    result.update(run(), passed=True)\n                  ~~~^^\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 209, in <lambda>\n    (\"subprocess-timeout-cleanup\", lambda: process_stress(args.workers)),\n                                           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 141, in process_stress\n    events = list(pool.map(worker, range(workers)))\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\_base.py\", line 645, in result_iterator\n    yield _result_or_cancel(fs.pop())\n          ~~~~~~~~~~~~~~~~~^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\_base.py\", line 312, in _result_or_cancel\n    return fut.result(timeout)\n           ~~~~~~~~~~^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\_base.py\", line 454, in result\n    return self.__get_result()\n           ~~~~~~~~~~~~~~~~~^^\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\_base.py\", line 396, in __get_result\n    raise self._exception\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\thread.py\", line 86, in run\n    result = ctx.run(self.task)\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\concurrent\\futures\\thread.py\", line 73, in run\n    return fn(*args, **kwargs)\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 133, in worker\n    events = list(connector.stream_message(\"fixture\", {\"request_id\": f\"stress-{i}\",\n                  \"cwd\": str(config.data_dir()), \"timeout_s\": .3 if i % 3 == 0 else 10}))\n  File \"D:\\git-repo\\PhD-Research-Lab\\backend\\providers\\cli.py\", line 241, in stream_message\n    raise ProviderError(\"CLI working directory is not a PhD-Lab session workspace\", \"ERROR\")\nbackend.providers.cli.ProviderError: CLI working directory is not a PhD-Lab session workspace\n",
+      "elapsed_s": 0.06
+    },
+    {
+      "round": 3,
+      "name": "http-load",
+      "transport": "actual loopback HTTP",
+      "clients": 16,
+      "latency": {
+        "count": 480,
+        "p50_ms": 36.561,
+        "p95_ms": 75.757,
+        "max_ms": 95.673
+      },
+      "errors": 0,
+      "lifespan": "off; startup/recovery is covered by regression, this phase isolates HTTP admission",
+      "passed": true,
+      "elapsed_s": 1.442
+    }
+  ],
+  "passed": false,
+  "rss_before_mb": 28.58,
+  "rss_after_mb": 114.52
+}

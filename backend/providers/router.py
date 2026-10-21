@@ -114,7 +114,10 @@ def plan(cfg: dict, agent: str) -> dict:
         if eng in out or eng in skipped:
             continue
         if eng in LOCAL:
-            if not local_up(cfg, eng):
+            policy = cfg.get("routing") or {}
+            if policy.get("capability_aware", True) and kind not in policy.get("verified_local_tasks", ["extract", "summarize", "context", "live_critic"]):
+                skipped[eng] = "task needs a verified reasoning provider; waiting for cloud or researcher selection"
+            elif not local_up(cfg, eng):
                 skipped[eng] = "server not running"
             elif busy and eng == "local":
                 skipped[eng] = "GPU busy (LM Studio cannot offload to CPU per request)"
@@ -126,4 +129,15 @@ def plan(cfg: dict, agent: str) -> dict:
             skipped[eng] = "offline" if not is_online and not PROVIDERS.get(eng, {}).get("local_gateway") else "no API key / not reachable"
     if busy:  # Strategy B: keep the GPU for training — cloud first, CPU-offloaded Ollama last
         out = [e for e in out if e not in LOCAL] + [e for e in out if e in LOCAL]
+    policy = cfg.get("routing") or {}
+    if policy.get("capability_aware", True) and kind in ("reasoning", "code", "writing") and out:
+        verified = (policy.get("verified_fallbacks") or {}).get(kind) or []
+        kept = [out[0]]  # configured primary; alternatives require explicit model-specific qualification
+        for eng in out[1:]:
+            model = cfg.get("ollama_model", "") if eng == "ollama" else cfg.get("local_model", "") if eng == "local" else (cfg.get("providers", {}).get(eng) or {}).get("model", "")
+            if f"{eng}:{model}" in verified:
+                kept.append(eng)
+            else:
+                skipped[eng] = "alternative model has not been qualified for this task in routing.verified_fallbacks"
+        out = kept
     return {"agent": agent, "kind": kind, "online": is_online, "gpu_busy": busy, "candidates": out, "skipped": skipped}

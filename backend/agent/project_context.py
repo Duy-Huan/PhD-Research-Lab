@@ -185,6 +185,12 @@ class Adapter:
                            "measured", "where experiments run"))
         except Exception:
             pass
+        from backend.execution.remote_compute import list_runs as compute_runs
+        remote = compute_runs()[:12]
+        if remote:
+            out.append(src("state:compute_runs", "module_state", "Remote compute runs (verified collection state)",
+                           json.dumps([{k: r.get(k) for k in ("run_id", "hypothesis_id", "experiment_id", "status", "metrics", "artifact_refs", "evaluation")} for r in remote]),
+                           "state", "PhD Lab run records; completion is not scientific validation"))
         return out
 
     def summary(self, entity: dict | None) -> str:
@@ -196,7 +202,7 @@ class Adapter:
     def actions(self) -> list:
         return [ACTIONS[a] for a in ("update_outline", "start_run", "write_section", "commit_code", "add_decision", "propose_gap",
                                      "create_hypothesis", "create_experiment", "record_result", "pin_result", "propose_memory",
-                                     "add_note")]
+                                     "add_note", "prepare_remote_experiment")]
 
 
 ADAPTERS = {"global": Adapter()}
@@ -209,6 +215,12 @@ def get(module: str) -> Adapter:
 
 # ------------------------------------------------------------------ actions
 ACTIONS = {
+    "prepare_remote_experiment": {"name": "prepare_remote_experiment", "risk": 2,
+        "description": "Prepare a versioned, explicitly selected experiment bundle for attended Colab handoff; requires separate bundle release approval. No automatic upload or training.",
+        "schema": _obj({"files": {"type": "array", "minItems": 1, "maxItems": 200, "items": {"type": "string"}},
+                        "entrypoint": {"type": "string"}, "hypothesis_id": {"type": "string"},
+                        "experiment_id": {"type": "string"}, "dataset_version": {"type": "string"},
+                        "compute_target": {"type": "string", "enum": ["local-gpu", "docker", "colab-gpu"]}}, ["files", "entrypoint"])},
     "add_decision": {"name": "add_decision", "risk": 2, "description": "Lock a research decision (binds every agent)",
                      "schema": _obj({"text": STR, "kind": {"type": "string", "enum": ["direction", "hypothesis", "gap", "constraint", "rejected"]}}, ["text"])},
     "propose_gap": {"name": "propose_gap", "risk": 2, "description": "Record a literature gap as a decision of kind 'gap'",
@@ -279,6 +291,10 @@ def validate_action(module: str, name: str, args: dict) -> dict:
 def execute(name: str, args: dict, session: dict) -> dict:
     """Run an APPROVED action through the domain service the manual UI uses."""
     via = f"AI workspace {session['id']} (approved)"
+    if name == "prepare_remote_experiment":
+        from backend.execution import remote_compute
+        r = remote_compute.create(args)
+        return {"remote_run": r["run_id"], "status": r["status"], "bundle_sha256": r["bundle_sha256"]}
     if name == "update_outline":
         from backend.agent import outline
         o = outline.update({k: v for k, v in args.items() if v}, "chat (accepted)", f"session {session['id']}")

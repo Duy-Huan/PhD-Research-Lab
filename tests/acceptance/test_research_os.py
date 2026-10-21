@@ -68,7 +68,9 @@ class Base(unittest.TestCase):
         config.save_config({"runs": {"web_search": False}})
         sandbox.save_settings({"mode": "local", "python_mode": "existing", "python_base": sys.executable, "auto_deps": False,
                                "gpu": False})
-        for p in (mock.patch.object(RP, "app_complete", side_effect=fake_llm), mock.patch.object(llm, "stream_agent", fake_stream)):
+        provider_for = launch.provider_for
+        for p in (mock.patch.object(RP, "app_complete", side_effect=fake_llm), mock.patch.object(llm, "stream_agent", fake_stream),
+                  mock.patch.object(launch, "provider_for", side_effect=lambda skill: "app" if skill["provider"] == "feynman" else provider_for(skill))):
             p.start()
             self.addCleanup(p.stop)
         self.addCleanup(guard.reset)

@@ -16,7 +16,8 @@ def _user_errors() -> tuple:
     from backend.execution.sandbox import SandboxError
     from backend.knowledge.attachments import AttachmentError
     from backend.paper.review import ReviewError
-    return (AIWSError, CodeProjectError, SandboxError, AttachmentError, ReviewError, ValueError, KeyError, FileNotFoundError)
+    from backend.research_engines.contracts import EngineFailure
+    return (AIWSError, CodeProjectError, SandboxError, AttachmentError, ReviewError, EngineFailure, ValueError, KeyError, FileNotFoundError)
 
 
 async def call(fn, *a, **k):

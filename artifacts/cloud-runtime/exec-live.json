@@ -1,0 +1,109 @@
+{
+  "live": true,
+  "transport": "exec",
+  "samples": [
+    {
+      "provider": "codex",
+      "run": "cold",
+      "status": "failed",
+      "timings_ms": {
+        "context": 12.91,
+        "prepare": 298.26
+      },
+      "consumer_first_token_ms": null,
+      "native_session": false,
+      "resumed": false,
+      "errors": [
+        "ChatGPT (OpenAI Codex CLI) is AUTH_EXPIRED: run `codex login` (ChatGPT sign-in)"
+      ]
+    },
+    {
+      "provider": "codex",
+      "run": "warm",
+      "status": "failed",
+      "timings_ms": {
+        "context": 8.37,
+        "prepare": 14.43
+      },
+      "consumer_first_token_ms": null,
+      "native_session": false,
+      "resumed": false,
+      "errors": [
+        "ChatGPT (OpenAI Codex CLI) is AUTH_EXPIRED: run `codex login` (ChatGPT sign-in)"
+      ]
+    },
+    {
+      "provider": "claude_code",
+      "run": "cold",
+      "status": "failed",
+      "timings_ms": {
+        "context": 7.31,
+        "prepare": 14.79,
+        "cli_startup": 5.75,
+        "first_event": 63.81,
+        "total": 20142.73
+      },
+      "consumer_first_token_ms": null,
+      "native_session": true,
+      "resumed": false,
+      "errors": [
+        "Claude (Claude Code CLI) did not finish within 20 s \u2014 stopped (time limit)"
+      ]
+    },
+    {
+      "provider": "claude_code",
+      "run": "warm",
+      "status": "failed",
+      "timings_ms": {
+        "context": 8.34,
+        "prepare": 14.12,
+        "cli_startup": 4.93,
+        "first_event": 58.58,
+        "total": 1807.99
+      },
+      "consumer_first_token_ms": null,
+      "native_session": false,
+      "resumed": true,
+      "errors": [
+        "error_during_execution"
+      ]
+    },
+    {
+      "provider": "gemini_cli",
+      "run": "cold",
+      "status": "failed",
+      "timings_ms": {
+        "context": 8.25,
+        "prepare": 17.12,
+        "cli_startup": 10.51,
+        "first_event": 64.66,
+        "total": 1399.08
+      },
+      "consumer_first_token_ms": null,
+      "native_session": false,
+      "resumed": false,
+      "errors": [
+        "Please set an Auth method in your C:\\Users\\win\\.gemini\\settings.json or specify one of the following environment variables before running: GEMINI_API_KEY, GOOGLE_GENAI_USE_VERTEXAI, GOOGLE_GENAI_USE_GCA"
+      ]
+    },
+    {
+      "provider": "gemini_cli",
+      "run": "warm",
+      "status": "failed",
+      "timings_ms": {
+        "context": 8.11,
+        "prepare": 15.19,
+        "cli_startup": 2.58,
+        "first_event": 52.25,
+        "total": 1339.13
+      },
+      "consumer_first_token_ms": null,
+      "native_session": false,
+      "resumed": false,
+      "errors": [
+        "Please set an Auth method in your C:\\Users\\win\\.gemini\\settings.json or specify one of the following environment variables before running: GEMINI_API_KEY, GOOGLE_GENAI_USE_VERTEXAI, GOOGLE_GENAI_USE_GCA"
+      ]
+    }
+  ],
+  "definition": "cold=first request; warm=same workspace/native session, fresh CLI process; no daemon reuse"
+}

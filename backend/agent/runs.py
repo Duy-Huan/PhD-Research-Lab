@@ -300,6 +300,13 @@ def approve(rid: str, by: str = "researcher") -> dict:
     return get(rid)
 
 
+def _check_engine_swap(step: dict, provider: str | None) -> None:
+    native = step.get("result", {}).get("engine_job_id")
+    if step.get("provider") == "openscience" and provider != "openscience" and native:
+        from backend.research_engines.openscience import require_settled
+        require_settled(native)
+
+
 def cancel(rid: str, by: str = "researcher") -> dict:
     r = get(rid)
     if r["status"] in TERMINAL:
@@ -308,6 +315,18 @@ def cancel(rid: str, by: str = "researcher") -> dict:
         d = _drivers.get(rid)
     if d:
         d["cancel"].set()
+    else:
+        # A native run can still be awaiting a decision while no local driver exists.
+        for step in r["steps"]:
+            native = step.get("result", {}).get("engine_job_id")
+            if step["provider"] == "openscience" and native and step["status"] != "done":
+                try:
+                    from backend.research_engines.openscience import cancel_job
+                    settlement = cancel_job(native)
+                except Exception as error:
+                    from backend.core.telemetry import redact
+                    settlement = {"state": "cancellation_unconfirmed", "detail": redact(str(error))[:500]}
+                update(rid, lambda x, sid=step["id"], value=settlement: next(s for s in x["steps"] if s["id"] == sid)["result"].update(external_cancellation=value))
     job = next((s.get("result", {}).get("job_id") for s in r["steps"] if s["status"] == "running"), None)
     if job:
         try:
@@ -329,6 +348,8 @@ def resume(rid: str, accept_proposal: bool = True, patch: dict | None = None, by
         raise AIWSError(f"Run is {r['status']} — only a run that needs your action can be resumed")
     prop = r.get("proposal") or {}
     step_id = prop.get("step") or next((s["id"] for s in r["steps"] if s["status"] in ("failed", "pending")), "")
+    previous = next((s for s in r["steps"] if s["id"] == step_id), {})
+    _check_engine_swap(previous, (patch or {}).get("provider", previous.get("provider")))
 
     def fn(x):
         s = next((y for y in x["steps"] if y["id"] == step_id), None)
@@ -342,6 +363,9 @@ def resume(rid: str, accept_proposal: bool = True, patch: dict | None = None, by
             if "provider" in allowed:
                 s["provider"] = str(allowed.pop("provider"))
             s["spec"].update(allowed)
+        if s["provider"] == "openscience":
+            x["risk"] = max(2, x["risk"])
+            x["approval"].update(required=True, status="approved", by=by, at=now())
         s.update(status="pending", error="")
         x["usage"]["retries"] += 1
         x["proposal"] = None
@@ -360,6 +384,8 @@ def swap_provider(rid: str, step_id: str, provider: str) -> dict:
     from backend.providers.research import CATALOG
     if provider not in CATALOG and provider not in ("phdlab", "synthetic"):
         raise AIWSError(f"Unknown provider {provider}")
+    previous = next((s for s in get(rid)["steps"] if s["id"] == step_id), {})
+    _check_engine_swap(previous, provider)
 
     def fn(x):
         s = next((y for y in x["steps"] if y["id"] == step_id), None)
@@ -465,6 +491,9 @@ class Ctx:
 
 
 def _resource(r: dict, s: dict) -> str:
+    if s["provider"] == "openscience":
+        from backend.core.config import load_config
+        return "gpu" if load_config()["openscience"].get("allow_execution") else "cli"
     if s["kind"] == "experiment":
         return "gpu" if s["spec"].get("gpu", r["inputs"].get("gpu")) else "cpu"
     if s["kind"] == "synthetic":
@@ -487,6 +516,15 @@ def _resolve_provider(rid: str, step: dict) -> dict:
     from backend.providers import research as RP
     pid, note = RP.pick(step["provider"])
     if pid == step["provider"]:
+        return step
+    if step["provider"] == "openscience":
+        _needs_user(rid, step["id"], note + "; OpenScience is not automatically replaced",
+                    {"kind": "provider", "text": "Configure the runtime or explicitly select another research engine", "patch": {}})
+        return step
+    from backend.core.config import load_config
+    if load_config()["routing"].get("capability_aware", True):
+        _needs_user(rid, step["id"], note + "; choose a verified provider or wait; completed steps are retained",
+                    {"kind": "provider", "text": "Restore quota or select a capable provider, then resume this step", "patch": {}})
         return step
 
     def fn(x):
@@ -518,6 +556,8 @@ def _drive(rid: str) -> None:
         want = "VERIFYING" if step["kind"].startswith("verify") else "RUNNING"
         step = _resolve_provider(rid, step)
         r = get(rid)
+        if r["status"] == "NEEDS_USER_ACTION":
+            return
         res = _resource(r, step)
 
         def waiting(reason, rid=rid):
@@ -593,6 +633,14 @@ def _failed(rid: str, step_id: str, f: StepFailure) -> bool:
     emit(rid, "step.failed", step=step_id, error=str(f)[:500], failure_class=f.failure_class)
     r = get(rid)
     step = next(y for y in r["steps"] if y["id"] == step_id)
+    if f.failure_class.startswith("engine_"):
+        return _needs_user(rid, step_id, str(f),
+                           {"kind": "engine_decision" if f.failure_class == "engine_decision" else "engine_recovery",
+                            "job_id": f.detail, "text": str(f), "patch": {}})
+    from backend.providers.cli import classify_error
+    if f.failure_class == "provider" and classify_error(str(f)) in ("RATE_LIMITED", "AUTH_EXPIRED"):
+        return _needs_user(rid, step_id, "Provider quota/auth unavailable; previous outputs and failed step are checkpointed",
+                           {"kind": "provider", "text": "Restore quota or select a verified provider; resume only this step", "patch": {}})
     transition(rid, "FAILED", f"{step['label']}: {str(f)[:300]}")
     proposal = RECOVERY.get(f.failure_class, lambda *_: None)(r, step, f)
     if proposal is None and f.recoverable:
@@ -846,14 +894,46 @@ def _research(ctx: Ctx) -> dict:
     brief = project_brief()
     pid, note = ctx.step["provider"], ""  # already resolved by _resolve_provider (fallback recorded on the step)
     files = []
-    if pid == "feynman":
+    from backend.research_engines import registry as engines
+    if pid in engines.FACTORIES:
+        from backend.research_engines.contracts import EngineTask, EngineFailure
+        from backend.core.config import data_dir
+        capability = "review" if ctx.step["kind"] == "review" else "analysis" if ctx.run.get("skill") == "science" else "literature"
+        task = EngineTask(operation_id=f"{ctx.rid}:{ctx.step['id']}", attempt=ctx.step["attempt"],
+                          project_id=data_dir().name, workflow_id=ctx.rid, step_id=ctx.step["id"], question=topic,
+                          context=brief, capability=capability,
+                          native_workflow=ctx.step["spec"].get("workflow") or ctx.run["inputs"].get("workflow") or "",
+                          output_dir=ctx.out / ("feynman" if pid == "feynman" else "openscience-" + ctx.step["id"]),
+                          time_limit_s=max(1, min(7200, ctx.run["budget"]["max_minutes"] * 60 - _active_s(ctx.run))),
+                          approved=ctx.run["approval"]["status"] == "approved", hypothesis_id=ctx.run["inputs"].get("hypothesis_id", ""),
+                          experiment_id=ctx.run["inputs"].get("experiment_id", ""))
+        def progress(event):
+            emit(ctx.rid, "engine.event", step=ctx.step["id"], **event.model_dump(mode="json"))
+            if event.data.get("job_id"):
+                ctx.set(engine_job_id=event.data["job_id"])
+            if event.type == "text_delta":
+                current = ctx.step["result"].get("engine_partial", "")
+                ctx.set(engine_partial=(current + event.data.get("text", ""))[-8000:])
+                _notify(ctx.rid)
         try:
-            res = RP.run_feynman(f"{ctx.rid}-{ctx.step['id']}-{ctx.step['attempt']}",
-                                 ctx.step["spec"].get("workflow") or ctx.run["inputs"].get("workflow") or "",
-                                 topic, brief, ctx.out / "feynman", ctx.cancelled)
-        except RP.ProviderUnavailable as e:
-            raise StepFailure(str(e), "provider", recoverable=True)
-        text, files = res["text"], [ctx.rel(ctx.out / "feynman" / f) for f in res["files"]]
+            result = engines.get(pid).execute(task, progress, ctx.cancelled)
+        except EngineFailure as e:
+            if e.job_id:
+                ctx.set(engine_job_id=e.job_id)
+            raise StepFailure(str(e), "provider" if pid == "feynman" else "engine_" + e.kind,
+                              recoverable=pid == "feynman", detail=e.job_id) from e
+        text, files = result.text, [ctx.rel(Path(f["path"])) for f in result.artifact_refs]
+        ctx.set(engine_provenance=result.provenance, artifact_refs=result.artifact_refs,
+                native_session_id=result.native_session_id, native_run_id=result.native_run_id)
+        if pid == "openscience":
+            manifest = ctx.write(f"engine-evidence-{ctx.step['id']}.json", json.dumps({
+                "schema_version": "1.0", "research_run": ctx.rid, "step_id": ctx.step["id"],
+                "engine": pid, "native_session_id": result.native_session_id, "native_run_id": result.native_run_id,
+                "provenance": result.provenance, "artifact_refs": result.artifact_refs,
+                "scientific_review": "pending", "clearml_task_id": None,
+            }, ensure_ascii=False, indent=2))
+            files.append(manifest)
+            ctx.set(evidence_manifest=manifest)
     elif pid in RP.CODING:
         try:
             res = RP.run_coding(f"{ctx.rid}-{ctx.step['id']}-{ctx.step['attempt']}", pid, topic, brief, ctx.out / pid,
@@ -875,7 +955,7 @@ def _research(ctx: Ctx) -> dict:
         text = _llm(agent, system, topic)
     if not text.strip():
         raise StepFailure("provider returned no text", "provider", recoverable=True)
-    ref = ctx.write("research_report.md", text)
+    ref = ctx.write("review_report.md" if ctx.step["kind"] == "review" else "research_report.md", text)
     return {"outputs": [ref] + files, "result": {"text": text[:20000], "provider": pid}, "note": note}
 
 
@@ -1136,6 +1216,8 @@ def _verify_claims(ctx: Ctx) -> dict:
 
 def _review(ctx: Ctx) -> dict:
     text = ctx.run["inputs"].get("text") or ""
+    if ctx.step["spec"].get("review_prior"):
+        text = ctx.prior("research").get("text") or ""
     if not text and ctx.run["inputs"].get("path"):
         from backend.core.config import data_dir
         p = (data_dir() / ctx.run["inputs"]["path"]).resolve()
@@ -1148,9 +1230,10 @@ def _review(ctx: Ctx) -> dict:
             text = assemble()[0]
     if not text.strip():
         raise StepFailure("nothing to review — write a draft or attach a paper", "input")
-    if ctx.step["provider"] == "feynman":
+    from backend.research_engines.registry import FACTORIES
+    if ctx.step["provider"] in FACTORIES:
         ctx.step["spec"].setdefault("workflow", "review")
-        ctx.step["spec"].setdefault("topic", "Review this artifact as a strict reviewer:\n\n" + text[:5000])
+        ctx.step["spec"].setdefault("topic", "Review this artifact as a strict reviewer:\n\n" + text[:59000])
         return _research(ctx)
     system = ("You are the Reviewer agent of PhD Research Lab: a strict peer reviewer. Assess novelty, methodology, "
               "fairness of baselines, statistics (seeds, CIs), reproducibility and citation consistency. For each issue: "

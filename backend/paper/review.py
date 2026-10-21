@@ -71,7 +71,7 @@ def _read_json(path: Path, default):
         return default
 
 
-EMPTY_STATE = {"reviewers": {}, "meta": None, "issues": [], "fixes": {}, "response": None}
+EMPTY_STATE = {"reviewers": {}, "meta": None, "issues": [], "fixes": {}, "response": None, "guide": None}
 
 
 def load_state(rid: str) -> dict:
@@ -512,4 +512,48 @@ def fixes_md(rid: str) -> str:
             out += [f"> {fx['note']}", ""]
         if fx.get("plan"):
             out += ["**Plan**", "", fx["plan"], ""]
+    return "\n".join(out)
+
+
+def fixes_digest(st: dict, limit: int = 30_000) -> str:
+    parts = []
+    for it in st["issues"]:
+        fx = st["fixes"].get(it["id"])
+        if fx and fx.get("status") != "dismissed":
+            parts.append(f"[{it['id']}] {fx.get('status')}: ORIGINAL: {str(fx.get('original', ''))[:800]}\nREVISED: "
+                         f"{str(fx.get('revised') or fx.get('plan') or '')[:1200]}\nNOTE: {fx.get('note', '')}")
+    return "\n\n".join(parts)[:limit] or "(no proposed fixes yet)"
+
+
+def guide_md(rid: str) -> str:
+    """The revision guide: the model-written one when it exists, otherwise built from the issues and fixes (no model)."""
+    from backend.paper.review_prompts import venue_label
+    m, st = load_meta(rid), load_state(rid)
+    if (st.get("guide") or {}).get("text"):
+        return st["guide"]["text"]
+    if not st["issues"]:
+        raise ReviewError("Extract the issue list first (run the review)")
+    out = [f"# Revision guide — {m.get('title') or m.get('file')}", "",
+           f"Venue standard: **{venue_label(m.get('venue') or {})}** · generated {_now()} by PhD Research Lab "
+           "(AI-simulated review — verify every point before acting).", ""]
+    if (st.get("meta") or {}).get("decision"):
+        out += [f"**Area-chair decision:** {st['meta']['decision']}", ""]
+    order = sorted(st["issues"], key=lambda i: SEVERITY_ORDER.get(i["severity"], 9))
+    out += ["## Revision plan", "", "| # | Issue | Severity | Where | Status |", "|---|---|---|---|---|"]
+    for it in order:
+        out.append(f"| {it['id']} | {it['title']} | {it['severity']} | {it['location']} | {it['status']} |")
+    out += ["", "## Issue-by-issue instructions", ""]
+    for it in order:
+        fx = st["fixes"].get(it["id"]) or {}
+        out += [f"### {it['id']} · {it['severity'].upper()} — {it['title']}", "", f"**Where:** {it['location']}  ",
+                f"**Problem:** {it['problem']}  ", f"**How to fix:** {it['fix'] or '[TBD: decide the fix]'}", ""]
+        if fx.get("revised") and fx.get("status") != "dismissed":
+            out += ["**Example revision**", "", "Before:", "```", str(fx.get("original") or "(passage not found)"), "```",
+                    "After:", "```", str(fx["revised"]), "```", ""]
+        if fx.get("plan"):
+            out += ["**Plan:** " + str(fx["plan"]), ""]
+        out += ["**Done when:**", "- [ ] the change is in the manuscript", "- [ ] the response letter mentions it", ""]
+    out += ["## Final pre-submission checklist", "", "- [ ] every CRITICAL and MAJOR issue resolved or argued in the response letter",
+            "- [ ] new numbers come from real, reproducible runs", "- [ ] figures, tables and references compile without warnings",
+            "- [ ] page limit and anonymity rules of the venue respected", ""]
     return "\n".join(out)

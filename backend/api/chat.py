@@ -123,13 +123,26 @@ async def events(sid: str, after: int = 0):
 @router.get("/api/chat/sessions/{sid}/stream")
 async def events_stream(sid: str, request: Request, after: int = 0, timeout: float = 600):
     await call(store.get, sid)
+    resume = request.headers.get("last-event-id", "")
+    if resume.startswith(sid + ":"):
+        try:
+            after = max(after, int(resume.rsplit(":", 1)[1]))
+        except ValueError:
+            pass
 
     async def gen():
         last, end = max(0, after), asyncio.get_running_loop().time() + max(1.0, min(3600.0, timeout))
+        measured = set()
         while asyncio.get_running_loop().time() < end:
             for e in await run_in_threadpool(store.wait_events, sid, last, 1.0):
                 last = e["seq"]
-                yield sse(e)
+                if e["type"] == "message.delta" and e["turn_id"] not in measured:
+                    import time
+                    from backend.core.telemetry import record
+                    measured.add(e["turn_id"])
+                    record({"ts": time.time(), "operation": "chat.sse_delivery", "session_id": sid,
+                            "latency_ms": round(max(0, time.time() - e["ts"]) * 1000, 2), "ok": True})
+                yield "id: " + e["id"] + "\n" + sse(e)
             if await request.is_disconnected():
                 return
         yield sse({"type": "stream.timeout", "seq": last})
@@ -184,6 +197,28 @@ async def remember(sid: str, body: dict = Body(...)):
     return await call(lambda: memory_modes.manual(store.get(sid), str(body.get("message_id", "")), str(body.get("type", "")),
                                                   str(body.get("content", "")), str(body.get("title", "")),
                                                   bool(body.get("save"))))
+
+
+# ------------------------------------------------------------------ notes pinned to points of an answer
+@router.get("/api/chat/sessions/{sid}/notes")
+async def notes_list(sid: str):
+    return {"notes": await call(lambda: store.get(sid).get("notes") or [])}
+
+
+@router.post("/api/chat/sessions/{sid}/notes")
+async def notes_add(sid: str, body: dict = Body(...)):
+    """A note on a passage (quote + prefix/suffix anchor) or on a chart point ({chart, series, x, y}) of a message."""
+    return await call(store.add_note, sid, body)
+
+
+@router.put("/api/chat/sessions/{sid}/notes/{nid}")
+async def notes_update(sid: str, nid: str, body: dict = Body(...)):
+    return await call(store.update_note, sid, nid, body)
+
+
+@router.delete("/api/chat/sessions/{sid}/notes/{nid}")
+async def notes_delete(sid: str, nid: str):
+    return await call(store.delete_note, sid, nid)
 
 
 # ------------------------------------------------------------------ skills ("/" commands)

@@ -2,6 +2,8 @@
 name: plan
 title: Thiết kế thí nghiệm
 description: Thiết kế thí nghiệm (dữ liệu, baseline, metric, seed, ngân sách GPU)
+title_en: Plan
+description_en: Plan the next research steps
 usage: [giả thuyết]
 category: experiment
 agent: research

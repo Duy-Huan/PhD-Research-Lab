@@ -2,6 +2,8 @@
 name: lit
 title: Tổng quan tài liệu
 description: Tìm, lọc và tổng hợp tài liệu (Feynman nếu đã cấu hình, nếu không dùng mô hình của ứng dụng)
+title_en: Literature review
+description_en: Find, filter and synthesise literature on a topic
 usage: <chủ đề>
 category: research
 agent: research

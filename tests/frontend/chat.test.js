@@ -34,8 +34,14 @@ test('research run in chat exposes source cards that save to the library without
   const source = {id: 'paper-1', title: 'Real paper', source: 'arxiv', url: 'https://arxiv.org/abs/1'};
   const h = await chat({run: (r) => ({...r, steps: r.steps.map((s, i) => i ? s : {...s, result: {sources: [source]}})}),
     routes: {'POST /api/library/save': () => ({pdf_saved: false})}});
-  await h.until(() => h.$('.card.run .paper'));
+  await h.until(() => h.$('.card.run details'));
   assert.match(h.$('.card.run details summary').textContent, /1 nguồn tìm được/);
+  const det = h.$('.card.run details');  // source cards are built when the list is opened
+  det.open = true;
+  det.dispatchEvent(new h.w.Event('toggle'));
+  det.dispatchEvent(new h.w.Event('toggle'));
+  await h.until(() => h.$('.card.run .paper'));
+  assert.strictEqual(h.$$('.card.run .paper').length, 1);
   h.$('.card.run .paper button').click();
   await h.idle(20);
   assert.strictEqual(h.server.last('POST', '/api/library/save').body.source.id, 'paper-1');
@@ -149,7 +155,7 @@ test('opening a conversation: messages, proposals, memory card, run card; missin
   const h = await chat();
   assert.strictEqual(h.$('#title').textContent, 'Khoảng trống nghiên cứu ViT gọn nhẹ');
   assert.strictEqual(h.$$('.msg.user').length, 3);
-  assert.ok(h.$('.msg.ai .who').textContent.includes('Research agent'));
+  assert.match(h.$('.msg.ai .who').textContent, /Research agent|Smart router/);
   assert.match(h.$('.activity').textContent, /Đã dùng công cụ research_search_memory \(tự động, chỉ đọc\)/);
   assert.ok(card(h, 'ap-15b0cb8e').classList.contains('pending'));
   assert.match(card(h, 'ap-32450735').textContent, /\/idea/);
@@ -196,7 +202,7 @@ test('message variants: cancelled, partial, other providers + model, unknown pro
   acts(ai[0])[1].click();
   await h.idle(20);
   assert.strictEqual(h.server.calledWith('POST', `/api/chat/sessions/${SID}/retry`).length, 1);
-  assert.strictEqual(acts(ai.at(-1)).length, 4);
+  assert.strictEqual(acts(ai.at(-1)).length, 6);  // copy, retry, note, export, remember, pin
   acts(h.$$('.msg.ai')[1]).find((b) => b.title.includes('Ghi nhớ')).click();
   await h.idle();
   h.$('#modal select').value = 'finding';
@@ -215,7 +221,7 @@ test('message variants: cancelled, partial, other providers + model, unknown pro
   assert.strictEqual(pin.provenance.session_id, SID);
   // the phdlab assistant has no "retry"
   const phd = h.$$('.msg.ai').find((m) => m.querySelector('.who').textContent.startsWith('PhD Lab'));
-  assert.strictEqual(acts(phd).length, 3);
+  assert.strictEqual(acts(phd).length, 5);
 });
 
 test('proposal bodies for every action kind, results, verdict chips', async () => {

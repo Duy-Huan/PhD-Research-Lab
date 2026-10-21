@@ -1,0 +1,116 @@
+✔ research run in chat exposes source cards that save to the library without leaving the conversation (408.2471ms)
+✔ conversation list: groups by age, badges, running spinner, keyboard, empty state (276.481ms)
+✔ thread menu: rename, archive, delete (cancel / confirm), on the open and on another conversation (897.4702ms)
+✔ PL.menu: headers, hints, tags, disabled and danger items, above the anchor, outside click (125.1269ms)
+✔ home screen: outline starter for an empty project, current run, pending work, no project name (373.2333ms)
+✔ opening a conversation: messages, proposals, memory card, run card; missing conversation (293.3411ms)
+✔ message variants: cancelled, partial, other providers + model, unknown provider, actions (420.7276ms)
+✔ proposal bodies for every action kind, results, verdict chips (163.2499ms)
+✔ Accept / Reject a proposal (ok, failed, server error); memory proposals (437.4857ms)
+✔ memory and artifact cards: every status, conflicts, view / reject / apply (295.3971ms)
+✔ run cards: every status, recovery proposal, approve / cancel / retry / resume; gone run (755.51ms)
+✔ live events: streaming text, activity, tool use, run updates, completion and failure (429.7702ms)
+✔ stop a running answer; stop with nothing running (215.7922ms)
+✔ composer: send, Enter / Shift+Enter, composing, busy, attachments (upload, failure, pending, remove, + library) (727.2919ms)
+✔ a first message creates the conversation (with the model chosen beforehand) (285.6432ms)
+✔ "/" skill menu: filter by name, alias and title, categories, keyboard, pick with the mouse (496.5332ms)
+✔ model + reasoning picker: groups, filter, unavailable models, choose model and level, notes, close (609.3539ms)
+✔ model picker before the model list arrived; models unavailable; skills unavailable (393.3201ms)
+✔ scrolling: follows new content only when the reader is near the bottom (137.1442ms)
+✔ sparse records: missing optional fields never break the page; every completion event refreshes (427.0683ms)
+✔ home screen without a project (configuration unavailable); outline without attachments (86.6457ms)
+✔ h() builds elements: classes, id, attributes, events, html/text/dataset, children (169.8849ms)
+✔ api(): JSON, text, FormData, errors, offline banner, abort (49.3031ms)
+✔ stream(): resume cursor, hello, timeout reconnect, bad JSON, errors with backoff, close (175.8732ms)
+✔ bus: prefix subscriptions, unsubscribe, a failing listener never breaks the others; live dot (16.7365ms)
+✔ md()/rich(): hidden action blocks, math, code copy + lazy highlight, links, fallbacks (142.3973ms)
+✔ copy(): clipboard ok, failure, no clipboard (58.1403ms)
+✔ toast / modal / confirm / prompt (235.0859ms)
+✔ formatting: ago, size, status chips (31.0776ms)
+✔ routing and storage (45.5591ms)
+✔ tiles, pending work, recent runs; tiles and rows open the right place (571.8009ms)
+✔ a running project: current step, run in pending work, pins with their menu, statuses (464.386ms)
+✔ advanced details: guard slots, GPU, models in VRAM, providers, research state, unload (no acceptance checklist) (212.3634ms)
+✔ advanced details when everything is unavailable (108.4828ms)
+✔ memory proposals panel: accept, dismiss, none, unavailable (276.8914ms)
+✔ dashboard error, leaving the page stops live refreshes, reopening replaces the listeners (419.4798ms)
+✔ boot paints the project, conversations, pending count; header + sidebar controls (647.0795ms)
+✔ narrow screens: the sidebar slides over the page (162.732ms)
+✔ navigation buttons open panels, pages and settings (349.497ms)
+✔ keyboard: Ctrl+Shift+O new chat, "/" opens the skill menu outside inputs (339.2785ms)
+✔ project menu: switch, new project (validation, failure, success), open existing, outline, reveal (776.7353ms)
+✔ live bus: conversation, run, project, outline and config events refresh the right parts (200.5186ms)
+✔ boot survives a failing backend; restores the last run panel; dashboard down → no count (223.0809ms)
+✔ the page boots itself: right away, or on DOMContentLoaded while still loading (88.5551ms)
+✔ run panel: steps, provider switch, outputs, acceptance, every timeline event, live repaint (658.069ms)
+✔ file viewer: PDF, image, Markdown, CSV with a note, JSON, broken JSON, text, errors (118.0126ms)
+✔ proposed file: diff, reject, apply (ok / refused), read-only when decided, diff error (258.976ms)
+✔ outline starter: levels, required text, save → AI proposes the next level, attach a proposal file (394.7279ms)
+✔ outline panel: fields, save, AI proposes, attachments, restore versions, load error (472.8066ms)
+✔ library: list, include toggle, open, delete (cancel / confirm), upload by click and drop, error (461.7952ms)
+✔ experiments: code projects, open in VS Code, new project, sync back, jobs with metrics, stop (821.6947ms)
+✔ Lit discovery: multi-source search, provider errors, verified journal data and one-click save (195.4959ms)
+✔ Lit handles empty results, search faults, unsafe URLs and save retry without inventing quartiles (233.3457ms)
+✔ metadata-only library records open details and research runs retain saveable sources (75.7307ms)
+✔ Lit source availability and validation: sparse responses, direct search links and source provenance (293.324ms)
+✔ engine settings remain separate from models; search and model qualification updates (381.8603ms)
+✔ native permission UI permits once/reject and resumes the existing run (226.9372ms)
+✔ uncertain decision never automatically resumes the workflow (171.7448ms)
+✔ empty review page: drop zone (click, keyboard, drag & drop), upload opens the new review (477.9369ms)
+✔ a new review: settings, start reviewing (streamed stages), tabs before any report (727.3107ms)
+✔ a reviewed manuscript: reports, chair, issues with fixes (accept / dismiss / propose), apply, downloads, delete (1116.9933ms)
+✔ review list without an active review; a review that cannot be loaded; leaving a chat for the review page (233.1191ms)
+✔ tabs switch; the configuration cannot be loaded (446.8907ms)
+✔ settings search finds hardware and MCP, handles no matches, and clears the filter (374.3681ms)
+✔ models & agents: engines per agent, cloud keys (main list + others), local models in VRAM, lifecycle (616.8832ms)
+✔ models tab when the local servers are offline or unreadable (270.3138ms)
+✔ research providers: states, setup hints, sign-in, Feynman and coding defaults (378.0555ms)
+✔ paper and web search configuration saves scoped keys without returning secrets to password fields (417.3915ms)
+✔ journal ranking CSV import validates year and file, reports faults and permits retry (405.2182ms)
+✔ experiments & hardware: approvals, budgets, recovery, web search, slots, GPU, VS Code path (603.997ms)
+✔ memory & context settings (228.7555ms)
+✔ skills: list, delete a user skill, create one (ok / invalid), load errors (503.3106ms)
+✔ appearance: theme follows the system, light, dark; storage blocked (354.2195ms)
+✔ boots on the home screen with the recorded project (227.4198ms)
+✔ charts: parse, draw (line, bar, scatter, area, log), hover, table, PNG / SVG download, invalid specs (831.0212ms)
+✔ svg figures are sanitised; mermaid diagrams load on demand and fall back to source (168.8355ms)
+✔ export: menu formats, PDF / Word / LaTeX of an answer and of the conversation, print fallback, errors (371.9818ms)
+✔ notes: select a passage, note a chart point, highlights, the notes panel, ask the AI, resolve / edit / delete (963.9035ms)
+✔ notes panel when there are none; a note whose passage is gone; highlight helper edge cases (341.2176ms)
+✔ composer tools menu; streaming closes an open code fence; md cache (453.2792ms)
+✔ English interface: static markup, constants, dates, skills in English, language switch reloads (284.979ms)
+✔ settings: language, font, plugins (install, toggle, skills, update, remove, errors), automatic ranking (996.217ms)
+✔ paper panel: sections, AI-Scientist install, write the manuscript (stream), compile, downloads (888.6117ms)
+✔ library: ranking badges, the ranking check; search results show CORE ranks (162.9644ms)
+✔ review: venue ranking lookup, the revision guide tab (write with AI, show, rewrite) (460.6282ms)
+✔ custom model selection can cancel, add a model, and refresh actual provider catalogs (523.7515ms)
+✔ remote run cards require approval and sync the real task identity (836.0286ms)
+✔ native run recovery, cancellation and questions preserve user intent (325.4955ms)
+ℹ tests 88
+ℹ suites 0
+ℹ pass 88
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8904.2971
+ℹ start of coverage report
+ℹ ---------------------------------------------------------------
+ℹ file           | line % | branch % | funcs % | uncovered lines
+ℹ ---------------------------------------------------------------
+ℹ frontend       |        |          |         | 
+ℹ  assets        |        |          |         | 
+ℹ   chat.js      | 100.00 |    95.88 |   95.35 | 
+ℹ   core.js      | 100.00 |    98.30 |   98.84 | 
+ℹ   dashboard.js | 100.00 |   100.00 |   97.96 | 
+ℹ   i18n-en.js   | 100.00 |    50.00 |  100.00 | 
+ℹ   i18n.js      | 100.00 |    70.83 |  100.00 | 
+ℹ   main.js      | 100.00 |    98.29 |  100.00 | 
+ℹ   panels.js    | 100.00 |    98.45 |   98.46 | 
+ℹ   review.js    | 100.00 |    99.44 |   96.43 | 
+ℹ   settings.js  | 100.00 |    95.42 |   85.06 | 
+ℹ   tools.js     | 100.00 |    89.24 |   97.40 | 
+ℹ ---------------------------------------------------------------
+ℹ all files      | 100.00 |    95.99 |   95.03 | 
+ℹ ---------------------------------------------------------------
+ℹ end of coverage report

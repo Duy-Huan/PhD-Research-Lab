@@ -35,15 +35,19 @@ class RecordedResult(unittest.TextTestResult):
 
 def source_snapshot():
     """A report measured while files change cannot certify the final working tree."""
-    files = [ROOT / '.coveragerc']
+    files = [ROOT / '.coveragerc', ROOT / 'start.py', ROOT / 'mcp_stdio_bridge.py']
     for directory in ('backend', 'tests'):
         files.extend((ROOT / directory).rglob('*.py'))
     return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files if p.is_file()}
 
 def main():
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--pattern', default='test_*.py')
     parser.add_argument('--out', default='artifacts/backend-regression')
+    parser.add_argument('--include-workers', action='store_true', help='Include the standalone ClearML worker in the denominator (no configured worker omission)')
+    parser.add_argument('--include-entrypoints', action='store_true', help='Also measure start.py and mcp_stdio_bridge.py')
     args = parser.parse_args()
     out = Path(args.out).resolve()
     out.mkdir(parents=True, exist_ok=True)
@@ -57,6 +61,10 @@ def main():
         os.environ['JUPYTER_DATA_DIR'] = str(Path(data) / '_jupyter')
         os.environ['PYTHONIOENCODING'] = 'utf-8'
         cov = coverage.Coverage(config_file=str(ROOT / '.coveragerc'), data_file=str(out / '.coverage'))
+        if args.include_workers:
+            cov.set_option('run:omit', [])
+        if args.include_entrypoints:
+            cov.set_option('run:source', ['backend', 'start', 'mcp_stdio_bridge'])
         cov.start()
         suite = unittest.defaultTestLoader.discover(str(ROOT / 'tests'), pattern=args.pattern)
         with (out / 'tests.log').open('w', encoding='utf-8') as log:
@@ -80,7 +88,8 @@ def main():
             'source_stable':not changed,'changed_sources':changed,
             'quality_gate_passed':result.wasSuccessful() and complete and not changed,
             'regression_passed':result.wasSuccessful(),'elapsed_seconds':round(time.monotonic()-started,2),
-            'scope':'backend, using the existing .coveragerc (clearml_worker subprocess excluded)'}
+            'scope':('all backend Python including clearml_worker' if args.include_workers else 'backend, using the existing .coveragerc (clearml_worker subprocess excluded)') +
+                    ('; plus launcher and stdio bridge' if args.include_entrypoints else '')}
         (out / 'summary.json').write_text(json.dumps(summary,indent=2),encoding='utf-8')
         print(json.dumps({k:v for k,v in summary.items() if k != 'executed_tests'},indent=2))
         if not result.wasSuccessful():

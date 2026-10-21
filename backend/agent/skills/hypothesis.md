@@ -2,6 +2,8 @@
 name: hypothesis
 title: Giả thuyết
 description: Đề xuất giả thuyết có thể kiểm chứng (bạn duyệt từng giả thuyết)
+title_en: Hypothesis
+description_en: Formulate a testable hypothesis
 usage: [hướng / gap]
 category: research
 agent: research

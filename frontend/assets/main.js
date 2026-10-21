@@ -22,18 +22,25 @@
     PL.state.project = cfg.project;
     PL.state.projects = ps.projects;
     PL.state.version = cfg.version;
+    const ui = cfg.ui || {};
+    if (ui.language && ui.language !== PL.lang) {  // changed elsewhere (CLI / another browser): reload once in that language
+      let again = false;
+      try { again = W.sessionStorage.getItem("pl.langReload") === ui.language; W.sessionStorage.setItem("pl.langReload", ui.language); } catch (e) { again = true; }
+      if (!again) { PL.setLang(ui.language); return; }
+    }
+    if (ui.prose_font) PL.setFont(ui.prose_font);
     PL.$("#proj-name").textContent = cfg.project.name;
     const o = await PL.get("/api/outline").catch(() => null);
-    PL.$("#proj-sub").textContent = o && o.level ? `Đề cương cấp ${o.level}/5 · ${o.level_label}` : "Chưa có đề cương";
+    PL.$("#proj-sub").textContent = o && o.level ? PL.t("Đề cương cấp {0}/5 · {1}", o.level, PL.t(o.level_label)) : PL.t("Chưa có đề cương");
   }
   function projectMenu(anchor) {
-    const items = [{ header: "Dự án nghiên cứu" }];
+    const items = [{ header: PL.t("Dự án nghiên cứu") }];
     for (const p of PL.state.projects) {
-      items.push({ label: p.name, hint: p.data_dir, tag: p.data_dir === PL.state.project.data_dir ? "đang mở" : null,
+      items.push({ label: p.name, hint: p.data_dir, tag: p.data_dir === PL.state.project.data_dir ? PL.t("đang mở") : null,
         run: () => switchProject(p.data_dir) });
     }
-    items.push({ label: "＋ Dự án mới…", run: newProject }, { label: "Mở dự án có sẵn (thư mục)…", run: openExisting },
-      { label: "Đề cương nghiên cứu", run: () => PL.panels.outline() }, { label: "Mở thư mục dự án", run: () => PL.safe(() => PL.post("/api/projects/reveal")) });
+    items.push({ label: PL.t("＋ Dự án mới…"), run: newProject }, { label: PL.t("Mở dự án có sẵn (thư mục)…"), run: openExisting },
+      { label: PL.t("Đề cương nghiên cứu"), run: () => PL.panels.outline() }, { label: PL.t("Mở thư mục dự án"), run: () => PL.safe(() => PL.post("/api/projects/reveal")) });
     PL.menu(anchor, items);
   }
   async function switchProject(dir) {
@@ -47,28 +54,36 @@
     PL.go("#/");
   }
   function newProject() {
-    const name = h("input.input", { placeholder: "vd: Lightweight ViT cho thiết bị biên" });
-    const dir = h("input.input", { placeholder: "để trống = projects/<tên>" });
-    PL.modal({ title: "Dự án nghiên cứu mới", body: h("div", {},
-      h("label.field", {}, h("span", {}, "Tên dự án"), name),
-      h("label.field", {}, h("span", {}, "Thư mục dữ liệu (tuỳ chọn)"), dir),
-      h("p.muted", { style: "font-size:13px" }, "Sau khi tạo, bạn đưa vào đề cương ở cấp bạn đang có (từ khoá → đề cương đầy đủ) hoặc đính kèm file đề cương.")),
-    actions: [{ label: "Huỷ" }, { label: "Tạo dự án", kind: "accent", onClick: async () => {
+    const name = h("input.input", { placeholder: PL.t("vd: Lightweight ViT cho thiết bị biên") });
+    const dir = h("input.input", { placeholder: PL.t("để trống = projects/<tên>") });
+    PL.modal({ title: PL.t("Dự án nghiên cứu mới"), body: h("div", {},
+      h("label.field", {}, h("span", {}, PL.t("Tên dự án")), name),
+      h("label.field", {}, h("span", {}, PL.t("Thư mục dữ liệu (tuỳ chọn)")), dir),
+      h("p.muted", { style: "font-size:13px" }, PL.t("Sau khi tạo, bạn đưa vào đề cương ở cấp bạn đang có (từ khoá → đề cương đầy đủ) hoặc đính kèm file đề cương."))),
+    actions: [{ label: PL.t("Huỷ") }, { label: PL.t("Tạo dự án"), kind: "accent", onClick: async () => {
       if (!name.value.trim()) { name.focus(); return false; }
-      const r = await PL.safe(() => PL.post("/api/projects", { name: name.value.trim(), data_dir: dir.value.trim() || undefined }), "Đã tạo dự án");
+      const r = await PL.safe(() => PL.post("/api/projects", { name: name.value.trim(), data_dir: dir.value.trim() || undefined }), PL.t("Đã tạo dự án"));
       if (!r) return false;
       await afterSwitch();
       return true;
     } }] });
   }
   async function openExisting() {
-    const p = await PL.prompt("Mở dự án có sẵn", "Đường dẫn thư mục dự án", "");
+    const p = await PL.prompt(PL.t("Mở dự án có sẵn"), PL.t("Đường dẫn thư mục dự án"), "");
     if (p && await PL.safe(() => PL.post("/api/projects/open", { data_dir: p }))) await afterSwitch();
   }
 
   // ------------------------------------------------------------------ routes
   PL.route("", () => { PL.activeNav(""); PL.chat.open(null); });
   PL.route("chat", (sid) => { PL.activeNav(""); PL.chat.open(sid || null); });
+  /** Leaving the chat for a full page: stop its stream and clear the conversation tools of the header. */
+  PL.leaveChat = function () {
+    if (PL.chat.sse) { PL.chat.sse.close(); PL.chat.sse = null; }
+    PL.chat.sid = null;
+    PL.chat.nodes = new Map();
+    const tt = PL.$("#top-tools");
+    if (tt) tt.replaceChildren();
+  };
 
   // ------------------------------------------------------------------ pending count + live bus
   let pt = 0;
@@ -96,6 +111,7 @@
 
   // ------------------------------------------------------------------ boot
   async function boot() {
+    PL.applyStatic();
     PL.paintIcons(D);
     const app = PL.$("#app");
     const narrow = () => W.matchMedia && W.matchMedia("(max-width: 820px)").matches;
@@ -120,6 +136,7 @@
       const g = b.dataset.go;
       if (g === "library") PL.panels.library();
       else if (g === "code") PL.panels.code();
+      else if (g === "paper") PL.panels.paper();
       else if (g === "settings") PL.settings.open();
       else PL.go("#/" + g);
     }));
@@ -139,6 +156,7 @@
     PL.dispatch();
     const last = PL.store.get("panel", null);
     if (last && last.kind === "run" && last.arg) PL.panels.run(last.arg);
+    else if (last && ["library", "paper", "code", "outline"].includes(last.kind)) PL.panels[last.kind]();
   }
   PL.boot = boot;
   if (!W.PL_NO_BOOT) {

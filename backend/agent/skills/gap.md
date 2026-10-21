@@ -2,6 +2,8 @@
 name: gap
 title: Khoảng trống nghiên cứu
 description: Phân tích research gap từ đề cương, thư viện và kết quả đã có
+title_en: Research gaps
+description_en: Find research gaps from the library and the outline
 usage: [phạm vi]
 category: research
 agent: research

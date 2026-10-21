@@ -71,15 +71,55 @@ def record_run(Task, a: dict) -> dict:
 
 
 def main() -> int:
-    req = json.loads(sys.stdin.read() or "{}")
-    cmd, args = req.get("cmd"), req.get("args") or {}
     try:
+        req = json.loads(sys.stdin.read() or "{}")
+        cmd, args = req.get("cmd"), req.get("args") or {}
         import clearml
         from clearml import Task
         if cmd == "probe":
             out = {"version": clearml.__version__}
         elif cmd == "record_run":
             out = record_run(Task, args)
+        elif cmd == "remote_snapshot":
+            if req.get("offline", True):
+                raise ValueError("Remote task requires online mode")
+            from pathlib import Path
+            import hashlib
+            import shutil
+            Task.set_offline(False)
+            task = Task.get_task(task_id=args["task_id"])
+            if task.get_parameters().get("General/run_id") != args["run_id"]:
+                raise ValueError("ClearML task run_id does not match the approved run")
+            out = {"task_id": task.id, "project_id": task.project, "status": str(task.get_status()),
+                   "metrics": task.get_last_scalar_metrics(), "artifacts": []}
+            if args.get("collect"):
+                dest = Path(args["destination"]).resolve()
+                dest.mkdir(parents=True, exist_ok=True)
+                for name in args["required_artifacts"]:
+                    if name not in task.artifacts:
+                        raise ValueError("Required artifact missing: " + name)
+                    art = task.artifacts[name]
+                    # Never art.get(): it can deserialize pickle from untrusted remote code.
+                    source = Path(art.get_local_copy(extract_archive=False)).resolve()
+                    if not source.is_file():
+                        raise ValueError("Artifact must be a regular file: " + name)
+                    target = dest / name
+                    tmp = target.with_suffix(target.suffix + ".partial")
+                    try:
+                        shutil.copyfile(source, tmp)
+                        with tmp.open("rb") as f:
+                            sha = hashlib.file_digest(f, "sha256").hexdigest()
+                        expected = getattr(art, "hash", "") or ""
+                        if expected and len(expected) == 64 and sha != expected:
+                            raise ValueError("Artifact checksum mismatch: " + name)
+                        if expected and len(expected) == 32:
+                            with tmp.open("rb") as f:
+                                if hashlib.file_digest(f, "md5").hexdigest() != expected:
+                                    raise ValueError("Artifact checksum mismatch: " + name)
+                        os.replace(tmp, target)
+                    finally:
+                        tmp.unlink(missing_ok=True)
+                    out["artifacts"].append({"name": name, "sha256": sha, "size": target.stat().st_size})
         else:
             raise ValueError(f"unknown command {cmd}")
     except Exception as e:  # message only — never the environment

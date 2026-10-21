@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "5.0.0"
+APP_VERSION = "5.1.0"
 
 ROOT = Path(__file__).resolve().parents[2]
 # PHDLAB_DATA_DIR (v3.2) moves ALL user data elsewhere — used by the test suite so it never touches the real data/.
@@ -173,19 +173,22 @@ DEFAULTS = {
                   "unload_grace_s": 15, "respect_manual_loads": True, "single_model_vram": True},
     # ClearML offline recording (SDK only, no server): auto_record records every finished run as an offline session in
     # <project>/clearml that can be imported into a ClearML Server later.
-    "clearml": {"enabled": True, "auto_record": True, "project": "PhD Research Lab"},
+    "clearml": {"enabled": True, "auto_record": True, "project": "PhD Research Lab", "server_enabled": False,
+                "web_url": "http://localhost:8080"},
     # windows_sandbox: Codex needs a Windows sandbox backend to run shell commands; "unelevated" (restricted token, no
     # admin rights), "elevated" (stronger, needs a one-time admin setup) or "config" (use ~/.codex/config.toml as is)
     "codex": {"enabled": True, "binary": "", "sandbox": "read-only", "model": "", "timeout_s": 1800, "windows_sandbox": "unelevated"},
     "workspace": {"vscode_path": ""},
-    "routing": {"online_check": True, "chains": {}, "provider_headers": {}},
+    "routing": {"online_check": True, "chains": {}, "provider_headers": {},
+                "capability_aware": True, "verified_local_tasks": ["extract", "summarize", "context", "live_critic"],
+                "verified_fallbacks": {}},
     "provenance": {"enabled": True, "csv_header": True},
     # v3.4 Context Gateway (provider-independent research context for ChatGPT / Claude Code / Gemini & Antigravity).
     # Sensitivity: PUBLIC always leaves, INTERNAL per allow_internal, SENSITIVE only with allow_sensitive, RESTRICTED never.
     # *_api_fallback False = the CLI connectors run with API-key variables removed, so a subscription sign-in is used
     # and no API billing is ever created implicitly (cost guard).
     "gateway": {"enabled": True, "allow_internal": True, "allow_sensitive": False, "block_source_code": True,
-                "context_budget_tokens": 6000, "provider_timeout_s": 600,
+                "context_budget_tokens": 6000, "provider_timeout_s": 600, "codex_app_server": False, "cli_models": {},
                 "codex_enabled": True, "claude_code_enabled": True, "gemini_cli_enabled": True, "antigravity_enabled": True,
                 "codex_api_fallback": False, "claude_code_api_fallback": False, "antigravity_api_fallback": False,
                 "gemini_cli_api_fallback": False,
@@ -225,18 +228,31 @@ DEFAULTS["research_providers"] = {
     "feynman_share_app_key": False,   # let Feynman use the app's Anthropic / OpenAI key (billed to that API account)
     "feynman_timeout_s": 1800,
     "coding_default": "claude_code",  # claude_code | codex | gemini_cli | antigravity | app
+    "engine_mode": "auto", "engine_priority": ["feynman", "openscience"],
 }
+DEFAULTS["openscience"] = {
+    "enabled": False, "base_url": "http://127.0.0.1:4096", "token": "", "timeout_s": 600,
+    "request_timeout_s": 3.0, "max_artifact_mb": 64, "max_artifacts": 32, "allow_execution": False,
+    "policy_confirmed": False, "qualified_tasks": [], "model_provider": "", "model_id": "",
+}
+# v5.1 interface language (UI strings + the language the agents answer in) and the reading font of answers
+DEFAULTS["ui"] = {"language": "vi", "prose_font": "sans"}
+# v5.1 automatic venue ranking: CORE conference ranks are downloaded (refreshed after refresh_days); SCImago journal
+# exports cannot be fetched automatically (bot protection), so a scimagojr*.csv saved in Downloads is imported by itself.
+DEFAULTS["ranking"] = {"auto": True, "core_source": "ICORE2026", "watch_downloads": True, "refresh_days": 30}
 SECTIONS_V32 = ("runs", "research_providers", "memory", "resources", "clearml", "codex", "workspace", "routing", "provenance",
-                "gateway", "mcp", "lifecycle", "aiws")
+                "gateway", "mcp", "lifecycle", "aiws", "ui", "ranking", "openscience")
 LIFECYCLE_POLICIES = ("unload_after_task", "keep_loaded", "idle_unload")
-SECRET_FIELDS = {"mcp": ("token",)}
+SECRET_FIELDS = {"mcp": ("token",), "openscience": ("token",)}
 CHOICES = {("research_providers", "coding_default"): ("claude_code", "codex", "gemini_cli", "antigravity", "app"),
+           ("research_providers", "engine_mode"): ("auto", "feynman", "openscience", "collaborative"),
            ("codex", "sandbox"): ("read-only", "workspace-write"),
            ("codex", "windows_sandbox"): ("unelevated", "elevated", "config"),
            ("memory", "embed_engine"): ("auto", "ollama", "hashing"), ("gateway", "cli_profile"): ("review", "assisted"),
            ("aiws", "operating_mode"): ("automation", "manual"), ("aiws", "context_mode"): ("none", "selected", "relevant", "expanded"),
            ("aiws", "memory_mode"): ("off", "manual", "suggest", "auto"), ("aiws", "security_profile"): ("review", "assisted"),
            ("aiws", "reasoning"): ("auto", "off", "low", "medium", "high"),
+           ("ui", "language"): ("vi", "en"), ("ui", "prose_font"): ("sans", "serif"),
            **{("lifecycle", k): LIFECYCLE_POLICIES for k in ("local_background", "local_interactive", "cli", "mcp", "cloud")}}
 
 _lock = threading.Lock()
@@ -363,7 +379,13 @@ def save_config(patch: dict) -> dict:
             elif k == "latex_online":
                 cfg[k] = bool(v)
             elif k in SECTIONS_V32 and isinstance(v, dict):
+                previous_identity = tuple(cfg[k].get(f) for f in ("base_url", "model_provider", "model_id")) if k == "openscience" else None
                 _merge_section(k, cfg[k], v, masked_ok=True)
+                if k == "openscience":
+                    from backend.research_engines.openscience import Settings
+                    if previous_identity != tuple(cfg[k].get(f) for f in ("base_url", "model_provider", "model_id")):
+                        cfg[k]["qualified_tasks"] = []
+                    cfg[k] = Settings.model_validate(cfg[k]).model_dump()
                 if k == "memory":
                     for f in ("keep_recent_turns", "interval_s", "high_watermark_tokens", "chunk_tokens"):
                         cfg["memory"][f] = max(1, cfg["memory"][f])

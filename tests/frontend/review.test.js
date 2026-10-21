@@ -123,7 +123,7 @@ test('a reviewed manuscript: reports, chair, issues with fixes (accept / dismiss
   assert.match(h.$('#rv-body').textContent, /Methods.*Major revision.*Điểm 5/);
   assert.ok(h.$('#rv-body h2'));
   assert.ok(h.$$('#rv-main button').some((b) => b.textContent.includes('Phản biện lại')));
-  assert.deepStrictEqual(h.$$('.rv-tabs button').map((b) => b.textContent), ['Reviewer 1', 'Reviewer 2', 'Chủ tịch', 'Vấn đề (6)', 'Thư phản hồi']);
+  assert.deepStrictEqual(h.$$('.rv-tabs button').map((b) => b.textContent), ['Reviewer 1', 'Reviewer 2', 'Chủ tịch', 'Vấn đề (6)', 'Hướng dẫn sửa bài', 'Thư phản hồi']);
   await h.clickText('.rv-tabs button', 'Reviewer 2');
   assert.strictEqual(h.$('#rv-body .chip'), null);
   await h.clickText('.rv-tabs button', 'Chủ tịch');
@@ -163,7 +163,16 @@ test('a reviewed manuscript: reports, chair, issues with fixes (accept / dismiss
   apply = R({detail: 'no source'}, 409);
   await h.clickText('#rv-main button', 'Áp dụng sửa đã chấp nhận', 40);
   assert.strictEqual(h.toast(), 'no source');
-  assert.ok(h.$$('#rv-main a').some((a) => a.href.endsWith('/download/response')));
+  // every document exports as Markdown, PDF, Word or LaTeX (the revision guide included)
+  const exportBtn = (label) => h.$$('#rv-main .panelbox button').find((b) => b.textContent.includes(label));
+  for (const label of ['Hướng dẫn sửa bài', 'Báo cáo phản biện', 'Đề xuất sửa', 'Thư phản hồi']) assert.ok(exportBtn(label), label);
+  exportBtn('Thư phản hồi').click();
+  await h.idle();
+  assert.deepStrictEqual(h.$$('.menu.pop .mi').map((b) => b.textContent), ['Markdown (.md)', 'PDF (.pdf)', 'Word (.docx)', 'LaTeX (.tex)']);
+  let clicked = '';
+  h.w.HTMLAnchorElement.prototype.click = function () { clicked = this.getAttribute('href'); };
+  h.$$('.menu.pop .mi')[1].click();
+  assert.ok(clicked.endsWith('/download/response?format=pdf'), clicked);
   assert.ok(h.$$('#rv-main a').some((a) => a.href.endsWith('/download/source')));
   // delete (cancel, then confirm)
   await h.clickText('#rv-main button', 'Xoá');
@@ -184,7 +193,7 @@ test('a reviewed manuscript: reports, chair, issues with fixes (accept / dismiss
   h.server.on('GET /api/review', () => ({reviews: [{id: RVID, file: 'f.md', n_issues: 3, decision: 'Accept', updated: '2026-10-21T01:00:00'}], active: 'gone'}));
   await h.go('#/review/' + RVID, 60);
   assert.match(h.$('.review-grid .thread').textContent, /f\.md.*Accept · 3 vấn đề · 2026-10-21/);
-  assert.strictEqual(h.$$('.rv-tabs button').length, 6);
+  assert.strictEqual(h.$$('.rv-tabs button').length, 7);  // R1–R3, chair, issues, revision guide, response
   assert.match(h.$('#rv-main b.grow').textContent, /vit-edge\.md/);
   assert.match(h.$('#rv-main').textContent, /0k ký tự/);
   await h.clickText('.rv-tabs button', 'Reviewer 1');

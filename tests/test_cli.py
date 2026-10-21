@@ -13,7 +13,7 @@ from unittest import mock
 from fastapi.testclient import TestClient
 
 from backend import cli
-from backend.agent import runs, sessions
+from backend.agent import launch, runs, sessions
 from backend.app import app
 from backend.cli import repl as R
 from backend.core import config
@@ -62,7 +62,9 @@ class Base(unittest.TestCase):
         config.save_config({"runs": {"web_search": False}})
         sandbox.save_settings({"mode": "local", "python_mode": "existing", "python_base": sys.executable, "auto_deps": False,
                                "gpu": False})
+        provider_for = launch.provider_for
         for p in (mock.patch.object(llm, "stream_agent", fake_stream),
+                  mock.patch.object(launch, "provider_for", side_effect=lambda skill: "app" if skill["provider"] == "feynman" else provider_for(skill)),
                   mock.patch.object(RP, "app_complete", return_value="lit text"),
                   mock.patch.object(RP, "describe_all", return_value=[{"id": "app", "label": "App", "category": "research",
                                                                        "state": "READY", "ready": True, "detail": "d"}])):

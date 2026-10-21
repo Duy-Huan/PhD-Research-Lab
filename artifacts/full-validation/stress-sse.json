@@ -1,0 +1,225 @@
+{
+  "schema_version": "1.0",
+  "workers": 16,
+  "rounds": 3,
+  "real_model_calls": 0,
+  "cloud_jobs": 0,
+  "phases": [
+    {
+      "round": 1,
+      "name": "gateway-streaming",
+      "events": 3200,
+      "subscribers": 3,
+      "durable_replay_verified": true,
+      "hot_window": 512,
+      "publish_latency": {
+        "count": 3200,
+        "p50_ms": 9.521,
+        "p95_ms": 10.664,
+        "max_ms": 14.245
+      },
+      "passed": true,
+      "elapsed_s": 2.035
+    },
+    {
+      "round": 1,
+      "name": "concurrent-state",
+      "writers": 16,
+      "messages": 320,
+      "unique_ids": 320,
+      "passed": true,
+      "elapsed_s": 1.668
+    },
+    {
+      "round": 1,
+      "name": "resource-contention",
+      "active": 0,
+      "peak": 1,
+      "completed": 320,
+      "passed": true,
+      "elapsed_s": 2.036
+    },
+    {
+      "round": 1,
+      "name": "subprocess-timeout-cleanup",
+      "real_subprocesses": 16,
+      "forced_timeouts": 6,
+      "remaining_registered_processes": 0,
+      "remaining_owned_os_processes": 0,
+      "cleanup_settlement_ms": 374.884,
+      "events": 68,
+      "passed": true,
+      "elapsed_s": 1.077
+    },
+    {
+      "round": 1,
+      "name": "http-load",
+      "transport": "actual loopback HTTP",
+      "clients": 16,
+      "latency": {
+        "count": 480,
+        "p50_ms": 32.288,
+        "p95_ms": 66.14,
+        "max_ms": 129.952
+      },
+      "errors": 0,
+      "sse_clients": 8,
+      "sse_deliveries": 800,
+      "sse_reconnect_verified": true,
+      "sse_delivery_latency": {
+        "count": 800,
+        "p50_ms": 16.043,
+        "p95_ms": 28.826,
+        "max_ms": 29.742
+      },
+      "lifespan": "off; startup/recovery is covered by regression, this phase isolates HTTP admission",
+      "passed": true,
+      "elapsed_s": 2.661
+    },
+    {
+      "round": 2,
+      "name": "gateway-streaming",
+      "events": 3200,
+      "subscribers": 3,
+      "durable_replay_verified": true,
+      "hot_window": 512,
+      "publish_latency": {
+        "count": 3200,
+        "p50_ms": 9.619,
+        "p95_ms": 12.061,
+        "max_ms": 36.747
+      },
+      "passed": true,
+      "elapsed_s": 2.027
+    },
+    {
+      "round": 2,
+      "name": "concurrent-state",
+      "writers": 16,
+      "messages": 320,
+      "unique_ids": 320,
+      "passed": true,
+      "elapsed_s": 1.595
+    },
+    {
+      "round": 2,
+      "name": "resource-contention",
+      "active": 0,
+      "peak": 1,
+      "completed": 320,
+      "passed": true,
+      "elapsed_s": 2.023
+    },
+    {
+      "round": 2,
+      "name": "subprocess-timeout-cleanup",
+      "real_subprocesses": 16,
+      "forced_timeouts": 6,
+      "remaining_registered_processes": 0,
+      "remaining_owned_os_processes": 0,
+      "cleanup_settlement_ms": 435.584,
+      "events": 68,
+      "passed": true,
+      "elapsed_s": 1.096
+    },
+    {
+      "round": 2,
+      "name": "http-load",
+      "transport": "actual loopback HTTP",
+      "clients": 16,
+      "latency": {
+        "count": 480,
+        "p50_ms": 30.787,
+        "p95_ms": 59.37,
+        "max_ms": 92.219
+      },
+      "errors": 0,
+      "sse_clients": 8,
+      "sse_deliveries": 800,
+      "sse_reconnect_verified": true,
+      "sse_delivery_latency": {
+        "count": 800,
+        "p50_ms": 14.648,
+        "p95_ms": 25.056,
+        "max_ms": 25.451
+      },
+      "lifespan": "off; startup/recovery is covered by regression, this phase isolates HTTP admission",
+      "passed": true,
+      "elapsed_s": 2.179
+    },
+    {
+      "round": 3,
+      "name": "gateway-streaming",
+      "events": 3200,
+      "subscribers": 3,
+      "durable_replay_verified": true,
+      "hot_window": 512,
+      "publish_latency": {
+        "count": 3200,
+        "p50_ms": 9.888,
+        "p95_ms": 11.902,
+        "max_ms": 19.066
+      },
+      "passed": true,
+      "elapsed_s": 2.058
+    },
+    {
+      "round": 3,
+      "name": "concurrent-state",
+      "writers": 16,
+      "messages": 320,
+      "unique_ids": 320,
+      "passed": true,
+      "elapsed_s": 1.693
+    },
+    {
+      "round": 3,
+      "name": "resource-contention",
+      "active": 0,
+      "peak": 1,
+      "completed": 320,
+      "passed": true,
+      "elapsed_s": 1.969
+    },
+    {
+      "round": 3,
+      "name": "subprocess-timeout-cleanup",
+      "real_subprocesses": 16,
+      "forced_timeouts": 6,
+      "remaining_registered_processes": 0,
+      "remaining_owned_os_processes": 0,
+      "cleanup_settlement_ms": 439.041,
+      "events": 68,
+      "passed": true,
+      "elapsed_s": 1.088
+    },
+    {
+      "round": 3,
+      "name": "http-load",
+      "transport": "actual loopback HTTP",
+      "clients": 16,
+      "latency": {
+        "count": 480,
+        "p50_ms": 31.832,
+        "p95_ms": 56.677,
+        "max_ms": 101.417
+      },
+      "errors": 0,
+      "sse_clients": 8,
+      "sse_deliveries": 800,
+      "sse_reconnect_verified": true,
+      "sse_delivery_latency": {
+        "count": 800,
+        "p50_ms": 16.383,
+        "p95_ms": 32.072,
+        "max_ms": 32.993
+      },
+      "lifespan": "off; startup/recovery is covered by regression, this phase isolates HTTP admission",
+      "passed": true,
+      "elapsed_s": 2.145
+    }
+  ],
+  "passed": true,
+  "rss_before_mb": 28.75,
+  "rss_after_mb": 121.27
+}
