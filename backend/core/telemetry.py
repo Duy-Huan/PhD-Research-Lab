@@ -64,7 +64,7 @@ def redact(text: str) -> str:
 
 
 def _file():
-    from .config import GLOBAL_DIR
+    from backend.core.config import GLOBAL_DIR
     d = GLOBAL_DIR / "telemetry"
     d.mkdir(parents=True, exist_ok=True)
     return d / "ops.jsonl"
@@ -108,16 +108,11 @@ def span(operation: str, **attrs):
         if err:
             rec["error"] = redact(err)[:200]
         try:
-            from .config import data_dir
+            from backend.core.config import data_dir
             rec.setdefault("project_id", data_dir().name[:80])
         except Exception:
             pass
         record(rec)
-
-
-def recent(limit: int = 200, operation: str = "") -> list:
-    items = [r for r in list(RING) if not operation or r["operation"].startswith(operation)]
-    return items[-limit:]
 
 
 def summary() -> dict:

@@ -49,6 +49,9 @@ ISOLATION = {
                                   "Claude Code's permission rules (no OS sandbox on Windows) — needs your consent"),
     ("antigravity", "review"): (True, "provider-permission", True, "agy -p --sandbox (headless: approvals are soft-denied)"),
     ("gemini_cli", "review"): (True, "provider-permission", True, "gemini -p (headless: tool approvals are denied)"),
+    ("feynman", "assisted"): (True, "provider-permission", False,
+                              "feynman runs one research workflow with cwd = its session workspace; the files it writes stay "
+                              "there until you accept them (no OS sandbox on Windows)"),
 }
 ENV_ALLOW = {
     # Windows system
@@ -74,7 +77,7 @@ class WorkspaceError(ValueError):
 
 
 def root(cfg: dict | None = None) -> Path:
-    from ..config import GLOBAL_DIR, load_config
+    from backend.core.config import GLOBAL_DIR, load_config
     d = ((cfg or load_config())["gateway"].get("cli_space_dir") or "").strip()
     r = Path(d).expanduser() if d else GLOBAL_DIR / "cli-space"
     r.mkdir(parents=True, exist_ok=True)
@@ -82,7 +85,7 @@ def root(cfg: dict | None = None) -> Path:
 
 
 def _forbidden_roots() -> list:
-    from ..config import ROOT, data_dir
+    from backend.core.config import ROOT, data_dir
     out = [ROOT.resolve()]
     try:
         out.append(data_dir().resolve())
@@ -194,7 +197,7 @@ def stage_context(sess: dict, request_id: str, prompt: str, manifest: dict) -> d
 
 
 def write_output(sess: dict, request_id: str, text: str, stderr_lines: list | None = None) -> None:
-    from .policy import sanitize
+    from backend.providers.privacy import sanitize
     try:
         safe_path(Path(sess["output"]), f"{request_id}.md").write_text(text or "", "utf-8")
         if stderr_lines:
@@ -236,7 +239,7 @@ def sessions(limit: int = 100, cfg: dict | None = None) -> list:
 
 def prune(cfg: dict | None = None, force: bool = False) -> int:
     """Bounded retention: sessions older than cli_retention_days, and the oldest beyond cli_max_sessions."""
-    from ..config import load_config
+    from backend.core.config import load_config
     if not force and time.time() - _pruned["t"] < 600:
         return 0
     _pruned["t"] = time.time()

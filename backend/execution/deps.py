@@ -145,7 +145,7 @@ def _env_yml_deps(root: Path) -> list:
 def detect(root: Path | None = None) -> dict:
     """The dependency plan of the code workspace (pure: nothing installed, nothing written)."""
     if root is None:
-        from .sandbox import code_dir
+        from backend.execution.sandbox import code_dir
         root = code_dir()
     std = set(getattr(sys, "stdlib_module_names", ())) | {"__future__"}
     local = _local_modules(root)
@@ -254,7 +254,7 @@ say("all dependencies present (" + os.path.basename(sys.executable) + " " + sys.
 def write(root: Path | None = None, plan: dict | None = None) -> dict:
     """Write .phdlab/deps.json + ensure_deps.py into the code workspace; returns the plan."""
     if root is None:
-        from .sandbox import code_dir
+        from backend.execution.sandbox import code_dir
         root = code_dir()
     plan = plan or detect(root)
     d = root / ".phdlab"

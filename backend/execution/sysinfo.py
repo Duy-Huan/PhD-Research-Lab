@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 
 import httpx
 
-from .config import GLOBAL_DIR, load_config
+from backend.core.config import GLOBAL_DIR, load_config
 
 NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 IS_WIN = sys.platform.startswith("win")
@@ -39,10 +39,7 @@ def run(cmd: list, timeout: int = 15) -> tuple[int, str]:
         return 126, str(e)
     raw = (r.stdout or b"") + (r.stderr or b"")
     if raw[:2] in (b"\xff\xfe", b"\xfe\xff") or (len(raw) > 4 and raw[1:2] == b"\x00"):  # wsl.exe prints UTF-16
-        try:
-            return r.returncode, raw.decode("utf-16-le", errors="replace").replace("\x00", "")
-        except Exception:
-            pass
+        return r.returncode, raw.decode("utf-16-le", errors="replace").replace("\x00", "")
     return r.returncode, raw.decode("utf-8", errors="replace")
 
 
@@ -184,12 +181,12 @@ def toolchain() -> dict:
         line = (out.strip().splitlines() or [""])[-1]
         tools[name] = line[:120] if code == 0 else None
     try:
-        from .latex_build import engines
+        from backend.paper.latex import engines
         tools["latex"] = engines()["available"]
     except Exception:
         tools["latex"] = []
     try:
-        from .local_ai import lms_cli
+        from backend.providers.local import lms_cli
         tools["lms_cli"] = bool(lms_cli())
     except Exception:
         tools["lms_cli"] = False
@@ -210,7 +207,7 @@ def _ping(url: str) -> bool:
 
 
 def local_ai_servers(cfg: dict) -> dict:
-    from .local_ai import lms_root, ollama_root
+    from backend.providers.local import lms_root, ollama_root
     return {"lmstudio": _ping(lms_root(cfg.get("lmstudio_base_url")) + "/v1/models"),
             "ollama": _ping(ollama_root(cfg.get("ollama_base_url")) + "/api/tags")}
 

@@ -14,3 +14,11 @@ data/
 .coverage
 htmlcov/
 coverage.json
+
+# Generated regression and coverage artifacts
+artifacts/backend-regression/
+
+# v4.2 frontend test dependencies and reports (dev)
+tests/frontend/node_modules/
+artifacts/frontend-coverage/
+artifacts/backend-regression-v42/

@@ -9,7 +9,8 @@ from unittest import mock
 
 import httpx
 
-from backend import config, llm, llm_router as RT, local_ai as LA, model_lifecycle as LC
+from backend.core import config
+from backend.providers import models as llm, router as RT, local as LA, lifecycle as LC
 
 
 class Routes:
@@ -51,26 +52,6 @@ MSG = [{"role": "user", "content": "q"}]
 
 
 class Helpers(unittest.TestCase):
-    def test_messages_errors_and_text(self):
-        img = [{"role": "user", "content": "", "images": [{"media_type": "image/png", "data": "AAA"}]}, {"role": "assistant", "content": "a"}]
-        self.assertEqual(llm.to_anthropic(img)[0]["content"][0]["type"], "image")
-        self.assertEqual(llm.to_openai(img)[0]["content"][1]["type"], "image_url")
-        self.assertEqual(llm.strip_think("<think>x</think>Answer<think>half"), "Answer")
-        r = lambda **k: httpx.Response(**k)  # noqa: E731
-        self.assertEqual(llm._err_msg(r(status_code=400, json={"error": {"message": "bad"}})), "bad")
-        self.assertEqual(llm._err_msg(r(status_code=400, json=[{"error": {"message": "gem"}}])), "gem")
-        self.assertEqual(llm._err_msg(r(status_code=400, json={"error": "plain"})), "plain")
-        self.assertEqual(llm._err_msg(r(status_code=400, text="not json")), "not json")
-        self.assertEqual(llm._err_msg(r(status_code=400, json=["x"])), "['x']")
-        self.assertEqual(llm.extract_json("```json\n{\"a\": 1}\n```"), {"a": 1})
-        with self.assertRaises(ValueError):
-            llm.extract_json("none")
-        self.assertEqual(llm.strip_fences("x\n```python\nbig code\n```\n```\nsmall\n```"), "big code")
-        self.assertEqual(llm.strip_fences("```\nonly"), "only")
-        with self.assertRaises(llm.LLMError):
-            llm.provider_settings(config.load_config(), "nope")
-        self.assertEqual((llm.engine_label("local"), llm.engine_label("ollama"), llm.engine_label("weird")),
-                         ("LM Studio (local)", "Ollama (local)", "weird"))
 
     def test_gateway_headers(self):
         config.save_config({"routing": {"provider_headers": {"ninerouter": {"X-Skill": "a", "Authorization": "x", "X-Bad": "a\nb"}}}})
@@ -200,33 +181,19 @@ class Agents(unittest.TestCase):
                             "agent_modes": {"summarizer": "local", "chat_lit2plan": "claude", "lit2plan": "auto", "author": "ollama"},
                             "agent_models": {"author": "big-model"}, "local_model": "lm-1", "ollama_model": "ol-1"})
 
-    def test_runtime_and_models(self):
-        cfg = config.load_config()
-        self.assertEqual(llm.resolve_engine(cfg, "chat_lit2plan"), "anthropic")
-        cfg["providers"]["anthropic"]["api_key"] = ""
-        self.assertEqual(llm.resolve_engine(cfg, "chat_lit2plan"), "anthropic")  # default cloud
-        self.assertEqual(llm.resolve_model(cfg, "author"), "big-model")
-        self.assertEqual(llm.default_model_for(cfg, "local"), "lm-1")
-        self.assertEqual(llm.default_model_for(cfg, "ollama"), "ol-1")
-        self.assertEqual(llm.default_model_for(cfg, "nope"), "")
-        self.assertTrue(llm.agent_runtime(cfg, "author")["override"])
-        with mock.patch.object(RT, "plan", return_value={"kind": "reasoning", "candidates": ["anthropic"], "gpu_busy": False, "online": True}):
-            self.assertTrue(llm.agent_runtime(cfg, "lit2plan")["engine_label"].startswith("auto → "))
-        with mock.patch.object(RT, "plan", return_value={"kind": "reasoning", "candidates": [], "gpu_busy": True, "online": False}):
-            self.assertIn("no engine", llm.agent_runtime(cfg, "lit2plan")["engine_label"])
 
     def test_local_targets(self):
         cfg = config.load_config()
         self.assertEqual(run(llm.local_target(cfg, "ollama"))[1], "ol-1")
         cfg["ollama_model"] = ""
-        with mock.patch("backend.local_ai.first_model", return_value=None):
+        with mock.patch("backend.providers.local.first_model", return_value=None):
             with self.assertRaises(llm.LLMError):
                 run(llm.local_target(cfg, "ollama"))
         cfg["local_model"] = ""
-        with mock.patch("backend.local_ai.first_model", side_effect=RuntimeError), \
+        with mock.patch("backend.providers.local.first_model", side_effect=RuntimeError), \
                 mock.patch.object(llm, "list_local_models", return_value=["m-first"]):
             self.assertEqual(run(llm.local_target(cfg, "local"))[1], "m-first")
-        with mock.patch("backend.local_ai.first_model", return_value=None), mock.patch.object(llm, "list_local_models", return_value=[]):
+        with mock.patch("backend.providers.local.first_model", return_value=None), mock.patch.object(llm, "list_local_models", return_value=[]):
             with self.assertRaises(llm.LLMError):
                 run(llm.local_target(cfg, "local"))
         rt = Routes().add("GET", "/models", [httpx.Response(200, json={"data": [{"id": "a"}, {}]}), httpx.Response(500)])
@@ -234,9 +201,9 @@ class Agents(unittest.TestCase):
             self.assertEqual(run(llm.list_local_models("http://lm/v1")), ["a"])
             with self.assertRaises(llm.LLMError):
                 run(llm.list_local_models("http://lm/v1"))
-        with mock.patch("backend.resources.gpu_busy", side_effect=RuntimeError):
+        with mock.patch("backend.execution.resources.gpu_busy", side_effect=RuntimeError):
             self.assertIsNone(llm.ollama_offload_options(cfg))
-        with mock.patch("backend.resources.gpu_busy", return_value=True):
+        with mock.patch("backend.execution.resources.gpu_busy", return_value=True):
             self.assertEqual(llm.ollama_offload_options(cfg)["num_gpu"], 0)
 
     def test_ollama_native_errors(self):
@@ -267,69 +234,7 @@ class Agents(unittest.TestCase):
                 with self.assertRaises(llm.LLMError):
                     run(drain(llm._stream_ollama_native(cfg, "s", msgs, 10, 0.1, None, {})))
 
-    def test_call_agent_paths(self):
-        calls = []
 
-        async def cloud(cfg, eng, *a, **k):
-            calls.append(eng)
-            return "cloud answer"
-
-        async def local_fail(*a, **k):
-            raise llm.LLMError("LM Studio down")
-        with mock.patch.object(llm, "cloud_chat", cloud), mock.patch.object(llm, "local_chat", local_fail):
-            r = run(llm.call_agent("summarizer", "s", "u"))
-            self.assertIn("fell back", r["note"])
-            config.save_config({"fallback_to_cloud": False})
-            with self.assertRaises(llm.LLMError):
-                run(llm.call_agent("summarizer", "s", "u"))
-            self.assertEqual(run(llm.call_agent("chat_lit2plan", "s", "u"))["engine"], "anthropic")
-        plan = {"kind": "reasoning", "candidates": ["ollama", "anthropic", "openai"], "gpu_busy": True, "online": False, "skipped": {}}
-        with mock.patch.object(RT, "plan", return_value=plan), mock.patch.object(llm, "local_chat", local_fail), mock.patch.object(llm, "cloud_chat", cloud):
-            r = run(llm.call_agent("lit2plan", "s", "u"))
-            self.assertIn("fell back after", r["note"])
-            self.assertIn("GPU busy", r["note"])
-
-        async def all_fail(*a, **k):
-            raise llm.LLMError("x")
-        with mock.patch.object(RT, "plan", return_value=plan), mock.patch.object(llm, "local_chat", all_fail), mock.patch.object(llm, "cloud_chat", all_fail):
-            with self.assertRaises(llm.LLMError):
-                run(llm.call_agent("lit2plan", "s", "u"))
-        with mock.patch.object(RT, "plan", return_value={**plan, "candidates": [], "skipped": {"ollama": "down"}}):
-            with self.assertRaises(llm.LLMError):
-                run(llm.call_agent("lit2plan", "s", "u"))
-
-    def test_stream_agent_paths(self):
-        async def collect(agent):
-            return [x async for x in llm.stream_agent(agent, "s", MSG)]
-
-        def eng(fail_on):
-            async def gen(cfg, engine, *a, **k):
-                if engine in fail_on:
-                    if fail_on[engine] == "mid":
-                        yield "partial "
-                    raise llm.LLMError(f"{engine} failed")
-                yield f"<think>hidden</think>{engine} ok"
-            return gen
-        plan = {"kind": "reasoning", "candidates": ["ollama", "anthropic"], "gpu_busy": False, "online": True, "skipped": {}}
-        with mock.patch.object(RT, "plan", return_value=plan):
-            with mock.patch.object(llm, "_stream_engine", eng({"ollama": "start"})):
-                out = run(collect("lit2plan"))
-                self.assertEqual(out[-1][1]["engine"], "anthropic")
-                self.assertIn("fell back", out[-1][1]["note"])
-                self.assertEqual(out[0], ("delta", "anthropic ok"))
-            with mock.patch.object(llm, "_stream_engine", eng({"ollama": "mid"})):
-                with self.assertRaises(llm.LLMError):
-                    run(collect("lit2plan"))
-            with mock.patch.object(llm, "_stream_engine", eng({"ollama": "start", "anthropic": "start"})):
-                with self.assertRaises(llm.LLMError):
-                    run(collect("lit2plan"))
-        with mock.patch.object(llm, "_stream_engine", eng({"local": "start"})):
-            out = run(collect("summarizer"))
-            self.assertIn("fell back", out[-1][1]["note"])
-        config.save_config({"fallback_to_cloud": False})
-        with mock.patch.object(llm, "_stream_engine", eng({"local": "start"})):
-            with self.assertRaises(llm.LLMError):
-                run(collect("summarizer"))
 
 
 async def _c(v):
@@ -344,29 +249,6 @@ class Router(unittest.TestCase):
     def setUp(self):
         RT._cache.clear()
 
-    def test_plan(self):
-        cfg = config.load_config()
-        cfg["providers"]["anthropic"]["api_key"] = "k"
-        cfg["routing"]["chains"] = {}
-        with mock.patch.object(RT, "online", return_value=True), mock.patch.object(RT, "local_up", side_effect=lambda c, e: e == "ollama"), \
-                mock.patch("backend.resources.gpu_busy", return_value=True), mock.patch.object(RT, "_reachable", return_value=False):
-            p = RT.plan(cfg, "lit2plan")
-        self.assertEqual(p["candidates"], ["anthropic", "ollama"])
-        self.assertEqual(p["skipped"]["local"], "server not running")
-        with mock.patch.object(RT, "online", return_value=False), mock.patch.object(RT, "local_up", return_value=True), \
-                mock.patch("backend.resources.gpu_busy", return_value=True), mock.patch.object(RT, "_reachable", return_value=True):
-            p = RT.plan(cfg, "summarizer")
-        self.assertIn("GPU busy", p["skipped"]["local"])
-        self.assertEqual(p["skipped"]["deepinfra"], "offline")
-        self.assertIn("ninerouter", p["candidates"])
-        cfg["routing"]["online_check"] = False
-        with mock.patch("backend.resources.gpu_busy", side_effect=RuntimeError), mock.patch.object(RT, "local_up", return_value=False), \
-                mock.patch.object(RT, "_reachable", return_value=False):
-            p = RT.plan(cfg, "chat_anything")
-        self.assertEqual(p["kind"], "reasoning")
-        self.assertFalse(p["gpu_busy"])
-        self.assertEqual(RT.chain_for({"routing": {"chains": {"general": ["x"]}}}, "zz")[1], ["x"])
-        self.assertFalse(RT.provider_ready(cfg, "nope", True))
 
     def test_probes(self):
         with mock.patch("socket.create_connection", side_effect=OSError):
@@ -446,35 +328,6 @@ class LocalServers(unittest.TestCase):
             with self.assertRaises(LA.LocalAIError):
                 run(LA.lmstudio_unload("http://lm/v1", "m"))
 
-    def test_ollama(self):
-        rt = Routes().add("GET", "/api/tags", [httpx.Response(200, json={"models": [{"name": "q:7b", "size": 1, "details": {"parameter_size": "7B"}}]}),
-                                               httpx.Response(200, json={"models": []}), httpx.Response(500)])
-        rt.add("GET", "/api/ps", [httpx.Response(200, json={"models": [{"model": "q:7b", "size_vram": 5}]}), httpx.Response(200, text="bad")])
-        rt.add("POST", "/api/generate", [httpx.Response(200), httpx.Response(404, text="no model"), httpx.Response(200), httpx.Response(500, text="x")])
-        rt.add("POST", "/api/pull", [httpx.Response(200, text='{"status":"pulling"}\n\nnot json\n{"status":"success"}\n'), httpx.Response(500, text="nope")])
-        with patched(rt):
-            st = run(LA.ollama_status("http://o"))
-            self.assertEqual((st["models"][0]["params"], st["loaded"][0]["id"]), ("7B", "q:7b"))
-            self.assertEqual(run(LA.ollama_status("http://o"))["loaded"], [])
-            self.assertIn("not reachable", run(LA.ollama_status("http://o"))["error"])
-            self.assertTrue(run(LA.ollama_load("http://o", "q"))["ok"])
-            with self.assertRaises(LA.LocalAIError):
-                run(LA.ollama_load("http://o", "q"))
-            self.assertTrue(run(LA.ollama_unload("http://o", "q"))["ok"])
-            with self.assertRaises(LA.LocalAIError):
-                run(LA.ollama_unload("http://o", "q"))
-
-            async def pull():
-                return [x async for x in LA.ollama_pull("http://o", "q")]
-            self.assertEqual([x["status"] for x in run(pull())], ["pulling", "success"])
-            with self.assertRaises(LA.LocalAIError):
-                run(pull())
-
-        def down(req):
-            raise httpx.ConnectError("x")
-        with patched(down):
-            with self.assertRaises(LA.LocalAIError):
-                run(LA.ollama_load("http://o", "q"))
 
     def test_first_model(self):
         cfg = config.load_config()

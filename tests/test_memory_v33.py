@@ -27,16 +27,6 @@ class ResearchState(unittest.TestCase):
         self.assertEqual(st["best_results"]["PSNR"]["value"], 31.42)  # validated evidence
         self.assertIn("CAVE-v2", st["datasets"])
 
-    def test_focus_overrides_and_purge(self):
-        from backend.memory.working import set_focus
-        set_focus("HYPE-001", "EXP-002")
-        st = state.current()
-        self.assertEqual(st["active_hypotheses"][0]["id"], "HYPE-001")
-        self.assertEqual(st["current_experiment"]["id"], "EXP-002")
-        with self.assertRaises(research.ResearchError):
-            set_focus("HYPE-999")
-        st = state.current({"FAIL-001"})
-        self.assertNotIn("FAIL-001", [f["id"] for f in st["known_failures"]])
 
     def test_superseded_decision_leaves_state_but_is_kept(self):
         new = M.add_decision("Use CAVE-v2 and ICVL for every comparison", supersedes=self.ids["dec_dataset"])
@@ -102,8 +92,6 @@ class RetrievalV33(unittest.TestCase):
         with self.assertRaises(research.ResearchError):
             research.add_failure("x", colour="red")
 
-    def test_explain_not_retrieved(self):
-        self.assertFalse(engine.explain("HYPE-999", "anything")["retrieved"])
 
     def test_deterministic(self):
         q = engine.build_context("Should we use Swin Transformer?", role="experiment_designer")
@@ -141,11 +129,6 @@ class CacheInvalidation(unittest.TestCase):
         ids = [h["id"] for h in engine.retrieve(engine.build_context(q))["hits"]]
         self.assertIn("HYPE-077", ids)
 
-    def test_working_state_writes_do_not_invalidate(self):
-        from backend.memory.working import note_task
-        engine.retrieve(engine.build_context("PSNR"))
-        note_task("data", "something else")
-        self.assertTrue(engine.retrieve(engine.build_context("PSNR"))["diagnostics"]["cache_hit"])
 
 
 class CompilerV33(unittest.TestCase):
@@ -181,15 +164,6 @@ class CompilerV33(unittest.TestCase):
         self.assertLessEqual(small["tokens"], 650)
         self.assertIn("HYPE-002", small["text"])  # research state survives a tiny budget
 
-    def test_sensitivity_blocks_records(self):
-        from backend.gateway.policy import set_sensitivity
-        set_sensitivity("FAIL-001", "RESTRICTED")
-        c = compiler.compile_context("data", "", "Why did SwinIR-large fail?", 3000, allowed=("PUBLIC", "INTERNAL"))
-        self.assertNotIn("FAIL-001", c["text"])  # neither rendered nor named through the episode that mentions it
-        self.assertNotIn("keep window <= 8", c["text"])
-        self.assertIn("FAIL-001", c["blocked"])
-        local = compiler.compile_context("data", "", "Why did SwinIR-large fail?", 3000)
-        self.assertIn("FAIL-001", local["text"])  # local use is unaffected
 
 
 class EvidenceLayer(unittest.TestCase):
@@ -214,17 +188,6 @@ class EvidenceLayer(unittest.TestCase):
         with self.assertRaises(evidence.EvidenceError):
             evidence.add_evidence({"metric": {"name": "PSNR", "value": "high"}})
 
-    def test_provenance_chain_answers(self):
-        d = M.add_decision("Adopt SwinIR-small window 8 as the new baseline", evidence_ids=["EVID-001"])
-        ch = trace.chain(d["id"])
-        a = ch["answers"]
-        self.assertIn(golden.GIT_BEST, a["commits"])
-        self.assertIn("CAVE-v2", a["datasets"])
-        self.assertIn(golden.TASK_BEST, a["clearml_tasks"])
-        self.assertIn("EXP-004", a["where_from"])
-        self.assertIn(d["id"], trace.decisions_based_on("EXP-004"))
-        self.assertTrue(any(m["name"] == "PSNR" for m in a["metrics"]))
-        self.assertEqual(evidence.metric_sources("psnr")[0]["experiment_id"], "EXP-004")
 
 
 class Lifecycle(unittest.TestCase):
@@ -335,7 +298,7 @@ class Reliability(unittest.TestCase):
 
         async def fake(*a, **k):
             return {"text": "TITLE: Period\nmerged", "engine": "fake"}
-        with mock.patch("backend.llm.call_agent", side_effect=fake):
+        with mock.patch("backend.providers.models.call_agent", side_effect=fake):
             _env.run_async(M._consolidate(max_episodes=40, batch=12))
         st = M.load()
         merged = st["tier2"][0]

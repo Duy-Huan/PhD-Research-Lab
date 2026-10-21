@@ -14,12 +14,12 @@ import json
 import os
 import re
 import xml.etree.ElementTree as ET
-from urllib.parse import parse_qs, unquote, urlparse
+from urllib.parse import parse_qs, quote, unquote, urlparse
 
 import httpx
 
-from .attachments import html_to_text
-from .config import load_config
+from backend.knowledge.attachments import html_to_text
+from backend.core.config import load_config
 
 # Endpoints can be redirected (tests, institutional proxies) with PHDLAB_SEARCH_BASE=http://host:port
 _BASE = os.environ.get("PHDLAB_SEARCH_BASE", "").rstrip("/")
@@ -30,6 +30,8 @@ EP = {
     "ddg": f"{_BASE}/ddg" if _BASE else "https://html.duckduckgo.com/html/",
     "tavily": f"{_BASE}/tavily" if _BASE else "https://api.tavily.com/search",
     "brave": f"{_BASE}/brave" if _BASE else "https://api.search.brave.com/res/v1/web/search",
+    "ieee": f"{_BASE}/ieee" if _BASE else "https://ieeexploreapi.ieee.org/api/v1/search/articles",
+    "scholar": f"{_BASE}/scholar" if _BASE else "https://serpapi.com/search.json",
 }
 UA = "Mozilla/5.0 (X11; Linux x86_64) PhD-Research-Lab/2.6 (+local research assistant)"
 MODES = ("off", "papers", "web", "both")
@@ -57,12 +59,14 @@ def _oa_abstract(inv: dict | None) -> str:
     return " ".join(w for _, w in pos)
 
 
-async def openalex(q: str, n: int, mailto: str = "", year_from: int | None = None) -> list:
+async def openalex(q: str, n: int, mailto: str = "", year_from: int | None = None, key: str = "") -> list:
     params = {"search": q, "per-page": n,
               "select": "id,doi,display_name,publication_year,authorships,primary_location,cited_by_count,"
                         "open_access,best_oa_location,abstract_inverted_index,type"}
     if mailto:
         params["mailto"] = mailto
+    if key:
+        params["api_key"] = key
     if year_from:
         params["filter"] = f"from_publication_date:{year_from}-01-01"
     async with _client() as c:
@@ -73,12 +77,67 @@ async def openalex(q: str, n: int, mailto: str = "", year_from: int | None = Non
         doi = (w.get("doi") or "").replace("https://doi.org/", "")
         loc = w.get("primary_location") or {}
         best = w.get("best_oa_location") or {}
+        venue = loc.get("source") or {}
         out.append({"kind": "paper", "source": "OpenAlex", "title": _clean(w.get("display_name")),
                     "authors": [a["author"]["display_name"] for a in (w.get("authorships") or [])[:8] if a.get("author")],
                     "year": w.get("publication_year"), "venue": _clean(((loc.get("source") or {}) or {}).get("display_name")),
                     "doi": doi, "citations": w.get("cited_by_count"),
                     "url": f"https://doi.org/{doi}" if doi else (loc.get("landing_page_url") or w.get("id")),
                     "pdf_url": best.get("pdf_url") or "", "abstract": _oa_abstract(w.get("abstract_inverted_index"))[:ABSTRACT_CHARS]})
+        out[-1].update(source_id=venue.get("id", ""), issn=venue.get("issn") or [], publication_type=venue.get("type", ""))
+    return out
+
+
+async def ieee(q: str, n: int, key: str, year_from: int | None = None) -> list:
+    """IEEE's metadata API; a subscription-only PDF is never presented as open access."""
+    params = {"apikey": key, "querytext": q, "max_records": min(n, 30), "format": "json"}
+    if year_from:
+        params["start_year"] = year_from
+    async with _client() as c:
+        r = await c.get(EP["ieee"], params=params)
+    r.raise_for_status()
+    data = r.json()
+    if data.get("error") or data.get("errors"):
+        raise SearchError("IEEE Xplore rejected the search; check the API key and quota")
+    out = []
+    for p in data.get("articles") or []:
+        typ = str(p.get("content_type") or "").lower()
+        out.append({"kind": "paper", "source": "IEEE Xplore", "title": _clean(p.get("title")),
+                    "authors": [a.get("full_name", "") for a in (p.get("authors") or {}).get("authors", [])],
+                    "year": _year(p.get("publication_year")), "venue": _clean(p.get("publication_title")),
+                    "doi": p.get("doi", ""), "url": p.get("abstract_url") or f"https://doi.org/{p.get('doi', '')}",
+                    "pdf_url": p.get("pdf_url", "") if p.get("access_type", p.get("accessType")) in ("Open Access", "Ephemera") else "",
+                    "abstract": _clean(p.get("abstract"))[:ABSTRACT_CHARS], "issn": [p["issn"]] if p.get("issn") else [],
+                    "publication_type": "conference" if "conference" in typ else "journal" if "journal" in typ else ""})
+    return out
+
+
+def _year(value) -> int | None:
+    match = re.search(r"\b(?:19|20)\d{2}\b", str(value or ""))
+    return int(match[0]) if match else None
+
+
+async def google_scholar(q: str, n: int, key: str, year_from: int | None = None) -> list:
+    """Google Scholar records through SerpAPI (requires the researcher's key)."""
+    params = {"engine": "google_scholar", "q": q, "api_key": key, "num": min(n, 20)}
+    if year_from:
+        params["as_ylo"] = year_from
+    async with _client(25) as c:
+        r = await c.get(EP["scholar"], params=params)
+    r.raise_for_status()
+    data = r.json()
+    if data.get("error"):
+        raise SearchError("Google Scholar / SerpAPI rejected the search; check the API key and quota")
+    out = []
+    for p in data.get("organic_results") or []:
+        info = p.get("publication_info") or {}
+        out.append({"kind": "paper", "source": "Google Scholar", "title": _clean(p.get("title")),
+                    "authors": [a.get("name", "") for a in info.get("authors") or []],
+                    "year": _year(info.get("summary")), "venue": "", "publication_info": info.get("summary", ""),
+                    "url": p.get("link", ""), "pdf_url": next((a.get("link", "") for a in p.get("resources") or []
+                                                                              if a.get("file_format") == "PDF"), ""),
+                    "citations": ((p.get("inline_links") or {}).get("cited_by") or {}).get("total"),
+                    "abstract": _clean(p.get("snippet"))[:ABSTRACT_CHARS]})
     return out
 
 
@@ -174,37 +233,65 @@ async def brave(q: str, n: int, key: str) -> list:
 
 async def read_page(url: str) -> str:
     try:
-        async with _client(12) as c:
-            r = await c.get(url)
-        ctype = r.headers.get("content-type", "").lower()
-        if r.status_code >= 400 or "html" not in ctype:
-            return ""
-        return html_to_text(r.text[:600_000])[1][:PAGE_CHARS]
+        return await asyncio.wait_for(_read_page(url), timeout=15)
     except Exception:
         return ""
+
+
+async def _read_page(url: str) -> str:
+    from urllib.parse import urljoin
+    from backend.knowledge.download import public_url
+    async with _client(12) as c:
+        for _ in range(4):
+            await public_url(url)
+            async with c.stream("GET", url, follow_redirects=False) as r:
+                if r.status_code in (301, 302, 303, 307, 308):
+                    url = urljoin(url, r.headers.get("location", ""))
+                    continue
+                if r.status_code >= 400 or "html" not in r.headers.get("content-type", "").lower():
+                    return ""
+                raw = bytearray()
+                async for chunk in r.aiter_bytes():
+                    raw.extend(chunk)
+                    if len(raw) > 600_000:
+                        break
+                return html_to_text(raw[:600_000].decode(r.encoding or "utf-8", "replace"))[1][:PAGE_CHARS]
+    return ""
 
 
 # ------------------------------------------------------------------ orchestration
 def _key(s: dict) -> str:
     if s.get("doi"):
-        return "doi:" + s["doi"].lower()
-    return "t:" + re.sub(r"[^a-z0-9]", "", (s.get("title") or s.get("url", "")).lower())[:80]
+        return "doi:" + re.sub(r"^https?://(?:dx\.)?doi.org/", "", s["doi"].strip().lower())
+    return "t:" + re.sub(r"[\W_]", "", (s.get("title") or s.get("url", "")).casefold())
 
 
 def _interleave(lists: list) -> list:
-    out, seen = [], set()
+    out, seen = [], {}
     for i in range(max((len(x) for x in lists), default=0)):
         for lst in lists:
             if i < len(lst):
-                k = _key(lst[i])
-                if k in seen:  # keep the richer record (e.g. citation count / pdf from another source)
-                    old = next(o for o in out if _key(o) == k)
-                    for f in ("pdf_url", "abstract", "citations", "venue", "doi"):
-                        if not old.get(f) and lst[i].get(f):
-                            old[f] = lst[i][f]
+                item = lst[i]
+                k = _key(item)
+                title = "t:" + re.sub(r"[\W_]", "", (item.get("title") or item.get("url", "")).casefold())
+                old = seen.get(k) or seen.get(title)
+                if old and old.get("doi") and item.get("doi") and _key(old) != k:
+                    old = None
+                if old:
+                    if (old.get("publication_type") == "repository" or re.search(r"preprint", old.get("venue", ""), re.I)) \
+                            and item.get("publication_type") in ("journal", "conference"):
+                        for f in ("venue", "publication_type", "source_id", "issn"):
+                            if item.get(f):
+                                old[f] = item[f]
+                    for f in ("pdf_url", "abstract", "citations", "venue", "doi", "authors", "year", "source_id", "issn", "publication_type"):
+                        if old.get(f) in (None, "", []) and item.get(f) not in (None, "", []):
+                            old[f] = item[f]
+                    old["sources"] = list(dict.fromkeys(old["sources"] + [item.get("source", "")]))
+                    seen[k] = old
                     continue
-                seen.add(k)
-                out.append(lst[i])
+                rec = {**item, "sources": [item.get("source", "")]}
+                seen[k] = seen[title] = rec
+                out.append(rec)
     return out
 
 
@@ -215,6 +302,8 @@ async def _safe(name: str, coro, errors: list) -> list:
         errors.append(str(e))
     except httpx.HTTPStatusError as e:
         errors.append(f"{name}: HTTP {e.response.status_code}")
+    except httpx.TimeoutException:
+        errors.append(f"{name}: timed out; other sources are still shown. Retry this source later.")
     except httpx.HTTPError as e:
         errors.append(f"{name}: {type(e).__name__} (no internet connection?)")
     except Exception as e:  # malformed responses must never break the chat
@@ -222,29 +311,61 @@ async def _safe(name: str, coro, errors: list) -> list:
     return []
 
 
+async def web_query(q: str, n: int, cfg: dict) -> list:
+    eng = cfg.get("web_engine", "duckduckgo")
+    if eng == "tavily":
+        return await tavily(q, n, cfg.get("tavily_key", ""))
+    if eng == "brave":
+        return await brave(q, n, cfg.get("brave_key", ""))
+    return await duckduckgo(q, n)
+
+
+async def ieee_discovery(q: str, n: int, cfg: dict) -> list:
+    """Publisher-domain discovery when no IEEE API key was provided. Do not infer unknown metadata."""
+    items = await web_query("site:ieeexplore.ieee.org/document/ " + q, n, cfg)
+    return [{**s, "kind": "paper", "source": "IEEE Xplore (web discovery)", "abstract": s.get("snippet", "")}
+            for s in items if (urlparse(s.get("url", "")).hostname or "").lower() == "ieeexplore.ieee.org"
+            and re.match(r"/(?:abstract/)?document/\d+", urlparse(s.get("url", "")).path)]
+
+
+async def arxiv_search(q: str, n: int, cfg: dict, errors: list) -> list:
+    results = await _safe("arXiv", arxiv(q, n), errors)
+    if results:
+        return results
+    items = await _safe("arXiv web discovery", web_query("site:arxiv.org/abs/ " + q, n, cfg), errors)
+    out = []
+    for item in items:
+        url = urlparse(item.get("url", ""))
+        if url.hostname not in ("arxiv.org", "www.arxiv.org") or not url.path.startswith("/abs/") or len(url.path) <= 5:
+            continue
+        out.append({**item, "kind": "paper", "source": "arXiv (web discovery)", "venue": "arXiv preprint",
+                    "publication_type": "repository", "pdf_url": "https://arxiv.org/pdf/" + url.path[5:],
+                    "abstract": item.get("snippet", "")})
+    return out
+
+
 async def search(mode: str, paper_queries: list, web_queries: list, n: int | None = None, year_from: int | None = None) -> dict:
     """Run the searches for `mode` (papers | web | both). Returns {sources, errors, queries}."""
     cfg = load_config()["search"]
-    n = int(n or cfg.get("n_results") or 8)
+    n = max(1, min(30, int(n or cfg.get("n_results") or 8)))
     errors, tasks_p, tasks_w = [], [], []
     if mode in ("papers", "both"):
         for q in paper_queries[:3]:
-            tasks_p += [_safe("OpenAlex", openalex(q, n, cfg.get("mailto", ""), year_from), errors),
+            tasks_p += [_safe("OpenAlex", openalex(q, n, cfg.get("mailto", ""), year_from, cfg.get("openalex_key", "")), errors),
                         _safe("Semantic Scholar", semantic_scholar(q, max(3, n // 2), cfg.get("s2_key", ""), year_from), errors),
-                        _safe("arXiv", arxiv(q, max(3, n // 2)), errors)]
+                        arxiv_search(q, max(3, n // 2), cfg, errors),
+                        _safe("IEEE Xplore", ieee(q, n, cfg["ieee_key"], year_from) if cfg.get("ieee_key")
+                              else ieee_discovery(q, max(3, n // 2), cfg), errors)]
+            if cfg.get("serpapi_key"):
+                tasks_p.append(_safe("Google Scholar", google_scholar(q, n, cfg["serpapi_key"], year_from), errors))
     if mode in ("web", "both"):
-        eng = cfg.get("web_engine", "duckduckgo")
         for q in web_queries[:3]:
-            if eng == "tavily":
-                tasks_w.append(_safe("Tavily", tavily(q, n, cfg.get("tavily_key", "")), errors))
-            elif eng == "brave":
-                tasks_w.append(_safe("Brave", brave(q, n, cfg.get("brave_key", "")), errors))
-            else:
-                tasks_w.append(_safe("DuckDuckGo", duckduckgo(q, n), errors))
+            tasks_w.append(_safe("Web search", web_query(q, n, cfg), errors))
     res = await asyncio.gather(*tasks_p, *tasks_w)
-    papers = _interleave(list(res[:len(tasks_p)]))[: n + 4]
+    papers = _interleave(list(res[:len(tasks_p)]))
     if year_from:
         papers = [p for p in papers if not p.get("year") or p["year"] >= year_from]
+    papers = papers[:n + 4]
     web = _interleave(list(res[len(tasks_p):]))[:n]
     if web and cfg.get("read_pages", True):
         todo = [w for w in web[:3] if not w.get("page")]
@@ -252,10 +373,20 @@ async def search(mode: str, paper_queries: list, web_queries: list, n: int | Non
         for w, t in zip(todo, pages):
             w["page"] = t
     sources = []
-    for i, s in enumerate(papers + web):
+    ordered = papers + web
+    if len(ordered) > 30:
+        ordered = (papers[:24] + web[:6]) if web and papers else ordered[:30]
+    for i, s in enumerate(ordered):
         s["id"] = f"S{i + 1}"
         sources.append(s)
+    if papers:
+        from backend.knowledge.ranking import enrich
+        await enrich([s for s in sources if s["kind"] == "paper"], cfg)
     return {"sources": sources, "errors": sorted(set(errors)),
+            "provider_status": {"google_scholar": "configured" if cfg.get("serpapi_key") else "requires_serpapi_key",
+                                "ieee": "api" if cfg.get("ieee_key") else "web_discovery"},
+            "search_links": {"google_scholar": "https://scholar.google.com/scholar?q=" + quote(" ".join(paper_queries[:1])),
+                             "ieee": "https://ieeexplore.ieee.org/search/searchresult.jsp?queryText=" + quote(" ".join(paper_queries[:1]))},
             "queries": {"papers": paper_queries[:3] if mode in ("papers", "both") else [],
                         "web": web_queries[:3] if mode in ("web", "both") else []}}
 
@@ -267,30 +398,6 @@ PLANNER_SYS = """You write search-engine queries for a research assistant. Given
 - "web": 1-2 natural queries for a general web search engine, in the language that will find the best pages (usually English for technical topics; the user's language for local/regional facts).
 - "year_from": an integer year if the user asks for recent / latest / since-YEAR work, else null.
 Focus on what the LATEST user message needs."""
-
-
-def heuristic_queries(text: str) -> dict:
-    t = re.sub(r"\s+", " ", text).strip()
-    return {"papers": [t[:150]], "web": [t[:200]], "year_from": None}
-
-
-async def plan_queries(call_agent, conversation: str) -> dict:
-    """Ask the planner agent for queries; fall back to the raw question if the call fails."""
-    last = conversation.rsplit("USER:", 1)[-1]
-    try:
-        r = await call_agent("web_query", PLANNER_SYS, conversation[-6000:], max_tokens=400, temperature=0.1)
-        m = re.search(r"\{.*\}", r["text"], re.S)
-        d = json.loads(m.group(0)) if m else {}
-        papers = [_clean(q) for q in d.get("papers") or [] if _clean(q)][:3]
-        web = [_clean(q) for q in d.get("web") or [] if _clean(q)][:3]
-        yf = d.get("year_from")
-        yf = int(yf) if isinstance(yf, (int, float, str)) and str(yf).isdigit() and 1900 < int(yf) < 2100 else None
-        if papers or web:
-            h = heuristic_queries(last)
-            return {"papers": papers or h["papers"], "web": web or h["web"], "year_from": yf}
-    except Exception:
-        pass
-    return heuristic_queries(last)
 
 
 # ------------------------------------------------------------------ prompt blocks & storage
@@ -323,7 +430,8 @@ These numbered sources come from real search engines and scholarly databases (Op
 
 def compact(sources: list) -> list:
     """What is stored with the chat message (no page text)."""
-    keep = ("id", "kind", "source", "title", "url", "authors", "year", "venue", "doi", "citations", "pdf_url", "snippet")
+    keep = ("id", "kind", "source", "sources", "title", "url", "authors", "year", "venue", "doi", "citations", "pdf_url", "snippet",
+            "source_id", "issn", "publication_type", "publication_info", "journal_ranking")
     out = []
     for s in sources[:30]:
         d = {k: s.get(k) for k in keep if s.get(k) not in (None, "", [])}
@@ -331,8 +439,3 @@ def compact(sources: list) -> list:
             d["snippet"] = s["abstract"][:300]
         out.append(d)
     return out
-
-
-def safe_pdf_name(title: str, year) -> str:
-    stem = re.sub(r"[^\w\- ]+", "", title or "paper").strip()[:80].replace(" ", "_") or "paper"
-    return f"{stem}{'_' + str(year) if year else ''}.pdf"

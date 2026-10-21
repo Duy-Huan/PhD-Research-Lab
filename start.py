@@ -1,4 +1,4 @@
-"""Robust launcher for PhD Interactive Autonomous Research Lab (Windows / macOS / Linux).
+"""Robust launcher for PhD Research Lab (Windows / macOS / Linux).
 
     python start.py            -> checks environment, installs missing packages, starts server, opens browser
     python start.py --port 9000
@@ -23,37 +23,19 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 HOST = "127.0.0.1"
-APP_VERSION = "4.1.0"   # must match backend/config.py - a mismatch means files from two versions were mixed
+APP_VERSION = "5.0.0"   # must match backend/core/config.py - a mismatch means files from two versions were mixed
 # Files that must exist for this version (an incomplete copy or a partial upgrade is the most common failure)
 REQUIRED_FILES = [
-    "backend/__init__.py", "backend/app.py", "backend/config.py", "backend/llm.py", "backend/library.py",
-    "backend/paper.py", "backend/prompts.py", "backend/chat_store.py", "backend/context_hub.py",
-    "backend/attachments.py", "backend/fs_browse.py", "backend/review_ext.py", "backend/review_prompts.py", "backend/websearch.py", "backend/latex_build.py", "frontend/index.html", "frontend/vendor/marked.min.js",
-    "frontend/vendor/purify.min.js", "frontend/vendor/katex/katex.min.js", "frontend/vendor/katex/katex.min.css",
-    "frontend/vendor/hljs/highlight.min.js", "frontend/guide/en.md", "frontend/guide/vi.md", "frontend/i18n.js", "requirements.txt",
-    # v3.0: Code IDE, Docker sandbox, memory, context graph, GitHub, MCP
-    "backend/api_v3.py", "backend/local_ai.py", "backend/sysinfo.py", "backend/sandbox.py", "backend/ide_fs.py",
-    "backend/gitops.py", "backend/memory/__init__.py", "backend/context_graph.py", "backend/coder.py", "backend/mcp_server.py",
-    "mcp_stdio_bridge.py", "frontend/app/workspace.js", "frontend/app/docker.js", "frontend/app/context.js", "frontend/app/v3.css",
-    "frontend/vendor/vis/vis-network.min.js",
-    # v3.1: external results + writing briefs
-    "backend/results.py", "backend/brief.py", "backend/api_v31.py", "frontend/app/results.js", "frontend/app/brief.js",
-    # v3.2: Context Memory v2, integration layer, resource governor, provenance, live critic, LLM router, connectors
-    "backend/api_v32.py", "backend/memory/store.py", "backend/memory/pages.py", "backend/memory/working.py",
-    "backend/memory/research.py", "backend/memory/knowledge.py", "backend/memory/lod.py", "backend/memory/embeddings.py",
-    "backend/memory/retrieval.py", "backend/memory/compiler.py", "backend/memory/compressor.py",
-    "backend/integrations/__init__.py", "backend/integrations/base.py", "backend/integrations/workspace.py",
-    "backend/integrations/experiment.py", "backend/integrations/clearml_worker.py", "backend/integrations/agents.py",
-    "backend/resources.py", "backend/provenance.py",
-    "backend/critic.py", "backend/llm_router.py", "backend/connectors/__init__.py", "backend/connectors/base.py",
-    "backend/connectors/registry.py", "frontend/app/control.js",
-    # v4.0: research-state-aware Context Memory, Context Gateway + MCP research tools, environments, app shell
-    "backend/api_v33.py", "backend/telemetry.py", "backend/envs.py", "backend/deps.py", "backend/memory/state.py",
-    "backend/memory/engine.py", "backend/memory/policy.py", "backend/memory/evidence.py", "backend/memory/trace.py",
-    "backend/memory/lifecycle.py", "backend/memory/cache.py", "backend/gateway/__init__.py", "backend/gateway/connectors.py",
-    "backend/gateway/events.py", "backend/gateway/context.py", "backend/gateway/service.py", "backend/gateway/policy.py",
-    "backend/gateway/mcp_tools.py", "frontend/app/shell.css", "frontend/app/shell.js", "frontend/app/envpanel.js",
-    "frontend/app/memory33.js", "frontend/app/gateway.js", "frontend/app/img/logo-64.png",
+    "backend/__init__.py", "backend/app.py", "backend/core/config.py", "backend/core/bus.py", "backend/api/__init__.py",
+    "backend/api/chat.py", "backend/api/runs.py", "backend/agent/orchestrator.py", "backend/agent/runs.py",
+    "backend/agent/skills.py", "backend/agent/skills/lit.md", "backend/agent/outline.py", "backend/providers/models.py",
+    "backend/providers/research.py", "backend/execution/sandbox.py", "backend/execution/guard.py",
+    "backend/memory/__init__.py", "backend/knowledge/library.py", "backend/knowledge/websearch.py",
+    "backend/knowledge/ranking.py", "backend/knowledge/download.py", "backend/paper/review.py", "backend/cli/__init__.py",
+    "backend/cli/repl.py", "frontend/index.html", "frontend/assets/app.css", "frontend/assets/core.js",
+    "frontend/assets/chat.js", "frontend/assets/main.js", "frontend/vendor/marked.min.js", "frontend/vendor/purify.min.js",
+    "frontend/vendor/katex/katex.min.js", "frontend/vendor/hljs/highlight.min.js", "frontend/img/logo-64.png",
+    "mcp_stdio_bridge.py", "phdlab.bat", "requirements.txt",
 ]
 UPGRADE_HELP = """How to fix (takes 1 minute):
   1. Extract the WHOLE new zip into a NEW, empty folder (do not copy single files over an old version).
@@ -81,8 +63,8 @@ def fail(msg: str) -> None:
 
 def check_python() -> None:
     print(f"Python  : {sys.version.split()[0]}  ({sys.executable})")
-    if sys.version_info < (3, 9):
-        fail("Python 3.9 or newer is required (3.11/3.12 recommended). Install from https://www.python.org/downloads/")
+    if sys.version_info < (3, 10):
+        fail("Python 3.10 or newer is required (3.11/3.12 recommended). Install from https://www.python.org/downloads/")
 
 
 def check_files() -> None:
@@ -91,12 +73,12 @@ def check_files() -> None:
         fail("The installation is incomplete or mixes files from different versions.\n"
              "Missing: " + ", ".join(missing) + "\n\n" + UPGRADE_HELP)
     try:
-        cfg = open(os.path.join(ROOT, "backend", "config.py"), encoding="utf-8").read()
+        cfg = open(os.path.join(ROOT, "backend", "core", "config.py"), encoding="utf-8").read()
         found = re.search(r'APP_VERSION = "([^"]+)"', cfg).group(1)
     except Exception:
         found = "unknown"
     if found != APP_VERSION:
-        fail(f"Version mismatch: start.py is v{APP_VERSION} but backend/config.py is v{found}.\n"
+        fail(f"Version mismatch: start.py is v{APP_VERSION} but backend/core/config.py is v{found}.\n"
              "Files from two versions were mixed.\n\n" + UPGRADE_HELP)
     print(f"Files   : OK (v{APP_VERSION})")
 
@@ -204,15 +186,19 @@ def open_when_ready(url: str, port: int) -> None:
 
 
 def report_tools() -> None:
-    """Optional tools for v3 (Code IDE sandbox, Source Control, PDF preview). Missing ones only disable that feature;
-    the 🐳 Docker & System tab scans everything in detail and recommends a setup."""
+    """Optional tools. Missing ones only disable that provider (Settings → Research providers shows how to add them)."""
     import shutil
     def has(*names):
-        return next((n for n in names if shutil.which(n)), None)
-    items = [("Docker", has("docker")), ("Git", has("git")), ("NVIDIA GPU", has("nvidia-smi")), ("VS Code", has("code")),
-             ("ClearML SDK", importlib.util.find_spec("clearml") is not None),
-             ("LaTeX", has("latexmk", "pdflatex", "tectonic", "xelatex")), ("Ollama", has("ollama")), ("LM Studio CLI", has("lms"))]
-    print("Tools   : " + ", ".join(f"{k} {'yes' if v else 'no'}" for k, v in items) + "  (details: Docker & System tab)")
+        found = next((n for n in names if shutil.which(n)), None)
+        if not found and "claude" in names:
+            from pathlib import Path
+            native = Path.home() / ".local" / "bin" / ("claude.exe" if sys.platform.startswith("win") else "claude")
+            return str(native) if native.is_file() else None
+        return found
+    items = [("VS Code", has("code")), ("Git", has("git")), ("NVIDIA GPU", has("nvidia-smi")), ("Feynman", has("feynman")),
+             ("Claude Code", has("claude")), ("Codex", has("codex")), ("LaTeX", has("latexmk", "pdflatex", "tectonic", "xelatex")),
+             ("Docker", has("docker")), ("Ollama", has("ollama")), ("LM Studio CLI", has("lms"))]
+    print("Tools   : " + ", ".join(f"{k} {'yes' if v else 'no'}" for k, v in items))
 
 
 def main() -> None:
@@ -221,7 +207,7 @@ def main() -> None:
     browser = "--no-browser" not in args
 
     print("=" * 64)
-    print(" PhD Interactive Autonomous Research Lab")
+    print(" PhD Research Lab — AI research operating system")
     print("=" * 64)
     print(f"Folder  : {ROOT}")
     if not os.path.isfile(os.path.join(ROOT, "backend", "app.py")):
@@ -265,12 +251,13 @@ def main() -> None:
         fail("The application failed to load (see the traceback above).")
 
     import uvicorn
-    from backend.library import PDF_BACKEND, PDF_BACKEND_ERROR
+    from backend.knowledge.library import PDF_BACKEND, PDF_BACKEND_ERROR
     print(f"PDF lib : {PDF_BACKEND}" + (f"   (note: {PDF_BACKEND_ERROR.split(':')[0]} - using fallback)" if PDF_BACKEND_ERROR and PDF_BACKEND != "none" else ""))
     if PDF_BACKEND == "none":
         print("WARNING : no PDF library - PDF ingestion disabled. Run: pip install pypdf")
 
     url = f"http://{HOST}:{port}"
+    os.environ["PHDLAB_URL"] = url  # MCP grants for CLI agents point back to this server
     print(f"Server  : {url}   (keep this window open; Ctrl+C to stop)")
     if browser:
         threading.Thread(target=open_when_ready, args=(url, port), daemon=True).start()

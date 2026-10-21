@@ -5,7 +5,7 @@ States of research information in this app
     working     raw chat turns + run logs not yet compressed  chat sessions, Tier 1
     episodic    compressed memos with raw-page pointers       Tier 2 (+ tier2_archive after consolidation)
     research    hypotheses, experiments, failures, decisions  research.json, project_state.json decisions
-    knowledge   papers, concepts, methods                     library.json, knowledge.json
+    knowledge   papers (live from the library)                library.json
     evidence    claims and evidence with provenance           evidence.json
     candidate   proposed but NOT yet memory                   candidates.json (this module)
 
@@ -19,9 +19,9 @@ from __future__ import annotations
 
 import re
 
-from . import mem_dir
-from .embeddings import tokenize
-from .store import JsonStore, now
+from backend.memory import mem_dir
+from backend.memory.embeddings import tokenize
+from backend.memory.store import JsonStore, now
 
 _store = JsonStore(lambda: mem_dir() / "candidates.json", {"seq": {}, "candidates": []}, versioned=False)
 KINDS = ("observation", "decision", "experiment_result", "failure", "claim", "note")
@@ -56,7 +56,7 @@ def classify(kind: str, origin: str, payload: dict) -> str:
 
 
 def _existing_texts(kind: str) -> list:
-    from . import evidence, load, research
+    from backend.memory import evidence, load, research
     if kind == "decision":
         return [(d["id"], d["text"]) for d in load()["decisions"]]
     if kind == "failure":
@@ -65,7 +65,8 @@ def _existing_texts(kind: str) -> list:
         return [(c["id"], c["text"]) for c in evidence.load()["claims"]]
     if kind in ("observation", "experiment_result"):
         return [(e["id"], e.get("text", "")) for e in evidence.load()["evidence"] if e.get("text")]
-    return []
+    from backend.memory.notes import load_notes  # v4.2: approved notes (memory types knowledge / open question / hypothesis)
+    return [(f"note:{n['id']}", n["text"]) for n in load_notes()]
 
 
 def _validate(kind: str, payload: dict) -> dict:
@@ -138,7 +139,7 @@ def get(cid: str) -> dict:
 
 
 def _commit(c: dict) -> dict:
-    from . import add_decision, evidence, research
+    from backend.memory import add_decision, evidence, research
     p, o = c["payload"], c["origin"]
     via = f"{o.get('provider') or o.get('type')} via {c['id']}"
     if c["kind"] == "decision":
@@ -156,7 +157,7 @@ def _commit(c: dict) -> dict:
                                 origin=f"approved:{via}")
         return {"type": "claim", "id": cl["id"]}
     if c["kind"] == "note":
-        from ..context_hub import add_note
+        from backend.memory.notes import add_note
         n = add_note(p.get("tool") or "data", p["text"], source=f"approved {via}")
         return {"type": "note", "id": f"note:{n['id']}"}
     # observation / experiment_result → (experiment update) + validated evidence (researcher approved it)
@@ -200,4 +201,15 @@ def reject(cid: str, reason: str = "", reviewer: str = "researcher") -> dict:
                     raise LifecycleError(f"{cid} was already approved")
                 x.update(status="rejected", reviewed=now(), reviewer=reviewer[:60], reason=reason[:500])
                 return x
+    return _store.update(put)
+
+
+def annotate(cid: str, **fields) -> dict:
+    """v4.2: attach review metadata (conflicts_with, review_reason) to a candidate — never changes its status."""
+    get(cid)
+
+    def put(st):
+        x = next(c for c in st["candidates"] if c["id"] == cid)
+        x.update({k: v for k, v in fields.items() if k in ("conflicts_with", "review_reason")})
+        return x
     return _store.update(put)

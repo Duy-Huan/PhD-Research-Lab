@@ -18,8 +18,8 @@ import secrets
 import threading
 import time
 
-from . import ide_fs, sandbox
-from .config import APP_VERSION
+from backend.execution import files as ide_fs, sandbox
+from backend.core.config import APP_VERSION
 
 PROTOCOL = "2025-06-18"
 
@@ -54,12 +54,12 @@ LOCAL_ORIGINS = ("http://localhost", "http://127.0.0.1", "https://localhost", "h
 
 
 def _mcfg() -> dict:
-    from .config import load_config
+    from backend.core.config import load_config
     return load_config()["mcp"]
 
 
 def tool_list() -> list:
-    from .gateway.mcp_tools import listed
+    from backend.providers.mcp_tools import listed
     m = _mcfg()
     return listed(m) + (TOOLS if m.get("expose_sandbox", True) else [])
 
@@ -73,9 +73,10 @@ def guard(headers: dict, client: str) -> tuple[int, str]:
     if origin and origin != "null" and not any(origin == o or origin.startswith(o + ":") for o in LOCAL_ORIGINS):
         return 403, "Origin not allowed"
     tok = m.get("token") or ""
-    if tok:
-        got = (headers.get("authorization") or "")
-        got = got[7:].strip() if got.lower().startswith("bearer ") else ""
+    got = (headers.get("authorization") or "")
+    got = got[7:].strip() if got.lower().startswith("bearer ") else ""
+    from backend.agent.mcp_policy import lookup
+    if tok and not lookup(got):  # v4.2: an ephemeral session grant authorises (and restricts) its holder
         if not hmac.compare_digest(got.encode(), tok.encode()):
             return 401, "MCP token required (Authorization: Bearer <token>)"
     limit = int(m.get("rate_limit_per_min") or 0)
@@ -94,7 +95,7 @@ def guard(headers: dict, client: str) -> tuple[int, str]:
 def audit(rec: dict) -> None:
     if not _mcfg().get("audit", True):
         return
-    from .config import data_dir
+    from backend.core.config import data_dir
     try:
         d = data_dir() / "gateway"
         d.mkdir(parents=True, exist_ok=True)
@@ -106,7 +107,7 @@ def audit(rec: dict) -> None:
 
 def call_tool(name: str, args: dict, client: dict | None = None) -> dict:
     if name.startswith("research_") or name.startswith("research."):
-        from .gateway.mcp_tools import call
+        from backend.providers.mcp_tools import call
         return call(name, args, client)
     if name in SANDBOX_NAMES and not _mcfg().get("expose_sandbox", True):
         raise PermissionError(f"{name} is disabled (mcp.expose_sandbox)")
@@ -119,7 +120,7 @@ def call_tool(name: str, args: dict, client: dict | None = None) -> dict:
             ide_fs.write("_mcp_snippet.py", code)
             cmd = "python _mcp_snippet.py"
         timeout = max(5, min(3600, int(args.get("timeout") or 600)))
-        from .model_lifecycle import sandbox_lease
+        from backend.providers.lifecycle import sandbox_lease
         with sandbox_lease():  # v4.1: the container follows lifecycle.mcp (stop after task / idle / keep running)
             job = sandbox.run_blocking(cmd, timeout, "run", f"MCP: {cmd[:60]}")
         return _text({"run_id": job.id, "status": job.status, "exit_code": job.exit_code, "mode": job.mode,
@@ -130,6 +131,9 @@ def call_tool(name: str, args: dict, client: dict | None = None) -> dict:
         if a == "list":
             return _text(ide_fs.tree())
         if a == "read":
+            from backend.providers.privacy import gw
+            if gw().get("block_source_code", True):
+                raise PermissionError("Source file reads are disabled by gateway.block_source_code")
             return _text(ide_fs.read(args.get("path", "")).get("content", "(binary file)"))
         if a == "write":
             return _text(ide_fs.write(args.get("path", ""), args.get("content", "")))
@@ -173,24 +177,28 @@ def handle(msg: dict, session: str = "", meta: dict | None = None) -> dict | Non
         elif method == "ping":
             res = {}
         elif method == "tools/list":
-            res = {"tools": tool_list()}
+            g = (meta or {}).get("grant")
+            res = {"tools": [t for t in tool_list() if not g or t["name"] in g["tools"]]}
         elif method == "tools/call":
             name = str(params.get("name") or "")
             client = {**SESSIONS.get(session, {"name": "mcp-client"}), "session": session}
             t0 = time.perf_counter()
             ok, err = True, ""
+            g = (meta or {}).get("grant")
             try:
+                if g and name not in g["tools"]:  # v4.2: outside the session's MCP allowlist
+                    raise PermissionError(f"{name} is not allowed in this AI workspace session")
                 res = call_tool(name, params.get("arguments") or {}, client)
             except Exception as e:
                 ok, err = False, type(e).__name__
-                from .telemetry import redact
+                from backend.core.telemetry import redact
                 res = {"isError": True, "content": [{"type": "text", "text": redact(f"{type(e).__name__}: {e}")[:2000]}]}
             args = params.get("arguments") or {}
             audit({"tool": name[:64], "client": client.get("name", ""), "session": session[:40], "ok": ok, "error": err,
                    "arg_keys": sorted(args)[:20] if isinstance(args, dict) else [],
                    "latency_ms": round((time.perf_counter() - t0) * 1000, 1)})
             try:
-                from .telemetry import record
+                from backend.core.telemetry import record
                 record({"ts": round(time.time(), 3), "operation": "mcp.tool", "tool": name[:64], "client": client.get("name", "")[:60],
                         "ok": ok, "latency_ms": round((time.perf_counter() - t0) * 1000, 2)})
             except Exception:

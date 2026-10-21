@@ -34,6 +34,14 @@ def _clip(v, n: int = 2000):
     return s[:n]
 
 
+def _args(v) -> str:
+    """Tool arguments as text — what the firewall audits (paths a CLI agent wants to touch)."""
+    if not v:
+        return ""
+    import json
+    return _clip(v if isinstance(v, str) else json.dumps(v, ensure_ascii=False), 2000)
+
+
 def codex(e: dict) -> list:
     t = e.get("type", "")
     item = e.get("item") or {}
@@ -42,7 +50,8 @@ def codex(e: dict) -> list:
     if t == "item.completed" and item.get("type") == "agent_message":
         return [ev("text_delta", text=item.get("text", ""), final=True)]
     if t == "item.started" and item.get("type") in ("command_execution", "mcp_tool_call"):
-        return [ev("tool_call", name=item.get("type"), detail=_clip(item.get("command") or item.get("tool") or "", 300))]
+        return [ev("tool_call", name=item.get("type"),
+                   detail=_clip(item.get("command") or item.get("tool") or "", 300) + " " + _args(item.get("arguments")))]
     if t == "item.completed" and item.get("type") in ("command_execution", "mcp_tool_call"):
         return [ev("tool_result", name=item.get("type"), status=item.get("status", ""))]
     if t == "turn.completed":
@@ -71,7 +80,7 @@ def claude(e: dict) -> list:
         out = []
         for b in (e.get("message") or {}).get("content") or []:
             if b.get("type") == "tool_use":
-                out.append(ev("tool_call", name=b.get("name", ""), call_id=b.get("id", "")))
+                out.append(ev("tool_call", name=b.get("name", ""), call_id=b.get("id", ""), detail=_args(b.get("input"))))
         return out
     if t == "user":
         out = []
@@ -99,7 +108,7 @@ def agy(e: dict) -> list:
             ti = s.get("tool_info") or {}
             if s.get("state") == "DONE":
                 return [ev("tool_result", name=s.get("tool_name", ""), is_error=bool(ti.get("error")))]
-            return [ev("tool_call", name=s.get("tool_name", ""))]
+            return [ev("tool_call", name=s.get("tool_name", ""), detail=_args(ti.get("args") or ti.get("input")))]
         return []
     if t == "result":
         r = e.get("result") or {}
@@ -121,7 +130,7 @@ def gemini(e: dict) -> list:
             return [ev("text_delta", text=txt or "")] if txt else []
         return []
     if t == "tool_use":
-        return [ev("tool_call", name=e.get("tool_name") or e.get("name", ""))]
+        return [ev("tool_call", name=e.get("tool_name") or e.get("name", ""), detail=_args(e.get("parameters") or e.get("args")))]
     if t == "tool_result":
         return [ev("tool_result", name=e.get("tool_name") or e.get("name", ""), status=e.get("status", ""))]
     if t == "error":

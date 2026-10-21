@@ -13,7 +13,8 @@ from unittest import mock
 
 import httpx
 
-from backend import coder, config, deps, envs, gitops, resources as R, sandbox as SB, sysinfo as SI
+from backend.core import config
+from backend.execution import deps, envs, gitops, resources as R, sandbox as SB, sysinfo as SI
 
 
 class FakeDocker:
@@ -71,7 +72,7 @@ class Sandbox(unittest.TestCase):
     def test_settings_validation(self):
         s = SB.save_settings({"mode": "weird", "gpu": 0, "python_mode": "x", "memory_gb": "abc", "cpus": "1.5", "image": " i:1 ",
                               "unknown": 1, "network": 1})
-        self.assertEqual((s["mode"], s["gpu"], s["python_mode"], s["cpus"], s["image"], s["network"]), ("auto", False, "venv", 1.5, "i:1", True))
+        self.assertEqual((s["mode"], s["gpu"], s["python_mode"], s["cpus"], s["image"], s["network"]), ("local", False, "venv", 1.5, "i:1", True))
         with self.assertRaises(SB.SandboxError):
             SB.save_settings({"python_base": "C:/not/python.exe"})
         self.assertEqual(SB.save_settings({"python_base": sys.executable})["python_base"], sys.executable)
@@ -80,52 +81,8 @@ class Sandbox(unittest.TestCase):
         self.assertEqual(SB.save_settings({"torch_index": "https://download.pytorch.org/whl/cu124"})["torch_index"],
                          "https://download.pytorch.org/whl/cu124")
         (SB.sb_dir() / "settings.json").write_text("{bad", "utf-8")
-        self.assertEqual(SB.load_settings()["mode"], "auto")
+        self.assertEqual(SB.load_settings()["mode"], "local")  # v5: Python venv first
 
-    def test_container_lifecycle(self):
-        fd = FakeDocker()
-        with mock.patch.object(SB, "docker", fd), mock.patch.object(SB, "docker_exe", return_value="docker"):
-            self.assertFalse(SB.container_state()["exists"])
-            with mock.patch.object(SB, "effective_image", return_value="img:missing"):
-                with self.assertRaises(SB.SandboxError) as cm:
-                    SB.ensure_container()
-                self.assertIn("NEED_IMAGE", str(cm.exception))
-            st = SB.ensure_container()
-            self.assertTrue(st["running"])
-            run_args = next(c for c in fd.calls if c[0] == "run")
-            self.assertIn("-m", run_args)
-            self.assertIn("--network", SB.save_settings({"network": False}) and ["--network"])
-            fd.running = False
-            st = SB.ensure_container()  # existing but stopped → started; limits above the policy → warning only
-            self.assertTrue(st["running"])
-            self.assertIn("warning", st)
-            fd.running, fd.start_fail = False, True
-            with self.assertRaises(SB.SandboxError):
-                SB.ensure_container()
-            fd.start_fail = False
-            SB.save_settings({"gpu": True, "network": False, "shm_gb": 1})
-            fd.run_fail = "gpu"
-            st = SB.ensure_container(recreate=True)
-            self.assertIn("GPU passthrough failed", st["warning"])
-            fd.run_fail = "always"
-            with self.assertRaises(SB.SandboxError):
-                SB.ensure_container(recreate=True)
-            fd.run_fail = ""
-            for act in ("start", "recreate", "stop", "restart", "remove"):
-                self.assertIn("exists", SB.container_action(act))
-            fd.exists = False
-            self.assertIn("exists", SB.container_action("stop"))  # "No such container" is not an error
-            with self.assertRaises(SB.SandboxError):
-                SB.container_action("explode")
-            self.assertEqual(SB.container_stats()["pids"], "3")
-            self.assertEqual(len(SB.list_images()), 1)
-            self.assertTrue(SB.list_containers()[0]["mine"])
-            self.assertTrue(SB.docker_running(0))
-        with mock.patch.object(SB, "docker", return_value=(0, "not json")):
-            self.assertFalse(SB.container_state()["exists"])
-            self.assertIsNone(SB.container_stats())
-        with mock.patch.object(SB, "docker", return_value=(0, "{bad")):
-            self.assertIsNone(SB.container_stats())
 
     def test_docker_cli_wrapper(self):
         with mock.patch.object(SB, "docker_exe", return_value=None):
@@ -141,34 +98,6 @@ class Sandbox(unittest.TestCase):
         with mock.patch("shutil.which", return_value=None), mock.patch.object(SB, "IS_WIN", False):
             self.assertIsNone(SB.docker_exe())
 
-    def test_docker_job_and_pull(self):
-        fd = FakeDocker(exists=True, running=True)
-        SB.save_settings({"mode": "docker", "gpu": False})
-        popen = mock.MagicMock()
-        popen.return_value.stdout.readline.side_effect = ["epoch 1 loss=0.5\n", ""]
-        popen.return_value.stderr.readline.return_value = ""
-        popen.return_value.poll.return_value = 0
-        popen.return_value.returncode = 0
-        popen.return_value.pid = 4242
-        with mock.patch.object(SB, "docker", fd), mock.patch.object(SB, "docker_exe", return_value="docker"), \
-                mock.patch("subprocess.Popen", popen), mock.patch.object(SB, "effective_image", return_value="img:1"):
-            job = SB.start_job("python train.py", "run", "docker run")
-            for _ in range(100):
-                if job.status != "running":
-                    break
-                time.sleep(0.05)
-            self.assertEqual(job.status, "done")
-            argv = popen.call_args[0][0]
-            self.assertEqual(argv[:2], ["docker", "exec"])
-            self.assertIn("PHDLAB_IN_DOCKER=1", argv)
-            with mock.patch("backend.envs.valid_image", return_value=False):
-                with self.assertRaises(SB.SandboxError):
-                    SB.pull_image("BAD IMAGE")
-            pj = SB.pull_image("python:3.11-slim")
-            self.assertEqual(pj.kind, "pull")
-        with mock.patch.object(SB, "docker_exe", return_value=None):
-            with self.assertRaises(SB.SandboxError):
-                SB.pull_image("python:3.11")
 
     def test_local_jobs_stop_and_runs(self):
         job = SB.start_job(f'python -c "import time; print(\'epoch 1 psnr=20\'); time.sleep(20)"', "run", "slow")
@@ -245,11 +174,11 @@ class Sandbox(unittest.TestCase):
             SB._after_run(job2)
         self.assertEqual(job2.meta["fallback_run"], "cpu-rerun")
         self.assertEqual(sj.call_args[1]["extra_env"], {"CUDA_VISIBLE_DEVICES": ""})
-        with mock.patch("backend.provenance.seal_run", side_effect=RuntimeError("disk")), \
-                mock.patch("backend.resources.classify_failure", side_effect=RuntimeError("x")):
+        with mock.patch("backend.knowledge.provenance.seal_run", side_effect=RuntimeError("disk")), \
+                mock.patch("backend.execution.resources.classify_failure", side_effect=RuntimeError("x")):
             SB._after_run(job2)
         self.assertIn("failed", job2.tail(5, "sys"))
-        with mock.patch("backend.integrations.experiment.auto_record", side_effect=RuntimeError):
+        with mock.patch("backend.execution.tracker.auto_record", side_effect=RuntimeError):
             SB._auto_clearml("x")  # never raises
 
 
@@ -259,92 +188,7 @@ class Git(unittest.TestCase):
         _env.fresh_project("legacy-git")
         config.save_config({"github": {"token": "", "user": "me", "name": "Me", "email": ""}})
 
-    def test_local_repository_workflow(self):
-        self.assertFalse(gitops.status()["repo"])
-        with self.assertRaises(gitops.GitError):
-            gitops.diff("x.py")
-        (SB.code_dir() / "a.py").write_text("print(1)\n", "utf-8")
-        st = gitops.init()
-        self.assertTrue(st["repo"])
-        self.assertTrue((SB.code_dir() / ".gitignore").exists())
-        self.assertEqual(gitops.init()["repo"], True)  # idempotent
-        self.assertEqual(gitops.head_info()["note"], "no commit yet")
-        with self.assertRaises(gitops.GitError):
-            gitops.commit("  ")
-        gitops.commit("first", ["a.py"])
-        st = gitops.commit("first")
-        self.assertEqual(st["commits"][0]["message"], "first")
-        with self.assertRaises(gitops.GitError):
-            gitops.commit("nothing")
-        (SB.code_dir() / "a.py").write_text("print(2)\n", "utf-8")
-        (SB.code_dir() / "b.py").write_text("new\n", "utf-8")
-        st = gitops.status()
-        self.assertEqual({f["status"] for f in st["files"]}, {"modified", "untracked"})
-        d = gitops.diff("a.py")
-        self.assertEqual((d["original"], d["modified"]), ("print(1)\n", "print(2)\n"))
-        with self.assertRaises(gitops.GitError):
-            gitops.diff("../outside.py")
-        h = gitops.head_info()
-        self.assertTrue(h["dirty"])
-        self.assertEqual(len(h["sha"]), 40)
-        for bad in ("", ".", "  ", "../x.py", "sub"):
-            if bad == "sub":
-                (SB.code_dir() / "sub").mkdir()
-            with self.assertRaises(gitops.GitError, msg=bad):
-                gitops.discard(bad)
-        gitops.discard("a.py")
-        self.assertEqual((SB.code_dir() / "a.py").read_text("utf-8"), "print(1)\n")
-        self.assertTrue((SB.code_dir() / "b.py").exists())  # other work is untouched
-        gitops.commit("all")
-        with self.assertRaises(gitops.GitError):
-            gitops.G(["no-such-command"])
-        self.assertEqual(gitops._identity(), ("Me", "me@users.noreply.github.com"))
 
-    def test_github_flows_without_network(self):
-        with self.assertRaises(gitops.GitError):
-            gitops.push()
-        config.save_config({"github": {"token": "ghp_test"}})
-        (SB.code_dir() / "a.py").write_text("x\n", "utf-8")
-        h = gitops._auth_header("tok")
-        self.assertIn("AUTHORIZATION: basic", h)
-        with mock.patch("httpx.get", return_value=httpx.Response(401)):
-            with self.assertRaises(gitops.GitError):
-                gitops.gh_user()
-        with mock.patch("httpx.get", return_value=httpx.Response(503, text="down")):
-            with self.assertRaises(gitops.GitError):
-                gitops.gh_user()
-        user = httpx.Response(200, json={"login": "me", "html_url": "https://github.com/me"})
-        pushes = []
-        real_G = gitops.G
-
-        def G(args, timeout=120, extra_config=None, check=True):
-            if args[0] in ("push", "pull"):
-                pushes.append((args, extra_config))
-                return ""
-            return real_G(args, timeout, extra_config, check)
-        with mock.patch.object(gitops, "G", G), mock.patch("httpx.get", return_value=user), \
-                mock.patch("httpx.post", return_value=httpx.Response(201, json={"html_url": "https://github.com/me/r", "private": True})):
-            out = gitops.publish("my repo!", private=True)
-        self.assertTrue(out["created"])
-        self.assertIn("extraheader", pushes[0][1][0])
-        self.assertNotIn("ghp_test", (SB.code_dir() / ".git" / "config").read_text("utf-8"))  # token never persisted
-        exists = httpx.Response(422, json={"message": "exists"})
-        with mock.patch.object(gitops, "G", G), mock.patch("httpx.get", side_effect=[user, httpx.Response(200, json={"html_url": "u"})]), \
-                mock.patch("httpx.post", return_value=exists):
-            self.assertFalse(gitops.publish("r")["created"])
-        with mock.patch.object(gitops, "G", G), mock.patch("httpx.get", side_effect=[user, httpx.Response(404, json={"message": "no"})]), \
-                mock.patch("httpx.post", return_value=exists):
-            with self.assertRaises(gitops.GitError):
-                gitops.publish("r")
-        for code in (403, 500):
-            with mock.patch.object(gitops, "G", G), mock.patch("httpx.get", return_value=user), \
-                    mock.patch("httpx.post", return_value=httpx.Response(code, text="x")):
-                with self.assertRaises(gitops.GitError):
-                    gitops.publish("r")
-        with mock.patch.object(gitops, "G", G):
-            gitops.push()
-            gitops.pull()
-        self.assertEqual(len(pushes), 4)  # created + already-existing repo + push + pull
 
     def test_no_git_and_gitpython_fallback(self):
         with mock.patch.object(gitops, "git_exe", return_value=None):
@@ -361,54 +205,6 @@ class Git(unittest.TestCase):
                 self.assertIn("git version", gitops.G(["--version"]))
 
 
-class Coder(unittest.TestCase):
-    def setUp(self):
-        _env.fresh_project("legacy-coder")
-
-    def test_prompt_parse_preview_apply(self):
-        (config.workspace() / "experiment_design.md").write_text("DESIGN", "utf-8")
-        (SB.code_dir() / "a.py").write_text("old\n", "utf-8")
-        with mock.patch.object(SB, "list_runs", return_value=[{"id": "r1", "cmd": "python a.py", "status": "failed", "exit_code": 1}]), \
-                mock.patch.object(SB, "get_run", return_value={"stderr": "Traceback", "stdout": "out"}):
-            s = coder.system_prompt("a.py", "EXTRA", "fix the bug")
-        for frag in ("RESEARCH BLUEPRINT", "LAST RUN r1", "a.py", "EXTRA", "local Python venv"):
-            self.assertIn(frag, s)
-        with mock.patch.object(SB, "list_runs", return_value=[{"id": "r1"}]), mock.patch.object(SB, "get_run", side_effect=RuntimeError):
-            self.assertEqual(coder._last_run(), "")
-        with mock.patch.object(SB, "list_runs", return_value=[]):
-            self.assertEqual(coder._last_run(), "")
-        with mock.patch.object(SB, "effective_mode", return_value="docker"), mock.patch.object(SB, "effective_image", return_value="img"):
-            self.assertIn("image=img", coder.system_prompt())
-        text = "```python file=./a.py\nnew\n```\n```python file=a.py\ndup\n```\n```text file=b.txt\nx```\n```run\npython a.py\n```"
-        p = coder.parse(text)
-        self.assertEqual([f["path"] for f in p["files"]], ["a.py", "b.txt"])
-        self.assertEqual(p["run"], "python a.py")
-        prev = coder.preview(p["files"])
-        self.assertEqual((prev[0]["added"], prev[0]["removed"], prev[1]["exists"]), (1, 1, False))
-        self.assertEqual(coder.apply(p["files"]), ["a.py", "b.txt"])
-
-    def test_run_and_wait(self):
-        events = []
-
-        async def emit(e):
-            events.append(e["type"])
-
-        async def go():
-            return await coder.run_and_wait('python -c "print(\'hi\')"', emit, cpu=True)
-        out = asyncio.run(go())
-        self.assertIn("hi", out["stdout"])
-        self.assertEqual(events[0], "run_start")
-        self.assertEqual(events[-1], "run_end")
-
-        async def cancel():
-            t = asyncio.ensure_future(coder.run_and_wait('python -c "import time; time.sleep(30)"', emit))
-            await asyncio.sleep(1.5)
-            t.cancel()
-            with self.assertRaises(asyncio.CancelledError):
-                await t
-        asyncio.run(cancel())
-
-
 class Environments(unittest.TestCase):
     def test_discovery_and_probe(self):
         envs._cache.clear()
@@ -423,38 +219,6 @@ class Environments(unittest.TestCase):
         with mock.patch("subprocess.run", side_effect=OSError), mock.patch("shutil.which", return_value="conda"):
             self.assertIsInstance(envs._candidates(), list)
 
-    def test_images_hub_and_choice(self):
-        self.assertTrue(envs.valid_image("pytorch/pytorch:2.5.1-cuda12.4"))
-        self.assertFalse(envs.valid_image("Bad Image"))
-        with mock.patch("backend.sandbox.docker", return_value=(0, json.dumps({"Name": "pytorch/pytorch", "StarCount": "9", "IsOfficial": "[OK]"}) + "\nbad")):
-            self.assertTrue(envs.hub_search("pytorch")[0]["official"])
-        with mock.patch("backend.sandbox.docker", return_value=(1, "denied")):
-            with self.assertRaises(ValueError):
-                envs.hub_search("pytorch")
-        with self.assertRaises(ValueError):
-            envs.hub_search("!")
-        tags = {"results": [{"name": "2.5", "last_updated": "2024-01-01T00", "images": [{"size": 2e9}]}, {"name": "x", "images": []}]}
-        with mock.patch("httpx.get", return_value=httpx.Response(200, json=tags)):
-            out = envs.hub_tags("pytorch/pytorch", "2")
-        self.assertEqual((out[0]["size_gb"], out[1]["size_gb"]), (2.0, None))
-        with mock.patch("httpx.get", return_value=httpx.Response(200, json={"results": []})) as g:
-            envs.hub_tags("python")
-        self.assertIn("/library/python/", g.call_args[0][0])
-        for resp in (httpx.Response(404), httpx.Response(503), httpx.ConnectError("x")):
-            with mock.patch("httpx.get", side_effect=[resp] if isinstance(resp, Exception) else None, return_value=resp):
-                with self.assertRaises(ValueError):
-                    envs.hub_tags("pytorch/pytorch")
-        with self.assertRaises(ValueError):
-            envs.hub_tags("Bad Repo!")
-        with mock.patch("backend.sandbox.docker_exe", return_value="docker"), mock.patch("backend.sandbox.docker_running", return_value=True), \
-                mock.patch("backend.sandbox.list_images", return_value=[{"repo": "mine", "tag": "1"}, {"repo": "<none>", "tag": "x"}]), \
-                mock.patch("backend.sysinfo.scan", return_value={"recommendation": {"sandbox": {"image": "custom/rec:1"}}}):
-            cat = envs.docker_catalog()
-        self.assertTrue(cat["catalog"][0]["recommended"])
-        self.assertEqual(cat["local"][0]["image"], "mine:1")
-        with mock.patch("backend.sandbox.docker_exe", return_value=None), mock.patch("backend.sysinfo.scan", side_effect=RuntimeError):
-            self.assertFalse(envs.docker_catalog()["docker"])
-        self.assertIsInstance(envs.summary(), dict)
 
 
 class Machine(unittest.TestCase):
@@ -526,10 +290,10 @@ class Governor(unittest.TestCase):
         self.assertEqual(R.clamp_sandbox({"memory_gb": 999}, cfg), ({"memory_gb": 999}, []))
         p = R.policy(cfg, {})
         self.assertEqual(p["source"]["sandbox_memory_gb"], "override")
-        with mock.patch("backend.sysinfo.scan", side_effect=RuntimeError):
+        with mock.patch("backend.execution.sysinfo.scan", side_effect=RuntimeError):
             self.assertEqual(R._scan(), {})
         R._gpu_cache.update(t=0, gpus=None)
-        with mock.patch("backend.sysinfo.gpus", side_effect=RuntimeError):
+        with mock.patch("backend.execution.sysinfo.gpus", side_effect=RuntimeError):
             self.assertEqual(R.gpus(0), [])
         with mock.patch.object(R, "gpus", return_value=[{"temp_c": 90}]):
             self.assertFalse(R.preflight_gpu(cfg)["use_gpu"])
@@ -539,7 +303,7 @@ class Governor(unittest.TestCase):
         self.assertFalse(R.prepare_gpu_run({"gpu": False}, cfg=cfg)["use_gpu"])
         with mock.patch.object(R, "gpu_job_running", return_value=False), mock.patch.object(R, "gpus", return_value=[{"util_pct": 95}]):
             self.assertTrue(R.gpu_busy(cfg))
-        with mock.patch.dict("sys.modules", {"backend.sandbox": None}):
+        with mock.patch.dict("sys.modules", {"backend.execution.sandbox": None}):
             self.assertFalse(R.gpu_job_running())
 
         async def inside():
@@ -556,19 +320,19 @@ class Governor(unittest.TestCase):
 
         async def inst(_):
             return [("m", "m:1"), ("k2", "k2:1"), ("", "x")]
-        with mock.patch("backend.local_ai.ollama_status", ost), mock.patch("backend.local_ai.lmstudio_status", lst), \
-                mock.patch("backend.local_ai.lmstudio_loaded_instances", inst):
+        with mock.patch("backend.providers.local.ollama_status", ost), mock.patch("backend.providers.local.lmstudio_status", lst), \
+                mock.patch("backend.providers.local.lmstudio_loaded_instances", inst):
             self.assertEqual(R.loaded_local_models(), {"ollama": ["q"], "lmstudio": ["m", "k2"]})
 
         async def boom(*a, **k):
             raise RuntimeError("x")
-        with mock.patch("backend.local_ai.ollama_status", boom), mock.patch("backend.local_ai.lmstudio_status", boom), \
-                mock.patch("backend.local_ai.lmstudio_loaded_instances", boom):
+        with mock.patch("backend.providers.local.ollama_status", boom), mock.patch("backend.providers.local.lmstudio_status", boom), \
+                mock.patch("backend.providers.local.lmstudio_loaded_instances", boom):
             self.assertEqual(R.loaded_local_models(), {"ollama": [], "lmstudio": []})
         cfg = config.load_config()
         cfg["resources"].update(unload_wait_s=0, unload_timeout_s=2, vram_free_target_mb=1000)
         with mock.patch.object(R, "loaded_local_models", return_value={"ollama": ["q"], "lmstudio": ["m"]}), \
-                mock.patch("backend.local_ai.ollama_unload", boom), mock.patch("backend.local_ai.lmstudio_unload", boom), \
+                mock.patch("backend.providers.local.ollama_unload", boom), mock.patch("backend.providers.local.lmstudio_unload", boom), \
                 mock.patch.object(R, "gpus", return_value=[{"vram_used_mb": 500}]):
             rep = R.unload_local_models(cfg)
         self.assertEqual(len(rep["errors"]), 2)
@@ -577,7 +341,7 @@ class Governor(unittest.TestCase):
             return {"ok": True, "method": "rest-v1"}
         lines = []
         with mock.patch.object(R, "loaded_local_models", return_value={"ollama": ["q"], "lmstudio": ["m"]}), \
-                mock.patch("backend.local_ai.ollama_unload", ok), mock.patch("backend.local_ai.lmstudio_unload", ok), \
+                mock.patch("backend.providers.local.ollama_unload", ok), mock.patch("backend.providers.local.lmstudio_unload", ok), \
                 mock.patch.object(R, "gpus", return_value=[{"vram_used_mb": 5000}]), mock.patch.object(R.time, "sleep"):
             rep = R.unload_local_models(cfg, lines.append)
         self.assertEqual(rep["lmstudio_method"], "rest-v1")

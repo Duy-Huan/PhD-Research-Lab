@@ -9,7 +9,9 @@ from unittest import mock
 
 import httpx
 
-from backend import config, llm, model_lifecycle as LC, resources as R, sandbox
+from backend.core import config
+from backend.providers import models as llm, lifecycle as LC
+from backend.execution import resources as R, sandbox
 from test_model_lifecycle import Fakes
 
 
@@ -83,7 +85,7 @@ class LocalLeases(unittest.TestCase):
         async def fake_chat(*a, **k):
             return "auto"
         with Fakes(), mock.patch.object(llm, "openai_compat_chat", fake_chat), mock.patch.object(llm, "ollama_offload_options", return_value=None), \
-                mock.patch("backend.llm_router.plan", return_value={"kind": "summarize", "candidates": ["ollama"], "gpu_busy": False,
+                mock.patch("backend.providers.router.plan", return_value={"kind": "summarize", "candidates": ["ollama"], "gpu_busy": False,
                                                                        "online": True, "skipped": {}}):
             config.save_config({"agent_modes": {"summarizer": "auto"}})
             self.assertEqual(asyncio.run(llm.call_agent("summarizer", "s", "u"))["text"], "auto")
@@ -93,7 +95,7 @@ class LocalLeases(unittest.TestCase):
         from backend.memory import embeddings as EM
         cfg = config.load_config()
         resp = httpx.Response(200, json={"embeddings": [[0.1, 0.2]]}, request=httpx.Request("POST", "http://x"))
-        with Fakes(), mock.patch.object(EM.httpx, "post", return_value=resp), mock.patch("backend.resources.gpu_busy", return_value=True):
+        with Fakes(), mock.patch.object(EM.httpx, "post", return_value=resp), mock.patch("backend.execution.resources.gpu_busy", return_value=True):
             vec = EM._ollama_embed(cfg, ["text"], 5)
         self.assertEqual(vec, [[0.1, 0.2]])
         res = LC._res["local:ollama:" + cfg["memory"]["embed_model"]]
@@ -158,7 +160,7 @@ class OllamaNativeAndShutdown(unittest.TestCase):
 
         async def stuck(stop):
             await asyncio.sleep(3600)
-        with mock.patch("backend.model_lifecycle.reaper", stuck):
+        with mock.patch("backend.providers.lifecycle.reaper", stuck):
             with TestClient(app) as c:
                 self.assertEqual(c.get("/api/version").status_code, 200)
 
@@ -174,7 +176,7 @@ class SandboxHooks(unittest.TestCase):
         LC.reset()
 
     def test_mcp_sandbox_tool_holds_a_container_lease(self):
-        from backend import mcp_server
+        from backend.providers import mcp_server
         job = mock.Mock(id="r1", status="done", exit_code=0, mode="docker", meta={})
         job.tail.return_value = ""
         with mock.patch.object(sandbox, "effective_mode", return_value="docker"), mock.patch.object(sandbox, "container_name", return_value="phdlab-mcp"), \
@@ -207,7 +209,7 @@ class SandboxHooks(unittest.TestCase):
         calls = iter([LOADED, {"ollama": [], "lmstudio": []}])
         with mock.patch.object(R, "loaded_local_models", side_effect=lambda *a: next(calls)), \
                 mock.patch.object(R, "gpus", return_value=[{"vram_used_mb": 500, "temp_c": 40, "vram_total_mb": 12288}]), \
-                mock.patch("backend.model_lifecycle.free_vram_for_gpu", side_effect=freed):
+                mock.patch("backend.providers.lifecycle.free_vram_for_gpu", side_effect=freed):
             job = sandbox.start_job('python -c "print(1)"', "run", "gpu")
         self.assertIn("VRAM unload", job.tail(50, "sys"))
         sandbox.stop_job(job.id)

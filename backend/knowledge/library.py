@@ -32,12 +32,12 @@ if fitz is None:
     except Exception as _e:
         PDF_BACKEND_ERROR += f" | pypdf unavailable: {_e}"
 
-from .config import data_dir, refs_dir
+from backend.core.config import data_dir, refs_dir
 
 
 def _lib_path():
     return data_dir() / "library.json"  # per project
-_lock = threading.Lock()
+_lock = threading.RLock()
 
 FIELDS = ["title", "authors", "year", "venue", "entry_type", "volume", "number",
           "pages", "doi", "publisher", "abstract"]
@@ -54,7 +54,7 @@ def load_library() -> dict:
                 return d
             raise ValueError("library.json is not an object")
         except ValueError:
-            from .memory.store import quarantine
+            from backend.memory.store import quarantine
             quarantine(p)  # keep it: the next save would otherwise erase every curated reference (keys, metadata)
             return {}
         except OSError:
@@ -63,7 +63,7 @@ def load_library() -> dict:
 
 
 def save_library(lib: dict) -> None:
-    from .memory.store import replace_retry
+    from backend.memory.store import replace_retry
     with _lock:
         assign_keys(lib)
         p = _lib_path()
@@ -233,23 +233,86 @@ def heuristic_metadata(path: Path) -> dict:
 
 def scan_directory() -> dict:
     """Sync library.json with the PDFs present in the references directory."""
+    with _lock:
+        return _scan_directory()
+
+
+def _scan_directory() -> dict:
     rdir = refs_dir()
     lib = load_library()
     present = {p.name: p for p in rdir.glob("*.pdf")} | {p.name: p for p in rdir.glob("*.PDF")}
     for name in list(lib):
-        if name not in present:
+        if name not in present and not lib[name].get("metadata_only"):
             del lib[name]
     added = []
     for name, p in present.items():
         digest = sha1(p)
         if name in lib and lib[name].get("sha1") == digest:
+            lib[name]["pdf_available"] = True
             continue
         entry = heuristic_metadata(p)
-        entry.update({"file": name, "sha1": digest, "include": True, "llm_refined": False, "key_locked": False})
+        entry.update({"file": name, "sha1": digest, "include": True, "llm_refined": False, "key_locked": False, "pdf_available": True})
         lib[name] = entry
         added.append(name)
     save_library(lib)
     return {"library": lib, "added": added}
+
+
+def save_source(source: dict, pdf: bytes | None = None) -> dict:
+    """Keep a real retrieved record even when its publisher does not offer a downloadable PDF."""
+    from urllib.parse import urlsplit
+    title = re.sub(r"\s+", " ", str(source.get("title") or "")).strip()[:1000]
+    doi = re.sub(r"^https?://(?:dx\.)?doi.org/", "", str(source.get("doi") or "").strip(), flags=re.I)[:300]
+    url = str(source.get("url") or (f"https://doi.org/{doi}" if doi else "")).strip()[:4000]
+    parsed = urlsplit(url)
+    if not title or parsed.scheme not in ("https", "http") or not parsed.hostname or parsed.username or parsed.password:
+        raise ValueError("A paper title and valid public HTTP(S) source URL are required")
+    identity = "doi:" + doi.casefold() if doi else "url:" + url.rstrip("/")
+    with _lock:
+        lib = load_library()
+        for e in lib.values():
+            if (doi and str(e.get("doi") or "").casefold() == doi.casefold()) or url == e.get("source_url"):
+                if pdf and e.get("metadata_only"):
+                    token = hashlib.sha256(identity.encode()).hexdigest()[:20]
+                    name = "paper-" + token + ".pdf"
+                    while (refs_dir() / name).exists() or name in lib:
+                        token = hashlib.sha256((token + "x").encode()).hexdigest()[:20]
+                        name = "paper-" + token + ".pdf"
+                    (refs_dir() / name).write_bytes(pdf)
+                    lib.pop(e["file"])
+                    e.update(file=name, pdf_available=True, metadata_only=False, sha1=hashlib.sha1(pdf).hexdigest(),
+                             pdf_url=str(source.get("pdf_url") or ""))
+                    lib[name] = e
+                    save_library(lib)
+                    return {"entry": e, "already_saved": True, "pdf_saved": True, "upgraded": True}
+                return {"entry": e, "already_saved": True, "pdf_saved": bool(e.get("pdf_available", not e.get("metadata_only")))}
+        token = hashlib.sha256(identity.encode()).hexdigest()[:20]
+        name = "paper-" + token + (".pdf" if pdf else ".paper.json")
+        if pdf:
+            # A hash-based name cannot overwrite an upload or a curated record from another source.
+            while (refs_dir() / name).exists() or name in lib:
+                token = hashlib.sha256((token + "x").encode()).hexdigest()[:20]
+                name = "paper-" + token + ".pdf"
+            (refs_dir() / name).write_bytes(pdf)
+        authors = source.get("authors") or []
+        if not isinstance(authors, list):
+            authors = _split_authors(str(authors))
+        entry = {"file": name, "title": title, "authors": [str(a)[:200] for a in authors[:30]],
+                 "year": str(source.get("year") or "")[:4], "venue": str(source.get("venue") or "")[:500],
+                 "doi": doi, "abstract": str(source.get("abstract") or source.get("snippet") or "")[:12000],
+                 "source_url": url, "url": url, "source": str(source.get("source") or "")[:200],
+                 "pdf_url": str(source.get("pdf_url") or "")[:4000], "metadata_only": not bool(pdf),
+                 "citations": source.get("citations"), "sources": source.get("sources") or [str(source.get("source") or "")],
+                 "pdf_available": bool(pdf), "include": True, "key_locked": False, "llm_refined": False,
+                 "entry_type": "misc" if "arxiv" in str(source.get("venue") or source.get("source")).lower() else
+                               "inproceedings" if source.get("publication_type") == "conference" else "article"}
+        if isinstance(source.get("journal_ranking"), dict):
+            entry["journal_ranking"] = source["journal_ranking"]
+        if pdf:
+            entry["sha1"] = hashlib.sha1(pdf).hexdigest()
+        lib[name] = entry
+        save_library(lib)
+        return {"entry": lib[name], "already_saved": False, "pdf_saved": bool(pdf)}
 
 
 def merge_llm_metadata(entry: dict, data: dict) -> dict:
@@ -342,6 +405,8 @@ def entry_to_bibtex(e: dict) -> str:
         fields.append(("publisher", "{" + _esc(e["publisher"]) + "}"))
     if e.get("doi"):
         fields.append(("doi", "{" + e["doi"].strip() + "}"))
+    if e.get("source_url"):
+        fields.append(("url", "{" + _esc(e["source_url"]) + "}"))
     body = ",\n".join(f"  {k:<9} = {v}" for k, v in fields)
     return f"@{typ}{{{e['key']},\n{body}\n}}"
 
@@ -351,23 +416,6 @@ def build_bibtex(entries: list | None = None) -> str:
     head = ("% references.bib - generated by PhD Interactive Autonomous Research Lab\n"
             f"% {len(entries)} entries from the local references/ PDF pool. Verify fields before submission.\n\n")
     return head + "\n\n".join(entry_to_bibtex(e) for e in entries) + "\n"
-
-
-def reference_digest(entries: list, abstract_chars: int = 600) -> str:
-    """Compact citation catalogue for prompts."""
-    lines = []
-    try:  # v3: papers purged in the Context graph are hidden from the agents (the PDF and BibTeX stay)
-        from .context_graph import purged_lit_keys
-        hidden = purged_lit_keys()
-    except Exception:
-        hidden = set()
-    for e in entries:
-        if e.get("key") in hidden:
-            continue
-        authors = ", ".join(e.get("authors", [])[:3]) + (" et al." if len(e.get("authors", [])) > 3 else "")
-        lines.append(f"[{e['key']}] {e.get('title', '')} — {authors} ({e.get('year', 'n.d.')}), {e.get('venue', '')}\n"
-                     f"    Abstract: {(e.get('abstract') or 'n/a')[:abstract_chars]}")
-    return "\n".join(lines) if lines else "(no references ingested)"
 
 
 def pdf_text(path: Path, max_pages: int = 40, limit: int = 200_000) -> tuple[str, int]:

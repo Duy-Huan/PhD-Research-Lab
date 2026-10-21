@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import re
 
-from . import cache
+from backend.memory import cache
 
 HW_RE = re.compile(r"(?i)\b(gpu|vram|cuda|rtx|gb|ram|cpu|a100|h100|memory)\b")
 _cache = cache.LRU(8)
@@ -38,7 +38,7 @@ def current(purged: set | None = None) -> dict:
 
 def _focus_key() -> tuple:
     try:
-        from .working import get
+        from backend.memory.working import get
         f = get().get("focus") or {}
         return (f.get("hypothesis_id", ""), f.get("experiment_id", ""))
     except Exception:
@@ -46,7 +46,7 @@ def _focus_key() -> tuple:
 
 
 def _compute(purged: set) -> dict:
-    from . import evidence, load, research
+    from backend.memory import evidence, load, research
     st, rs = load(), research.load()
     t3 = st["tier3"]
     focus_h, focus_e = _focus_key()

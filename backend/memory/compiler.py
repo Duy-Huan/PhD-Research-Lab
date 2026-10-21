@@ -26,9 +26,9 @@ Rules
 """
 from __future__ import annotations
 
-from . import lod as LOD
-from . import policy as P
-from .embeddings import tokenize
+from backend.memory import lod as LOD
+from backend.memory import policy as P
+from backend.memory.embeddings import tokenize
 
 HEADER = "[CONTEXT SYSTEM INJECTION]"
 SECTIONS = (("state", "RESEARCH STATE"),
@@ -63,11 +63,11 @@ def _jaccard(a: set, b: set) -> float:
 def compile_context(tool: str = "", session_id: str = "", query: str = "", budget_tokens: int = 3500,
                     purged: set | None = None, cfg: dict | None = None, role: str = "", allowed=(), filters: dict | None = None,
                     budget: P.Budget | None = None, request_id: str = "") -> dict:
-    from ..config import load_config
-    from ..telemetry import span
-    from . import cache, working
-    from .engine import build_context, retrieve
-    from .state import current, lines as state_lines_of
+    from backend.core.config import load_config
+    from backend.core.telemetry import span
+    from backend.memory import cache, working
+    from backend.memory.engine import build_context, retrieve
+    from backend.memory.state import current, lines as state_lines_of
     cfg = cfg or load_config()
     task = (working.get().get("current_task") or {}).get("text", "")
     q = (query or task or tool or "research project").strip()
@@ -90,7 +90,7 @@ def compile_context(tool: str = "", session_id: str = "", query: str = "", budge
         best_tier: dict = {}
         for h in res["hits"]:
             best_tier[h["tier"]] = max(best_tier.get(h["tier"], 0.0), h["score"])
-        from .state import ids as state_ids_of
+        from backend.memory.state import ids as state_ids_of
         protected = state_ids_of(stt) & set(by_id)
         always = {n.id for n in by_id.values() if n.pinned or (session_id and n.type == "episode"
                                                                  and session_id in " ".join(n.links + [n.status]))}
@@ -196,7 +196,7 @@ def compile_context(tool: str = "", session_id: str = "", query: str = "", budge
 
 
 def _nodes(ctx) -> list:
-    from .engine import index
+    from backend.memory.engine import index
     return index(ctx.purged)[0].nodes
 
 
@@ -219,37 +219,3 @@ def trace_text(c: dict) -> str:
         out.append(f"  {k:<10} {v['tokens']:>6} / {v['budget']} tokens  ({v['items']} items)")
     out += ["", f"Total: {t['total_tokens']} tokens (memory budget {t['budget']['memory_budget']}) · compression ×{t['compression_ratio']}"]
     return "\n".join(out)
-
-
-def _external(cfg: dict, tool: str) -> bool:
-    try:
-        from ..llm import LOCAL_ENGINES, resolve_engine
-        return resolve_engine(cfg, tool) not in LOCAL_ENGINES
-    except Exception:
-        return True
-
-
-def agent_block(tool: str, sid: str = "", query: str = "", purged: set | None = None, role: str = "") -> str:
-    """What every agent gets appended to its system prompt: the compiled context (v2 pipeline) or, if that is switched off
-    or fails, the legacy Tier 3 + Tier 2 block. Also records the request as the current task (Working Memory).
-    v3.3: role-aware (role from the tool unless given); v3.4: records the gateway sensitivity policy blocks are kept out
-    when the agent's engine is not local."""
-    from ..config import load_config
-    from . import memory_block
-    cfg = load_config()
-    if cfg["memory"].get("v2_pipeline", True):
-        try:
-            from .working import note_task
-            if query:
-                note_task(tool, query, sid)
-            allowed = ()
-            if _external(cfg, tool):
-                from ..gateway.policy import allowed_classes
-                allowed = allowed_classes(cfg)
-            block = compile_context(tool, sid, query, cfg["memory"]["context_budget_tokens"], purged, cfg, role=role,
-                                    allowed=allowed)["text"]
-            return "\n\n# PROJECT MEMORY (compiled: research state, working state, experiment evidence, claims, knowledge)\n" + block
-        except Exception as e:
-            print(f"[memory] compiler failed, using the legacy memory block: {type(e).__name__}: {e}")
-    mem = memory_block(tool, sid, budget=7000, purged=purged)
-    return "\n\n# PROJECT MEMORY (hierarchical: long-term facts + summaries of earlier work)\n" + mem if mem else ""

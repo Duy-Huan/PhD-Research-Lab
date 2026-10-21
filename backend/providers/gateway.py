@@ -1,20 +1,16 @@
-"""Gateway requests, multi-provider sessions, comparison and audit (v3.4 §12, §15-17, §21).
+"""Gateway requests: one CLI provider call with the compiled research context (agent/orchestrator.py → `cli:<name>`).
 
-    prepare()   compile the provider context → request {status: review | ready}. With gateway.review_before_external
-                (or review=True) nothing leaves until the researcher sends it (optionally with an edited prompt).
-    send()      stream through the provider connector in a background thread; events are normalised InternalEvents
-                (GET …/events, SSE); the final answer is stored with the request — NOT in memory.
-    compare()   the SAME compiled context to several providers (one request each, shared compare_id). One provider's
-                answer is never forwarded to another.
-    propose()   researcher-selected text of an answer → lifecycle candidate (origin provider/session/request).
+    prepare()   compile the provider context → request {status: ready}; the security profile is checked fail-closed
+    send()      stream through the provider connector in a background thread; events are normalised InternalEvents;
+                the final answer is stored with the request — NOT in memory
+    events()    the request's events after a cursor; cancel() stops it
 Never: automatic fallback to another provider or to a paid API — an unavailable provider returns its health state and
 the alternatives, the researcher chooses.
 
 Storage: <project>/gateway/requests/<id>.json (prompt + answer stay on this machine), sessions/<id>.json,
 <project>/gateway/audit.jsonl (metadata only: ids, provider, token counts, blocked counts, latency — no content).
-v4.1: every request carries a security profile (review | assisted, checked fail-closed at prepare), runs in the
-provider's session workspace with a read-only context manifest (workspace.py), holds a `cli` lifecycle lease, and
-resumes the provider's native session when the cli lifecycle policy keeps sessions.
+Every request runs in the provider's session workspace with a read-only context manifest (cli_space.py), holds a `cli`
+lifecycle lease, and resumes the provider's native session when the cli lifecycle policy keeps sessions.
 """
 from __future__ import annotations
 
@@ -24,7 +20,7 @@ import secrets
 import threading
 import time
 
-from . import connectors as C
+from backend.providers import cli as C
 
 REQS: dict = {}
 _lock = threading.Lock()
@@ -37,14 +33,14 @@ class GatewayError(ValueError):
 
 
 def _dir(sub: str):
-    from ..config import data_dir
+    from backend.core.config import data_dir
     d = data_dir() / "gateway" / sub
     d.mkdir(parents=True, exist_ok=True)
     return d
 
 
 def audit(event: str, **meta) -> None:
-    from ..telemetry import _clean
+    from backend.core.telemetry import _clean
     rec = {"ts": round(time.time(), 3), "event": event, **_clean({k: v for k, v in meta.items() if k != "extra"})}
     rec.update({k: v for k, v in (meta.get("extra") or {}).items() if isinstance(v, (int, float, bool))
                 or (isinstance(v, list) and all(isinstance(x, str) and len(x) < 80 for x in v))})
@@ -55,17 +51,13 @@ def audit(event: str, **meta) -> None:
         pass
 
 
-def read_audit(limit: int = 200) -> list:
-    try:
-        lines = (_dir("") / "audit.jsonl").read_text("utf-8").splitlines()[-limit:]
-        return [json.loads(l) for l in lines if l.strip()]
-    except (OSError, ValueError):
-        return []
-
-
 def _persist(r: dict) -> None:
+    from pathlib import Path
+    from backend.core.config import data_dir
     try:
-        (_dir("requests") / f"{r['id']}.json").write_text(json.dumps({k: v for k, v in r.items() if k != "thread"}, indent=1,
+        folder = Path(r.get("project_dir") or data_dir()) / "gateway" / "requests"
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / f"{r['id']}.json").write_text(json.dumps({k: v for k, v in r.items() if k != "thread"}, indent=1,
                                                                       default=str), "utf-8")
     except OSError:
         pass
@@ -92,32 +84,15 @@ def _session_add(sid: str, rid: str, provider: str) -> None:
         f.write_text(json.dumps(d, indent=1), "utf-8")
 
 
-def get_session(sid: str) -> dict:
-    if not SID_RE.match(sid or ""):
-        raise GatewayError("Invalid session id")
-    f = _dir("sessions") / f"{sid}.json"
-    if not f.exists():
-        raise GatewayError("Session not found")
-    d = json.loads(f.read_text("utf-8"))
-    d["requests"] = [{**x, **{k: v for k, v in _summary(get(x["id"])).items() if k != "id"}} for x in d["requests"] if _exists(x["id"])]
-    return d
-
-
-def _exists(rid: str) -> bool:
-    return rid in REQS or (_dir("requests") / f"{rid}.json").exists()
-
-
 def _summary(r: dict) -> dict:
-    return {k: r.get(k) for k in ("id", "provider", "status", "session_id", "compare_id", "context_tokens", "created", "ended",
-                                  "health_state")}
+    return {k: r.get(k) for k in ("id", "provider", "status", "session_id", "context_tokens", "created", "ended", "health_state")}
 
 
-def prepare(query: str, provider: str, role: str = "", session_id: str = "", review: bool | None = None,
-            budget_tokens: int | None = None, compare_id: str = "", resume_session: str = "", profile: str = "",
-            allow_weaker: bool = False) -> dict:
-    from ..config import load_config
-    from ..telemetry import new_request_id
-    from .context import provider_context
+def prepare(query: str, provider: str, role: str = "", session_id: str = "", profile: str = "", allow_weaker: bool = False,
+            module_context: str = "", memory: bool = True) -> dict:
+    from backend.core.config import load_config, data_dir
+    from backend.core.telemetry import new_request_id
+    from backend.providers.context_packet import provider_context
     query = (query or "").strip()
     if not query:
         raise GatewayError("Ask a question")
@@ -129,8 +104,8 @@ def prepare(query: str, provider: str, role: str = "", session_id: str = "", rev
     caps = conn.capabilities()
     if caps.get("send") == C.NOT_SUPPORTED:
         raise GatewayError(f"{conn.label} cannot be called from PhD-Lab ({h['state']}): use it as an MCP client instead")
-    from . import workspace as W
-    from .. import model_lifecycle as LC
+    from backend.providers import cli_space as W
+    from backend.providers import lifecycle as LC
     profile = profile or cfg["gateway"].get("cli_profile", "review")
     try:
         iso = W.check_profile(provider, profile, allow_weaker)
@@ -138,20 +113,18 @@ def prepare(query: str, provider: str, role: str = "", session_id: str = "", rev
         raise GatewayError(str(e))
     W.prune(cfg)
     sid = _session(session_id)
-    if not resume_session and getattr(conn, "supports_resume", False):
-        resume_session = LC.cli_resume(sid, provider, cfg)
+    resume_session = LC.cli_resume(sid, provider, cfg) if getattr(conn, "supports_resume", False) else ""
     rid = "gw-" + secrets.token_hex(5)
     t0 = time.perf_counter()
-    pc = provider_context(query, provider, role=role, session_id=sid, budget_tokens=budget_tokens, cfg=cfg,
-                          request_id=new_request_id())
-    review = cfg["gateway"].get("review_before_external", False) if review is None else bool(review)
+    pc = provider_context(query, provider, role=role, session_id=sid, cfg=cfg, request_id=new_request_id(),
+                          module_context=module_context, memory=memory)
     r = {"id": rid, "provider": provider, "provider_label": conn.label, "billing": h.get("billing", ""), "session_id": sid,
-         "compare_id": compare_id, "query": query, "role": pc["role"], "prompt": pc["prompt"], "context_tokens": pc["context_tokens"],
+         "query": query, "role": pc["role"], "prompt": pc["prompt"], "context_tokens": pc["context_tokens"],
          "context_version": pc["context_version"], "includes": pc["includes"], "included_ids": pc["included_ids"],
          "blocked": pc["blocked"], "sanitize": pc["sanitize"], "sensitivity_allowed": pc["sensitivity_allowed"],
-         "status": "review" if review else "ready", "health_state": h["state"], "created": time.time(), "ended": None,
+         "status": "ready", "health_state": h["state"], "created": time.time(), "ended": None,
          "events": [], "answer": "", "errors": [], "resume_session": resume_session, "provider_session": "",
-         "profile": profile, "isolation": iso}
+         "profile": profile, "isolation": iso, "project_dir": str(data_dir().resolve())}
     with _lock:
         REQS[rid] = r
     _session_add(sid, rid, provider)
@@ -162,10 +135,8 @@ def prepare(query: str, provider: str, role: str = "", session_id: str = "", rev
     return public(r)
 
 
-def public(r: dict, with_prompt: bool = True) -> dict:
+def public(r: dict) -> dict:
     out = {k: v for k, v in r.items() if k not in ("thread", "events")}
-    if not with_prompt:
-        out.pop("prompt", None)
     out["event_count"] = len(r.get("events") or [])
     return out
 
@@ -174,24 +145,25 @@ def get(rid: str) -> dict:
     if not RID_RE.match(rid or ""):
         raise GatewayError("Invalid request id")
     if rid in REQS:
-        return REQS[rid]
+        from backend.core.config import data_dir
+        cached = REQS[rid]
+        if cached.get("project_dir") and cached["project_dir"] != str(data_dir().resolve()):
+            raise GatewayError("Request not found")
+        return cached
     f = _dir("requests") / f"{rid}.json"
     if not f.exists():
         raise GatewayError("Request not found")
     return json.loads(f.read_text("utf-8"))
 
 
-def send(rid: str, edited_prompt: str | None = None, base_url: str = "", wait: bool = False) -> dict:
+def send(rid: str, base_url: str = "", mcp: dict | None = None, model: str = "", reasoning: str = "") -> dict:
+    """mcp={"token", "tools"} = an ephemeral session grant (agent/mcp_policy.py) instead of the global MCP token;
+    model / reasoning are passed to connectors that support them (providers.py advertises which)."""
     r = get(rid)
     if rid not in REQS:
         raise GatewayError("Request is no longer active (app restarted) — prepare it again")
-    if r["status"] not in ("review", "ready"):
+    if r["status"] != "ready":
         raise GatewayError(f"Request is {r['status']}")
-    if edited_prompt is not None:
-        from .policy import sanitize
-        r["prompt"], notes = sanitize(edited_prompt[:200_000])
-        r["edited"] = True
-        r["sanitize"] = sorted(set(r["sanitize"] + notes))
     conn = C.get(r["provider"])
     h = conn.health()
     if h["state"] in ("DISCONNECTED", "UNAVAILABLE", "AUTH_EXPIRED", "RATE_LIMITED", "ERROR"):
@@ -201,9 +173,9 @@ def send(rid: str, edited_prompt: str | None = None, base_url: str = "", wait: b
         _persist(r)
         audit("refused", request_id=rid, provider=r["provider"], status=h["state"])
         return public(r)  # never an automatic fallback — the researcher picks an alternative
-    from ..config import load_config
+    from backend.core.config import load_config
     mcfg = load_config()["mcp"]
-    from . import workspace as W
+    from backend.providers import cli_space as W
     profile = r.get("profile") or "review"
     sess = W.open_session(r["provider"], r["session_id"], profile, r.get("isolation"))
     W.stage_context(sess, rid, r["prompt"], {"provider": r["provider"], "session_id": r["session_id"],
@@ -214,28 +186,38 @@ def send(rid: str, edited_prompt: str | None = None, base_url: str = "", wait: b
     r["workspace"] = sess["dir"]
     ctx = {"request_id": rid, "resume_session": r.get("resume_session", ""), "cwd": sess["cwd"], "profile": profile,
            "_session": sess}
-    if base_url and mcfg.get("enabled") and mcfg.get("expose_research"):
+    if model:
+        ctx["model"] = model
+    if reasoning:
+        ctx["reasoning"] = reasoning
+    if base_url and mcfg.get("enabled") and mcfg.get("expose_research") and (mcp is None or mcp["tools"]):
         ctx["mcp_url"] = base_url.rstrip("/") + "/mcp"
-        ctx["mcp_token"] = mcfg.get("token", "")
+        ctx["mcp_token"] = mcp["token"] if mcp else mcfg.get("token", "")
+        if mcp:
+            ctx["mcp_tools"] = list(mcp["tools"])
     r["status"] = "running"
     r["started"] = time.time()
     th = threading.Thread(target=_run, args=(r, conn, ctx), daemon=True)
     r["thread"] = th
     th.start()
-    if wait:
-        th.join(timeout=float(load_config()["gateway"].get("provider_timeout_s", 600)))
     return public(r)
 
 
 def _run(r: dict, conn, ctx: dict) -> None:
-    from .. import model_lifecycle as LC
+    from backend.core.config import project_scope, data_dir
+    with project_scope(r.get("project_dir") or data_dir()):
+        _run_scoped(r, conn, ctx)
+
+
+def _run_scoped(r: dict, conn, ctx: dict) -> None:
+    from backend.providers import lifecycle as LC
     with LC.lease_sync("cli", r["provider"], r["session_id"], "interactive"):
         _run_inner(r, conn, ctx)
     LC.cli_remember(r["session_id"], r["provider"], r.get("provider_session", ""))
 
 
 def _run_inner(r: dict, conn, ctx: dict) -> None:
-    from ..telemetry import span
+    from backend.core.telemetry import span
     first = None
     t0 = time.perf_counter()
     text = []
@@ -273,7 +255,7 @@ def _run_inner(r: dict, conn, ctx: dict) -> None:
         r["ended"] = time.time()
         r["first_token_s"] = round(first, 3) if first is not None else None
         if ctx.get("_session"):
-            from .workspace import write_output
+            from backend.providers.cli_space import write_output
             write_output(ctx["_session"], r["id"], r["answer"], ctx.get("_stderr"))
         _persist(r)
         audit("completed", request_id=r["id"], provider=r["provider"], status=r["status"], session_id=r["session_id"],
@@ -283,9 +265,9 @@ def _run_inner(r: dict, conn, ctx: dict) -> None:
 
 def cancel(rid: str) -> dict:
     r = get(rid)
-    if r.get("status") not in ("running", "review", "ready"):
+    if r.get("status") not in ("running", "ready"):
         raise GatewayError(f"Request is {r.get('status')}")
-    if r["status"] in ("review", "ready"):
+    if r["status"] == "ready":
         r["status"] = "cancelled"
         _persist(r)
         return public(r)
@@ -298,47 +280,3 @@ def events(rid: str, after: int = 0) -> dict:
     r = get(rid)
     ev = (r.get("events") or [])[after:]
     return {"id": rid, "status": r.get("status"), "events": ev, "next": after + len(ev)}
-
-
-def compare(query: str, providers: list, role: str = "", session_id: str = "", review: bool | None = None,
-            base_url: str = "", profile: str = "", allow_weaker: bool = False) -> dict:
-    """Same canonical context → several providers. Answers stay separate; nothing is cross-forwarded."""
-    providers = list(dict.fromkeys(p for p in providers or [] if p))
-    if len(providers) < 2:
-        raise GatewayError("Pick at least two providers to compare")
-    cid = "cmp-" + secrets.token_hex(4)
-    sid = _session(session_id)
-    reqs = []
-    for p in providers:
-        try:
-            reqs.append(prepare(query, p, role=role, session_id=sid, review=review, compare_id=cid, profile=profile,
-                                allow_weaker=allow_weaker))
-        except (GatewayError, C.ProviderError) as e:
-            reqs.append({"provider": p, "status": "unavailable", "errors": [str(e)]})
-    prompts = {x.get("prompt") for x in reqs if x.get("prompt")}
-    for x in reqs:
-        if x.get("status") == "ready":
-            send(x["id"], base_url=base_url)
-    return {"compare_id": cid, "session_id": sid, "same_context": len(prompts) <= 1,
-            "requests": [_summary(get(x["id"])) if x.get("id") else x for x in reqs]}
-
-
-def propose(rid: str, kind: str, text: str, **payload) -> dict:
-    """Researcher picked part of a provider answer → memory CANDIDATE (classification + dedup + review)."""
-    from ..memory import lifecycle
-    r = get(rid)
-    if r.get("status") != "completed":
-        raise GatewayError("Only completed answers can be proposed to memory")
-    return lifecycle.propose(kind, {"text": text, **payload}, origin="provider", provider=r["provider"],
-                             session=r["session_id"], request_id=rid)
-
-
-def status() -> dict:
-    out = {}
-    for pid, c in C.CONNECTORS.items():
-        try:
-            out[pid] = {**c.health(), "capabilities": c.capabilities()}
-        except Exception as e:
-            out[pid] = {"provider": pid, "state": "ERROR", "detail": f"{type(e).__name__}: {e}"[:200]}
-    out["chatgpt_web"] = C.chatgpt_web_note()
-    return out

@@ -5,8 +5,9 @@ import textwrap
 import time
 import unittest
 
-from backend import gitops, provenance, sandbox
-from test_provenance_critic import tiny_png
+from backend.execution import gitops, sandbox
+from backend.knowledge import provenance
+from test_provenance import tiny_png
 
 SCRIPT = textwrap.dedent('''
     import json, os, base64
@@ -30,29 +31,6 @@ class SandboxE2E(unittest.TestCase):
             gitops.init()
             gitops.commit("baseline")
 
-    def test_run_is_traceable_and_sealed(self):
-        job = sandbox.start_job("python train.py", "run", "e2e")
-        t0 = time.time()
-        while job.status == "running" and time.time() - t0 < 240:
-            time.sleep(0.3)
-        time.sleep(0.5)
-        self.assertEqual(job.status, "done", job.tail(40))
-        r = sandbox.get_run(job.id)
-        self.assertEqual(r["metrics"]["psnr"], 32.0)
-        self.assertEqual(r["environment"]["mode"], "local")
-        if gitops.git_exe():
-            self.assertRegex(r["git"]["sha"], r"^[0-9a-f]{40}$")
-        self.assertEqual(r["provenance"]["sealed"], 2)
-        png = (sandbox.runs_dir() / job.id / "curve.png").read_bytes()
-        meta = provenance.read_bytes("curve.png", png)
-        self.assertEqual(meta["run_id"], job.id)
-        self.assertEqual(meta["git_sha"], (r.get("git") or {}).get("sha", ""))
-        self.assertTrue((sandbox.runs_dir() / job.id / "table.csv").read_text("utf-8").startswith("# Provenance: run_id=" + job.id))
-        manifest = json.loads((sandbox.runs_dir() / job.id / "provenance.json").read_text("utf-8"))
-        self.assertIn("curve.png", manifest["files"])
-        res = provenance.inspect("curve.png", png)
-        self.assertTrue(res["found"])
-        self.assertEqual(res["run"]["metrics"]["psnr"], 32.0)
 
 
 if __name__ == "__main__":

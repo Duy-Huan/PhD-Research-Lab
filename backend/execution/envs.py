@@ -81,7 +81,7 @@ def _candidates() -> list:
         except (OSError, subprocess.SubprocessError, ValueError):
             pass
     try:
-        from .sandbox import sb_dir
+        from backend.execution.sandbox import sb_dir
         for v in sb_dir().glob("venv*"):
             p = v / ("Scripts/python.exe" if IS_WIN else "bin/python")
             if p.exists():
@@ -156,73 +156,6 @@ CATALOG = [
 ]
 
 
-def valid_image(image: str) -> bool:
-    return bool(IMAGE_RE.match((image or "").strip())) and len(image or "") <= 255  # repository lowercase (Docker rule), tag any case
-
-
-def docker_catalog() -> dict:
-    from .sandbox import docker_exe, docker_running, list_images, load_settings
-    ok = bool(docker_exe()) and docker_running()
-    local = {f"{i['repo']}:{i['tag']}": i for i in (list_images() if ok else []) if i.get("repo") and i["repo"] != "<none>"}
-    rec = ""
-    try:
-        from .sysinfo import scan
-        rec = scan().get("recommendation", {}).get("sandbox", {}).get("image") or ""
-    except Exception:
-        pass
-    cat = [{**c, "present": c["image"] in local, "recommended": c["image"] == rec} for c in CATALOG]
-    if rec and not any(c["image"] == rec for c in cat):
-        cat.insert(0, {"image": rec, "gpu": "cuda" in rec, "group": "Recommended", "note": "recommended for this machine",
-                       "present": rec in local, "recommended": True})
-    extra = [{"image": k, "size": v.get("size"), "created": v.get("created"), "present": True} for k, v in sorted(local.items())
-             if not any(c["image"] == k for c in cat)]
-    return {"docker": ok, "current": load_settings().get("image") or rec, "recommended": rec, "catalog": cat, "local": extra}
-
-
-def hub_search(q: str, limit: int = 25) -> list:
-    """Docker Hub search through the docker CLI (official + community images, stars)."""
-    from .sandbox import docker
-    q = (q or "").strip()
-    if not re.fullmatch(r"[\w./-]{2,80}", q):
-        raise ValueError("Search for an image name, e.g. pytorch, tensorflow, nvidia/cuda")
-    code, out = docker(["search", "--no-trunc", "--limit", str(max(1, min(100, limit))), "--format", "{{json .}}", q], 40)
-    if code != 0:
-        raise ValueError(out.strip()[-300:] or "docker search failed")
-    res = []
-    for line in out.splitlines():
-        try:
-            d = json.loads(line)
-            res.append({"name": d.get("Name"), "description": (d.get("Description") or "")[:200], "stars": int(d.get("StarCount") or 0),
-                        "official": str(d.get("IsOfficial")).lower() in ("true", "[ok]", "ok")})
-        except (ValueError, TypeError):
-            pass
-    return res
-
-
-def hub_tags(repo: str, q: str = "", limit: int = 60) -> list:
-    """Tags of a Docker Hub repository (newest first), optionally filtered (e.g. 'cuda12')."""
-    import httpx
-    repo = (repo or "").strip().lower()
-    if not re.fullmatch(r"[a-z0-9][a-z0-9._-]*(/[a-z0-9][a-z0-9._-]*)?", repo):
-        raise ValueError("Docker Hub repository like pytorch/pytorch or python")
-    ns, name = (repo.split("/", 1) if "/" in repo else ("library", repo))
-    url = f"https://hub.docker.com/v2/repositories/{ns}/{name}/tags"
-    try:
-        r = httpx.get(url, params={"page_size": 100, "ordering": "last_updated", **({"name": q} if q else {})}, timeout=15)
-    except httpx.HTTPError as e:
-        raise ValueError(f"Docker Hub is not reachable ({type(e).__name__})")
-    if r.status_code == 404:
-        raise ValueError(f"{repo} not found on Docker Hub")
-    if r.status_code >= 300:
-        raise ValueError(f"Docker Hub answered HTTP {r.status_code}")
-    out = []
-    for t in r.json().get("results", [])[:limit]:
-        size = max((im.get("size") or 0 for im in t.get("images") or []), default=0)
-        out.append({"tag": t.get("name"), "image": f"{repo}:{t.get('name')}", "updated": (t.get("last_updated") or "")[:10],
-                    "size_gb": round(size / 1e9, 2) if size else None})
-    return out
-
-
 # ------------------------------------------------------------------ smart choice
 def gpu_present() -> bool:
     return bool(shutil.which("nvidia-smi"))
@@ -230,7 +163,7 @@ def gpu_present() -> bool:
 
 def choose(settings: dict, plan: dict | None = None) -> tuple[str, str]:
     """(mode, reason) for one run. Explicit choices win; 'auto' looks at the code and the machine."""
-    from .sandbox import docker_exe, docker_running
+    from backend.execution.sandbox import docker_exe, docker_running
     mode = settings.get("mode", "auto")
     if mode in ("docker", "local"):
         return mode, "chosen in the environment settings"
@@ -245,8 +178,8 @@ def choose(settings: dict, plan: dict | None = None) -> tuple[str, str]:
 
 def summary() -> dict:
     """What the Workspace panel shows: the active choice, interpreters, Docker state and the dependency plan."""
-    from . import deps
-    from .sandbox import code_dir, docker_exe, docker_running, effective_image, load_settings, local_python_info
+    from backend.execution import deps
+    from backend.execution.sandbox import code_dir, docker_exe, docker_running, effective_image, load_settings, local_python_info
     s = load_settings()
     plan = deps.plan_cached(code_dir())
     mode, why = choose(s, plan)

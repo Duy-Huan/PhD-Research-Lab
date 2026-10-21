@@ -7,8 +7,8 @@ import re
 import zipfile
 from datetime import date
 
-from .config import refs_dir, workspace
-from .library import build_bibtex, included
+from backend.core.config import refs_dir, workspace
+from backend.knowledge.library import build_bibtex, included
 
 
 SECTIONS = [
@@ -50,7 +50,7 @@ def load_project() -> dict:
             else:
                 raise ValueError("project.json is not an object")
         except ValueError:
-            from .memory.store import quarantine
+            from backend.memory.store import quarantine
             quarantine(pp)  # keep the damaged paper: the next save would otherwise replace it with an empty project
         except OSError:
             pass
@@ -59,7 +59,7 @@ def load_project() -> dict:
 
 def save_project(p: dict) -> dict:
     """Atomic write (tmp + replace): a crash or a full disk never leaves a half-written paper behind."""
-    from .memory.store import replace_retry
+    from backend.memory.store import replace_retry
     pp = workspace() / "project.json"
     tmp = pp.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(p, indent=2, ensure_ascii=False), "utf-8")
@@ -69,11 +69,6 @@ def save_project(p: dict) -> dict:
 
 def write_ws(name: str, text: str) -> None:
     (workspace() / name).write_text(text, "utf-8")
-
-
-def read_ws(name: str) -> str:
-    f = workspace() / name
-    return f.read_text("utf-8") if f.exists() else ""
 
 
 # ---------------------------------------------------------------- cleaning
@@ -291,7 +286,7 @@ def build_zip() -> bytes:
         z.writestr("references.bib", bib)
         z.writestr("README.md", readme)
         z.writestr("references/", "")
-        from .results import figure_files
+        from backend.paper.results import figure_files
         for src, rel in figure_files([main]):
             z.write(src, rel)
         for e in included():

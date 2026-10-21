@@ -24,8 +24,8 @@ from urllib.parse import urlparse
 
 import httpx
 
-from .config import refs_dir, workspace
-from .library import load_library, pdf_text
+from backend.core.config import refs_dir, workspace
+from backend.knowledge.library import load_library, pdf_text
 
 MAX_UPLOAD = 25 * 1024 * 1024
 MAX_TEXT = 200_000
@@ -54,7 +54,7 @@ def _index() -> dict:
         d = json.loads(p.read_text("utf-8"))
         return d if isinstance(d, dict) else {}
     except ValueError:
-        from .memory.store import quarantine
+        from backend.memory.store import quarantine
         quarantine(p)  # never let the next upload overwrite the only copy of every attachment's metadata
         return {}
     except OSError:
@@ -96,13 +96,6 @@ def get_text(att_id: str) -> str:
     get_meta(att_id)
     f = _dir() / f"{att_id}.txt"
     return f.read_text("utf-8") if f.exists() else ""
-
-
-def raw_path(att_id: str) -> Path:
-    m = get_meta(att_id)
-    if not m.get("stored"):
-        raise AttachmentError("No stored file for this attachment")
-    return _dir() / m["stored"]
 
 
 # ------------------------------------------------------------------ extraction
@@ -250,108 +243,5 @@ def add_upload(filename: str, data: bytes) -> dict:
     return _register(meta, text[:MAX_TEXT])
 
 
-async def add_link(url: str) -> dict:
-    url = (url or "").strip()
-    u = urlparse(url)
-    if u.scheme not in ("http", "https") or not u.netloc:
-        raise AttachmentError("Only http(s) links are supported")
-    headers = {"User-Agent": "Mozilla/5.0 (PhD-Research-Lab; +local)", "Accept": "text/html,application/pdf,*/*"}
-    try:
-        async with httpx.AsyncClient(timeout=25, follow_redirects=True, headers=headers) as c:
-            r = await c.get(url)
-    except httpx.HTTPError as e:
-        raise AttachmentError(f"Could not fetch {url}: {e}")
-    if r.status_code >= 400:
-        raise AttachmentError(f"{url} returned HTTP {r.status_code}")
-    data = r.content[:MAX_UPLOAD]
-    ctype = r.headers.get("content-type", "").lower()
-    att_id = secrets.token_hex(6)
-    final = str(r.url)
-    meta = {"id": att_id, "url": final, "size": len(data)}
-    if "pdf" in ctype or final.lower().endswith(".pdf") or data[:4] == b"%PDF":
-        stored = f"{att_id}.pdf"
-        (_dir() / stored).write_bytes(data)
-        try:
-            text, pages = pdf_text(_dir() / stored)
-        except Exception as e:  # damaged / HTML-masquerading PDF: a clear error, not a server crash
-            (_dir() / stored).unlink(missing_ok=True)
-            raise AttachmentError(f"{url}: could not read the PDF ({type(e).__name__})")
-        name = Path(urlparse(final).path).name or "document.pdf"
-        meta.update({"name": name, "kind": "link", "title": name, "stored": stored, "pages": pages})
-    elif ctype.startswith("image/"):
-        ext = "." + ctype.split("/")[1].split(";")[0].replace("jpeg", "jpg")
-        stored = f"{att_id}{ext}"
-        (_dir() / stored).write_bytes(data)
-        meta.update({"name": Path(urlparse(final).path).name or "image", "kind": "image", "stored": stored,
-                     "media_type": ctype.split(";")[0], "title": final})
-        text = ""
-    else:
-        try:
-            raw = data.decode(r.encoding or "utf-8", errors="replace")
-        except LookupError:  # a server announcing an unknown charset
-            raw = data.decode("utf-8", errors="replace")
-        title, text = html_to_text(raw) if "html" in ctype or "<html" in raw[:2000].lower() else ("", raw)
-        meta.update({"name": title or u.netloc, "kind": "link", "title": title or final})
-    if meta["kind"] != "image" and not text.strip():
-        raise AttachmentError("The page has no readable text (it may need JavaScript or a login)")
-    return _register(meta, text[:MAX_TEXT])
-
-
-def add_library_paper(file: str, max_pages: int = 20) -> dict:
-    name = Path(file or "").name
-    path = refs_dir() / name
-    if not path.exists():
-        raise AttachmentError(f"{name} is not in this project's references folder")
-    entry = load_library().get(name, {})
-    text, pages = pdf_text(path, max_pages=max_pages)
-    if not text.strip():
-        raise AttachmentError(f"{name}: no extractable text")
-    head = (f"Title: {entry.get('title', name)}\nAuthors: {', '.join(entry.get('authors', []))}\n"
-            f"Venue: {entry.get('venue', '')} ({entry.get('year', '')})\nBibTeX key: {entry.get('key', '')}\n\n")
-    meta = {"id": secrets.token_hex(6), "name": name, "kind": "paper", "size": path.stat().st_size,
-            "title": entry.get("title", name), "key": entry.get("key", ""), "pages": pages, "ref_file": name}
-    return _register(meta, head + text)
-
-
 # ------------------------------------------------------------------ prompt assembly
 SAFE_FIELDS = ("id", "name", "kind", "size", "chars", "url", "title", "media_type", "key", "pages")
-
-
-def clean_refs(atts) -> list:
-    """Sanitised attachment references as stored inside chat messages."""
-    out = []
-    for a in atts or []:
-        if isinstance(a, dict) and re.fullmatch(r"[a-f0-9]{12}", str(a.get("id", ""))):
-            out.append({k: a[k] for k in SAFE_FIELDS if k in a and isinstance(a[k], (str, int, float))})
-    return out[:20]
-
-
-def render_for_llm(atts: list, budget: int) -> tuple[str, list, int]:
-    """Text block + image list for one message within a char budget. Returns (text, images, used)."""
-    blocks, images, used = [], [], 0
-    for a in atts or []:
-        try:
-            m = get_meta(a["id"])
-        except (AttachmentError, KeyError):
-            continue
-        if m["kind"] == "image":
-            try:
-                data = raw_path(m["id"]).read_bytes()
-                if len(data) <= 5 * 1024 * 1024:
-                    images.append({"media_type": m.get("media_type", "image/png"),
-                                   "data": base64.b64encode(data).decode(), "name": m["name"]})
-            except (AttachmentError, OSError):
-                pass
-            continue
-        text = get_text(m["id"])
-        room = max(0, budget - used)
-        if room < 500:
-            blocks.append(f'<attachment name="{m["name"]}" omitted="context budget exceeded"/>')
-            continue
-        cut = text[:room]
-        used += len(cut)
-        src = f' url="{m["url"]}"' if m.get("url") else ""
-        key = f' bib_key="{m["key"]}"' if m.get("key") else ""
-        more = f"\n…[truncated: {len(text) - len(cut):,} more characters]" if len(cut) < len(text) else ""
-        blocks.append(f'<attachment name="{m["name"]}" type="{m["kind"]}"{src}{key}>\n{cut}{more}\n</attachment>')
-    return "\n\n".join(blocks), images, used

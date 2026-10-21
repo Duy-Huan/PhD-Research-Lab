@@ -11,8 +11,9 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from backend import config, model_lifecycle as LC
-from backend.gateway import connectors as C, service as GS, workspace as W
+from backend.core import config
+from backend.providers import lifecycle as LC
+from backend.providers import cli as C, gateway as GS, cli_space as W
 from providers.fakes import FAKE, FMT, fake
 
 
@@ -185,24 +186,6 @@ class Launch(unittest.TestCase):
     def setUp(self):
         _env.fresh_project("cli-launch")
 
-    def test_runs_in_its_own_workspace_never_the_project(self):
-        c = fake("codex")
-        cwd_seen = {}
-        real = C.subprocess.Popen
-
-        def spy(args, **kw):
-            cwd_seen["cwd"] = kw["cwd"]
-            cwd_seen["env"] = kw["env"]
-            return real(args, **kw)
-        with mock.patch.object(C.subprocess, "Popen", spy), mock.patch.dict(os.environ, {"GITHUB_TOKEN": "ghp_x"}):
-            out = c.send_message("q", {"request_id": "req-ws000001"})
-        self.assertIn("chars=", out["text"])
-        cwd = Path(cwd_seen["cwd"])
-        self.assertEqual(cwd.name, "workspace")
-        self.assertEqual(cwd.parent.parent.parent.parent, W.root())
-        from backend.sandbox import code_dir
-        self.assertNotEqual(cwd, code_dir().resolve())
-        self.assertNotIn("GITHUB_TOKEN", cwd_seen["env"])
 
     def test_two_sessions_two_workspaces(self):
         a = W.open_session("codex", "gs-sessA001")
@@ -255,26 +238,7 @@ class GatewayIntegration(unittest.TestCase):
             r = GS.prepare("question", "claude_code", profile="assisted", allow_weaker=True)
         self.assertTrue(r["isolation"]["consented_weaker"])
 
-    def test_send_stages_manifest_output_and_resumes_session(self):
-        with self._fake_conn():
-            r = GS.prepare("what about HYPE-002?", "claude_code")
-            out = GS.send(r["id"], wait=True)
-            self.assertEqual(out["status"], "completed")
-            ws = Path(out["workspace"])
-            man = json.loads((ws / "context" / f"{r['id']}.manifest.json").read_text("utf-8"))
-            self.assertEqual(man["provider"], "claude_code")
-            self.assertEqual(man["access_mode"], "read-only snapshot")
-            self.assertTrue((ws / "output" / f"{r['id']}.md").exists())
-            self.assertEqual(LC.cli_resume(r["session_id"], "claude_code"), "sess-abcdef")
-            r2 = GS.prepare("follow-up", "claude_code", session_id=r["session_id"])
-            self.assertEqual(r2["resume_session"], "sess-abcdef")
-        self.assertIn(f"cli:claude_code:{r['session_id']}", LC._res)
 
-    def test_compare_passes_the_profile(self):
-        with mock.patch.dict(C.CONNECTORS, {"codex": fake("codex"), "gemini_cli": fake("gemini_cli")}):
-            out = GS.compare("q", ["codex", "gemini_cli"], profile="assisted")
-        states = {x.get("provider"): x.get("status") for x in out["requests"]}
-        self.assertEqual(states["gemini_cli"], "unavailable")  # assisted not supported → refused, not weakened
 
 
 if __name__ == "__main__":

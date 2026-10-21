@@ -10,7 +10,7 @@ import shutil
 import time
 from pathlib import Path
 
-from .sandbox import code_dir
+from backend.execution.sandbox import code_dir
 
 IGNORE_DIRS = {".git", "__pycache__", ".ipynb_checkpoints", ".trash", "node_modules", ".venv", "venv", ".mypy_cache", ".pytest_cache"}
 TEXT_EXT = {".py", ".txt", ".md", ".json", ".yaml", ".yml", ".toml", ".cfg", ".ini", ".tex", ".bib", ".sh", ".bat", ".csv",

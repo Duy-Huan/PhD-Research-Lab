@@ -14,9 +14,9 @@ from pathlib import Path
 
 import httpx
 
-from .config import load_config
-from .ide_fs import GITIGNORE
-from .sandbox import code_dir
+from backend.core.config import load_config
+from backend.execution.files import GITIGNORE
+from backend.execution.sandbox import code_dir
 
 NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 API = "https://api.github.com"
@@ -163,89 +163,4 @@ def commit(message: str, paths: list | None = None) -> dict:
     if not staged:
         raise GitError("Nothing to commit")
     G(["-c", f"user.name={name}", "-c", f"user.email={email}", "commit", "-m", message.strip()])
-    return status()
-
-
-def discard(path: str) -> dict:
-    """Revert ONE file to its last commit. The path must name a file inside the workspace: an empty path or "."
-    would otherwise discard every uncommitted change of the project."""
-    root = code_dir().resolve()
-    p = (root / (path or "")).resolve()
-    if not path or not path.strip() or p == root or root not in p.parents or p.is_dir():
-        raise GitError("Choose one file to discard (folders and the whole workspace cannot be discarded at once)")
-    G(["checkout", "--", str(p.relative_to(root)).replace("\\", "/")])
-    return status()
-
-
-def _token() -> str:
-    tok = load_config().get("github", {}).get("token", "")
-    if not tok:
-        raise GitError("Add a GitHub Personal Access Token first (Source Control → ⚙ GitHub settings). "
-                       "Fine-grained token with 'Contents: read & write' and 'Administration: read & write' (to create repos), "
-                       "or a classic token with the 'repo' scope.")
-    return tok
-
-
-def _auth_header(tok: str) -> str:
-    b = base64.b64encode(f"x-access-token:{tok}".encode()).decode()
-    return f"http.https://github.com/.extraheader=AUTHORIZATION: basic {b}"
-
-
-def gh_user(tok: str | None = None) -> dict:
-    tok = tok or _token()
-    r = httpx.get(f"{API}/user", headers={"Authorization": f"Bearer {tok}", "Accept": "application/vnd.github+json",
-                                          "X-GitHub-Api-Version": "2022-11-28"}, timeout=20)
-    if r.status_code == 401:
-        raise GitError("GitHub rejected the token (401) — check it has not expired")
-    if r.status_code >= 300:
-        raise GitError(f"GitHub error {r.status_code}: {r.text[:200]}")
-    d = r.json()
-    return {"login": d.get("login"), "name": d.get("name"), "html_url": d.get("html_url")}
-
-
-def publish(repo: str, private: bool = True, description: str = "") -> dict:
-    """Create the GitHub repository (or reuse an existing one you own) and push the current branch."""
-    tok = _token()
-    repo = re.sub(r"[^A-Za-z0-9._-]+", "-", repo.strip()).strip("-.") or "research-code"
-    if not is_repo():
-        init()
-    if not G(["rev-parse", "--verify", "HEAD"], check=False).strip():
-        commit("Initial commit (PhD Research Lab)")
-    user = gh_user(tok)
-    h = {"Authorization": f"Bearer {tok}", "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"}
-    r = httpx.post(f"{API}/user/repos", headers=h, json={"name": repo, "private": bool(private), "description": description[:300],
-                                                         "auto_init": False}, timeout=30)
-    created = r.status_code == 201
-    if r.status_code == 422:  # already exists
-        r2 = httpx.get(f"{API}/repos/{user['login']}/{repo}", headers=h, timeout=20)
-        if r2.status_code != 200:
-            raise GitError(f"GitHub: {r.json().get('message', r.text)[:300]}")
-        info = r2.json()
-    elif r.status_code in (401, 403):
-        raise GitError("The token cannot create repositories (needs 'Administration: write' or classic 'repo' scope).")
-    elif not created:
-        raise GitError(f"GitHub error {r.status_code}: {r.text[:300]}")
-    else:
-        info = r.json()
-    url = f"https://github.com/{user['login']}/{repo}.git"
-    remotes = G(["remote"], check=False).split()
-    G(["remote", "set-url" if "origin" in remotes else "add", "origin", url])
-    branch = G(["rev-parse", "--abbrev-ref", "HEAD"]).strip() or "main"
-    G(["push", "-u", "origin", f"HEAD:{branch}"], timeout=600, extra_config=[_auth_header(tok)])
-    return {"created": created, "html_url": info.get("html_url") or url[:-4], "private": info.get("private", private),
-            "branch": branch, "status": status()}
-
-
-def push() -> dict:
-    tok = _token()
-    if "origin" not in G(["remote"], check=False).split():
-        raise GitError("No GitHub remote yet — use Publish to GitHub first")
-    branch = G(["rev-parse", "--abbrev-ref", "HEAD"]).strip()
-    G(["push", "-u", "origin", f"HEAD:{branch}"], timeout=600, extra_config=[_auth_header(tok)])
-    return status()
-
-
-def pull() -> dict:
-    tok = _token()
-    G(["pull", "--ff-only"], timeout=600, extra_config=[_auth_header(tok)])
     return status()

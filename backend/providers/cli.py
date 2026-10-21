@@ -24,6 +24,7 @@ Policy (non-negotiable, v3.4 §0):
 from __future__ import annotations
 
 import json
+import base64
 import os
 import re
 import secrets
@@ -33,8 +34,8 @@ import tempfile
 import threading
 from pathlib import Path
 
-from ..integrations.base import NO_WINDOW, cached, run_cli, which
-from . import events as E
+from backend.execution.tools import NO_WINDOW, cached, node_argv, run_cli, which
+from backend.providers import events as E
 
 HEALTH = ("CONNECTED", "DISCONNECTED", "AUTH_EXPIRED", "RATE_LIMITED", "UNAVAILABLE", "ERROR", "UNKNOWN")
 NOT_SUPPORTED = "NOT_SUPPORTED"
@@ -66,7 +67,7 @@ def classify_error(text: str) -> str:
 
 
 def _gw() -> dict:
-    from ..config import load_config
+    from backend.core.config import load_config
     return load_config()["gateway"]
 
 
@@ -76,7 +77,13 @@ def kill_tree(proc) -> None:
         if proc.poll() is not None:
             return
         if sys.platform.startswith("win"):
-            subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)], capture_output=True, creationflags=NO_WINDOW)
+            try:
+                subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)], capture_output=True,
+                               creationflags=NO_WINDOW, timeout=5)
+            except (OSError, subprocess.TimeoutExpired):
+                pass
+            if proc.poll() is None:
+                proc.kill()  # taskkill may be denied or unavailable; still terminate our own child promptly
         else:  # pragma: no cover - POSIX
             proc.kill()
     except Exception:  # pragma: no cover
@@ -109,45 +116,17 @@ class ProviderConnector:
     def capabilities(self) -> dict:
         return {c: NOT_SUPPORTED for c in CAPS} | {"health": True, "capabilities": True}
 
-    def health(self) -> dict:
+    def health(self, fresh: bool = False) -> dict:
         return {"provider": self.provider_id, "state": "UNKNOWN", "detail": ""}
 
     def connect(self, launch: bool = False) -> dict:
         raise ProviderError(NOT_SUPPORTED)
-
-    def disconnect(self, revoke: bool = False) -> dict:
-        from ..config import save_config
-        save_config({"gateway": {f"{self.provider_id}_enabled": False}})
-        return {"provider": self.provider_id, "state": "DISCONNECTED",
-                "detail": "PhD-Lab will no longer use this provider. Its own sign-in is unchanged (sign out in the vendor's app/CLI)."}
-
-    def start_session(self, context: dict) -> dict:
-        return {"provider": self.provider_id, "session_id": "", "note": "sessions are created on the first message"}
-
-    def send_message(self, message: str, context: dict) -> dict:
-        text, final, usage, session, errors = [], "", {}, "", []
-        for e in self.stream_message(message, context):
-            if e["type"] == "text_delta":
-                text.append(e.get("text", ""))
-                if e.get("final"):
-                    final = e.get("text", "")
-            elif e["type"] == "status" and e.get("state") == "result":
-                final, usage = e.get("final_text", final), e.get("usage", usage)
-            elif e["type"] == "status" and e.get("state") == "session":
-                session = e.get("session_id", session)
-            elif e["type"] == "error":
-                errors.append(e.get("message", ""))
-        return {"provider": self.provider_id, "text": final or "".join(text), "usage": usage, "session_id": session, "errors": errors}
 
     def stream_message(self, message: str, context: dict):
         raise ProviderError(f"{self.label}: {NOT_SUPPORTED}", "ERROR")
 
     def cancel(self, request_id: str) -> dict:
         return {"provider": self.provider_id, "cancelled": False, "detail": NOT_SUPPORTED}
-
-    def mcp_registration(self, base_url: str, token: str = "") -> dict:
-        return {"provider": self.provider_id, "supported": False}
-
 
 # ------------------------------------------------------------------ CLI-backed connectors
 class CLIConnector(ProviderConnector):
@@ -165,7 +144,7 @@ class CLIConnector(ProviderConnector):
     def env(self) -> dict:
         """v4.1: an allowlisted environment (workspace.minimal_env) — credentials, cloud keys and unrelated variables
         never reach the CLI. Cost guard: the provider's own API-key variables pass only with <provider>_api_fallback."""
-        from .workspace import minimal_env
+        from backend.providers.cli_space import minimal_env
         return minimal_env(set(self.api_env) if self.api_fallback() else set())
 
     def _probe(self) -> dict:
@@ -179,19 +158,26 @@ class CLIConnector(ProviderConnector):
         """(state, detail) — CLIs without a status command are UNKNOWN until the first request proves the sign-in."""
         return "UNKNOWN", "signed-in state is verified by the first request"
 
-    def health(self) -> dict:
+    def health(self, fresh: bool = False) -> dict:
         base = {"provider": self.provider_id, "label": self.label, "path": self.path,
                 "billing": "API key (fallback enabled)" if self.api_fallback() else "subscription sign-in only (API keys removed)",
                 "api_fallback": self.api_fallback()}
         if not self.enabled():
             return {**base, "state": "DISCONNECTED", "detail": "disabled in PhD-Lab (gateway settings)"}
-        p = cached(f"gw:{self.provider_id}:{self.binary()}", 60, self._probe)
+        key = f"gw:{self.provider_id}:{self.binary()}"
+        if fresh:
+            from backend.execution.tools import _cache
+            _cache.pop(key, None)
+        p = cached(key, 300, self._probe)
         if not p.get("bin"):
             return {**base, "state": "UNAVAILABLE", "detail": f"`{self.binaries[0]}` CLI not found on PATH", "setup": self.setup()}
         if not p.get("ok"):
             return {**base, "state": "ERROR", "detail": f"`{self.binaries[0]} --version` failed", "setup": self.setup()}
         state, detail = self.auth_state(p)
         last = _last_error.get(self.provider_id)
+        if fresh and state == "CONNECTED":
+            _last_error.pop(self.provider_id, None)
+            last = None
         if last and state in ("CONNECTED", "UNKNOWN"):
             state, detail = last
         return {**base, "state": state, "detail": detail, "version": p.get("version", ""), "setup": self.setup()}
@@ -207,10 +193,14 @@ class CLIConnector(ProviderConnector):
         out = {"provider": self.provider_id, "action": "sign_in_with_vendor", "command": self.login_cmd,
                "detail": "Sign in through the vendor's own browser flow. PhD-Lab never sees your password or tokens."}
         if launch and sys.platform.startswith("win") and self.binary():
-            subprocess.Popen(["cmd", "/c", "start", "", "cmd", "/k", self.login_cmd], creationflags=NO_WINDOW)
+            parts = [self.binary(), *self.login_cmd.split()[1:]]
+            command = "& " + " ".join("'" + part.replace("'", "''") + "'" for part in parts)
+            encoded = base64.b64encode(command.encode("utf-16le")).decode("ascii")
+            subprocess.Popen(["powershell.exe", "-NoLogo", "-NoExit", "-EncodedCommand", encoded],
+                             creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
             out["launched"] = True
         _last_error.pop(self.provider_id, None)
-        from ..config import save_config
+        from backend.core.config import save_config
         save_config({"gateway": {f"{self.provider_id}_enabled": True}})
         return out
 
@@ -225,7 +215,7 @@ class CLIConnector(ProviderConnector):
         if h["state"] in ("DISCONNECTED", "UNAVAILABLE", "ERROR"):
             raise ProviderError(f"{self.label} is {h['state']}: {h['detail']}", h["state"])
         rid = context.get("request_id") or "req-" + secrets.token_hex(6)
-        from . import workspace as W
+        from backend.providers import cli_space as W
         profile = context.get("profile") or "review"
         if not context.get("cwd"):  # never the project / app folder: an ad-hoc session workspace instead
             try:
@@ -236,7 +226,11 @@ class CLIConnector(ProviderConnector):
         cwd = Path(context["cwd"]).resolve()
         if not cwd.is_dir() or cwd.name != "workspace" or cwd.parent.parent.parent.parent != W.root():
             raise ProviderError("CLI working directory is not a PhD-Lab session workspace", "ERROR")
+        from backend.providers import firewall
+        mcp = {"url": context["mcp_url"], "token": context.get("mcp_token", "")} if context.get("mcp_url") else None
+        extra = firewall.prepare_workspace(self.provider_id, cwd, mcp)["argv"]
         args = self.argv(context)
+        args = (args[:-1] + extra + ["-"]) if args and args[-1] == "-" else args + extra
         try:
             proc = subprocess.Popen(args, cwd=str(cwd), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                     text=True, encoding="utf-8", errors="replace", bufsize=1, env=self.env(), creationflags=NO_WINDOW)
@@ -274,6 +268,12 @@ class CLIConnector(ProviderConnector):
                     yield E.ev("text_delta", text=line + "\n")
                     continue
                 for e in norm(raw) if isinstance(raw, dict) else []:
+                    bad = firewall.violation(f"{e.get('name', '')} {e.get('detail', '')}") if e["type"] == "tool_call" else ""
+                    if bad:  # layer 5: the agent named the app's source / a secret → stop it now (fail closed)
+                        kill_tree(proc)
+                        yield E.ev("error", message=f"firewall: {self.label} tried to access {bad} — stopped", state="ERROR")
+                        yield E.ev("request_completed", provider=self.provider_id, request_id=rid, exit_code=-1)
+                        return
                     if e["type"] == "error":
                         errored = True
                         st = classify_error(e.get("message", ""))
@@ -333,12 +333,12 @@ class CodexConnector(CLIConnector):
     supports_resume = True
 
     def binary(self):
-        from ..integrations.agents import CodexBackend
-        return CodexBackend().binary()
+        from backend.core.config import load_config
+        b = ((load_config().get("codex") or {}).get("binary") or "").strip()
+        return b if b and re.search(r"codex", b, re.I) else which("codex")
 
     def _prefix(self) -> list:
-        from ..integrations.agents import CodexBackend
-        return CodexBackend().argv()
+        return node_argv(self.binary(), "@openai/codex/bin/codex.js")
 
     def _probe(self) -> dict:
         pre = self._prefix()
@@ -363,7 +363,7 @@ class CodexConnector(CLIConnector):
         mode = "workspace-write" if context.get("profile") == "assisted" else "read-only"
         args = self._prefix() + ["exec", "--json", "--sandbox", mode, "--skip-git-repo-check"]
         if sys.platform.startswith("win"):
-            from ..config import load_config
+            from backend.core.config import load_config
             ws = load_config()["codex"].get("windows_sandbox") or "unelevated"
             if ws != "config":
                 args += ["-c", f"windows.sandbox={ws}"]
@@ -372,14 +372,9 @@ class CodexConnector(CLIConnector):
                                      context["resume_session"]]
         if context.get("model"):
             args += ["-m", str(context["model"])[:80]]
+        if context.get("reasoning") in ("low", "medium", "high"):  # v4.2: Codex config key model_reasoning_effort
+            args += ["-c", f"model_reasoning_effort={context['reasoning']}"]
         return args + ["-"]
-
-    def mcp_registration(self, base_url: str, token: str = "") -> dict:
-        bridge = str(Path(__file__).resolve().parents[2] / "mcp_stdio_bridge.py").replace("\\", "/")
-        env = f'env = {{ PHDLAB_MCP_URL = "{base_url}/mcp"' + (', PHDLAB_MCP_TOKEN = "<token>"' if token else "") + " }"
-        return {"provider": self.provider_id, "supported": True, "file": "~/.codex/config.toml",
-                "snippet": f'[mcp_servers.phd-research-lab]\ncommand = "python"\nargs = ["{bridge}"]\n{env}\n'}
-
 
 class ClaudeCodeConnector(CLIConnector):
     provider_id, label, vendor = "claude_code", "Claude (Claude Code CLI)", "Anthropic"
@@ -389,6 +384,42 @@ class ClaudeCodeConnector(CLIConnector):
                "CLAUDE_CODE_USE_VERTEX", "CLAUDE_CODE_USE_FOUNDRY")
     supports_resume = True
     WRITE_TOOLS = ("Edit", "Write", "MultiEdit", "NotebookEdit")
+
+    def binary(self) -> str | None:
+        found = super().binary()
+        if found:
+            return found
+        # The official native installer uses ~/.local/bin; a running desktop app may have an older PATH.
+        native = Path.home() / ".local" / "bin" / ("claude.exe" if sys.platform.startswith("win") else "claude")
+        return str(native) if native.is_file() else None
+
+    def _probe(self) -> dict:
+        p = super()._probe()
+        if not p.get("ok"):
+            return p
+        code, output = run_cli(node_argv(self.binary(), "@anthropic-ai/claude-code/cli.js") + ["auth", "status", "--json"], 20)
+        try:
+            auth = json.loads(output)
+            if isinstance(auth, dict) and isinstance(auth.get("loggedIn"), bool):
+                # The status may include an email / organization. Retain only the fields needed by the health check.
+                p["auth"] = {k: auth.get(k) for k in ("loggedIn", "authMethod", "apiProvider")}
+                p["auth_code"] = code
+        except ValueError:
+            pass  # older CLI versions have no auth status command: report UNKNOWN until the first request
+        return p
+
+    def auth_state(self, probe: dict) -> tuple[str, str]:
+        auth = probe.get("auth")
+        if not auth:
+            return super().auth_state(probe)
+        if not auth["loggedIn"]:
+            return "AUTH_EXPIRED", "run `claude auth login` (Claude subscription sign-in)"
+        method = auth.get("authMethod")
+        if method in ("api_key", "api_key_helper", "third_party") and not self.api_fallback():
+            return "ERROR", "Claude Code uses API billing. Sign in with a Claude subscription or enable claude_code_api_fallback."
+        if probe.get("auth_code") == 0 and (method in ("claude.ai", "oauth_token") or self.api_fallback()):
+            return "CONNECTED", "sign-in configured (model access is verified by the first request)"
+        return super().auth_state(probe)
 
     def setup(self) -> list:
         return ["Install Claude Code (https://code.claude.com/docs)", "run `claude` once and sign in with your Claude account (/login)"]
@@ -402,7 +433,8 @@ class ClaudeCodeConnector(CLIConnector):
             f = Path(tempfile.gettempdir()) / f"phdlab-mcp-{secrets.token_hex(4)}.json"
             f.write_text(json.dumps(cfg), "utf-8")
             context["_tmpfile"] = str(f)  # removed when the request ends
-            args += ["--mcp-config", str(f), "--allowedTools", ",".join(f"mcp__phd-research-lab__{t}" for t in READ_TOOLS)]
+            tools = context["mcp_tools"] if "mcp_tools" in context else READ_TOOLS  # v4.2: the session's MCP allowlist
+            args += ["--mcp-config", str(f), "--allowedTools", ",".join(f"mcp__phd-research-lab__{t}" for t in tools)]
         if context.get("profile") == "assisted":  # writes only inside the session workspace (permission rules)
             args += ["--permission-mode", "acceptEdits", "--disallowedTools", "Bash"]
         else:  # review: no shell, no file writes
@@ -412,12 +444,6 @@ class ClaudeCodeConnector(CLIConnector):
         if context.get("model"):
             args += ["--model", str(context["model"])[:80]]
         return args
-
-    def mcp_registration(self, base_url: str, token: str = "") -> dict:
-        hdr = ' --header "Authorization: Bearer <token>"' if token else ""
-        return {"provider": self.provider_id, "supported": True,
-                "command": f"claude mcp add --transport http phd-research-lab {base_url}/mcp{hdr}"}
-
 
 class AntigravityConnector(CLIConnector):
     provider_id, label, vendor = "antigravity", "Google Antigravity (MCP + agy CLI)", "Google"
@@ -436,8 +462,8 @@ class AntigravityConnector(CLIConnector):
         except (OSError, ValueError):
             return False
 
-    def health(self) -> dict:
-        h = super().health()
+    def health(self, fresh: bool = False) -> dict:
+        h = super().health(fresh)
         h["mcp_registered"] = self.mcp_registered()
         if h["state"] == "UNAVAILABLE" and h["mcp_registered"]:
             h.update(state="CONNECTED", detail="MCP client path configured (agy CLI not installed: headless send not available)")
@@ -464,32 +490,6 @@ class AntigravityConnector(CLIConnector):
     def stdin_payload(self, message: str, context: dict) -> str:
         return json.dumps({"event": "user", "message": {"content": message}}) + "\n"
 
-    def mcp_registration(self, base_url: str, token: str = "") -> dict:
-        entry = {"serverUrl": f"{base_url}/mcp"}
-        if token:
-            entry["headers"] = {"Authorization": "Bearer <token>"}
-        return {"provider": self.provider_id, "supported": True, "file": str(self.config_path()),
-                "workspace_file": ".agents/mcp_config.json", "snippet": {"mcpServers": {"phd-research-lab": entry}}}
-
-    def register_mcp(self, base_url: str, token: str = "") -> dict:
-        """Explicit researcher action: merge our server into ~/.gemini/config/mcp_config.json (a .bak copy is kept)."""
-        p = self.config_path()
-        d = {}
-        if p.exists():
-            try:
-                d = json.loads(p.read_text("utf-8"))
-            except ValueError:
-                raise ProviderError(f"{p} is not valid JSON — fix or remove it first")
-            p.with_suffix(".json.bak").write_text(p.read_text("utf-8"), "utf-8")
-        entry = {"serverUrl": f"{base_url}/mcp"}
-        if token:
-            entry["headers"] = {"Authorization": f"Bearer {token}"}
-        d.setdefault("mcpServers", {})["phd-research-lab"] = entry
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(json.dumps(d, indent=2), "utf-8")
-        return {"provider": self.provider_id, "registered": True, "file": str(p)}
-
-
 class GeminiCliConnector(CLIConnector):
     provider_id, label, vendor = "gemini_cli", "Gemini CLI", "Google"
     path = "Gemini CLI signed in with a Google account (being replaced by the Antigravity CLI for some account types)"
@@ -506,14 +506,6 @@ class GeminiCliConnector(CLIConnector):
             args += ["--model", str(context["model"])[:80]]
         return args
 
-    def mcp_registration(self, base_url: str, token: str = "") -> dict:
-        entry = {"httpUrl": f"{base_url}/mcp"}
-        if token:
-            entry["headers"] = {"Authorization": "Bearer <token>"}
-        return {"provider": self.provider_id, "supported": True, "file": "~/.gemini/settings.json",
-                "snippet": {"mcpServers": {"phd-research-lab": entry}}}
-
-
 ALL_API_ENV = set(CodexConnector.api_env) | set(ClaudeCodeConnector.api_env) | set(AntigravityConnector.api_env)     | set(GeminiCliConnector.api_env)
 CONNECTORS = {c.provider_id: c for c in (CodexConnector(), ClaudeCodeConnector(), AntigravityConnector(), GeminiCliConnector())}
 
@@ -522,12 +514,3 @@ def get(pid: str) -> ProviderConnector:
     if pid not in CONNECTORS:
         raise ProviderError(f"Unknown provider '{pid}' (known: {', '.join(CONNECTORS)})")
     return CONNECTORS[pid]
-
-
-def chatgpt_web_note() -> dict:
-    """ChatGPT (web/desktop) custom MCP connectors are called from OpenAI's servers, so they need a PUBLIC HTTPS endpoint.
-    PhD-Lab binds to 127.0.0.1 and does not open tunnels; this path is documented, not automated."""
-    return {"provider": "chatgpt_web", "supported": False,
-            "detail": "ChatGPT developer-mode connectors require a public HTTPS /mcp endpoint. PhD-Lab is local-only by design; "
-                      "use the Codex CLI path (ChatGPT plan) instead, or expose /mcp yourself through a tunnel WITH an MCP token "
-                      "(see docs/integrations/chatgpt.md)."}

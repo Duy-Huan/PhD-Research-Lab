@@ -19,8 +19,8 @@ import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .config import workspace
-from .library import pdf_pages
+from backend.core.config import workspace
+from backend.knowledge.library import pdf_pages
 
 PAPER_BUDGET = 150_000      # characters of manuscript text sent to the reviewers
 MAX_UPLOAD = 60 * 1024 * 1024
@@ -64,7 +64,7 @@ def _read_json(path: Path, default):
     try:
         return json.loads(path.read_text("utf-8"))
     except ValueError:
-        from .memory.store import quarantine
+        from backend.memory.store import quarantine
         quarantine(path)  # reviewer reports cost real model calls: keep the damaged file instead of overwriting it
         return default
     except OSError:
@@ -79,14 +79,6 @@ def load_state(rid: str) -> dict:
     out = json.loads(json.dumps(EMPTY_STATE))
     out.update(st)
     return out
-
-
-def save_state(rid: str, st: dict) -> None:
-    with _lock:
-        _write_json(_dir(rid) / "state.json", st)
-        m = load_meta(rid)
-        m["updated"] = _now()
-        _write_json(_dir(rid) / "meta.json", m)
 
 
 def update_state(rid: str, fn) -> dict:
@@ -129,7 +121,7 @@ def get_active() -> str:
 
 # ------------------------------------------------------------------ extraction
 def _docx_text(path: Path) -> str:
-    from .attachments import _docx  # same extractor as chat attachments (pure Python)
+    from backend.knowledge.attachments import _docx  # same extractor as chat attachments (pure Python)
     return _docx(path)
 
 
@@ -343,8 +335,6 @@ def find_span(haystack: str, needle: str) -> tuple[int, int] | None:
     if i >= 0:
         return i, i + len(needle)
     toks = needle.split()
-    if not toks:
-        return None
     pat = r"\s*".join(re.escape(t) for t in toks)  # whitespace-insensitive (also across line breaks)
     m = re.search(pat, haystack)
     if m:
@@ -483,7 +473,7 @@ def issues_digest(st: dict) -> str:
 
 
 def report_md(rid: str) -> str:
-    from .review_prompts import venue_label
+    from backend.paper.review_prompts import venue_label
     m, st = load_meta(rid), load_state(rid)
     out = [f"# Review report — {m.get('title') or m.get('file')}", "",
            f"- Manuscript: `{m.get('file')}`  ", f"- Venue standard: **{venue_label(m.get('venue') or {})}**  ",
@@ -523,23 +513,3 @@ def fixes_md(rid: str) -> str:
         if fx.get("plan"):
             out += ["**Plan**", "", fx["plan"], ""]
     return "\n".join(out)
-
-
-def chat_context(rid: str) -> str:
-    """Context for the review follow-up chat (Tool 3 · Paper Review)."""
-    if not rid:
-        return ""
-    try:
-        m, st = load_meta(rid), load_state(rid)
-    except ReviewError:
-        return ""
-    from .review_prompts import venue_label
-    parts = [f"=== Manuscript under review: {m.get('title') or m.get('file')} · venue standard: {venue_label(m.get('venue') or {})} ==="]
-    if st.get("meta"):
-        parts.append("=== Meta-review ===\n" + st["meta"]["text"][:12000])
-    if st["issues"]:
-        parts.append("=== Issues ===\n" + issues_digest(st)[:12000])
-    if st["reviewers"]:
-        parts.append("=== Reviewer reports ===\n" + reviews_digest(st, 6000))
-    parts.append("=== Manuscript text (beginning) ===\n" + paper_text(rid)[:15000])
-    return "\n\n".join(parts)

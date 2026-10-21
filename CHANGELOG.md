@@ -1,5 +1,16 @@
 # Changelog
 
+## v5.0.0 — 2026-10-21 — Unified research chat and continued refactor
+
+- Replaced the former tabbed frontend with project chat, a minimal dashboard, manuscript review and centralized Settings. The terminal chat uses the same backend state and approval rules.
+- Split the backend into API, agent, core, execution, knowledge, memory, paper, providers and CLI packages. Research and Reviewer agents run Markdown skills, with a separate background utility model.
+- Added durable research runs with approval gates, resource budgets, source/metric verification, restart recovery and synthetic simulation labels; code projects open in VS Code.
+- Expanded literature discovery across academic metadata, arXiv, IEEE and configurable web search; added Google Scholar through SerpAPI, direct search links and one-click save including metadata-only papers.
+- Added journal indicators with provenance: imported SCImago SJR/quartile/year and separate OpenAlex citation statistics. Unknown rankings remain unknown.
+- Consolidated the default library under `data/references/` with non-overwriting migration. Preserved legacy curated concepts/methods as idempotently imported project notes with their full original records.
+- Fixed model-provider transport/configuration errors, streaming connection tests and CLI cancellation fallback. Fixed context cache invalidation for outline, pins, durable run records and conversation summaries.
+- Regression and coverage are measured by isolated harnesses. See `docs/STATUS_2026-10-21.md` for current evidence and remaining coverage gaps; older version claims below describe their historical scope.
+
 ## v4.1.0 — 2026-10-20 — Model lifecycle · secure CLI space · workflow orchestrator (Optuna HPO, model intelligence)
 All v4.0 data, settings and APIs keep working. Reports: `docs/architecture/v4.1-audit.md`, `docs/architecture/v4.1-final-report.md`.
 - **Model lifecycle** (`backend/model_lifecycle.py`, Settings → Model lifecycle & resources): Load → task → unload /

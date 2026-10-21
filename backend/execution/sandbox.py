@@ -1,10 +1,10 @@
 """Code execution engine (v3.0): Docker sandbox (GPU passthrough, resource limits) or local Python process.
 
 Per research project (inside its data folder):
-    code/                  the IDE workspace (mounted at /workspace in the container; a git repository)
+    code/<name>/           v4.2: the ACTIVE code project (code_projects.py) — the VS Code folder, a git repository,
+                           mounted at /workspace in that project's own container ("phdlab-<id>-<code project id>")
     runs/<run_id>/         one folder per job: run.json, stdout.log, stderr.log, metrics.json, figures …  (mounted at /runs)
-    sandbox/settings.json  engine settings (mode, image, GPU, RAM/CPU limits, network, timeout)
-    sandbox/venv/          private virtual environment used in local mode
+    sandbox/projects/<id>/ v4.2: settings.json + venv of each code project (a migrated v4.1 workspace keeps sandbox/)
 
 Docker is driven through the `docker` CLI (no native Python packages — works with Docker Desktop + WSL2 on Windows).
 One long-lived container per project ("phdlab-<id>") keeps installed packages between runs; every job is a
@@ -28,7 +28,7 @@ from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .config import data_dir
+from backend.core.config import data_dir
 
 NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 IS_WIN = sys.platform.startswith("win")
@@ -54,9 +54,9 @@ def _now() -> str:
 
 # ------------------------------------------------------------------ paths & settings
 def code_dir() -> Path:
-    d = data_dir() / "code"
-    d.mkdir(parents=True, exist_ok=True)
-    return d
+    """The active code project (v4.2). Raises code_projects.NoCodeProject when none is open."""
+    from backend.execution.code_projects import active_dir
+    return active_dir()
 
 
 def runs_dir() -> Path:
@@ -66,12 +66,12 @@ def runs_dir() -> Path:
 
 
 def sb_dir() -> Path:
-    d = data_dir() / "sandbox"
-    d.mkdir(parents=True, exist_ok=True)
-    return d
+    from backend.execution.code_projects import active_sandbox_dir
+    return active_sandbox_dir()
 
 
-DEFAULT_SETTINGS = {"mode": "auto", "image": "", "gpu": True, "memory_gb": 8, "cpus": 4, "shm_gb": 2,
+DEFAULT_SETTINGS = {"mode": "local",  # v5: Python venv first; Docker only when a task needs Linux
+                    "image": "", "gpu": True, "memory_gb": 8, "cpus": 4, "shm_gb": 2,
                     "network": True, "timeout_s": 6 * 3600, "self_debug_max": 4,
                     # v3.2: the local venv sees the packages of the Python that runs the app (clearml, torch, …)
                     "inherit_packages": True,
@@ -82,7 +82,11 @@ DEFAULT_SETTINGS = {"mode": "auto", "image": "", "gpu": True, "memory_gb": 8, "c
 
 def load_settings() -> dict:
     s = dict(DEFAULT_SETTINGS)
-    f = sb_dir() / "settings.json"
+    from backend.execution.code_projects import NoCodeProject
+    try:
+        f = sb_dir() / "settings.json"
+    except NoCodeProject:  # no code project open: defaults (read-only — save_settings needs a project)
+        return s
     if f.exists():
         try:
             s.update(json.loads(f.read_text("utf-8")))
@@ -97,7 +101,7 @@ def save_settings(patch: dict) -> dict:
         if k not in DEFAULT_SETTINGS:
             continue
         if k == "mode":
-            s[k] = v if v in ("auto", "docker", "local") else "auto"
+            s[k] = v if v in ("auto", "docker", "local") else "local"
         elif k in ("gpu", "network", "inherit_packages", "auto_deps"):
             s[k] = bool(v)
         elif k == "python_mode":
@@ -124,7 +128,11 @@ def save_settings(patch: dict) -> dict:
 
 
 def container_name() -> str:
-    return "phdlab-" + hashlib.sha1(str(data_dir().resolve()).encode()).hexdigest()[:10]
+    from backend.execution.code_projects import active, container_for
+    rec = active()
+    if not rec:  # nothing to address without a code project; the name of no real container
+        return "phdlab-" + hashlib.sha1(str(data_dir().resolve()).encode()).hexdigest()[:10]
+    return container_for(rec)
 
 
 # ------------------------------------------------------------------ docker CLI
@@ -170,8 +178,8 @@ def effective_mode(s: dict | None = None) -> str:
 
 
 def choose_mode(s: dict | None = None) -> tuple[str, str]:
-    from . import deps
-    from .envs import choose
+    from backend.execution import deps
+    from backend.execution.envs import choose
     s = s or load_settings()
     try:
         plan = deps.plan_cached(code_dir())
@@ -184,7 +192,7 @@ def effective_image(s: dict) -> str:
     if s.get("image"):
         return s["image"]
     try:
-        from .sysinfo import scan
+        from backend.execution.sysinfo import scan
         return scan().get("recommendation", {}).get("sandbox", {}).get("image") or "python:3.11-slim"
     except Exception:
         return "python:3.11-slim"
@@ -204,12 +212,14 @@ def container_state() -> dict:
     except Exception:
         return {"name": name, "exists": False, "running": False}
     st, hc = d.get("State", {}), d.get("HostConfig", {})
+    labels = d.get("Config", {}).get("Labels") or {}
     gpu = any((r.get("Count") == -1 or r.get("Capabilities")) for r in (hc.get("DeviceRequests") or []))
     return {"name": name, "exists": True, "running": st.get("Running", False), "status": st.get("Status"),
             "started": st.get("StartedAt"), "image": d.get("Config", {}).get("Image"), "id": d.get("Id", "")[:12],
             "gpu": gpu, "memory_gb": round((hc.get("Memory") or 0) / 2**30, 1), "cpus": (hc.get("NanoCpus") or 0) / 1e9,
             "network": hc.get("NetworkMode"), "shm_gb": round((hc.get("ShmSize") or 0) / 2**30, 1),
-            "mounts": [{"src": m.get("Source"), "dst": m.get("Destination")} for m in d.get("Mounts", [])]}
+            "mounts": [{"src": m.get("Source"), "dst": m.get("Destination")} for m in d.get("Mounts", [])],
+            "code_label": labels.get("phdlab.code", "")}
 
 
 def image_present(image: str) -> bool:
@@ -221,7 +231,7 @@ def _capped_settings() -> tuple[dict, list]:
     """Sandbox settings after the v3.2 hardware policy (resources.py); never fails."""
     s = load_settings()
     try:
-        from .resources import clamp_sandbox
+        from backend.execution.resources import clamp_sandbox
         return clamp_sandbox(s)
     except Exception:
         return s, []
@@ -232,7 +242,8 @@ def ensure_container(recreate: bool = False) -> dict:
     image = effective_image(s)
     st = container_state()
     want_gpu = bool(s["gpu"])
-    if st["exists"] and (recreate or st.get("image") != image or st.get("gpu") != want_gpu):
+    want_code = _code_label()
+    if st["exists"] and (recreate or st.get("image") != image or st.get("gpu") != want_gpu or st.get("code_label") not in ("", want_code)):
         docker(["rm", "-f", st["name"]], 60)
         st = container_state()
     if st["exists"]:
@@ -249,6 +260,7 @@ def ensure_container(recreate: bool = False) -> dict:
     if not image_present(image):
         raise SandboxError(f"NEED_IMAGE:{image}")
     args = ["run", "-d", "--name", st["name"], "--label", "phdlab=1", "--label", f"phdlab.project={data_dir().name}",
+            "--label", f"phdlab.code={want_code}",
             "-v", f"{_mount(code_dir())}:/workspace", "-v", f"{_mount(runs_dir())}:/runs", "-w", "/workspace",
             "-e", "PYTHONUNBUFFERED=1", "-e", "MPLBACKEND=Agg"]
     if s["memory_gb"]:
@@ -282,6 +294,11 @@ def ensure_container(recreate: bool = False) -> dict:
     return container_state()
 
 
+def _code_label() -> str:
+    """Which folder the container mounts (v4.2): a renamed or different code project gets a fresh container."""
+    return hashlib.sha1(str(code_dir().resolve()).encode()).hexdigest()[:12]
+
+
 def container_action(action: str) -> dict:
     name = container_name()
     if action == "start":
@@ -297,44 +314,6 @@ def container_action(action: str) -> dict:
     if code != 0 and "No such container" not in out:
         raise SandboxError(out.strip()[-300:])
     return container_state()
-
-
-def container_stats() -> dict | None:
-    code, out = docker(["stats", "--no-stream", "--format", "{{json .}}", container_name()], 30)
-    if code != 0 or not out.strip().startswith("{"):
-        return None
-    try:
-        d = json.loads(out.strip().splitlines()[0])
-    except Exception:
-        return None
-    return {"cpu_pct": d.get("CPUPerc"), "mem": d.get("MemUsage"), "mem_pct": d.get("MemPerc"),
-            "net": d.get("NetIO"), "block": d.get("BlockIO"), "pids": d.get("PIDs")}
-
-
-def list_images() -> list:
-    code, out = docker(["images", "--format", "{{json .}}"], 30)
-    res = []
-    for line in out.splitlines():
-        try:
-            d = json.loads(line)
-            res.append({"repo": d.get("Repository"), "tag": d.get("Tag"), "id": d.get("ID"), "size": d.get("Size"),
-                        "created": d.get("CreatedSince")})
-        except Exception:
-            pass
-    return res
-
-
-def list_containers() -> list:
-    code, out = docker(["ps", "-a", "--filter", "label=phdlab=1", "--format", "{{json .}}"], 30)
-    res = []
-    for line in out.splitlines():
-        try:
-            d = json.loads(line)
-            res.append({"name": d.get("Names"), "image": d.get("Image"), "status": d.get("Status"), "state": d.get("State"),
-                        "id": d.get("ID"), "mine": d.get("Names") == container_name()})
-        except Exception:
-            pass
-    return res
 
 
 # ------------------------------------------------------------------ jobs
@@ -475,22 +454,30 @@ def _local_cmd(cmd: str) -> tuple[list | str, dict]:
     return c, env
 
 
-def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | None = None) -> Job:
-    """Run a shell command in the sandbox (non-blocking). kind=run creates runs/<id>/."""
+def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | None = None, mode: str = "",
+              meta: dict | None = None) -> Job:
+    """Run a shell command in the sandbox (non-blocking). kind=run creates runs/<id>/.
+    mode: '' = the code project's setting · 'local' (Python venv) · 'docker' (a task that needs Linux).
+    meta: extra fields recorded in run.json from the start (research run id, idempotency key)."""
     if not cmd.strip():
         raise SandboxError("Empty command")
     s, _ = _capped_settings()
     pre_notes: list = []
-    mode, mode_why = (s["mode"], "") if s["mode"] in ("local", "docker") else choose_mode(s)
+    if mode:
+        if mode not in ("local", "docker"):
+            raise SandboxError("mode must be local or docker")
+        mode, mode_why = mode, "requested by the research run"
+    else:
+        mode, mode_why = (s["mode"], "") if s["mode"] in ("local", "docker") else choose_mode(s)
     if kind == "run" and s.get("gpu") and (extra_env or {}).get("CUDA_VISIBLE_DEVICES") != "":
-        from .resources import VramBusy, vram_gate
+        from backend.execution.resources import VramBusy, vram_gate
         try:  # researcher's rule: no GPU training while local LLMs sit in VRAM (refused before anything is created)
             vram_gate()
         except VramBusy as e:
-            from .config import load_config
+            from backend.core.config import load_config
             if not load_config()["resources"].get("auto_unload_for_gpu"):
                 raise VramBusyError(str(e), e.models, e.vram_used_mb)
-            from .model_lifecycle import free_vram_for_gpu  # v4.1 opt-in: release IDLE local models, then re-check
+            from backend.providers.lifecycle import free_vram_for_gpu  # v4.1 opt-in: release IDLE local models, then re-check
             freed = free_vram_for_gpu(log=pre_notes.append)
             if not freed.get("ok"):
                 busy = freed.get("busy") or e.models
@@ -501,6 +488,7 @@ def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | No
             except VramBusy as e2:
                 raise VramBusyError(str(e2), e2.models, e2.vram_used_mb)
     job = _register(Job(kind, cmd, title))
+    job.meta.update(meta or {})
     for m in pre_notes:
         job.add("sys", m)
     job.mode = mode
@@ -509,7 +497,7 @@ def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | No
     deps_prefix = ""
     if kind == "run" and s.get("auto_deps", True):
         try:  # v3.4: install what the code needs inside the target environment, in this same job and log
-            from . import deps
+            from backend.execution import deps
             plan = deps.plan_cached(code_dir())
             if plan["count"] or plan["requirements_files"]:
                 deps.write(code_dir(), plan)
@@ -521,9 +509,12 @@ def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | No
         job.run_dir = runs_dir() / job.id
         job.run_dir.mkdir(parents=True, exist_ok=True)
     env = {"RUN_ID": job.id}
+    from backend.execution.code_projects import active
+    job.meta["code_project"] = (active() or {}).get("name", "")
+    job.meta["code_dir"] = str(code_dir())
     if kind == "run":  # v3.2: traceability (git commit) + hardware governor (thermal guard, JIT VRAM unload)
         try:
-            from .gitops import head_info
+            from backend.execution.gitops import head_info
             job.meta["git"] = head_info()
             if job.meta["git"].get("dirty"):
                 job.add("sys", f"ℹ code at {job.meta['git'].get('short') or 'no commit'} with uncommitted changes — commit to make this run reproducible")
@@ -532,7 +523,7 @@ def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | No
         gpu_env = {}
         if s.get("gpu") and "CUDA_VISIBLE_DEVICES" not in (extra_env or {}):
             try:
-                from .resources import prepare_gpu_run
+                from backend.execution.resources import prepare_gpu_run
                 prep = prepare_gpu_run(s, log=lambda m: job.add("sys", m))
                 gpu_env = prep["env"]
                 job.meta["resources"] = {k: v for k, v in prep.items() if k != "env"}
@@ -546,7 +537,7 @@ def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | No
     env.update(extra_env or {})
     if kind == "run":  # v3.2: a script that calls clearml Task.init records an offline session into its own run folder
         try:
-            from .integrations.experiment import run_env
+            from backend.execution.tracker import run_env
             env.update(run_env(f"/runs/{job.id}" if mode == "docker" else str(job.run_dir)))
         except Exception:
             pass
@@ -566,6 +557,7 @@ def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | No
                   'mkdir -p /tmp/phdbin && ln -sf "$(command -v python3)" /tmp/phdbin/python; export PATH=/tmp/phdbin:$PATH; fi; '
                   'exec sh -c "$1"')
         argv = [docker_exe(), "exec", *envargs, "-w", "/workspace", st["name"], "sh", "-c", script, "sh", cmd]
+        job.meta["container"] = st["name"]
         popen_kw = {}
         job.add("sys", f"$ {cmd}    [docker · {st.get('image')}{' · GPU' if st.get('gpu') else ''}]")
     else:
@@ -585,6 +577,7 @@ def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | No
         job.add("err", f"Could not start: {e}")
         raise SandboxError(str(e))
     job.status, job.started = "running", time.time()
+    job.meta["pid"] = job.proc.pid  # v5: a research run checks after a server restart whether the process still lives
     if job.run_dir:
         _write_run_meta(job)
     t1 = threading.Thread(target=_pump, args=(job, job.proc.stdout, "out"), daemon=True)
@@ -623,9 +616,9 @@ def _waiter(job: Job, t1, t2, timeout_s: int):
 
 
 def _auto_clearml(run_id: str) -> None:
-    """v3.2: record the finished run in ClearML (offline session or server task) when clearml.auto_record is on."""
+    """Record the finished run as a ClearML offline session when clearml.auto_record is on."""
     try:
-        from .integrations.experiment import auto_record
+        from backend.execution.tracker import auto_record
         auto_record(run_id)
     except Exception:
         pass
@@ -634,18 +627,18 @@ def _auto_clearml(run_id: str) -> None:
 def _after_run(job: Job) -> None:
     """v3.2: seal produced artifacts with provenance metadata; re-run once on CPU after a GPU fault."""
     try:
-        from .config import load_config
+        from backend.core.config import load_config
         cfg = load_config()
         if cfg["provenance"].get("enabled", True):
-            from .provenance import seal_run
+            from backend.knowledge.provenance import seal_run
             job.meta["provenance"] = seal_run(job.run_dir, job.id, job.meta, csv_header=cfg["provenance"].get("csv_header", True))
     except Exception as e:
         job.add("sys", f"(provenance sealing failed: {e})")
     if job.status != "failed" or job.kind != "run":
         return
     try:
-        from .config import load_config
-        from .resources import classify_failure
+        from backend.core.config import load_config
+        from backend.execution.resources import classify_failure
         kind = classify_failure(job.tail(200, "err"))
         if not kind:
             return
@@ -663,6 +656,25 @@ def _after_run(job: Job) -> None:
         job.add("sys", f"(GPU fault handling failed: {e})")
 
 
+def stop_all(reason: str = "shutdown", wait_s: float = 10) -> list:
+    """Stop every running job (app shutdown: no orphan process keeps the GPU). The reason is recorded in run.json so a
+    research run treats the job as interrupted (retried on the next start), not as a failed experiment."""
+    stopped = []
+    for job in list(JOBS.values()):
+        if job.status != "running":
+            continue
+        job.meta["stopped_by"] = reason
+        try:
+            stop_job(job.id)
+            stopped.append(job.id)
+        except SandboxError:
+            pass
+    end = time.time() + wait_s
+    while time.time() < end and any(JOBS[j].status == "running" for j in stopped if j in JOBS):
+        time.sleep(0.1)
+    return stopped
+
+
 def stop_job(job_id: str) -> dict:
     job = JOBS.get(job_id)
     if not job or job.status != "running":
@@ -670,12 +682,17 @@ def stop_job(job_id: str) -> dict:
     job.stop_requested = True
     if job.mode == "docker":
         pidf = f"/tmp/phdlab_{job.id}.pid"
-        docker(["exec", container_name(), "sh", "-c",
+        docker(["exec", job.meta.get("container") or container_name(), "sh", "-c",
                 f'P=$(cat {pidf} 2>/dev/null); [ -n "$P" ] && (pkill -TERM -P $P 2>/dev/null; kill -TERM $P 2>/dev/null); '
                 f'sleep 2; [ -n "$P" ] && (pkill -KILL -P $P 2>/dev/null; kill -KILL $P 2>/dev/null); true'], 20)
     try:
         if IS_WIN:
-            subprocess.run(["taskkill", "/F", "/T", "/PID", str(job.proc.pid)], capture_output=True, creationflags=NO_WINDOW)
+            subprocess.run(["taskkill", "/F", "/T", "/PID", str(job.proc.pid)], capture_output=True,
+                           creationflags=NO_WINDOW, timeout=5)
+            # A sharing/permission failure is reported by taskkill's exit code rather than an exception. Ensure the
+            # process we own is also asked to stop; the waiter reports completion only after it actually exits.
+            if job.proc.poll() is None:
+                job.proc.kill()
         else:
             os.killpg(os.getpgid(job.proc.pid), signal.SIGTERM) if job.mode == "local" else job.proc.terminate()
     except Exception:
@@ -695,24 +712,6 @@ def run_blocking(cmd: str, timeout: int = 600, kind: str = "run", title: str = "
     if job.status == "running":
         stop_job(job.id)
         time.sleep(1)
-    return job
-
-
-def pull_image(image: str) -> Job:
-    if not docker_exe():
-        raise SandboxError("Docker is not installed")
-    from .envs import valid_image
-    if not valid_image(image):
-        raise SandboxError(f"Invalid image name: {image!r} (e.g. pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime)")
-    job = _register(Job("pull", f"docker pull {image}", f"Pull {image}"))
-    job.mode = "docker"
-    job.proc = subprocess.Popen([docker_exe(), "pull", image], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
-                                encoding="utf-8", errors="replace", bufsize=1, creationflags=NO_WINDOW, stdin=subprocess.DEVNULL)
-    job.status, job.started = "running", time.time()
-    t1 = threading.Thread(target=_pump, args=(job, job.proc.stdout, "out"), daemon=True)
-    t2 = threading.Thread(target=_pump, args=(job, job.proc.stderr, "err"), daemon=True)
-    t1.start(); t2.start()
-    threading.Thread(target=_waiter, args=(job, t1, t2, 6 * 3600), daemon=True).start()
     return job
 
 
@@ -754,7 +753,8 @@ def parse_metrics_text(text: str) -> dict:
 def collect_run(job: Job) -> dict:
     rd = job.run_dir
     metrics, src = {}, ""
-    for cand in (rd / "metrics.json", code_dir() / "metrics.json", code_dir() / "outputs" / "metrics.json"):
+    cd = Path(job.meta["code_dir"]) if job.meta.get("code_dir") else code_dir()  # the project the job started in
+    for cand in (rd / "metrics.json", cd / "metrics.json", cd / "outputs" / "metrics.json"):
         if cand.exists() and cand.stat().st_mtime >= (job.started or 0) - 1:
             try:
                 d = json.loads(cand.read_text("utf-8"))
@@ -770,7 +770,7 @@ def collect_run(job: Job) -> dict:
     (rd / "metrics_parsed.json").write_text(json.dumps(parsed), "utf-8")
     # figures written by the code to $RUN_DIR, ./outputs or ./figures during this run
     figs = []
-    for folder in (rd, code_dir() / "outputs", code_dir() / "figures"):
+    for folder in (rd, cd / "outputs", cd / "figures"):
         if not folder.exists():
             continue
         for f in folder.rglob("*"):

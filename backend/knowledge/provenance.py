@@ -43,7 +43,7 @@ def record(run_id: str, meta: dict) -> dict:
     git = meta.get("git") or {}
     cm = meta.get("clearml") or {}
     try:
-        from .config import APP_VERSION
+        from backend.core.config import APP_VERSION
     except Exception:
         APP_VERSION = "?"
     return {"run_id": run_id, "git_sha": git.get("sha", ""), "git_dirty": bool(git.get("dirty")), "git_branch": git.get("branch", ""),
@@ -240,41 +240,3 @@ def seal_run(run_dir: Path, run_id: str, meta: dict, csv_header: bool = True) ->
             errors.append(f"{rel}: {e}")
     (Path(run_dir) / "provenance.json").write_text(json.dumps(manifest, indent=1), "utf-8")
     return {"sealed": len(manifest["files"]), "errors": errors[:10]}
-
-
-def find_by_hash(digest: str, runs_root: Path) -> dict | None:
-    for m in sorted(Path(runs_root).glob("*/provenance.json"), reverse=True):
-        try:
-            d = json.loads(m.read_text("utf-8"))
-        except (OSError, ValueError):
-            continue
-        for rel, h in (d.get("files") or {}).items():
-            if h == digest:
-                return {**d.get("record", {}), "file": rel}
-    return None
-
-
-def inspect(name: str, data: bytes) -> dict:
-    """Embedded metadata of an uploaded artifact + the run record and ClearML task it points to (if available)."""
-    from .sandbox import get_run, runs_dir
-    emb = read_bytes(name, data)
-    digest = sha256(data)
-    by_hash = find_by_hash(digest, runs_dir())
-    rec = emb or by_hash or {}
-    out = {"file": name, "sha256": digest, "embedded": emb, "matched_by_hash": by_hash, "found": bool(rec.get("run_id"))}
-    if rec.get("run_id"):
-        try:
-            r = get_run(rec["run_id"])
-            out["run"] = {k: r.get(k) for k in ("id", "cmd", "status", "exit_code", "started", "duration", "mode", "metrics", "git",
-                                                 "environment", "clearml", "figures")}
-            out["run"]["stderr_tail"] = (r.get("stderr") or "")[-1500:]
-        except Exception as e:
-            out["run_error"] = f"run {rec['run_id']} is not in this project ({e})"
-    tid = rec.get("clearml_task_id") or ((out.get("run") or {}).get("clearml") or {}).get("task_id")
-    if tid:
-        try:
-            from .integrations.experiment import get_backend
-            out["clearml"] = get_backend("clearml").get_experiment(tid)
-        except Exception as e:
-            out["clearml"] = {"task_id": tid, "error": str(e)[:300]}
-    return out

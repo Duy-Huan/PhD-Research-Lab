@@ -11,19 +11,21 @@ import json
 import os
 import re
 import threading
+from contextlib import contextmanager
+from contextvars import ContextVar
 from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "4.1.0"
+APP_VERSION = "5.0.0"
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 # PHDLAB_DATA_DIR (v3.2) moves ALL user data elsewhere — used by the test suite so it never touches the real data/.
 _DATA_OVERRIDE = os.environ.get("PHDLAB_DATA_DIR", "").strip()
 GLOBAL_DIR = Path(_DATA_OVERRIDE).resolve() if _DATA_OVERRIDE else ROOT / "data"   # global config + the "Default project"
 CONFIG_PATH = GLOBAL_DIR / "config.json"
 PROJECTS_ROOT = GLOBAL_DIR / "projects" if _DATA_OVERRIDE else ROOT / "projects"    # default parent folder for new projects
-DEFAULT_REFS = GLOBAL_DIR / "references" if _DATA_OVERRIDE else ROOT / "references"
+DEFAULT_REFS = GLOBAL_DIR / "references"
 META_NAME = "project_meta.json"
 GLOBAL_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -83,50 +85,38 @@ PROVIDERS = {
                    "model": "", "key_url": "", "models": []},
 }
 
-# Agent registry. Engine value per agent: "cloud" (= default cloud provider), "local", or a provider id.
+# Agents (v5): two agents do the research work, one utility model runs background chores. Engine value per agent:
+# "auto" (smart router: local → cloud chain), "cloud" (= default cloud provider), "claude" (Anthropic when it has a key),
+# "local", "ollama" or a provider id. What an agent does is decided by the SKILL it runs (backend/agent/skills/*.md),
+# not by a separate agent per tool.
 AGENTS = {
-    "query_expansion": {"label": "Query Expansion (Tool 1)", "default": "local"},
-    "lit2plan":        {"label": "Lit2Plan Architect (Tool 1)", "default": "cloud"},
-    "experiment":      {"label": "Experimental Design (Tool 2)", "default": "cloud"},
-    "pdf_parser":      {"label": "PDF Metadata Parser (Tool 3)", "default": "local"},
-    "data_extractor":  {"label": "Data Extractor / Chat (Tool 3)", "default": "local"},
-    "bib_extractor":   {"label": "3.1 BibTeX Extractor", "default": "local"},
-    "author":          {"label": "3.2 Academic Author", "default": "cloud"},
-    "reviewer":        {"label": "3.3 Peer Reviewer", "default": "cloud"},
-    "editor":          {"label": "3.4 Revision Editor", "default": "cloud"},
-    "masterclass":     {"label": "Masterclass Guide (Tool 4)", "default": "cloud"},
-    "chat_lit2plan":   {"label": "💬 Chat · Tool 1 Lit2Plan", "default": "cloud"},
-    "chat_experiment": {"label": "💬 Chat · Tool 2 Experiment", "default": "cloud"},
-    "chat_paper":      {"label": "💬 Chat · Tool 3 Paper", "default": "cloud"},
-    "chat_masterclass": {"label": "💬 Chat · Tool 4 Masterclass", "default": "cloud"},
-    # v2.5 external paper review flow — Claude preferred ("claude" = Anthropic if it has a key, else the default cloud)
-    "ext_reviewer":    {"label": "📝 Review · Reviewers R1-R3", "default": "claude"},
-    "ext_meta":        {"label": "📝 Review · Area Chair / Editor", "default": "claude"},
-    "ext_fixer":       {"label": "📝 Review · Quick-fix editor", "default": "claude"},
-    "chat_review":     {"label": "💬 Chat · Paper Review", "default": "claude"},
-    # v2.6 internet search
-    "web_query":       {"label": "🌐 Search query planner", "default": "cloud"},
-    # v3.0 research IDE
-    "coder":           {"label": "💻 Co-coding agent (IDE)", "default": "local"},
-    "summarizer":      {"label": "🧠 Memory summarizer", "default": "local"},
-    "context_agent":   {"label": "🧠 Context decision agent", "default": "cloud"},
-    # v3.1 external results
-    "results_analyst": {"label": "📊 Results analyst (reads figures/tables)", "default": "cloud"},
-    # v3.2 live critic (LaTeX / citation / logic checks while the paper streams) — "auto" = SmartMultiRouter
-    "critic":          {"label": "🩺 Live critic (Paper Writer)", "default": "auto"},
-    # v4.1 workflow orchestrator (agent planning / HPO strategy / interpretation of validated results)
-    "workflow_planner": {"label": "🧭 Workflow planner & interpreter", "default": "auto"},
-    "hpo_strategist":  {"label": "🎛 HPO strategist (search spaces)", "default": "auto"},
+    "research": {"label": "Research agent — điều phối, nghiên cứu, thiết kế, code, viết bài", "default": "auto"},
+    "reviewer": {"label": "Reviewer agent — phản biện, kiểm chứng claim / evidence", "default": "claude"},
+    "utility":  {"label": "Tiện ích chạy nền — tóm tắt bộ nhớ, trích xuất PDF/BibTeX, truy vấn tìm kiếm", "default": "auto"},
 }
+# v1–v4 agent names → the v5 agent that now does their job (old call sites and saved settings keep working)
+AGENT_ALIASES = {
+    **{a: "research" for a in ("lit2plan", "experiment", "author", "editor", "masterclass", "coder", "context_agent",
+                               "results_analyst", "workflow_planner", "hpo_strategist", "ai_workspace", "data_extractor",
+                               "chat_lit2plan", "chat_experiment", "chat_paper", "chat_masterclass")},
+    **{a: "reviewer" for a in ("critic", "ext_reviewer", "ext_meta", "ext_fixer", "chat_review")},
+    **{a: "utility" for a in ("summarizer", "pdf_parser", "bib_extractor", "query_expansion", "web_query")},
+}
+
+
+def agent_key(name: str) -> str:
+    """The v5 agent behind any agent name (unknown names are research work)."""
+    return name if name in AGENTS else AGENT_ALIASES.get(name, "research")
+
 
 # v4.1 model lifecycle: agents whose calls are BACKGROUND tasks (no researcher waiting on a stream). Their local models
 # follow lifecycle.local_background (default: load → task → unload); everything else follows lifecycle.local_interactive.
-BACKGROUND_AGENTS = frozenset({"summarizer", "critic", "pdf_parser", "bib_extractor", "query_expansion", "web_query",
-                               "workflow_planner", "hpo_strategist"})
+BACKGROUND_AGENTS = frozenset({"utility", "summarizer", "critic", "pdf_parser", "bib_extractor", "query_expansion",
+                               "web_query", "workflow_planner", "hpo_strategist"})
 
 # v3.2: task kind of every agent for the "auto" engine mode (backend/llm_router.py)
 AGENT_TASK_KIND = {
-    "critic": "live_critic", "summarizer": "summarize", "workflow_planner": "reasoning", "hpo_strategist": "reasoning", "pdf_parser": "extract", "bib_extractor": "extract",
+    "research": "reasoning", "reviewer": "reasoning", "utility": "extract",
     "data_extractor": "extract", "query_expansion": "extract", "web_query": "extract", "coder": "code",
     "lit2plan": "reasoning", "experiment": "reasoning", "author": "writing", "reviewer": "reasoning", "editor": "writing",
     "context_agent": "reasoning", "results_analyst": "reasoning", "masterclass": "writing",
@@ -134,13 +124,13 @@ AGENT_TASK_KIND = {
 
 SEARCH_DEFAULTS = {
     "web_engine": "duckduckgo",   # duckduckgo (free, no key) | tavily | brave
-    "tavily_key": "", "brave_key": "",
+    "tavily_key": "", "brave_key": "", "openalex_key": "", "ieee_key": "", "serpapi_key": "",
     "s2_key": "",                 # Semantic Scholar API key (optional, higher rate limit)
     "mailto": "",                 # e-mail for the OpenAlex "polite pool" (optional, faster)
     "n_results": 8,               # results per search
     "read_pages": True,           # read the text of the top web pages (more accurate, slower)
 }
-SEARCH_KEYS = ("tavily_key", "brave_key", "s2_key")
+SEARCH_KEYS = ("tavily_key", "brave_key", "s2_key", "openalex_key", "ieee_key", "serpapi_key")
 
 DEFAULTS = {
     "providers": {pid: {"api_key": "", "model": spec["model"], "base_url": ""} for pid, spec in PROVIDERS.items()},
@@ -154,17 +144,14 @@ DEFAULTS = {
     "projects": [],          # registered project data folders
     "active_project": "",    # data folder of the active project ("" = Default project in data/)
     "fallback_to_cloud": True,
-    "chat_restore": True,  # reopen the last chat session on start
-    "output_lang": "ui",   # Tools 1/2/4 output language: ui | en | vi
     "agent_modes": {k: v["default"] for k, v in AGENTS.items()},
     "search": dict(SEARCH_DEFAULTS),
     "latex_online": False,   # v2.7: allow compiling the preview with the public LaTeX-on-HTTP service (sends the paper)
-    "github": {"token": "", "user": "", "name": "", "email": ""},   # v3: Personal Access Token (only sent to api.github.com / github.com)
-    "memory": {"tier1_threshold_tokens": 24000, "keep_recent_turns": 12, "auto_summarize": True, "interval_s": 180,
+    "memory": {"keep_recent_turns": 12, "auto_summarize": True, "interval_s": 180,
                # v3.2 Context Memory v2 (CONTEXT_MEMORY.md): token watermarks of the compressor, chunk size of the
                # hierarchical reduce, retrieval/compiler settings
                "high_watermark_tokens": 16000, "low_watermark_tokens": 2000, "chunk_tokens": 3500, "min_keep_messages": 2,
-               "parallel_summaries": 2, "summary_timeout_s": 240, "v2_pipeline": True, "context_budget_tokens": 3500,
+               "parallel_summaries": 2, "summary_timeout_s": 240, "context_budget_tokens": 3500,
                "embed_engine": "auto", "embed_model": "nomic-embed-text", "rerank_url": "", "rerank_model": ""},
     # v3.2 hardware resource governor (HARDWARE_RESOURCE_CONSTRAINT.md); 0 = derived from the scanned machine
     "resources": {"enforce_caps": True, "require_unload": True, "vram_free_target_mb": 2048, "unload_wait_s": 1.5,
@@ -180,35 +167,25 @@ DEFAULTS = {
     # local = LM Studio / Ollama models in VRAM; cli = native CLI sessions (Codex / Claude Code / Gemini / agy — the
     # process itself always exits after a request); mcp = the Docker sandbox container used by MCP tools and agent runs;
     # cloud = the pooled HTTPS connections to cloud APIs.
-    "lifecycle": {"enabled": True, "local_background": "unload_after_task", "local_interactive": "idle_unload",
+    "lifecycle": {"enabled": True, "unload_on_exit": True, "local_background": "unload_after_task", "local_interactive": "idle_unload",
                   "cli": "idle_unload", "mcp": "idle_unload", "cloud": "idle_unload",
                   "local_idle_min": 10, "cli_idle_min": 30, "mcp_idle_min": 15, "cloud_idle_min": 5,
                   "unload_grace_s": 15, "respect_manual_loads": True, "single_model_vram": True},
-    # v4.1 feature flags — every v4.1 subsystem can be switched off on its own; v4.0 behaviour stays available.
-    "features": {"workflow_orchestrator": True, "model_intelligence": True, "optuna_hpo": True, "ray_tune": False,
-                 "multi_objective_hpo": True, "automated_replanning": False, "experiment_execution": True,
-                 "memory_writeback": True},
-    # v4.1 workflow defaults (a workflow's own budgets can only be LOWER than these hard caps)
-    "workflow": {"max_trials_cap": 200, "max_runtime_minutes_cap": 1440, "max_parallel_trials_cap": 4,
-                 "max_workflow_cycles_cap": 10, "default_parallel_trials": 1, "retention_runs": 200},
-    # v3.2 integrations (all optional; credentials are masked in the UI and only sent to their own server)
-    # ClearML: "offline" = SDK only, every run recorded as an offline session in <project>/clearml (no server);
-    # "server" = a ClearML Server with credentials. auto_record: record every finished sandbox run.
-    "clearml": {"enabled": True, "mode": "offline", "auto_record": True, "api_host": "", "web_host": "", "files_host": "",
-                "access_key": "", "secret_key": "", "project": "PhD Research Lab", "queue": "default"},
+    # ClearML offline recording (SDK only, no server): auto_record records every finished run as an offline session in
+    # <project>/clearml that can be imported into a ClearML Server later.
+    "clearml": {"enabled": True, "auto_record": True, "project": "PhD Research Lab"},
     # windows_sandbox: Codex needs a Windows sandbox backend to run shell commands; "unelevated" (restricted token, no
     # admin rights), "elevated" (stronger, needs a one-time admin setup) or "config" (use ~/.codex/config.toml as is)
     "codex": {"enabled": True, "binary": "", "sandbox": "read-only", "model": "", "timeout_s": 1800, "windows_sandbox": "unelevated"},
-    "workspace": {"vscode_path": "", "jupyter_port": 8888},
+    "workspace": {"vscode_path": ""},
     "routing": {"online_check": True, "chains": {}, "provider_headers": {}},
-    "critic": {"enabled": True, "llm": True, "interval_chars": 700},
     "provenance": {"enabled": True, "csv_header": True},
     # v3.4 Context Gateway (provider-independent research context for ChatGPT / Claude Code / Gemini & Antigravity).
     # Sensitivity: PUBLIC always leaves, INTERNAL per allow_internal, SENSITIVE only with allow_sensitive, RESTRICTED never.
     # *_api_fallback False = the CLI connectors run with API-key variables removed, so a subscription sign-in is used
     # and no API billing is ever created implicitly (cost guard).
     "gateway": {"enabled": True, "allow_internal": True, "allow_sensitive": False, "block_source_code": True,
-                "review_before_external": False, "context_budget_tokens": 6000, "provider_timeout_s": 600,
+                "context_budget_tokens": 6000, "provider_timeout_s": 600,
                 "codex_enabled": True, "claude_code_enabled": True, "gemini_cli_enabled": True, "antigravity_enabled": True,
                 "codex_api_fallback": False, "claude_code_api_fallback": False, "antigravity_api_fallback": False,
                 "gemini_cli_api_fallback": False,
@@ -222,14 +199,44 @@ DEFAULTS = {
     # Research write tools only create review CANDIDATES (never permanent memory) unless the researcher approves them.
     "mcp": {"enabled": True, "expose_research": True, "allow_writes": True, "expose_sandbox": True, "token": "",
             "rate_limit_per_min": 240, "audit": True},
+    # v4.2 AI workspace (universal chat, context firewall, hybrid control) — the GLOBAL defaults; module_defaults
+    # {module: {key: value}} override them per module, a session overrides those, a turn can override once.
+    # operating_mode: automation | manual. context_mode: none | selected | relevant | expanded.
+    # memory_mode: off | manual | suggest | auto (restricted: only auto_memory_types are saved without review).
+    # mcp_tools: the session allowlist ([] = every read-only research tool); mcp_auto: the orchestrator proposes tools.
+    "aiws": {"enabled": True, "operating_mode": "automation", "provider": "app:auto", "model": "", "reasoning": "auto",
+             "context_mode": "relevant", "memory_mode": "suggest", "auto_memory_types": ["open_question"],
+             "mcp_auto": True, "mcp_tools": [], "security_profile": "review", "keep_history": True, "summaries": True,
+             "collect_artifacts": True, "context_budget_tokens": 6000, "module_defaults": {}, "max_turn_s": 900},
 }
-SECTIONS_V32 = ("memory", "resources", "clearml", "codex", "workspace", "routing", "critic", "provenance", "gateway", "mcp",
-                "lifecycle", "features", "workflow")
+# v5 research runs (backend/agent/runs.py) and research providers (backend/providers/research.py)
+DEFAULTS["runs"] = {
+    "auto_approve_risk": 1,    # runs up to this risk start without asking (0 read, 1 writes inside the project);
+                               # code / experiments (risk 2) always wait for the researcher
+    "max_minutes": 120.0,      # default active-time budget of one run
+    "max_retries": 1,          # automatic recovery attempts (e.g. CUDA OOM → batch size ½) before asking
+    "auto_recover": True,
+    "web_search": True,        # /lit on the app model first retrieves real papers (OpenAlex, Semantic Scholar, arXiv)
+    # hardware guard slots (execution/guard.py) — can only be lowered; gpu is never more than 1
+    "slot_gpu": 1, "slot_cpu": 1, "slot_local_llm": 1, "slot_cli": 2, "slot_cloud": 3,
+}
+DEFAULTS["research_providers"] = {
+    "feynman_enabled": True,
+    "feynman_share_app_key": False,   # let Feynman use the app's Anthropic / OpenAI key (billed to that API account)
+    "feynman_timeout_s": 1800,
+    "coding_default": "claude_code",  # claude_code | codex | gemini_cli | antigravity | app
+}
+SECTIONS_V32 = ("runs", "research_providers", "memory", "resources", "clearml", "codex", "workspace", "routing", "provenance",
+                "gateway", "mcp", "lifecycle", "aiws")
 LIFECYCLE_POLICIES = ("unload_after_task", "keep_loaded", "idle_unload")
-SECRET_FIELDS = {"clearml": ("access_key", "secret_key"), "mcp": ("token",)}
-CHOICES = {("codex", "sandbox"): ("read-only", "workspace-write"), ("clearml", "mode"): ("offline", "server"),
+SECRET_FIELDS = {"mcp": ("token",)}
+CHOICES = {("research_providers", "coding_default"): ("claude_code", "codex", "gemini_cli", "antigravity", "app"),
+           ("codex", "sandbox"): ("read-only", "workspace-write"),
            ("codex", "windows_sandbox"): ("unelevated", "elevated", "config"),
            ("memory", "embed_engine"): ("auto", "ollama", "hashing"), ("gateway", "cli_profile"): ("review", "assisted"),
+           ("aiws", "operating_mode"): ("automation", "manual"), ("aiws", "context_mode"): ("none", "selected", "relevant", "expanded"),
+           ("aiws", "memory_mode"): ("off", "manual", "suggest", "auto"), ("aiws", "security_profile"): ("review", "assisted"),
+           ("aiws", "reasoning"): ("auto", "off", "low", "medium", "high"),
            **{("lifecycle", k): LIFECYCLE_POLICIES for k in ("local_background", "local_interactive", "cli", "mcp", "cloud")}}
 
 _lock = threading.Lock()
@@ -277,11 +284,16 @@ def load_config() -> dict:
     if CONFIG_PATH.exists():
         try:
             saved = json.loads(CONFIG_PATH.read_text("utf-8"))
-        except Exception:
+            if not isinstance(saved, dict):
+                raise ValueError("configuration must be an object")
+        except ValueError:
+            from backend.memory.store import quarantine
+            quarantine(CONFIG_PATH)
+            saved = {}
+        except OSError:
             saved = {}
     for k in ("default_cloud", "lmstudio_base_url", "local_model", "ollama_base_url", "ollama_model",
-              "references_dir", "fallback_to_cloud", "chat_restore",
-              "projects", "active_project", "output_lang", "latex_online"):
+              "references_dir", "fallback_to_cloud", "projects", "active_project", "latex_online"):
         if k in saved:
             cfg[k] = saved[k]
     for pid, p in (saved.get("providers") or {}).items():
@@ -294,8 +306,6 @@ def load_config() -> dict:
         cfg["providers"]["anthropic"]["model"] = saved["claude_model"]
     cfg["agent_modes"].update({a: m for a, m in (saved.get("agent_modes") or {}).items()
                                if a in AGENTS and _valid_mode(m)})
-    if isinstance(saved.get("github"), dict):
-        cfg["github"].update({k: v for k, v in saved["github"].items() if k in DEFAULTS["github"]})
     for sec in SECTIONS_V32:
         if isinstance(saved.get(sec), dict):
             _merge_section(sec, cfg[sec], saved[sec], masked_ok=False)
@@ -308,6 +318,14 @@ def load_config() -> dict:
     proj = active_project(cfg)
     cfg["references_dir"] = proj["references_dir"]  # what the UI shows/edits = the active project's folder
     return cfg
+
+
+def _write_config(cfg: dict) -> None:
+    """Replace settings atomically so interrupted writes cannot truncate credentials or project settings."""
+    from backend.memory.store import replace_retry
+    tmp = CONFIG_PATH.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(cfg, indent=2), "utf-8")
+    replace_retry(tmp, CONFIG_PATH)
 
 
 def save_config(patch: dict) -> dict:
@@ -342,19 +360,12 @@ def save_config(patch: dict) -> dict:
                             cfg["agent_models"][a] = str(m).strip()
                         else:
                             cfg["agent_models"].pop(a, None)
-            elif k in ("chat_restore", "latex_online"):
+            elif k == "latex_online":
                 cfg[k] = bool(v)
-            elif k == "github" and isinstance(v, dict):
-                for f, val in v.items():
-                    if f == "token":
-                        if isinstance(val, str) and "•" not in val:
-                            cfg["github"]["token"] = val.strip()
-                    elif f in ("user", "name", "email"):
-                        cfg["github"][f] = str(val).strip()[:120]
             elif k in SECTIONS_V32 and isinstance(v, dict):
                 _merge_section(k, cfg[k], v, masked_ok=True)
                 if k == "memory":
-                    for f in ("tier1_threshold_tokens", "keep_recent_turns", "interval_s", "high_watermark_tokens", "chunk_tokens"):
+                    for f in ("keep_recent_turns", "interval_s", "high_watermark_tokens", "chunk_tokens"):
                         cfg["memory"][f] = max(1, cfg["memory"][f])
             elif k == "search" and isinstance(v, dict):
                 sc = cfg["search"]
@@ -366,16 +377,14 @@ def save_config(patch: dict) -> dict:
                         sc[f] = val if val in ("duckduckgo", "tavily", "brave") else "duckduckgo"
                     elif f == "n_results":
                         try:
-                            sc[f] = max(3, min(20, int(val)))
+                            sc[f] = max(1, min(30, int(val)))
                         except (TypeError, ValueError):
                             pass
                     elif f == "read_pages":
                         sc[f] = bool(val)
                     elif f == "mailto":
                         sc[f] = str(val).strip()[:120]
-            elif k == "output_lang":
-                cfg[k] = v if v in ("ui", "en", "vi") else "ui"
-        CONFIG_PATH.write_text(json.dumps(cfg, indent=2), "utf-8")
+        _write_config(cfg)
         return cfg
 
 
@@ -391,8 +400,6 @@ def public_config(cfg: dict) -> dict:
     for f in SEARCH_KEYS:
         out["search"]["has_" + f] = bool(out["search"].get(f))
         out["search"][f] = mask(out["search"].get(f, ""))
-    out["github"]["has_token"] = bool(out["github"].get("token"))
-    out["github"]["token"] = mask(out["github"].get("token", ""))
     for sec, fields in SECRET_FIELDS.items():
         for f in fields:
             out[sec]["has_" + f] = bool(out[sec].get(f))
@@ -444,6 +451,22 @@ def _ensure_project(data_dir, name: str | None = None, references_dir: str | Non
             meta["references_dir"] = str(r)
         changed = True
     meta.setdefault("references_dir", "references")
+    # Older default installations kept PDFs beside data/. Copy before switching the pointer; never overwrite a
+    # different file or delete the original. Custom reference folders remain explicitly configurable.
+    legacy = (ROOT / "references").resolve()
+    if not _DATA_OVERRIDE and _refs_abs(d, meta) == legacy:
+        from shutil import copy2
+        target = d / "references"
+        target.mkdir(parents=True, exist_ok=True)
+        for source in legacy.iterdir() if legacy.is_dir() else []:
+            if not source.is_file():
+                continue
+            dest = target / source.name
+            if dest.exists() and dest.read_bytes() != source.read_bytes():
+                raise ValueError(f"Library migration conflict: {dest}. Original files have been preserved.")
+            if not dest.exists():
+                copy2(source, dest)
+        meta["references_dir"], changed = "references", True
     if changed:
         (d / META_NAME).write_text(json.dumps(meta, indent=2, ensure_ascii=False), "utf-8")
     refs = _refs_abs(d, meta)
@@ -451,14 +474,39 @@ def _ensure_project(data_dir, name: str | None = None, references_dir: str | Non
     return {"name": meta["name"], "data_dir": str(d), "references_dir": str(refs), "created": meta["created"]}
 
 
+_migration_lock = threading.RLock()
+
+
 def project_info(data_dir) -> dict:
     d = _resolve(data_dir)
     meta = _read_meta(d)
+    if not _DATA_OVERRIDE and _refs_abs(d, meta) == (ROOT / "references").resolve():
+        with _migration_lock:
+            meta = _read_meta(d)
+            if _refs_abs(d, meta) == (ROOT / "references").resolve():
+                _ensure_project(d)
+                meta = _read_meta(d)
     return {"name": meta.get("name") or d.name, "data_dir": str(d), "references_dir": str(_refs_abs(d, meta)),
             "created": meta.get("created"), "exists": d.exists(), "is_default": d == GLOBAL_DIR.resolve()}
 
 
+_project_context = ContextVar("phdlab_project", default=None)
+
+
+@contextmanager
+def project_scope(project_dir):
+    """Bind a background task and its child threads to the project that started it."""
+    token = _project_context.set(str(Path(project_dir).resolve()))
+    try:
+        yield
+    finally:
+        _project_context.reset(token)
+
+
 def active_project(cfg: dict | None = None) -> dict:
+    scoped = _project_context.get()
+    if scoped is not None:
+        return project_info(scoped)
     cfg = cfg if cfg is not None else load_config()
     dd = cfg.get("active_project") or ""
     d = _resolve(dd) if dd else GLOBAL_DIR.resolve()
@@ -538,7 +586,7 @@ def forget_project(data_dir: str) -> None:
         cfg["projects"] = [p for p in cfg.get("projects", []) if str(_resolve(p)) != d]
         if cfg.get("active_project") and str(_resolve(cfg["active_project"])) == d:
             cfg["active_project"] = ""
-        CONFIG_PATH.write_text(json.dumps(cfg, indent=2), "utf-8")
+        _write_config(cfg)
 
 
 def _register(data_dir: str, activate: bool) -> None:
@@ -549,7 +597,7 @@ def _register(data_dir: str, activate: bool) -> None:
             cfg.setdefault("projects", []).append(d)
         if activate:
             cfg["active_project"] = "" if d == str(GLOBAL_DIR.resolve()) else d
-        CONFIG_PATH.write_text(json.dumps(cfg, indent=2), "utf-8")
+        _write_config(cfg)
 
 
 # ---- paths of the ACTIVE project (resolved on every call, so switching takes effect immediately)

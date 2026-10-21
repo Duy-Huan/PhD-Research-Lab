@@ -13,8 +13,8 @@ from __future__ import annotations
 
 import re
 
-from . import mem_dir
-from .store import JsonStore, now
+from backend.memory import mem_dir
+from backend.memory.store import JsonStore, now
 
 _store = JsonStore(lambda: mem_dir() / "research.json", {"seq": {}, "hypotheses": [], "experiments": [], "failures": []})
 
@@ -58,20 +58,6 @@ def add_hypothesis(text: str, source: str = "researcher", status: str = "propose
     return _store.update(put)
 
 
-def update_hypothesis(hid: str, patch: dict) -> dict:
-    def put(st):
-        for h in st["hypotheses"]:
-            if h["id"] == hid:
-                if "text" in patch and str(patch["text"]).strip():
-                    h["text"] = str(patch["text"]).strip()[:2000]
-                if patch.get("status") in H_STATUS:
-                    h["status"] = patch["status"]
-                h["updated"] = now()
-                return h
-        raise ResearchError(f"Hypothesis {hid} not found")
-    return _store.update(put)
-
-
 def sync_from_plan(hypotheses: list) -> list:
     """Give every hypothesis of the research plan (Tier 3, e.g. 'H2: …') a stable HYPE id.
     Matching is by plan key first, then by normalised text, so regenerating the plan keeps the ids."""
@@ -104,7 +90,7 @@ def sync_from_plan(hypotheses: list) -> list:
 def _run_refs(run_id: str) -> dict:
     """Pointers taken from the local run record (git commit, ClearML task, environment, measured metrics)."""
     try:
-        from ..sandbox import get_run
+        from backend.execution.sandbox import get_run
         r = get_run(run_id)
     except Exception as e:
         raise ResearchError(f"Run {run_id} not found ({e})")
@@ -197,19 +183,6 @@ def add_failure(text: str, hypothesis_id: str = "", run_id: str = "", reason: st
     return _store.update(put)
 
 
-def update_failure(fid: str, patch: dict) -> dict:
-    def put(st):
-        for f in st["failures"]:
-            if f["id"] == fid:
-                for k in FAIL_FIELDS + ("text", "reason"):
-                    if k in patch:
-                        f[k] = str(patch[k] or "")[:2000]
-                f["updated"] = now()
-                return f
-        raise ResearchError(f"Failure {fid} not found")
-    return _store.update(put)
-
-
 def delete(item_id: str) -> None:
     if not ID_RE.match(item_id or ""):
         raise ResearchError("Invalid id")
@@ -236,28 +209,3 @@ def record_clearml(run_id: str, task_id: str, url: str = "") -> int:
 
 
 # ------------------------------------------------------------------ timeline (signature view of the Control Center)
-def timeline(limit: int = 200) -> list:
-    """Chronological research events: hypothesis → experiment → result/failure → interpretation → decision → next step."""
-    st = load()
-    ev = []
-    for h in st["hypotheses"]:
-        ev.append({"ts": h["created"], "kind": "hypothesis", "id": h["id"], "title": h["text"][:160], "status": h["status"], "links": []})
-    for e in st["experiments"]:
-        links = [x for x in (e.get("hypothesis_id"), e.get("run_id") and f"run:{e['run_id']}",
-                             e.get("clearml_task_id") and f"clearml:{e['clearml_task_id']}", e.get("git_sha") and f"git:{e['git_sha'][:10]}") if x]
-        ev.append({"ts": e["created"], "kind": "experiment", "id": e["id"], "title": e["title"][:160], "status": e.get("verdict") or "open",
-                   "links": links, "detail": {k: e.get(k) for k in ("observation", "interpretation", "decision", "conclusion", "next_action")
-                                              if e.get(k)}, "metrics": e.get("metrics") or {}, "clearml_url": e.get("clearml_url", "")})
-    for f in st["failures"]:
-        ev.append({"ts": f["created"], "kind": "failure", "id": f["id"], "title": f["text"][:160], "status": "validated",
-                   "links": [x for x in (f.get("hypothesis_id"), f.get("run_id") and f"run:{f['run_id']}") if x]})
-    try:
-        from . import load as load_legacy
-        for d in load_legacy()["decisions"]:
-            ev.append({"ts": d.get("created", ""), "kind": "decision", "id": d["id"], "title": d["text"][:160],
-                       "status": "locked" if d.get("locked") else d.get("kind", ""), "links": []})
-    except Exception:
-        pass
-    causal = {"hypothesis": 0, "decision": 1, "experiment": 2, "failure": 3}  # same second → research order
-    ev.sort(key=lambda x: (x["ts"] or "", causal.get(x["kind"], 9), x["id"]))
-    return ev[-limit:]

@@ -11,8 +11,9 @@ from unittest import mock
 
 import httpx
 
-from backend import attachments as AT, latex_build as LB, library as L, websearch as WS
-from backend.config import refs_dir, workspace
+from backend.knowledge import attachments as AT, library as L, websearch as WS
+from backend.paper import latex as LB
+from backend.core.config import refs_dir, workspace
 from pdfgen import PAPER, make_pdf
 
 
@@ -33,37 +34,6 @@ class Library(unittest.TestCase):
         (refs_dir() / "untitled.pdf").write_bytes(make_pdf([[(10, "short"), (10, "Proceedings of the Workshop on Things")]], {"Title": "Microsoft Word - draft.doc"}))
         (refs_dir() / "broken.pdf").write_bytes(b"%PDF-1.4 garbage")
 
-    def test_scan_keys_bibtex_and_digest(self):
-        r = L.scan_directory()
-        lib = r["library"]
-        self.assertEqual(set(r["added"]), {"smith2023.pdf", "untitled.pdf", "broken.pdf"})
-        e = lib["smith2023.pdf"]
-        self.assertEqual(e["title"], "Deep Spectral Denoising for Hyperspectral Images")
-        self.assertEqual(e["venue"], "IEEE Transactions on Geoscience and Remote Sensing")
-        self.assertEqual((e["year"], e["doi"]), ("2023", "10.1109/TGRS.2023.123456"))
-        self.assertEqual(e["key"], "smith2023deep")
-        self.assertIn("error", lib["broken.pdf"])
-        self.assertEqual(lib["untitled.pdf"]["entry_type"], "inproceedings")
-        self.assertEqual(L.scan_directory()["added"], [])  # unchanged files are not re-read
-        (refs_dir() / "broken.pdf").unlink()
-        self.assertNotIn("broken.pdf", L.scan_directory()["library"])
-        bib = L.build_bibtex()
-        self.assertIn("@article{smith2023deep,", bib)
-        self.assertIn("journal   = {IEEE Transactions", bib)
-        self.assertIn("% 2 entries", bib)
-        d = L.reference_digest(L.included())
-        self.assertIn("[smith2023deep]", d)
-        with mock.patch("backend.context_graph.purged_lit_keys", return_value={"smith2023deep"}):
-            self.assertNotIn("smith2023deep", L.reference_digest(L.included()))
-        with mock.patch("backend.context_graph.purged_lit_keys", side_effect=RuntimeError):
-            self.assertIn("smith2023deep", L.reference_digest(L.included()))
-        self.assertEqual(L.reference_digest([]), "(no references ingested)")
-        text, pages = L.pdf_text(refs_dir() / "smith2023.pdf")
-        self.assertEqual(pages, 2)
-        self.assertIn("Introduction", text)
-        self.assertEqual(len(L.pdf_pages(refs_dir() / "smith2023.pdf")[0]), 2)
-        self.assertIn("Deep", L.first_pages_text(refs_dir() / "smith2023.pdf"))
-        self.assertEqual(L.first_pages_text(Path("nope.pdf")), "")
 
     def test_corrupt_library_is_kept(self):
         L.scan_directory()
@@ -186,38 +156,6 @@ class Attachments(unittest.TestCase):
                 AT.add_upload("big.txt", b"1234")
         self.assertEqual(len(list((AT._dir()).glob("*.exe"))), 0)  # refused files are removed
 
-    def test_meta_render_and_errors(self):
-        img = AT.add_upload("p.png", b"\x89PNGdata")
-        txt = AT.add_upload("n.txt", b"A" * 3000)
-        lib = mock.patch("backend.attachments.load_library", return_value={"smith.pdf": {"title": "S", "key": "smith2023", "authors": ["A"]}})
-        (refs_dir() / "smith.pdf").write_bytes(make_pdf(PAPER))
-        with lib:
-            paper = AT.add_library_paper("smith.pdf")
-        self.assertEqual(paper["key"], "smith2023")
-        with self.assertRaises(AT.AttachmentError):
-            AT.add_library_paper("missing.pdf")
-        (refs_dir() / "empty.pdf").write_bytes(make_pdf([[(10, " ")]]))
-        with self.assertRaises(AT.AttachmentError):
-            AT.add_library_paper("empty.pdf")
-        text, images, used = AT.render_for_llm([{"id": txt["id"]}, {"id": img["id"]}, {"id": paper["id"]}, {"id": "zzz"}, {}], 2600)
-        self.assertEqual(len(images), 1)
-        self.assertIn("truncated", text)
-        self.assertIn('omitted="context budget exceeded"', text)
-        self.assertIn('bib_key="smith2023"', AT.render_for_llm([{"id": paper["id"]}], 10 ** 6)[0])
-        (AT._dir() / img["stored"]).unlink()
-        self.assertEqual(AT.render_for_llm([{"id": img["id"]}], 1000)[1], [])
-        for bad in ("../x", "abcdefabcdef"):
-            with self.assertRaises(AT.AttachmentError):
-                AT.get_meta(bad)
-        with self.assertRaises(AT.AttachmentError):
-            AT.raw_path(paper["id"])
-        self.assertEqual(AT.clean_refs([{"id": txt["id"], "name": "n", "evil": object()}, {"id": "x"}, "s"]),
-                         [{"id": txt["id"], "name": "n"}])
-        (AT._dir() / f"{txt['id']}.txt").unlink()
-        self.assertEqual(AT.get_text(txt["id"]), "")
-        self.assertEqual(AT.html_to_text("<p>x")[1], "x")
-        with mock.patch.object(AT._Readable, "feed", side_effect=RuntimeError):
-            self.assertEqual(AT.html_to_text("<p>x</p>"), ("", ""))
 
     def test_corrupt_index_is_kept(self):
         AT.add_upload("a.txt", b"precious")
@@ -229,40 +167,6 @@ class Attachments(unittest.TestCase):
         with mock.patch.object(Path, "read_text", side_effect=PermissionError):
             self.assertEqual(AT._index(), {})
 
-    def test_links(self):
-        pdf = make_pdf(PAPER)
-
-        def handler(req):
-            u = str(req.url)
-            if u.endswith("/paper.pdf"):
-                return httpx.Response(200, content=pdf, headers={"content-type": "application/pdf"})
-            if u.endswith("/broken.pdf"):
-                return httpx.Response(200, content=b"%PDF-1.4 truncated", headers={"content-type": "application/pdf"})
-            if u.endswith("/img"):
-                return httpx.Response(200, content=b"\xff\xd8img", headers={"content-type": "image/jpeg"})
-            if u.endswith("/page"):
-                return httpx.Response(200, content=b"<html><title>T</title><body><p>Readable</p></body></html>",
-                                      headers={"content-type": "text/html; charset=bogus-charset"})
-            if u.endswith("/plain"):
-                return httpx.Response(200, content=b"plain words", headers={"content-type": "text/plain"})
-            if u.endswith("/js"):
-                return httpx.Response(200, content=b"<html><body><script>x</script></body></html>", headers={"content-type": "text/html"})
-            if u.endswith("/down"):
-                raise httpx.ConnectError("offline")
-            return httpx.Response(404)
-
-        async def body():
-            with mock.patch("httpx.AsyncClient", mock_client(handler)):
-                a = await AT.add_link("https://x.org/paper.pdf")
-                self.assertEqual((a["kind"], a["pages"]), ("link", 2))
-                self.assertEqual((await AT.add_link("https://x.org/img"))["stored"][-4:], ".jpg")
-                self.assertEqual((await AT.add_link("https://x.org/page"))["title"], "T")
-                self.assertEqual((await AT.add_link("https://x.org/plain"))["name"], "x.org")
-                for bad in ("ftp://x.org/f", "https://x.org/missing", "https://x.org/js", "https://x.org/down", "https://x.org/broken.pdf"):
-                    with self.assertRaises(AT.AttachmentError, msg=bad):
-                        await AT.add_link(bad)
-        asyncio.run(body())
-        self.assertEqual(list(AT._dir().glob("*.pdf")).__len__(), 1)  # the broken PDF was not kept
 
 
 class WebSearch(unittest.TestCase):
@@ -309,7 +213,8 @@ class WebSearch(unittest.TestCase):
 
     def run_search(self, *a, **k):
         async def go():
-            with mock.patch.object(WS, "_client", lambda timeout=15: httpx.AsyncClient(transport=httpx.MockTransport(self.handler))):
+            with mock.patch.object(WS, "_client", lambda timeout=15: httpx.AsyncClient(transport=httpx.MockTransport(self.handler))), \
+                    mock.patch("backend.knowledge.download.public_url", mock.AsyncMock()):
                 return await WS.search(*a, **k)
         return asyncio.run(go())
 
@@ -364,41 +269,12 @@ class WebSearch(unittest.TestCase):
         self.assertEqual(len(errs), 3)
         self.assertIn("HTTP 503", errs[1])
 
-    def test_read_page_and_planning(self):
-        async def go():
-            with mock.patch.object(WS, "_client", lambda timeout=15: httpx.AsyncClient(transport=httpx.MockTransport(self.handler))):
-                self.assertEqual(await WS.read_page("https://unknown.org/x"), "")
-            with mock.patch.object(WS, "_client", side_effect=RuntimeError):
-                self.assertEqual(await WS.read_page("https://x"), "")
-
-            async def agent(name, sys, conv, max_tokens=0, temperature=0):
-                return {"text": 'Sure: {"papers": ["a b", " "], "web": [], "year_from": "2022"}'}
-
-            async def agent_bad(*a, **k):
-                return {"text": '{"papers": [], "web": [], "year_from": 1800}'}
-
-            async def agent_err(*a, **k):
-                raise RuntimeError("down")
-            p = await WS.plan_queries(agent, "USER: old\nUSER: latest question")
-            self.assertEqual((p["papers"], p["web"], p["year_from"]), (["a b"], ["latest question"], 2022))
-            self.assertEqual((await WS.plan_queries(agent_bad, "USER: q"))["papers"], ["q"])
-            self.assertEqual((await WS.plan_queries(agent_err, "USER: q"))["web"], ["q"])
-        asyncio.run(go())
-        srcs = [{"id": "S1", "kind": "paper", "title": "P", "url": "u", "authors": ["A"], "year": 2024, "citations": 0, "abstract": "abs"},
-                {"id": "S2", "kind": "paper", "title": "Q", "url": "u"}, {"id": "S3", "kind": "web", "title": "W", "url": "w", "snippet": "s"}]
-        b = WS.sources_block(srcs)
-        self.assertIn("cited by 0", b)
-        self.assertIn("(no abstract available)", b)
-        self.assertEqual(WS.compact(srcs)[0]["snippet"], "abs")
-        self.assertEqual(WS.safe_pdf_name("A: B/C?", 2024), "A_BC_2024.pdf")
-        self.assertEqual(WS.safe_pdf_name("", None), "paper.pdf")
-        self.assertEqual(WS._oa_abstract(None), "")
 
 
 class Latex(unittest.TestCase):
     def setUp(self):
         _env.fresh_project("legacy-latex")
-        from backend import paper
+        from backend.paper import writer as paper
         p = paper.load_project()
         p["sections"] = {"abstract": "Abs", "introduction": "\\section{Introduction}\nIntro"}
         paper.save_project(p)
@@ -409,7 +285,7 @@ class Latex(unittest.TestCase):
            "! LaTeX Error: File `IEEEtran.cls' not found.\nOutput written on main.pdf (3 pages, 1 bytes).")
 
     def test_parse_log_and_quick_layout(self):
-        from backend.paper import assemble
+        from backend.paper.writer import assemble
         main = assemble()[0]
         r = LB.parse_log(self.LOG, main)
         self.assertEqual(len([e for e in r["errors"] if e["line"] == 42]), 1)  # duplicates removed

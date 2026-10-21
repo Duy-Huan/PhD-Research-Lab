@@ -1,52 +1,50 @@
-"""Knowledge Memory (CONTEXT_MEMORY.md tier "Knowledge"): durable academic knowledge.
-
-    papers    derived live from the project's reference library (BibTeX key, title, year, abstract) — never copied
-    concepts  scientific concepts the researcher curated (name, definition, related bib keys)
-    methods   proven methods / reference implementations (name, description, code reference)
-"""
+"""Knowledge Memory: the project's papers, derived live from the reference library (BibTeX key, title, year, venue,
+abstract, authors) — never copied, so the memory can never disagree with the library."""
 from __future__ import annotations
 
-import secrets
-
-from . import mem_dir
-from .store import JsonStore, now
-
-_store = JsonStore(lambda: mem_dir() / "knowledge.json", {"concepts": [], "methods": []})
-KINDS = {"concept": "concepts", "method": "methods"}
+import hashlib
+import json
 
 
-class KnowledgeError(ValueError):
-    pass
+def legacy_notes() -> list:
+    """Read curated v1-v4 concepts/methods as notes without changing the original store.
 
-
-def load() -> dict:
-    return _store.load()
-
-
-def add(kind: str, name: str, text: str, refs=None, code_ref: str = "") -> dict:
-    if kind not in KINDS:
-        raise KnowledgeError("kind must be concept or method")
-    if not (name or "").strip() or not (text or "").strip():
-        raise KnowledgeError("Name and description are required")
-    item = {"id": ("K-" if kind == "concept" else "M-") + secrets.token_hex(3), "name": name.strip()[:160], "text": text.strip()[:6000],
-            "refs": [str(r)[:80] for r in (refs or []) if str(r).strip()][:20], "code_ref": code_ref[:300], "created": now()}
-    _store.update(lambda st: st[KINDS[kind]].append(item))
-    return item
-
-
-def delete(item_id: str) -> None:
-    def put(st):
-        for k in KINDS.values():
-            st[k] = [x for x in st[k] if x["id"] != item_id]
-    _store.update(put)
+    A stable content id makes import safe to retry after a restart; the complete old record stays attached so custom
+    fields, BibTeX links and code references survive the change of storage format. These are curated notes, not newly
+    verified scientific evidence.
+    """
+    from backend.memory import mem_dir
+    from backend.memory.store import read_retry
+    path = mem_dir() / "knowledge.json"
+    try:
+        payload = json.loads(read_retry(path))
+    except (OSError, ValueError):
+        return []
+    if not isinstance(payload, dict):
+        return []
+    out = []
+    for kind, plural in (("concept", "concepts"), ("method", "methods")):
+        records = payload.get(plural, [])
+        if not isinstance(records, list):
+            continue
+        for item in records:
+            if not isinstance(item, dict):
+                continue
+            raw = json.dumps({"kind": kind, "record": item}, ensure_ascii=False, sort_keys=True)
+            nid = "legacy-" + hashlib.sha256(raw.encode("utf-8")).hexdigest()[:24]
+            text = f"{item.get('name') or kind}: {item.get('text') or ''}"
+            if item.get("refs"):
+                text += "\nReferences: " + json.dumps(item["refs"], ensure_ascii=False)
+            if item.get("code_ref"):
+                text += "\nCode reference: " + str(item["code_ref"])
+            out.append({"id": nid, "tool": "data", "text": text,
+                        "source": f"memory/knowledge.json#{item.get('id') or nid}",
+                        "ts": item.get("created") or "", "legacy_knowledge": {"kind": kind, "record": item}})
+    return out
 
 
 def papers(limit: int = 20000) -> list:
-    """v3.3: the whole library (v3.2 cut at 300 entries in key order, so a large library silently lost every paper whose
-    BibTeX key sorted late — found by the memory benchmark)."""
-    try:
-        from ..library import included
-        return [{"key": e.get("key", ""), "title": e.get("title", ""), "year": e.get("year", ""), "venue": e.get("venue", ""),
-                 "abstract": (e.get("abstract") or "")[:1500], "authors": e.get("authors") or []} for e in included()[:limit]]
-    except Exception:
-        return []
+    """The whole included library (a cut in key order once silently lost every paper whose key sorted late)."""
+    from backend.knowledge.library import included
+    return [{"key": e.get("key", ""), "title": e.get("title", ""), "year": e.get("year", ""), "venue": e.get("venue", ""),
+             "abstract": (e.get("abstract") or "")[:1500], "authors": e.get("authors") or []} for e in included()[:limit]]

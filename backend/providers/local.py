@@ -28,12 +28,12 @@ class LocalAIError(Exception):
 
 def lms_root(base_url: str) -> str:
     """'http://localhost:1234/v1' → 'http://localhost:1234'."""
-    b = (base_url or "http://localhost:1234/v1").rstrip("/")
+    b = (base_url or "http://localhost:1234/v1").strip().rstrip("/")
     return b[:-3] if b.endswith("/v1") else b
 
 
 def ollama_root(base_url: str) -> str:
-    b = (base_url or "http://localhost:11434").rstrip("/")
+    b = (base_url or "http://localhost:11434").strip().rstrip("/")
     return b[:-3] if b.endswith("/v1") else b
 
 
@@ -50,6 +50,14 @@ def lms_cli() -> str | None:
 
 
 # ------------------------------------------------------------------ LM Studio
+def _model_list(response: httpx.Response, key: str) -> list:
+    data = response.json()
+    models = data.get(key) if isinstance(data, dict) else None
+    if not isinstance(models, list):
+        raise ValueError("server returned an unexpected model list")
+    return [m for m in models if isinstance(m, dict)]
+
+
 async def lmstudio_status(base_url: str) -> dict:
     """{online, models:[{id, state, type, quantization, arch, max_context}], loaded:[ids], api:'v0'|'openai', cli}"""
     root = lms_root(base_url)
@@ -58,24 +66,24 @@ async def lmstudio_status(base_url: str) -> dict:
         try:
             r = await c.get(f"{root}/api/v0/models")
             if r.status_code == 200:
-                data = r.json().get("data", [])
+                data = _model_list(r, "data")
                 out.update(online=True, api="v0")
                 for m in data:
-                    if m.get("type") == "embeddings":
+                    if m.get("type") in ("embedding", "embeddings") or not m.get("id"):
                         continue
                     out["models"].append({"id": m.get("id"), "state": m.get("state", ""), "type": m.get("type", "llm"),
                                           "quantization": m.get("quantization", ""), "arch": m.get("arch", ""),
                                           "max_context": m.get("max_context_length")})
                 out["loaded"] = [m["id"] for m in out["models"] if m["state"] == "loaded"]
                 return out
-        except httpx.HTTPError:
+        except (httpx.HTTPError, ValueError):
             pass
         try:
             r = await c.get(f"{root}/v1/models")
             r.raise_for_status()
-            ids = [m.get("id") for m in r.json().get("data", []) if m.get("id")]
+            ids = [m.get("id") for m in _model_list(r, "data") if m.get("id")]
             out.update(online=True, api="openai", models=[{"id": i, "state": "unknown"} for i in ids], loaded=[])
-        except httpx.HTTPError as e:
+        except (httpx.HTTPError, ValueError) as e:
             out["error"] = f"LM Studio not reachable at {root} ({type(e).__name__}). Open LM Studio → Developer → Start Server."
     return out
 
@@ -178,20 +186,24 @@ async def ollama_status(base_url: str) -> dict:
         try:
             r = await c.get(f"{root}/api/tags")
             r.raise_for_status()
+            models = _model_list(r, "models")
             out["online"] = True
-            for m in r.json().get("models", []):
+            for m in models:
+                if not (m.get("name") or m.get("model")):
+                    continue
                 d = m.get("details") or {}
                 out["models"].append({"id": m.get("name") or m.get("model"), "size": m.get("size"),
                                       "params": d.get("parameter_size", ""), "quantization": d.get("quantization_level", ""),
                                       "family": d.get("family", "")})
             try:
                 r2 = await c.get(f"{root}/api/ps")
-                for m in r2.json().get("models", []):
+                r2.raise_for_status()
+                for m in _model_list(r2, "models"):
                     out["loaded"].append({"id": m.get("name") or m.get("model"), "size": m.get("size"),
                                           "size_vram": m.get("size_vram"), "expires_at": m.get("expires_at")})
             except Exception:
                 pass
-        except httpx.HTTPError as e:
+        except (httpx.HTTPError, ValueError) as e:
             out["error"] = f"Ollama not reachable at {root} ({type(e).__name__}). Start Ollama (ollama serve)."
     return out
 
@@ -215,22 +227,6 @@ async def ollama_unload(base_url: str, model: str) -> dict:
     if r.status_code >= 300:
         raise LocalAIError(f"Ollama could not unload {model}: {r.text[:300]}")
     return {"ok": True}
-
-
-async def ollama_pull(base_url: str, model: str):
-    """Async generator of progress dicts {status, completed, total}."""
-    root = ollama_root(base_url)
-    async with httpx.AsyncClient(timeout=httpx.Timeout(None, connect=8)) as c:
-        async with c.stream("POST", f"{root}/api/pull", json={"model": model, "stream": True}) as r:
-            if r.status_code >= 300:
-                await r.aread()
-                raise LocalAIError(f"Ollama pull failed: {r.text[:300]}")
-            async for line in r.aiter_lines():
-                if line.strip():
-                    try:
-                        yield json.loads(line)
-                    except ValueError:
-                        continue
 
 
 async def first_model(engine: str, cfg: dict) -> str | None:

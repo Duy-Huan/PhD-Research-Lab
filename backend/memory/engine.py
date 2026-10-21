@@ -30,11 +30,11 @@ import re
 import time
 from dataclasses import dataclass, field
 
-from . import cache
-from . import lod as LOD
-from . import policy as P
-from .embeddings import get_embedder, similarity, stem, stem_tokens, tokenize
-from .retrieval import BM25, _age_days, _rank, graph_scores, http_rerank, rrf
+from backend.memory import cache
+from backend.memory import lod as LOD
+from backend.memory import policy as P
+from backend.memory.embeddings import get_embedder, similarity, stem, stem_tokens, tokenize
+from backend.memory.retrieval import BM25, _age_days, _rank, graph_scores, http_rerank, rrf
 
 SOURCE_WEIGHTS = {"keyword": 1.0, "vector": 1.0, "metadata": 1.0, "intent": 1.0, "graph": 0.8, "state": 0.7, "temporal": 0.5}
 # what KIND of record the question asks for → node types (query construction from the question's intent, §13)
@@ -97,7 +97,7 @@ class RetrievalContext:
 
 def build_context(query: str, role: str = "", tool: str = "", session_id: str = "", filters: dict | None = None,
                   temporal: str = "auto", purged=None, allowed=(), k: int = 24) -> RetrievalContext:
-    from .state import current
+    from backend.memory.state import current
     bad = set(filters or {}) - set(FILTER_KEYS)
     if bad:
         raise ValueError(f"Unknown filter(s): {', '.join(sorted(bad))}")
@@ -142,7 +142,7 @@ class Index:
 
 def index(purged=frozenset(), cfg: dict | None = None) -> tuple:
     """(Index, cache_hit). Keyed by fingerprint + purged set + embedding engine settings."""
-    from ..config import load_config
+    from backend.core.config import load_config
     cfg = cfg or load_config()
     mcfg = cfg["memory"]
     key = (cache.fingerprint(), tuple(sorted(purged)), mcfg.get("embed_engine"), mcfg.get("embed_model"))
@@ -273,8 +273,8 @@ def _reasons(n, c: dict, ranks: dict, q_terms: list, state_ids: set, central: se
 
 
 def retrieve(ctx: RetrievalContext, cfg: dict | None = None, nodes: list | None = None, rerank_pool: int = 48) -> dict:
-    from ..config import load_config
-    from ..telemetry import span
+    from backend.core.config import load_config
+    from backend.core.telemetry import span
     cfg = cfg or load_config()
     mcfg = cfg["memory"]
     rkey = (cache.fingerprint(), ctx.key(), mcfg.get("embed_engine"), mcfg.get("embed_model"), mcfg.get("rerank_url"))
@@ -319,11 +319,11 @@ def _retrieve(ctx: RetrievalContext, cfg: dict, idx: Index, rerank_pool: int) ->
     try:
         qv = idx.embedder.embed_unit([q])[0]
     except Exception:
-        from .embeddings import hashing_sparse
+        from backend.memory.embeddings import hashing_sparse
         qv = hashing_sparse(q) if isinstance(idx.vecs[0], dict) else None
     if qv is not None:
         rankings["vector"] = ranked({nid: s for nid, s in ((i, similarity(v, qv)) for i, v in zip(idx.ids, idx.vecs)) if s > 0.05})
-    from .state import ids as state_ids_of
+    from backend.memory.state import ids as state_ids_of
     state_ids = state_ids_of(ctx.state) & set(idx.by_id)
     # state ranking: the records of the research state themselves (active hypothesis, current experiment, known failures,
     # recent decisions — in that order), then whatever matches the research-state query
@@ -401,19 +401,3 @@ def _retrieve(ctx: RetrievalContext, cfg: dict, idx: Index, rerank_pool: int) ->
     hits.sort(key=lambda h: (-h["score"], h["id"]))
     diag["sources"] = {name: len(r) for name, r in rankings.items()}
     return {"hits": hits[:ctx.k], "diagnostics": diag, "context": ctx.to_dict(), "blocked": blocked}
-
-
-def explain(item_id: str, query: str, role: str = "", **kw) -> dict:
-    """Why was (or wasn't) `item_id` retrieved for `query`? Returns its hit (components, ranks, reasons) or why not."""
-    ctx = build_context(query, role=role, k=200, **kw)
-    res = retrieve(ctx)
-    for i, h in enumerate(res["hits"]):
-        if h["id"] == item_id:
-            return {"retrieved": True, "position": i + 1, **h}
-    idx, _ = index(ctx.purged)
-    if item_id not in idx.by_id:
-        return {"retrieved": False, "reason": "not in memory (unknown, purged or deleted)"}
-    if item_id in res.get("blocked", []):
-        return {"retrieved": False, "reason": "blocked by the sensitivity policy"}
-    return {"retrieved": False, "reason": "no retrieval source ranked it into the candidate pool (no term, vector, graph, "
-                                          "state or metadata match)"}

@@ -19,8 +19,8 @@ from __future__ import annotations
 
 import re
 
-from . import mem_dir
-from .store import JsonStore, now
+from backend.memory import mem_dir
+from backend.memory.store import JsonStore, now
 
 _store = JsonStore(lambda: mem_dir() / "evidence.json", {"seq": {}, "claims": [], "evidence": []})
 
@@ -65,7 +65,7 @@ def add_claim(text: str, hypothesis_id: str = "", source_refs=None, origin: str 
     if bad:
         raise EvidenceError(f"Invalid source reference(s): {', '.join(bad[:3])}")
     if hypothesis_id:
-        from . import research
+        from backend.memory import research
         if not any(h["id"] == hypothesis_id for h in research.load()["hypotheses"]):
             raise EvidenceError(f"Hypothesis {hypothesis_id} not found")
 
@@ -78,7 +78,7 @@ def add_claim(text: str, hypothesis_id: str = "", source_refs=None, origin: str 
 
 
 def _experiment(eid: str) -> dict:
-    from . import research
+    from backend.memory import research
     e = next((x for x in research.load()["experiments"] if x["id"] == eid), None)
     if not e:
         raise EvidenceError(f"Experiment {eid} not found")
@@ -132,22 +132,6 @@ def add_evidence(data: dict, origin: str = "human") -> dict:
     return _store.update(put)
 
 
-def set_evidence_status(evid: str, status: str) -> dict:
-    if status not in EV_STATUS:
-        raise EvidenceError(f"status must be one of {', '.join(EV_STATUS)}")
-
-    def put(st):
-        for ev in st["evidence"]:
-            if ev["id"] == evid:
-                ev["status"], ev["updated"] = status, now()
-                for c in st["claims"]:
-                    if c["id"] == ev.get("claim_id"):
-                        c["status"], c["updated"] = _derive_status(st, c["id"]), now()
-                return ev
-        raise EvidenceError(f"{evid} not found")
-    return _store.update(put)
-
-
 def get(item_id: str) -> dict:
     if not ID_RE.match(item_id or ""):
         raise EvidenceError("Invalid id")
@@ -163,13 +147,6 @@ def get(item_id: str) -> dict:
 
 def for_experiment(eid: str) -> list:
     return [e for e in load()["evidence"] if e.get("experiment_id") == eid]
-
-
-def metric_sources(name: str) -> list:
-    """Which experiments/evidence produced a metric (best first) — 'Which experiment produced this metric?'."""
-    name = (name or "").lower()
-    out = [e for e in load()["evidence"] if (e.get("metric") or {}).get("name", "").lower() == name and e["status"] != "rejected"]
-    return sorted(out, key=lambda e: (-(e["metric"].get("value") or 0), e["id"]))
 
 
 def delete(item_id: str) -> None:

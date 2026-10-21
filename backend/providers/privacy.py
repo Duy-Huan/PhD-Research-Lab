@@ -14,13 +14,13 @@ from __future__ import annotations
 
 import re
 
-from ..memory.lod import SENSITIVITY
+from backend.memory.lod import SENSITIVITY
 
 CODE_FENCE = re.compile(r"```.*?```", re.S)
 
 
 def gw(cfg: dict | None = None) -> dict:
-    from ..config import load_config
+    from backend.core.config import load_config
     return (cfg or load_config())["gateway"]
 
 
@@ -36,7 +36,7 @@ def allowed_classes(cfg: dict | None = None) -> tuple:
 
 def sanitize(text: str, cfg: dict | None = None) -> tuple[str, list]:
     """Outgoing text → (text, notes): credentials redacted, code blocks removed under block_source_code."""
-    from ..telemetry import redact
+    from backend.core.telemetry import redact
     notes = []
     t = redact(text or "")
     if t != (text or ""):
@@ -50,12 +50,13 @@ def sanitize(text: str, cfg: dict | None = None) -> tuple[str, list]:
 
 
 def set_sensitivity(node_id: str, level: str) -> dict:
-    """Researcher override of one memory node's classification (stored in the context-graph overlay)."""
+    """The researcher's classification of one memory record. RESTRICTED records never leave this computer: they are
+    left out of every context sent to a cloud model or a CLI agent and out of every MCP answer."""
     if level not in SENSITIVITY and level != "":
         raise ValueError(f"level must be one of {', '.join(SENSITIVITY)} (or empty for the default)")
     if not re.fullmatch(r"[\w:.@/+-]{1,120}", node_id or ""):
-        raise ValueError("Invalid node id")
-    from ..context_graph import load_overlay, save_overlay
+        raise ValueError("Invalid record id")
+    from backend.memory.graph import load_overlay, save_overlay
     ov = load_overlay()
     node = ov["nodes"].setdefault(node_id, {})
     if level:

@@ -19,8 +19,8 @@ import time
 
 import httpx
 
-from . import mem_dir
-from .store import JsonStore
+from backend.memory import mem_dir
+from backend.memory.store import JsonStore
 
 DIM = 512
 TOKEN_RE = re.compile(r"[A-Za-z]+-\d+|[0-9a-f]{7,40}|[^\W_]+", re.UNICODE)
@@ -66,7 +66,7 @@ def hashing_vector(text: str, dim: int = DIM) -> list:
 def hashing_sparse(text: str, dim: int = DIM) -> dict:
     """v3.3: the same feature-hashed vector as hashing_vector() but sparse ({index: value}, unit length). A typical memory
     node touches ~30-80 of the 512 buckets, so similarity costs O(nnz) instead of O(512) (profiling: ~10× faster)."""
-    from .cache import VECTORS
+    from backend.memory.cache import VECTORS
     key = ("hash", dim, hashlib.sha1((text or "").encode("utf-8", "replace")).digest())
     hit = VECTORS.get(key)
     if hit is not None:
@@ -105,17 +105,8 @@ def similarity(a, b) -> float:
     return sum(x * y for x, y in zip(a, b))
 
 
-def cosine(a: list, b: list) -> float:
-    if not a or not b or len(a) != len(b):
-        return 0.0
-    dot = sum(x * y for x, y in zip(a, b))
-    na = math.sqrt(sum(x * x for x in a)) or 1.0
-    nb = math.sqrt(sum(y * y for y in b)) or 1.0
-    return dot / (na * nb)
-
-
 def _ollama_root(cfg: dict) -> str:
-    from ..local_ai import ollama_root
+    from backend.providers.local import ollama_root
     return ollama_root(cfg.get("ollama_base_url"))
 
 
@@ -139,12 +130,12 @@ def ollama_available(cfg: dict) -> bool:
 def _ollama_embed(cfg: dict, texts: list, timeout: float) -> list:
     body = {"model": cfg["memory"]["embed_model"], "input": texts}
     try:
-        from ..resources import gpu_busy
+        from backend.execution.resources import gpu_busy
         if gpu_busy():
             body["options"] = {"num_gpu": 0}  # keep VRAM for the training run
     except Exception:
         pass
-    from ..model_lifecycle import lease_sync
+    from backend.providers.lifecycle import lease_sync
     with lease_sync("local", "ollama", body["model"], "background"):  # v4.1: embeddings are a background task
         r = httpx.post(_ollama_root(cfg) + "/api/embed", json=body, timeout=timeout)
     r.raise_for_status()
@@ -170,7 +161,7 @@ class Embedder:
         """v3.3 retrieval path: unit vectors ready for similarity() — sparse for hashing, normalised dense for Ollama."""
         if self.engine == "hashing":
             return [hashing_sparse(t) for t in texts]
-        from .cache import VECTORS  # in-process layer over the JSON cache (which is re-read from disk on every embed())
+        from backend.memory.cache import VECTORS  # in-process layer over the JSON cache (which is re-read from disk on every embed())
         keys = [("dense", self.model, hashlib.sha1(t.encode("utf-8", "replace")).digest()) for t in texts]
         out = [VECTORS.get(k) for k in keys]
         todo = [i for i, v in enumerate(out) if v is None]

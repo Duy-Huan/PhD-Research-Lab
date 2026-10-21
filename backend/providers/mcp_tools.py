@@ -7,7 +7,11 @@ names; the dotted spelling of the spec (research.get_current_state) is accepted 
 Every tool: strict JSON schema (additionalProperties: false) validated server-side, minimal permission (read tools never
 write; record tools only create review CANDIDATES — lifecycle.py), structured output (structuredContent + text),
 provenance (record ids, context_version, project) and the sensitivity policy (MCP clients are external models:
-records the policy blocks are never returned; text is sanitised). No raw database / filesystem access.
+records the policy blocks are never returned; text is sanitised).
+
+v5: the internet and the project's files reach a CLI agent only through these tools (providers/firewall.py):
+web_search / web_fetch (public http(s) only) and files_list / files_read (the active project's data and references
+folders — never the application's source, settings or other agents' workspaces).
 """
 from __future__ import annotations
 
@@ -67,6 +71,29 @@ TOOLS = [
      "description": "Where a record came from: experiments, commits, dataset versions, runs, artifacts, and the decisions "
                     "that rely on it.",
      "inputSchema": _obj({"id": {"type": "string", "pattern": r"^(HYPE|EXP|FAIL|CLM|EVID)-\d{3,6}$|^D[0-9a-f]{6}$"}}, ["id"])},
+    {"name": "web_search", "group": "read",
+     "description": "Search the internet: kind=papers (OpenAlex, Semantic Scholar, arXiv — real metadata) or kind=web. "
+                    "Cite only what it returns.",
+     "inputSchema": _obj({"query": {"type": "string", "minLength": 2, "maxLength": 300},
+                          "kind": {"type": "string", "enum": ["papers", "web", "both"]},
+                          "n": {"type": "integer", "minimum": 1, "maximum": 20}}, ["query"])},
+    {"name": "web_fetch", "group": "read",
+     "description": "Read the text of one public web page (http/https; local and private addresses are blocked).",
+     "inputSchema": _obj({"url": {"type": "string", "minLength": 8, "maxLength": 2000}}, ["url"])},
+    {"name": "journal_ranking", "group": "read",
+     "description": "Look up journal-level OpenAlex indicators and imported SCImago SJR/quartile with year and provenance. "
+                    "These are venue indicators, never an individual paper quality score; unknown stays unknown.",
+     "inputSchema": _obj({"venue": {"type": "string", "minLength": 2, "maxLength": 500},
+                          "issn": {"type": "string", "maxLength": 30}}, ["venue"])},
+    {"name": "files_list", "group": "read",
+     "description": "List files of the research project: root=data (the project folder) or root=references (its PDFs).",
+     "inputSchema": _obj({"root": {"type": "string", "enum": ["data", "references"]},
+                          "path": {"type": "string", "maxLength": 400}}, ["root"])},
+    {"name": "files_read", "group": "read",
+     "description": "Read one text / PDF file of the project (root=data or references, path relative to it).",
+     "inputSchema": _obj({"root": {"type": "string", "enum": ["data", "references"]},
+                          "path": {"type": "string", "minLength": 1, "maxLength": 400},
+                          "max_chars": {"type": "integer", "minimum": 200, "maximum": 200000}}, ["root", "path"])},
     {"name": "research_record_observation", "group": "write",
      "description": "Propose an observation to the researcher's memory. It becomes a REVIEW CANDIDATE, not memory.",
      "inputSchema": _obj({"text": {"type": "string", "minLength": 3, "maxLength": 4000}, "experiment_id": {"type": "string", "pattern": r"^EXP-\d{3,6}$"},
@@ -134,9 +161,9 @@ def listed(mcfg: dict) -> list:
 
 # ------------------------------------------------------------------ implementation
 def _policy():
-    from ..config import load_config
-    from ..memory.engine import index
-    from .policy import allowed_classes
+    from backend.core.config import load_config
+    from backend.memory.engine import index
+    from backend.providers.privacy import allowed_classes
     cfg = load_config()
     allowed = allowed_classes(cfg)
     idx, _ = index()
@@ -150,7 +177,7 @@ def _ok(ids: set, blocked: set) -> bool:
 
 def _clean(obj, cfg):
     """Sanitise every string leaving through MCP (credentials; source code under block_source_code)."""
-    from .policy import sanitize
+    from backend.providers.privacy import sanitize
     if isinstance(obj, str):
         return sanitize(obj, cfg)[0]
     if isinstance(obj, list):
@@ -164,7 +191,7 @@ def call(name: str, args: dict, client: dict | None = None) -> dict:
     name = name.replace(".", "_") if name and name.startswith("research.") else name
     if name not in BY_NAME:
         raise KeyError(name)
-    from ..config import load_config
+    from backend.core.config import load_config
     mcfg = load_config()["mcp"]
     tool = BY_NAME[name]
     if not mcfg.get("expose_research", True) or (tool["group"] == "write" and not mcfg.get("allow_writes", True)):
@@ -173,7 +200,7 @@ def call(name: str, args: dict, client: dict | None = None) -> dict:
     validate(tool["inputSchema"], args)
     cfg, allowed, blocked = _policy()
     data, ids = globals()["_" + name](args, blocked, client or {})
-    from ..memory import cache
+    from backend.memory import cache
     data = _clean(data, cfg)
     prov = {"source": "phd-research-lab", "project_id": _project(), "context_version": cache.version(),
             "record_ids": sorted(ids)[:200], "sensitivity_allowed": list(allowed), "retrieved_at": round(time.time(), 3)}
@@ -182,18 +209,18 @@ def call(name: str, args: dict, client: dict | None = None) -> dict:
 
 
 def _project() -> str:
-    from ..config import data_dir
+    from backend.core.config import data_dir
     return data_dir().name
 
 
 def _research_get_current_state(a, blocked, client):
-    from ..memory.state import current, ids
+    from backend.memory.state import current, ids
     st = current(blocked)
     return st, ids(st)
 
 
 def _hits(res, blocked):
-    from ..memory.engine import index
+    from backend.memory.engine import index
     idx, _ = index()
     out = []
     for h in res["hits"]:
@@ -206,8 +233,8 @@ def _hits(res, blocked):
 
 
 def _research_search_memory(a, blocked, client):
-    from ..memory import engine
-    from .policy import allowed_classes
+    from backend.memory import engine
+    from backend.providers.privacy import allowed_classes
     ctx = engine.build_context(a["query"], role=a.get("role", ""), filters=a.get("filters"), purged=blocked,
                                allowed=allowed_classes(), k=int(a.get("k") or 12))
     hits = _hits(engine.retrieve(ctx), blocked)
@@ -215,7 +242,7 @@ def _research_search_memory(a, blocked, client):
 
 
 def _research_get_hypothesis(a, blocked, client):
-    from ..memory import evidence, research
+    from backend.memory import evidence, research
     if a["id"] in blocked:
         raise LookupError(f"{a['id']} not found")
     rs = research.load()
@@ -230,7 +257,7 @@ def _research_get_hypothesis(a, blocked, client):
 
 
 def _research_get_experiment(a, blocked, client):
-    from ..memory import evidence, research, trace
+    from backend.memory import evidence, research, trace
     if a["id"] in blocked:
         raise LookupError(f"{a['id']} not found")
     rs = research.load()
@@ -244,8 +271,8 @@ def _research_get_experiment(a, blocked, client):
 
 
 def _research_get_evidence(a, blocked, client):
-    from ..memory import evidence, engine
-    from .policy import allowed_classes
+    from backend.memory import evidence, engine
+    from backend.providers.privacy import allowed_classes
     es = evidence.load()
     if a.get("claim_id"):
         c = evidence.get(a["claim_id"])
@@ -268,14 +295,14 @@ def _research_get_evidence(a, blocked, client):
 
 
 def _research_get_decisions(a, blocked, client):
-    from ..memory import load
+    from backend.memory import load
     ds = [d for d in load()["decisions"] if d["id"] not in blocked and (a.get("include_superseded") or not d.get("superseded_by"))]
     return {"decisions": ds}, {d["id"] for d in ds}
 
 
 def _research_get_failures(a, blocked, client):
-    from ..memory import engine, research
-    from .policy import allowed_classes
+    from backend.memory import engine, research
+    from backend.providers.privacy import allowed_classes
     fs = [f for f in research.load()["failures"] if f["id"] not in blocked]
     for k in ("model", "dataset"):
         if a.get(k):
@@ -288,8 +315,8 @@ def _research_get_failures(a, blocked, client):
 
 
 def _research_get_context(a, blocked, client):
-    from ..memory.compiler import compile_context, trace_text
-    from .policy import allowed_classes
+    from backend.memory.compiler import compile_context, trace_text
+    from backend.providers.privacy import allowed_classes
     c = compile_context("mcp", "", a["query"], int(a.get("budget_tokens") or 4000), blocked, None, role=a.get("role", ""),
                         allowed=allowed_classes())
     out = {"context": c["text"], "tokens": c["tokens"], "role": c["role"], "context_version": c["context_version"]}
@@ -299,7 +326,7 @@ def _research_get_context(a, blocked, client):
 
 
 def _research_get_provenance(a, blocked, client):
-    from ..memory import trace
+    from backend.memory import trace
     if a["id"] in blocked:
         raise LookupError(f"{a['id']} not found")
     ch = trace.chain(a["id"])
@@ -314,13 +341,13 @@ def _origin(client: dict) -> dict:
 
 
 def _research_record_observation(a, blocked, client):
-    from ..memory import lifecycle
+    from backend.memory import lifecycle
     c = lifecycle.propose("observation", dict(a), **_origin(client))
     return {"candidate": c, "note": "Recorded as a review candidate; it becomes memory only when the researcher approves it."}, {c["id"]}
 
 
 def _research_record_decision(a, blocked, client):
-    from ..memory import lifecycle
+    from backend.memory import lifecycle
     p = {k: v for k, v in a.items() if k != "kind"}
     if a.get("kind"):
         p["decision_kind"] = a["kind"]
@@ -329,8 +356,63 @@ def _research_record_decision(a, blocked, client):
 
 
 def _research_record_experiment_result(a, blocked, client):
-    from ..memory import lifecycle, research
+    from backend.memory import lifecycle, research
     if not any(e["id"] == a["experiment_id"] for e in research.load()["experiments"]) or a["experiment_id"] in blocked:
         raise LookupError(f"{a['experiment_id']} not found")
     c = lifecycle.propose("experiment_result", dict(a), **_origin(client))
     return {"candidate": c, "note": "Recorded as a review candidate; the experiment is updated only after approval."}, {c["id"]}
+
+
+# ------------------------------------------------------------------ internet + project files (CLI firewall, v5)
+def _web_search(a, blocked, client):
+    import asyncio
+
+    from backend.knowledge import websearch as WS
+    kind, q = a.get("kind") or "papers", a["query"]
+    res = asyncio.run(WS.search(kind, [q], [q], int(a.get("n") or 8)))
+    return {"query": q, "sources": WS.compact(res.get("sources") or []), "errors": res.get("errors") or []}, set()
+
+
+def _web_fetch(a, blocked, client):
+    import asyncio
+
+    from backend.knowledge import websearch as WS
+    from backend.providers.firewall import public_url
+    url = public_url(a["url"])
+    return {"url": url, "text": asyncio.run(WS.read_page(url))[:60000]}, set()
+
+
+def _journal_ranking(a, blocked, client):
+    import asyncio
+    from backend.core.config import load_config
+    from backend.knowledge.ranking import enrich
+    paper = {"venue": a["venue"], "issn": [a["issn"]] if a.get("issn") else []}
+    asyncio.run(enrich([paper], load_config()["search"]))
+    return {"venue": a["venue"], "journal_ranking": paper["journal_ranking"]}, set()
+
+
+def _files_list(a, blocked, client):
+    from backend.providers.firewall import FirewallError, SECRET, check
+    p = check(a.get("path") or "", a["root"])
+    if not p.is_dir():
+        raise FirewallError("not a folder")
+    out = []
+    for c in sorted(p.iterdir())[:500]:
+        if SECRET.match(c.name) or (a["root"] == "data" and not a.get("path") and c.name == "cli-space"):
+            continue
+        out.append({"name": c.name, "dir": c.is_dir(), "bytes": c.stat().st_size if c.is_file() else None})
+    return {"root": a["root"], "path": a.get("path") or "", "entries": out}, set()
+
+
+def _files_read(a, blocked, client):
+    from backend.providers.firewall import FirewallError, check
+    p = check(a["path"], a["root"])
+    if not p.is_file():
+        raise FirewallError("file not found")
+    limit = int(a.get("max_chars") or 40000)
+    if p.suffix.lower() == ".pdf":
+        from backend.knowledge.library import first_pages_text
+        text = first_pages_text(p, 40, limit)
+    else:
+        text = p.read_text("utf-8", "replace")[:limit]
+    return {"root": a["root"], "path": a["path"], "chars": len(text), "text": text}, set()

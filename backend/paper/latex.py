@@ -23,8 +23,8 @@ from pathlib import Path
 
 import httpx
 
-from .config import load_config, workspace
-from .paper import SECTION_TITLES, assemble
+from backend.core.config import load_config, workspace
+from backend.paper.writer import SECTION_TITLES, assemble
 
 TIMEOUT = 240
 ONLINE_URL = os.environ.get("PHDLAB_LATEX_ONLINE", "https://latex.ytotech.com/builds/sync")
@@ -270,7 +270,7 @@ def _compile(engine: str, layout: str, notes: list, t0: float, retry: bool) -> d
     (build / "main.tex").write_text(tex, "utf-8")
     (build / "references.bib").write_text(bib, "utf-8")
     try:
-        from .results import copy_figures
+        from backend.paper.results import copy_figures
         copy_figures([tex], build)          # v3.1: figures chosen in the section briefs
     except Exception:
         pass

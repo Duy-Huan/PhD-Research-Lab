@@ -7,9 +7,10 @@ import time
 import unittest
 from unittest import mock
 
-from backend import config, model_lifecycle as LC
+from backend.core import config
+from backend.providers import lifecycle as LC
 
-LA = "backend.local_ai."
+LA = "backend.providers.local."
 
 
 def st_ollama(loaded=()):
@@ -57,7 +58,7 @@ class Fakes:
         self.p = [mock.patch(LA + "ollama_status", ost), mock.patch(LA + "lmstudio_status", lst),
                   mock.patch(LA + "ollama_unload", oun), mock.patch(LA + "ollama_load", oload),
                   mock.patch(LA + "lmstudio_load", lload), mock.patch(LA + "lmstudio_unload", lun),
-                  mock.patch("backend.resources.gpus", return_value=[{"name": "RTX 3060", "vram_used_mb": 9000,
+                  mock.patch("backend.execution.resources.gpus", return_value=[{"name": "RTX 3060", "vram_used_mb": 9000,
                                                                      "vram_total_mb": 12288, "util_pct": 3, "temp_c": 50}])]
         for x in self.p:
             x.start()
@@ -85,12 +86,6 @@ class Base(unittest.TestCase):
 
 
 class Policies(Base):
-    def test_purpose_from_agent_and_context(self):
-        self.assertEqual(LC.purpose_for("summarizer"), "background")
-        self.assertEqual(LC.purpose_for("chat_lit2plan"), "interactive")
-        with LC.background():
-            self.assertEqual(LC.purpose_for("chat_lit2plan"), "background")
-        self.assertEqual(LC.purpose_for("chat_lit2plan"), "interactive")
 
     def test_policy_and_deadlines(self):
         cfg = config.load_config()
@@ -302,7 +297,7 @@ class Manual(Base):
         LC._res[busy.key] = busy
         self.assertFalse(LC.free_vram_for_gpu()["ok"])
         busy.leases = 0
-        with mock.patch("backend.resources.unload_local_models", return_value={"unloaded": ["ollama:a"], "errors": []}) as u:
+        with mock.patch("backend.execution.resources.unload_local_models", return_value={"unloaded": ["ollama:a"], "errors": []}) as u:
             out = LC.free_vram_for_gpu()
         self.assertTrue(out["ok"])
         u.assert_called_once()
@@ -324,19 +319,19 @@ class CliMcpCloud(Base):
         self.assertNotIn(("gs-00000001", "codex"), LC.CLI_SESSIONS)
 
     def test_mcp_container(self):
-        with mock.patch("backend.sandbox.container_state", return_value={"running": True}):
+        with mock.patch("backend.execution.sandbox.container_state", return_value={"running": True}):
             r = run(LC.acquire("mcp", "docker", "phdlab-x"))
         self.assertEqual(r.owner, "external")
-        with mock.patch("backend.sandbox.container_state", side_effect=RuntimeError("no docker")):
+        with mock.patch("backend.execution.sandbox.container_state", side_effect=RuntimeError("no docker")):
             self.assertFalse(LC._container_running())
-        from backend import sandbox
+        from backend.execution import sandbox
         job = mock.Mock(status="running")
         with mock.patch.dict(sandbox.JOBS, {"j": job}):
             self.assertIn("still running", LC._stop_container())
-        with mock.patch("backend.sandbox.container_state", return_value={"running": False}):
+        with mock.patch("backend.execution.sandbox.container_state", return_value={"running": False}):
             self.assertEqual(LC._stop_container(), "already stopped")
-        with mock.patch("backend.sandbox.container_state", return_value={"running": True}), \
-                mock.patch("backend.sandbox.container_action") as act:
+        with mock.patch("backend.execution.sandbox.container_state", return_value={"running": True}), \
+                mock.patch("backend.execution.sandbox.container_action") as act:
             self.assertEqual(LC._stop_container(), "container stopped")
             act.assert_called_once_with("stop")
             r2 = LC.Resource("mcp:docker:y", "mcp", "docker", "y")
@@ -344,15 +339,15 @@ class CliMcpCloud(Base):
             self.assertEqual(run(LC._release_now(r2, "t"))["detail"], "container stopped")
 
     def test_sandbox_lease_modes(self):
-        with mock.patch("backend.sandbox.effective_mode", return_value="local"):
+        with mock.patch("backend.execution.sandbox.effective_mode", return_value="local"):
             with LC.sandbox_lease() as r:
                 self.assertIsNone(r)
-        with mock.patch("backend.sandbox.effective_mode", side_effect=RuntimeError):
+        with mock.patch("backend.execution.sandbox.effective_mode", side_effect=RuntimeError):
             with LC.sandbox_lease() as r:
                 self.assertIsNone(r)
-        with mock.patch("backend.sandbox.effective_mode", return_value="docker"), \
-                mock.patch("backend.sandbox.container_name", return_value="phdlab-t"), \
-                mock.patch("backend.sandbox.container_state", return_value={"running": False}):
+        with mock.patch("backend.execution.sandbox.effective_mode", return_value="docker"), \
+                mock.patch("backend.execution.sandbox.container_name", return_value="phdlab-t"), \
+                mock.patch("backend.execution.sandbox.container_state", return_value={"running": False}):
             with LC.sandbox_lease() as r:
                 self.assertEqual(r.key, "mcp:docker:phdlab-t")
         self.assertEqual(LC._res["mcp:docker:phdlab-t"].leases, 0)

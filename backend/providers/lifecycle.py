@@ -37,7 +37,7 @@ from dataclasses import dataclass, field
 
 import httpx
 
-from .config import BACKGROUND_AGENTS, LIFECYCLE_POLICIES, load_config
+from backend.core.config import BACKGROUND_AGENTS, LIFECYCLE_POLICIES, load_config
 
 KINDS = ("local", "cli", "mcp", "cloud")
 UNLOAD, KEEP, IDLE = LIFECYCLE_POLICIES
@@ -90,16 +90,6 @@ def enabled(cfg: dict | None = None) -> bool:
 def purpose_for(agent: str) -> str:
     """Explicit context (workflow steps, background jobs) wins; otherwise the agent's own nature."""
     return _PURPOSE.get() or ("background" if agent in BACKGROUND_AGENTS else "interactive")
-
-
-@contextmanager
-def background():
-    """Everything called inside runs as a background task (workflow steps, embeddings, summaries)."""
-    tok = _PURPOSE.set("background")
-    try:
-        yield
-    finally:
-        _PURPOSE.reset(tok)
 
 
 def policy_for(kind: str, purpose: str = "interactive", cfg: dict | None = None) -> str:
@@ -155,7 +145,7 @@ async def resident_local(cfg: dict | None = None, max_age: float = 2.0) -> dict:
     hit = _probe_cache.get("local")
     if hit and time.time() - hit[0] < max_age:
         return hit[1]
-    from . import local_ai
+    from backend.providers import local as local_ai
     cfg = cfg or load_config()
     out: dict = {"ollama": {}, "local": {}, "online": {"ollama": False, "local": False}}
     ol, lm = await asyncio.gather(local_ai.ollama_status(cfg["ollama_base_url"]), local_ai.lmstudio_status(cfg["lmstudio_base_url"]),
@@ -184,7 +174,7 @@ def _is_resident(res_map: dict, engine: str, model: str) -> bool:
 
 
 async def _prepare_local(res: Resource, cfg: dict) -> None:
-    from . import local_ai
+    from backend.providers import local as local_ai
     s = settings(cfg)
     resident = await resident_local(cfg, max_age=0)
     if _is_resident(resident, res.engine, res.model):
@@ -209,7 +199,7 @@ async def _after_local_release(res: Resource, cfg: dict) -> None:
     """Ollama re-applies its own default keep_alive (5 min) on every request: pin the model so OUR policy decides."""
     if res.engine != "ollama" or res.owner != "lifecycle" or res.policy == UNLOAD:
         return
-    from . import local_ai
+    from backend.providers import local as local_ai
     try:
         await local_ai.ollama_load(cfg["ollama_base_url"], res.model, keep_alive="-1")
     except Exception as e:
@@ -218,7 +208,7 @@ async def _after_local_release(res: Resource, cfg: dict) -> None:
 
 # ------------------------------------------------------------------ mcp (sandbox container)
 def _container_running() -> bool:
-    from . import sandbox
+    from backend.execution import sandbox
     try:
         return bool(sandbox.container_state().get("running"))
     except Exception:
@@ -232,7 +222,7 @@ async def _prepare_mcp(res: Resource, cfg: dict) -> None:
 
 
 def _stop_container() -> str:
-    from . import sandbox
+    from backend.execution import sandbox
     if any(j.status == "running" for j in sandbox.JOBS.values()):
         return "kept: a sandbox job is still running"
     if not _container_running():
@@ -319,7 +309,7 @@ def lease_sync(kind: str, engine: str, model: str, purpose: str | None = None):
 @contextmanager
 def sandbox_lease(purpose: str = "background"):
     """Lease on the Docker sandbox container for MCP tools / agent / trial runs (no-op in local Python mode)."""
-    from . import sandbox
+    from backend.execution import sandbox
     try:
         docker = sandbox.effective_mode() == "docker"
     except Exception:
@@ -334,7 +324,7 @@ def sandbox_lease(purpose: str = "background"):
 # ------------------------------------------------------------------ releasing
 async def _release_now(res: Resource, reason: str, cfg: dict | None = None) -> dict:
     """Release one resource (callers check that it has no lease). Never raises."""
-    from . import local_ai
+    from backend.providers import local as local_ai
     cfg = cfg or load_config()
     with _lock:
         if res.leases:
@@ -398,7 +388,7 @@ async def reaper(stop: asyncio.Event) -> None:
 async def unload(engine: str, model: str = "", force: bool = False) -> dict:
     """Manual unload (Settings → Local AI). Works for any resident model, also those PhD-Lab did not load.
     A model that is answering right now is skipped unless force=True."""
-    from . import local_ai
+    from backend.providers import local as local_ai
     cfg = load_config()
     resident = await resident_local(cfg, max_age=0)
     targets = [m for m in resident.get(engine, {}) if not model or _norm(m) == _norm(model)]
@@ -443,7 +433,7 @@ def local_busy() -> list:
 def free_vram_for_gpu(cfg: dict | None = None, log=None) -> dict:
     """resources.auto_unload_for_gpu: release idle local models before a GPU training run (never a model that answers).
     Synchronous (called by the sandbox from a worker thread)."""
-    from . import resources
+    from backend.execution import resources
     busy = local_busy()
     if busy:
         return {"ok": False, "busy": busy}
@@ -511,7 +501,7 @@ def cli_remember(gw_session: str, provider: str, native_session: str, cfg: dict 
 
 # ------------------------------------------------------------------ status (Settings → Local AI / lifecycle card)
 async def status(cfg: dict | None = None) -> dict:
-    from . import resources
+    from backend.execution import resources
     cfg = cfg or load_config()
     now = time.time()
     resident = await resident_local(cfg, max_age=1.5)
@@ -528,7 +518,7 @@ async def status(cfg: dict | None = None) -> dict:
     loading = [v for v in reg.values() if v["kind"] == "local" and v["state"] == "loading"]
     g = (await asyncio.to_thread(resources.gpus, 2.0) or [None])[0] or {}
     try:
-        from .gateway import connectors
+        from backend.providers import cli as connectors
         cli_running = len(connectors._procs)
     except Exception:  # pragma: no cover
         cli_running = 0

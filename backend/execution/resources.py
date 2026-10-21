@@ -28,7 +28,7 @@ import os
 import re
 import time
 
-from .config import load_config
+from backend.core.config import load_config
 
 GPU_FAULT_RE = re.compile(r"(CUDA driver|NVML|no CUDA-capable device|CUDA error: (?:unspecified launch failure|unknown error|"
                           r"an illegal memory access)|GPU is lost|Xid \d+|cudaErrorDevicesUnavailable|CUDA-capable device\(s\) is/are busy)", re.I)
@@ -39,7 +39,7 @@ _gpu_cache = {"t": 0.0, "gpus": None}
 # ------------------------------------------------------------------ hardware & policy
 def _scan() -> dict:
     try:
-        from .sysinfo import scan
+        from backend.execution.sysinfo import scan
         return scan()
     except Exception:
         return {}
@@ -99,7 +99,7 @@ def gpus(max_age: float = 1.5) -> list:
     if _gpu_cache["gpus"] is not None and time.time() - _gpu_cache["t"] < max_age:
         return _gpu_cache["gpus"]
     try:
-        from .sysinfo import gpus as smi
+        from backend.execution.sysinfo import gpus as smi
         g = smi()
     except Exception:
         g = []
@@ -109,7 +109,7 @@ def gpus(max_age: float = 1.5) -> list:
 
 def gpu_job_running() -> bool:
     try:
-        from .sandbox import JOBS
+        from backend.execution.sandbox import JOBS
         return any(j.status == "running" and j.kind == "run" and (j.meta.get("environment") or {}).get("gpu") for j in JOBS.values())
     except Exception:
         return False
@@ -151,7 +151,7 @@ def _run_async(coro):
 
 
 def loaded_local_models(cfg: dict | None = None) -> dict:
-    from . import local_ai
+    from backend.providers import local as local_ai
     cfg = cfg or load_config()
     out = {"ollama": [], "lmstudio": []}
     try:
@@ -175,7 +175,7 @@ def loaded_local_models(cfg: dict | None = None) -> dict:
 
 def unload_local_models(cfg: dict | None = None, log=None) -> dict:
     """Unload every local LLM from VRAM and wait until VRAM is (almost) free. Never raises."""
-    from . import local_ai
+    from backend.providers import local as local_ai
     cfg = cfg or load_config()
     rc = cfg["resources"]
     log = log or (lambda _m: None)

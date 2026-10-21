@@ -3,7 +3,7 @@ import _env  # noqa: F401  (must be first: throw-away data folder)
 import os
 import sys
 
-from backend.gateway import connectors as C
+from backend.providers import cli as C
 
 FAKE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fake_cli.py")
 FMT = {"codex": "codex", "claude_code": "claude", "antigravity": "agy", "gemini_cli": "gemini"}

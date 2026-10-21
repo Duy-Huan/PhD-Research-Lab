@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-echo === PhD Interactive Autonomous Research Lab v3.2 - setup ===
+echo === PhD Research Lab v5.0 - setup ===
 where py >nul 2>nul
 if %errorlevel%==0 (set "PY=py -3") else (set "PY=python")
 %PY% --version || (echo Python 3.10+ is required: https://www.python.org/downloads/ & pause & exit /b 1)
@@ -12,9 +12,9 @@ if not exist .venv\Scripts\python.exe %PY% -m venv .venv
 echo.
 echo === ClearML SDK (experiment tracking; offline mode works without a ClearML server) ===
 rem Separate step: clearml pulls native packages (numpy, psutil, Pillow); a failure here never breaks the app.
-.venv\Scripts\python.exe -m pip install "clearml>=2.0" || echo   [warning] ClearML SDK not installed - runs are still tracked locally. Retry later in Control Center, Integrations, Install ClearML SDK.
-if not exist references mkdir references
+.venv\Scripts\python.exe -m pip install "clearml>=2.0" || echo   [warning] ClearML SDK not installed - local run tracking is still available. Retry with .venv\Scripts\python.exe -m pip install clearml
 if not exist data mkdir data
+if not exist data\references mkdir data\references
 
 echo.
 echo === Optional tools (each one only enables a feature; nothing is changed on your PC) ===
@@ -33,7 +33,7 @@ if errorlevel 1 echo   NOTE: Docker is installed but not running - start Docker 
 
 echo.
 echo Setup complete. Start the app with run.bat
-echo After it opens, the Docker ^& System tab scans this PC and offers a recommended setup.
+echo After it opens, create or open a research project. Configure models and optional tools in Settings.
 pause
 exit /b
 

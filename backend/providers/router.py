@@ -15,10 +15,12 @@ from __future__ import annotations
 
 import socket
 import time
+import hashlib
+import json
 
 import httpx
 
-from .config import AGENT_TASK_KIND, PROVIDERS
+from backend.core.config import AGENT_TASK_KIND, PROVIDERS
 
 DEFAULT_CHAINS = {
     "live_critic": ["groq", "ollama", "local", "ninerouter", "omniroute", "@cloud"],
@@ -55,31 +57,40 @@ def online() -> bool:
     return _cached("online", 30, probe)
 
 
-def _reachable(url: str) -> bool:
+def _reachable(url: str, headers: dict | None = None) -> bool:
     def probe():
         try:
-            return httpx.get(url, timeout=1.5).status_code < 500
+            return 200 <= httpx.get(url, timeout=1.5, headers=headers).status_code < 300
         except httpx.HTTPError:
             return False
-    return _cached("reach:" + url, 20, probe)
+    fingerprint = hashlib.sha256(json.dumps(headers or {}, sort_keys=True).encode()).hexdigest()
+    return _cached("reach:" + url + ":" + fingerprint, 20, probe)
 
 
 def local_up(cfg: dict, engine: str) -> bool:
-    from .local_ai import lms_root, ollama_root
+    from backend.providers.local import lms_root, ollama_root
     if engine == "ollama":
         return _reachable(ollama_root(cfg.get("ollama_base_url")) + "/api/tags")
     return _reachable(lms_root(cfg.get("lmstudio_base_url")) + "/v1/models")
 
 
 def provider_ready(cfg: dict, pid: str, is_online: bool) -> bool:
+    from backend.providers.models import LLMError, gateway_headers, key_required, provider_settings
     spec = PROVIDERS.get(pid)
     if not spec:
         return False
-    p = cfg["providers"].get(pid) or {}
-    if spec.get("local_gateway"):
-        base = (p.get("base_url") or spec["base_url"]).rstrip("/")
-        return (bool(p.get("api_key")) or spec.get("key_optional", False)) and _reachable(base + "/models")
-    return bool(p.get("api_key")) and is_online and bool(p.get("model") or spec.get("model"))
+    try:
+        _, key, model, base = provider_settings(cfg, pid)
+    except LLMError:
+        return False
+    if not base or not model or (not key and key_required(spec, pid, base)):
+        return False
+    if spec.get("local_gateway") or (pid == "custom" and not key_required(spec, pid, base)):
+        headers = gateway_headers(pid)
+        if key:
+            headers["Authorization"] = f"Bearer {key}"
+        return _reachable(base + "/models", headers)
+    return is_online
 
 
 def chain_for(cfg: dict, agent: str) -> tuple[str, list]:
@@ -93,7 +104,7 @@ def plan(cfg: dict, agent: str) -> dict:
     kind, chain = chain_for(cfg, agent)
     is_online = online() if (cfg.get("routing") or {}).get("online_check", True) else True
     try:
-        from .resources import gpu_busy
+        from backend.execution.resources import gpu_busy
         busy = gpu_busy(cfg)
     except Exception:
         busy = False

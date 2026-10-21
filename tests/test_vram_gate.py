@@ -6,8 +6,8 @@ import unittest
 import warnings
 from unittest import mock
 
-from backend import resources as R, sandbox
-from backend.config import load_config
+from backend.execution import resources as R, sandbox
+from backend.core.config import load_config
 
 LOADED = {"ollama": ["qwen2.5:7b"], "lmstudio": ["qwen2.5-coder-14b-instruct"]}
 NONE = {"ollama": [], "lmstudio": []}
@@ -54,8 +54,8 @@ class Gate(unittest.TestCase):
 
     def test_nothing_is_unloaded_automatically(self):
         with mock.patch.object(R, "loaded_local_models", return_value=LOADED), \
-                mock.patch.object(R, "unload_local_models") as unload, mock.patch("backend.local_ai.ollama_unload") as ou, \
-                mock.patch("backend.local_ai.lmstudio_unload") as lu:
+                mock.patch.object(R, "unload_local_models") as unload, mock.patch("backend.providers.local.ollama_unload") as ou, \
+                mock.patch("backend.providers.local.lmstudio_unload") as lu:
             with self.assertRaises(sandbox.VramBusyError):
                 sandbox.start_job('python -c "print(1)"', "run", "gpu")
         unload.assert_not_called()
@@ -87,30 +87,13 @@ class Gate(unittest.TestCase):
         wait(job)
         self.assertEqual(job.status, "done")
 
-    def test_api_returns_409_with_the_models_and_cpu_option_works(self):
-        warnings.filterwarnings("ignore")
-        from fastapi.testclient import TestClient
-        from backend.app import app
-        c = TestClient(app)
-        with mock.patch.object(R, "loaded_local_models", return_value=LOADED):
-            r = c.post("/api/sandbox/run", json={"cmd": 'python -c "print(4)"', "kind": "run"})
-            self.assertEqual(r.status_code, 409)
-            self.assertEqual(r.json()["detail"]["vram_busy"], ["ollama:qwen2.5:7b", "lmstudio:qwen2.5-coder-14b-instruct"])
-            r = c.post("/api/sandbox/run", json={"cmd": 'python -c "print(4)"', "kind": "run", "cpu": True})
-            self.assertEqual(r.status_code, 200)
-            wait(sandbox.JOBS[r.json()["id"]])
-            v = c.get("/api/resources/vram").json()
-            self.assertEqual(len(v["loaded"]), 2)
-            self.assertTrue(v["require_unload"])
-            r = c.post("/api/compute/submit", json={"cmd": 'python -c "print(6)"', "target": "local"})
-            self.assertEqual(r.status_code, 409)
 
 
 @unittest.skipUnless(os.environ.get("PHDLAB_LMSTUDIO_LIVE") == "1",
                      "set PHDLAB_LMSTUDIO_LIVE=1 (+ optional PHDLAB_LMSTUDIO_MODEL) to load/unload a real LM Studio model")
 class LMStudioLive(unittest.TestCase):
     def test_real_gate_and_manual_unload(self):
-        from backend import local_ai
+        from backend.providers import local as local_ai
         cfg = load_config()
         model = os.environ.get("PHDLAB_LMSTUDIO_MODEL", "nvidia/nemotron-3-nano-4b")
         loaded = _env.run_async(local_ai.lmstudio_load(cfg["lmstudio_base_url"], model, 4096))

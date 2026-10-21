@@ -20,8 +20,8 @@ RUN_RE = re.compile(r"^[\w-]{6,60}$")
 
 
 def _load():
-    from . import evidence, load, research
-    from .knowledge import papers
+    from backend.memory import evidence, load, research
+    from backend.memory.knowledge import papers
     st, rs, es = load(), research.load(), evidence.load()
     recs: dict = {}
     for h in rs["hypotheses"]:
@@ -82,7 +82,7 @@ def _run_info(run_id: str) -> dict:
     if not RUN_RE.match(run_id or ""):
         return {}
     try:
-        from ..sandbox import get_run, runs_dir
+        from backend.execution.sandbox import get_run, runs_dir
         r = get_run(run_id)
     except Exception:
         return {"id": run_id, "missing": True}

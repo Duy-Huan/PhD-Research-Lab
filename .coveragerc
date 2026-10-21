@@ -4,7 +4,7 @@ branch = True
 source = backend
 data_file = .coverage
 omit =
-    backend/integrations/clearml_worker.py
+    backend/execution/clearml_worker.py
 
 [report]
 skip_empty = True
