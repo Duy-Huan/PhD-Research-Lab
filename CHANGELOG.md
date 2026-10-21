@@ -1,5 +1,14 @@
 # Changelog
 
+## v5.3.0-preview.1 — 2026-10-21 — Topic SKB and federated workspaces
+
+- Audited the five v5.1–v5.3 target documents against the existing checkout. Preserved project folders, chats, legacy library, memory and existing engine dispatch.
+- Added project-scoped SQLite topics, DOI/arXiv aliases, source versions, independent topic curation, L0–L4 audit events, bounded content-addressed PDFs and page evidence indexed with FTS5/BM25. Crossref discovery and Unpaywall resolution complement existing scholarly clients.
+- Added persisted deterministic discovery/download/index/sync jobs, UTC schedules, quotas, cancellation, explicit retry and restart interruption reporting. Scientific ingestion never calls a paid LLM or auto-promotes claims to trusted memory.
+- Added independent OpenScience/Feynman workspace registration, safe relinking, bounded offline reconciliation, hashes, version history, tombstones, text snapshots, transparency reports and user-reviewed findings with evidence links.
+- Added a compact Topic/SKB drawer, quick-action contributions, filters/pagination, bulk curation/download, context chips and scoped Topic chat. Existing project-scoped tools/memory extraction stay unavailable in Topic chat until they support that scope.
+- Added read-only Zotero JSON import/BibTeX export, optional local-artifact Docling subprocess and approval-required bounded Optuna helper. Optional catalogs and live acceptance remain explicitly tracked in docs/v5.3.
+
 ## OpenScience integration preview — 2026-10-21
 
 - Added a typed research-engine boundary and lazy Feynman/OpenScience adapters. OpenScience uses the pinned official source-preview Python SDK against an externally managed loopback runtime; native skills remain upstream.

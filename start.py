@@ -23,7 +23,7 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 HOST = "127.0.0.1"
-APP_VERSION = "5.1.0"   # must match backend/core/config.py - a mismatch means files from two versions were mixed
+APP_VERSION = "5.3.0-preview.1"   # must match backend/core/config.py - a mismatch means files from two versions were mixed
 # Files that must exist for this version (an incomplete copy or a partial upgrade is the most common failure)
 REQUIRED_FILES = [
     "backend/__init__.py", "backend/app.py", "backend/core/config.py", "backend/core/bus.py", "backend/api/__init__.py",
@@ -36,6 +36,8 @@ REQUIRED_FILES = [
     "frontend/assets/chat.js", "frontend/assets/main.js", "frontend/vendor/marked.min.js", "frontend/vendor/purify.min.js",
     "frontend/vendor/katex/katex.min.js", "frontend/vendor/hljs/highlight.min.js", "frontend/img/logo-64.png",
     "mcp_stdio_bridge.py", "phdlab.bat", "requirements.txt",
+    "backend/api/research.py", "backend/knowledge/research_store.py", "backend/knowledge/corpus.py",
+    "backend/knowledge/research_jobs.py", "backend/research_engines/workspaces.py", "frontend/assets/research.js",
 ]
 UPGRADE_HELP = """How to fix (takes 1 minute):
   1. Extract the WHOLE new zip into a NEW, empty folder (do not copy single files over an old version).

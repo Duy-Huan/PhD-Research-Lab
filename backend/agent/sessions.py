@@ -58,6 +58,7 @@ def _summary(s: dict) -> dict:
     return {"id": s["id"], "title": s["title"], "created": s["created"], "updated": s["updated"], "status": s["status"],
             "archived": s["archived"], "binding": s["binding"], "provider": s["settings"].get("provider", ""),
             "messages": len(s["messages"]), "pending_approvals": sum(1 for a in s["approvals"] if a["status"] == "pending"),
+            "topic_id": s.get("topic_id", ""),
             "last": (last or {}).get("content", "")[:160]}
 
 
@@ -234,6 +235,8 @@ def fork(sid: str, message_id: str = "") -> dict:
         x["messages"] = [dict(m) for m in msgs]
         x["forked_from"] = {"session": sid, "message": message_id or (msgs[-1]["id"] if msgs else "")}
         x["selected_sources"] = list(src.get("selected_sources") or [])
+        if src.get("topic_id"):
+            x["topic_id"] = src["topic_id"]
         return x
     return update(s["id"], fn)
 

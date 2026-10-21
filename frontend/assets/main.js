@@ -23,6 +23,7 @@
     PL.state.projects = ps.projects;
     PL.state.version = cfg.version;
     const ui = cfg.ui || {};
+    if (PL.research) PL.research.flags = ui;
     if (ui.language && ui.language !== PL.lang) {  // changed elsewhere (CLI / another browser): reload once in that language
       let again = false;
       try { again = W.sessionStorage.getItem("pl.langReload") === ui.language; W.sessionStorage.setItem("pl.langReload", ui.language); } catch (e) { again = true; }
@@ -48,6 +49,7 @@
     if (await PL.safe(() => PL.post("/api/projects/activate", { data_dir: dir }))) await afterSwitch();
   }
   async function afterSwitch() {
+    if (PL.research) PL.research.reset();
     PL.panels.close();
     await loadProject();
     await PL.chat.loadList();
@@ -130,11 +132,13 @@
     PL.$("#proj-btn").onclick = (e) => projectMenu(e.currentTarget);
     PL.$("#search").addEventListener("input", () => { W.clearTimeout(PL._st); PL._st = W.setTimeout(PL.chat.loadList, 250); });
     PL.$("#panel-close").onclick = () => PL.panels.close();
+    PL.$("#topic-btn").onclick = () => PL.research.open("topics");
     PL.$("#panel-btn").onclick = () => (PL.$("#panel").hidden ? PL.panels.outline() : PL.panels.close());
     PL.$$(".nav").forEach((b) => b.addEventListener("click", () => {
       app.classList.remove("side-open");
       const g = b.dataset.go;
       if (g === "library") PL.panels.library();
+      else if (g === "research") PL.research.open("papers");
       else if (g === "code") PL.panels.code();
       else if (g === "paper") PL.panels.paper();
       else if (g === "settings") PL.settings.open();

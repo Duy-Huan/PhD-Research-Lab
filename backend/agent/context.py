@@ -54,7 +54,7 @@ def versions(session_id: str = "") -> dict:
             return st.st_mtime_ns, st.st_size
         except OSError:
             return 0, 0
-    for name in ("library.json", "memory/research.json", "memory/project_state.json", "workspace/lit2plan.md",
+    for name in ("workspace/research/research.sqlite3", "library.json", "memory/research.json", "memory/project_state.json", "workspace/lit2plan.md",
                  "workspace/research_artifacts.json", "workspace/experiment_design.md", "workspace/outline.json",
                  "code/.phdlab-code.json"):
         v[name] = signature(root / name)
@@ -116,8 +116,9 @@ def compile(session: dict, question: str, eff: dict, extra: list | None = None) 
     ad = get(module)
     ent_id = session["binding"]["entity_id"]
     selected = list(dict.fromkeys((session.get("selected_sources") or []) + list(v.get("sources") or [])))
+    topic_id = session.get("topic_id", "")
     budget = int(v["context_budget_tokens"])
-    key = _sha(json.dumps([str(data_dir().resolve()), session["id"], module, ent_id, mode, selected, budget, v["use_memory"],
+    key = _sha(json.dumps([str(data_dir().resolve()), session["id"], module, ent_id, topic_id, mode, selected, budget, v["use_memory"],
                            versions(session["id"]), question if mode in ("relevant", "expanded") else ""], default=str))
     if not extra:
         with _lock:
@@ -125,16 +126,38 @@ def compile(session: dict, question: str, eff: dict, extra: list | None = None) 
         if hit:
             return {**hit, "manifest": {**hit["manifest"], "cache": "hit"}}
     entity = ad.resolve(ent_id) if ent_id else None
-    items, omitted = [], []
+    items, omitted, topic_extra = [], [], []
     if mode != "none":
-        items += [i for i in ad.state(entity) if i["id"] != f"conv:{session['id']}"]  # never its own summary
+        if topic_id:
+            from backend.knowledge import research_store as RS, research_context as RC, corpus
+            from backend.agent.project_context import src
+            topic = RS.get_topic(topic_id)
+            items.append(src("topic:" + topic_id, "topic", topic["title"],
+                             f"Topic {topic_id}: {topic['title']}\nObjectives: {topic['objectives']}\n{topic['description']}", "user", "conversation topic"))
+            for finding in RC.findings(topic_id):
+                if finding["status"] == "approved":
+                    topic_extra.append(src("finding:" + finding["id"], "topic_finding", "User-reviewed finding",
+                                     f"{finding['text']}\nEvidence: {finding['source_evidence_ids']}\nReview: {finding['review_note']}", "user", "explicitly reviewed topic finding"))
+            if mode in ("relevant", "expanded"):
+                for evidence in corpus.retrieve(topic_id, question, 6):
+                    source = RC.resolve(topic_id, evidence["id"])
+                    if source:
+                        topic_extra.append(source)
+        else:
+            items += [i for i in ad.state(entity) if i["id"] != f"conv:{session['id']}"]
         for sid in selected:
-            s = resolve_source(sid, expanded=mode == "expanded")
+            if topic_id and not sid.startswith("att:"):
+                s = RC.resolve(topic_id, sid, expanded=mode == "expanded")
+            elif not topic_id and sid.startswith(("paper:", "evidence:", "artifact:")):
+                s = None  # Topic must be explicit; never search every topic for an ID.
+            else:
+                s = resolve_source(sid, expanded=mode == "expanded")
             if s:
                 items.append({**s, "reason": "selected by the researcher"})
             else:
                 omitted.append({"id": sid, "reason": "not found or not readable"})
-        if mode in ("relevant", "expanded") and v["use_memory"]:
+        items += topic_extra
+        if not topic_id and mode in ("relevant", "expanded") and v["use_memory"]:
             items += _retrieved(question, allowed_classes(load_config()))
         elif not v["use_memory"]:
             items = [i for i in items if i["kind"] != "memory"]

@@ -466,3 +466,14 @@ body.print-doc { overflow: auto; padding: 18mm; background: #fff; color: #1c1b19
 a.btn { text-decoration: none; }
 .settings-search { margin-bottom: 12px; min-width: 0; width: 100%; }
 .settings nav .nav[hidden] { display: none; }
+/* Topic/SKB drawer reuses the existing responsive workspace panel. */
+.research-nav,.research-chips,.research-bulk{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.research-nav{position:sticky;top:0;background:var(--bg);padding:4px 0;z-index:1}
+.research-card{border:1px solid var(--line);border-radius:10px;padding:12px;margin:10px 0;overflow-wrap:anywhere}
+.research-card pre{white-space:pre-wrap;max-height:280px;overflow:auto;font-size:11px}
+.research-card p{margin:7px 0}.research-path{font-family:monospace;font-size:11px;word-break:break-all}
+.research-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
+.research-filters input[type=search]{grid-column:1/-1}.research-context{font-weight:600}
+.research-chips{max-height:90px;overflow:auto}.research-chips .btn{max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row.wrap{flex-wrap:wrap}.research-card input[type=checkbox]{width:18px;flex:none}
+@media(max-width:600px){#topic-btn{max-width:120px;overflow:hidden;text-overflow:ellipsis}.research-filters{grid-template-columns:minmax(0,1fr)}}

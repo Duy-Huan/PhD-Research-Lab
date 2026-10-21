@@ -23,7 +23,12 @@ async def pdf_bytes(url: str) -> bytes:
     return await asyncio.wait_for(_pdf_bytes(url), timeout=25)
 
 
-async def _pdf_bytes(url: str) -> bytes:
+async def pdf_bytes_limited(url: str, max_bytes: int) -> bytes:
+    return await asyncio.wait_for(_pdf_bytes(url, min(MAX_PDF_BYTES, max_bytes)), timeout=25)
+
+
+async def _pdf_bytes(url: str, max_bytes: int | None = None) -> bytes:
+    max_bytes = MAX_PDF_BYTES if max_bytes is None else min(MAX_PDF_BYTES, max_bytes)
     async with httpx.AsyncClient(timeout=12, follow_redirects=False) as c:
         for _ in range(4):
             await public_url(url)
@@ -31,11 +36,13 @@ async def _pdf_bytes(url: str) -> bytes:
                 if r.status_code in (301, 302, 303, 307, 308):
                     url = urljoin(url, r.headers.get("location", ""))
                     continue
+                if r.status_code == 429:
+                    raise ValueError("PDF source rate limited the request; retry after " + r.headers.get("retry-after", "the provider's cooldown")[:120])
                 r.raise_for_status()
                 data = bytearray()
                 async for chunk in r.aiter_bytes():
                     data.extend(chunk)
-                    if len(data) > MAX_PDF_BYTES:
+                    if len(data) > max_bytes:
                         raise ValueError("PDF exceeds the 30 MB download limit")
                 if not data.startswith(b"%PDF"):
                     raise ValueError("The publisher returned a page instead of an open-access PDF")

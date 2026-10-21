@@ -1,6 +1,16 @@
-# PhD Research Lab - v5.1.0
+# PhD Research Lab - v5.3.0-preview.1
 
 A local research workspace with one project chat, a browser interface and a terminal client sharing the same FastAPI backend. Research and Reviewer agents use Markdown skills; a utility model handles background extraction and memory work.
+
+## Topic knowledge and independent engine workspaces (preview)
+
+Open **Topics · SKB**, create a Topic, then **Open Topic**. The existing chat remains central. The drawer contains a discovery inbox, local paper search with filters/pagination, version/page evidence, OA download jobs, explicit reference curation, native engine folders and a provenance timeline. `/find`, `/topic`, `/workspace`, `/sync`, `/artifacts` and `/jobs` open deterministic controls without model inference. Selected paper/artifact chips enter chat only when you send an AI request.
+
+Topic discovery reuses OpenAlex/arXiv/Semantic Scholar and adds Crossref; Unpaywall uses the contact email in Research providers when configured. Scientific papers live in a separate SQLite corpus and content-addressed PDF store. Importing the old library is explicit and leaves it intact. Downloads do not approve bibliography entries or scientific claims. L4 requires your attestation note. Zotero/CSL JSON import is read-only, and BibTeX exports accepted records only.
+
+Link OpenScience or Feynman folders to a Topic and **Sync Now** after independent work, including work while PhD Lab was closed. File hashes, versions, text excerpts and tombstones are recorded without executing files. Large checkpoints remain metadata-only. OpenScience offers its verified native browser command; Feynman provides the terminal command for interactive use. External sessions/private reasoning remain unobservable through this file bridge. Optional Docling and Optuna adapters do not install dependencies or start research automatically.
+
+This is an incremental preview, not completion of every optional plugin/source in the upgrade catalogs. See [setup, recovery and limitations](docs/v5.3/01_OPERATIONS.md), [the implementation audit](docs/v5.3/00_AUDIT_AND_GAP_ANALYSIS.md) and [acceptance evidence](docs/v5.3/02_ACCEPTANCE.md).
 
 ## Start
 

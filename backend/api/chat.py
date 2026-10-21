@@ -21,7 +21,17 @@ async def sessions(q: str = "", archived: int = 0, limit: int = 200):
 
 @router.post("/api/chat/sessions")
 async def create(body: dict = Body(default={})):
-    return await call(store.create, str(body.get("title", "")), "global", "", "", body.get("settings") or {})
+    def run():
+        tid = str(body.get("topic_id") or "")
+        if tid:
+            from backend.knowledge.research_store import get_topic
+            get_topic(tid)
+        s = store.create(str(body.get("title", "")), "global", "", "", body.get("settings") or {})
+        if tid:
+            store.update(s["id"], lambda x: x.update(topic_id=tid))
+            return store.get(s["id"])
+        return s
+    return await call(run)
 
 
 @router.get("/api/chat/sessions/{sid}")
@@ -225,7 +235,8 @@ async def notes_delete(sid: str, nid: str):
 @router.get("/api/skills")
 async def skills_list():
     from backend.agent import skills
-    return {"skills": await call(skills.catalog), "errors": await call(skills.errors)}
+    from backend.agent.ui_actions import catalog
+    return {"skills": await call(skills.catalog), "actions": catalog(), "errors": await call(skills.errors)}
 
 
 @router.get("/api/skills/{name}")

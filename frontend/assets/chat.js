@@ -122,6 +122,8 @@
       return;
     }
     if (C.sid !== sid) return;  // the researcher opened another conversation meanwhile
+    if (PL.research) PL.research.onSession(C.s);
+    renderAtts();
     PL.setTitle(C.s.title, "");
     paintTopTools();
     renderMessages(true);
@@ -131,6 +133,7 @@
   function renderShell() {
     const v = PL.$("#view");
     v.replaceChildren(h("section#thread", { "aria-live": "polite" }, h("div#msgs")), composer());
+    if (PL.research) PL.research.chips();
     PL.setTitle(C.sid ? "…" : "", "");
     paintTopTools();
     attachDrop(PL.$("#thread"));
@@ -666,7 +669,7 @@
     const send = h("button.send#send", { type: "button", "aria-label": PL.t("Gửi"), html: PL.icon("send"), onclick: () => (C.busy ? stop() : submit()) });
     const model = h("button.model-btn#model", { type: "button", title: PL.t("Mô hình cho cuộc trò chuyện này"), onclick: (e) => modelMenu(e.currentTarget) }, "…");
     const box = h("div.composer", {},
-      h("div.atts#atts"), ta,
+      h("div.atts#atts"), h("div.research-chips#research-chips"), ta,
       h("div.bar", {},
         h("button.icon", { type: "button", title: PL.t("Đính kèm file (PDF, Word, Markdown, dữ liệu, ảnh…)"), "aria-label": PL.t("Đính kèm file"), html: PL.icon("clip"), onclick: () => file.click() }), file,
         h("button.icon", { type: "button", title: PL.t("Kỹ năng (/)"), "aria-label": PL.t("Kỹ năng"), html: PL.icon("spark"), onclick: () => { setInput("/"); slash(); } }),
@@ -741,7 +744,11 @@
     const on = menu.querySelector(".mi.sel");
     if (on && on.scrollIntoView) on.scrollIntoView({ block: "nearest" });
   }
-  function pick(s) { setInput("/" + s.name + " "); const m = PL.$(".menu.slash"); if (m) m.remove(); }
+  function pick(s) {
+    const m = PL.$(".menu.slash"); if (m) m.remove();
+    if (s.mode === "ui" && PL.research) { setInput(""); PL.safe(() => PL.research.dispatch(s)); }
+    else setInput("/" + s.name + " ");
+  }
   function onKey(e) {
     const m = PL.$(".menu.slash");
     if (m && ["ArrowDown", "ArrowUp", "Tab", "Enter", "Escape"].includes(e.key)) {
@@ -895,16 +902,18 @@
   async function submit(textArg) {
     const ta = PL.$("#input");
     const text = (textArg != null ? textArg : ta.value).trim();
+    if (PL.research && PL.research.command(text)) { ta.value = ""; return; }
     if (C.atts.some((a) => a.pending)) { PL.toast(PL.t("Đợi file tải lên xong")); return; }
     if (!text && !C.atts.length) return;
     const atts = C.atts.slice();
     const body = { text: text || PL.t("Hãy đọc các file đính kèm và tóm tắt những điểm quan trọng cho dự án."), overrides: {} };
     if (atts.length) body.overrides.sources = atts.map((a) => "att:" + a.id);
+    if (PL.research && PL.research.tid) body.overrides.sources = (body.overrides.sources || []).concat(PL.research.sources());
     if (atts.length) body.text = body.text + "\n\n" + atts.map((a) => `📎 ${a.name}`).join("\n");
     try {
       if (!C.sid) {
         const pend = Object.fromEntries(Object.entries(C.pending || {}).filter(([, v]) => v));
-        const s = await PL.post("/api/chat/sessions", Object.keys(pend).length ? { settings: pend } : {});
+        const s = await PL.post("/api/chat/sessions", { ...(Object.keys(pend).length ? { settings: pend } : {}), ...(PL.research && PL.research.tid ? { topic_id: PL.research.tid } : {}) });
         C.pending = null;
         ta.value = "";
         C.atts = [];
@@ -952,6 +961,7 @@
 
   C.loadSkills = async function () {
     const r = await PL.get("/api/skills").catch(() => ({ skills: [] }));
-    C.skills = r.skills;
+    if (PL.research) PL.research.actions = r.actions || [];
+    C.skills = (r.actions || []).concat(r.skills);
   };
 })(window);

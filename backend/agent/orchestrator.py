@@ -117,6 +117,11 @@ def _local(sid: str, tid: str, text: str, **meta) -> None:
 def _route(sid: str, tid: str, s: dict, text: str) -> bool:
     """Skills and intents. True when the turn was handled here (no model call)."""
     from backend.agent import launch, skills
+    from backend.agent.ui_actions import QUICK
+    command = text.split(maxsplit=1)[0].lstrip("/").lower() if text.startswith("/") else ""
+    if command in QUICK:
+        _local(sid, tid, "Open the research drawer: " + QUICK[command][0] + ". This is a deterministic UI action; no model was called.")
+        return True
     m = skills.match(text)
     if m:
         skill, arg = m
@@ -124,10 +129,22 @@ def _route(sid: str, tid: str, s: dict, text: str) -> bool:
             _local(sid, tid, launch.help_text())
             return True
         if skill["name"] == "status":
+            if s.get("topic_id"):
+                from backend.knowledge import research_store as RS, corpus
+                from backend.research_engines.workspaces import list_workspaces
+                topic = RS.get_topic(s["topic_id"])
+                _local(sid, tid, f"Topic: {topic['title']}\n\nPapers: {corpus.search(topic['id'])['total']}\nWorkspaces: {len(list_workspaces(topic['id']))}\n\nUse /jobs or /artifacts for the scoped research state.")
+                return True
             from backend.agent.dashboard import status_text
             _local(sid, tid, status_text())
             return True
         if skill["mode"] == "run":
+            if s.get("topic_id"):
+                if skill["name"] in ("review", "compare", "lit", "gap", "deepresearch"):
+                    _set(sid, tid, skill=skill["name"], question=arg or f"/{skill['name']}")
+                    return False
+                _local(sid, tid, "This run changes project-scoped state. Open a project conversation to run it; Topic chat supports scoped research and review.")
+                return True
             try:
                 r = launch.from_skill(skill["name"], arg, s, turn_id=tid)
             except AIWSError as e:
@@ -136,6 +153,8 @@ def _route(sid: str, tid: str, s: dict, text: str) -> bool:
             _local(sid, tid, _run_started(r), kind="run", run_id=r["id"])
             return True
         _set(sid, tid, skill=skill["name"], question=arg or f"/{skill['name']}")
+        return False
+    if s.get("topic_id"):
         return False
     route = launch.route(text)
     if not route:
@@ -191,6 +210,11 @@ def start(sid: str, text: str, overrides: dict | None = None, base_url: str = ""
     if any(t["status"] in ("running", "queued") for t in s["turns"]):
         raise AIWSError("A turn is already running in this session — wait or cancel it")
     ov = clean_overrides(overrides or {})
+    if s.get("topic_id"):
+        from backend.knowledge.research_context import validate_sources
+        validate_sources(s["topic_id"], list(s.get("selected_sources") or []) + list(ov.get("sources") or []))
+        if ov.get("run_tools"):
+            raise AIWSError("Project-scoped tools are unavailable in Topic chat")
     eff = effective(s, ov)
     tid = new_id("t", 4)
     if replace_from:
