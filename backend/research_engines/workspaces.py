@@ -20,6 +20,7 @@ EXTENSIONS = {".md", ".txt", ".csv", ".json", ".jsonl", ".pdf", ".bib", ".tex", 
 TEXT_EXTENSIONS = {".md", ".txt", ".csv", ".json", ".jsonl", ".bib", ".tex", ".yaml", ".yml", ".py", ".r", ".jl", ".c", ".cpp", ".h"}
 _lock = threading.Lock()
 _processes: dict = {}
+IS_WIN = os.name == "nt"
 
 
 class WorkspaceInput(BaseModel):
@@ -33,7 +34,7 @@ def _capabilities(engine: str) -> dict:
     from backend.execution.tools import which
     return {"engine": engine, "binary_available": bool(which(engine)), "artifact_reconciliation": True,
             "external_session_enumeration": False, "external_event_replay": False,
-            "native_open": "browser_process" if engine == "openscience" else "terminal_command",
+            "native_open": "browser_process" if engine == "openscience" else "terminal_window" if IS_WIN else "terminal_command",
             "fidelity": "artifact_observed", "limitations": OBSERVABILITY, "adapter_version": "1.0"}
 
 
@@ -331,7 +332,7 @@ def open_workspace(wid: str) -> dict:
         return {"status": "unavailable", "detail": "Engine CLI is not installed", "capabilities": w["capabilities"]}
     if os.name == "nt" and Path(argv[0]).suffix.lower() in (".cmd", ".bat", ".ps1"):
         return {"status": "unavailable", "detail": "Cannot safely resolve npm launcher to an executable"}
-    if w["engine"] == "feynman":
+    if w["engine"] == "feynman" and not IS_WIN:
         args = argv + ["--cwd", str(root)]
         return {"status": "terminal_required", "argv": args, "cwd": str(root),
                 "command": ("& " + " ".join("'" + a.replace("'", "''") + "'" for a in args)) if os.name == "nt" else __import__('shlex').join(args),
@@ -346,10 +347,20 @@ def open_workspace(wid: str) -> dict:
         env = minimal_env()
         # Do not forward PhD Lab provider keys or runtime tokens. Native engine uses its own auth.
         env["OPENSCIENCE_DISABLE_AUTOUPDATE"] = "1"
-        with logs.open("ab") as out:
-            p = subprocess.Popen(argv + ["web", str(root)], cwd=str(root), env=env, stdin=subprocess.DEVNULL,
-                                 stdout=out, stderr=subprocess.STDOUT, shell=False, creationflags=NO_WINDOW,
-                                 start_new_session=os.name != "nt")
+        args = argv + (["web", str(root)] if w["engine"] == "openscience" else ["--cwd", str(root)])
+        if IS_WIN:
+            import base64
+            command = "& " + " ".join("'" + a.replace("'", "''") + "'" for a in args)
+            encoded = base64.b64encode(command.encode("utf-16le")).decode("ascii")
+            # User-requested independent interactive window; errors remain visible in NoExit.
+            p = subprocess.Popen(["powershell.exe", "-NoLogo", "-NoProfile", "-NoExit", "-EncodedCommand", encoded],
+                                 cwd=str(root), env=env, shell=False,
+                                 creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
+        else:
+            with logs.open("ab") as out:
+                p = subprocess.Popen(args, cwd=str(root), env=env, stdin=subprocess.DEVNULL,
+                                     stdout=out, stderr=subprocess.STDOUT, shell=False, creationflags=NO_WINDOW,
+                                     start_new_session=True)
         _processes[key] = p
         try:
             code = p.wait(timeout=0.5)
@@ -358,5 +369,19 @@ def open_workspace(wid: str) -> dict:
         status = "started" if code is None else "exited" if code == 0 else "failed"
         with S.db() as c:
             S.event(c, w["topic_id"], "workspace.launch", {"status": status, "pid": p.pid, "exit_code": code, "fidelity": "native_event_verified", "scope": "local process creation only"}, wid=wid)
-        return {"status": status, "pid": p.pid, "exit_code": code, "cwd": str(root), "log": str(logs),
-                "detail": "Process creation does not establish model authentication or full activity capture."}
+        return {"status": status, "pid": p.pid, "exit_code": code, "cwd": str(root), "log": str(logs) if not IS_WIN else "",
+                "detail": "Opened an independent engine window on the server computer. Its terminal shows authentication and startup errors. No research prompt was submitted." if IS_WIN else "Process creation does not establish model authentication or full activity capture."}
+
+
+def open_editor(wid: str) -> dict:
+    """Open only a registered, project-scoped engine workspace in a separate editor window."""
+    from backend.execution.vscode import vscode_cli
+    from backend.execution.tools import run_cli
+    root = _root(get(wid))
+    cli = vscode_cli()
+    if not cli:
+        raise ValueError("VS Code not found; configure its path in Settings")
+    code, _ = run_cli([cli, "--new-window", str(root)], 30)
+    if code:
+        raise ValueError("VS Code could not open this workspace")
+    return {"status": "started", "cwd": str(root), "detail": "VS Code accepted this workspace in a separate window."}

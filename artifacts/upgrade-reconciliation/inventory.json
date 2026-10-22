@@ -1,6 +1,6 @@
 {
-  "at": "2026-10-22T13:31:43.526568+00:00",
-  "git_parent": "59cdb4c211039f32cb880770790b4bf23db093ff",
+  "at": "2026-10-22T14:20:14.378254+00:00",
+  "git_parent": "d71138ba9326e48c8f7c7ae0888730f67efe8ead",
   "interpretation": "Source-linked manual feature audit; inventory items include requirements, catalogs, examples and engineering instructions. Path/hash checks do not prove semantic compliance or executed tests.",
   "documents": [
     {
@@ -4889,11 +4889,16 @@
       "implementation": [
         "backend/agent/ui_actions.py",
         "frontend/assets/research.js",
-        "frontend/assets/app.css"
+        "frontend/assets/app.css",
+        "frontend/assets/settings.js",
+        "frontend/assets/core.js",
+        "frontend/assets/ui-locales.js",
+        "frontend/assets/main.js"
       ],
       "tests": [
         "tests/frontend/research-controls.test.js",
-        "tests/frontend/ui-refinement.test.js"
+        "tests/frontend/ui-refinement.test.js",
+        "tests/frontend/workflow-ux.test.js"
       ],
       "remaining": "No arbitrary downloaded JavaScript execution."
     },
@@ -4925,13 +4930,16 @@
       "implementation": [
         "backend/research_engines/openscience.py",
         "backend/research_engines/feynman.py",
-        "backend/research_engines/workspaces.py"
+        "backend/research_engines/workspaces.py",
+        "frontend/assets/research.js",
+        "backend/api/research.py"
       ],
       "tests": [
         "tests/test_research_engines.py",
-        "tests/test_research_workspace.py"
+        "tests/test_research_workspace.py",
+        "tests/frontend/workflow-ux.test.js"
       ],
-      "remaining": "Native terminal/web operation depends on installed versions. External private sessions remain unobservable unless exposed by supported interfaces."
+      "remaining": "Windows opens a visible independent engine terminal and registered workspace in VS Code. Native operation still depends on installed versions/authentication; non-Windows Feynman returns an explicit terminal command. External private sessions remain unobservable unless exposed by supported interfaces."
     },
     {
       "id": "53-reconciliation",
@@ -5411,9 +5419,9 @@
     "backend/plugins/document_parser.py": "74b8825e4aef36a728afbb659787dc914e4614f2afc5b0615eeb9fb14f8da257",
     "backend/plugins/document_parser_worker.py": "8dcdb07781f2724a18c48c0209d17ff914fae689da079a852db8536bc0123782",
     "backend/knowledge/corpus.py": "090153b7f455d8474235e530eeaa40dfc64013b92924f631adec14d08d9c801a",
-    "tests/test_research_workspace.py": "a8074ef9521235fcc08d90b14a83cb93184c688241e64f4085cc3f8e1028367d",
+    "tests/test_research_workspace.py": "fe82b36f7d78e7fe97ab73c3bf6c6e25689dab63aa80c28a92a7fcb460ae10ce",
     "backend/plugins/local_research.py": "d4f2e11b138e6366d1412415e3eea1357d83b63ce15271ffd0c77604aba7d84f",
-    "backend/api/research.py": "544f85852a3c40e3e49ad91ae0d88326950d5ed694b998959ee585b4d783a827",
+    "backend/api/research.py": "dbcacb11b0ce06d439decb1a548377eff007dfdbeab78f4048536a523ea693ec",
     "backend/agent/policy.py": "46f2971d5e4069b7f611d9a514d113ade02cea3288c7690ab9e05bdb2f21006d",
     "backend/knowledge/source_packs.py": "c51e6b528b73696dd6ac1ecdba72a06f203a724822404d4ccfe104f80a1e1163",
     "backend/knowledge/sources.py": "2eaa0906bfb62962400a49f62b147cfba8d64f7c4c0a8a70b12aa87815c0a3a3",
@@ -5424,7 +5432,7 @@
     "backend/knowledge/research_jobs.py": "93e1cc59e77618e68bfae1edf73c96841463845370faff0ea7be7b387dd2f31a",
     "tests/test_regression_boundaries.py": "951d30d4cd5955e2150f55114d9c9fd59d794104d7e153914cdd373f60480f38",
     "backend/knowledge/research_store.py": "8c061ae76d879795d3fd098ba38c9784565c07a2294566c768afdb7d077c1794",
-    "frontend/assets/research.js": "808298eb5f7d44301cea1f6fbc86f469fddf517030f99951469bd6646243ab17",
+    "frontend/assets/research.js": "274b38b5866f9ecc370523bcfc7f3ace82cb01a53838dbdca7e40cb04b7363bd",
     "tests/frontend/research-controls.test.js": "463322c715a541306ff6fbe7f9d4689d297e21d107391b0fc14595a9d02e2222",
     "tests/frontend/upgrade-reconciliation.test.js": "496e5a2b0c31cc755a5958717ce40191282b0cb92bf6596a4d0dd916136465fc",
     "backend/knowledge/governance.py": "b078c0bca051596d6211fd640a3616ef28b0f9ebe7726ebb67cee3f6d8e4601f",
@@ -5438,9 +5446,14 @@
     "tests/test_memory_v33.py": "1263a411a926c1ffff574f891a05ec92c608fb2587e39f9c0fba87c0c56f8116",
     "frontend/assets/chat.js": "29148832a2a66bd75341891310cfcfd9aea2f43614007e456fcaa718dfc1c5ea",
     "backend/agent/context.py": "00428018acff883f4c7d12fdb2bd960cf8c6c0622463ed92a5c88cff8f02b74e",
-    "frontend/assets/app.css": "5e814ac7372b5514de0e6ff4871497711731cbbc3b5bf4f395d08024ed51a1fe",
+    "frontend/assets/app.css": "82fd0a0117c3e64baa055f4737426efb46eb72517e423c4b5e300c867f1dc1bd",
+    "frontend/assets/settings.js": "bfc2d4ba71f4b56d6be69dee480a6958e2d1b80655b99c2599b6465eb1bb7266",
+    "frontend/assets/core.js": "ec63ecd809c7837939ac9cdcd45bfa9cf7bf4f0b8a5d03065598d9fba9be899b",
+    "frontend/assets/ui-locales.js": "b0fe6ca2ccafc16aa4c7e0feb5bd58fa05aba2df01f38e4e4b7b2ccca99ed9e6",
+    "frontend/assets/main.js": "99a4e983790239d602586c9f65c1bc125e0533002ad37648170e858f24661586",
     "tests/frontend/ui-refinement.test.js": "6159fd83ef60603751ce3325cb5459399196be7e08d56a01cf48f4c37cb041c2",
-    "backend/research_engines/workspaces.py": "e58bb71f2c91aabcd6c66c9e488e83050542024b51ef50618f4aff630c64d499",
+    "tests/frontend/workflow-ux.test.js": "299d41df0badfbed4df33e3475591c247956d5b45ad80f8296ffddabb5e34962",
+    "backend/research_engines/workspaces.py": "fc08375c2152bcb0d90817dfe24bef82117349991161bccd5e88a34539c74572",
     "tests/test_research_engines.py": "9949118db007bed337f8a1400d34c8569c82b56b6027f303494a6db4881cbc5c",
     "backend/research_engines/openscience.py": "836417d56e410d8b12cd51f91764427424c976981e6b0ea4c5ddfbdfa969d960",
     "backend/research_engines/feynman.py": "f86ef1beb9554d16d92e358fd983ce1cfddc9d688e384d55f9bc05b6564513cf",

@@ -165,6 +165,7 @@
       const g = b.dataset.go;
       if (g === "library") PL.panels.library();
       else if (g === "research") PL.research.open("papers");
+      else if (g === "engines") PL.research.open("workspaces");
       else if (g === "code") PL.panels.code();
       else if (g === "paper") PL.panels.paper();
       else if (g === "settings") PL.settings.open();

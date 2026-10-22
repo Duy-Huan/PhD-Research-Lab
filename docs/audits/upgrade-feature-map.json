@@ -402,11 +402,16 @@
       "implementation": [
         "backend/agent/ui_actions.py",
         "frontend/assets/research.js",
-        "frontend/assets/app.css"
+        "frontend/assets/app.css",
+        "frontend/assets/settings.js",
+        "frontend/assets/core.js",
+        "frontend/assets/ui-locales.js",
+        "frontend/assets/main.js"
       ],
       "tests": [
         "tests/frontend/research-controls.test.js",
-        "tests/frontend/ui-refinement.test.js"
+        "tests/frontend/ui-refinement.test.js",
+        "tests/frontend/workflow-ux.test.js"
       ],
       "remaining": "No arbitrary downloaded JavaScript execution."
     },
@@ -438,13 +443,16 @@
       "implementation": [
         "backend/research_engines/openscience.py",
         "backend/research_engines/feynman.py",
-        "backend/research_engines/workspaces.py"
+        "backend/research_engines/workspaces.py",
+        "frontend/assets/research.js",
+        "backend/api/research.py"
       ],
       "tests": [
         "tests/test_research_engines.py",
-        "tests/test_research_workspace.py"
+        "tests/test_research_workspace.py",
+        "tests/frontend/workflow-ux.test.js"
       ],
-      "remaining": "Native terminal/web operation depends on installed versions. External private sessions remain unobservable unless exposed by supported interfaces."
+      "remaining": "Windows opens a visible independent engine terminal and registered workspace in VS Code. Native operation still depends on installed versions/authentication; non-Windows Feynman returns an explicit terminal command. External private sessions remain unobservable unless exposed by supported interfaces."
     },
     {
       "id": "53-reconciliation",

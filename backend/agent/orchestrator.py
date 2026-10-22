@@ -545,7 +545,27 @@ def _app(sid, tid, s, t, v):
             err = str(e)
         finally:
             await gen.aclose()
-    asyncio.run(go())
+    async def bounded():
+        nonlocal err
+        task = asyncio.create_task(go())
+        started = time.monotonic()
+        try:
+            while not task.done():
+                done, _ = await asyncio.wait({task}, timeout=0.05)
+                if done:
+                    break
+                if _cancelled(tid) or time.monotonic() - started >= limit:
+                    if not _cancelled(tid):
+                        err = f"stopped after {limit:g} s (aiws.max_turn_s)"
+                    task.cancel()
+                    await asyncio.gather(task, return_exceptions=True)
+                    return
+            await task
+        finally:
+            if not task.done():
+                task.cancel()
+                await asyncio.gather(task, return_exceptions=True)
+    asyncio.run(bounded())
     return "".join(out).strip(), err, _cancelled(tid)
 
 

@@ -1,5 +1,7 @@
 # v6 upgrade handoff
 
+Frontend follow-up: [workflow review](FRONTEND_WORKFLOW_REVIEW.md), [local/API/MCP resource contracts](MODEL_RESOURCES.md), and [new regression evidence](../artifacts/workflow-ux/verification.md). Independent Windows engine windows and scoped model selection do not change the opt-in Research OS or scientific verification gates.
+
 Cross-version harness qualification: [verification guide](v6_HARNESS_VERIFICATION.md) and [measured current/historical results](../artifacts/harness-verification/verification.md). The current harness records the requested stage separately from the application version and retains exact control-plane/role/collaboration snapshots for independent hash checks. Original 6.0/6.2 bundles have evidence-export limits; the historical Git releases are tested without rewriting them. v6.1 remains a compatibility layer rather than an invented release.
 
 Follow-up reconciliation: [v5.1–v6.3 feature audit](upgrade-reconciliation.md) and [current validation](../artifacts/upgrade-reconciliation/validation.md) supersede earlier gap statements about keyword-only SKB retrieval, missing tags/citation graph, JSON-only Zotero input and 25-paper Mission report snapshots. Source-index venue coverage, optional parser dependencies and live scientific/hardware release gates remain explicit.

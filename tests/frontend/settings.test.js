@@ -61,7 +61,7 @@ test('models & agents: engines per agent, cloud keys (main list + others), local
   const agentRows = b.querySelectorAll('table.grid')[0].querySelectorAll('tr');
   assert.strictEqual(agentRows.length, 4);
   await change(h, agentRows[1].querySelector('select'), 'claude');
-  assert.deepStrictEqual(posted(h), {agent_modes: {research: 'claude'}});
+  assert.deepStrictEqual(posted(h), {agent_modes: {research: 'claude'}, agent_models: {research: ''}});
   const reviewerSelect = agentRows[2].querySelectorAll('select')[1];
   const reviewerModel = reviewerSelect.options[1].value;
   await change(h, reviewerSelect, reviewerModel);
@@ -71,7 +71,7 @@ test('models & agents: engines per agent, cloud keys (main list + others), local
   // main providers + the ones with a key are shown; the rest fold into "other providers"
   const main = [...b.querySelectorAll('table.grid')[1].querySelectorAll('tr')].slice(1).map((r) => r.cells[0].textContent);
   assert.ok(main.includes('Groq') || main.some((x) => /groq/i.test(x)));
-  assert.match(b.querySelector('details summary').textContent, /Nhà cung cấp khác \(\d+\)/);
+  assert.match(Array.from(b.querySelectorAll('details summary')).find(el => el.textContent.startsWith('Nhà cung cấp khác')).textContent, /Nhà cung cấp khác \(\d+\)/);
   const row = b.querySelectorAll('table.grid')[1].querySelectorAll('tr')[1];
   const key = row.querySelector('input');
   const model = row.querySelector('select');

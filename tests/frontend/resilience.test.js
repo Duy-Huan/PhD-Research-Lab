@@ -46,7 +46,7 @@ test('model routing and runtime controls save explicit configuration changes',as
   cfg.local_model='local-current';cfg.ollama_model='ollama-current';
   const h=await boot({routes:{'GET /api/config':()=>cfg,'POST /api/config':()=>({...cfg,routing:{},gateway:{},mcp:{}}),'GET /api/models/local':()=>({lmstudio:{models:[{id:'local-current'},'bare-model']},ollama:{models:[{id:'ollama-current'}]}})}});
   const PL=h.w.PL;await PL.settings.open('models');await h.idle();
-  await change(h,h.$('.sb table.grid:nth-of-type(2) select'),''); // choosing a cloud model is staged until Save.
+  await change(h,h.$$('.sb table.grid')[1].querySelector('select'),''); // choosing a cloud model is staged until Save.
   await change(h,h.byText('.sb .field',PL.ui('Capability-aware failover')).querySelector('input'),false);assert.deepEqual(posted(h),{routing:{capability_aware:false}});
   const chain=h.$$('.sb label.field').find(el=>el.firstChild.textContent==='reasoning');for(const select of chain.querySelectorAll('select'))await change(h,select,'@cloud');
   await h.click(chain.querySelector('button'));assert.deepEqual(posted(h).routing.chains.reasoning,['@cloud']);

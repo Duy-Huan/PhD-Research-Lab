@@ -532,3 +532,24 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
   #top > .icon, #top > .dot { flex-shrink:0; }
 }
 @media(max-width:600px){#topic-btn{max-width:120px;overflow:hidden;text-overflow:ellipsis}.research-filters{grid-template-columns:minmax(0,1fr)}}
+
+/* Keep settings controls readable without horizontal page scrolling. */
+.settings .sb > div { min-width:0; }
+.table-scroll { max-width:100%; overflow-x:auto; margin-block:10px; }
+.table-scroll table { min-width:540px; }
+.table-scroll td select { max-width:100%; min-width:150px; }
+.table-scroll td input { min-width:140px; }
+.mcp-agent-config { border:1px solid var(--line); border-radius:10px; padding:12px; margin-block:12px; }
+.mcp-agent-config summary { cursor:pointer; font-weight:600; margin-bottom:8px; }
+.research-card pre, .dialog-b pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+.side-nav { max-height:55dvh; overflow-y:auto; flex-shrink:0; }
+@media(max-width:600px){ .settings .sb { padding:4px 12px 18px; } .dialog-f { flex-wrap:wrap; } }
+
+@media(max-width:600px){
+  .table-scroll .agent-model-grid { min-width:0; display:block; }
+  .agent-model-grid tr { display:grid; grid-template-columns:minmax(0,1fr); gap:5px; padding-block:12px; border-bottom:1px solid var(--line); }
+  .agent-model-grid tr:first-child { display:none; }
+  .agent-model-grid td { display:block; border:0; padding:3px 0; min-width:0; }
+  .agent-model-grid td[data-label]::before { content:attr(data-label); display:block; color:var(--muted); font-size:12px; margin-bottom:4px; }
+  .agent-model-grid td select { width:100%; min-width:0; }
+}

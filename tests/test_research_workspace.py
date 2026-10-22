@@ -152,7 +152,7 @@ class ResearchWorkspace(unittest.TestCase):
             W.link(self.a, W.WorkspaceInput(engine="feynman", path=str(config.data_dir())))
         with patch("backend.execution.tools.which", return_value=None):
             self.assertEqual(W.open_workspace(w["id"])["status"], "unavailable")
-        with patch("backend.execution.tools.which", return_value="/usr/bin/feynman"), patch("subprocess.Popen", side_effect=AssertionError("No hidden interactive launch")):
+        with patch.object(W, "IS_WIN", False), patch("backend.execution.tools.which", return_value="/usr/bin/feynman"), patch("subprocess.Popen", side_effect=AssertionError("No hidden interactive launch")):
             self.assertEqual(W.open_workspace(w["id"])["status"], "terminal_required")
         self.assertFalse(W.get(w["id"])["capabilities"]["external_session_enumeration"])
         outside = config.data_dir() / "secret.md"
@@ -288,7 +288,7 @@ class ResearchWorkspace(unittest.TestCase):
         proc = MagicMock(pid=1234)
         proc.wait.side_effect = subprocess.TimeoutExpired("openscience", 0.5)
         proc.poll.return_value = None
-        with patch("backend.execution.tools.which", return_value="C:/Program Files/Engine/openscience.exe"), \
+        with patch.object(W, "IS_WIN", False), patch("backend.execution.tools.which", return_value="C:/Program Files/Engine/openscience.exe"), \
              patch("backend.execution.tools.node_argv", return_value=["C:/Program Files/Engine/openscience.exe"]), \
              patch("subprocess.Popen", return_value=proc) as launch:
             result = W.open_workspace(w["id"])
@@ -299,6 +299,43 @@ class ResearchWorkspace(unittest.TestCase):
             self.assertEqual(W.open_workspace(w["id"])["status"], "already_running")
             self.assertEqual(launch.call_count, 1)
         W._processes.pop((str(config.data_dir()), w["id"]), None)
+
+    def test_windows_engine_opens_independent_terminal_and_editor_uses_registered_root(self):
+        import base64
+        import subprocess
+        from unittest.mock import MagicMock
+        w = W.link(self.a, W.WorkspaceInput(engine="feynman"))
+        proc = MagicMock(pid=4321)
+        proc.wait.side_effect = subprocess.TimeoutExpired("powershell", 0.5)
+        proc.poll.return_value = None
+        argv = ["C:/Program Files/node.exe", "D:/engine's files/feynman.js"]
+        with patch.object(W, "IS_WIN", True), patch("backend.execution.tools.node_argv", return_value=argv), patch("subprocess.Popen", return_value=proc) as launch:
+            result = W.open_workspace(w["id"])
+            self.assertEqual(result["status"], "started")
+            args = launch.call_args.args[0]
+            self.assertEqual(args[:4], ["powershell.exe", "-NoLogo", "-NoProfile", "-NoExit"])
+            command = base64.b64decode(args[-1]).decode("utf-16le")
+            self.assertIn("engine''s files", command)
+            self.assertIn("'--cwd'", command)
+            self.assertNotIn("--prompt", command)
+            self.assertEqual(launch.call_args.kwargs["cwd"], w["path"])
+            self.assertFalse(launch.call_args.kwargs["shell"])
+            self.assertNotIn("OPENAI_API_KEY", launch.call_args.kwargs["env"])
+            self.assertEqual(result["log"], "")
+            self.assertEqual(W.open_workspace(w["id"])["status"], "already_running")
+            self.assertEqual(launch.call_count, 1)
+        W._processes.pop((str(config.data_dir()), w["id"]), None)
+        with patch("backend.execution.vscode.vscode_cli", return_value="code.exe"), patch("backend.execution.tools.run_cli", return_value=(0, "")) as run:
+            self.assertEqual(W.open_editor(w["id"])["status"], "started")
+            self.assertEqual(run.call_args.args[0], ["code.exe", "--new-window", w["path"]])
+        with patch("backend.execution.vscode.vscode_cli", return_value=None):
+            with self.assertRaisesRegex(ValueError, "VS Code not found"):
+                W.open_editor(w["id"])
+        with patch("backend.execution.vscode.vscode_cli", return_value="code.exe"), patch("backend.execution.tools.run_cli", return_value=(1, "")):
+            with self.assertRaisesRegex(ValueError, "could not open"):
+                W.open_editor(w["id"])
+        with self.assertRaisesRegex(ValueError, "not found"):
+            W.open_editor("unknown-workspace")
 
     def test_relink_and_snapshot_search_preserve_identity_history(self):
         w = W.link(self.a, W.WorkspaceInput(engine="openscience"))

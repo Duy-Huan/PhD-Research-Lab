@@ -234,12 +234,30 @@
   };
   /** modal({title, body: Node|string, actions:[{label, kind, onClick → false keeps it open}], wide}) → close() */
   PL.modal = function (o) {
-    const m = PL.$("#modal");
-    const close = () => { m.hidden = true; m.innerHTML = ""; D.removeEventListener("keydown", onKey); if (o.onClose) o.onClose(); };
-    const onKey = (e) => { if (e.key === "Escape") close(); };
+    if (PL._closeModal) PL._closeModal();
+    const m = PL.$("#modal"), opener = D.activeElement;
+    let closed = false;
+    const close = () => {
+      if (closed) return;
+      closed = true;
+      m.hidden = true; m.innerHTML = "";
+      D.removeEventListener("keydown", onKey); PL._closeModal = null;
+      if (opener.isConnected) opener.focus();
+      if (o.onClose) o.onClose();
+    };
+    const onKey = (e) => {
+      if (e.key === "Escape") { e.preventDefault(); close(); }
+      if (e.key === "Tab") {
+        const items = Array.from(dlg.querySelectorAll("button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], [tabindex='0']")).filter((el) => !el.hidden && !el.closest("[hidden]"));
+        const index = items.indexOf(D.activeElement);
+        if (e.shiftKey && index <= 0) { e.preventDefault(); items[items.length - 1].focus(); }
+        else if (!e.shiftKey && (index < 0 || index === items.length - 1)) { e.preventDefault(); items[0].focus(); }
+      }
+    };
+    PL._closeModal = close;
     const body = typeof o.body === "string" ? PL.h("div", { html: o.body }) : o.body;
     const foot = (o.actions || []).length ? PL.h("div.dialog-f", {}, o.actions.map((a) =>
-      PL.h("button.btn" + (a.kind ? "." + a.kind : ""), { type: "button", onclick: async () => { if ((await a.onClick?.()) !== false) close(); } }, a.label))) : null;
+      PL.h("button.btn" + (a.kind ? "." + a.kind : ""), { type: "button", onclick: async () => { if ((await a.onClick?.()) !== false && dlg.isConnected) close(); } }, a.label))) : null;
     const dlg = PL.h("div.dialog" + (o.wide ? ".wide" : ""), { role: "dialog", "aria-modal": "true", "aria-label": o.title || "" },
       PL.h("div.dialog-h", {}, PL.h("h2", {}, o.title || ""), PL.h("button.icon", { type: "button", "aria-label": PL.t("Đóng"), onclick: close, html: PL.icon("x") })),
       o.raw ? body : PL.h("div.dialog-b", {}, body), foot);
@@ -248,7 +266,7 @@
     m.hidden = false;
     m.onclick = (e) => { if (e.target === m) close(); };
     D.addEventListener("keydown", onKey);
-    const f = dlg.querySelector("input, textarea, select");
+    const f = dlg.querySelector("input:not(:disabled), textarea:not(:disabled), select:not(:disabled)") || dlg.querySelector("button");
     if (f) f.focus();
     return close;
   };

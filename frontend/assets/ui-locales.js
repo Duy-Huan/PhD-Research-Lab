@@ -68,7 +68,46 @@
     "Source claim ≠ measurement ≠ interpretation ≠ human decision. Checks do not guarantee correctness or novelty.": "Nhận định nguồn ≠ phép đo ≠ diễn giải ≠ quyết định của người dùng. Kiểm tra không bảo đảm tính đúng đắn hay tính mới.", "Propose claim": "Đề xuất nhận định", "Claim JSON": "Nhận định JSON", "Claim with exact evidence IDs / quotes": "Nhận định kèm đúng ID / trích dẫn bằng chứng", "Propose (not approve)": "Đề xuất (chưa phê duyệt)", "Resolve DOI · network": "Tra cứu DOI · kết nối mạng", "Authorize Crossref metadata lookup": "Cho phép tra cứu thông tin Crossref", "One network lookup; metadata does not certify scientific correctness": "Một lượt tra cứu mạng; thông tin thư mục không xác nhận tính đúng đắn khoa học", "Export claim statuses": "Xuất trạng thái nhận định", "Audit": "Kiểm toán", "Audit chain valid": "Chuỗi kiểm toán hợp lệ", "Audit discrepancy": "Sai lệch kiểm toán", "Use in chat": "Dùng trong chat", "Claim · ": "Nhận định · ", "Source ": "Nguồn ", "Open source page": "Mở trang nguồn", "Verify measured artifacts": "Kiểm chứng hiện vật đo", "Independent checks: ": "Kiểm tra độc lập: ", "Check evidence": "Kiểm tra bằng chứng", "Human scientific decision: ": "Quyết định khoa học của người dùng: ", "Review evidence, discrepancies, limitations and uncertainty": "Kiểm tra bằng chứng, sai lệch, giới hạn và điều chưa chắc chắn",
     "Paper Explorer is disabled in UI settings": "Trình khám phá tài liệu đã tắt trong cài đặt", "Contextual AI actions are disabled": "Thao tác AI theo ngữ cảnh đã tắt",
     "candidate": "ứng viên", "accepted": "đã chấp nhận", "dismissed": "đã loại", "deferred": "đã hoãn", "draft": "bản nháp", "queued": "đang chờ", "running": "đang chạy", "paused": "tạm dừng", "failed": "thất bại", "partial": "một phần", "cancelled": "đã huỷ", "interrupted": "bị gián đoạn", "completed": "hoàn tất", "succeeded": "thành công", "awaiting_approval": "chờ phê duyệt", "awaiting_review": "chờ thẩm định", "pending": "đang chờ", "scheduled": "đã lên lịch", "planned": "đã lên kế hoạch", "open": "đang mở", "resolved": "đã giải quyết", "rejected": "đã từ chối", "retracted": "đã rút lại", "contested": "bị phản bác", "approve": "chấp nhận", "contest": "phản bác", "reject": "từ chối", "retract": "rút lại", "reopen": "mở lại", "enabled": "đã bật", "observed": "đã quan sát", "unavailable / tombstone": "không khả dụng / đã xóa", "source_claim": "nhận định từ nguồn", "measurement": "phép đo", "interpretation": "diễn giải", "unknown": "chưa rõ", "CLI found": "Đã tìm thấy CLI", "CLI missing": "Thiếu CLI", "Never synced": "Chưa đồng bộ"
+,
+    "Endpoint": "Địa chỉ API", "Base URL (optional)": "URL gốc (tùy chọn)",
+    "Model source": "Nguồn model",
+    "Agent models": "Model cho agent",
+    "MCP inference tool": "Tool suy luận MCP",
+    "Choose a source, then its model. Auto routing uses each provider’s own default. MCP needs an inference tool; a general tool server is not a model.": "Chọn nguồn rồi chọn model của nguồn đó. Định tuyến tự động dùng model mặc định của từng hãng. MCP cần tool suy luận; server công cụ thông thường không phải model.",
+    "Configure MCP inference agent": "Cấu hình agent suy luận MCP",
+    "Enable MCP inference agent": "Bật agent suy luận MCP",
+    "MCP endpoint": "Địa chỉ MCP",
+    "Inference tool name": "Tên tool suy luận",
+    "MCP model catalog (one ID per line)": "Danh sách model MCP (mỗi dòng một ID)",
+    "MCP access token": "Token truy cập MCP",
+    "The named tool must accept system (string) and messages (array); model, max_tokens and temperature are optional. Responses appear after completion. Only this endpoint receives its token.": "Tool được chọn cần nhận system (chuỗi) và messages (mảng); model, max_tokens và temperature là tùy chọn. Câu trả lời xuất hiện sau khi tool hoàn tất. Token chỉ gửi tới địa chỉ MCP này.",
+    "Open in VS Code": "Mở trong VS Code",
+    "Opened in a separate window": "Đã mở trong cửa sổ riêng",
+    "Open the engine in its own window on this computer, or edit its files in VS Code. Sync saved artifacts back when ready.": "Mở engine trong cửa sổ riêng trên máy chạy PhD Lab, hoặc sửa file bằng VS Code. Đồng bộ các file đã lưu khi sẵn sàng.",
+    "Create a workspace above to open OpenScience or Feynman independently. Each Topic keeps its own files.": "Tạo workspace ở trên để mở OpenScience hoặc Feynman độc lập. Mỗi chủ đề giữ file riêng.",
+    "started": "đã mở",
+    "already_running": "đang mở",
+    "unavailable": "không khả dụng",
+    "terminal_required": "cần terminal",
+    "exited": "đã thoát"
+,
+    "Research agent — coordinates research, design, code and writing": "Research agent — điều phối, nghiên cứu, thiết kế, code, viết bài",
+    "Reviewer agent — critiques and verifies claims / evidence": "Reviewer agent — phản biện, kiểm chứng claim / evidence",
+    "Background utility — memory summaries, PDF/BibTeX extraction and search queries": "Tiện ích chạy nền — tóm tắt bộ nhớ, trích xuất PDF/BibTeX, truy vấn tìm kiếm",
+    "Qualified fallback models": "model thay thế đã kiểm chứng",
+    " · Loaded in VRAM: ": " · Trong VRAM: ",
+    "models (catalog; access checked when chatting)": "model (danh mục; kiểm tra quyền truy cập khi chat)"
+,
+    "Opened an independent engine window on the server computer. Its terminal shows authentication and startup errors. No research prompt was submitted.": "Đã mở cửa sổ engine riêng trên máy chạy PhD Lab. Terminal hiển thị trạng thái đăng nhập và lỗi khởi động. Chưa gửi yêu cầu nghiên cứu.",
+    "Engine CLI is not installed": "Chưa cài CLI của engine",
+    "Cannot safely resolve npm launcher to an executable": "Không xác định được file thực thi từ trình khởi chạy npm",
+    "Process creation does not establish model authentication or full activity capture.": "Việc mở tiến trình không xác nhận đăng nhập model hoặc ghi nhận đầy đủ hoạt động.",
+    "Run in your terminal for native interactive Feynman. No model task was submitted.": "Chạy lệnh trong terminal để dùng Feynman tương tác. Chưa gửi tác vụ cho model."
+,
+    "Chat’s Auto option uses these agent assignments; a fixed provider in chat overrides them.": "Chọn Tự động trong chat để dùng cấu hình agent này; chọn nhà cung cấp cố định trong chat sẽ ưu tiên lựa chọn đó.",
+    "Use configured cloud if a local model fails": "Dùng cloud đã cấu hình khi model local lỗi",
+    "Cloud fallback may incur API charges. Disable it to keep a fixed local agent local.": "Chuyển sang cloud có thể phát sinh phí API. Tắt tùy chọn này để agent local cố định chỉ chạy trên máy."
   };
   PL.ui = (en) => PL.lang === "en" ? en : (PL.VI[en] || en);
-  for (const [en, vi] of Object.entries(PL.VI)) PL.EN[vi] = en;
+  for (const [en, vi] of Object.entries(PL.VI)) if (!PL.EN[vi]) PL.EN[vi] = en;
 })(window);

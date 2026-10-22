@@ -489,6 +489,11 @@ async def open_workspace(wid: str):
     return await call(W.open_workspace, wid)
 
 
+@router.post("/workspaces/{wid}/editor")
+async def workspace_editor(wid: str):
+    return await call(W.open_editor, wid)
+
+
 @router.put("/workspaces/{wid}")
 async def relink_workspace(wid: str, body: W.WorkspaceInput):
     return await call(W.relink, wid, body)

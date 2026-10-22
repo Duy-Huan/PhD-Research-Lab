@@ -436,6 +436,8 @@ def resolve_model(cfg: dict, agent: str) -> str | None:
 
 
 def engine_label(engine: str) -> str:
+    if engine == "mcp":
+        return "MCP inference agent"
     if engine == "local":
         return "LM Studio (local)"
     if engine == "ollama":
@@ -478,6 +480,11 @@ async def call_agent(agent: str, system: str, user: str | None = None, messages:
     msgs = messages or [{"role": "user", "content": user or ""}]
     if engine == "auto":
         return await _call_auto(cfg, agent, system, msgs, max_tokens, temperature)
+    if engine == "mcp":
+        from backend.providers.mcp_agent import complete
+        text = await complete(cfg, system, msgs, model, max_tokens, temperature)
+        return {"text": strip_think(text).strip(), "engine": engine, "engine_label": engine_label(engine),
+                "model": model or "(server default)", "note": "MCP inference tool; server owns model execution"}
     if engine not in LOCAL_ENGINES:
         text = await cloud_chat(cfg, engine, system, msgs, max_tokens, temperature, model)
         return {"text": text, "engine": engine, "engine_label": engine_label(engine), "model": model or default_model_for(cfg, engine), "note": ""}
@@ -649,6 +656,13 @@ async def stream_agent(agent: str, system: str, messages: list, max_tokens: int 
     cfg = load_config()
     engine = resolve_engine(cfg, agent)
     model = resolve_model(cfg, agent)
+    if engine == "mcp":
+        from backend.providers.mcp_agent import complete
+        text = strip_think(await complete(cfg, system, messages, model, max_tokens, temperature)).strip()
+        yield ("delta", text)
+        yield ("meta", {"engine": engine, "engine_label": engine_label(engine), "model": model or "(server default)",
+                        "text": text, "note": "MCP inference tool; response delivered after tool completion"})
+        return
     note, raw, emitted = "", "", 0
 
     purpose = LC.purpose_for(agent)

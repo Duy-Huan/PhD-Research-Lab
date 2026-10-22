@@ -74,3 +74,6 @@ Rollback bằng code trước thay đổi, giữ nguyên data và backup. Không
 ## Tài liệu upstream đã đối chiếu
 
 [OpenAlex filtering](https://help.openalex.org/api/filtering/), [OpenReview API v2](https://docs.openreview.net/reference/api-v2/openapi-definition), [Zenodo REST](https://developers.zenodo.org/), [Europe PMC](https://europepmc.org/RestfulWebService), [HAL search](https://api.archives-ouvertes.fr/docs/search), [Zotero local API](https://www.zotero.org/support/dev/web_api/v3/local_api), [Zotero API basics](https://www.zotero.org/support/dev/web_api/v3/basics). Hợp đồng HTTP offline không chứng minh dịch vụ live luôn sẵn sàng hoặc mọi record đều có PDF công khai.
+
+
+UI follow-up (2026-10-22): [workflow review](FRONTEND_WORKFLOW_REVIEW.md) adds provider-scoped agent models, optional MCP inference-tool binding and independent Windows engine windows. [New regression evidence](../artifacts/workflow-ux/verification.md) records the current checks; the earlier validation snapshot below remains historical. Source-linked inventory hashes have been refreshed after reviewing these changes. Scientific/native inference qualification gates remain unchanged.

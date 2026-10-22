@@ -1,0 +1,16 @@
+{
+  "checks": [
+    "Real API paginates 120 fixture papers without agent calls",
+    "Tag bulk action persists and filters through backend",
+    "Citation sort uses retained source counts",
+    "Upper-year filter returns actual empty result",
+    "Citation graph retains exact versioned source edges",
+    "Archived Topic retains its papers",
+    "New Vietnamese controls are translated",
+    "Mobile research drawer remains accessible with central composer"
+  ],
+  "errors": [],
+  "passed": true,
+  "topic_id": "70840c86-e2bf-417b-93fb-4f669ec84760",
+  "scope": "Isolated demo data and real backend; no live scholarly calls or model inference"
+}

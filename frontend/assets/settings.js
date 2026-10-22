@@ -14,6 +14,7 @@
     cfg.routing = cfg.routing || {};
     cfg.gateway = cfg.gateway || {};
     cfg.mcp = cfg.mcp || {};
+    cfg.mcp_agent = cfg.mcp_agent || { enabled: false, models: [] };
     const nav = h("nav");
     const keywords = { models: "local API key model routing priority quota failover ollama LM Studio", providers: "CLI Codex Claude Gemini Feynman OpenScience research engine collaborative web search", mcp: "MCP ChatGPT tools protocol", hardware: "GPU Docker ClearML Colab experiment training", memory: "context cache memory", skills: "skills commands", plugins: "GitHub plugins", look: "language font theme" };
     const search = h("input.input.settings-search", { type: "search", placeholder: PL.ui("Search settings…"), "aria-label": PL.ui("Search settings"), oninput: (e) => {
@@ -60,17 +61,62 @@
   async function models(b) {
     b.append(h("h3", {}, PL.t("Hai agent + một tiện ích chạy nền")),
       h("p.help", {}, PL.t("Research agent điều phối mọi việc (nghiên cứu, thiết kế, code, viết bài); Reviewer agent phản biện và kiểm chứng. Kỹ năng (/) quyết định agent làm gì — không cần một agent cho mỗi công cụ.")));
-    const engines = [["auto", PL.t("Tự động (local → cloud)")], ["claude", PL.t("Claude (nếu có key)")], ["cloud", PL.t("Cloud mặc định")], ["local", "LM Studio (local)"], ["ollama", "Ollama (local)"]]
+    const engines = [["mcp", PL.ui("MCP inference tool")], ["auto", PL.t("Tự động (local → cloud)")], ["claude", PL.t("Claude (nếu có key)")], ["cloud", PL.t("Cloud mặc định")], ["local", "LM Studio (local)"], ["ollama", "Ollama (local)"]]
       .concat(Object.entries(cfg.provider_specs).map(([k, v]) => [k, v.label]));
-    const t = h("table.grid", {}, h("tr", {}, h("th", {}, PL.ui("Agent")), h("th", {}, PL.ui("Engine")), h("th", {}, PL.t("Model (tuỳ chọn)"))));
+    const t = h("table.grid.agent-model-grid", {}, h("tr", {}, h("th", {}, PL.ui("Agent")), h("th", {}, PL.ui("Engine")), h("th", {}, PL.t("Model (tuỳ chọn)"))));
+    let localCatalog = {};
+    const providerCatalog = {};
+    const agentRows = [];
+    const sourceFor = (mode) => mode === "cloud" ? cfg.default_cloud : mode === "claude" ? (cfg.providers.anthropic.has_key ? "anthropic" : cfg.default_cloud) : mode;
+    const choices = (mode) => {
+      const pid = sourceFor(mode);
+      if (pid === "auto") return [];
+      if (pid === "mcp") return cfg.mcp_agent.models;
+      if (pid === "local" || pid === "ollama") return [cfg[pid === "local" ? "local_model" : "ollama_model"], ...(localCatalog[pid] || [])].filter(Boolean);
+      return [cfg.providers[pid].model, ...(providerCatalog[pid] || cfg.provider_specs[pid].models || [])].filter(Boolean);
+    };
     for (const [a, spec] of Object.entries(cfg.agents)) {
-      t.append(h("tr", {}, h("td", {}, h("b", {}, a), h("div.muted", { style: "font-size:12px" }, spec.label)),
-        h("td", {}, sel(engines, cfg.agent_modes[a], (v) => save({ agent_modes: { [a]: v } }))),
-        h("td", {}, modelSelect([["", PL.t("mặc định của engine")], ...Array.from(new Set([...(Object.values(cfg.provider_specs).flatMap((p) => p.models || [])), (cfg.agent_models || {})[a]].filter(Boolean))).map((m) => [m, m])], (cfg.agent_models || {})[a] || "", (v) => save({ agent_models: { [a]: v } })))));
+      let mode = cfg.agent_modes[a], value = (cfg.agent_models || {})[a] || "";
+      const cell = h("td", { "data-label": PL.ui("Model") });
+      let boundSource = sourceFor(mode);
+      const paint = () => {
+        const nextSource = sourceFor(mode);
+        if (nextSource !== boundSource) value = "";
+        boundSource = nextSource;
+        const model = modelSelect([["", PL.t("mặc định của engine")], ...Array.from(new Set([...choices(mode), value].filter(Boolean))).map((m) => [m, m])], value, (v) => { value = v; save({ agent_models: { [a]: v } }); });
+        model.setAttribute("aria-label", a + " · " + PL.ui("Model"));
+        model.disabled = mode === "auto";
+        cell.replaceChildren(model);
+      };
+      const source = sel(engines, mode, async (v) => {
+        source.disabled = true;
+        cell.querySelector("select").disabled = true;
+        const result = await save({ agent_modes: { [a]: v }, agent_models: { [a]: "" } });
+        if (result) { mode = v; value = ""; paint(); await PL.chat.loadModels(); }
+        else { source.value = mode; paint(); }
+        source.disabled = false;
+      });
+      source.setAttribute("aria-label", a + " · " + PL.ui("Model source"));
+      agentRows.push({ paint });
+      paint();
+      t.append(h("tr", {}, h("td", {}, h("b", {}, a), h("div.muted", { style: "font-size:12px" }, PL.t(spec.label))), h("td", { "data-label": PL.ui("Model source") }, source), cell));
     }
-    b.append(t);
+    b.append(h("div.table-scroll", { role: "region", "aria-label": PL.ui("Agent models"), tabindex: 0 }, t),
+      h("p.help", {}, PL.ui("Chat’s Auto option uses these agent assignments; a fixed provider in chat overrides them.")),
+      h("p.help", {}, PL.ui("Choose a source, then its model. Auto routing uses each provider’s own default. MCP needs an inference tool; a general tool server is not a model.")));
+    const ma = cfg.mcp_agent;
+    b.append(h("details.mcp-agent-config", {}, h("summary", {}, PL.ui("Configure MCP inference agent")),
+      toggle(PL.ui("Enable MCP inference agent"), ma.enabled, (v) => save({ mcp_agent: { enabled: v } })),
+      field(PL.ui("MCP endpoint"), h("input.input", { value: ma.url || "", placeholder: "http://127.0.0.1:8766/mcp", onchange: (e) => save({ mcp_agent: { url: e.target.value } }) })),
+      field(PL.ui("Inference tool name"), h("input.input", { value: ma.tool || "research", onchange: (e) => save({ mcp_agent: { tool: e.target.value } }) })),
+      field(PL.ui("MCP model catalog (one ID per line)"), h("textarea.input", { rows: 3, value: ma.models.join("\n"), onchange: async (e) => {
+        const result = await save({ mcp_agent: { models: Array.from(new Set(e.target.value.split(/\n|,/).map((m) => m.trim()).filter(Boolean))) } });
+        if (result) agentRows.forEach((row) => row.paint());
+      } })),
+      field(PL.ui("MCP access token"), h("input.input", { type: "password", autocomplete: "off", placeholder: ma.has_token ? PL.t("•••••• (đã lưu)") : PL.t("chưa có"), onchange: async (e) => { const result = await save({ mcp_agent: { token: e.target.value } }); if (result) e.target.value = ""; } })),
+      h("p.help", {}, PL.ui("The named tool must accept system (string) and messages (array); model, max_tokens and temperature are optional. Responses appear after completion. Only this endpoint receives its token."))));
     b.append(h("h3", {}, PL.ui("Cloud API")), h("p.help", {}, PL.t("Key chỉ được gửi tới máy chủ của chính nhà cung cấp đó; giao diện không bao giờ hiển thị lại key.")));
-    b.append(field(PL.t("Cloud mặc định"), sel(Object.entries(cfg.provider_specs).map(([k, v]) => [k, v.label]), cfg.default_cloud, (v) => save({ default_cloud: v }))));
+    b.append(field(PL.t("Cloud mặc định"), sel(Object.entries(cfg.provider_specs).map(([k, v]) => [k, v.label]), cfg.default_cloud, async (v) => { const result = await save({ default_cloud: v }); if (result) agentRows.forEach((row) => row.paint()); })));
     const keys = h("table.grid", {}, h("tr", {}, h("th", {}, PL.t("Nhà cung cấp")), h("th", {}, "API key"), h("th", {}, "Model"), h("th", {}, "")));
     const more = h("table.grid");
     const specs = Object.entries(cfg.provider_specs);
@@ -80,18 +126,24 @@
       const table = p.has_key || main.has(pid) ? keys : more;
       const key = h("input.input", { type: "password", placeholder: p.has_key ? PL.t("•••••• (đã lưu)") : PL.t("chưa có"), autocomplete: "off" });
       const model = modelSelect(Array.from(new Set([p.model, ...(spec.models || [])].filter(Boolean))).map((m) => [m, m]), p.model || "", () => {});
-      table.append(h("tr", {}, h("td", {}, spec.label), h("td", {}, key), h("td", {}, model, h("datalist", { id: "ml-" + pid }, (spec.models || []).map((m) => h("option", { value: m })))),
-        h("td", {}, h("div.row", {}, h("button.btn.sm", { type: "button", onclick: () => {
+      table.append(h("tr", {}, h("td", {}, spec.label), h("td", {}, key, h("details", {}, h("summary.muted", {}, PL.ui("Endpoint")), field(PL.ui("Base URL (optional)"), h("input.input", { value: p.base_url || "", placeholder: spec.base_url, onchange: (e) => save({ providers: { [pid]: { base_url: e.target.value } } }) })))), h("td", {}, model, h("datalist", { id: "ml-" + pid }, (spec.models || []).map((m) => h("option", { value: m })))),
+        h("td", {}, h("div.row", {}, h("button.btn.sm", { type: "button", onclick: async (e) => {
+          const button = e.currentTarget; button.disabled = true;
           const patch = { model: model.value };
           if (key.value) patch.api_key = key.value;
-          save({ providers: { [pid]: patch } }).then(() => { key.value = ""; PL.chat.loadModels(); });
+          const result = await save({ providers: { [pid]: patch } });
+          if (result) { key.value = ""; agentRows.forEach((row) => row.paint()); await PL.chat.loadModels(); }
+          button.disabled = false;
         } }, PL.t("Lưu")), h("button.btn.sm.ghost", { type: "button", onclick: () => PL.safe(() => PL.post("/api/models/test", { provider: pid }).then((r) => PL.toast(`OK · ${r.model}: ${r.reply}`))) }, PL.t("Thử")),
         h("button.btn.sm.ghost", { type: "button", onclick: () => PL.safe(async () => {
           const r = await PL.post("/api/models/list", { provider: pid });
-          model.replaceChildren(...Array.from(new Set([p.model, ...r.models].filter(Boolean))).map((m) => h("option", { value: m, selected: m === p.model || null }, m)));
+          const current = model.value;
+          providerCatalog[pid] = r.models;
+          model.replaceChildren(...Array.from(new Set([current, ...r.models].filter(Boolean))).map((m) => h("option", { value: m, selected: m === current || null }, m)), h("option", { value: "__custom__" }, PL.ui("Custom model…")));
+          agentRows.forEach((row) => row.paint());
         }) }, "↻ Models")))));
     }
-    b.append(keys, h("details", { style: "margin-top:8px" }, h("summary.muted", { style: "cursor:pointer;font-size:13px" }, PL.t("Nhà cung cấp khác ({0})", more.childNodes.length)), more));
+    b.append(h("div.table-scroll", { tabindex: 0, "aria-label": PL.ui("Cloud API") }, keys), h("details", { style: "margin-top:8px" }, h("summary.muted", { style: "cursor:pointer;font-size:13px" }, PL.t("Nhà cung cấp khác ({0})", more.childNodes.length)), h("div.table-scroll", { tabindex: 0 }, more)));
     b.append(h("h3", {}, PL.t("Thứ tự ưu tiên & năng lực / Routing")),
       toggle(PL.ui("Capability-aware failover"), cfg.routing.capability_aware !== false, (v) => save({ routing: { capability_aware: v } }), PL.t("Giữ checkpoint và chờ provider phù hợp khi hết quota.")));
     const chainOptions = [["@cloud", PL.t("Cloud mặc định")], ["@claude", "Claude API"], ["ollama", "Ollama"], ["local", "LM Studio"], ...Object.entries(cfg.provider_specs).map(([k, v]) => [k, v.label])];
@@ -102,11 +154,12 @@
       if (["reasoning", "code", "writing"].includes(kind)) {
         const qualified = ((cfg.routing.verified_fallbacks || {})[kind] || []);
         const choices = [["local", cfg.local_model], ["ollama", cfg.ollama_model], ...Object.entries(cfg.providers).map(([id, p]) => [id, p.model])].filter(([, model]) => model);
-        b.append(field(`${kind} · model thay thế đã kiểm chứng`, h("select.input", { multiple: true, size: 3, onchange: (e) => save({ routing: { verified_fallbacks: Object.assign({}, cfg.routing.verified_fallbacks, { [kind]: Array.from(e.target.selectedOptions).map((o) => o.value) }) } }) },
+        b.append(field(`${kind} · ${PL.ui("Qualified fallback models")}`, h("select.input", { multiple: true, size: 3, onchange: (e) => save({ routing: { verified_fallbacks: Object.assign({}, cfg.routing.verified_fallbacks, { [kind]: Array.from(e.target.selectedOptions).map((o) => o.value) }) } }) },
           choices.map(([id, model]) => h("option", { value: `${id}:${model}`, selected: qualified.includes(`${id}:${model}`) || null }, `${id} · ${model}`))), PL.t("Chỉ đánh dấu sau khi bạn đã đánh giá năng lực cho tác vụ này. Đổi model sẽ cần kiểm chứng lại.")));
       }
     }
-    b.append(h("h3", {}, PL.t("Mô hình trên máy (VRAM)")));
+    b.append(h("h3", {}, PL.t("Mô hình trên máy (VRAM)")),
+      toggle(PL.ui("Use configured cloud if a local model fails"), cfg.fallback_to_cloud, (v) => save({ fallback_to_cloud: v }), PL.ui("Cloud fallback may incur API charges. Disable it to keep a fixed local agent local.")));
     const st = h("div.muted", {}, h("span.spin"));
     const localSelect = sel([["", "Auto"], ...[cfg.local_model].filter(Boolean).map((m) => [m, m])], cfg.local_model || "", (v) => save({ local_model: v }));
     const ollamaSelect = sel([["", "Auto"], ...[cfg.ollama_model].filter(Boolean).map((m) => [m, m])], cfg.ollama_model || "", (v) => save({ ollama_model: v }));
@@ -120,12 +173,14 @@
     PL.get("/api/models/local").then((r) => {
       st.innerHTML = "";
       const lm = r.lmstudio || {}, ol = r.ollama || {};
+      localCatalog = { local: (lm.models || []).map((m) => m.id || m), ollama: (ol.models || []).map((m) => m.id || m) };
+      agentRows.forEach((row) => row.paint());
       for (const [select, models, current] of [[localSelect, lm.models || [], cfg.local_model], [ollamaSelect, ol.models || [], cfg.ollama_model]]) {
         select.replaceChildren(h("option", { value: "" }, "Auto"), ...Array.from(new Set([current, ...models.map((m) => m.id || m)].filter(Boolean))).map((m) => h("option", { value: m, selected: m === current || null }, m)));
       }
       const loaded = [].concat((lm.loaded || []).map((m) => "LM Studio: " + m), (ol.loaded || []).map((m) => "Ollama: " + (m.id || m)));
       st.append(h("div.row", {}, h("span.dot." + (lm.online ? "ok" : "")), "LM Studio", h("span.dot." + (ol.online ? "ok" : "")), "Ollama",
-        h("span.grow", {}, loaded.length ? " · Trong VRAM: " + loaded.join(", ") : PL.t(" · VRAM trống")),
+        h("span.grow", {}, loaded.length ? PL.ui(" · Loaded in VRAM: ") + loaded.join(", ") : PL.t(" · VRAM trống")),
         h("button.btn.sm", { type: "button", onclick: () => PL.safe(() => PL.post("/api/models/unload", { engine: "all" }), PL.t("Đã gỡ mô hình khỏi VRAM")) }, PL.t("Unload tất cả"))));
     }).catch(() => { st.textContent = PL.t("Không đọc được trạng thái local."); });
   }
@@ -136,7 +191,7 @@
       b.append(field(`${pid} · model catalog`, h("textarea.input", { rows: 2, placeholder: PL.t("Mỗi dòng một model ID đã kiểm chứng"), value: ((cfg.gateway.cli_models || {})[pid] || []).join("\n"), onchange: (e) => save({ gateway: { cli_models: Object.assign({}, cfg.gateway.cli_models, { [pid]: Array.from(new Set(e.target.value.split(/\n|,/).map((m) => m.trim()).filter(Boolean))) }) } }) }), PL.t("Danh sách dùng trong model picker; catalog không xác nhận quota hoặc gói miễn phí.")));
     }
     b.append(h("button.btn.sm", { type: "button", onclick: () => PL.safe(async () => {
-      const r = await PL.post("/api/models/cli/codex", {}); await PL.chat.loadModels(); PL.toast(`${r.models.length} models (catalog; quyền truy cập kiểm tra khi chat)`);
+      const r = await PL.post("/api/models/cli/codex", {}); await PL.chat.loadModels(); PL.toast(`${r.models.length} ${PL.ui("models (catalog; access checked when chatting)")}`);
     }) }, "↻ Codex model catalog"));
     b.append(h("h3", {}, "CLI · MCP"),
       toggle("Codex app-server (prototype)", cfg.gateway.codex_app_server, (v) => save({ gateway: { codex_app_server: v } }), PL.t("Mặc định tắt. Chỉ fallback sang exec trước khi gửi turn; giữ native thread resume.")));

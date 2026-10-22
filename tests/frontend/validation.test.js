@@ -24,7 +24,7 @@ test('custom model selection can cancel, add a model, and refresh actual provide
   await h.w.PL.settings.open('providers');
   await h.idle(20);
   await h.clickText('.sb button', 'Codex model catalog');
-  assert.match(h.toast(), /1 models/);
+  assert.strictEqual(h.toast(), "1 " + h.w.PL.ui("models (catalog; access checked when chatting)"));
   const token = h.byText('.sb .field', h.w.PL.ui('Deployment token')).querySelector('input');
   token.value = 'test-deployment-token';
   await h.clickText('.sb button', 'Lưu mã truy cập');

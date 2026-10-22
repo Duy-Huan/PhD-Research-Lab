@@ -5,7 +5,7 @@
   const R = PL.research = { tid: "", topics: [], selected: new Map(), actions: [], query: "", offset: 0 };
   let epoch = 0, request = null, timer = 0;
   const tr = (vi, en) => PL.lang === "en" ? en : vi;
-  const button = (label, run, cls) => h("button.btn.sm" + (cls ? "." + cls : ""), { type: "button", onclick: () => PL.safe(run) }, label);
+  const button = (label, run, cls) => h("button.btn.sm" + (cls ? "." + cls : ""), { type: "button", onclick: async (e) => { const control = e.currentTarget; control.disabled = true; await PL.safe(run); control.disabled = false; } }, label);
   const label = (name, input) => h("label.field", {}, h("span", {}, name), input);
   const input = (value, attrs) => h("input.input", Object.assign({ value: value == null ? "" : String(value) }, attrs || {}));
   const select = (items, value) => h("select.input", {}, items.map(([id, name]) => h("option", { value: id, selected: String(value) === String(id) || null }, name)));
@@ -222,7 +222,7 @@
   };
 
   async function renderWorkspaces(body, revision) {
-    body.append(h("p.muted", {}, tr("Chỉ đồng bộ file đã lưu; không đọc được toàn bộ phiên, suy luận riêng hoặc hoạt động chưa lưu của engine.", "Only saved files are observable; full external sessions, private reasoning and unsaved activity are not captured.")),
+    body.append(h("p.help", {}, PL.ui("Open the engine in its own window on this computer, or edit its files in VS Code. Sync saved artifacts back when ready.")), h("p.muted", {}, tr("Chỉ đồng bộ file đã lưu; không đọc được toàn bộ phiên, suy luận riêng hoặc hoạt động chưa lưu của engine.", "Only saved files are observable; full external sessions, private reasoning and unsaved activity are not captured.")),
       button(tr("＋ Tạo / liên kết workspace", "＋ Create / link workspace"), () => {
         const engine = select([["openscience", "OpenScience"], ["feynman", "Feynman"]], "openscience"), path = input("", { placeholder: PL.ui("Empty = managed folder; otherwise absolute existing folder") }), interval = input(0, { type: "number", min: 0 });
         PL.modal({ title: PL.ui("Engine workspace"), body: h("div", {}, label(PL.ui("Engine"), engine), label(PL.ui("Path"), path), label(PL.ui("Sync interval minutes (0 = manual)"), interval)), actions: [{ label: PL.ui("Cancel") }, { label: PL.ui("Link"), kind: "accent", onClick: async () => {
@@ -234,10 +234,10 @@
     for (const w of r.workspaces) body.append(h("article.research-card", {}, h("b", {}, w.engine), h("p.research-path", {}, w.path),
       h("p.muted", {}, `${w.capabilities.binary_available ? PL.ui("CLI found") : PL.ui("CLI missing")} · ${w.artifact_count} ${tr("hiện vật", "artifacts")} · ${w.checkpoint ? w.checkpoint.status + " / " + w.checkpoint.at : PL.ui("Never synced")}`),
       w.checkpoint && w.checkpoint.error ? h("p.error", {}, w.checkpoint.error) : null,
-      h("div.row.wrap", {}, button(PL.ui("Open ") + w.engine, async () => {
+      h("div.row.wrap", {}, button(PL.ui("Open ") + w.engine + " ↗", async () => {
         const result = await PL.post("/api/research/workspaces/" + w.id + "/open");
-        PL.modal({ title: result.status, body: h("div", {}, h("p", {}, result.detail || result.status), result.command ? h("pre", {}, result.command) : null, result.log ? h("p", {}, result.log) : null), actions: [{ label: PL.ui("Close") }] });
-      }), button(PL.ui("Sync Now"), async () => { await PL.post("/api/research/workspaces/" + w.id + "/sync"); await R.open("jobs"); }), button(PL.ui("View changes"), () => R.open("artifacts")),
+        PL.modal({ title: PL.ui(result.status), body: h("div", {}, h("p", {}, PL.ui(result.detail || result.status)), result.command ? h("pre", {}, result.command) : null, result.log ? h("p", {}, result.log) : null), actions: [{ label: PL.ui("Close") }] });
+      }), button(PL.ui("Open in VS Code"), () => PL.post("/api/research/workspaces/" + w.id + "/editor").then(() => PL.toast(PL.ui("Opened in a separate window")))), button(PL.ui("Sync Now"), async () => { await PL.post("/api/research/workspaces/" + w.id + "/sync"); await R.open("jobs"); }), button(PL.ui("View changes"), () => R.open("artifacts")),
       button(PL.ui("Relink / schedule"), () => {
         const path = input(w.path), interval = input(w.sync_interval_minutes || 0, { type: "number", min: 0 });
         PL.modal({ title: PL.ui("Relink workspace (no files moved)"), body: h("div", {}, label(PL.ui("Existing folder"), path), label(PL.ui("Sync interval minutes (0 = manual)"), interval)), actions: [{ label: PL.ui("Cancel") }, { label: PL.ui("Save"), kind: "accent", onClick: async () => {
@@ -246,7 +246,7 @@
         } }] });
       })),
       w.checkpoint ? h("details", {}, h("summary", {}, PL.ui("Sync transparency report")), h("pre", {}, JSON.stringify(w.checkpoint, null, 2))) : null));
-    if (!r.workspaces.length) body.append(h("p.muted", {}, PL.ui("No workspaces linked")));
+    if (!r.workspaces.length) body.append(h("p.muted", {}, PL.ui("No workspaces linked")), h("p.help", {}, PL.ui("Create a workspace above to open OpenScience or Feynman independently. Each Topic keeps its own files.")));
   }
   async function renderArtifacts(body, revision) {
     const [a, p, findings] = await Promise.all([PL.get(base() + "/artifacts?history=true"), PL.get(base() + "/provenance"), PL.get(base() + "/findings")]);
