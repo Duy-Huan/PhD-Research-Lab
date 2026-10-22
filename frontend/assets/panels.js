@@ -52,7 +52,7 @@
           .filter((p, i, a) => a.indexOf(p) === i).map((p) => h("option", { value: p, selected: p === s.provider || null }, p)));
         steps.append(h("li." + (s.status === "pending" ? "pending" : s.status), {},
           h("div.row", {}, h("span.t.grow", {}, `${s.id} · ${s.label}`), prov),
-          h("div.s", {}, `${s.status}${s.attempt > 1 ? " · lần " + s.attempt : ""}${s.resource ? " · " + s.resource : ""}${s.active_s ? " · " + s.active_s.toFixed(1) + " s" : ""}`),
+          h("div.s", {}, `${s.status}${s.attempt > 1 ? PL.t(" · lần ") + s.attempt : ""}${s.resource ? " · " + s.resource : ""}${s.active_s ? " · " + s.active_s.toFixed(1) + " s" : ""}`),
           s.error ? h("div.err-line", {}, s.error) : null,
           (s.notes || []).length ? h("div.s", {}, s.notes.join(" · ")) : null,
           s.result && s.result.summary_line && !(s.notes || []).includes(s.result.summary_line) ? h("div.s", {}, s.result.summary_line) : null));
@@ -223,7 +223,7 @@
   }
   function paperMeta(s) {
     return [(Array.isArray(s.authors) ? s.authors : []).slice(0, 3).join(", "), s.year, s.venue,
-      Number.isFinite(s.citations) ? s.citations + " trích dẫn" : ""].filter(Boolean).join(" · ");
+      Number.isFinite(s.citations) ? s.citations + PL.t(" trích dẫn") : ""].filter(Boolean).join(" · ");
   }
   /** Short badge of a venue ranking: Q1–Q4 (SCImago) or CORE A*, A, B, C. */
   P.rankBadge = function (s) {
@@ -385,7 +385,7 @@
       const [pp, ais] = await Promise.all([PL.get("/api/paper").catch(() => null), PL.get("/api/paper/ais").catch(() => ({ installed: false }))]);
       body.replaceChildren();
       const sec = Object.fromEntries(((pp && pp.sections) || []).map((x) => [x.id, x.text]));
-      const names = { abstract: "Abstract", introduction: "Introduction", related_work: "Related Work", methodology: "Methodology", experiments: "Experiments", discussion: "Discussion", conclusion: "Conclusion" };
+      const names = { abstract: PL.ui("Abstract"), introduction: PL.ui("Introduction"), related_work: PL.ui("Related Work"), methodology: PL.ui("Methodology"), experiments: PL.ui("Experiments"), discussion: PL.ui("Discussion"), conclusion: PL.ui("Conclusion") };
       body.append(h("p.muted", { style: "margin-top:0" }, PL.t("Các phần bài báo được viết trong chat bằng /write (bạn duyệt trước khi lưu), rồi ghép và biên dịch bằng /latex.")),
         h("div.list", {}, Object.entries(names).map(([k, label]) => h("div.li", {}, h("span.dot." + (sec[k] ? "ok" : "")),
           h("div.m", {}, h("div.t", {}, label), h("div.s", {}, sec[k] ? PL.t("{0} ký tự", String(sec[k]).length) : PL.t("chưa viết"))),
@@ -444,7 +444,7 @@
       if (!jobs.jobs.length) body.append(h("p.muted", {}, PL.t("Chưa có lần chạy nào. Gõ /run <lệnh> hoặc /idea <ý tưởng> trong chat.")));
       body.append(h("div.list", {}, jobs.jobs.map((j) => h("div.li", {},
         h("span.dot." + (j.status === "done" ? "ok" : j.status === "failed" ? "err" : j.status === "running" ? "warn" : "")),
-        h("div.m", {}, h("div.t.mono", {}, j.cmd || j.id), h("div.s", {}, `${j.status} · ${j.mode || ""} · ${j.metrics && Object.keys(j.metrics).length ? Object.entries(j.metrics).slice(0, 3).map(([k, v]) => k + "=" + v).join(", ") : "không có metrics"}`)),
+        h("div.m", {}, h("div.t.mono", {}, j.cmd || j.id), h("div.s", {}, `${j.status} · ${j.mode || ""} · ${j.metrics && Object.keys(j.metrics).length ? Object.entries(j.metrics).slice(0, 3).map(([k, v]) => k + "=" + v).join(", ") : PL.t("không có metrics")}`)),
         j.status === "running" ? h("button.btn.sm", { type: "button", onclick: async () => { await PL.safe(() => PL.post(`/api/jobs/${j.id}/stop`)); paint(); } }, PL.t("Dừng")) : null))));
     };
     async function newProject() {

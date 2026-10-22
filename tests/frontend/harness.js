@@ -140,6 +140,7 @@ async function boot(opt = {}) {
     toast: () => w.document.querySelector('#toast').textContent,
     go: async (hash, ms = 30) => { w.location.hash = hash; await sleep(ms); },
     run: (code) => vm.runInContext(code, ctx),
+    load: (rel) => vm.runInContext(read(rel), ctx, {filename: path.join(FRONT, rel)}),
     close: () => { try { w.close(); } catch { /* ignore */ } },
   };
   LIVE.push(h);

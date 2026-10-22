@@ -62,10 +62,10 @@ test('bulk download queues real backend job; job failures remain visible and ret
   });
   await h.w.PL.research.open('papers');
   await h.click('.research-card input[type=checkbox]');
-  await h.clickText('.research-bulk button', 'OA PDF'); await h.idle(30);
+  await h.clickText('.research-bulk button', 'PDF truy cập mở'); await h.idle(30);
   assert.equal(h.server.last('POST', '/api/research/topics/' + TID + '/papers/bulk').body.action, 'download');
   assert.match(h.$('.research-body').textContent, /No verified OA PDF/);
-  await h.clickText('.research-body button', 'Retry');
+  await h.clickText('.research-body button', 'Thử lại');
   assert.equal(h.server.calledWith('POST', '/api/research/jobs/job1/retry').length, 1);
   noTurns(h);
 });
@@ -110,15 +110,15 @@ test('Review Room checks evidence and records an explicit decision without a cha
   assert.equal(h.$('#input'),composer);
   assert.match(h.$('.research-body').textContent,/Exact passage/);
   assert.match(h.$('.research-body').textContent,/quote_span/);
-  await h.clickText('.research-body button','Check evidence');
+  await h.clickText('.research-body button','Kiểm tra bằng chứng');
   assert.equal(h.server.calledWith('POST',`/api/research/topics/${TID}/claims/claim1/check`).length,1);
   h.w.PL.prompt=async()=> 'Human reviewed discrepancy';
-  await h.clickText('.research-card button','contest');
+  await h.clickText('.research-card button','phản bác');
   assert.deepEqual(h.server.last('POST',`/api/research/topics/${TID}/claims/claim1/decision`).body,{action:'contest',note:'Human reviewed discrepancy'});
-  await h.clickText('.research-body button','Use in chat');
+  await h.clickText('.research-body button','Dùng trong chat');
   assert.deepEqual(Array.from(h.w.PL.research.sources()),['claim:claim1']);
-  await h.clickText('.research-body button','Audit');
-  assert.match(h.w.document.body.textContent,/Audit chain valid/);
+  await h.clickText('.research-body button','Kiểm toán');
+  assert.match(h.w.document.body.textContent,/Chuỗi kiểm toán hợp lệ/);
   noTurns(h);assert.deepEqual(h.errors,[]);
 });
 
@@ -129,10 +129,10 @@ test('mission retries and protocol approval use explicit controls and exact dige
   });
   h.w.PL.prompt=async()=> 'Reviewed exact plan';
   await h.w.PL.research.open('missions');
-  await h.clickText('.research-body button','Reconcile / retry task');
+  await h.clickText('.research-body button','Đối soát / thử lại tác vụ');
   assert.deepEqual(h.server.last('POST',`/api/research/topics/${TID}/missions/m1/retry`).body,{task_id:'inspect',reconcile_note:'Reviewed exact plan'});
   await h.w.PL.research.open('protocols');
-  await h.clickText('.research-body button','Approve fixed protocol');
+  await h.clickText('.research-body button','Phê duyệt quy trình cố định');
   assert.deepEqual(h.server.last('POST',`/api/research/topics/${TID}/protocols/p1/approve`).body,{digest:'protocol-sha',note:'Reviewed exact plan'});
   noTurns(h);assert.deepEqual(h.errors,[]);
 });
@@ -145,9 +145,9 @@ test('Mission Monitor preserves composer and uses direct scheduling/review contr
   });
   const composer=h.$('#input');await h.w.PL.research.open('monitor');assert.equal(h.$('#input'),composer);
   h.w.PL.prompt=async()=> 'Human inspected report';
-  await h.clickText('.research-body button','Enable experimental Research OS');
+  await h.clickText('.research-body button','Bật hệ điều hành nghiên cứu thử nghiệm');
   assert.deepEqual(h.server.last('PUT','/api/research/os-settings').body,{enabled:true});
-  await h.clickText('.research-body button','Complete human review');
+  await h.clickText('.research-body button','Hoàn tất thẩm định của người dùng');
   assert.deepEqual(h.server.last('POST',`/api/research/topics/${TID}/missions/supervised/review`).body,{note:'Human inspected report'});
   noTurns(h);assert.deepEqual(h.errors,[]);
 });
@@ -159,10 +159,10 @@ test('Team Monitor shows logical ownership and enables teams without invoking a 
     [`GET /api/research/topics/${TID}/missions/team1/team`]:()=>({active_agents:[],cost:null,handoffs:[]}),
   });
   await h.w.PL.research.open('teams');assert.match(h.$('.research-body').textContent,/inspect → worker1/);
-  await h.clickText('.research-body button','Enable experimental teams');
+  await h.clickText('.research-body button','Bật nhóm thử nghiệm');
   assert.deepEqual(h.server.last('PUT','/api/research/os-settings').body,{enabled:true,team_enabled:true});
-  await h.clickText('.research-body button','Inspect handoffs and usage');
-  assert.match(h.w.document.body.textContent,/Durable task envelopes/);
+  await h.clickText('.research-body button','Kiểm tra bàn giao và sử dụng');
+  assert.match(h.w.document.body.textContent,/Gói tác vụ bền vững/);
   noTurns(h);assert.deepEqual(h.errors,[]);
 });
 
@@ -174,11 +174,11 @@ test('Workstreams show receipts and resolve disputes with a versioned human note
     [`GET /api/research/topics/${TID}/missions/multi1/workstreams`]:()=>({usage:[],messages:[{status:'acknowledged'}],receipts:[{}],canonical_outputs:[],disputes:[{id:'d1',status:'open',revision:2,payload:{reason:'Unsupported improvement'}}]}),
   });
   const composer=h.$('#input');await h.w.PL.research.open('workstreams');assert.equal(h.$('#input'),composer);
-  assert.match(h.$('.research-body').textContent,/receipts: 1/);
-  await h.clickText('.research-body button','Enable experimental multi-team');
+  assert.match(h.$('.research-body').textContent,/biên nhận: 1/);
+  await h.clickText('.research-body button','Bật cộng tác đa nhóm thử nghiệm');
   assert.deepEqual(h.server.last('PUT','/api/research/os-settings').body,{enabled:true,team_enabled:true,multi_team_enabled:true});
   h.w.PL.prompt=async()=> 'Leave scientific claim pending; request raw data';
-  await h.clickText('.research-body button','Resolve with PI note');
+  await h.clickText('.research-body button','Giải quyết bằng ghi chú chủ nhiệm');
   assert.deepEqual(h.server.last('POST',`/api/research/topics/${TID}/missions/multi1/disputes/d1/resolve`).body,{expected_revision:2,note:'Leave scientific claim pending; request raw data'});
   noTurns(h);assert.deepEqual(h.errors,[]);
 });

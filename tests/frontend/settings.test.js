@@ -16,12 +16,12 @@ const change = async (h, el, value) => {
   el.dispatchEvent(new h.w.Event('change'));
   await h.idle(20);
 };
-const field = (h, label) => h.byText('.sb label.field, .sb .field', label).querySelector('input, select, textarea');
+const field = (h, label) => h.byText('.sb label.field, .sb .field', h.w.PL.ui(label)).querySelector('input, select, textarea');
 
 test('tabs switch; the configuration cannot be loaded', async () => {
   const h = await open();
   assert.deepStrictEqual(h.$$('.settings nav .nav').map((b) => b.textContent),
-    ['Mô hình & agent', 'Research providers', 'Thí nghiệm & phần cứng', 'MCP & ChatGPT', 'Bộ nhớ & ngữ cảnh', 'Kỹ năng (/)', 'Plugin (GitHub)', 'Giao diện & ngôn ngữ']);
+    ['Mô hình & agent', 'Nhà cung cấp nghiên cứu', 'Thí nghiệm & phần cứng', 'MCP & ChatGPT', 'Bộ nhớ & ngữ cảnh', 'Kỹ năng (/)', 'Plugin (GitHub)', 'Giao diện & ngôn ngữ']);
   assert.ok(h.$('.settings nav .nav.active').textContent.startsWith('Mô hình'));
   await h.clickText('.settings nav .nav', 'Giao diện', 20);
   assert.ok(h.$('.settings nav .nav.active').textContent.startsWith('Giao diện'));
@@ -40,9 +40,9 @@ test('settings search finds hardware and MCP, handles no matches, and clears the
   assert.match(h.$('.sb').textContent, /ClearML Server/);
   await query('MCP');
   assert.strictEqual(h.$('.settings nav .nav.active').dataset.k, 'mcp');
-  assert.match(h.$('.sb').textContent, /MCP research tools/);
+  assert.match(h.$('.sb').textContent, /Công cụ nghiên cứu MCP/);
   await query('no-such-setting-xyz');
-  assert.match(h.$('.sb').textContent, /No matching settings/);
+  assert.match(h.$('.sb').textContent, /Không tìm thấy cài đặt/);
   await query('');
   assert.strictEqual(h.$$('.settings nav .nav').filter((el) => !el.hidden).length, 8);
   assert.strictEqual(h.$('.settings nav .nav.active').dataset.k, 'models');
@@ -131,7 +131,7 @@ test('research providers: states, setup hints, sign-in, Feynman and coding defau
   assert.deepStrictEqual(posted(h), {research_providers: {feynman_enabled: false}});
   await change(h, toggles[1], true);
   assert.deepStrictEqual(posted(h), {research_providers: {feynman_share_app_key: true}});
-  await change(h, field(h, 'Giới hạn thời gian'), '900');
+  await change(h, field(h, 'Giới hạn thời gian mỗi tác vụ Feynman'), '900');
   assert.deepStrictEqual(posted(h), {research_providers: {feynman_timeout_s: 900}});
   await change(h, field(h, 'Coding provider'), 'codex');
   assert.deepStrictEqual(posted(h), {research_providers: {coding_default: 'codex'}});
@@ -287,7 +287,7 @@ test('appearance: theme follows the system, light, dark; storage blocked', async
   const cfg = fixtures.get('GET /api/config');
   cfg.project = {name: 'x'};
   const h2 = await open('look', {routes: {'GET /api/config': () => cfg}});
-  assert.match(h2.$('.sb').textContent, /dữ liệu dự án: $/);
+  assert.match(h2.$('.sb').textContent, /dữ liệu dự án: /);
   assert.strictEqual(field(h2, 'Chủ đề').value, 'system');
   Object.defineProperty(h2.w, 'localStorage', {get() { throw new Error('private'); }});
   await h2.w.PL.settings.open('look');

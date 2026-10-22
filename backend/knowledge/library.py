@@ -237,18 +237,94 @@ def scan_directory() -> dict:
         return _scan_directory()
 
 
+def canonical_pdf_name(metadata: dict, digest: str) -> str:
+    """PhD Lab: YEAR_Author_Title_SHA256[0:12].pdf, ASCII and bounded for Windows."""
+    def slug(value, limit):
+        return re.sub(r"[^a-zA-Z0-9]+", "-", _ascii(str(value))).strip("-")[:limit].rstrip("-")
+    year = str(metadata.get("year") or "")
+    year = year if re.fullmatch(r"(?:19|20)\d{2}", year) else "nd"
+    authors = metadata.get("authors") or []
+    if isinstance(authors, str):
+        authors = _split_authors(authors)
+    author = slug(_last_name(str(authors[0])), 24) if authors else "Unknown"
+    title = slug(metadata.get("title") or "Untitled", 80) or "Untitled"
+    return f"{year}_{author or 'Unknown'}_{title}_{digest[:12]}.pdf"
+
+
+def _pdf_target(metadata: dict, data: bytes) -> Path:
+    digest = hashlib.sha256(data).hexdigest()
+    target = refs_dir() / canonical_pdf_name(metadata, digest)
+    if target.exists() and target.read_bytes() != data:
+        target = target.with_name(target.stem + "_" + digest[12:] + ".pdf")
+    return target
+
+
+def ingest_pdf(original_name: str, data: bytes) -> dict:
+    """Upload without overwriting another paper; keep original name as provenance."""
+    import tempfile
+    if not original_name.lower().endswith(".pdf") or not data.startswith(b"%PDF"):
+        raise ValueError("A PDF file is required")
+    if len(data) > 30 * 1024 * 1024:
+        raise ValueError("PDF exceeds the 30 MB upload limit")
+    with _lock:
+        lib = load_library()
+        digest = hashlib.sha1(data).hexdigest()
+        for entry in lib.values():
+            if entry.get("sha1") == digest and (refs_dir() / entry["file"]).is_file():
+                return entry
+        with tempfile.NamedTemporaryFile(suffix=".pdf", dir=refs_dir(), delete=False) as f:
+            temporary = Path(f.name)
+            f.write(data)
+        try:
+            meta = heuristic_metadata(temporary)
+            if meta.get("error") or meta.get("title") == temporary.stem:
+                meta["title"] = Path(original_name.replace("\\", "/")).stem
+            target = _pdf_target(meta, data)
+            if not target.exists():
+                # Exclusive creation also protects an external writer racing ingestion.
+                with target.open("xb") as dest:
+                    dest.write(data)
+            meta.update(file=target.name, original_name=Path(original_name.replace("\\", "/")).name,
+                        sha1=digest, include=True, key_locked=False, llm_refined=False, pdf_available=True)
+            lib[target.name] = meta
+            save_library(lib)
+            return lib[target.name]
+        finally:
+            temporary.unlink(missing_ok=True)
+
+
 def _scan_directory() -> dict:
     rdir = refs_dir()
     lib = load_library()
     present = {p.name: p for p in rdir.glob("*.pdf")} | {p.name: p for p in rdir.glob("*.PDF")}
+    removed = False
     for name in list(lib):
         if name not in present and not lib[name].get("metadata_only"):
             del lib[name]
+            removed = True
+    if removed:
+        # ingest_pdf reads the store too; do not resurrect missing records during the same scan.
+        save_library(lib)
     added = []
     for name, p in present.items():
         digest = sha1(p)
         if name in lib and lib[name].get("sha1") == digest:
-            lib[name]["pdf_available"] = True
+            lib[name]["pdf_available"] = not lib[name].get("ingest_rejected", False)
+            continue
+        if name not in lib:
+            try:
+                entry = ingest_pdf(name, p.read_bytes())
+            except ValueError as error:
+                # One malformed/oversized file dropped in references must not hide the other papers.
+                lib[name] = {"file": name, "title": p.stem, "sha1": digest, "include": False,
+                             "pdf_available": False, "ingest_rejected": True, "error": str(error)}
+                added.append(name)
+                save_library(lib)
+                continue
+            lib = load_library()
+            if p.resolve() != (rdir / entry["file"]).resolve():
+                p.unlink()
+            added.append(entry["file"])
             continue
         entry = heuristic_metadata(p)
         entry.update({"file": name, "sha1": digest, "include": True, "llm_refined": False, "key_locked": False, "pdf_available": True})
@@ -270,15 +346,17 @@ def save_source(source: dict, pdf: bytes | None = None) -> dict:
     identity = "doi:" + doi.casefold() if doi else "url:" + url.rstrip("/")
     with _lock:
         lib = load_library()
+        if pdf:
+            for e in lib.values():
+                if e.get("sha1") == hashlib.sha1(pdf).hexdigest() and (refs_dir() / e["file"]).is_file():
+                    return {"entry": e, "already_saved": True, "pdf_saved": True}
         for e in lib.values():
             if (doi and str(e.get("doi") or "").casefold() == doi.casefold()) or url == e.get("source_url"):
                 if pdf and e.get("metadata_only"):
-                    token = hashlib.sha256(identity.encode()).hexdigest()[:20]
-                    name = "paper-" + token + ".pdf"
-                    while (refs_dir() / name).exists() or name in lib:
-                        token = hashlib.sha256((token + "x").encode()).hexdigest()[:20]
-                        name = "paper-" + token + ".pdf"
-                    (refs_dir() / name).write_bytes(pdf)
+                    name = _pdf_target(e, pdf).name
+                    if not (refs_dir() / name).exists():
+                        with (refs_dir() / name).open("xb") as dest:
+                            dest.write(pdf)
                     lib.pop(e["file"])
                     e.update(file=name, pdf_available=True, metadata_only=False, sha1=hashlib.sha1(pdf).hexdigest(),
                              pdf_url=str(source.get("pdf_url") or ""))
@@ -287,13 +365,11 @@ def save_source(source: dict, pdf: bytes | None = None) -> dict:
                     return {"entry": e, "already_saved": True, "pdf_saved": True, "upgraded": True}
                 return {"entry": e, "already_saved": True, "pdf_saved": bool(e.get("pdf_available", not e.get("metadata_only")))}
         token = hashlib.sha256(identity.encode()).hexdigest()[:20]
-        name = "paper-" + token + (".pdf" if pdf else ".paper.json")
+        name = _pdf_target(source, pdf).name if pdf else "paper-" + token + ".paper.json"
         if pdf:
-            # A hash-based name cannot overwrite an upload or a curated record from another source.
-            while (refs_dir() / name).exists() or name in lib:
-                token = hashlib.sha256((token + "x").encode()).hexdigest()[:20]
-                name = "paper-" + token + ".pdf"
-            (refs_dir() / name).write_bytes(pdf)
+            if not (refs_dir() / name).exists():
+                with (refs_dir() / name).open("xb") as dest:
+                    dest.write(pdf)
         authors = source.get("authors") or []
         if not isinstance(authors, list):
             authors = _split_authors(str(authors))

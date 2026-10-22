@@ -8,7 +8,7 @@
 <meta name="color-scheme" content="light dark">
 <link rel="icon" type="image/png" href="/img/favicon-32.png">
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-<script>try { var d = document.documentElement, t = localStorage.getItem("pl.theme"), f = localStorage.getItem("pl.font"), l = localStorage.getItem("pl.lang"); if (t === "light" || t === "dark") d.dataset.theme = t; d.dataset.font = f === "serif" ? "serif" : "sans"; if (l === "en") d.lang = "en"; } catch (e) {}</script>
+<script src="/assets/appearance-init.js"></script>
 <link rel="stylesheet" href="/assets/app.css">
 </head>
 <body>
@@ -16,7 +16,7 @@
   <aside id="side" data-t-aria="Thanh bên" aria-label="Thanh bên">
     <div class="brand">
       <img src="/img/logo-64.png" alt="" width="28" height="28">
-      <div><b>PhD Research Lab</b><small>AI research OS</small></div>
+      <div><b>PhD Research Lab</b><small data-t="Hệ điều hành nghiên cứu AI">Hệ điều hành nghiên cứu AI</small></div>
       <span class="grow"></span>
       <button class="icon" id="side-toggle" data-t-title="Thu gọn thanh bên" data-t-aria="Thu gọn thanh bên" title="Thu gọn thanh bên" aria-label="Thu gọn thanh bên" data-i="sidebar"></button>
     </div>
@@ -26,13 +26,14 @@
         <span data-i="chev"></span>
       </button>
     </div>
+    <div class="side-project-actions"><button class="btn sm ghost" id="projects-btn" data-t="Dự án & hội thoại">Dự án & hội thoại</button><button class="icon" id="create-project" data-i="plus" data-t-title="Tạo dự án" data-t-aria="Tạo dự án"></button></div>
     <div class="side-new"><button class="btn" id="new-chat"><span data-i="plus"></span><span data-t="Cuộc trò chuyện mới">Cuộc trò chuyện mới</span></button></div>
     <div class="side-search"><input type="search" id="search" data-t-placeholder="Tìm cuộc trò chuyện…" data-t-aria="Tìm cuộc trò chuyện" placeholder="Tìm cuộc trò chuyện…" aria-label="Tìm cuộc trò chuyện"></div>
     <nav id="threads" data-t-aria="Cuộc trò chuyện" aria-label="Cuộc trò chuyện"></nav>
     <div class="side-nav">
       <button class="nav" data-go="dashboard"><span data-i="gauge"></span><span data-t="Theo dõi">Theo dõi</span><span class="count" id="pending-count"></span></button>
       <button class="nav" data-go="library"><span data-i="book"></span><span data-t="Tài liệu">Tài liệu</span></button>
-      <button class="nav" data-go="research"><span data-i="brain"></span><span>Topics · SKB</span></button>
+      <button class="nav" data-go="research"><span data-i="brain"></span><span data-t="Chủ đề · Cơ sở tri thức">Chủ đề · Cơ sở tri thức</span></button>
       <button class="nav" data-go="paper"><span data-i="paper"></span><span data-t="Viết bài báo">Viết bài báo</span></button>
       <button class="nav" data-go="code"><span data-i="code"></span><span data-t="Thí nghiệm · VS Code">Thí nghiệm · VS Code</span></button>
       <button class="nav" data-go="review"><span data-i="review"></span><span data-t="Phản biện bài báo">Phản biện bài báo</span></button>
@@ -70,7 +71,9 @@
 <script src="/vendor/purify.min.js"></script>
 <script src="/assets/i18n.js"></script>
 <script src="/assets/i18n-en.js"></script>
+<script src="/assets/ui-locales.js"></script>
 <script src="/assets/core.js"></script>
+<script src="/assets/themes.js"></script>
 <script src="/assets/tools.js"></script>
 <script src="/assets/chat.js"></script>
 <script src="/assets/panels.js"></script>

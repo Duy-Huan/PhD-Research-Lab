@@ -96,6 +96,11 @@ async def fork(sid: str, body: dict = Body(default={})):
     return await call(store.fork, sid, str(body.get("message_id", "")))
 
 
+@router.put("/api/chat/sessions/{sid}/messages/{mid}/pin")
+async def pin_message(sid: str, mid: str, body: dict = Body(...)):
+    return await call(store.pin_message, sid, mid, body.get("pinned"))
+
+
 # ------------------------------------------------------------------ turns
 @router.post("/api/chat/sessions/{sid}/turns")
 async def turn(sid: str, request: Request, body: dict = Body(...)):

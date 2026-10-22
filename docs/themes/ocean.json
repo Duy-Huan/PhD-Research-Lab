@@ -1,0 +1,21 @@
+{
+  "id": "ocean",
+  "name": "Ocean",
+  "base": "dark",
+  "colors": {
+    "bg": "#15232b",
+    "panel": "#1c303b",
+    "side": "#102029",
+    "raise": "#25404d",
+    "ink": "#edf6fa",
+    "ink-2": "#cfdee6",
+    "muted": "#a8c0cc",
+    "faint": "#92abb7",
+    "line": "#385664",
+    "line-2": "#547787",
+    "accent": "#74d3e6",
+    "accent-2": "#a3e7f3",
+    "accent-ink": "#102029",
+    "accent-soft": "#244954"
+  }
+}

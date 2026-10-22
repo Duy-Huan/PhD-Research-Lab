@@ -45,8 +45,9 @@
     PL.menu(anchor, items);
   }
   async function switchProject(dir) {
-    if (dir === PL.state.project.data_dir) return;
-    if (await PL.safe(() => PL.post("/api/projects/activate", { data_dir: dir }))) await afterSwitch();
+    if (dir === PL.state.project.data_dir) return true;
+    if (await PL.safe(() => PL.post("/api/projects/activate", { data_dir: dir }))) { await afterSwitch(); return true; }
+    return false;
   }
   async function afterSwitch() {
     if (PL.research) PL.research.reset();
@@ -76,6 +77,29 @@
   }
 
   // ------------------------------------------------------------------ routes
+  PL.projectsPanel = async function () {
+    const body = h("div.project-browser");
+    body.append(h("button.btn.accent", { type: "button", onclick: newProject }, PL.t("Tạo dự án")));
+    PL.panels.open(PL.t("Dự án & hội thoại"), body, { kind: "projects" });
+    for (const p of PL.state.projects) {
+      const list = h("div.project-chats");
+      const group = h("details.project-group", {}, h("summary", {}, p.name), list);
+      group.ontoggle = async () => {
+        if (!group.open || list.dataset.loaded) return;
+        list.replaceChildren(h("p.muted", {}, PL.t("Đang tải…")));
+        const r = await PL.safe(() => PL.get("/api/projects/conversations?directory=" + encodeURIComponent(p.data_dir)));
+        list.replaceChildren();
+        if (!r) return;
+        list.dataset.loaded = "true";
+        list.append(h("button.btn.sm.ghost", { type: "button", onclick: () => PL.safe(async () => { if (await switchProject(p.data_dir)) { PL.panels.close(); PL.go("#/"); } }) }, PL.t("Cuộc trò chuyện mới")));
+        for (const s of r.sessions) list.append(h("button.project-chat", { type: "button", onclick: () => PL.safe(async () => {
+          if (await switchProject(p.data_dir)) { PL.panels.close(); PL.go("#/chat/" + s.id); }
+        }) }, h("span.ellipsis", {}, s.title), h("time.muted.small", { datetime: new Date(s.updated * 1000).toISOString() }, PL.date(s.updated))));
+        if (!r.sessions.length) list.append(h("p.muted", {}, PL.t("Chưa có cuộc trò chuyện")));
+      };
+      body.append(group);
+    }
+  };
   PL.route("", () => { PL.activeNav(""); PL.chat.open(null); });
   PL.route("chat", (sid) => { PL.activeNav(""); PL.chat.open(sid || null); });
   /** Leaving the chat for a full page: stop its stream and clear the conversation tools of the header. */
@@ -130,6 +154,8 @@
     PL.$("#side-open").hidden = false;
     PL.$("#new-chat").onclick = () => { app.classList.remove("side-open"); PL.go("#/"); };
     PL.$("#proj-btn").onclick = (e) => projectMenu(e.currentTarget);
+    PL.$("#projects-btn").onclick = () => PL.projectsPanel();
+    PL.$("#create-project").onclick = newProject;
     PL.$("#search").addEventListener("input", () => { W.clearTimeout(PL._st); PL._st = W.setTimeout(PL.chat.loadList, 250); });
     PL.$("#panel-close").onclick = () => PL.panels.close();
     PL.$("#topic-btn").onclick = () => PL.research.open("topics");

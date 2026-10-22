@@ -25,9 +25,9 @@ test('custom model selection can cancel, add a model, and refresh actual provide
   await h.idle(20);
   await h.clickText('.sb button', 'Codex model catalog');
   assert.match(h.toast(), /1 models/);
-  const token = h.byText('.sb .field', 'Deployment token').querySelector('input');
+  const token = h.byText('.sb .field', h.w.PL.ui('Deployment token')).querySelector('input');
   token.value = 'test-deployment-token';
-  await h.clickText('.sb button', 'Lưu token');
+  await h.clickText('.sb button', 'Lưu mã truy cập');
   assert.strictEqual(h.server.last('POST', '/api/config').body.openscience.token, 'test-deployment-token');
   assert.strictEqual(token.value, '');
 });
@@ -72,12 +72,12 @@ test('native run recovery, cancellation and questions preserve user intent', asy
     ['POST ' + base + '/decisions']: () => ({status: 'resolved'}), [`POST /api/runs/${rid}/resume`]: () => ({})}});
   await h.idle(30);
   await h.w.PL.engineJob({id: rid}, jid);
-  await h.clickText('.dialog button', 'Khôi phục admission', 25);
+  await h.clickText('.dialog button', 'Khôi phục tiếp nhận', 25);
   assert.ok(h.server.last('POST', base + '/recover-admission'));
   detail = {job: {state: 'waiting_decision', native_run_id: 'run-test'}, observation_error: 'connection lost',
     pending: [{id: 'question-1', kind: 'question', questions: [{question: 'Which baseline?'}]}]};
   await h.w.PL.engineJob({id: rid}, jid);
-  assert.match(h.$('.dialog').textContent, /Live runtime unavailable/);
+  assert.match(h.$('.dialog').textContent, /Chưa truy cập được môi trường thực thi/);
   await h.clickText('.dialog button', 'Yêu cầu hủy', 25);
   assert.match(h.toast(), /cancellation_unconfirmed/);
   h.w.PL.prompt = async () => null;

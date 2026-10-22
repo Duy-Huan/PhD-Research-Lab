@@ -37,8 +37,13 @@
     if (!box) return;
     const frag = D.createDocumentFragment();
     if (!C.list.length) frag.append(h("div.tgroup", {}, PL.t("Chưa có cuộc trò chuyện")));
-    const now = Date.now() / 1000;
-    const groups = [[PL.t("Hôm nay"), (s) => now - s.updated < 86400], [PL.t("7 ngày qua"), (s) => now - s.updated < 7 * 86400], [PL.t("Cũ hơn"), () => true]];
+    // Calendar boundaries in the user's timezone, never a rolling 24-hour window.
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+    const week = new Date(today); week.setDate(today.getDate() - 7);
+    const groups = [[PL.t("Hôm nay"), s => s.updated * 1000 >= today], [PL.t("Hôm qua"), s => s.updated * 1000 >= yesterday], [PL.t("7 ngày qua"), s => s.updated * 1000 >= week]];
+    const months = new Set(C.list.filter(s => s.updated * 1000 < week).map(s => new Date(s.updated * 1000).getFullYear() + "-" + new Date(s.updated * 1000).getMonth()));
+    for (const month of months) groups.push([new Intl.DateTimeFormat(PL.lang === "en" ? "en-GB" : "vi-VN", { month: "long", year: "numeric" }).format(new Date(...month.split("-").map(Number), 1)), s => new Date(s.updated * 1000).getFullYear() + "-" + new Date(s.updated * 1000).getMonth() === month]);
     const used = new Set();
     for (const [label, fn] of groups) {
       const items = C.list.filter((s) => !used.has(s.id) && fn(s));
@@ -46,7 +51,7 @@
       frag.append(h("div.tgroup", {}, label));
       for (const s of items) {
         used.add(s.id);
-        frag.append(h("div.thread" + (s.id === C.sid ? ".active" : ""), { role: "link", tabindex: "0", title: s.title,
+        frag.append(h("div.thread" + (s.id === C.sid ? ".active" : ""), { role: "link", tabindex: "0", title: s.title + " · " + PL.date(s.updated),
           onclick: () => PL.go("#/chat/" + s.id), onkeydown: (e) => { if (e.key === "Enter") PL.go("#/chat/" + s.id); } },
         h("span.t", {}, s.title || PL.t("Cuộc trò chuyện")),
         s.pending_approvals ? h("span.badge", { title: PL.t("Đề xuất chờ bạn duyệt") }, s.pending_approvals) : null,
@@ -146,7 +151,8 @@
     box.replaceChildren();
     if (!C.sid) return;
     const n = ((C.s || {}).notes || []).filter((x) => x.status !== "resolved").length;
-    box.append(
+    box.append(h("button.btn.sm.ghost#pinned-btn", { type: "button", title: PL.t("Tin nhắn đã ghim"), "aria-label": PL.t("Tin nhắn đã ghim"), onclick: () => C.pinsPanel() },
+      h("span", { html: PL.icon("pin") }), h("span.lbl", {}, PL.t("Tin nhắn đã ghim"))),
       h("button.btn.sm.ghost#notes-btn", { type: "button", title: PL.t("Ghi chú trên câu trả lời"), onclick: () => notesPanel() },
         h("span", { html: PL.icon("note") }), h("span.lbl", {}, PL.t("Ghi chú")), n ? h("span.count-pill", {}, String(n)) : null),
       h("button.btn.sm.ghost", { type: "button", title: PL.t("Xuất cuộc trò chuyện"), onclick: (e) => exportConversation(e.currentTarget) },
@@ -155,7 +161,6 @@
 
   async function renderEmpty() {
     const msgs = PL.$("#msgs");
-    if (!msgs) return;
     msgs.replaceChildren(h("div.hello", {}, h("img.mark", { src: "/img/logo-128.png", alt: "" }), h("h1", {}, " ")));
     const [o, d] = await Promise.all([PL.get("/api/outline").catch(() => null), PL.get("/api/dashboard").catch(() => null)]);
     if (C.sid || !PL.$("#msgs")) return;
@@ -208,13 +213,13 @@
     for (const a of s.artifacts || []) items.push({ k: "art", ts: (answerTs[a.turn_id] || a.created || 0) + 0.0009, a });
     return items.sort((x, y) => x.ts - y.ts);
   }
-  const notesOf = (mid) => ((C.s || {}).notes || []).filter((n) => n.message_id === mid);
-  const noteNo = (n) => ((C.s || {}).notes || []).indexOf(n) + 1;  // the number shown in the notes panel
+  const notesOf = (mid) => (C.s.notes || []).filter((n) => n.message_id === mid);
+  const noteNo = (n) => C.s.notes.indexOf(n) + 1;  // only called with an existing session note
   function keyOf(it) {
     if (it.k === "msg") {
       const m = it.m;
       return ["m:" + m.id, m.content.length + ":" + m.status + ":" + providerLabel(m.provider) + ":" + (m.model || "") + ":" + (m.run_id || "") + ":" + m.content.slice(-40)
-        + ":" + JSON.stringify(notesOf(m.id).map((n) => [n.id, n.status, n.text, noteNo(n)]))];
+        + ":" + !!m.pinned + ":" + JSON.stringify(notesOf(m.id).map((n) => [n.id, n.status, n.text, noteNo(n)]))];
     }
     if (it.k === "ap") return ["a:" + it.a.id, it.a.status + ":" + JSON.stringify(it.a.result || "").length];
     if (it.k === "mem") return ["e:" + it.it.id, it.it.status + ":" + it.it.conflicts];
@@ -228,7 +233,12 @@
     if (!C.s.messages.length) { C.nodes = new Map(); renderEmpty(); return; }
     if (box.querySelector(".hello")) box.replaceChildren();
     const next = new Map(), want = [];
+    let day = "";
     for (const it of timeline()) {
+      if (it.k === "msg") {
+        const date = PL.date(it.ts);
+        if (date !== day) { want.push(h("div.chat-day", {}, h("time", { datetime: new Date(it.ts * 1000).toISOString().slice(0, 10) }, date))); day = date; }
+      }
       const [key, sig] = keyOf(it);
       const old = C.nodes.get(key);
       let node = old && old.sig === sig ? old.node : null;
@@ -254,14 +264,14 @@
 
   function messageNode(m) {
     if (m.role === "user") {
-      return h("div.msg.user", { dataset: { id: m.id } }, h("div.bubble", {}, m.content));
+      return h("div.msg.user", { dataset: { id: m.id } }, h("div.bubble", {}, m.content), messageMeta(m), h("div.msg-actions", {}, pinAction(m)));
     }
     const prose = h("div.prose");
     paintProse(prose, m);
     const who = h("div.who", {}, h("img", { src: "/img/logo-64.png", alt: "" }),
       m.provider === "phdlab" ? "PhD Lab" : providerLabel(m.provider) + (m.model ? " · " + m.model : ""),
       m.status === "partial" ? h("span.chip.warn", {}, PL.t("chưa đầy đủ")) : null);
-    const node = h("div.msg.ai", { dataset: { id: m.id } }, who, prose);
+    const node = h("div.msg.ai", { dataset: { id: m.id } }, who, prose, messageMeta(m));
     if (m.run_id) node.append(runCard(m.run_id));
     node.append(h("div.msg-actions", {},
       act("copy", PL.t("Sao chép"), () => PL.copy(m.content)),
@@ -269,9 +279,35 @@
       act("note", PL.t("Ghi chú (chọn một đoạn để ghi chú đúng chỗ)"), () => noteDialog({ message_id: m.id, quote: m.content.replace(/\s+/g, " ").slice(0, 160) })),
       act("download", PL.t("Xuất câu trả lời (PDF, Word, LaTeX…)"), (e) => PL.tools.exportMenu(e.currentTarget, () => ({ title: (C.s.title || "answer"), markdown: m.content, els: [prose] }))),
       act("brain", PL.t("Ghi nhớ vào dự án"), () => rememberDialog(m)),
-      act("pin", PL.t("Ghim vào kết quả"), () => pinMessage(m))));
+      act("pin", PL.t("Ghim vào kết quả"), () => pinMessage(m)), pinAction(m)));
     return node;
   }
+  function messageMeta(m) {
+    return h("time.message-time", { datetime: new Date(m.ts * 1000).toISOString(), title: PL.date(m.ts, true) }, PL.date(m.ts, true));
+  }
+  function pinAction(m) {
+    return act("pin", m.pinned ? PL.t("Bỏ ghim tin nhắn") : PL.t("Ghim tin nhắn"), (e) => PL.safe(async () => {
+      const sid = C.sid, pinned = !m.pinned, button = e.currentTarget;
+      button.disabled = true;
+      try {
+        await PL.put(`/api/chat/sessions/${sid}/messages/${m.id}/pin`, { pinned });
+        if (C.sid !== sid) return;
+        m.pinned = pinned; renderMessages(false);
+        if (!PL.$("#panel").hidden && PL.store.get("panel", {}).kind === "pins") C.pinsPanel();
+      } finally { button.disabled = false; }
+    }));
+  }
+  C.pinsPanel = function () {
+    const body = h("div.pinned-messages");
+    const pins = C.s.messages.filter(m => m.pinned);
+    for (const m of pins) body.append(h("article.research-card", {}, h("p", {}, m.content.slice(0, 300)), messageMeta(m),
+      h("button.btn.sm", { type: "button", onclick: () => {
+        const node = PL.$$(".msg").find(n => n.dataset.id === m.id);
+        if (node) { node.scrollIntoView({ block: "center", behavior: W.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" }); node.setAttribute("tabindex", "-1"); node.focus({ preventScroll: true }); }
+      } }, PL.t("Đến tin nhắn")), pinAction(m)));
+    if (!pins.length) body.append(h("p.muted", {}, PL.t("Chưa có tin nhắn được ghim")));
+    PL.panels.open(PL.t("Tin nhắn đã ghim"), body, { kind: "pins" });
+  };
   /** Markdown + figures + the researcher's notes (highlights) of one answer. */
   function paintProse(prose, m) {
     PL.rich(prose, m.content || (m.status === "cancelled" ? PL.t("_(đã dừng)_") : ""), {
@@ -285,7 +321,7 @@
   function providerLabel(pid) {
     const p = ((C.models || {}).providers || []).find((x) => x.id === pid);
     if (p) return p.label;
-    return { "app:auto": "Research agent" }[pid] || pid || "Research agent";
+    return { "app:auto": PL.ui("Research agent") }[pid] || pid || PL.ui("Research agent");
   }
 
   function liveNode(t) {
@@ -425,7 +461,7 @@
       r.synthetic ? h("span.chip.warn", {}, "SYNTHETIC") : null));
     if (r.status === "NEEDS_USER_ACTION" && (r.proposal || r.next_decision)) body.append(h("div.preview-box", {}, (r.proposal && r.proposal.text) || r.next_decision));
       if (cur.result && cur.result.engine_partial && !["COMPLETED", "CANCELLED"].includes(r.status)) body.append(h("pre.preview-box", {}, cur.result.engine_partial));
-      if (r.proposal && r.proposal.job_id) body.append(h("button.btn.sm", { type: "button", onclick: () => PL.engineJob(r, r.proposal.job_id) }, "OpenScience · quyết định / khôi phục"));
+      if (r.proposal && r.proposal.job_id) body.append(h("button.btn.sm", { type: "button", onclick: () => PL.engineJob(r, r.proposal.job_id) }, PL.t("OpenScience · quyết định / khôi phục")));
     if (r.status === "COMPLETED" && r.outputs.length) {
       body.append(h("div.row.wrap", { style: "margin-top:6px" }, r.outputs.slice(0, 8).map((o) =>
         h("button.chip", { type: "button", onclick: () => PL.panels.file(o.path) }, h("span", { html: PL.icon("file") }), o.path.split("/").pop()))));
@@ -442,10 +478,10 @@
       f.append(h("button.btn.sm", { type: "button", onclick: () => runAct(r, "cancel") }, PL.t("Huỷ")),
         h("button.btn.accent.sm", { type: "button", onclick: () => runAct(r, "approve") }, h("span", { html: PL.icon("play") }), PL.t("Chấp nhận & chạy")));
     } else if (r.status === "NEEDS_USER_ACTION") {
-      f.append(h("button.btn.sm", { type: "button", onclick: () => runAct(r, "cancel") }, PL.t("Huỷ run")),
+      f.append(...[h("button.btn.sm", { type: "button", onclick: () => runAct(r, "cancel") }, PL.t("Huỷ run")),
         h("button.btn.sm", { type: "button", onclick: () => runAct(r, "resume", { accept: false }) }, PL.t("Thử lại")),
         r.proposal && r.proposal.patch && Object.keys(r.proposal.patch).length ?
-          h("button.btn.accent.sm", { type: "button", onclick: () => runAct(r, "resume", { accept: true }) }, PL.t("Áp dụng đề xuất & tiếp tục")) : null);
+          h("button.btn.accent.sm", { type: "button", onclick: () => runAct(r, "resume", { accept: true }) }, PL.t("Áp dụng đề xuất & tiếp tục")) : null].filter(Boolean));
     } else if (!["COMPLETED", "CANCELLED"].includes(r.status)) {
       f.append(h("button.btn.sm", { type: "button", onclick: () => runAct(r, "cancel") }, PL.t("Dừng")));
     }
@@ -460,37 +496,37 @@
     PL.engineJob = async function (run, jobId) {
       const detail = await PL.safe(() => PL.get(`/api/research-engines/jobs/${jobId}`));
       if (!detail) return;
-      const box = h("div", {}, h("p.help", {}, `${detail.receipt?.state || detail.job.state} · ${detail.job.native_run_id || "admission unresolved"}`));
-      if (detail.observation_error) box.append(h("p.help", {}, "Live runtime unavailable · " + detail.observation_error));
+      const box = h("div", {}, h("p.help", {}, `${detail.receipt?.state || detail.job.state} · ${detail.job.native_run_id || PL.ui("admission unresolved")}`));
+      if (detail.observation_error) box.append(h("p.help", {}, PL.ui("Live runtime unavailable · ") + detail.observation_error));
       if (detail.job.native_run_id) box.append(h("button.btn.sm", { type: "button", onclick: () => PL.safe(async () => {
         const receipt = await PL.post(`/api/research-engines/jobs/${jobId}/cancel`, {});
-        PL.toast(`Native cancellation: ${receipt.state}`);
-      }) }, "Yêu cầu hủy native run / đối chiếu trạng thái"));
+        PL.toast(PL.t("Hủy tác vụ gốc: {0}", PL.ui(receipt.state)));
+      }) }, PL.ui("Request native cancellation / reconcile status")));
       const resume = async () => { await PL.post(`/api/runs/${run.id}/resume`, { accept: false }); C.refreshRun(run.id); };
       if (!detail.job.native_run_id) box.append(h("button.btn.sm", { type: "button", onclick: () => PL.safe(async () => {
         await PL.post(`/api/research-engines/jobs/${jobId}/recover-admission`, {}); await resume();
-      }) }, "Khôi phục admission với cùng request ID"));
+      }) }, PL.ui("Recover admission with the same request ID")));
       for (const p of detail.pending || []) {
-        const row = h("div.panelbox", {}, h("b", {}, p.permission || "Question"), h("pre.preview-box", {}, JSON.stringify(p.kind === "permission" ? { patterns: p.patterns, metadata: p.metadata } : p.questions, null, 2)));
+        const row = h("div.panelbox", {}, h("b", {}, p.permission || PL.ui("Question")), h("pre.preview-box", {}, JSON.stringify(p.kind === "permission" ? { patterns: p.patterns, metadata: p.metadata } : p.questions, null, 2)));
         const send = async (reply, answers) => {
           const receipt = await PL.post(`/api/research-engines/jobs/${jobId}/decisions`, { request_id: p.id, reply, ...(answers ? { answers } : {}) });
-          if (receipt.state === "indeterminate" || receipt.status === "indeterminate") { PL.toast("Quyết định chưa xác định; cần đối chiếu runtime", "err"); return; }
+          if (receipt.state === "indeterminate" || receipt.status === "indeterminate") { PL.toast(PL.ui("Decision indeterminate; reconcile the runtime"), "err"); return; }
           await resume();
         };
-        row.append(h("button.btn.sm", { type: "button", onclick: () => PL.safe(() => send("reject")) }, "Từ chối"));
-        if (p.kind === "permission") row.append(h("button.btn.sm", { type: "button", onclick: () => PL.safe(() => send("once")) }, "Cho phép một lần"));
+        row.append(h("button.btn.sm", { type: "button", onclick: () => PL.safe(() => send("reject")) }, PL.ui("Reject")));
+        if (p.kind === "permission") row.append(h("button.btn.sm", { type: "button", onclick: () => PL.safe(() => send("once")) }, PL.ui("Allow once")));
         else row.append(h("button.btn.sm", { type: "button", onclick: () => PL.safe(async () => {
           const answers = [];
           for (const question of p.questions || []) {
-            const answer = await PL.prompt("OpenScience question", question.question || question.header || "Answer", "");
+            const answer = await PL.prompt(PL.ui("OpenScience question"), question.question || question.header || PL.ui("Answer"), "");
             if (answer === null) return;
             answers.push([answer]);
           }
           await send("reject", answers);
-        }) }, "Trả lời"));
+        }) }, PL.ui("Answer")));
         box.append(row);
       }
-      PL.modal({ title: "OpenScience · live runtime decisions", body: box, wide: true });
+      PL.modal({ title: PL.ui("OpenScience · live runtime decisions"), body: box, wide: true });
     };
 
   // ------------------------------------------------------------------ live events of the open conversation
@@ -572,7 +608,6 @@
   // ------------------------------------------------------------------ notes on answers (select a passage or click a chart point)
   let pop = null;
   function wireSelection(thread) {
-    if (!thread) return;
     thread.addEventListener("mouseup", () => W.setTimeout(showNoteButton, 0));
     thread.addEventListener("keyup", (e) => { if (e.shiftKey) showNoteButton(); });
     thread.addEventListener("scroll", () => { if (pop) { pop.remove(); pop = null; } }, { passive: true });
@@ -717,8 +752,8 @@
 
   // "/" menu
   let sel = 0;
-  const skillTitle = (s) => (PL.lang === "en" && s.title_en) || s.title;
-  const skillDesc = (s) => (PL.lang === "en" && s.description_en) || s.description;
+  const skillTitle = (s) => s.mode === "ui" ? PL.ui(s.title) : (PL.lang === "en" && s.title_en) || s.title;
+  const skillDesc = (s) => s.mode === "ui" ? PL.ui(s.description) : (PL.lang === "en" && s.description_en) || s.description;
   function slash() {
     const ta = PL.$("#input");
     const old = PL.$(".menu.slash");
@@ -733,7 +768,7 @@
     const cats = { research: PL.t("Nghiên cứu"), experiment: PL.t("Thí nghiệm"), writing: PL.t("Viết bài"), system: PL.t("Hệ thống") };
     let cur = "";
     list.forEach((s, i) => {
-      if (s.category !== cur) { cur = s.category; menu.append(h("div.mh", {}, cats[cur] || cur)); }
+      if (s.category !== cur) { cur = s.category; menu.append(h("div.mh", {}, cats[cur] || PL.ui(cur))); }
       menu.append(h("button.mi" + (i === sel ? ".sel" : ""), { type: "button", role: "option", onmousedown: (e) => { e.preventDefault(); pick(s); } },
         h("span.c", {}, "/" + s.name), h("span.grow", {}, skillTitle(s), h("div.d", {}, skillDesc(s))),
         s.origin === "plugin" ? h("span.tag.chip.info", { title: s.plugin }, "plugin") : null,
@@ -821,7 +856,7 @@
     const pop = h("div.menu.pop.picker", { role: "dialog", "aria-label": PL.t("Mô hình") });
     const filter = h("input.filter", { type: "search", placeholder: PL.t("Lọc mô hình…"), "aria-label": PL.t("Lọc mô hình") });
     const list = h("div.plist");
-    const groups = { router: "", local: PL.t("Trên máy này"), api: "Cloud API", cli: PL.t("CLI (gói đăng ký của bạn)") };
+    const groups = { router: "", local: PL.t("Trên máy này"), api: PL.ui("Cloud API"), cli: PL.t("CLI (gói đăng ký của bạn)") };
     const paintList = () => {
       const q = filter.value.trim().toLowerCase();
       list.replaceChildren();
@@ -841,7 +876,7 @@
           if (p.available && p.id === cur && p.id !== "app:auto") {
             const options = Array.from(new Set([...(p.models || []), setting("model")].filter(Boolean)));
             list.append(h("select.input", { "aria-label": "Model", onchange: (e) => { pop.remove(); setSetting("model", e.target.value); } },
-              [["", "Provider default"], ...options.map((m) => [m, m])].map(([value, label]) => h("option", { value, selected: value === setting("model") || null }, label))));
+              [["", PL.ui("Provider default")], ...options.map((m) => [m, m])].map(([value, label]) => h("option", { value, selected: value === setting("model") || null }, label))));
           }
         }
       }

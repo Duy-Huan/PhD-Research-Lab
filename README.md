@@ -1,5 +1,7 @@
 # PhD Research Lab - v6.3.0-preview.1
 
+**UI refinement:** bilingual interface labels, local JSON theme packages (including VS Code color imports), a project/conversation browser, persistent message pins and calendar dates. New Library uploads and downloads share a metadata-based PDF naming convention. See [UI usage and verification](docs/ui-refinement.md) and the [visual audit](docs/ui-refinement-audit.md). `node tests/frontend/run.js` enforces 100% lines, branches and functions across all first-party frontend JavaScript, including first-paint initialization.
+
 A local research workspace with one project chat, a browser interface and a terminal client sharing the same FastAPI backend. Research and Reviewer agents use Markdown skills; a utility model handles background extraction and memory work.
 
 **Supervised Research OS (opt-in):** `/monitor` adds immutable project charters, directed cross-topic report grants, scheduled missions, deadlines, aggregate budgets, explicit provider/billing controls, persisted quota cooldown and a final human review gate. Enable it in Mission Monitor; existing v5 missions retain their behavior. Run `python -B tools/research_harness.py --stage 6.0` for isolated acceptance. See [v6.0 release](docs/release-v6.0.md).

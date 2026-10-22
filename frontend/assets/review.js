@@ -44,7 +44,7 @@
     const file = h("input", { type: "file", accept: ".pdf,.docx,.tex,.md,.txt,.markdown", hidden: true, onchange: (e) => uploadManuscript(e.target.files[0]) });
     return h("div", {}, h("button.btn.accent", { type: "button", style: "width:100%", onclick: () => file.click() }, h("span", { html: PL.icon("upload") }), PL.t("Bản thảo mới")), file,
       h("div.list", { style: "margin-top:10px" }, items.map((it) => h("div.li" + (it.id === R.rid ? ".thread.active" : ""), { style: "cursor:pointer", onclick: () => PL.go("#/review/" + it.id) },
-        h("div.m", {}, h("div.t", {}, it.title || it.file), h("div.s", {}, [it.decision, it.n_issues ? it.n_issues + " vấn đề" : "", (it.updated || "").slice(0, 10)].filter(Boolean).join(" · ")))))));
+        h("div.m", {}, h("div.t", {}, it.title || it.file), h("div.s", {}, [it.decision, it.n_issues ? it.n_issues + PL.t(" vấn đề") : "", (it.updated || "").slice(0, 10)].filter(Boolean).join(" · ")))))));
   }
 
   async function load(rid) {

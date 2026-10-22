@@ -29,8 +29,10 @@
       .map((x, i) => ({ name: String(x.name || "S" + (i + 1)), data: x.data.map((v) => (v == null || v === "" ? null : Number(v))),
         error: Array.isArray(x.error) ? x.error.map(Number) : null, x: Array.isArray(x.x) ? x.x : null }));
     if (!series.length) return { ok: false, error: PL.t("Biểu đồ không có dữ liệu") };
+    if (!series.some(s => s.data.some(Number.isFinite)) || series.some(s => s.data.some(v => v != null && (!Number.isFinite(v) || Math.abs(v) > 1e100)))) return { ok: false, error: PL.t("Dữ liệu biểu đồ phải là số hữu hạn") };
     const n = Math.max(...series.map((x) => x.data.length));
     const x = Array.isArray(s.x) && s.x.length ? s.x.slice(0, n) : Array.from({ length: n }, (_, i) => i + 1);
+    if (type === "scatter" && [x, ...series.map(s => s.x || x)].some(xs => xs.some(v => !Number.isFinite(Number(v)) || Math.abs(Number(v)) > 1e100))) return { ok: false, error: PL.t("Dữ liệu biểu đồ phải là số hữu hạn") };
     return { ok: true, spec: { type, title: String(s.title || ""), x, series, xlabel: String(s.xlabel || ""), ylabel: String(s.ylabel || ""),
       ylog: !!s.ylog, note: String(s.note || "") } };
   };
@@ -39,7 +41,7 @@
     if (!(hi > lo)) { hi = lo + 1; lo = lo - 1; }
     const step0 = (hi - lo) / Math.max(1, count);
     const mag = Math.pow(10, Math.floor(Math.log10(step0)));
-    const step = [1, 2, 2.5, 5, 10].map((k) => k * mag).find((k) => k >= step0) || 10 * mag;
+    const step = [1, 2, 2.5, 5, 10].map((k) => k * mag).find((k) => k >= step0);
     const out = [];
     for (let v = Math.floor(lo / step) * step; v <= hi + step * 0.5; v += step) out.push(+v.toFixed(10));
     return out;
@@ -47,7 +49,7 @@
   const fmt = (v) => (Math.abs(v) >= 1e4 || (Math.abs(v) < 1e-3 && v !== 0) ? v.toExponential(1) : +(+v).toPrecision(4) + "");
   function el(tag, attrs, parent) {
     const e = D.createElementNS(NS, tag);
-    for (const [k, v] of Object.entries(attrs || {})) if (v != null) e.setAttribute(k, v);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
     if (parent) parent.appendChild(e);
     return e;
   }
@@ -72,12 +74,12 @@
     const ticks = log ? niceTicks(Math.floor(tf(lo)), Math.ceil(tf(hi)), 4) : niceTicks(lo, hi, 5);
     const y0 = ticks[0], y1 = ticks[ticks.length - 1];
     const iw = Wd - m.l - m.r, ih = Ht - m.t - m.b;
-    const Y = (v) => m.t + ih - ((tf(v) - y0) / (y1 - y0 || 1)) * ih;
+    const Y = (v) => m.t + ih - ((tf(v) - y0) / (y1 - y0)) * ih;
     let X, xs;
     if (numericX && spec.type !== "bar") {
       const all = spec.series.flatMap((s) => (s.x || spec.x)).map(Number).filter(Number.isFinite);
       xs = niceTicks(Math.min(...all), Math.max(...all), 6);
-      X = (v) => m.l + ((Number(v) - xs[0]) / (xs[xs.length - 1] - xs[0] || 1)) * iw;
+      X = (v) => m.l + ((Number(v) - xs[0]) / (xs[xs.length - 1] - xs[0])) * iw;
     } else {
       const band = iw / spec.x.length;
       X = (v, i) => m.l + band * (i + 0.5);

@@ -9,6 +9,9 @@
   try { lang = W.localStorage.getItem("pl.lang") === "en" ? "en" : "vi"; } catch (e) { /* private mode */ }
   PL.lang = lang;
   PL.EN = PL.EN || {};
+  PL.date = function (ts, time) {
+    return new Intl.DateTimeFormat(PL.lang === "en" ? "en-GB" : "vi-VN", time ? { dateStyle: "long", timeStyle: "short" } : { dateStyle: "long" }).format(new Date(ts * 1000));
+  };
   PL.t = function (vi, ...args) {
     const s = (PL.lang === "en" && PL.EN[vi]) || vi;
     return args.length ? s.replace(/\{(\d+)\}/g, (m, i) => (args[+i] == null ? "" : String(args[+i]))) : s;

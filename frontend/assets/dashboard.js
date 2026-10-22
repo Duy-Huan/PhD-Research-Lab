@@ -49,12 +49,12 @@
           h("p.muted", {}, `${r.compute_target} · ${r.run_id} · ${r.hypothesis_id || "—"}`),
           h("div.row.wrap", {},
             r.status === "awaiting_approval" ? h("button.btn.sm", { type: "button", onclick: async () => {
-              if (await PL.confirm(`Bundle ${r.bundle_sha256}\n${r.files.map((f) => f.path).join("\n")}`, "Duyệt bundle")) { await PL.safe(() => PL.post(`/api/compute/runs/${r.run_id}/approve`, {})); paint(); }
-            } }, "Duyệt bundle") : h("a.btn.sm", { href: `/api/compute/runs/${r.run_id}/bundle`, download: r.run_id + ".zip" }, "Experiment bundle"),
+              if (await PL.confirm(`Bundle ${r.bundle_sha256}\n${r.files.map((f) => f.path).join("\n")}`, PL.t("Duyệt bundle"))) { await PL.safe(() => PL.post(`/api/compute/runs/${r.run_id}/approve`, {})); paint(); }
+            } }, PL.t("Duyệt bundle")) : h("a.btn.sm", { href: `/api/compute/runs/${r.run_id}/bundle`, download: r.run_id + ".zip" }, "Experiment bundle"),
             h("button.btn.sm.ghost", { type: "button", onclick: async () => {
-              const task = r.clearml_task_id || await PL.prompt("ClearML task", "Task ID thực tế (General/run_id phải khớp)", "");
+              const task = r.clearml_task_id || await PL.prompt("ClearML task", PL.t("Task ID thực tế (General/run_id phải khớp)"), "");
               if (task) { await PL.safe(() => PL.post(`/api/compute/runs/${r.run_id}/sync`, { task_id: task, collect: true })); paint(); }
-            } }, "Thu kết quả"),
+            } }, PL.t("Thu kết quả")),
             r.clearml_url ? h("a.btn.sm.ghost", { href: r.clearml_url, target: "_blank", rel: "noopener" }, "Open in ClearML ↗") : null)));
       }
       const adv = h("details.adv", { ontoggle: (e) => { if (e.target.open && !adv._done) { adv._done = true; advanced(adv); } } }, h("summary", {}, PL.t("Trạng thái hệ thống — tài nguyên, GPU, mô hình trong VRAM, providers")));
@@ -122,7 +122,7 @@
         h("button.btn.sm", { type: "button", onclick: () => PL.safe(() => PL.post("/api/models/unload", { engine: "all" }), PL.t("Đã giải phóng VRAM")) }, PL.t("Unload tất cả")))));
     const pv = h("div.list", {}, (d.providers || []).map((p) => h("div.li", {}, h("span.dot." + (p.ready ? "ok" : p.state === "NOT_CONFIGURED" ? "warn" : "")),
       h("div.m", {}, h("div.t", {}, `${p.label}`), h("div.s", {}, `${p.category} · ${p.state} — ${p.detail}`)))));
-    inner.append(h("div.panelbox", {}, h("div.section-h", { style: "margin-top:10px" }, "Research providers"), pv));
+    inner.append(h("div.panelbox", {}, h("div.section-h", { style: "margin-top:10px" }, PL.ui("Research providers")), pv));
     if (st) {
       inner.append(h("div.panelbox", {}, h("div.section-h", { style: "margin-top:10px" }, PL.t("Trạng thái nghiên cứu")),
         h("div.row", { style: "flex-wrap:wrap" }, h("span.chip", {}, st.decisions.length + PL.t(" quyết định")), h("span.chip", {}, st.hypotheses.length + PL.t(" giả thuyết")),

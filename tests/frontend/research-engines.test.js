@@ -9,7 +9,7 @@ test('engine settings remain separate from models; search and model qualificatio
   const h = await boot({routes: {'GET /api/config': () => cfg, 'POST /api/config': () => cfg}});
   await h.w.PL.settings.open('providers');
   await h.idle(25);
-  const field = (text) => h.byText('.sb .field', text).querySelector('input,select');
+  const field = (text) => h.byText('.sb .field', h.w.PL.ui(text)).querySelector('input,select');
   const modes = field('Research engine mode');
   assert.deepStrictEqual([...modes.options].map((x) => x.value), ['auto', 'feynman', 'openscience', 'collaborative']);
   modes.value = 'collaborative';

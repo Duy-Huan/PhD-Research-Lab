@@ -4,7 +4,7 @@
   "use strict";
   const PL = W.PL, h = PL.h;
   const S = (PL.settings = {});
-  const TABS = [["models", PL.t("Mô hình & agent")], ["providers", "Research providers"], ["hardware", PL.t("Thí nghiệm & phần cứng")],
+  const TABS = [["models", PL.t("Mô hình & agent")], ["providers", PL.ui("Research providers")], ["hardware", PL.t("Thí nghiệm & phần cứng")],
     ["mcp", "MCP & ChatGPT"], ["memory", PL.t("Bộ nhớ & ngữ cảnh")], ["skills", PL.t("Kỹ năng (/)")], ["plugins", "Plugin (GitHub)"], ["look", PL.t("Giao diện & ngôn ngữ")]];
   let cfg = null;
 
@@ -16,12 +16,12 @@
     cfg.mcp = cfg.mcp || {};
     const nav = h("nav");
     const keywords = { models: "local API key model routing priority quota failover ollama LM Studio", providers: "CLI Codex Claude Gemini Feynman OpenScience research engine collaborative web search", mcp: "MCP ChatGPT tools protocol", hardware: "GPU Docker ClearML Colab experiment training", memory: "context cache memory", skills: "skills commands", plugins: "GitHub plugins", look: "language font theme" };
-    const search = h("input.input.settings-search", { type: "search", placeholder: "Tìm cài đặt / Search settings…", "aria-label": "Search settings", oninput: (e) => {
+    const search = h("input.input.settings-search", { type: "search", placeholder: PL.ui("Search settings…"), "aria-label": PL.ui("Search settings"), oninput: (e) => {
       const q = e.target.value.trim().toLowerCase();
       const matches = TABS.filter(([k, label]) => (label + " " + keywords[k]).toLowerCase().includes(q));
       PL.$$(".nav", nav).forEach((b) => { b.hidden = !matches.some(([k]) => k === b.dataset.k); });
       if (q && matches.length) show(matches[0][0]);
-      if (q && !matches.length) body.replaceChildren(h("p.help", {}, "Không tìm thấy cài đặt / No matching settings"));
+      if (q && !matches.length) body.replaceChildren(h("p.help", {}, PL.ui("No matching settings")));
       if (!q) show(tab || "models");
     } });
     nav.append(search);
@@ -45,9 +45,9 @@
     help ? h("small.muted", {}, help) : null);
   const num = (value, onchange, attrs) => h("input.input", Object.assign({ type: "number", value, onchange: (e) => onchange(Number(e.target.value)) }, attrs));
   const modelSelect = (options, value, onchange) => {
-    const select = sel(options.concat([["__custom__", "Thêm model / Custom…"]]), value, async (v) => {
+    const select = sel(options.concat([["__custom__", PL.ui("Custom model…")]]), value, async (v) => {
       if (v === "__custom__") {
-        const name = await PL.prompt("Model", "Model ID của provider", "");
+        const name = await PL.prompt("Model", PL.t("Model ID của provider"), "");
         if (!name || name === "__custom__") { select.value = value; return; }
         select.append(h("option", { value: name }, name)); select.value = name; v = name;
       }
@@ -62,14 +62,14 @@
       h("p.help", {}, PL.t("Research agent điều phối mọi việc (nghiên cứu, thiết kế, code, viết bài); Reviewer agent phản biện và kiểm chứng. Kỹ năng (/) quyết định agent làm gì — không cần một agent cho mỗi công cụ.")));
     const engines = [["auto", PL.t("Tự động (local → cloud)")], ["claude", PL.t("Claude (nếu có key)")], ["cloud", PL.t("Cloud mặc định")], ["local", "LM Studio (local)"], ["ollama", "Ollama (local)"]]
       .concat(Object.entries(cfg.provider_specs).map(([k, v]) => [k, v.label]));
-    const t = h("table.grid", {}, h("tr", {}, h("th", {}, "Agent"), h("th", {}, "Engine"), h("th", {}, PL.t("Model (tuỳ chọn)"))));
+    const t = h("table.grid", {}, h("tr", {}, h("th", {}, PL.ui("Agent")), h("th", {}, PL.ui("Engine")), h("th", {}, PL.t("Model (tuỳ chọn)"))));
     for (const [a, spec] of Object.entries(cfg.agents)) {
       t.append(h("tr", {}, h("td", {}, h("b", {}, a), h("div.muted", { style: "font-size:12px" }, spec.label)),
         h("td", {}, sel(engines, cfg.agent_modes[a], (v) => save({ agent_modes: { [a]: v } }))),
         h("td", {}, modelSelect([["", PL.t("mặc định của engine")], ...Array.from(new Set([...(Object.values(cfg.provider_specs).flatMap((p) => p.models || [])), (cfg.agent_models || {})[a]].filter(Boolean))).map((m) => [m, m])], (cfg.agent_models || {})[a] || "", (v) => save({ agent_models: { [a]: v } })))));
     }
     b.append(t);
-    b.append(h("h3", {}, "Cloud API"), h("p.help", {}, PL.t("Key chỉ được gửi tới máy chủ của chính nhà cung cấp đó; giao diện không bao giờ hiển thị lại key.")));
+    b.append(h("h3", {}, PL.ui("Cloud API")), h("p.help", {}, PL.t("Key chỉ được gửi tới máy chủ của chính nhà cung cấp đó; giao diện không bao giờ hiển thị lại key.")));
     b.append(field(PL.t("Cloud mặc định"), sel(Object.entries(cfg.provider_specs).map(([k, v]) => [k, v.label]), cfg.default_cloud, (v) => save({ default_cloud: v }))));
     const keys = h("table.grid", {}, h("tr", {}, h("th", {}, PL.t("Nhà cung cấp")), h("th", {}, "API key"), h("th", {}, "Model"), h("th", {}, "")));
     const more = h("table.grid");
@@ -92,18 +92,18 @@
         }) }, "↻ Models")))));
     }
     b.append(keys, h("details", { style: "margin-top:8px" }, h("summary.muted", { style: "cursor:pointer;font-size:13px" }, PL.t("Nhà cung cấp khác ({0})", more.childNodes.length)), more));
-    b.append(h("h3", {}, "Thứ tự ưu tiên & năng lực / Routing"),
-      toggle("Capability-aware failover", cfg.routing.capability_aware !== false, (v) => save({ routing: { capability_aware: v } }), "Giữ checkpoint và chờ provider phù hợp khi hết quota."));
-    const chainOptions = [["@cloud", "Cloud mặc định"], ["@claude", "Claude API"], ["ollama", "Ollama"], ["local", "LM Studio"], ...Object.entries(cfg.provider_specs).map(([k, v]) => [k, v.label])];
+    b.append(h("h3", {}, PL.t("Thứ tự ưu tiên & năng lực / Routing")),
+      toggle(PL.ui("Capability-aware failover"), cfg.routing.capability_aware !== false, (v) => save({ routing: { capability_aware: v } }), PL.t("Giữ checkpoint và chờ provider phù hợp khi hết quota.")));
+    const chainOptions = [["@cloud", PL.t("Cloud mặc định")], ["@claude", "Claude API"], ["ollama", "Ollama"], ["local", "LM Studio"], ...Object.entries(cfg.provider_specs).map(([k, v]) => [k, v.label])];
     for (const kind of ["reasoning", "code", "writing", "summarize", "extract"]) {
       const current = (cfg.routing.chains || {})[kind] || [];
       const slots = Array.from({ length: 4 }, (_, i) => sel([["", "—"], ...chainOptions], current[i] || "", () => {}));
-      b.append(field(kind, h("div.row", {}, ...slots, h("button.btn.sm", { type: "button", onclick: () => save({ routing: { chains: Object.assign({}, cfg.routing.chains, { [kind]: Array.from(new Set(slots.map((s) => s.value).filter(Boolean))) }) } }) }, "Lưu thứ tự"))));
+      b.append(field(kind, h("div.row", {}, ...slots, h("button.btn.sm", { type: "button", onclick: () => save({ routing: { chains: Object.assign({}, cfg.routing.chains, { [kind]: Array.from(new Set(slots.map((s) => s.value).filter(Boolean))) }) } }) }, PL.t("Lưu thứ tự")))));
       if (["reasoning", "code", "writing"].includes(kind)) {
         const qualified = ((cfg.routing.verified_fallbacks || {})[kind] || []);
         const choices = [["local", cfg.local_model], ["ollama", cfg.ollama_model], ...Object.entries(cfg.providers).map(([id, p]) => [id, p.model])].filter(([, model]) => model);
         b.append(field(`${kind} · model thay thế đã kiểm chứng`, h("select.input", { multiple: true, size: 3, onchange: (e) => save({ routing: { verified_fallbacks: Object.assign({}, cfg.routing.verified_fallbacks, { [kind]: Array.from(e.target.selectedOptions).map((o) => o.value) }) } }) },
-          choices.map(([id, model]) => h("option", { value: `${id}:${model}`, selected: qualified.includes(`${id}:${model}`) || null }, `${id} · ${model}`))), "Chỉ đánh dấu sau khi bạn đã đánh giá năng lực cho tác vụ này. Đổi model sẽ cần kiểm chứng lại."));
+          choices.map(([id, model]) => h("option", { value: `${id}:${model}`, selected: qualified.includes(`${id}:${model}`) || null }, `${id} · ${model}`))), PL.t("Chỉ đánh dấu sau khi bạn đã đánh giá năng lực cho tác vụ này. Đổi model sẽ cần kiểm chứng lại.")));
       }
     }
     b.append(h("h3", {}, PL.t("Mô hình trên máy (VRAM)")));
@@ -133,47 +133,49 @@
   // ------------------------------------------------------------------ research providers
   async function providers(b) {
     for (const pid of ["codex", "claude_code", "gemini_cli", "antigravity"]) {
-      b.append(field(`${pid} · model catalog`, h("textarea.input", { rows: 2, placeholder: "Mỗi dòng một model ID đã kiểm chứng", value: ((cfg.gateway.cli_models || {})[pid] || []).join("\n"), onchange: (e) => save({ gateway: { cli_models: Object.assign({}, cfg.gateway.cli_models, { [pid]: Array.from(new Set(e.target.value.split(/\n|,/).map((m) => m.trim()).filter(Boolean))) }) } }) }), "Danh sách dùng trong model picker; catalog không xác nhận quota hoặc gói miễn phí."));
+      b.append(field(`${pid} · model catalog`, h("textarea.input", { rows: 2, placeholder: PL.t("Mỗi dòng một model ID đã kiểm chứng"), value: ((cfg.gateway.cli_models || {})[pid] || []).join("\n"), onchange: (e) => save({ gateway: { cli_models: Object.assign({}, cfg.gateway.cli_models, { [pid]: Array.from(new Set(e.target.value.split(/\n|,/).map((m) => m.trim()).filter(Boolean))) }) } }) }), PL.t("Danh sách dùng trong model picker; catalog không xác nhận quota hoặc gói miễn phí.")));
     }
     b.append(h("button.btn.sm", { type: "button", onclick: () => PL.safe(async () => {
       const r = await PL.post("/api/models/cli/codex", {}); await PL.chat.loadModels(); PL.toast(`${r.models.length} models (catalog; quyền truy cập kiểm tra khi chat)`);
     }) }, "↻ Codex model catalog"));
     b.append(h("h3", {}, "CLI · MCP"),
-      toggle("Codex app-server (prototype)", cfg.gateway.codex_app_server, (v) => save({ gateway: { codex_app_server: v } }), "Mặc định tắt. Chỉ fallback sang exec trước khi gửi turn; giữ native thread resume."));
+      toggle("Codex app-server (prototype)", cfg.gateway.codex_app_server, (v) => save({ gateway: { codex_app_server: v } }), PL.t("Mặc định tắt. Chỉ fallback sang exec trước khi gửi turn; giữ native thread resume.")));
     b.append(h("h3", {}, PL.t("Research providers chạy song song")),
       h("p.help", {}, PL.t("PhD Lab giữ trạng thái nghiên cứu; mỗi provider chỉ nhận một nhiệm vụ có phạm vi rõ trong workspace riêng. Provider chưa sẵn sàng được báo trung thực và tác vụ dùng mô hình của ứng dụng.")));
     const list = h("div.list", {}, h("span.spin"));
     b.append(list);
-    const r = await PL.get("/api/providers?fresh=1").catch(() => ({ providers: [] }));
-    list.innerHTML = "";
-    const cat = { research: PL.t("Nghiên cứu"), coding: "Code", experiment: PL.t("Thí nghiệm"), publication: PL.t("Xuất bản") };
-    for (const p of r.providers) {
+    // Slow CLI probes update only their status list, never block the settings form below it.
+    PL.get("/api/providers?fresh=1").catch(() => ({ providers: [] })).then((r) => {
+      list.innerHTML = "";
+      const cat = { research: PL.t("Nghiên cứu"), coding: "Code", experiment: PL.t("Thí nghiệm"), publication: PL.t("Xuất bản") };
+      for (const p of r.providers) {
       list.append(h("div.li", {}, h("span.dot." + (p.ready ? "ok" : ["NOT_CONFIGURED", "STOPPED"].includes(p.state) ? "warn" : "")),
         h("div.m", {}, h("div.t", {}, p.label, " ", h("span.chip", {}, cat[p.category] || p.category)), h("div.s", { style: "white-space:normal" }, `${p.state} — ${p.detail}`),
           (p.setup || []).length ? h("div.s.mono", { style: "white-space:normal" }, p.setup.join("  ·  ")) : null),
         ["feynman", "claude_code", "codex", "gemini_cli", "antigravity"].includes(p.id) && !p.ready ?
           h("button.btn.sm", { type: "button", onclick: () => PL.safe(() => PL.post(`/api/providers/${p.id}/connect`), PL.t("Đã mở cửa sổ đăng nhập của nhà cung cấp")) }, PL.t("Đăng nhập")) : null));
-    }
+      }
+    });
     const rp = cfg.research_providers;
     const osci = cfg.openscience || {};
-    const engineToken = h("input.input", { type: "password", autocomplete: "off", placeholder: osci.has_token ? "•••••• (đã lưu)" : "OpenScience deployment token" });
-    b.append(h("h3", {}, "Research Engines · Feynman / OpenScience"),
-      field("Research engine mode", sel([["auto", "Auto Research"], ["feynman", "Feynman Only"], ["openscience", "OpenScience Only"], ["collaborative", "Collaborative (2 stages)"]], rp.engine_mode || "auto", (v) => save({ research_providers: { engine_mode: v } }))),
-      h("p.help", {}, "Research Engine tách riêng khỏi LLM provider. OpenScience dùng model, skills và tools trong runtime của nó; không sao chép skills vào plugin registry."),
-      toggle("Enable OpenScience runtime adapter", osci.enabled, (v) => save({ openscience: { enabled: v } })),
-      field("OpenScience loopback URL", h("input.input", { value: osci.base_url || "http://127.0.0.1:4096", onchange: (e) => save({ openscience: { base_url: e.target.value } }) })),
-      field("Deployment token", h("div.row", {}, engineToken, h("button.btn.sm", { type: "button", onclick: () => PL.safe(async () => {
+    const engineToken = h("input.input", { type: "password", autocomplete: "off", placeholder: osci.has_token ? PL.t("•••••• (đã lưu)") : PL.ui("OpenScience deployment token") });
+    b.append(h("h3", {}, PL.ui("Research engines · Feynman / OpenScience")),
+      field(PL.ui("Research engine mode"), sel([["auto", PL.ui("Auto Research")], ["feynman", PL.ui("Feynman Only")], ["openscience", PL.ui("OpenScience Only")], ["collaborative", PL.ui("Collaborative (2 stages)")]], rp.engine_mode || "auto", (v) => save({ research_providers: { engine_mode: v } }))),
+      h("p.help", {}, PL.ui("Research engines are configured separately from model providers. OpenScience uses its own models, skills and runtime tools; its skills are not copied into the plugin registry.")),
+      toggle(PL.ui("Enable OpenScience runtime adapter"), osci.enabled, (v) => save({ openscience: { enabled: v } })),
+      field(PL.ui("OpenScience loopback URL"), h("input.input", { value: osci.base_url || "http://127.0.0.1:4096", onchange: (e) => save({ openscience: { base_url: e.target.value } }) })),
+      field(PL.ui("Deployment token"), h("div.row", {}, engineToken, h("button.btn.sm", { type: "button", onclick: () => PL.safe(async () => {
         if (engineToken.value) await save({ openscience: { token: engineToken.value } }); engineToken.value = "";
-      }) }, "Lưu token"))),
-      toggle("Đã kiểm tra runtime riêng, quyền và chia sẻ trace", osci.policy_confirmed, (v) => save({ openscience: { policy_confirmed: v } }), "Runtime local vẫn có thể gửi nghiên cứu tới model và dịch vụ trace của nó. Xem hướng dẫn tích hợp trước khi bật."),
-      toggle("Cho phép đề xuất chạy code trong workspace", osci.allow_execution, (v) => save({ openscience: { allow_execution: v } }), "Cần duyệt từng quyền nguy hiểm. Remote compute và native worker delegation bị tắt trong adapter đầu tiên."),
-      field("OpenScience timeout (seconds)", num(osci.timeout_s || 600, (v) => save({ openscience: { timeout_s: v } }), { min: 5, max: 7200 })),
-      field("Artifact budget (MiB total)", num(osci.max_artifact_mb || 64, (v) => save({ openscience: { max_artifact_mb: v } }), { min: 1, max: 1024 })),
-      field("OpenScience model provider (optional; required for Auto qualification)", h("input.input", { value: osci.model_provider || "", onchange: (e) => save({ openscience: { model_provider: e.target.value, qualified_tasks: [] } }) })),
-      field("OpenScience model ID", h("input.input", { value: osci.model_id || "", onchange: (e) => save({ openscience: { model_id: e.target.value, qualified_tasks: [] } }) })),
-      field("Qualified tasks for this configured model", h("select.input", { multiple: true, size: 4, onchange: (e) => save({ openscience: { qualified_tasks: Array.from(e.target.selectedOptions).map((o) => o.value) } }) },
-        ["literature", "analysis", "prototype", "review"].map((k) => h("option", { value: k, selected: (osci.qualified_tasks || []).includes(k) || null }, k)))),
-      h("p.help", {}, "Dùng /science để giao tác vụ có phê duyệt; model mặc định vẫn do OpenScience quản lý nếu không đặt override. Hoàn tất agent không xác nhận rằng training hoặc kết luận khoa học đã được kiểm chứng."));
+      }) }, PL.ui("Save token")))),
+      toggle(PL.ui("I reviewed the separate runtime, permissions and trace sharing"), osci.policy_confirmed, (v) => save({ openscience: { policy_confirmed: v } }), PL.ui("A local runtime can still send research to its model and tracing services. Review the integration guide before enabling it.")),
+      toggle(PL.ui("Allow proposed code execution in the workspace"), osci.allow_execution, (v) => save({ openscience: { allow_execution: v } }), PL.ui("Approve each sensitive permission. Remote compute and native worker delegation are disabled in this adapter.")),
+      field(PL.ui("OpenScience timeout (seconds)"), num(osci.timeout_s || 600, (v) => save({ openscience: { timeout_s: v } }), { min: 5, max: 7200 })),
+      field(PL.ui("Artifact budget (MiB total)"), num(osci.max_artifact_mb || 64, (v) => save({ openscience: { max_artifact_mb: v } }), { min: 1, max: 1024 })),
+      field(PL.ui("OpenScience model provider (optional; required for Auto qualification)"), h("input.input", { value: osci.model_provider || "", onchange: (e) => save({ openscience: { model_provider: e.target.value, qualified_tasks: [] } }) })),
+      field(PL.ui("OpenScience model ID"), h("input.input", { value: osci.model_id || "", onchange: (e) => save({ openscience: { model_id: e.target.value, qualified_tasks: [] } }) })),
+      field(PL.ui("Qualified tasks for this configured model"), h("select.input", { multiple: true, size: 4, onchange: (e) => save({ openscience: { qualified_tasks: Array.from(e.target.selectedOptions).map((o) => o.value) } }) },
+        ["literature", "analysis", "prototype", "review"].map((k) => h("option", { value: k, selected: (osci.qualified_tasks || []).includes(k) || null }, PL.ui(k))))),
+      h("p.help", {}, PL.ui("Use /science for supervised tasks. OpenScience manages the default model unless overridden. Agent completion does not verify training or scientific conclusions.")));
     b.append(h("h3", {}, "Feynman"),
       toggle(PL.t("Dùng Feynman cho /lit, /deepresearch, /compare, /review"), rp.feynman_enabled, (v) => save({ research_providers: { feynman_enabled: v } })),
       toggle(PL.t("Cho Feynman dùng API key Anthropic / OpenAI của ứng dụng"), rp.feynman_share_app_key, (v) => save({ research_providers: { feynman_share_app_key: v } }),
@@ -244,19 +246,19 @@
 
   function mcp(b) {
     b.append(h("h3", {}, "MCP & ChatGPT"),
-      h("p.help", {}, "MCP kết nối công cụ, không cấp quyền model miễn phí. ChatGPT dùng đăng nhập Codex; model và quota phụ thuộc tài khoản. Các model local/API dùng chung công cụ nghiên cứu do PhD Lab thực thi."),
+      h("p.help", {}, PL.t("MCP kết nối công cụ, không cấp quyền model miễn phí. ChatGPT dùng đăng nhập Codex; model và quota phụ thuộc tài khoản. Các model local/API dùng chung công cụ nghiên cứu do PhD Lab thực thi.")),
       field("PhD Lab MCP endpoint (local clients)", h("code", {}, W.location.origin + "/mcp")),
-      toggle("MCP research tools", cfg.mcp.expose_research, (v) => save({ mcp: { expose_research: v } })),
-      toggle("MCP write proposals (vẫn cần duyệt)", cfg.mcp.allow_writes, (v) => save({ mcp: { allow_writes: v } })),
-      h("p.help", {}, "Endpoint hiện chỉ phục vụ client local. ChatGPT hosted không thể gọi localhost. Colab MCP là server bên ngoài riêng; kết nối notebook và dataset transfer chưa được triển khai trong adapter MVP."));
+      toggle(PL.ui("MCP research tools"), cfg.mcp.expose_research, (v) => save({ mcp: { expose_research: v } })),
+      toggle(PL.t("MCP write proposals (vẫn cần duyệt)"), cfg.mcp.allow_writes, (v) => save({ mcp: { allow_writes: v } })),
+      h("p.help", {}, PL.t("Endpoint hiện chỉ phục vụ client local. ChatGPT hosted không thể gọi localhost. Colab MCP là server bên ngoài riêng; kết nối notebook và dataset transfer chưa được triển khai trong adapter MVP.")));
   }
 
   // ------------------------------------------------------------------ experiments & hardware
   function hardware(b) {
     b.append(h("h3", {}, "Remote Compute · ClearML Server"),
-      toggle("ClearML Server (online)", cfg.clearml.server_enabled, (v) => save({ clearml: { server_enabled: v } }), "Cấu hình xác thực bằng clearml.conf. Colab cần truy cập được Server và artifact storage."),
+      toggle("ClearML Server (online)", cfg.clearml.server_enabled, (v) => save({ clearml: { server_enabled: v } }), PL.t("Cấu hình xác thực bằng clearml.conf. Colab cần truy cập được Server và artifact storage.")),
       field("ClearML Web URL", h("input.input", { value: cfg.clearml.web_url || "http://localhost:8080", onchange: (e) => save({ clearml: { web_url: e.target.value } }) })),
-      h("p.help", {}, "Local GPU / Docker tiếp tục dùng runner hiện có. Colab là attended handoff: bundle được duyệt → notebook → ClearML → thu và xác minh artifacts. Chưa có upload/resume dataset hoặc chạy Colab unattended."));
+      h("p.help", {}, PL.t("Local GPU / Docker tiếp tục dùng runner hiện có. Colab là attended handoff: bundle được duyệt → notebook → ClearML → thu và xác minh artifacts. Chưa có upload/resume dataset hoặc chạy Colab unattended.")));
     const ru = cfg.runs, rs = cfg.resources;
     b.append(h("h3", {}, PL.t("Chạy ngầm & quyền")),
       h("p.help", {}, PL.t("Run viết code hoặc dùng GPU luôn chờ bạn Chấp nhận. Mức dưới đây chỉ áp dụng cho việc đọc / ghi bên trong dự án.")),
@@ -352,19 +354,19 @@
     let cur = "system";
     try { cur = W.localStorage.getItem("pl.theme") || "system"; } catch (e) { /* private mode */ }
     const ui = cfg.ui || {};
-    b.append(h("h3", {}, PL.t("Giao diện")), field(PL.t("Chủ đề màu"), sel([["system", PL.t("Theo hệ thống")], ["light", PL.t("Sáng")], ["dark", PL.t("Tối")]], cur, (v) => {
-      try { if (v === "system") W.localStorage.removeItem("pl.theme"); else W.localStorage.setItem("pl.theme", v); } catch (e) { /* private mode */ }
-      if (v === "system") delete W.document.documentElement.dataset.theme; else W.document.documentElement.dataset.theme = v;
-      if (PL.tools) PL.tools.repaintAll();
+    b.append(h("h3", {}, PL.t("Giao diện")), field(PL.t("Chủ đề màu"), sel([["system", PL.t("Theo hệ thống")], ["light", PL.t("Sáng")], ["dark", PL.t("Tối")], ...PL.themes.list().map(t => [t.id, t.name])], cur, (v) => {
+      PL.themes.select(v);
     })),
     field(PL.t("Font chữ của câu trả lời"), sel([["sans", PL.t("Sans-serif (Segoe UI — dễ đọc tiếng Việt)")], ["serif", PL.t("Serif (Cambria — kiểu bài báo)")]], ui.prose_font || "sans", (v) => {
       PL.setFont(v);
       save({ ui: { prose_font: v } });
     })),
-    h("h3", {}, PL.t("Ngôn ngữ · Language")),
+    h("h3", {}, PL.t("Ngôn ngữ")),
     field(PL.t("Ngôn ngữ giao diện và câu trả lời của AI"), sel([["vi", PL.t("Tiếng Việt")], ["en", "English"]], PL.lang, async (v) => {
       if (await save({ ui: { language: v } }, v === "en" ? "Saved" : PL.t("Đã lưu"))) PL.setLang(v);
     }), PL.t("Đổi ngôn ngữ sẽ tải lại giao diện. AI trả lời bằng ngôn ngữ này trừ khi bạn viết bằng ngôn ngữ khác.")),
     h("p.help", {}, PL.t("PhD Research Lab {0} · dữ liệu dự án: {1}", cfg.version, cfg.project.data_dir || "")));
+    b.querySelector("select").id = "theme-select";
+    PL.themes.render(b);
   }
 })(window);

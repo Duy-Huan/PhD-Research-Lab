@@ -2,7 +2,7 @@
    Classic script (no build step): everything hangs off window.PL so the other files and the tests can reach it. */
 (function (W) {
   "use strict";
-  const PL = (W.PL = W.PL || {});
+  const PL = W.PL; // i18n.js initializes the namespace before core.js (index.html load contract).
   const D = W.document;
 
   // ------------------------------------------------------------------ DOM

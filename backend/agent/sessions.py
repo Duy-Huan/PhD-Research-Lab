@@ -123,6 +123,21 @@ def list_sessions(module: str = "", entity_id: str = "", q: str = "", archived: 
 NOTE_FIELDS = {"message_id": 64, "quote": 2000, "prefix": 120, "suffix": 120, "text": 4000}
 
 
+def pin_message(sid: str, mid: str, pinned: bool) -> dict:
+    """Pin an existing message in its own project/session, separate from research results."""
+    if not isinstance(pinned, bool):
+        raise AIWSError("pinned must be a boolean")
+
+    def change(s):
+        message = next((m for m in s["messages"] if m["id"] == mid), None)
+        if message is None:
+            raise AIWSError("Message not found")
+        message["pinned"] = pinned
+    update(sid, change)
+    emit(sid, "session.updated", field="messages")
+    return get(sid)
+
+
 def _clean_note(body: dict) -> dict:
     n = {k: str(body.get(k) or "")[:limit] for k, limit in NOTE_FIELDS.items() if k in body}
     if isinstance(body.get("point"), dict):  # a data point of a chart: {chart, series, x, y, label}

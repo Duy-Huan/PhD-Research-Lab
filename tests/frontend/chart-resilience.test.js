@@ -1,0 +1,55 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {boot,R}=require('./harness');
+
+test('charts validate finite data, support small displays and accessible point interactions',async()=>{
+  let registered=0;
+  const h=await boot({noBoot:true,before:w=>{w.matchMedia=()=>({matches:false,addEventListener:()=>registered++});}});
+  const T=h.w.PL.tools;
+  assert.equal(registered,1);
+  for(const s of [{series:{}},{series:[null,{}, {data:[]}]},{series:[{data:['infinite']}]},{series:[{data:[1e101]}]},{type:'scatter',x:['not a number'],series:[{data:[1]}]}]) assert.equal(T.parseChart(JSON.stringify(s)).ok,false);
+  const spec=T.parseChart(JSON.stringify({type:'bar',x:['a','b','c'],series:[{data:[1,null,3]},{data:[2,3,4]}],note:'Observed data only'})).spec;
+  assert.ok(T.svgChart(spec,{width:320}).getAttribute('viewBox').includes('280'));
+  const area=T.parseChart(JSON.stringify({series:[{name:'A',data:[1,null,3]}]})).spec;
+  h.document.documentElement.dataset.theme='dark';assert.ok(T.svgChart(area).querySelector('path'));delete h.document.documentElement.dataset.theme;
+  const marks=T.svgChart(area,{marks:[{series:'A',x:'1'},{series:'absent',x:'9'}]});assert.match(marks.textContent,/1/);
+  const queue=[];h.w.requestAnimationFrame=fn=>{queue.push(fn);};
+  const chart=T.chart(area);h.document.body.append(chart);
+  const holder=chart.querySelector('.chart-svg');Object.defineProperty(holder,'clientWidth',{value:320,configurable:true});
+  queue.shift()();assert.equal(holder.querySelector('svg')._w,320);
+  const svg=holder.firstChild,p=svg._pts[0];
+  svg.dispatchEvent(new h.w.MouseEvent('mousemove',{clientX:p.x,clientY:p.y}));assert.match(chart.querySelector('.chart-tip').textContent,/x = 1/);
+  svg.dispatchEvent(new h.w.MouseEvent('click',{clientX:p.x,clientY:p.y}));assert.equal(h.$('.dialog'),null);
+  let chosen;
+  const interactive=T.chart(area,{onPoint:point=>{chosen=point;}});h.document.body.append(interactive);
+  const s2=interactive.querySelector('svg'),p2=s2._pts[0];s2.dispatchEvent(new h.w.MouseEvent('click',{clientX:9999,clientY:9999}));assert.equal(chosen,undefined);
+  s2.dispatchEvent(new h.w.MouseEvent('click',{clientX:p2.x,clientY:p2.y}));assert.equal(chosen.chart,'chart');
+  const noSvg=T.chart(area);h.document.body.append(noSvg);noSvg.querySelector('.chart-svg').replaceChildren();queue.splice(0).forEach(fn=>fn());
+  h.w.requestAnimationFrame=undefined;
+  const note=T.chart(spec);h.document.body.append(note);await h.idle();assert.match(note.textContent,/Observed data only/);
+  const anchors=[];h.w.HTMLAnchorElement.prototype.click=function(){anchors.push(this.download);};
+  Object.defineProperty(h.w.HTMLImageElement.prototype,'src',{set(){this.onload();},configurable:true});
+  h.w.HTMLCanvasElement.prototype.getContext=()=>({fillRect(){},drawImage(){}});h.w.HTMLCanvasElement.prototype.toDataURL=()=> 'data:image/png;base64,AA==';
+  await h.clickText('.chart-tools button','Bảng dữ liệu');assert.match(chart.querySelector('table').textContent,/x/);
+  await h.clickText('.chart-tools button','SVG');await h.clickText('.chart-tools button','PNG');assert.deepEqual(anchors,['chart.svg','chart.png']);
+  h.w.Image=class{set src(_){this.onerror();}};assert.equal(await T.svgToPng('<svg/>'),'');
+});
+
+test('figure enhancements remain safe without a sanitizer; exports support no figures and structured topic context',async()=>{
+  const h=await boot({noBoot:true,routes:{'POST /api/export':()=>R('ok',200)}});const PL=h.w.PL,T=PL.tools;
+  PL.load=async()=>true;let theme;
+  h.w.mermaid={initialize:opts=>{theme=opts.theme;},render:async()=>({svg:'<svg><text>diagram</text></svg>'})};
+  h.document.documentElement.dataset.theme='dark';assert.match(await T.mermaid('graph'),/diagram/);assert.equal(theme,'dark');
+  const root=PL.h('div',{html:'<pre><code class="language-svg">&lt;svg/&gt;</code></pre><pre><code class="language-mermaid">graph</code></pre>'});
+  h.w.DOMPurify=undefined;T.enhance(root);await h.idle();assert.ok(root.querySelector('pre > code.language-svg'));assert.equal(root.querySelector('.mermaid-figure').textContent,'');
+  const got=[];h.w.HTMLAnchorElement.prototype.click=function(){got.push(this.download);};h.w.URL.createObjectURL=()=> 'blob:export';h.w.URL.revokeObjectURL=()=>{};
+  PL.research.tid='topic-export';await T.exportAs('tex',{});assert.equal(h.server.last('POST','/api/export').body.topic_id,'topic-export');assert.equal(h.server.last('POST','/api/export').body.markdown,'');
+  PL.research=null;await T.exportAs('md',{});assert.equal('topic_id' in h.server.last('POST','/api/export').body,false);
+  const anchor=PL.h('button');h.document.body.append(anchor);T.exportMenu(anchor,{markdown:'Direct document'});await h.clickText('.menu.pop button','Markdown');assert.equal(h.server.last('POST','/api/export').body.markdown,'Direct document');
+  h.server.on('POST /api/export',()=>R({},501));let printed='';h.w.open=()=>({document:{write:x=>{printed=x;},close(){}},setTimeout:fn=>fn(),print(){}});await T.exportAs('pdf',{});assert.match(printed,/<title>PhD Research Lab/);
+  const el=PL.h('div.msg.ai',{dataset:{id:'message'}},PL.h('div.prose',{},PL.h('b',{},'Selection')));h.document.body.append(el);
+  const range=h.document.createRange();range.selectNodeContents(el.querySelector('b'));range.getBoundingClientRect=()=>({});h.w.getSelection=()=>({isCollapsed:false,rangeCount:1,getRangeAt:()=>range,toString:()=> 'Selection'});
+  assert.equal(T.selectionInAnswer().messageId,'message');
+  const outside=h.document.createTextNode('Outside');h.w.getSelection=()=>({isCollapsed:false,rangeCount:1,getRangeAt:()=>({startContainer:outside,endContainer:outside})});assert.equal(T.selectionInAnswer(),null);
+});
