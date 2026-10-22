@@ -747,11 +747,13 @@
       "status": "conditional",
       "implementation": [
         "tools/research_harness.py",
-        "tools/acceptance_v56.py"
+        "tools/acceptance_v56.py",
+        "tools/verify_v6_harness.py"
       ],
       "tests": [
         "tests/test_research_os.py",
-        "tests/test_governance.py"
+        "tests/test_governance.py",
+        "tests/test_harness_verification.py"
       ],
       "remaining": "Local software/CPU harness is available. Real bounded scientific pilot, live native inference, lawful live sources and Docker containment signoff remain open; release stays opt-in preview."
     },
@@ -815,10 +817,12 @@
       "requirement": "Three fixed workflow families, single/fixed/adaptive measured comparison",
       "status": "bounded",
       "implementation": [
-        "tools/research_harness.py"
+        "tools/research_harness.py",
+        "tools/verify_v6_harness.py"
       ],
       "tests": [
-        "tests/test_teams.py"
+        "tests/test_teams.py",
+        "tests/test_harness_verification.py"
       ],
       "remaining": "Synthetic literature/workspace transport with actual local code/CPU measurements; not evidence that adaptive agents outperform real scientific work."
     },
@@ -899,11 +903,13 @@
       "implementation": [
         "backend/agent/collaboration.py",
         "backend/execution/guard.py",
-        "tools/research_harness.py"
+        "tools/research_harness.py",
+        "tools/verify_v6_harness.py"
       ],
       "tests": [
         "tests/test_workstreams.py",
-        "tests/test_guard.py"
+        "tests/test_guard.py",
+        "tests/test_harness_verification.py"
       ],
       "remaining": "Sequential logical teams are explicitly permitted by v6.3. A single Mission executing across multiple Topics, remote identity, real-model multi-team benefit and real GPU/Docker containment remain open gates."
     }

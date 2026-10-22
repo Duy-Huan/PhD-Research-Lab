@@ -1,5 +1,7 @@
 # v6 upgrade handoff
 
+Cross-version harness qualification: [verification guide](v6_HARNESS_VERIFICATION.md) and [measured current/historical results](../artifacts/harness-verification/verification.md). The current harness records the requested stage separately from the application version and retains exact control-plane/role/collaboration snapshots for independent hash checks. Original 6.0/6.2 bundles have evidence-export limits; the historical Git releases are tested without rewriting them. v6.1 remains a compatibility layer rather than an invented release.
+
 Follow-up reconciliation: [v5.1–v6.3 feature audit](upgrade-reconciliation.md) and [current validation](../artifacts/upgrade-reconciliation/validation.md) supersede earlier gap statements about keyword-only SKB retrieval, missing tags/citation graph, JSON-only Zotero input and 25-paper Mission report snapshots. Source-index venue coverage, optional parser dependencies and live scientific/hardware release gates remain explicit.
 
 Delivered as separate opt-in preview milestones: v6.0 supervised charters/lifecycle, v6.2 logical team harness and bounded reassignment, v6.3 durable workstream collaboration. The missing v6.1 assumption was implemented through compatibility models on existing tasks rather than a second orchestrator. Readiness audits, release guides and architecture/API/operator docs are under `docs/audits`, `docs/release-v6.*`, and `docs/architecture`.

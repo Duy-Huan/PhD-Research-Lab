@@ -1,5 +1,10 @@
 # Changelog
 
+## Cross-version harness verification — 2026-10-22
+
+- Added one-command verification of current 6.0/6.2/6.3 stages and exact historical release commits in isolated exports, with independent raw metric, reproduction, artifact, role-envelope, receipt and audit checks.
+- Harness exports now identify stage/schema/flags and retain original control-plane snapshots. Added adversarial bundle tests and a two-process abrupt-exit/checkpoint recovery test. Original release export limitations remain visible; no independent v6.1 release or scientific-autonomy qualification is claimed.
+
 ## Upgrade reconciliation — 2026-10-22
 
 - Audited all 11 v5.1–v6.3 upgrade documents with a repeatable source inventory, 49 feature groups, implementation/test references and explicit external qualification gates.

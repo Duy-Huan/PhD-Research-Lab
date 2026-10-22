@@ -1,0 +1,2494 @@
+{
+  "stage": "6.0",
+  "version": "6.3.0-preview.1",
+  "research_store_schema": 7,
+  "enabled_features": {
+    "enabled": true,
+    "team_enabled": false,
+    "multi_team_enabled": false
+  },
+  "at": "2026-10-22T13:31:29.177746+00:00",
+  "source_identity": {
+    "source_tree_sha256": "99d556b56da4ffdb9ac14df2ba49994bc7127cf11f35e7650186b19742bdc219",
+    "files": {
+      "backend/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "backend/agent/__init__.py": "f7f348e5b087a94fe7d42e9aac7def7ebc487d0136f9028be8de855e1dcf2034",
+      "backend/agent/acceptance.py": "305e792f6072a06e86fd6bb5f25996cbcc6cee771271c3faee978e9092ee95b8",
+      "backend/agent/artifacts.py": "05c913b02a6dfbfe46d23e82370f54899f5c6ff63c73d523c9d1d0b5d5b82533",
+      "backend/agent/capabilities.py": "3ffc22c3e6480ab09d8606f550c3899b4ef31a7997c5e8c619165aed312ba981",
+      "backend/agent/collaboration.py": "74a6b8efbf7de6500ec6406843dbfc186c5c66e68cb8e91574b19e04499ec761",
+      "backend/agent/context.py": "00428018acff883f4c7d12fdb2bd960cf8c6c0622463ed92a5c88cff8f02b74e",
+      "backend/agent/dashboard.py": "b61da90dbbfd897250378ece7b7b272bfea1c9c09a6b8b913e8e88794d88ed27",
+      "backend/agent/decision_ledger.py": "a8ec11dbfd7ce510bc1dcff51d0f14e7d10e9da2a3fffd7bacf483d609eefaf9",
+      "backend/agent/launch.py": "7b79aad266e7573357a1875b40310819bf0957bf9bbcbfecc0bc78762e6700e0",
+      "backend/agent/mcp_policy.py": "c8583ed1b4bb3fe6a78c4c88004f00101f0ed08cb9bc3b504d4081d99b7b0f7d",
+      "backend/agent/memory_modes.py": "3a427f31320358f86fbbf0670bc1021e6075c6e69a70f23188d4a28728978741",
+      "backend/agent/mission_contracts.py": "27b1ec582d9256046651ede5c5ed0ed476133e5fbc8646209e90da3f4db6d65e",
+      "backend/agent/missions.py": "ed8fc890ccbca40afba120e291a7dc36e61fd7c8f6ed9f1eb6aa6c5566c5258a",
+      "backend/agent/orchestrator.py": "024813c6e175cd4497f633f5628d0c28dc2c22463a6e3237a188f980ab4198d7",
+      "backend/agent/outline.py": "f40b174934efb2b85056219ec3ee4feafb0f60da47c3af2b4099c3e2ad7b39bf",
+      "backend/agent/pins.py": "fee18cdee87ce669845a3cdb55326ee20f1dbcb112468472e5c33e1fabfe3541",
+      "backend/agent/policy.py": "46f2971d5e4069b7f611d9a514d113ade02cea3288c7690ab9e05bdb2f21006d",
+      "backend/agent/project_context.py": "0a06d0ceb7f7dcc5bf7018d1c5975598519c52000c02b26f4d2db4cdf98994d9",
+      "backend/agent/research_os.py": "7f6541adec56cba9c52b139dde3ba34cc3eb21021ae7e0452a5b4fdd1e7d5b0f",
+      "backend/agent/runs.py": "7df97a9309b439c5f59c961660932c134275918656dfbfe830bbcfc9972f0767",
+      "backend/agent/sessions.py": "cc2e7389387aa11e5eb7468aa07c753aa12efdbae5fb62334f68c5d497f5f518",
+      "backend/agent/skills.py": "20411f791d63b2e356cf1c08ea50fed5d623df3bcfb6ecda03859d551a6089bd",
+      "backend/agent/teams.py": "10367b15d1a8170473d929d407e32f17951ef1b623d99b220105758b47f60a67",
+      "backend/agent/ui_actions.py": "9ad9c0ad092a3ec7f4b122e81ea855ecbe64b8bce50c93e5045660f9be91b219",
+      "backend/api/__init__.py": "36b4a09f278cab67887402c63346cde857f84abad8595151a63cffe858f77328",
+      "backend/api/chat.py": "a1f9d7ce0fce0ff0147ce71d8000034eacb7e40de005e18a5455415619925e9d",
+      "backend/api/code.py": "6c732e97ec2dfbf328d8ecb6124b66d68f2f16a9e9996eafec0cf8c53ce82baa",
+      "backend/api/common.py": "004ada231c339f293efe0a90ace587311ef426f904360b8b5b6409b381bdebd0",
+      "backend/api/compute.py": "ce53e686db836359bce35b70961eb45e0ffe2331276c89dc29f5903139c2dd2c",
+      "backend/api/library.py": "c3eb84d8d2ccd0a03d101d0e48b28e866bfba484d99054835bd6dab39d40b15d",
+      "backend/api/mcp.py": "c2f60fff984bae0c067ba82d58d1cf631d3eae6e61ffc127adcbdb63a2cd2cc6",
+      "backend/api/memory.py": "182fde3d70308f186eb538c634b3bf0b053c4a8c5cc557d61a25c6a845d3e917",
+      "backend/api/paper.py": "442993f28606cecb066ba95428bf2f4c2103ed9a53a93e663fa0b3ccab157b32",
+      "backend/api/plugins.py": "6e8511f9430bbf54f78b84aaa76c53ee183c71dd3d9b53e7515b66dcddc44acf",
+      "backend/api/projects.py": "f15f4bc5322c2463eadd9d90f0619fe6118e1a5c0a6169e7a10e210a6fab7351",
+      "backend/api/research.py": "544f85852a3c40e3e49ad91ae0d88326950d5ed694b998959ee585b4d783a827",
+      "backend/api/research_engines.py": "432bd72ca8223cdf067367f3e22ad2bbcf864fabc7fe48a12195d45253930d3f",
+      "backend/api/review.py": "3c5ae46fd964b39ef67497b2d9b8370cb5993d22cf566586e4dee1e93fe4b3ee",
+      "backend/api/runs.py": "233886fcba1ad9d0496352b14f4a04680210b922b7cdb0fd43a9e4d6475c2423",
+      "backend/api/system.py": "d12d9c5a42d5c99bef0a98e88ab68deec1c9dc038755c1b5f97dc1141eb1dc91",
+      "backend/app.py": "2af00fe758fe806d5fd718e5a0084acdac589fe98551c73228e72c13c90e3913",
+      "backend/cli/__init__.py": "166ef172054327af949cf905622d56c807a9238fa4089a1b111c5edf48ce9e8e",
+      "backend/cli/__main__.py": "59808be459b5aaaa527f30bf935288c6e8a9f6e07eca34502609fde5b2ccfbe5",
+      "backend/cli/repl.py": "d736ac022683f49515bad6aa85e96f02b3d77e22837c14fe577fb8c88e31cff8",
+      "backend/core/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "backend/core/bus.py": "47324c9b978323248c276a48c710ed5e6eca77a01a9ed4593a3a8e6ddecff977",
+      "backend/core/config.py": "cf53a51adba126c3a9d13261abbf8e1f463083fa2fa9532b99cafda2c78af7a7",
+      "backend/core/i18n.py": "2cd09bac5c481c04fc227d148d4ca2daa6d8d6ddea31d08a6283cede5190cbaa",
+      "backend/core/telemetry.py": "16e41c3b288c4c198690c6a7ab409511a99976a57eccbe4a45e2d938944fea3c",
+      "backend/execution/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "backend/execution/clearml_worker.py": "5d7e6888796b6ba68fc730b581cd7cf8ede3d817d4046802ee2a0f23ec86d845",
+      "backend/execution/code_projects.py": "0de85f3ca48900916aee87df7ba42f486646c18a0e8ebfede8c6959d50a91e0f",
+      "backend/execution/denoising_worker.py": "39b8d20fa5de6b0c8ba887550191bade61711d7723fa7a687baef010eb1ce2ec",
+      "backend/execution/deps.py": "8f11d69fd18c54b04e40847e79689c246401b58317add22bff5bbb3d3a4a0b6c",
+      "backend/execution/envs.py": "04df16aed6443ac87ecfd472879c3408fb4e88bb73a48938b78d53df954b459a",
+      "backend/execution/files.py": "bfce31130262145d0ee176831a55f4fab82e1c49892060f24c2afd1ffe22e668",
+      "backend/execution/gitops.py": "4ea0363c4b081efe285a04e2f945266e6c7fea019fe294c2379bdfe59cf2847f",
+      "backend/execution/guard.py": "cc0ba2922d37f4c5c7e08a876654734b1788248aaa75d859156142e3444e8497",
+      "backend/execution/processes.py": "ff0f0f492c891849fb7b20096488d1c071fbbf9e5956c6ae6b4a9a88122b2dbe",
+      "backend/execution/protocol_contracts.py": "a8537b6e3f8afab2a5805f99e6a87b7627c9d989511a4824fe8dfca6a39ad084",
+      "backend/execution/protocols.py": "62a2b0d9cc44eab9206136c53f6aa4c75fa518a6c4e02c6eb353742e1ed106b0",
+      "backend/execution/remote_compute.py": "ea81d4afad94f1f9e630b894d43b8900aaf86e23fc509e9988e0c706422aedda",
+      "backend/execution/resources.py": "f50b765639dce3a983a231a2bcc47ea3a67579aaa24864d2273b084451d2279b",
+      "backend/execution/sandbox.py": "416a4124bbbb865d6de15808fbadfa30fff925611a60ad7ce5964e4eb26b73fb",
+      "backend/execution/sync.py": "21cb3ba550ac3195ea229b4b85e81df6e374477fedd66dc1f1fc5fa829715d8e",
+      "backend/execution/sysinfo.py": "341e5267fc4ef08a8cc28edfdcb3679dcaa4fb451e2a3e3565f800b5602d748e",
+      "backend/execution/tools.py": "73b58179e9d36b35b3386918014724c3133b7b8779961319b88651107999dfee",
+      "backend/execution/tracker.py": "865fc6c6bfa9765a13cf1aa3905b18b6467cd5bc5685220ccba7ca91cfcedb29",
+      "backend/execution/vscode.py": "973db6c22c179b95e0bcc22f2a25a95a236fe3424da6e85b30e5b23477d52904",
+      "backend/knowledge/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "backend/knowledge/attachments.py": "9dcd55b149c4c9c30295a943d8967915c4cb1c8522f914a4bad846b4cc0ba694",
+      "backend/knowledge/corpus.py": "090153b7f455d8474235e530eeaa40dfc64013b92924f631adec14d08d9c801a",
+      "backend/knowledge/download.py": "38d541d6430a9feae2b196e76c4c895b5920037f6d3d5d1cb3ffbc5eccddb001",
+      "backend/knowledge/evidence_retrieval.py": "fe6fdc4928588f51507316d8ed58c325e7e5331c29927154e39c6df850f33aaf",
+      "backend/knowledge/governance.py": "b078c0bca051596d6211fd640a3616ef28b0f9ebe7726ebb67cee3f6d8e4601f",
+      "backend/knowledge/library.py": "dfb9535b62bebf89cac318711b7d0a3694948cebe39615e3faf204564006362a",
+      "backend/knowledge/pdf_index_worker.py": "5e04604cbfe3ee7eee98b31d2de333f5d3a9c268bb32ad5de10361cd2a4aaee9",
+      "backend/knowledge/pdf_indexer.py": "e7c6d7fdbdebb918b7b4b6e50899166d1d79f17f3e439b47fa6c2fc220a21f11",
+      "backend/knowledge/provenance.py": "d71c17429185a45e9f1b334af2cf2713aa58138119a91df58f82f398f4e828b2",
+      "backend/knowledge/ranking.py": "08471223038988ef8f46af37ec35e7b3c0e73d9b2b156dc82f0b892c50f0fb24",
+      "backend/knowledge/research_context.py": "83ed96bd1e252f5e3507c3a8bca04c496dace52777dc5b48614838e35d602491",
+      "backend/knowledge/research_jobs.py": "93e1cc59e77618e68bfae1edf73c96841463845370faff0ea7be7b387dd2f31a",
+      "backend/knowledge/research_store.py": "8c061ae76d879795d3fd098ba38c9784565c07a2294566c768afdb7d077c1794",
+      "backend/knowledge/source_packs.py": "c51e6b528b73696dd6ac1ecdba72a06f203a724822404d4ccfe104f80a1e1163",
+      "backend/knowledge/sources.py": "2eaa0906bfb62962400a49f62b147cfba8d64f7c4c0a8a70b12aa87815c0a3a3",
+      "backend/knowledge/verification.py": "b1fcd4374502a5c50e3b566d2eb3f5f706090ca0e546424789f2c14929fbf615",
+      "backend/knowledge/websearch.py": "dc1b1b493bb784e4609d51aad0a01765c4edf6225bc89c3af4d3eb35fa57d376",
+      "backend/memory/__init__.py": "87f71fe6dfea18800eb1e65ebd54af9a50255c0c9d93c3299892c666d8cec84a",
+      "backend/memory/cache.py": "faa2fcbc381f34a750c17b783752bbffe2576ecdb10c485861682beea7d3e2a4",
+      "backend/memory/compiler.py": "bd8e0d8af4dd70fb56da923dfd21636aeba91f35b7c0c65c66c4c59ccb48aeb6",
+      "backend/memory/compressor.py": "22ec13c71aa34a1f5e99bfd7fde45babf9ef9e3b7919bbe0df02b31573e1776d",
+      "backend/memory/embeddings.py": "e2770805bae65cda426052d2a400882f72ef18ce2e83a190ee1986f609c90383",
+      "backend/memory/engine.py": "8418f6d1e3bf2e136c0dc62c69b315b474ad28ef06e01e7331e4b5c543251975",
+      "backend/memory/evidence.py": "d256dc3b57c82edd69701f15a9cc96d26d9f0c87c80fa93cf989f26b7c6a544a",
+      "backend/memory/graph.py": "e1bc53e155f4ecf4a7c797f744b9b1790deb9b092c9e84913cbdc8ff81fd45d3",
+      "backend/memory/knowledge.py": "3a495a073a35aa4458a955b3073d090b6197468652183952f8778e141259e04e",
+      "backend/memory/lifecycle.py": "116e7531e0d317e3f2deb7377c3165d075e87b359551f5b865c0c118b97e9552",
+      "backend/memory/lod.py": "7c923fe035a346b063df5f9c6e0d605c2d318d3901414a6c780875904a80497a",
+      "backend/memory/notes.py": "9033f7644f1c9e01753311af07d22221365e34af18af0fcb6880077de5b97296",
+      "backend/memory/pages.py": "e5cb981a66a3966b91349cd71e97449aac84b90be46e047685dcf477930904c7",
+      "backend/memory/policy.py": "9a907157252b13cc9b47f300bef1ec707616753619c9d70e765391522a423b93",
+      "backend/memory/research.py": "1ff57ffbd3a0fd6871c1ecfed39cdcd582d0c8a646228479e1c12780fc62e900",
+      "backend/memory/retrieval.py": "bb34a60af6fa8183323b65348fede1c052d30755ff4f2943b166313069de05af",
+      "backend/memory/state.py": "b1d35ac6744393594def71e38c297614e742c29689b10fba50f348c44aea4d7f",
+      "backend/memory/store.py": "97c37b2c8260bdec119ea5ec75238d510198eeead0b407e7a86446c8036f3f96",
+      "backend/memory/trace.py": "be75034926aa5210ba76b4d09a8e978a5019f0a568e878a9931a81da6eb8298e",
+      "backend/memory/working.py": "41c180faede95a4029fb73c8dd0e426d903fcc3b9e05ee9ab3ef999c8d6d3f16",
+      "backend/paper/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "backend/paper/export.py": "d4458b8789316879bc2d89fc4d894be7ee8b183f1b9b2d184762fea7989d3b67",
+      "backend/paper/latex.py": "85171b1a50ef26102dcef3f30f9e54826a3255f82da8af7303d00b0348481dcc",
+      "backend/paper/results.py": "a0072ef121ee1502315920eb12e33652fdfd43bc39713d6555b2dcae455fdf3c",
+      "backend/paper/review.py": "644611431d5475ae042563568909be4573711cd92d04833ff4ae1b896f115045",
+      "backend/paper/review_prompts.py": "95e64cf408ce0793ede5dd2864bf2ec649f14fe290f48bc1374172c4bf46a563",
+      "backend/paper/writer.py": "ec3cf98bb7b2d34fbd4ee8154796d110fc1a370454debec8561c26e958697d1a",
+      "backend/plugins/__init__.py": "431ebedfdc85007887b8829c7cb15f5d25f7d4f53bcd19c72663c8cac909e8cd",
+      "backend/plugins/ai_scientist.py": "3a8f41568bacf3f581e8461bc5a40a12a74531cbdc580ab233c18146a2c44213",
+      "backend/plugins/document_parser.py": "74b8825e4aef36a728afbb659787dc914e4614f2afc5b0615eeb9fb14f8da257",
+      "backend/plugins/document_parser_worker.py": "8dcdb07781f2724a18c48c0209d17ff914fae689da079a852db8536bc0123782",
+      "backend/plugins/local_research.py": "d4f2e11b138e6366d1412415e3eea1357d83b63ce15271ffd0c77604aba7d84f",
+      "backend/providers/__init__.py": "9b3ce2db77d424f0ea86b4e8bbe632db1fde8dca92cdde339fcc1223f438fa19",
+      "backend/providers/app_server.py": "5ff780955eb25c26eb324c85d62365a8bf8adb995b1e8c39c1c91ca7c96969ae",
+      "backend/providers/cli.py": "416d251454f5df7689f39f31b4f40e9094af5a717228fc5dccd452169de460e0",
+      "backend/providers/cli_space.py": "c4e56db8813a8497946082da3bd1b3a57ead1e7d6e99d8d8e8485a587e35ccc9",
+      "backend/providers/context_packet.py": "0323b1f566fc6bc722acbbb97d89eb6319e5c7665641a539e47cbdcc17b4e0d9",
+      "backend/providers/events.py": "061d203401cb61a39ee244c8845c8eed6555d76a98756955d0436ce3a3cd7118",
+      "backend/providers/firewall.py": "55a22a4e2f0cf769d99a28d4354d77ea4b0185c347cd7f3267f683105d3e647b",
+      "backend/providers/gateway.py": "b1bfdc5172b043e5f942b9e5d2a5f92f2ee567c28b40afdc0a838a056f74bb74",
+      "backend/providers/lifecycle.py": "41a7e9af5d85beffe42ab6a2977ff47586b0cff1c078c393314c27b3d52e5711",
+      "backend/providers/local.py": "f3ae95d89b41fb496b99d927ca8e24bf6d5ae1e6f388668d9d0d061dd27f88d6",
+      "backend/providers/mcp_server.py": "99c2807b4499de064b7f35888b11f287376b0996249650820f06dd99d586b151",
+      "backend/providers/mcp_tools.py": "40ea00977246db790308f47f60b3b5f61c30f6a998c5b033da23eaa68374c81c",
+      "backend/providers/models.py": "971c131931f2f7f2ac41e656c4ee309cb554b549a52aa74a97fafb980e9cbb98",
+      "backend/providers/privacy.py": "d8fbfc6a980202847a4bcb28fa5c7429d864bc4866d92ef121c845ee31c2a76e",
+      "backend/providers/registry.py": "ce42f91fd93866cdd758ad9e760903ef42b8516eb49d2e16886516a103202ed5",
+      "backend/providers/research.py": "65a22bc5e714d03010caa0e33956080acbcc48e0701cd44c6bade3c9df8179ed",
+      "backend/providers/router.py": "7db723333950a5303aeb4890d18717dc8ce662fdcbd7d2e9604aed0fe3b5ef39",
+      "backend/research_engines/__init__.py": "19b6ab6ef21f67ef8d89f3c21b48571bd592a13cc934284b651e72d644481b10",
+      "backend/research_engines/contracts.py": "7077230879349381f4a241eacd8389fddd94a3f5c099b4566824f1cf920de009",
+      "backend/research_engines/feynman.py": "f86ef1beb9554d16d92e358fd983ce1cfddc9d688e384d55f9bc05b6564513cf",
+      "backend/research_engines/openscience.py": "836417d56e410d8b12cd51f91764427424c976981e6b0ea4c5ddfbdfa969d960",
+      "backend/research_engines/registry.py": "306f0662c88be8fe000dbc834da9597d6393e1d8e256be88db125133b2378c0a",
+      "backend/research_engines/workspaces.py": "e58bb71f2c91aabcd6c66c9e488e83050542024b51ef50618f4aff630c64d499",
+      "frontend/assets/app.css": "5e814ac7372b5514de0e6ff4871497711731cbbc3b5bf4f395d08024ed51a1fe",
+      "frontend/assets/appearance-init.js": "81d49ab416d850e84f2a649953b19c13a037f6ea8511c9d5771d30f909db0ade",
+      "frontend/assets/chat.js": "29148832a2a66bd75341891310cfcfd9aea2f43614007e456fcaa718dfc1c5ea",
+      "frontend/assets/core.js": "cf8eca8218929585a1694bd9d048c86ce5a44cd112b57773b437ebcb3ce0d48e",
+      "frontend/assets/dashboard.js": "d471ad28d336116116e108c7dfc04ae3fcc2e5f19988ecd5cac94baa86161432",
+      "frontend/assets/i18n-en.js": "ff641a39d22b0b3bc33dec211b2e3af5f86c6de4111dd640329f41257ef2317e",
+      "frontend/assets/i18n.js": "e4d4fe6c5255953cacd5abcd143464267c3b7f58ba9a329f09879af14406dffc",
+      "frontend/assets/main.js": "f79dbb617bd9cdcb4c75a23d8546123434936fb882a077a7eefaa440b24bc10b",
+      "frontend/assets/panels.js": "bebe52ab17bed04eed820497bf3ee0de996bb9ea4a7f6d3341098047e4e40f7b",
+      "frontend/assets/research.js": "808298eb5f7d44301cea1f6fbc86f469fddf517030f99951469bd6646243ab17",
+      "frontend/assets/review.js": "eb69e3453fcd773e993ec3cd41cd5196fc5313ecafd9d1b1f5dc6f8fab276ff1",
+      "frontend/assets/settings.js": "3b7589914304c4c9269e1825fb907eb01574f13a6837515b22f78a91f0fcce7b",
+      "frontend/assets/themes.js": "c9cdd983d1f3c315a44d81b1695f638ee9fe64b438023a25c71eecb52ae0c86b",
+      "frontend/assets/tools.js": "27ae1368b30f228446e861bcd4e907875cbff106154448d3031e74b6967fc8a6",
+      "frontend/assets/ui-locales.js": "ecece26879ffa4db832b330c56faa3e2ea136aa6e34b159ec241dc5bb1b446be",
+      "frontend/index.html": "96fef4094e13ea33a098a0be2b24f740bd8636786572afb4c63a7f06d88caf32",
+      "requirements.txt": "ff3a5fd0a0606f5e67fede2bcd01882844ff9ca4132d424a49bf3f2fd892a7fe",
+      "start.py": "70de4604ed72a5128082aab83c8614d2c6c3d09ed524eb5dff8cc364fe84c7a4",
+      "tools/acceptance_v56.py": "015c5b1575dc146b5d18ebf563a260a2982a3a97fb9c988213123acb10104f3c",
+      "tools/audit_upgrade_specs.py": "f013f3265a26733dbbb6800580d26dd9ec6ed5ed468cb54dc7aead0ee2dce6de",
+      "tools/backend_regression.py": "62c360f12f121f541b0cdf44f31bc53583de1bde9027ae7637c357a2592a8291",
+      "tools/benchmark_cloud_runtime.py": "dd25ec349c74003fa96fd6e95e78923ed0cc18d65a93d65969d86282f0d42794",
+      "tools/demo_server.py": "f5b14debc47aec021978299c77e7e1febc95da94776f1614bbf27d4d8e06ec82",
+      "tools/frontend_fixtures.py": "21a5cd0de5baece37c50aab8c6d871d0653103185c41814a2a0891985ab402cc",
+      "tools/probe_openscience_runtime.py": "2db312963f3fee67136832feaf0aa4503b644a35cce63af574c65bb07b8fce60",
+      "tools/research_harness.py": "408992de82a26c55da8087de82b4764655ca1e8d305d54a02ebcfd33f7f95962",
+      "tools/research_workspace_demo.py": "072d0e32054680d33bf1cfcde07c3492c6a6c370469dcf4648ae371cfdf541e8",
+      "tools/run_tests.py": "4020a8db953fe6803d0dc6ec88387a4bfa5b4899748dad296ff6dad9163451ba",
+      "tools/stress_runtime.py": "d92c3c946ae8342da4eee4a89d9a690bd0eb40dd92ff7bce38a8031dbaf63e52",
+      "tools/validation_report.py": "4fc0cd5b803367fa6c1749161a45a48010504ca78f684bb2b8b62c6e78c6eb64",
+      "tools/verify_v6_harness.py": "c6b4d0901008ba60a87dfb58c59370f1dca9383094a1f4f293ba369889e22d6d"
+    },
+    "git_parent_commit": "59cdb4c211039f32cb880770790b4bf23db093ff",
+    "git_dirty": true,
+    "note": "Exact source bytes are fingerprinted; parent commit plus dirty flag honestly describes a pre-commit acceptance run"
+  },
+  "status": "passed",
+  "scope": "Real local software and CPU workers; synthetic literature/workspace fixtures; no live inference/GPU or scientific endorsement",
+  "rows": [
+    {
+      "workflow": "Literature inspection",
+      "mode": "single",
+      "logical_roles": 1,
+      "workstreams": 1,
+      "wall_seconds": 0.20213769999099895,
+      "executions": 2,
+      "verified_completion": true,
+      "quality_indicator": "Bounded technical contract completion, not a scientific quality score",
+      "reasoning_calls": 0,
+      "provider_tokens": null,
+      "currency_cost": null,
+      "gpu_seconds": 0,
+      "human_gate_actions": 3,
+      "retries": 0,
+      "mission_id": "111b16c4-2ab2-42c9-9124-31812e002ae7"
+    },
+    {
+      "workflow": "Federated artifact reconciliation",
+      "mode": "single",
+      "logical_roles": 1,
+      "workstreams": 1,
+      "wall_seconds": 0.2994779000291601,
+      "executions": 3,
+      "verified_completion": true,
+      "quality_indicator": "Bounded technical contract completion, not a scientific quality score",
+      "reasoning_calls": 0,
+      "provider_tokens": null,
+      "currency_cost": null,
+      "gpu_seconds": 0,
+      "human_gate_actions": 3,
+      "retries": 0,
+      "mission_id": "a07b0d85-c410-4600-bc28-8bb6066374f1"
+    },
+    {
+      "workflow": "CPU reproducibility 1",
+      "mode": "single",
+      "logical_roles": 1,
+      "workstreams": 1,
+      "wall_seconds": 1.0424258999992162,
+      "executions": 2,
+      "verified_completion": true,
+      "quality_indicator": "Bounded technical contract completion, not a scientific quality score",
+      "reasoning_calls": 0,
+      "provider_tokens": null,
+      "currency_cost": null,
+      "gpu_seconds": 0,
+      "human_gate_actions": 3,
+      "retries": 0,
+      "mission_id": "067bbaa7-5c55-4a1c-b446-ec077044520b"
+    },
+    {
+      "workflow": "CPU reproducibility 2",
+      "mode": "single",
+      "logical_roles": 1,
+      "workstreams": 1,
+      "wall_seconds": 1.0043432000093162,
+      "executions": 2,
+      "verified_completion": true,
+      "quality_indicator": "Bounded technical contract completion, not a scientific quality score",
+      "reasoning_calls": 0,
+      "provider_tokens": null,
+      "currency_cost": null,
+      "gpu_seconds": 0,
+      "human_gate_actions": 3,
+      "retries": 0,
+      "mission_id": "b1f4352e-14d7-4b9e-8ad8-400a0cbc78ec"
+    }
+  ],
+  "verification": {
+    "verifier": "deterministic-independent-recompute-v1",
+    "status": "passed",
+    "checks": [
+      {
+        "check": "run_completed",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "immutable_protocol",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "worker_revision",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "dataset_license",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "split_integrity_and_leakage",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "dataset_fingerprint",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:0.0:sha256",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:0.0:logs",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:0.0:manifest",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:0.0:samples",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:0.0:metrics_recomputed",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:0.0:data_method_conformity",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:0.0:summary_matches_measurements",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:0.5:sha256",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:0.5:logs",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:0.5:manifest",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:0.5:samples",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:0.5:metrics_recomputed",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:0.5:data_method_conformity",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:0.5:summary_matches_measurements",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:1.0:sha256",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:1.0:logs",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:1.0:manifest",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:1.0:samples",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:1.0:metrics_recomputed",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:1.0:data_method_conformity",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation:1.0:summary_matches_measurements",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "test:0.0:sha256",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "test:0.0:logs",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "test:0.0:manifest",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "test:0.0:samples",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "test:0.0:metrics_recomputed",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "test:0.0:data_method_conformity",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "test:0.0:summary_matches_measurements",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "test:1.0:sha256",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "test:1.0:logs",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "test:1.0:manifest",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "test:1.0:samples",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "test:1.0:metrics_recomputed",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "test:1.0:data_method_conformity",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "test:1.0:summary_matches_measurements",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "registered_validation_trials",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "fair_baseline",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "validation_selection",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "reported_gain_matches_raw",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "uncertainty_recomputed",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "recommendation_and_repeat_count",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "held_out_evaluation",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "reported_test_metrics",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "check": "trial_budget",
+        "status": "passed",
+        "detail": ""
+      }
+    ],
+    "artifact_refs": [
+      {
+        "trial_key": "validation:0.0",
+        "sha256": "3d1e5b29c2a5bdc17b861a70fa5dfb1b59a9e2ce058a35601d7b2d258d0ed141"
+      },
+      {
+        "trial_key": "validation:0.5",
+        "sha256": "ce1dcf07b822d3916655ffbbd1f13fab10624a61b763e4cd55e25595f229096c"
+      },
+      {
+        "trial_key": "validation:1.0",
+        "sha256": "b00a68168e5a3e38e0174980f2fc1812c28f760603ad7d7b1c76733fb87ad565"
+      },
+      {
+        "trial_key": "test:0.0",
+        "sha256": "b106c1e849aac7d95d5e9fe43d7ff2edad194979a005c8db2e7e075639bf875e"
+      },
+      {
+        "trial_key": "test:1.0",
+        "sha256": "2c55571cb12b9c8d7f8d2a0db3625c1d1124a4000c6b4974567b967163760938"
+      }
+    ],
+    "reproduction_run_id": "9ec200c5-f0e3-4e9f-978a-85f5d123cedb",
+    "warnings": [],
+    "limitations": [
+      "Generated CPU fixture only; external methodology/novelty is not certified",
+      "Small-n intervals are approximate"
+    ],
+    "experiment_run_id": "9066ccd0-f85c-4394-b7d8-bf92f53b77c4",
+    "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba"
+  },
+  "experiment_runs": [
+    {
+      "id": "9066ccd0-f85c-4394-b7d8-bf92f53b77c4",
+      "topic_id": "c579f75e-fa81-4792-9842-d71637942178",
+      "protocol_id": "4c5bd289-126c-43cb-a6f5-f72c6fbba66d",
+      "mission_id": "b1f4352e-14d7-4b9e-8ad8-400a0cbc78ec",
+      "approval_nonce": "9f3b0926-cf66-4241-9121-6c72f1f710e9",
+      "status": "completed",
+      "payload": {
+        "comparison": {
+          "baseline_alpha": 0,
+          "held_out_used_for_selection": false,
+          "normal_approx_ci95": [
+            8.777833901203861,
+            9.113181518927236
+          ],
+          "paired_psnr_gain_db": 8.945507710065549,
+          "recommendation": "candidate_improvement",
+          "repeat_count": 3,
+          "requires_human_review": true,
+          "selected_alpha": 1.0,
+          "selection_split": "validation"
+        },
+        "dataset_fingerprint": "45d9028727053b104f56e94570fd973f888f45fff6bde9b1ec7c04fd48b73332",
+        "elapsed_s": 0.7855546999489889,
+        "ended": "2026-10-22T13:31:28.578791+00:00",
+        "engine": "python",
+        "hardware": {
+          "machine": "AMD64",
+          "platform": "Windows-11-10.0.26300-SP0"
+        },
+        "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+        "python": "3.14.8 (tags/v3.14.8:8e6e75d, Sep 30 2026, 18:19:33) [MSC v.1944 64 bit (AMD64)]",
+        "raw_measurements_only": true,
+        "scientific_review": "pending",
+        "seeds": [
+          11,
+          23,
+          37
+        ],
+        "started": "2026-10-22T13:31:27.793222+00:00",
+        "test_evaluations": [
+          {
+            "mean_psnr_db": 18.445465483118188,
+            "per_seed": {
+              "11": {
+                "mse": 0.014416462529170301,
+                "psnr_db": 18.44088734631051
+              },
+              "23": {
+                "mse": 0.014169207000973908,
+                "psnr_db": 18.507622072023914
+              },
+              "37": {
+                "mse": 0.01456400936415472,
+                "psnr_db": 18.387887031020135
+              }
+            },
+            "repeat_count": 3
+          },
+          {
+            "mean_psnr_db": 26.88872077931927,
+            "per_seed": {
+              "11": {
+                "mse": 0.002108173499713337,
+                "psnr_db": 26.89640373779127
+              },
+              "23": {
+                "mse": 0.0019481688028048995,
+                "psnr_db": 27.174422243039018
+              },
+              "37": {
+                "mse": 0.0022383211801930937,
+                "psnr_db": 26.595336357127522
+              }
+            },
+            "repeat_count": 3
+          }
+        ],
+        "worker_sha256": "39b8d20fa5de6b0c8ba887550191bade61711d7723fa7a687baef010eb1ce2ec"
+      },
+      "trials": [
+        {
+          "id": "314b28f7-a3f5-499c-aa5b-70188ec4efeb",
+          "run_id": "9066ccd0-f85c-4394-b7d8-bf92f53b77c4",
+          "trial_key": "validation:0.0",
+          "status": "completed",
+          "payload": {
+            "artifact": {
+              "bytes": 198882,
+              "path": "<temporary-data>\\workspace\\research\\experiments\\9066ccd0-f85c-4394-b7d8-bf92f53b77c4\\314b28f7-a3f5-499c-aa5b-70188ec4efeb\\observations.json",
+              "sha256": "3d1e5b29c2a5bdc17b861a70fa5dfb1b59a9e2ce058a35601d7b2d258d0ed141"
+            },
+            "dataset_fingerprint": "45d9028727053b104f56e94570fd973f888f45fff6bde9b1ec7c04fd48b73332",
+            "elapsed_s": 0.13084810000145808,
+            "ended": "2026-10-22T13:31:27.941578+00:00",
+            "folder": "<temporary-data>\\workspace\\research\\experiments\\9066ccd0-f85c-4394-b7d8-bf92f53b77c4\\314b28f7-a3f5-499c-aa5b-70188ec4efeb",
+            "measurement": true,
+            "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+            "request": {
+              "alpha": 0.0,
+              "recipe": {
+                "kind": "generated_smooth_images_v1",
+                "license": "CC0-generated-fixture",
+                "noise_std": 0.12,
+                "schema_version": "1.0",
+                "side": 12,
+                "test_count": 8,
+                "train_count": 12,
+                "validation_count": 8
+              },
+              "seeds": [
+                11,
+                23,
+                37
+              ],
+              "split": "validation"
+            },
+            "started": "2026-10-22T13:31:27.804029+00:00",
+            "summary": {
+              "mean_psnr_db": 18.464532563303145,
+              "per_seed": {
+                "11": {
+                  "mse": 0.014291518143719826,
+                  "psnr_db": 18.467963529003647
+                },
+                "23": {
+                  "mse": 0.014923597636935475,
+                  "psnr_db": 18.31803723231843
+                },
+                "37": {
+                  "mse": 0.013839830256847273,
+                  "psnr_db": 18.607596928587355
+                }
+              },
+              "repeat_count": 3
+            },
+            "worker_sha256": "39b8d20fa5de6b0c8ba887550191bade61711d7723fa7a687baef010eb1ce2ec"
+          }
+        },
+        {
+          "id": "eca80579-4e40-4220-aeff-91d8eb19d2e3",
+          "run_id": "9066ccd0-f85c-4394-b7d8-bf92f53b77c4",
+          "trial_key": "validation:0.5",
+          "status": "completed",
+          "payload": {
+            "artifact": {
+              "bytes": 199955,
+              "path": "<temporary-data>\\workspace\\research\\experiments\\9066ccd0-f85c-4394-b7d8-bf92f53b77c4\\eca80579-4e40-4220-aeff-91d8eb19d2e3\\observations.json",
+              "sha256": "ce1dcf07b822d3916655ffbbd1f13fab10624a61b763e4cd55e25595f229096c"
+            },
+            "dataset_fingerprint": "45d9028727053b104f56e94570fd973f888f45fff6bde9b1ec7c04fd48b73332",
+            "elapsed_s": 0.13758430001325905,
+            "ended": "2026-10-22T13:31:28.099386+00:00",
+            "folder": "<temporary-data>\\workspace\\research\\experiments\\9066ccd0-f85c-4394-b7d8-bf92f53b77c4\\eca80579-4e40-4220-aeff-91d8eb19d2e3",
+            "measurement": true,
+            "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+            "request": {
+              "alpha": 0.5,
+              "recipe": {
+                "kind": "generated_smooth_images_v1",
+                "license": "CC0-generated-fixture",
+                "noise_std": 0.12,
+                "schema_version": "1.0",
+                "side": 12,
+                "test_count": 8,
+                "train_count": 12,
+                "validation_count": 8
+              },
+              "seeds": [
+                11,
+                23,
+                37
+              ],
+              "split": "validation"
+            },
+            "started": "2026-10-22T13:31:27.955495+00:00",
+            "summary": {
+              "mean_psnr_db": 23.109275585247143,
+              "per_seed": {
+                "11": {
+                  "mse": 0.004956909681792265,
+                  "psnr_db": 23.091126760308242
+                },
+                "23": {
+                  "mse": 0.005172919964641028,
+                  "psnr_db": 22.92171026217468
+                },
+                "37": {
+                  "mse": 0.004699344823611172,
+                  "psnr_db": 23.31498973325851
+                }
+              },
+              "repeat_count": 3
+            },
+            "worker_sha256": "39b8d20fa5de6b0c8ba887550191bade61711d7723fa7a687baef010eb1ce2ec"
+          }
+        },
+        {
+          "id": "00d40636-b84d-49d0-9158-6bc4e87e0523",
+          "run_id": "9066ccd0-f85c-4394-b7d8-bf92f53b77c4",
+          "trial_key": "validation:1.0",
+          "status": "completed",
+          "payload": {
+            "artifact": {
+              "bytes": 199906,
+              "path": "<temporary-data>\\workspace\\research\\experiments\\9066ccd0-f85c-4394-b7d8-bf92f53b77c4\\00d40636-b84d-49d0-9158-6bc4e87e0523\\observations.json",
+              "sha256": "b00a68168e5a3e38e0174980f2fc1812c28f760603ad7d7b1c76733fb87ad565"
+            },
+            "dataset_fingerprint": "45d9028727053b104f56e94570fd973f888f45fff6bde9b1ec7c04fd48b73332",
+            "elapsed_s": 0.13862320000771433,
+            "ended": "2026-10-22T13:31:28.258437+00:00",
+            "folder": "<temporary-data>\\workspace\\research\\experiments\\9066ccd0-f85c-4394-b7d8-bf92f53b77c4\\00d40636-b84d-49d0-9158-6bc4e87e0523",
+            "measurement": true,
+            "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+            "request": {
+              "alpha": 1.0,
+              "recipe": {
+                "kind": "generated_smooth_images_v1",
+                "license": "CC0-generated-fixture",
+                "noise_std": 0.12,
+                "schema_version": "1.0",
+                "side": 12,
+                "test_count": 8,
+                "train_count": 12,
+                "validation_count": 8
+              },
+              "seeds": [
+                11,
+                23,
+                37
+              ],
+              "split": "validation"
+            },
+            "started": "2026-10-22T13:31:28.113127+00:00",
+            "summary": {
+              "mean_psnr_db": 27.410040273368693,
+              "per_seed": {
+                "11": {
+                  "mse": 0.0019380612240192194,
+                  "psnr_db": 27.283938218171638
+                },
+                "23": {
+                  "mse": 0.001971700016957474,
+                  "psnr_db": 27.23150645668701
+                },
+                "37": {
+                  "mse": 0.0017843674673358556,
+                  "psnr_db": 27.71467614524743
+                }
+              },
+              "repeat_count": 3
+            },
+            "worker_sha256": "39b8d20fa5de6b0c8ba887550191bade61711d7723fa7a687baef010eb1ce2ec"
+          }
+        },
+        {
+          "id": "e262b0e9-826d-487f-99fc-3380124c6346",
+          "run_id": "9066ccd0-f85c-4394-b7d8-bf92f53b77c4",
+          "trial_key": "test:0.0",
+          "status": "completed",
+          "payload": {
+            "artifact": {
+              "bytes": 199665,
+              "path": "<temporary-data>\\workspace\\research\\experiments\\9066ccd0-f85c-4394-b7d8-bf92f53b77c4\\e262b0e9-826d-487f-99fc-3380124c6346\\observations.json",
+              "sha256": "b106c1e849aac7d95d5e9fe43d7ff2edad194979a005c8db2e7e075639bf875e"
+            },
+            "dataset_fingerprint": "45d9028727053b104f56e94570fd973f888f45fff6bde9b1ec7c04fd48b73332",
+            "elapsed_s": 0.13437829999020323,
+            "ended": "2026-10-22T13:31:28.412675+00:00",
+            "folder": "<temporary-data>\\workspace\\research\\experiments\\9066ccd0-f85c-4394-b7d8-bf92f53b77c4\\e262b0e9-826d-487f-99fc-3380124c6346",
+            "measurement": true,
+            "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+            "request": {
+              "alpha": 0.0,
+              "recipe": {
+                "kind": "generated_smooth_images_v1",
+                "license": "CC0-generated-fixture",
+                "noise_std": 0.12,
+                "schema_version": "1.0",
+                "side": 12,
+                "test_count": 8,
+                "train_count": 12,
+                "validation_count": 8
+              },
+              "seeds": [
+                11,
+                23,
+                37
+              ],
+              "split": "test"
+            },
+            "started": "2026-10-22T13:31:28.271765+00:00",
+            "summary": {
+              "mean_psnr_db": 18.445465483118188,
+              "per_seed": {
+                "11": {
+                  "mse": 0.014416462529170301,
+                  "psnr_db": 18.44088734631051
+                },
+                "23": {
+                  "mse": 0.014169207000973908,
+                  "psnr_db": 18.507622072023914
+                },
+                "37": {
+                  "mse": 0.01456400936415472,
+                  "psnr_db": 18.387887031020135
+                }
+              },
+              "repeat_count": 3
+            },
+            "worker_sha256": "39b8d20fa5de6b0c8ba887550191bade61711d7723fa7a687baef010eb1ce2ec"
+          }
+        },
+        {
+          "id": "95f8cfcd-28d7-406c-866a-bcabd8ab8cfb",
+          "run_id": "9066ccd0-f85c-4394-b7d8-bf92f53b77c4",
+          "trial_key": "test:1.0",
+          "status": "completed",
+          "payload": {
+            "artifact": {
+              "bytes": 200315,
+              "path": "<temporary-data>\\workspace\\research\\experiments\\9066ccd0-f85c-4394-b7d8-bf92f53b77c4\\95f8cfcd-28d7-406c-866a-bcabd8ab8cfb\\observations.json",
+              "sha256": "2c55571cb12b9c8d7f8d2a0db3625c1d1124a4000c6b4974567b967163760938"
+            },
+            "dataset_fingerprint": "45d9028727053b104f56e94570fd973f888f45fff6bde9b1ec7c04fd48b73332",
+            "elapsed_s": 0.13885769998887554,
+            "ended": "2026-10-22T13:31:28.569125+00:00",
+            "folder": "<temporary-data>\\workspace\\research\\experiments\\9066ccd0-f85c-4394-b7d8-bf92f53b77c4\\95f8cfcd-28d7-406c-866a-bcabd8ab8cfb",
+            "measurement": true,
+            "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+            "request": {
+              "alpha": 1.0,
+              "recipe": {
+                "kind": "generated_smooth_images_v1",
+                "license": "CC0-generated-fixture",
+                "noise_std": 0.12,
+                "schema_version": "1.0",
+                "side": 12,
+                "test_count": 8,
+                "train_count": 12,
+                "validation_count": 8
+              },
+              "seeds": [
+                11,
+                23,
+                37
+              ],
+              "split": "test"
+            },
+            "started": "2026-10-22T13:31:28.423691+00:00",
+            "summary": {
+              "mean_psnr_db": 26.88872077931927,
+              "per_seed": {
+                "11": {
+                  "mse": 0.002108173499713337,
+                  "psnr_db": 26.89640373779127
+                },
+                "23": {
+                  "mse": 0.0019481688028048995,
+                  "psnr_db": 27.174422243039018
+                },
+                "37": {
+                  "mse": 0.0022383211801930937,
+                  "psnr_db": 26.595336357127522
+                }
+              },
+              "repeat_count": 3
+            },
+            "worker_sha256": "39b8d20fa5de6b0c8ba887550191bade61711d7723fa7a687baef010eb1ce2ec"
+          }
+        }
+      ]
+    },
+    {
+      "id": "9ec200c5-f0e3-4e9f-978a-85f5d123cedb",
+      "topic_id": "c579f75e-fa81-4792-9842-d71637942178",
+      "protocol_id": "4c5bd289-126c-43cb-a6f5-f72c6fbba66d",
+      "mission_id": "067bbaa7-5c55-4a1c-b446-ec077044520b",
+      "approval_nonce": "66c99c2a-02e9-49cd-accd-3b27ee4e70c9",
+      "status": "completed",
+      "payload": {
+        "comparison": {
+          "baseline_alpha": 0,
+          "held_out_used_for_selection": false,
+          "normal_approx_ci95": [
+            8.777833901203861,
+            9.113181518927236
+          ],
+          "paired_psnr_gain_db": 8.945507710065549,
+          "recommendation": "candidate_improvement",
+          "repeat_count": 3,
+          "requires_human_review": true,
+          "selected_alpha": 1.0,
+          "selection_split": "validation"
+        },
+        "dataset_fingerprint": "45d9028727053b104f56e94570fd973f888f45fff6bde9b1ec7c04fd48b73332",
+        "elapsed_s": 0.784891199960839,
+        "ended": "2026-10-22T13:31:27.579090+00:00",
+        "engine": "python",
+        "hardware": {
+          "machine": "AMD64",
+          "platform": "Windows-11-10.0.26300-SP0"
+        },
+        "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+        "python": "3.14.8 (tags/v3.14.8:8e6e75d, Sep 30 2026, 18:19:33) [MSC v.1944 64 bit (AMD64)]",
+        "raw_measurements_only": true,
+        "scientific_review": "pending",
+        "seeds": [
+          11,
+          23,
+          37
+        ],
+        "started": "2026-10-22T13:31:26.794183+00:00",
+        "test_evaluations": [
+          {
+            "mean_psnr_db": 18.445465483118188,
+            "per_seed": {
+              "11": {
+                "mse": 0.014416462529170301,
+                "psnr_db": 18.44088734631051
+              },
+              "23": {
+                "mse": 0.014169207000973908,
+                "psnr_db": 18.507622072023914
+              },
+              "37": {
+                "mse": 0.01456400936415472,
+                "psnr_db": 18.387887031020135
+              }
+            },
+            "repeat_count": 3
+          },
+          {
+            "mean_psnr_db": 26.88872077931927,
+            "per_seed": {
+              "11": {
+                "mse": 0.002108173499713337,
+                "psnr_db": 26.89640373779127
+              },
+              "23": {
+                "mse": 0.0019481688028048995,
+                "psnr_db": 27.174422243039018
+              },
+              "37": {
+                "mse": 0.0022383211801930937,
+                "psnr_db": 26.595336357127522
+              }
+            },
+            "repeat_count": 3
+          }
+        ],
+        "worker_sha256": "39b8d20fa5de6b0c8ba887550191bade61711d7723fa7a687baef010eb1ce2ec"
+      },
+      "trials": [
+        {
+          "id": "48b98589-d1e6-4e48-b991-1e0195fa5e9b",
+          "run_id": "9ec200c5-f0e3-4e9f-978a-85f5d123cedb",
+          "trial_key": "validation:0.0",
+          "status": "completed",
+          "payload": {
+            "artifact": {
+              "bytes": 198882,
+              "path": "<temporary-data>\\workspace\\research\\experiments\\9ec200c5-f0e3-4e9f-978a-85f5d123cedb\\48b98589-d1e6-4e48-b991-1e0195fa5e9b\\observations.json",
+              "sha256": "3d1e5b29c2a5bdc17b861a70fa5dfb1b59a9e2ce058a35601d7b2d258d0ed141"
+            },
+            "dataset_fingerprint": "45d9028727053b104f56e94570fd973f888f45fff6bde9b1ec7c04fd48b73332",
+            "elapsed_s": 0.13747010001679882,
+            "ended": "2026-10-22T13:31:26.951405+00:00",
+            "folder": "<temporary-data>\\workspace\\research\\experiments\\9ec200c5-f0e3-4e9f-978a-85f5d123cedb\\48b98589-d1e6-4e48-b991-1e0195fa5e9b",
+            "measurement": true,
+            "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+            "request": {
+              "alpha": 0.0,
+              "recipe": {
+                "kind": "generated_smooth_images_v1",
+                "license": "CC0-generated-fixture",
+                "noise_std": 0.12,
+                "schema_version": "1.0",
+                "side": 12,
+                "test_count": 8,
+                "train_count": 12,
+                "validation_count": 8
+              },
+              "seeds": [
+                11,
+                23,
+                37
+              ],
+              "split": "validation"
+            },
+            "started": "2026-10-22T13:31:26.807181+00:00",
+            "summary": {
+              "mean_psnr_db": 18.464532563303145,
+              "per_seed": {
+                "11": {
+                  "mse": 0.014291518143719826,
+                  "psnr_db": 18.467963529003647
+                },
+                "23": {
+                  "mse": 0.014923597636935475,
+                  "psnr_db": 18.31803723231843
+                },
+                "37": {
+                  "mse": 0.013839830256847273,
+                  "psnr_db": 18.607596928587355
+                }
+              },
+              "repeat_count": 3
+            },
+            "worker_sha256": "39b8d20fa5de6b0c8ba887550191bade61711d7723fa7a687baef010eb1ce2ec"
+          }
+        },
+        {
+          "id": "cf89e30c-0b25-4c4d-9f01-8a00476d24b9",
+          "run_id": "9ec200c5-f0e3-4e9f-978a-85f5d123cedb",
+          "trial_key": "validation:0.5",
+          "status": "completed",
+          "payload": {
+            "artifact": {
+              "bytes": 199955,
+              "path": "<temporary-data>\\workspace\\research\\experiments\\9ec200c5-f0e3-4e9f-978a-85f5d123cedb\\cf89e30c-0b25-4c4d-9f01-8a00476d24b9\\observations.json",
+              "sha256": "ce1dcf07b822d3916655ffbbd1f13fab10624a61b763e4cd55e25595f229096c"
+            },
+            "dataset_fingerprint": "45d9028727053b104f56e94570fd973f888f45fff6bde9b1ec7c04fd48b73332",
+            "elapsed_s": 0.1331921999808401,
+            "ended": "2026-10-22T13:31:27.104181+00:00",
+            "folder": "<temporary-data>\\workspace\\research\\experiments\\9ec200c5-f0e3-4e9f-978a-85f5d123cedb\\cf89e30c-0b25-4c4d-9f01-8a00476d24b9",
+            "measurement": true,
+            "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+            "request": {
+              "alpha": 0.5,
+              "recipe": {
+                "kind": "generated_smooth_images_v1",
+                "license": "CC0-generated-fixture",
+                "noise_std": 0.12,
+                "schema_version": "1.0",
+                "side": 12,
+                "test_count": 8,
+                "train_count": 12,
+                "validation_count": 8
+              },
+              "seeds": [
+                11,
+                23,
+                37
+              ],
+              "split": "validation"
+            },
+            "started": "2026-10-22T13:31:26.964959+00:00",
+            "summary": {
+              "mean_psnr_db": 23.109275585247143,
+              "per_seed": {
+                "11": {
+                  "mse": 0.004956909681792265,
+                  "psnr_db": 23.091126760308242
+                },
+                "23": {
+                  "mse": 0.005172919964641028,
+                  "psnr_db": 22.92171026217468
+                },
+                "37": {
+                  "mse": 0.004699344823611172,
+                  "psnr_db": 23.31498973325851
+                }
+              },
+              "repeat_count": 3
+            },
+            "worker_sha256": "39b8d20fa5de6b0c8ba887550191bade61711d7723fa7a687baef010eb1ce2ec"
+          }
+        },
+        {
+          "id": "208af342-9dc2-44e3-9ebb-f1f9e74d38ba",
+          "run_id": "9ec200c5-f0e3-4e9f-978a-85f5d123cedb",
+          "trial_key": "validation:1.0",
+          "status": "completed",
+          "payload": {
+            "artifact": {
+              "bytes": 199906,
+              "path": "<temporary-data>\\workspace\\research\\experiments\\9ec200c5-f0e3-4e9f-978a-85f5d123cedb\\208af342-9dc2-44e3-9ebb-f1f9e74d38ba\\observations.json",
+              "sha256": "b00a68168e5a3e38e0174980f2fc1812c28f760603ad7d7b1c76733fb87ad565"
+            },
+            "dataset_fingerprint": "45d9028727053b104f56e94570fd973f888f45fff6bde9b1ec7c04fd48b73332",
+            "elapsed_s": 0.13208420004229993,
+            "ended": "2026-10-22T13:31:27.255940+00:00",
+            "folder": "<temporary-data>\\workspace\\research\\experiments\\9ec200c5-f0e3-4e9f-978a-85f5d123cedb\\208af342-9dc2-44e3-9ebb-f1f9e74d38ba",
+            "measurement": true,
+            "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+            "request": {
+              "alpha": 1.0,
+              "recipe": {
+                "kind": "generated_smooth_images_v1",
+                "license": "CC0-generated-fixture",
+                "noise_std": 0.12,
+                "schema_version": "1.0",
+                "side": 12,
+                "test_count": 8,
+                "train_count": 12,
+                "validation_count": 8
+              },
+              "seeds": [
+                11,
+                23,
+                37
+              ],
+              "split": "validation"
+            },
+            "started": "2026-10-22T13:31:27.117474+00:00",
+            "summary": {
+              "mean_psnr_db": 27.410040273368693,
+              "per_seed": {
+                "11": {
+                  "mse": 0.0019380612240192194,
+                  "psnr_db": 27.283938218171638
+                },
+                "23": {
+                  "mse": 0.001971700016957474,
+                  "psnr_db": 27.23150645668701
+                },
+                "37": {
+                  "mse": 0.0017843674673358556,
+                  "psnr_db": 27.71467614524743
+                }
+              },
+              "repeat_count": 3
+            },
+            "worker_sha256": "39b8d20fa5de6b0c8ba887550191bade61711d7723fa7a687baef010eb1ce2ec"
+          }
+        },
+        {
+          "id": "eddbdb70-b04b-4eca-98f4-f558556439f1",
+          "run_id": "9ec200c5-f0e3-4e9f-978a-85f5d123cedb",
+          "trial_key": "test:0.0",
+          "status": "completed",
+          "payload": {
+            "artifact": {
+              "bytes": 199665,
+              "path": "<temporary-data>\\workspace\\research\\experiments\\9ec200c5-f0e3-4e9f-978a-85f5d123cedb\\eddbdb70-b04b-4eca-98f4-f558556439f1\\observations.json",
+              "sha256": "b106c1e849aac7d95d5e9fe43d7ff2edad194979a005c8db2e7e075639bf875e"
+            },
+            "dataset_fingerprint": "45d9028727053b104f56e94570fd973f888f45fff6bde9b1ec7c04fd48b73332",
+            "elapsed_s": 0.13719710003351793,
+            "ended": "2026-10-22T13:31:27.412297+00:00",
+            "folder": "<temporary-data>\\workspace\\research\\experiments\\9ec200c5-f0e3-4e9f-978a-85f5d123cedb\\eddbdb70-b04b-4eca-98f4-f558556439f1",
+            "measurement": true,
+            "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+            "request": {
+              "alpha": 0.0,
+              "recipe": {
+                "kind": "generated_smooth_images_v1",
+                "license": "CC0-generated-fixture",
+                "noise_std": 0.12,
+                "schema_version": "1.0",
+                "side": 12,
+                "test_count": 8,
+                "train_count": 12,
+                "validation_count": 8
+              },
+              "seeds": [
+                11,
+                23,
+                37
+              ],
+              "split": "test"
+            },
+            "started": "2026-10-22T13:31:27.268650+00:00",
+            "summary": {
+              "mean_psnr_db": 18.445465483118188,
+              "per_seed": {
+                "11": {
+                  "mse": 0.014416462529170301,
+                  "psnr_db": 18.44088734631051
+                },
+                "23": {
+                  "mse": 0.014169207000973908,
+                  "psnr_db": 18.507622072023914
+                },
+                "37": {
+                  "mse": 0.01456400936415472,
+                  "psnr_db": 18.387887031020135
+                }
+              },
+              "repeat_count": 3
+            },
+            "worker_sha256": "39b8d20fa5de6b0c8ba887550191bade61711d7723fa7a687baef010eb1ce2ec"
+          }
+        },
+        {
+          "id": "a07bb79a-cece-4d01-b6f4-a4034165124f",
+          "run_id": "9ec200c5-f0e3-4e9f-978a-85f5d123cedb",
+          "trial_key": "test:1.0",
+          "status": "completed",
+          "payload": {
+            "artifact": {
+              "bytes": 200315,
+              "path": "<temporary-data>\\workspace\\research\\experiments\\9ec200c5-f0e3-4e9f-978a-85f5d123cedb\\a07bb79a-cece-4d01-b6f4-a4034165124f\\observations.json",
+              "sha256": "2c55571cb12b9c8d7f8d2a0db3625c1d1124a4000c6b4974567b967163760938"
+            },
+            "dataset_fingerprint": "45d9028727053b104f56e94570fd973f888f45fff6bde9b1ec7c04fd48b73332",
+            "elapsed_s": 0.13829440000699833,
+            "ended": "2026-10-22T13:31:27.570351+00:00",
+            "folder": "<temporary-data>\\workspace\\research\\experiments\\9ec200c5-f0e3-4e9f-978a-85f5d123cedb\\a07bb79a-cece-4d01-b6f4-a4034165124f",
+            "measurement": true,
+            "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+            "request": {
+              "alpha": 1.0,
+              "recipe": {
+                "kind": "generated_smooth_images_v1",
+                "license": "CC0-generated-fixture",
+                "noise_std": 0.12,
+                "schema_version": "1.0",
+                "side": 12,
+                "test_count": 8,
+                "train_count": 12,
+                "validation_count": 8
+              },
+              "seeds": [
+                11,
+                23,
+                37
+              ],
+              "split": "test"
+            },
+            "started": "2026-10-22T13:31:27.423642+00:00",
+            "summary": {
+              "mean_psnr_db": 26.88872077931927,
+              "per_seed": {
+                "11": {
+                  "mse": 0.002108173499713337,
+                  "psnr_db": 26.89640373779127
+                },
+                "23": {
+                  "mse": 0.0019481688028048995,
+                  "psnr_db": 27.174422243039018
+                },
+                "37": {
+                  "mse": 0.0022383211801930937,
+                  "psnr_db": 26.595336357127522
+                }
+              },
+              "repeat_count": 3
+            },
+            "worker_sha256": "39b8d20fa5de6b0c8ba887550191bade61711d7723fa7a687baef010eb1ce2ec"
+          }
+        }
+      ]
+    }
+  ],
+  "restart": {
+    "uncertain_status": "interrupted",
+    "automatically_repeated": false
+  },
+  "claims": {
+    "unresolved_doi": "unverifiable"
+  },
+  "mission_reports": [
+    {
+      "project_id": "187bf559-f2ff-488d-8611-114c318d8d34",
+      "topic_id": "c579f75e-fa81-4792-9842-d71637942178",
+      "mission": {
+        "id": "111b16c4-2ab2-42c9-9124-31812e002ae7",
+        "topic_id": "c579f75e-fa81-4792-9842-d71637942178",
+        "status": "completed",
+        "payload": {
+          "active_seconds": 0.06256499997107312,
+          "approval": {
+            "at": "2026-10-22T13:31:26.138914+00:00",
+            "by": "researcher",
+            "expires": "2026-10-22T14:31:26.138924+00:00",
+            "note": "Harness approval of fixed offline work; not a scientific endorsement",
+            "plan_digest": "6ac78cedd49c7e5c2c0bb64471eef8593e67a6741ff8387f8cc179a2b7c44be0"
+          },
+          "depth": 0,
+          "hops": 2,
+          "plan_digest": "6ac78cedd49c7e5c2c0bb64471eef8593e67a6741ff8387f8cc179a2b7c44be0",
+          "reasoning_calls": 0,
+          "spec": {
+            "collaboration": null,
+            "control": {
+              "allow_api_billing": false,
+              "allowed_engines": [
+                "deterministic"
+              ],
+              "app_backend": "ollama",
+              "app_model": "",
+              "charter_digest": "bd4147d669b584908b23042497620343f08e432da4a804a2cd81adb0cdadf03a",
+              "charter_id": "0c38196f-60d4-4a3b-a6b6-b6d9ec5510f8",
+              "end_date": "2026-10-22T14:31:26.084132Z",
+              "exclusions": [],
+              "hypothesis_id": "",
+              "max_wall_seconds": 3600,
+              "not_before": null,
+              "predecessor_id": "",
+              "priority": 0,
+              "review_required": true,
+              "schema_version": "1.0",
+              "success_criteria": [
+                "Deterministic evidence available for human review"
+              ]
+            },
+            "expected_artifacts": [],
+            "inputs": [],
+            "limits": {
+              "max_artifact_mb": 32,
+              "max_attempts": 2,
+              "max_depth": 2,
+              "max_hops": 12,
+              "max_reasoning_calls": 1,
+              "max_seconds": 600,
+              "max_tasks": 12,
+              "schema_version": "1.0"
+            },
+            "objective": "Literature inspection",
+            "owner": "researcher",
+            "parent_mission_id": "",
+            "permissions": [
+              "workspace_write"
+            ],
+            "questions": [],
+            "routing_mode": "manual",
+            "schema_version": "1.0",
+            "stop_conditions": [
+              "budget_exceeded",
+              "failed_dependency"
+            ],
+            "tasks": [
+              {
+                "args": {
+                  "paper_ids": [
+                    "a29ccc91-3817-4256-9ee2-f13a83e06b3c",
+                    "78330d5a-ecb6-4ed2-9c92-596b39193c7a"
+                  ]
+                },
+                "capability": "paper.inspect",
+                "depends_on": [],
+                "fallback_engines": [],
+                "id": "inspect",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              },
+              {
+                "args": {},
+                "capability": "mission.report",
+                "depends_on": [
+                  "inspect"
+                ],
+                "fallback_engines": [],
+                "id": "report",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              }
+            ],
+            "team": null,
+            "topic_id": "c579f75e-fa81-4792-9842-d71637942178"
+          },
+          "started_at": "2026-10-22T13:31:26.165246+00:00"
+        },
+        "created": "2026-10-22T13:31:26.110004+00:00",
+        "updated": "2026-10-22T13:31:26.279409+00:00",
+        "tasks": [
+          {
+            "mission_id": "111b16c4-2ab2-42c9-9124-31812e002ae7",
+            "id": "inspect",
+            "status": "completed",
+            "payload": {
+              "attempts": 1,
+              "execution_record": {
+                "attempt_key": "111b16c4-2ab2-42c9-9124-31812e002ae7:inspect:1",
+                "elapsed_seconds": 0.032058299984782934,
+                "outcome": "completed",
+                "provider_usage": null,
+                "verification_status": "unverified"
+              },
+              "result": {
+                "artifacts": [],
+                "engine": "deterministic",
+                "evidence": [],
+                "limitations": [],
+                "output": {
+                  "paper_ids": [
+                    "a29ccc91-3817-4256-9ee2-f13a83e06b3c",
+                    "78330d5a-ecb6-4ed2-9c92-596b39193c7a"
+                  ],
+                  "papers": [
+                    {
+                      "abstract": "Untrusted fixture, never evidence of a real publication.",
+                      "arxiv_id": "",
+                      "association": {
+                        "matched_terms": [],
+                        "relevance": 0,
+                        "score_kind": "lexical_matches"
+                      },
+                      "authors": [],
+                      "citations": null,
+                      "doi": "",
+                      "flags": [],
+                      "id": "a29ccc91-3817-4256-9ee2-f13a83e06b3c",
+                      "level": 0,
+                      "license": "unknown",
+                      "oa_locations": [],
+                      "openalex_id": "",
+                      "peer_review_status": "unknown",
+                      "pmid": "",
+                      "publication_type": "unknown",
+                      "references": [],
+                      "retrieved_at": "2026-10-22T13:31:26.080263+00:00",
+                      "source": "harness_fixture",
+                      "sources": [
+                        "harness_fixture"
+                      ],
+                      "state": "candidate",
+                      "title": "Synthetic literature fixture 0",
+                      "topic_id": "c579f75e-fa81-4792-9842-d71637942178",
+                      "url": "",
+                      "venue": "",
+                      "version": "unknown",
+                      "versions": [
+                        {
+                          "abstract": "Untrusted fixture, never evidence of a real publication.",
+                          "arxiv_id": "",
+                          "authors": [],
+                          "document": null,
+                          "doi": "",
+                          "flags": [],
+                          "id": "d28e2c5f-41d6-495b-bbeb-411b9e7b8423",
+                          "license": "unknown",
+                          "oa_locations": [],
+                          "publication_type": "unknown",
+                          "retrieved_at": "2026-10-22T13:31:26.080263+00:00",
+                          "source": "harness_fixture",
+                          "title": "Synthetic literature fixture 0",
+                          "url": "",
+                          "venue": "",
+                          "version": "unknown",
+                          "year": ""
+                        }
+                      ],
+                      "year": ""
+                    },
+                    {
+                      "abstract": "Untrusted fixture, never evidence of a real publication.",
+                      "arxiv_id": "",
+                      "association": {
+                        "matched_terms": [],
+                        "relevance": 0,
+                        "score_kind": "lexical_matches"
+                      },
+                      "authors": [],
+                      "citations": null,
+                      "doi": "",
+                      "flags": [],
+                      "id": "78330d5a-ecb6-4ed2-9c92-596b39193c7a",
+                      "level": 0,
+                      "license": "unknown",
+                      "oa_locations": [],
+                      "openalex_id": "",
+                      "peer_review_status": "unknown",
+                      "pmid": "",
+                      "publication_type": "unknown",
+                      "references": [],
+                      "retrieved_at": "2026-10-22T13:31:26.081269+00:00",
+                      "source": "harness_fixture",
+                      "sources": [
+                        "harness_fixture"
+                      ],
+                      "state": "candidate",
+                      "title": "Synthetic literature fixture 1",
+                      "topic_id": "c579f75e-fa81-4792-9842-d71637942178",
+                      "url": "",
+                      "venue": "",
+                      "version": "unknown",
+                      "versions": [
+                        {
+                          "abstract": "Untrusted fixture, never evidence of a real publication.",
+                          "arxiv_id": "",
+                          "authors": [],
+                          "document": null,
+                          "doi": "",
+                          "flags": [],
+                          "id": "d72ed4d2-bef1-4974-acb2-511078e0b883",
+                          "license": "unknown",
+                          "oa_locations": [],
+                          "publication_type": "unknown",
+                          "retrieved_at": "2026-10-22T13:31:26.081269+00:00",
+                          "source": "harness_fixture",
+                          "title": "Synthetic literature fixture 1",
+                          "url": "",
+                          "venue": "",
+                          "version": "unknown",
+                          "year": ""
+                        }
+                      ],
+                      "year": ""
+                    }
+                  ]
+                },
+                "schema_version": "1.0",
+                "status": "completed"
+              },
+              "spec": {
+                "args": {
+                  "paper_ids": [
+                    "a29ccc91-3817-4256-9ee2-f13a83e06b3c",
+                    "78330d5a-ecb6-4ed2-9c92-596b39193c7a"
+                  ]
+                },
+                "capability": "paper.inspect",
+                "depends_on": [],
+                "fallback_engines": [],
+                "id": "inspect",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              }
+            }
+          },
+          {
+            "mission_id": "111b16c4-2ab2-42c9-9124-31812e002ae7",
+            "id": "report",
+            "status": "completed",
+            "payload": {
+              "attempts": 1,
+              "execution_record": {
+                "attempt_key": "111b16c4-2ab2-42c9-9124-31812e002ae7:report:1",
+                "elapsed_seconds": 0.030506699986290187,
+                "outcome": "completed",
+                "provider_usage": null,
+                "verification_status": "unverified"
+              },
+              "result": {
+                "artifacts": [
+                  {
+                    "bytes": 3765,
+                    "path": "<temporary-data>\\workspace\\research\\missions\\111b16c4-2ab2-42c9-9124-31812e002ae7\\report\\evidence-report.json",
+                    "schema_version": "1.0",
+                    "scientific_review": "pending",
+                    "sha256": "746298648cfff1d1151d6cb5eb239abb9e6627a7ca79e3c3ff5917037d7eb516"
+                  }
+                ],
+                "engine": "deterministic",
+                "evidence": [],
+                "limitations": [],
+                "output": {
+                  "report": "<temporary-data>\\workspace\\research\\missions\\111b16c4-2ab2-42c9-9124-31812e002ae7\\report\\evidence-report.json"
+                },
+                "schema_version": "1.0",
+                "status": "completed"
+              },
+              "spec": {
+                "args": {},
+                "capability": "mission.report",
+                "depends_on": [
+                  "inspect"
+                ],
+                "fallback_engines": [],
+                "id": "report",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "187bf559-f2ff-488d-8611-114c318d8d34",
+      "topic_id": "c59e67dd-713d-422f-80f1-fe0debff6cc9",
+      "mission": {
+        "id": "a07b0d85-c410-4600-bc28-8bb6066374f1",
+        "topic_id": "c59e67dd-713d-422f-80f1-fe0debff6cc9",
+        "status": "completed",
+        "payload": {
+          "active_seconds": 0.14036670001223683,
+          "approval": {
+            "at": "2026-10-22T13:31:26.386539+00:00",
+            "by": "researcher",
+            "expires": "2026-10-22T14:31:26.386547+00:00",
+            "note": "Harness approval of fixed offline work; not a scientific endorsement",
+            "plan_digest": "0cb9f8c48cc60dee039c3fe35419183cd096a0c94a899d4f9b3ca8174dade72e"
+          },
+          "depth": 0,
+          "hops": 3,
+          "plan_digest": "0cb9f8c48cc60dee039c3fe35419183cd096a0c94a899d4f9b3ca8174dade72e",
+          "reasoning_calls": 0,
+          "spec": {
+            "collaboration": null,
+            "control": {
+              "allow_api_billing": false,
+              "allowed_engines": [
+                "deterministic"
+              ],
+              "app_backend": "ollama",
+              "app_model": "",
+              "charter_digest": "bd4147d669b584908b23042497620343f08e432da4a804a2cd81adb0cdadf03a",
+              "charter_id": "0c38196f-60d4-4a3b-a6b6-b6d9ec5510f8",
+              "end_date": "2026-10-22T14:31:26.084132Z",
+              "exclusions": [],
+              "hypothesis_id": "",
+              "max_wall_seconds": 3600,
+              "not_before": null,
+              "predecessor_id": "",
+              "priority": 0,
+              "review_required": true,
+              "schema_version": "1.0",
+              "success_criteria": [
+                "Deterministic evidence available for human review"
+              ]
+            },
+            "expected_artifacts": [],
+            "inputs": [],
+            "limits": {
+              "max_artifact_mb": 32,
+              "max_attempts": 2,
+              "max_depth": 2,
+              "max_hops": 12,
+              "max_reasoning_calls": 1,
+              "max_seconds": 600,
+              "max_tasks": 12,
+              "schema_version": "1.0"
+            },
+            "objective": "Federated artifact reconciliation",
+            "owner": "researcher",
+            "parent_mission_id": "",
+            "permissions": [
+              "workspace_write"
+            ],
+            "questions": [],
+            "routing_mode": "manual",
+            "schema_version": "1.0",
+            "stop_conditions": [
+              "budget_exceeded",
+              "failed_dependency"
+            ],
+            "tasks": [
+              {
+                "args": {
+                  "workspace_id": "55d57fe8-1afe-413d-a5f4-45419656b0cf"
+                },
+                "capability": "workspace.sync",
+                "depends_on": [],
+                "fallback_engines": [],
+                "id": "science",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              },
+              {
+                "args": {
+                  "workspace_id": "99b7d08d-47c6-4482-9124-a34a3091a49d"
+                },
+                "capability": "workspace.sync",
+                "depends_on": [],
+                "fallback_engines": [],
+                "id": "feynman",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              },
+              {
+                "args": {},
+                "capability": "mission.report",
+                "depends_on": [
+                  "science",
+                  "feynman"
+                ],
+                "fallback_engines": [],
+                "id": "report",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              }
+            ],
+            "team": null,
+            "topic_id": "c59e67dd-713d-422f-80f1-fe0debff6cc9"
+          },
+          "started_at": "2026-10-22T13:31:26.409993+00:00"
+        },
+        "created": "2026-10-22T13:31:26.356307+00:00",
+        "updated": "2026-10-22T13:31:26.625857+00:00",
+        "tasks": [
+          {
+            "mission_id": "a07b0d85-c410-4600-bc28-8bb6066374f1",
+            "id": "science",
+            "status": "completed",
+            "payload": {
+              "attempts": 1,
+              "execution_record": {
+                "attempt_key": "a07b0d85-c410-4600-bc28-8bb6066374f1:science:1",
+                "elapsed_seconds": 0.054031800013035536,
+                "outcome": "completed",
+                "provider_usage": null,
+                "verification_status": "unverified"
+              },
+              "result": {
+                "artifacts": [],
+                "engine": "deterministic",
+                "evidence": [],
+                "limitations": [],
+                "output": {
+                  "allowlisted_extensions": [
+                    ".bib",
+                    ".c",
+                    ".ckpt",
+                    ".cpp",
+                    ".csv",
+                    ".h",
+                    ".ipynb",
+                    ".jl",
+                    ".json",
+                    ".jsonl",
+                    ".md",
+                    ".npy",
+                    ".parquet",
+                    ".pdf",
+                    ".png",
+                    ".pt",
+                    ".pth",
+                    ".py",
+                    ".r",
+                    ".safetensors",
+                    ".svg",
+                    ".tex",
+                    ".txt",
+                    ".yaml",
+                    ".yml"
+                  ],
+                  "at": "2026-10-22T13:31:26.450475+00:00",
+                  "changed": 1,
+                  "complete": true,
+                  "deleted": 0,
+                  "errors": [],
+                  "fidelity": "artifact_observed",
+                  "hashed_bytes": 52,
+                  "ignored_directories": [
+                    ".aws",
+                    ".cache",
+                    ".codex",
+                    ".env",
+                    ".git",
+                    ".phdlab",
+                    ".ssh",
+                    ".venv",
+                    "__pycache__",
+                    "build",
+                    "dist",
+                    "node_modules",
+                    "venv"
+                  ],
+                  "last_success": "2026-10-22T13:31:26.450475+00:00",
+                  "not_observable": "Persisted artifacts only; external sessions, private reasoning and unsaved activity are not observable.",
+                  "observed": 1,
+                  "skipped": [],
+                  "status": "completed",
+                  "unstable": [],
+                  "visited": 1
+                },
+                "schema_version": "1.0",
+                "status": "completed"
+              },
+              "spec": {
+                "args": {
+                  "workspace_id": "55d57fe8-1afe-413d-a5f4-45419656b0cf"
+                },
+                "capability": "workspace.sync",
+                "depends_on": [],
+                "fallback_engines": [],
+                "id": "science",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              }
+            }
+          },
+          {
+            "mission_id": "a07b0d85-c410-4600-bc28-8bb6066374f1",
+            "id": "feynman",
+            "status": "completed",
+            "payload": {
+              "attempts": 1,
+              "execution_record": {
+                "attempt_key": "a07b0d85-c410-4600-bc28-8bb6066374f1:feynman:1",
+                "elapsed_seconds": 0.05241609999211505,
+                "outcome": "completed",
+                "provider_usage": null,
+                "verification_status": "unverified"
+              },
+              "result": {
+                "artifacts": [],
+                "engine": "deterministic",
+                "evidence": [],
+                "limitations": [],
+                "output": {
+                  "allowlisted_extensions": [
+                    ".bib",
+                    ".c",
+                    ".ckpt",
+                    ".cpp",
+                    ".csv",
+                    ".h",
+                    ".ipynb",
+                    ".jl",
+                    ".json",
+                    ".jsonl",
+                    ".md",
+                    ".npy",
+                    ".parquet",
+                    ".pdf",
+                    ".png",
+                    ".pt",
+                    ".pth",
+                    ".py",
+                    ".r",
+                    ".safetensors",
+                    ".svg",
+                    ".tex",
+                    ".txt",
+                    ".yaml",
+                    ".yml"
+                  ],
+                  "at": "2026-10-22T13:31:26.521764+00:00",
+                  "changed": 1,
+                  "complete": true,
+                  "deleted": 0,
+                  "errors": [],
+                  "fidelity": "artifact_observed",
+                  "hashed_bytes": 52,
+                  "ignored_directories": [
+                    ".aws",
+                    ".cache",
+                    ".codex",
+                    ".env",
+                    ".git",
+                    ".phdlab",
+                    ".ssh",
+                    ".venv",
+                    "__pycache__",
+                    "build",
+                    "dist",
+                    "node_modules",
+                    "venv"
+                  ],
+                  "last_success": "2026-10-22T13:31:26.521764+00:00",
+                  "not_observable": "Persisted artifacts only; external sessions, private reasoning and unsaved activity are not observable.",
+                  "observed": 1,
+                  "skipped": [],
+                  "status": "completed",
+                  "unstable": [],
+                  "visited": 1
+                },
+                "schema_version": "1.0",
+                "status": "completed"
+              },
+              "spec": {
+                "args": {
+                  "workspace_id": "99b7d08d-47c6-4482-9124-a34a3091a49d"
+                },
+                "capability": "workspace.sync",
+                "depends_on": [],
+                "fallback_engines": [],
+                "id": "feynman",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              }
+            }
+          },
+          {
+            "mission_id": "a07b0d85-c410-4600-bc28-8bb6066374f1",
+            "id": "report",
+            "status": "completed",
+            "payload": {
+              "attempts": 1,
+              "execution_record": {
+                "attempt_key": "a07b0d85-c410-4600-bc28-8bb6066374f1:report:1",
+                "elapsed_seconds": 0.03391880000708625,
+                "outcome": "completed",
+                "provider_usage": null,
+                "verification_status": "unverified"
+              },
+              "result": {
+                "artifacts": [
+                  {
+                    "bytes": 3561,
+                    "path": "<temporary-data>\\workspace\\research\\missions\\a07b0d85-c410-4600-bc28-8bb6066374f1\\report\\evidence-report.json",
+                    "schema_version": "1.0",
+                    "scientific_review": "pending",
+                    "sha256": "78721caf89eaf8feedab40757cd11ff3c8ecf43b13b90a0d139e27a5753a2147"
+                  }
+                ],
+                "engine": "deterministic",
+                "evidence": [],
+                "limitations": [],
+                "output": {
+                  "report": "<temporary-data>\\workspace\\research\\missions\\a07b0d85-c410-4600-bc28-8bb6066374f1\\report\\evidence-report.json"
+                },
+                "schema_version": "1.0",
+                "status": "completed"
+              },
+              "spec": {
+                "args": {},
+                "capability": "mission.report",
+                "depends_on": [
+                  "science",
+                  "feynman"
+                ],
+                "fallback_engines": [],
+                "id": "report",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "187bf559-f2ff-488d-8611-114c318d8d34",
+      "topic_id": "c579f75e-fa81-4792-9842-d71637942178",
+      "mission": {
+        "id": "067bbaa7-5c55-4a1c-b446-ec077044520b",
+        "topic_id": "c579f75e-fa81-4792-9842-d71637942178",
+        "status": "completed",
+        "payload": {
+          "active_seconds": 0.9145645999815315,
+          "approval": {
+            "at": "2026-10-22T13:31:26.692182+00:00",
+            "by": "researcher",
+            "expires": "2026-10-22T14:31:26.692191+00:00",
+            "note": "Harness approval of fixed offline work; not a scientific endorsement",
+            "plan_digest": "380a6aad0f311751d0c268170015408b0bc4050b69454c66c77e604da4cee3e4"
+          },
+          "depth": 0,
+          "hops": 2,
+          "plan_digest": "380a6aad0f311751d0c268170015408b0bc4050b69454c66c77e604da4cee3e4",
+          "reasoning_calls": 0,
+          "spec": {
+            "collaboration": null,
+            "control": {
+              "allow_api_billing": false,
+              "allowed_engines": [
+                "deterministic"
+              ],
+              "app_backend": "ollama",
+              "app_model": "",
+              "charter_digest": "bd4147d669b584908b23042497620343f08e432da4a804a2cd81adb0cdadf03a",
+              "charter_id": "0c38196f-60d4-4a3b-a6b6-b6d9ec5510f8",
+              "end_date": "2026-10-22T14:31:26.084132Z",
+              "exclusions": [],
+              "hypothesis_id": "",
+              "max_wall_seconds": 3600,
+              "not_before": null,
+              "predecessor_id": "",
+              "priority": 0,
+              "review_required": true,
+              "schema_version": "1.0",
+              "success_criteria": [
+                "Deterministic evidence available for human review"
+              ]
+            },
+            "expected_artifacts": [],
+            "inputs": [],
+            "limits": {
+              "max_artifact_mb": 32,
+              "max_attempts": 2,
+              "max_depth": 2,
+              "max_hops": 12,
+              "max_reasoning_calls": 1,
+              "max_seconds": 600,
+              "max_tasks": 12,
+              "schema_version": "1.0"
+            },
+            "objective": "CPU reproducibility 1",
+            "owner": "researcher",
+            "parent_mission_id": "",
+            "permissions": [
+              "workspace_write",
+              "compute"
+            ],
+            "questions": [],
+            "routing_mode": "manual",
+            "schema_version": "1.0",
+            "stop_conditions": [
+              "budget_exceeded",
+              "failed_dependency"
+            ],
+            "tasks": [
+              {
+                "args": {
+                  "approval_nonce": "66c99c2a-02e9-49cd-accd-3b27ee4e70c9",
+                  "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+                  "protocol_id": "4c5bd289-126c-43cb-a6f5-f72c6fbba66d"
+                },
+                "capability": "experiment.run",
+                "depends_on": [],
+                "fallback_engines": [],
+                "id": "experiment",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              },
+              {
+                "args": {},
+                "capability": "mission.report",
+                "depends_on": [
+                  "experiment"
+                ],
+                "fallback_engines": [],
+                "id": "report",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              }
+            ],
+            "team": null,
+            "topic_id": "c579f75e-fa81-4792-9842-d71637942178"
+          },
+          "started_at": "2026-10-22T13:31:26.717651+00:00"
+        },
+        "created": "2026-10-22T13:31:26.664123+00:00",
+        "updated": "2026-10-22T13:31:27.685563+00:00",
+        "tasks": [
+          {
+            "mission_id": "067bbaa7-5c55-4a1c-b446-ec077044520b",
+            "id": "experiment",
+            "status": "completed",
+            "payload": {
+              "attempts": 1,
+              "execution_record": {
+                "attempt_key": "067bbaa7-5c55-4a1c-b446-ec077044520b:experiment:1",
+                "elapsed_seconds": 0.8828772999695502,
+                "outcome": "completed",
+                "provider_usage": null,
+                "verification_status": "unverified"
+              },
+              "result": {
+                "artifacts": [],
+                "engine": "deterministic",
+                "evidence": [],
+                "limitations": [],
+                "output": {
+                  "comparison": {
+                    "baseline_alpha": 0,
+                    "held_out_used_for_selection": false,
+                    "normal_approx_ci95": [
+                      8.777833901203861,
+                      9.113181518927236
+                    ],
+                    "paired_psnr_gain_db": 8.945507710065549,
+                    "recommendation": "candidate_improvement",
+                    "repeat_count": 3,
+                    "requires_human_review": true,
+                    "selected_alpha": 1.0,
+                    "selection_split": "validation"
+                  },
+                  "dataset_fingerprint": "45d9028727053b104f56e94570fd973f888f45fff6bde9b1ec7c04fd48b73332",
+                  "elapsed_s": 0.784891199960839,
+                  "ended": "2026-10-22T13:31:27.579090+00:00",
+                  "engine": "python",
+                  "experiment_run_id": "9ec200c5-f0e3-4e9f-978a-85f5d123cedb",
+                  "hardware": {
+                    "machine": "AMD64",
+                    "platform": "Windows-11-10.0.26300-SP0"
+                  },
+                  "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+                  "python": "3.14.8 (tags/v3.14.8:8e6e75d, Sep 30 2026, 18:19:33) [MSC v.1944 64 bit (AMD64)]",
+                  "raw_measurements_only": true,
+                  "scientific_review": "pending",
+                  "seeds": [
+                    11,
+                    23,
+                    37
+                  ],
+                  "started": "2026-10-22T13:31:26.794183+00:00",
+                  "status": "completed",
+                  "test_evaluations": [
+                    {
+                      "mean_psnr_db": 18.445465483118188,
+                      "per_seed": {
+                        "11": {
+                          "mse": 0.014416462529170301,
+                          "psnr_db": 18.44088734631051
+                        },
+                        "23": {
+                          "mse": 0.014169207000973908,
+                          "psnr_db": 18.507622072023914
+                        },
+                        "37": {
+                          "mse": 0.01456400936415472,
+                          "psnr_db": 18.387887031020135
+                        }
+                      },
+                      "repeat_count": 3
+                    },
+                    {
+                      "mean_psnr_db": 26.88872077931927,
+                      "per_seed": {
+                        "11": {
+                          "mse": 0.002108173499713337,
+                          "psnr_db": 26.89640373779127
+                        },
+                        "23": {
+                          "mse": 0.0019481688028048995,
+                          "psnr_db": 27.174422243039018
+                        },
+                        "37": {
+                          "mse": 0.0022383211801930937,
+                          "psnr_db": 26.595336357127522
+                        }
+                      },
+                      "repeat_count": 3
+                    }
+                  ],
+                  "worker_sha256": "39b8d20fa5de6b0c8ba887550191bade61711d7723fa7a687baef010eb1ce2ec"
+                },
+                "schema_version": "1.0",
+                "status": "completed"
+              },
+              "spec": {
+                "args": {
+                  "approval_nonce": "66c99c2a-02e9-49cd-accd-3b27ee4e70c9",
+                  "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+                  "protocol_id": "4c5bd289-126c-43cb-a6f5-f72c6fbba66d"
+                },
+                "capability": "experiment.run",
+                "depends_on": [],
+                "fallback_engines": [],
+                "id": "experiment",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              }
+            }
+          },
+          {
+            "mission_id": "067bbaa7-5c55-4a1c-b446-ec077044520b",
+            "id": "report",
+            "status": "completed",
+            "payload": {
+              "attempts": 1,
+              "execution_record": {
+                "attempt_key": "067bbaa7-5c55-4a1c-b446-ec077044520b:report:1",
+                "elapsed_seconds": 0.03168730001198128,
+                "outcome": "completed",
+                "provider_usage": null,
+                "verification_status": "unverified"
+              },
+              "result": {
+                "artifacts": [
+                  {
+                    "bytes": 3022,
+                    "path": "<temporary-data>\\workspace\\research\\missions\\067bbaa7-5c55-4a1c-b446-ec077044520b\\report\\evidence-report.json",
+                    "schema_version": "1.0",
+                    "scientific_review": "pending",
+                    "sha256": "4bdd57320c7fc9144b0dee582bcc2cd2a17ddc87d1f0354d8411d672a304bfca"
+                  }
+                ],
+                "engine": "deterministic",
+                "evidence": [],
+                "limitations": [],
+                "output": {
+                  "report": "<temporary-data>\\workspace\\research\\missions\\067bbaa7-5c55-4a1c-b446-ec077044520b\\report\\evidence-report.json"
+                },
+                "schema_version": "1.0",
+                "status": "completed"
+              },
+              "spec": {
+                "args": {},
+                "capability": "mission.report",
+                "depends_on": [
+                  "experiment"
+                ],
+                "fallback_engines": [],
+                "id": "report",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "project_id": "187bf559-f2ff-488d-8611-114c318d8d34",
+      "topic_id": "c579f75e-fa81-4792-9842-d71637942178",
+      "mission": {
+        "id": "b1f4352e-14d7-4b9e-8ad8-400a0cbc78ec",
+        "topic_id": "c579f75e-fa81-4792-9842-d71637942178",
+        "status": "completed",
+        "payload": {
+          "active_seconds": 0.8663632000098005,
+          "approval": {
+            "at": "2026-10-22T13:31:27.747760+00:00",
+            "by": "researcher",
+            "expires": "2026-10-22T14:31:27.747769+00:00",
+            "note": "Harness approval of fixed offline work; not a scientific endorsement",
+            "plan_digest": "0b5992e68d1ec3667bcf6452b72a402f7658478ec16cd9c393057583170ca15d"
+          },
+          "depth": 0,
+          "hops": 2,
+          "plan_digest": "0b5992e68d1ec3667bcf6452b72a402f7658478ec16cd9c393057583170ca15d",
+          "reasoning_calls": 0,
+          "spec": {
+            "collaboration": null,
+            "control": {
+              "allow_api_billing": false,
+              "allowed_engines": [
+                "deterministic"
+              ],
+              "app_backend": "ollama",
+              "app_model": "",
+              "charter_digest": "bd4147d669b584908b23042497620343f08e432da4a804a2cd81adb0cdadf03a",
+              "charter_id": "0c38196f-60d4-4a3b-a6b6-b6d9ec5510f8",
+              "end_date": "2026-10-22T14:31:26.084132Z",
+              "exclusions": [],
+              "hypothesis_id": "",
+              "max_wall_seconds": 3600,
+              "not_before": null,
+              "predecessor_id": "",
+              "priority": 0,
+              "review_required": true,
+              "schema_version": "1.0",
+              "success_criteria": [
+                "Deterministic evidence available for human review"
+              ]
+            },
+            "expected_artifacts": [],
+            "inputs": [],
+            "limits": {
+              "max_artifact_mb": 32,
+              "max_attempts": 2,
+              "max_depth": 2,
+              "max_hops": 12,
+              "max_reasoning_calls": 1,
+              "max_seconds": 600,
+              "max_tasks": 12,
+              "schema_version": "1.0"
+            },
+            "objective": "CPU reproducibility 2",
+            "owner": "researcher",
+            "parent_mission_id": "",
+            "permissions": [
+              "workspace_write",
+              "compute"
+            ],
+            "questions": [],
+            "routing_mode": "manual",
+            "schema_version": "1.0",
+            "stop_conditions": [
+              "budget_exceeded",
+              "failed_dependency"
+            ],
+            "tasks": [
+              {
+                "args": {
+                  "approval_nonce": "9f3b0926-cf66-4241-9121-6c72f1f710e9",
+                  "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+                  "protocol_id": "4c5bd289-126c-43cb-a6f5-f72c6fbba66d"
+                },
+                "capability": "experiment.run",
+                "depends_on": [],
+                "fallback_engines": [],
+                "id": "experiment",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              },
+              {
+                "args": {},
+                "capability": "mission.report",
+                "depends_on": [
+                  "experiment"
+                ],
+                "fallback_engines": [],
+                "id": "report",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              }
+            ],
+            "team": null,
+            "topic_id": "c579f75e-fa81-4792-9842-d71637942178"
+          },
+          "started_at": "2026-10-22T13:31:27.772755+00:00"
+        },
+        "created": "2026-10-22T13:31:27.716565+00:00",
+        "updated": "2026-10-22T13:31:28.700184+00:00",
+        "tasks": [
+          {
+            "mission_id": "b1f4352e-14d7-4b9e-8ad8-400a0cbc78ec",
+            "id": "experiment",
+            "status": "completed",
+            "payload": {
+              "attempts": 1,
+              "execution_record": {
+                "attempt_key": "b1f4352e-14d7-4b9e-8ad8-400a0cbc78ec:experiment:1",
+                "elapsed_seconds": 0.8318280000239611,
+                "outcome": "completed",
+                "provider_usage": null,
+                "verification_status": "unverified"
+              },
+              "result": {
+                "artifacts": [],
+                "engine": "deterministic",
+                "evidence": [],
+                "limitations": [],
+                "output": {
+                  "comparison": {
+                    "baseline_alpha": 0,
+                    "held_out_used_for_selection": false,
+                    "normal_approx_ci95": [
+                      8.777833901203861,
+                      9.113181518927236
+                    ],
+                    "paired_psnr_gain_db": 8.945507710065549,
+                    "recommendation": "candidate_improvement",
+                    "repeat_count": 3,
+                    "requires_human_review": true,
+                    "selected_alpha": 1.0,
+                    "selection_split": "validation"
+                  },
+                  "dataset_fingerprint": "45d9028727053b104f56e94570fd973f888f45fff6bde9b1ec7c04fd48b73332",
+                  "elapsed_s": 0.7855546999489889,
+                  "ended": "2026-10-22T13:31:28.578791+00:00",
+                  "engine": "python",
+                  "experiment_run_id": "9066ccd0-f85c-4394-b7d8-bf92f53b77c4",
+                  "hardware": {
+                    "machine": "AMD64",
+                    "platform": "Windows-11-10.0.26300-SP0"
+                  },
+                  "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+                  "python": "3.14.8 (tags/v3.14.8:8e6e75d, Sep 30 2026, 18:19:33) [MSC v.1944 64 bit (AMD64)]",
+                  "raw_measurements_only": true,
+                  "scientific_review": "pending",
+                  "seeds": [
+                    11,
+                    23,
+                    37
+                  ],
+                  "started": "2026-10-22T13:31:27.793222+00:00",
+                  "status": "completed",
+                  "test_evaluations": [
+                    {
+                      "mean_psnr_db": 18.445465483118188,
+                      "per_seed": {
+                        "11": {
+                          "mse": 0.014416462529170301,
+                          "psnr_db": 18.44088734631051
+                        },
+                        "23": {
+                          "mse": 0.014169207000973908,
+                          "psnr_db": 18.507622072023914
+                        },
+                        "37": {
+                          "mse": 0.01456400936415472,
+                          "psnr_db": 18.387887031020135
+                        }
+                      },
+                      "repeat_count": 3
+                    },
+                    {
+                      "mean_psnr_db": 26.88872077931927,
+                      "per_seed": {
+                        "11": {
+                          "mse": 0.002108173499713337,
+                          "psnr_db": 26.89640373779127
+                        },
+                        "23": {
+                          "mse": 0.0019481688028048995,
+                          "psnr_db": 27.174422243039018
+                        },
+                        "37": {
+                          "mse": 0.0022383211801930937,
+                          "psnr_db": 26.595336357127522
+                        }
+                      },
+                      "repeat_count": 3
+                    }
+                  ],
+                  "worker_sha256": "39b8d20fa5de6b0c8ba887550191bade61711d7723fa7a687baef010eb1ce2ec"
+                },
+                "schema_version": "1.0",
+                "status": "completed"
+              },
+              "spec": {
+                "args": {
+                  "approval_nonce": "9f3b0926-cf66-4241-9121-6c72f1f710e9",
+                  "protocol_digest": "cc171f3c0649d013febd64c918ff7984d801faaa8b3bd5ff26f069ed46948cba",
+                  "protocol_id": "4c5bd289-126c-43cb-a6f5-f72c6fbba66d"
+                },
+                "capability": "experiment.run",
+                "depends_on": [],
+                "fallback_engines": [],
+                "id": "experiment",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              }
+            }
+          },
+          {
+            "mission_id": "b1f4352e-14d7-4b9e-8ad8-400a0cbc78ec",
+            "id": "report",
+            "status": "completed",
+            "payload": {
+              "attempts": 1,
+              "execution_record": {
+                "attempt_key": "b1f4352e-14d7-4b9e-8ad8-400a0cbc78ec:report:1",
+                "elapsed_seconds": 0.034535199985839427,
+                "outcome": "completed",
+                "provider_usage": null,
+                "verification_status": "unverified"
+              },
+              "result": {
+                "artifacts": [
+                  {
+                    "bytes": 3023,
+                    "path": "<temporary-data>\\workspace\\research\\missions\\b1f4352e-14d7-4b9e-8ad8-400a0cbc78ec\\report\\evidence-report.json",
+                    "schema_version": "1.0",
+                    "scientific_review": "pending",
+                    "sha256": "f114813680330645e357504f6b21af5399759bb14187fff237cc78328d32fb3b"
+                  }
+                ],
+                "engine": "deterministic",
+                "evidence": [],
+                "limitations": [],
+                "output": {
+                  "report": "<temporary-data>\\workspace\\research\\missions\\b1f4352e-14d7-4b9e-8ad8-400a0cbc78ec\\report\\evidence-report.json"
+                },
+                "schema_version": "1.0",
+                "status": "completed"
+              },
+              "spec": {
+                "args": {},
+                "capability": "mission.report",
+                "depends_on": [
+                  "experiment"
+                ],
+                "fallback_engines": [],
+                "id": "report",
+                "preferred_engine": "deterministic",
+                "schema_version": "1.0"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "engine_probes": [],
+  "limitations": [
+    "No real scientific pilot signoff",
+    "No live provider billing, quota or native inference qualification",
+    "Wall time includes durable SQLite/worker overhead, not model productivity",
+    "Portable JSON paths are redacted; original control-plane snapshots, hash-verifiable audits and raw measurements are in measurements.zip"
+  ]
+}

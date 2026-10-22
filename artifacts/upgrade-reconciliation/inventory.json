@@ -1,6 +1,6 @@
 {
-  "at": "2026-10-22T12:55:35.153897+00:00",
-  "git_parent": "e539fc45688277d398a17aee2698fc741c1ec109",
+  "at": "2026-10-22T13:31:43.526568+00:00",
+  "git_parent": "59cdb4c211039f32cb880770790b4bf23db093ff",
   "interpretation": "Source-linked manual feature audit; inventory items include requirements, catalogs, examples and engineering instructions. Path/hash checks do not prove semantic compliance or executed tests.",
   "documents": [
     {
@@ -5234,11 +5234,13 @@
       "status": "conditional",
       "implementation": [
         "tools/research_harness.py",
-        "tools/acceptance_v56.py"
+        "tools/acceptance_v56.py",
+        "tools/verify_v6_harness.py"
       ],
       "tests": [
         "tests/test_research_os.py",
-        "tests/test_governance.py"
+        "tests/test_governance.py",
+        "tests/test_harness_verification.py"
       ],
       "remaining": "Local software/CPU harness is available. Real bounded scientific pilot, live native inference, lawful live sources and Docker containment signoff remain open; release stays opt-in preview."
     },
@@ -5302,10 +5304,12 @@
       "requirement": "Three fixed workflow families, single/fixed/adaptive measured comparison",
       "status": "bounded",
       "implementation": [
-        "tools/research_harness.py"
+        "tools/research_harness.py",
+        "tools/verify_v6_harness.py"
       ],
       "tests": [
-        "tests/test_teams.py"
+        "tests/test_teams.py",
+        "tests/test_harness_verification.py"
       ],
       "remaining": "Synthetic literature/workspace transport with actual local code/CPU measurements; not evidence that adaptive agents outperform real scientific work."
     },
@@ -5386,11 +5390,13 @@
       "implementation": [
         "backend/agent/collaboration.py",
         "backend/execution/guard.py",
-        "tools/research_harness.py"
+        "tools/research_harness.py",
+        "tools/verify_v6_harness.py"
       ],
       "tests": [
         "tests/test_workstreams.py",
-        "tests/test_guard.py"
+        "tests/test_guard.py",
+        "tests/test_harness_verification.py"
       ],
       "remaining": "Sequential logical teams are explicitly permitted by v6.3. A single Mission executing across multiple Topics, remote identity, real-model multi-team benefit and real GPU/Docker containment remain open gates."
     }
@@ -5459,8 +5465,10 @@
     "tests/test_clearml.py": "d75f92e6d93f40ca15d4c432d84bbc1a50ef6603f4e7576b8c833151eb12de03",
     "backend/paper/export.py": "d4458b8789316879bc2d89fc4d894be7ee8b183f1b9b2d184762fea7989d3b67",
     "backend/agent/research_os.py": "7f6541adec56cba9c52b139dde3ba34cc3eb21021ae7e0452a5b4fdd1e7d5b0f",
-    "tools/research_harness.py": "b9202690206a15612767c47846dcae11736f8545496d329ddf4efa34aff90a0d",
+    "tools/research_harness.py": "408992de82a26c55da8087de82b4764655ca1e8d305d54a02ebcfd33f7f95962",
     "tools/acceptance_v56.py": "015c5b1575dc146b5d18ebf563a260a2982a3a97fb9c988213123acb10104f3c",
+    "tools/verify_v6_harness.py": "c6b4d0901008ba60a87dfb58c59370f1dca9383094a1f4f293ba369889e22d6d",
+    "tests/test_harness_verification.py": "10d5c300012bd75a95f04d1f642f400829c229a1dd58ea4edc4180833c780694",
     "backend/agent/teams.py": "10367b15d1a8170473d929d407e32f17951ef1b623d99b220105758b47f60a67",
     "backend/agent/collaboration.py": "74a6b8efbf7de6500ec6406843dbfc186c5c66e68cb8e91574b19e04499ec761"
   },
