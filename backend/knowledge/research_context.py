@@ -32,7 +32,7 @@ def resolve(tid: str, sid: str, expanded: bool = False) -> dict | None:
                 if not row:
                     return None
                 p = corpus._paper(c, tid, row["paper_id"])
-                return src(sid, "scientific_evidence", p["title"], f"{p['title']}; DOI {p['doi']}; version {row['version_id']}; page {row['page']}; L{p['level']}\n{row['text']}", "untrusted", "page evidence")
+                return src(sid, "scientific_evidence", p["title"], f"{p['title']}; DOI {p['doi']}; version {row['version_id']}; page {row['page']}; L{p['level']}; flags {p['flags']}\n{row['text']}", "untrusted", "page evidence")
         if kind == "artifact":
             from backend.research_engines.workspaces import artifact_text
             r = artifact_text(tid, key)

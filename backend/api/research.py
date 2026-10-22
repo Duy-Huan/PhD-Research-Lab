@@ -311,7 +311,15 @@ async def capabilities():
     from backend.plugins.local_research import capabilities
     from backend.agent.ui_actions import catalog
     return {"plugins": await call(capabilities), "actions": catalog(), "core_requires_paid_llm": False,
-            "retrieval": "SQLite FTS5/BM25; vector/reranker deferred", "engine_observability": W.OBSERVABILITY}
+            "retrieval": "SQLite FTS5/BM25 + configured local vectors, reciprocal-rank fusion; hashing fallback is lexical, not neural; no external reranker", "engine_observability": W.OBSERVABILITY}
+
+
+@router.get("/sources")
+async def source_catalog():
+    from backend.knowledge.sources import PROVIDER_IDS
+    from backend.knowledge.source_packs import catalog
+    return {"providers": list(PROVIDER_IDS), "packs": catalog(),
+            "priority": "Topic sources are ordered and explicitly enabled; four core providers remain the default"}
 
 
 @router.post("/topics/{tid}/zotero/import")
@@ -330,12 +338,34 @@ async def zotero_import(tid: str, file: UploadFile = File(...)):
     return await call(import_zotero, tid, records)
 
 
+class ZoteroSyncInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    allow_network: bool = False
+    start: int = Field(default=0, ge=0, le=1000000)
+    max_items: int = Field(default=100, ge=1, le=1000)
+
+
+@router.post("/topics/{tid}/zotero/sync")
+async def zotero_sync(tid: str, body: ZoteroSyncInput):
+    from backend.plugins.local_research import sync_zotero
+    try:
+        return await sync_zotero(tid, **body.model_dump())
+    except Exception as exc:
+        import httpx
+        if isinstance(exc, httpx.HTTPError):
+            raise HTTPException(400, "Local Zotero API is not reachable; open Zotero and enable permitted local API access")
+        if isinstance(exc, ValueError):
+            raise HTTPException(400, str(exc))
+        raise
+
+
 class BulkInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     paper_ids: list[str] = Field(min_length=1, max_length=100)
     action: str
     target_topic_id: str = ""
     note: str = Field(default="", max_length=8000)
+    tags: list[str] = Field(default_factory=list, max_length=30)
 
 
 @router.get("/topics")
@@ -362,8 +392,10 @@ async def update_topic(tid: str, body: S.TopicInput):
 
 @router.get("/topics/{tid}/papers")
 async def papers(tid: str, q: str = "", level: int = -1, state: str = "", source: str = "", year: int = 0,
-                 oa: bool = False, offset: int = 0, limit: int = 25, sort: str = "relevance"):
-    return await call(corpus.search, tid, q[:1000], level, state, source, year, oa, offset, limit, sort)
+                 oa: bool = False, offset: int = 0, limit: int = 25, sort: str = "relevance",
+                 max_year: int = 0, venue: str = "", publication_type: str = "", tag: str = "", pdf: bool | None = None, flag: str = ""):
+    return await call(corpus.search, tid, q[:1000], level, state, source, year, oa, offset, limit, sort,
+                      max_year=max_year, venue=venue[:500], publication_type=publication_type[:100], tag=tag[:80], pdf=pdf, flag=flag[:120])
 
 
 @router.post("/topics/{tid}/papers/import")
@@ -381,6 +413,8 @@ async def import_library(tid: str):
 
 @router.post("/topics/{tid}/papers/bulk")
 async def bulk(tid: str, body: BulkInput):
+    if body.action in ("tag", "untag"):
+        return await call(corpus.tag_papers, tid, body.paper_ids, body.tags, body.action == "untag")
     if body.action == "associate":
         return await call(corpus.associate, tid, body.target_topic_id, body.paper_ids)
     if body.action in ("download", "index"):
@@ -406,13 +440,18 @@ async def pdf(tid: str, pid: str, vid: str):
 
 
 @router.get("/topics/{tid}/evidence")
-async def evidence(tid: str, q: str = ""):
-    return {"evidence": await call(corpus.retrieve, tid, q[:2000])}
+async def evidence(tid: str, q: str = "", paper_id: str = "", limit: int = 10):
+    return {"evidence": await call(corpus.retrieve, tid, q[:2000], limit, paper_id)}
 
 
 @router.get("/topics/{tid}/bibliography", response_class=PlainTextResponse)
 async def bibliography(tid: str):
     return await call(corpus.bibliography, tid)
+
+
+@router.get("/topics/{tid}/citation-graph")
+async def citation_graph(tid: str):
+    return await call(corpus.citation_graph, tid)
 
 
 @router.post("/topics/{tid}/discover")
@@ -469,6 +508,11 @@ async def sync_status(wid: str):
 @router.get("/topics/{tid}/artifacts")
 async def artifacts(tid: str, workspace_id: str = "", history: bool = False):
     return {"artifacts": await call(W.artifacts, tid, workspace_id, history)}
+
+
+@router.get("/topics/{tid}/artifacts/{aid}")
+async def artifact_detail(tid: str, aid: str):
+    return await call(W.artifact_text, tid, aid)
 
 
 @router.get("/topics/{tid}/provenance")

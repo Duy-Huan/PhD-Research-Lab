@@ -1,0 +1,16 @@
+{
+  "docker": {
+    "available": true,
+    "exit": 0,
+    "output": "Docker version 29.8.2, build 7fc2dff\nWARNING: Error loading config file: open C:\\Users\\win\\.docker\\config.json: Access is denied.\n"
+  },
+  "nvidia-smi": {
+    "available": true,
+    "exit": 0,
+    "output": "NVIDIA GeForce RTX 3060, 12288 MiB\n"
+  },
+  "zotero_local_port": {
+    "reachable": false,
+    "library_read": false
+  }
+}

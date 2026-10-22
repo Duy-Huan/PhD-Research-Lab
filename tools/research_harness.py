@@ -22,6 +22,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stage",choices=["6.0","6.2","6.3"],default="6.0")
     parser.add_argument("--probe-engines",action="store_true")
+    parser.add_argument("--output", type=Path, help="Separate evidence directory (default: artifacts/v<stage>)")
     args=parser.parse_args()
     with tempfile.TemporaryDirectory(prefix="phdlab-harness-") as temporary:
         os.environ["PHDLAB_DATA_DIR"]=temporary
@@ -104,7 +105,7 @@ def main():
             if isinstance(value,dict):return {k:portable(v) for k,v in value.items()}
             if isinstance(value,list):return [portable(v) for v in value]
             return value.replace(temporary,"<temporary-data>") if isinstance(value,str) else value
-        output=ROOT/"artifacts"/("v"+args.stage.replace(".",""));output.mkdir(parents=True,exist_ok=True)
+        output=args.output or ROOT/"artifacts"/("v"+args.stage.replace(".",""));output.mkdir(parents=True,exist_ok=True)
         with zipfile.ZipFile(output/"measurements.zip","w",compression=zipfile.ZIP_DEFLATED) as archive:
             for run in P.runs(a):
                 for trial in run["trials"]:

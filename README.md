@@ -1,5 +1,7 @@
 # PhD Research Lab - v6.3.0-preview.1
 
+**Upgrade reconciliation (v5.1–v6.3):** [feature audit and operating guide](docs/upgrade-reconciliation.md), [source-linked matrix](artifacts/upgrade-reconciliation/feature-matrix.md) and [executed validation](artifacts/upgrade-reconciliation/validation.md). Adds optional public scholarly source packs, paper tags/filters/citation graph, local hybrid evidence retrieval, read-only local Zotero sync, artifact navigation and fixes for scheduling, charter dependencies and complete Mission reports. The audit preserves explicit preview/external qualification gates.
+
 **UI refinement:** bilingual interface labels, local JSON theme packages (including VS Code color imports), a project/conversation browser, persistent message pins and calendar dates. New Library uploads and downloads share a metadata-based PDF naming convention. See [UI usage and verification](docs/ui-refinement.md) and the [visual audit](docs/ui-refinement-audit.md). `node tests/frontend/run.js` enforces 100% lines, branches and functions across all first-party frontend JavaScript, including first-paint initialization.
 
 A local research workspace with one project chat, a browser interface and a terminal client sharing the same FastAPI backend. Research and Reviewer agents use Markdown skills; a utility model handles background extraction and memory work.

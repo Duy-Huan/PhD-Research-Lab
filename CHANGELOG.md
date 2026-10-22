@@ -1,5 +1,12 @@
 # Changelog
 
+## Upgrade reconciliation — 2026-10-22
+
+- Audited all 11 v5.1–v6.3 upgrade documents with a repeatable source inventory, 49 feature groups, implementation/test references and explicit external qualification gates.
+- Added opt-in public scholarly/venue source packs; scoped tags and advanced paper filters; retained citation/retraction/native identifiers; versioned source-declared citation graphs; hybrid local evidence retrieval and exact paper/page navigation.
+- Added bounded read-only local Zotero sync, Topic archive/restore, PDF reprocessing and artifact snapshot/timeline controls. All new UI labels support English/Vietnamese.
+- Fixed discovery scheduling beyond 100 jobs and dry runs, charter Topic dependency admission, metadata enrichment overwrites and truncated Mission reports. Existing SQLite schema, central composer, providers and opt-in autonomy defaults are preserved.
+
 ## v6.3.0-preview.1 — 2026-10-22
 
 - Added optional bounded workstream charters, schema-validated cross-team evidence messages/receipts, partitioned resource accounting, optimistic canonical output revisions and human dispute resolution on the existing Mission runtime.

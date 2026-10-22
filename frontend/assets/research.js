@@ -79,6 +79,10 @@
         h("p.muted", {}, `${t.sources.join(", ")} · ${t.cadence} · ${PL.ui(t.enabled ? "enabled" : "paused")} · ≤${t.pdf_limit} ${PL.ui("PDFs/run")}`),
         h("p.muted", {}, `${tr("Lần trước", "Last")}: ${schedule.last_run || "—"} ${PL.ui(schedule.last_status || "")} · ${tr("Lần tới", "Next")}: ${schedule.next_run || "—"} (UTC)`),
         h("div.row.wrap", {}, button(tr("Mở chủ đề", "Open Topic"), () => R.switchTopic(t.id)), button(tr("Sửa", "Edit"), () => editTopic(t)),
+          button(PL.ui(t.archived ? "Restore Topic" : "Archive Topic"), async () => {
+            const { id, created, updated, ...data } = t;
+            await PL.put("/api/research/topics/" + id, { ...data, archived: !t.archived, enabled: false }); await R.open("topics");
+          }),
           (!R.flags || R.flags.topic_scheduler_ui !== false) ? button(t.enabled ? tr("Tạm dừng", PL.ui("Pause")) : tr("Bật lịch", "Enable schedule"), async () => {
             const { id, created, updated, ...data } = t;
             await PL.put("/api/research/topics/" + id, { ...data, enabled: !t.enabled }); await R.open("topics");
@@ -104,7 +108,7 @@
     if (R.flags && R.flags.topic_scheduler_ui === false) { cadence.disabled = true; enabled.disabled = true; }
     PL.modal({ title: t ? tr("Sửa chủ đề", "Edit Topic") : tr("chủ đề mới", "New Topic"), body: h("div", {}, label(PL.ui("Title"), title), label(PL.ui("Objectives"), objectives),
       label(PL.ui("Keywords (;)"), keywords), label(PL.ui("Synonyms (;)"), synonyms), label(PL.ui("Exclusions (;)"), exclusions), label(PL.ui("Sources (;): openalex, arxiv, semantic_scholar, crossref"), providers),
-      label(PL.ui("From year"), year), label(PL.ui("Cadence"), cadence), label(PL.ui("Schedule enabled"), enabled), label(PL.ui("Metadata/run"), metadata), label(PL.ui("PDFs/run"), pdf), label("MB/PDF", size), label(PL.ui("Storage MB/topic"), storage), label(PL.ui("Auto-download eligible OA"), auto), label(PL.ui("Parser"), parser)),
+      h("p.muted", {}, PL.ui("Additional sources: cvf, pmlr, neurips, acl_anthology, openreview, zenodo, europe_pmc, hal. Order sets priority; omit a source to disable it.")), label(PL.ui("From year"), year), label(PL.ui("Cadence"), cadence), label(PL.ui("Schedule enabled"), enabled), label(PL.ui("Metadata/run"), metadata), label(PL.ui("PDFs/run"), pdf), label("MB/PDF", size), label(PL.ui("Storage MB/topic"), storage), label(PL.ui("Auto-download eligible OA"), auto), label(PL.ui("Parser"), parser)),
       actions: [{ label: tr("Huỷ", PL.ui("Cancel")) }, { label: tr("Lưu", PL.ui("Save")), kind: "accent", onClick: async () => {
         const split = (s) => s.value.split(";").map(x => x.trim()).filter(Boolean);
         const { id, created, updated, ...old } = t || {};
@@ -121,20 +125,43 @@
     const level = select([["-1", "L0–L4"], ...[0, 1, 2, 3, 4].map(n => [n, "L" + n])], -1);
     const state = select([["", PL.ui("All")], ...(!R.flags || R.flags.discovery_inbox !== false ? [["candidate", PL.ui("Discovery Inbox")]] : []), ["accepted", PL.ui("Accepted")], ["dismissed", PL.ui("Dismissed")], ["deferred", PL.ui("Deferred")]], "");
     const year = input("", { type: "number", placeholder: PL.ui("From year"), "aria-label": PL.ui("From year") }), source = input("", { placeholder: PL.ui("Source"), "aria-label": PL.ui("Source") });
-    const sort = select([["relevance", PL.ui("Lexical matches")], ["year", PL.ui("Year")]], "relevance"), oa = input("", { type: "checkbox", "aria-label": PL.ui("Open access only") });
-    controls.append(q, level, state, year, source, sort, label("OA", oa));
+    const sort = select([["relevance", PL.ui("Lexical matches")], ["year", PL.ui("Year")], ["citations", PL.ui("Citation count (unknown last)")]], "relevance"), oa = input("", { type: "checkbox", "aria-label": PL.ui("Open access only") });
+    const advanced = h("details", {}, h("summary", {}, PL.ui("More filters")));
+    const extra = {};
+    for (const [key, text] of [["max_year", "To year"], ["venue", "Venue"], ["publication_type", "Publication type"], ["tag", "Tag"], ["flag", "Risk or version flag"]]) {
+      extra[key] = input("", { "aria-label": PL.ui(text), placeholder: PL.ui(text) }); advanced.append(extra[key]);
+    }
+    extra.pdf = select([["", PL.ui("Any PDF status")], ["true", PL.ui("Downloaded PDF")], ["false", PL.ui("PDF not downloaded")]], "");
+    extra.pdf.setAttribute("aria-label", PL.ui("PDF status")); advanced.append(extra.pdf);
+    controls.append(q, level, state, year, source, sort, label("OA", oa), advanced);
     body.append(controls, h("div.row.wrap", {}, button(tr("Khám phá ngay", "Discover now"), async () => { await PL.post(base() + "/discover"); await R.open("jobs"); }),
       button(PL.ui("Dry run"), async () => { await PL.post(base() + "/discover", { dry_run: true }); await R.open("jobs"); }),
       button(tr("Nhập thư viện cũ", "Import existing library"), async () => { await PL.post(base() + "/papers/import-library"); await load(); }),
-      button(tr("Nhập Zotero JSON", "Import Zotero JSON"), () => importZotero())), results);
-    const bulk = h("div.row.wrap.research-bulk", {}, ...[["accept", tr("Chấp nhận", "Accept")], ["defer", PL.ui("Defer")], ["dismiss", PL.ui("Dismiss")], ["download", PL.ui("OA PDF")], ["screen", PL.ui("L3 screen")], ["verify", PL.ui("L4 attest")]].map(([action, name]) => button(name, async () => {
+      button(tr("Nhập Zotero JSON", "Import Zotero JSON"), () => importZotero()),
+      button(PL.ui("Read local Zotero"), async () => {
+        if (!(await PL.confirm(PL.ui("Read up to 1000 items from the local Zotero library? References remain pending curation; Zotero is not modified.")))) return;
+        const receipt = await PL.post(base() + "/zotero/sync", { allow_network: true, max_items: 1000 });
+        PL.modal({ title: PL.ui("Zotero read-only sync receipt"), body: h("pre", {}, JSON.stringify(receipt, null, 2)), actions: [{ label: PL.ui("Close") }] });
+        await load();
+      }),
+      button(PL.ui("Citation graph"), async () => {
+        const graph = await PL.get(base() + "/citation-graph");
+        PL.modal({ title: PL.ui("Source-declared citations"), body: h("pre", {}, JSON.stringify(graph, null, 2)), actions: [{ label: PL.ui("Close") }] });
+      })), results);
+    const bulk = h("div.row.wrap.research-bulk", {}, ...[["accept", tr("Chấp nhận", "Accept")], ["defer", PL.ui("Defer")], ["dismiss", PL.ui("Dismiss")], ["download", PL.ui("OA PDF")], ["index", PL.ui("Reprocess PDF")], ["tag", PL.ui("Add tags")], ["untag", PL.ui("Remove tags")], ["screen", PL.ui("L3 screen")], ["verify", PL.ui("L4 attest")]].map(([action, name]) => button(name, async () => {
       const ids = R.sources().filter(id => id.startsWith("paper:")).map(id => id.slice(6));
       if (!ids.length) { PL.toast(tr("Chọn tài liệu trước", "Select papers first")); return; }
       let note = "";
+      let tags = [];
+      if (action === "tag" || action === "untag") {
+        const value = await PL.prompt(PL.ui("Paper tags"), PL.ui("Tags separated by semicolons"), "");
+        if (!value) return;
+        tags = value.split(";").map(x => x.trim()).filter(Boolean);
+      }
       if (action === "verify") { note = await PL.prompt(PL.ui("L4 · User attestation"), PL.ui("Review note (not a universal validity guarantee)"), ""); if (!note) return; }
       if (action === "dismiss" && !(await PL.confirm(PL.ui("Dismiss selected candidates? They remain recoverable in Dismissed.")))) return;
-      await PL.post(base() + "/papers/bulk", { action, paper_ids: ids, note });
-      if (action === "download") await R.open("jobs"); else await load();
+      await PL.post(base() + "/papers/bulk", { action, paper_ids: ids, note, tags });
+      if (action === "download" || action === "index") await R.open("jobs"); else await load();
     })), button(tr("Thêm vào chủ đề khác", "Add to another Topic"), async () => {
       const target = await PL.prompt(PL.ui("Target Topic"), R.topics.map(t => t.title + " = " + t.id).join("\n"), "");
       if (target) await PL.post(base() + "/papers/bulk", { action: "associate", target_topic_id: target, paper_ids: R.sources().filter(s => s.startsWith("paper:")).map(s => s.slice(6)) });
@@ -146,6 +173,7 @@
       const seq = ++serial;
       if (request) request.abort(); request = new W.AbortController();
       const params = new W.URLSearchParams({ q: q.value, level: level.value, state: state.value, year: year.value || 0, source: source.value, sort: sort.value, oa: String(oa.checked), offset: R.offset, limit: 25 });
+      for (const [key, control] of Object.entries(extra)) if (control.value) params.set(key, control.value);
       try {
         const r = await PL.api("GET", base() + "/papers?" + params, undefined, { signal: request.signal });
         if (revision !== epoch || seq !== serial) return;
@@ -157,6 +185,7 @@
           results.append(h("article.research-card", {}, h("label.row", {}, checkbox, h("b", {}, p.title)), h("p.muted", {}, `${p.year || "?"} · ${p.venue || PL.ui("unknown venue")} · ${p.sources.join(", ")}`),
             h("div.row.wrap", {}, h("span.chip", {}, "L" + p.level), h("span.chip", {}, PL.ui(p.state)), h("span.chip", {}, p.oa_locations.length ? PL.ui("OA candidate") : PL.ui("Metadata only")), ...p.flags.map(f => h("span.chip.warn", {}, f))),
             h("p.muted", {}, PL.ui("Matched terms: ") + (p.association.matched_terms || []).join(", ")),
+            h("p.muted", {}, PL.ui("Tags") + ": " + (p.association.tags || []).join(", ")),
             p.association.review_reset ? h("p.muted", {}, PL.ui("Review reset: ") + p.association.review_reset.reason) : null,
             button(tr("Phiên bản & bằng chứng", "Versions & evidence"), () => paperDetail(p))));
         }
@@ -164,7 +193,7 @@
       } catch (e) { if (e.name !== "AbortError" && revision === epoch) results.replaceChildren(h("p.error", {}, e.message)); }
     }
     q.oninput = () => { R.query = q.value; R.offset = 0; W.clearTimeout(timer); timer = W.setTimeout(load, 250); };
-    for (const x of [level, state, year, source, sort, oa]) x.onchange = () => { R.offset = 0; load(); };
+    for (const x of [level, state, year, source, sort, oa, ...Object.values(extra)]) x.onchange = () => { R.offset = 0; load(); };
     await load();
   }
   function paperDetail(p) {
@@ -175,7 +204,8 @@
       else body.append(h("p.muted", {}, PL.ui("Full text unavailable for this version")));
     }
     const search = input("", { placeholder: PL.ui("Find page evidence"), "aria-label": PL.ui("Find page evidence") }), evidence = h("div");
-    body.append(search, button(PL.ui("Evidence"), async () => { const r = await PL.get(base() + "/evidence?q=" + encodeURIComponent(search.value)); evidence.replaceChildren(); for (const e of r.evidence.filter(e => e.paper_id === p.id)) evidence.append(h("p", {}, `[${e.id}] v${e.version_id} p.${e.page}: ${e.text}`)); }), evidence);
+    body.append(search, button(PL.ui("Evidence"), async () => { const r = await PL.get(base() + "/evidence?paper_id=" + encodeURIComponent(p.id) + "&q=" + encodeURIComponent(search.value)); evidence.replaceChildren(); for (const e of r.evidence.filter(e => e.paper_id === p.id)) evidence.append(h("div", {}, h("p", {}, `[${e.id}] v${e.version_id} p.${e.page}: ${e.text}`),
+        e.version_id && e.page ? h("a.btn.sm", { href: base() + `/papers/${p.id}/pdf/${e.version_id}#page=${e.page}`, target: "_blank", rel: "noopener" }, PL.ui("Open cited page")) : h("p.muted", {}, PL.ui("Page location unavailable")))); }), evidence);
     PL.modal({ title: p.title, body, actions: [{ label: tr("Đóng", PL.ui("Close")) }] });
   }
   function importZotero() {
@@ -231,7 +261,11 @@
       for (const x of a.artifacts.filter(x => (x.path + " " + x.engine).toLowerCase().includes(filter.value.toLowerCase()))) {
         const checkbox = input("", { type: "checkbox", checked: R.selected.has("artifact:" + x.id) || null, "aria-label": PL.ui("Select artifact ") + x.path });
         checkbox.onchange = () => R.toggle("artifact:" + x.id, x.path + " v" + x.version, checkbox.checked);
-        list.append(h("article.research-card", {}, h("label.row", {}, checkbox, h("b", {}, x.path)), h("p.muted", {}, `${x.engine} · v${x.version} · ${PL.ui(x.available ? "observed" : "unavailable / tombstone")} · ${x.bytes} bytes`), h("p.research-path", {}, x.sha256 || PL.ui("Hash not computed: metadata only"))));
+        list.append(h("article.research-card", {}, h("label.row", {}, checkbox, h("b", {}, x.path)), h("p.muted", {}, `${x.engine} · v${x.version} · ${PL.ui(x.available ? "observed" : "unavailable / tombstone")} · ${x.bytes} bytes`), h("p.research-path", {}, x.sha256 || PL.ui("Hash not computed: metadata only")),
+          button(PL.ui("Inspect artifact version"), async () => {
+            const detail = await PL.get(base() + "/artifacts/" + encodeURIComponent(x.id));
+            PL.modal({ title: detail.title, body: h("pre", {}, detail.text), actions: [{ label: PL.ui("Close") }] });
+          })));
       }
     }
     filter.oninput = paint; paint();
@@ -240,8 +274,14 @@
         const note = await PL.prompt(PL.ui("Human review"), PL.ui("Review note"), ""); if (!note) return;
         await PL.post(base() + "/findings/" + f.id + "/review", { approve, note }); await R.open("artifacts");
       }))) : null));
-    body.append(h("h3", {}, PL.ui("Provenance timeline")));
-    for (const e of p.events) body.append(h("details.research-card", {}, h("summary", {}, e.type + " · " + e.observed), h("pre", {}, JSON.stringify(e.payload, null, 2))));
+    const timelineFilter = input("", { type: "search", "aria-label": PL.ui("Filter timeline by engine, session, artifact or date"), placeholder: PL.ui("Filter timeline by engine, session, artifact or date") }), timeline = h("div.provenance-events");
+    body.append(h("h3", {}, PL.ui("Provenance timeline")), h("p.muted", {}, PL.ui("Latest 100 events; filter applies to this loaded window.")), timelineFilter, timeline);
+    const paintTimeline = () => {
+      timeline.replaceChildren();
+      for (const e of p.events.filter(e => JSON.stringify(e).toLowerCase().includes(timelineFilter.value.toLowerCase())))
+        timeline.append(h("details.research-card", {}, h("summary", {}, e.type + " · " + e.observed), h("pre", {}, JSON.stringify(e.payload, null, 2))));
+    };
+    timelineFilter.oninput = paintTimeline; paintTimeline();
   }
   async function renderJobs(body, revision) {
     body.append(button(tr("Làm mới", PL.ui("Refresh")), () => R.open("jobs")));

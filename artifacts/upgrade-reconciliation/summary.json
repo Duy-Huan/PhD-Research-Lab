@@ -1,0 +1,103 @@
+{
+  "baseline_commit": "e539fc4",
+  "application_version": "6.3.0-preview.1",
+  "audit": {
+    "documents": 11,
+    "sections": 187,
+    "inventory_items": 709,
+    "feature_groups": 49,
+    "dispositions": {
+      "implemented": 34,
+      "conditional": 6,
+      "bounded": 8,
+      "backlog": 1
+    }
+  },
+  "backend": {
+    "tests": 664,
+    "failures": 0,
+    "errors": 0,
+    "skipped": [
+      {
+        "test": "test_inner_symlink_is_allowed (test_cli_workspace.Paths.test_inner_symlink_is_allowed)",
+        "reason": "symlinks need developer mode / admin on Windows"
+      },
+      {
+        "test": "test_symlink_escape_is_refused (test_cli_workspace.Paths.test_symlink_escape_is_refused)",
+        "reason": "symlinks need developer mode / admin on Windows"
+      },
+      {
+        "test": "test_create_log_read (test_live_integrations.ClearMLLive.test_create_log_read)",
+        "reason": "set PHDLAB_CLEARML_LIVE=1 to run against a real ClearML server"
+      },
+      {
+        "test": "test_read_only_run (test_live_integrations.CodexLive.test_read_only_run)",
+        "reason": "set PHDLAB_CODEX_LIVE=1 to run one real read-only Codex task"
+      },
+      {
+        "test": "test_real_sdk_through_adapter_with_bounded_socket_fixture (test_research_engines.OfficialSDKSocket.test_real_sdk_through_adapter_with_bounded_socket_fixture)",
+        "reason": "Optional official SDK not installed; run with audited SDK source on PYTHONPATH"
+      },
+      {
+        "test": "test_workspace_paths_symlinks_missing_cli_no_model (test_research_workspace.ResearchWorkspace.test_workspace_paths_symlinks_missing_cli_no_model)",
+        "reason": "Symlink creation needs Windows Developer Mode/admin; traversal and overlap checks executed"
+      },
+      {
+        "test": "test_real_gate_and_manual_unload (test_vram_gate.LMStudioLive.test_real_gate_and_manual_unload)",
+        "reason": "set PHDLAB_LMSTUDIO_LIVE=1 (+ optional PHDLAB_LMSTUDIO_MODEL) to load/unload a real LM Studio model"
+      }
+    ],
+    "seconds": 386.0859308000072,
+    "passed": true
+  },
+  "frontend": {
+    "tests": 137,
+    "passed": 137,
+    "skipped": 0,
+    "coverage": {
+      "LF": 4365,
+      "LH": 4365,
+      "BRF": 3398,
+      "BRH": 3398,
+      "FNF": 1121,
+      "FNH": 1121,
+      "files": 14
+    },
+    "line_percent": 100,
+    "branch_percent": 100,
+    "function_percent": 100
+  },
+  "browser": {
+    "checks": 20,
+    "javascript_errors": 0
+  },
+  "harness": {
+    "executions": 8,
+    "cpu_reproduction": "passed",
+    "probes": [
+      {
+        "engine": "openscience",
+        "option": "--version",
+        "exit": 0
+      },
+      {
+        "engine": "openscience",
+        "option": "--help",
+        "exit": 0
+      },
+      {
+        "engine": "feynman",
+        "option": "--version",
+        "exit": 0
+      },
+      {
+        "engine": "feynman",
+        "option": "--help",
+        "exit": 0
+      }
+    ]
+  },
+  "software_checks_passed": true,
+  "all_upgrade_requirements_live_qualified": false,
+  "remaining_scope": "See docs/upgrade-reconciliation.md and feature-matrix.md; no stable scientific-autonomy certification"
+}

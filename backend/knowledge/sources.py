@@ -12,7 +12,9 @@ import httpx
 from backend.core.config import load_config
 from backend.knowledge import websearch as WS
 
-PROVIDER_IDS = ("openalex", "arxiv", "semantic_scholar", "crossref")
+from backend.knowledge.source_packs import IDS as PACK_IDS
+
+PROVIDER_IDS = ("openalex", "arxiv", "semantic_scholar", "crossref", *PACK_IDS)
 _rate_lock = threading.Lock()
 _next_request: dict[str, float] = {}
 
@@ -53,7 +55,7 @@ async def crossref(query: str, n: int, year: int, cfg: dict) -> list:
                     "abstract": re.sub(r"<[^>]+>", " ", w.get("abstract") or ""), "url": w.get("URL", ""),
                     "source": "Crossref", "publication_type": w.get("type", ""), "pdf_url": "",
                     "rights_note": "Publisher links are metadata, not open-access permission", "license": w.get("license") or [],
-                    "flags": ["expression_of_concern"] if w.get("update-to") else []})
+                    "flags": ["publication_update_notice"] if w.get("update-to") else []})
     return out
 
 
@@ -68,11 +70,22 @@ async def discover(profile: dict) -> dict:
         "semantic_scholar": lambda: WS.semantic_scholar(query, min(n, 30), cfg.get("s2_key", ""), year),
         "crossref": lambda: crossref(query, n, year, cfg),
     }
+    from backend.knowledge.source_packs import search as pack_search
+    calls.update({name: (lambda name=name: pack_search(name, query, n, year, cfg)) for name in PACK_IDS})
+    if any(p not in calls for p in profile["sources"]):
+        raise ValueError("Unknown scholarly source; edit Topic sources")
     results = await asyncio.gather(*(WS._safe(p, _paced(p, calls[p]), errors) for p in profile["sources"]))
     # Do not use title-only merging: distinct works/versions can have the same title.
     records = [batch[i] for i in range(max((len(batch) for batch in results), default=0))
                for batch in results if i < len(batch) and batch[i].get("title")]
-    records = [r for r in records if not r.get("year") or int(r["year"]) >= year]
+    eligible = []
+    for record in records:
+        try:
+            if not record.get("year") or int(record["year"]) >= year:
+                eligible.append(record)
+        except (TypeError, ValueError):
+            errors.append({"source": record.get("source", "unknown"), "error": "Invalid publication year; record omitted"})
+    records = eligible
     records = [r for r in records if not any(x.casefold() in (r["title"] + " " + str(r.get("abstract", ""))).casefold()
                                           for x in profile["exclusions"])]
     return {"records": records, "errors": errors, "query": query}

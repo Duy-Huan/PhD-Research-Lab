@@ -1,5 +1,7 @@
 # v6 upgrade handoff
 
+Follow-up reconciliation: [v5.1–v6.3 feature audit](upgrade-reconciliation.md) and [current validation](../artifacts/upgrade-reconciliation/validation.md) supersede earlier gap statements about keyword-only SKB retrieval, missing tags/citation graph, JSON-only Zotero input and 25-paper Mission report snapshots. Source-index venue coverage, optional parser dependencies and live scientific/hardware release gates remain explicit.
+
 Delivered as separate opt-in preview milestones: v6.0 supervised charters/lifecycle, v6.2 logical team harness and bounded reassignment, v6.3 durable workstream collaboration. The missing v6.1 assumption was implemented through compatibility models on existing tasks rather than a second orchestrator. Readiness audits, release guides and architecture/API/operator docs are under `docs/audits`, `docs/release-v6.*`, and `docs/architecture`.
 
 Restart PhD Lab to load the new backend/frontend, then open `/monitor`, `/team`, `/workstreams` inside the chat UI. All three Research OS flags default false; enable only the desired features, create an editable draft, review exact permissions/providers/billing/resources and approve it. A final technical review and separate scientific claim approval remain distinct. Existing legacy runs, chat, `/skills`, Paper Explorer, SKB, memory, independent native workspaces and custom Python/Docker routes are retained.
