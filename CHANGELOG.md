@@ -1,5 +1,71 @@
 # Changelog
 
+## v6.3.0-preview.1 — 2026-10-22
+
+- Added optional bounded workstream charters, schema-validated cross-team evidence messages/receipts, partitioned resource accounting, optimistic canonical output revisions and human dispute resolution on the existing Mission runtime.
+- Findings reuse scientific claim governance without automatic memory promotion. Task reports have separate owned paths. Recovery now resumes committed task boundaries while uncertain admissions still require reconciliation.
+- Added Workstreams UI and three-workflow comparative harness with raw CPU/audit artifacts. Schema 7 backs up schema 6; `research_os.multi_team_enabled=false` remains the default. Teams execute serially; stable live scientific autonomy is not claimed.
+
+## v6.2.0-preview.1 — 2026-10-22
+
+- Added the missing v6.1 compatibility harness as typed logical roles/assignments on existing Missions, deterministic single/fixed/adaptive proposals, durable task envelopes and independent raw-evidence verification.
+- Added bounded failure reassignment into a fresh draft with remaining budgets, capability outcome counts, Team Monitor and a comparative three-workflow harness. Execution remains serial; no multi-agent productivity advantage is claimed.
+- Schema 6 preserves a schema5 backup; `research_os.team_enabled=false` by default. Native/provider and parallel execution qualification remain explicit external gates.
+
+## v6.0.0-preview.1 — 2026-10-22
+
+- Added opt-in supervised lifecycle, immutable project charters, explicit cross-topic report grants, scheduling/deadlines/review and charter budget accounting on the existing Mission worker.
+- Fixed-backend reasoning never silently falls back to a paid API; opaque native billing requires explicit approval. Quota errors persist a cooldown. Added Mission Monitor, report/artifact APIs and reproducible research harness.
+- SQLite schema 5 backs up schema 4. This remains experimental pending live scientific pilot, Docker/GPU and native-provider qualification.
+
+## v5.6.0-preview.1 — 2026-10-22
+
+- Added immutable scientific claim/evidence revisions, deterministic page quote/citation checks, explicit Crossref resolution, independent numerical artifact verification and fresh-process reproduction checks.
+- Added Review Room (`/claims`), human decisions with append-only audit, scoped claim context and verification-status appendices in manuscript exports. No automatic promotion into memory or publication.
+- SQLite schema 4 backs up v3 before migration. Hardened mission discovery/download accounting, protocol snapshots and missing-engine failure recording. See `docs/release-v5.6.md` for qualification limits and evidence.
+
+## v5.5.0-preview.1 — 2026-10-22
+
+- Added immutable versioned experiment protocols, generated dataset/split fingerprints, single-use approval nonces, fixed baselines, multi-seed trials, actual per-sample MSE/PSNR artifacts and validation-only candidate selection.
+- Added bounded trusted Python and pinned-image offline Docker worker contracts, existing CPU resource admission, cancellation/time/storage limits, retained negative/failed/interrupted trials and explicit reproduction approval. No arbitrary generated code, GPU or paid inference is enabled.
+- Added Experiments drawer and `/experiment`, linked protocol execution through the v5.4 mission gateway. Schema 3 migration backs up v2. Existing custom experiment/Optuna/ClearML workflows remain available separately.
+
+## v5.4.0-preview.1 — 2026-10-22
+
+- Added typed capability/skill descriptors, validated Topic Mission DAGs, explicit engine routing/fallback, digest-bound expiring approvals, admission keys, bounded reasoning/time/delegation and append-only hash-linked audit events.
+- Existing research worker drives missions sequentially; completed steps do not rerun, uncertain admissions require reconciliation and fresh approval. Added a Missions drawer and deterministic `/mission` action.
+- Additive SQLite schema 2 migration saves a v1 backup. Existing chat, native engines, research runs, SKB and memory remain separate. Arbitrary shell/code/GPU tasks are not enabled by this new gateway.
+
+## v5.3.0-preview.1 — 2026-10-21 — Topic SKB and federated workspaces
+
+- Audited the five v5.1–v5.3 target documents against the existing checkout. Preserved project folders, chats, legacy library, memory and existing engine dispatch.
+- Added project-scoped SQLite topics, DOI/arXiv aliases, source versions, independent topic curation, L0–L4 audit events, bounded content-addressed PDFs and page evidence indexed with FTS5/BM25. Crossref discovery and Unpaywall resolution complement existing scholarly clients.
+- Added persisted deterministic discovery/download/index/sync jobs, UTC schedules, quotas, cancellation, explicit retry and restart interruption reporting. Scientific ingestion never calls a paid LLM or auto-promotes claims to trusted memory.
+- Added independent OpenScience/Feynman workspace registration, safe relinking, bounded offline reconciliation, hashes, version history, tombstones, text snapshots, transparency reports and user-reviewed findings with evidence links.
+- Added a compact Topic/SKB drawer, quick-action contributions, filters/pagination, bulk curation/download, context chips and scoped Topic chat. Existing project-scoped tools/memory extraction stay unavailable in Topic chat until they support that scope.
+- Added read-only Zotero JSON import/BibTeX export, optional local-artifact Docling subprocess and approval-required bounded Optuna helper. Optional catalogs and live acceptance remain explicitly tracked in docs/v5.3.
+
+## OpenScience integration preview — 2026-10-21
+
+- Added a typed research-engine boundary and lazy Feynman/OpenScience adapters. OpenScience uses the pinned official source-preview Python SDK against an externally managed loopback runtime; native skills remain upstream.
+- Added opt-in routing modes, explicit approvals, durable admission/recovery journals, bounded event observation, live once/reject decisions, cancellation settlement and checksum-verified artifact collection in existing research runs/chat.
+- Added evidence manifests and existing Results pin proposals without claiming generated output is a verified ClearML experiment. Default chat/Feynman behavior is retained while disabled.
+- Audited upstream commit `d720862157d146d52b6faae1e5aff9d3973ed918`; real isolated protocol/auth/policy checks passed on installed runtime 2.0.152 without model inference. Scientific acceptance and supervised ClearML compute handoff remain pending. See `docs/openscience-integration.md`.
+
+## v5.1.0 — 2026-10-21 — Chat tools, notes, export, EN/VI, GitHub skill plugins, AI-Scientist-v2, automatic ranking
+
+- **Chat tools**: interactive charts (```` ```chart ````: line / bar / scatter / area, error bars, data table, PNG/SVG), sanitised SVG figures and mermaid diagrams (vendored, loaded on demand). The agents are told how to produce them and to plot only measured or given values.
+- **Notes on answers**: select a passage or click a chart point to pin a note; highlights and numbered badges in the answer, a Notes panel (resolve, edit, delete, jump), "Send notes to AI". API: `/api/chat/sessions/{sid}/notes`.
+- **Export** of an answer or a whole conversation to PDF (headless Edge/Chrome, print-dialog fallback), Word .docx (pure Python WordprocessingML with figures), LaTeX (.tex / .zip with figures), Markdown and HTML (`POST /api/export`; copies in `workspace/exports/`).
+- **Interface language** Tiếng Việt / English (Settings → Appearance & language): all UI strings, app-written messages (help, status, run notices), skill titles, and the language the agents answer in. Answer font Sans (default, best for Vietnamese) or Serif; Palatino/Charter, which misplace stacked Vietnamese diacritics, are no longer used.
+- **GitHub skill plugins** stored in `data/plugins/` (one commit snapshot, zip-slip / link / size checks, never executed), Agent Skills `SKILL.md` and PhD Lab skill files, enabled per project, per-skill switches, update and remove.
+- **AI-Scientist-v2 integration** (paper writing backend): prompts read from the repository source with `ast`; `/ais-idea`, `/ais-review`, `/ais-write` and a full manuscript in the ICML / ICBINB template (Write paper panel) with bibliography check, PDF compile and the license-required disclosure.
+- **Automatic venue ranking**: CORE conference ranks downloaded and refreshed automatically; SCImago CSVs saved in Downloads imported by themselves; ranking badges in search results and the library, "Check rankings" for the whole library, venue lookup in the review settings. Data moved to `data/plugins/ranking/` (the old file migrates).
+- **Paper review**: a Revision guide stage (step-by-step fixes per issue, plan, criteria, checklist) with an automatic fallback; guide, report, fixes and response letter download as .md, .pdf, .docx or .tex.
+- **System status**: the acceptance checklist table was removed from the dashboard.
+- **Performance**: answers render keyed (unchanged messages, run cards, charts and text selections are never rebuilt on refresh), streamed text is painted once per frame with the first words at once, Markdown is cached, off-screen messages skip layout (`content-visibility`), refresh bursts are coalesced, the conversation list refresh is debounced.
+- **Fixes**: provider labels updated when the model list arrives; buttons of a proposal stayed disabled after a failed decision; `PL.prompt` Enter left a key listener behind; download icon; a half-streamed code fence swallowed the rest of the answer; keyboard navigation in popup menus.
+
 ## v5.0.0 — 2026-10-21 — Unified research chat and continued refactor
 
 - Replaced the former tabbed frontend with project chat, a minimal dashboard, manuscript review and centralized Settings. The terminal chat uses the same backend state and approval rules.

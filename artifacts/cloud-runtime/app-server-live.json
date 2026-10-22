@@ -1,0 +1,37 @@
+{
+  "live": true,
+  "transport": "app-server",
+  "samples": [
+    {
+      "provider": "codex",
+      "run": "cold",
+      "status": "failed",
+      "timings_ms": {
+        "context": 14.29,
+        "prepare": 280.45
+      },
+      "consumer_first_token_ms": null,
+      "native_session": false,
+      "resumed": false,
+      "errors": [
+        "ChatGPT (OpenAI Codex CLI) is AUTH_EXPIRED: run `codex login` (ChatGPT sign-in)"
+      ]
+    },
+    {
+      "provider": "codex",
+      "run": "warm",
+      "status": "failed",
+      "timings_ms": {
+        "context": 8.35,
+        "prepare": 14.6
+      },
+      "consumer_first_token_ms": null,
+      "native_session": false,
+      "resumed": false,
+      "errors": [
+        "ChatGPT (OpenAI Codex CLI) is AUTH_EXPIRED: run `codex login` (ChatGPT sign-in)"
+      ]
+    }
+  ],
+  "definition": "cold=first request; warm=same workspace/native session, fresh CLI process; no daemon reuse"
+}

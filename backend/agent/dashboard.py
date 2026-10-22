@@ -67,6 +67,8 @@ def status(advanced: bool = False) -> dict:
            "next_decision": (waiting[0]["text"] or waiting[0]["title"]) if waiting else "",
            "pins": [p for p in pins.list_pins() if p["status"] != "deprecated"][-8:][::-1],
            "recent_runs": runs.list_runs(limit=8)}
+    from backend.execution.remote_compute import list_runs as compute_runs
+    out["compute_runs"] = compute_runs()[:8]
     if advanced:
         from backend.execution import guard
         from backend.providers.research import describe_all
@@ -86,20 +88,23 @@ def status(advanced: bool = False) -> dict:
 
 
 def status_text() -> str:
+    from backend.core.i18n import L
     d = status()
-    lines = [f"**Dự án:** {d['project']}", f"**Mục tiêu:** {d['goal'] or '(chưa có — bắt đầu bằng /outline)'}",
-             f"**Đề cương:** cấp {d['outline_level']}/5" + (f" · {d['outline_label']}" if d['outline_label'] else "")]
+    lines = [L("**Dự án:** ", "**Project:** ") + d["project"],
+             L("**Mục tiêu:** ", "**Goal:** ") + (d["goal"] or L("(chưa có — bắt đầu bằng /outline)", "(none yet — start with /outline)")),
+             L(f"**Đề cương:** cấp {d['outline_level']}/5", f"**Outline:** level {d['outline_level']}/5")
+             + (f" · {d['outline_label']}" if d['outline_label'] else "")]
     if d["current"]:
         c = d["current"]
-        lines.append(f"**Đang chạy:** {c['title']} — {c['step']} ({c['provider']}) · {c['status']} · {c['progress']}")
+        lines.append(L("**Đang chạy:** ", "**Running:** ") + f"{c['title']} — {c['step']} ({c['provider']}) · {c['status']} · {c['progress']}")
     else:
-        lines.append("**Đang chạy:** không có")
+        lines.append(L("**Đang chạy:** không có", "**Running:** nothing"))
     if d["pending"]:
-        lines.append(f"**Cần bạn duyệt ({len(d['pending'])}):**")
+        lines.append(L(f"**Cần bạn duyệt ({len(d['pending'])}):**", f"**Waiting for your approval ({len(d['pending'])}):**"))
         lines += [f"- {p['title']} — {p['text'][:140]}" for p in d["pending"][:6]]
     if d["pins"]:
-        lines.append("**Kết quả đã ghim:**")
+        lines.append(L("**Kết quả đã ghim:**", "**Pinned results:**"))
         lines += [f"- [{p['status']}] {p['title']}" for p in d["pins"][:6]]
     if d["next_decision"]:
-        lines.append(f"**Quyết định tiếp theo:** {d['next_decision']}")
+        lines.append(L("**Quyết định tiếp theo:** ", "**Next decision:** ") + d["next_decision"])
     return "\n".join(lines)

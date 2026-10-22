@@ -32,6 +32,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 from pathlib import Path
 
 from backend.execution.tools import NO_WINDOW, cached, node_argv, run_cli, which
@@ -77,6 +78,8 @@ def kill_tree(proc) -> None:
         if proc.poll() is not None:
             return
         if sys.platform.startswith("win"):
+            from backend.execution.processes import stop_descendants
+            stop_descendants(proc)
             try:
                 subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)], capture_output=True,
                                creationflags=NO_WINDOW, timeout=5)
@@ -85,7 +88,11 @@ def kill_tree(proc) -> None:
             if proc.poll() is None:
                 proc.kill()  # taskkill may be denied or unavailable; still terminate our own child promptly
         else:  # pragma: no cover - POSIX
-            proc.kill()
+            import signal
+            if os.getpgid(proc.pid) == proc.pid:
+                os.killpg(proc.pid, signal.SIGKILL)
+            else:
+                proc.kill()
     except Exception:  # pragma: no cover
         pass
 
@@ -94,7 +101,9 @@ def _drain(stream, out: list) -> None:
     try:
         for line in iter(stream.readline, ""):
             if line.strip():
-                out.append(line.strip()[:300])
+                from backend.core.telemetry import redact
+                out.append(redact(line.strip())[:300])
+                del out[:-128]
     except (ValueError, OSError):  # pipe closed when the request ended
         pass
 
@@ -215,6 +224,10 @@ class CLIConnector(ProviderConnector):
         if h["state"] in ("DISCONNECTED", "UNAVAILABLE", "ERROR"):
             raise ProviderError(f"{self.label} is {h['state']}: {h['detail']}", h["state"])
         rid = context.get("request_id") or "req-" + secrets.token_hex(6)
+        context.setdefault("request_id", rid)
+        if context.get("_cancel") and context["_cancel"].is_set():
+            yield E.ev("request_cancelled", provider=self.provider_id, request_id=rid)
+            return
         from backend.providers import cli_space as W
         profile = context.get("profile") or "review"
         if not context.get("cwd"):  # never the project / app folder: an ad-hoc session workspace instead
@@ -229,15 +242,29 @@ class CLIConnector(ProviderConnector):
         from backend.providers import firewall
         mcp = {"url": context["mcp_url"], "token": context.get("mcp_token", "")} if context.get("mcp_url") else None
         extra = firewall.prepare_workspace(self.provider_id, cwd, mcp)["argv"]
+        if self.provider_id == "codex" and _gw().get("codex_app_server", False):
+            from backend.providers.app_server import stream, StartupFailure
+            try:
+                yield from stream(self, message, context, extra)
+                return
+            except StartupFailure:
+                # No turn was submitted. Once submitted, recovery must never replay the prompt automatically.
+                yield E.ev("status", state="transport_fallback", transport="codex-exec")
         args = self.argv(context)
         args = (args[:-1] + extra + ["-"]) if args and args[-1] == "-" else args + extra
+        launch = time.perf_counter()
         try:
             proc = subprocess.Popen(args, cwd=str(cwd), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                    text=True, encoding="utf-8", errors="replace", bufsize=1, env=self.env(), creationflags=NO_WINDOW)
+                                    text=True, encoding="utf-8", errors="replace", bufsize=1, env=self.env(), creationflags=NO_WINDOW,
+                                    start_new_session=os.name != "nt")
         except OSError as e:
             raise ProviderError(f"Could not start {self.binaries[0]}: {e}", "UNAVAILABLE")
         with _lock:
             _procs[rid] = proc
+        context.setdefault("_timings_ms", {})["cli_startup"] = round((time.perf_counter() - launch) * 1000, 2)
+        if context.get("_cancel") and context["_cancel"].is_set():
+            proc._phd_cancelled = True
+            kill_tree(proc)
         err_lines: list = []
         context["_stderr"] = err_lines
         threading.Thread(target=_drain, args=(proc.stderr, err_lines), daemon=True).start()
@@ -262,6 +289,7 @@ class CLIConnector(ProviderConnector):
                 line = line.strip()
                 if not line:
                     continue
+                context["_timings_ms"].setdefault("first_cli_event", round((time.perf_counter() - launch) * 1000, 2))
                 try:
                     raw = json.loads(line)
                 except ValueError:
@@ -302,9 +330,13 @@ class CLIConnector(ProviderConnector):
         finally:
             watchdog.cancel()
             kill_tree(proc)  # consumer gone / exception: no orphaned CLI or child process stays behind
+            try:
+                proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                pass
             with _lock:
                 _procs.pop(rid, None)
-            for f in (proc.stdout, proc.stderr):
+            for f in (proc.stdin, proc.stdout, proc.stderr):
                 try:
                     f.close()
                 except Exception:
@@ -495,6 +527,7 @@ class GeminiCliConnector(CLIConnector):
     path = "Gemini CLI signed in with a Google account (being replaced by the Antigravity CLI for some account types)"
     binaries, binary_key, normalizer, login_cmd = ("gemini",), "gemini_binary", "gemini", "gemini"
     api_env = ("GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GENAI_USE_VERTEXAI", "GOOGLE_APPLICATION_CREDENTIALS")
+    supports_resume = True
 
     def setup(self) -> list:
         return ["npm install -g @google/gemini-cli", "run `gemini` once and choose 'Login with Google'"]
@@ -504,6 +537,8 @@ class GeminiCliConnector(CLIConnector):
                 "--output-format", "stream-json"]
         if context.get("model"):
             args += ["--model", str(context["model"])[:80]]
+        if context.get("resume_session") and re.fullmatch(r"[\w-]{6,80}", context["resume_session"]):
+            args += ["--resume", context["resume_session"]]
         return args
 
 ALL_API_ENV = set(CodexConnector.api_env) | set(ClaudeCodeConnector.api_env) | set(AntigravityConnector.api_env)     | set(GeminiCliConnector.api_env)

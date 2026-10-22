@@ -2,6 +2,8 @@
 name: idea
 title: Chạy thử ý tưởng
 description: Ý tưởng → kế hoạch → code → chạy thử (venv, guard phần cứng) → kiểm chứng metrics → báo cáo
+title_en: Try an idea
+description_en: Quickly test an idea as a small experiment
 usage: <ý tưởng>
 category: experiment
 agent: research

@@ -58,6 +58,7 @@ def _summary(s: dict) -> dict:
     return {"id": s["id"], "title": s["title"], "created": s["created"], "updated": s["updated"], "status": s["status"],
             "archived": s["archived"], "binding": s["binding"], "provider": s["settings"].get("provider", ""),
             "messages": len(s["messages"]), "pending_approvals": sum(1 for a in s["approvals"] if a["status"] == "pending"),
+            "topic_id": s.get("topic_id", ""),
             "last": (last or {}).get("content", "")[:160]}
 
 
@@ -117,6 +118,72 @@ def list_sessions(module: str = "", entity_id: str = "", q: str = "", archived: 
             continue
         out.append(_summary(s))
     return sorted(out, key=lambda x: -x["updated"])[:limit]
+
+
+NOTE_FIELDS = {"message_id": 64, "quote": 2000, "prefix": 120, "suffix": 120, "text": 4000}
+
+
+def pin_message(sid: str, mid: str, pinned: bool) -> dict:
+    """Pin an existing message in its own project/session, separate from research results."""
+    if not isinstance(pinned, bool):
+        raise AIWSError("pinned must be a boolean")
+
+    def change(s):
+        message = next((m for m in s["messages"] if m["id"] == mid), None)
+        if message is None:
+            raise AIWSError("Message not found")
+        message["pinned"] = pinned
+    update(sid, change)
+    emit(sid, "session.updated", field="messages")
+    return get(sid)
+
+
+def _clean_note(body: dict) -> dict:
+    n = {k: str(body.get(k) or "")[:limit] for k, limit in NOTE_FIELDS.items() if k in body}
+    if isinstance(body.get("point"), dict):  # a data point of a chart: {chart, series, x, y, label}
+        n["point"] = {k: str(v)[:120] for k, v in body["point"].items() if k in ("chart", "series", "x", "y", "label")}
+    if body.get("status") in ("open", "resolved"):
+        n["status"] = body["status"]
+    return n
+
+
+def add_note(sid: str, body: dict) -> dict:
+    """A researcher's note pinned to a passage or a chart point of a message (shown as a highlight in the answer)."""
+    n = _clean_note(body)
+    if not n.get("message_id") or not (n.get("quote") or n.get("point")):
+        raise AIWSError("A note needs the message and the passage (or chart point) it refers to")
+    note = {"id": new_id("nt", 4), "created": now(), "status": "open", "text": "", **n}
+
+    def fn(s):
+        if not any(m["id"] == note["message_id"] for m in s["messages"]):
+            raise AIWSError("Message not found in this conversation")
+        s.setdefault("notes", []).append(note)
+        return note
+    out = update(sid, fn)
+    emit(sid, "session.updated", note=note["id"])
+    return out
+
+
+def update_note(sid: str, nid: str, body: dict) -> dict:
+    patch = {k: v for k, v in _clean_note(body).items() if k in ("text", "status")}
+
+    def fn(s):
+        n = next((x for x in s.get("notes") or [] if x["id"] == nid), None)
+        if not n:
+            raise AIWSError("Note not found")
+        n.update(patch, updated=now())
+        return n
+    return update(sid, fn)
+
+
+def delete_note(sid: str, nid: str) -> dict:
+    def fn(s):
+        before = len(s.get("notes") or [])
+        s["notes"] = [x for x in s.get("notes") or [] if x["id"] != nid]
+        if len(s["notes"]) == before:
+            raise AIWSError("Note not found")
+        return {"deleted": nid}
+    return update(sid, fn)
 
 
 def rename(sid: str, title: str) -> dict:
@@ -183,6 +250,8 @@ def fork(sid: str, message_id: str = "") -> dict:
         x["messages"] = [dict(m) for m in msgs]
         x["forked_from"] = {"session": sid, "message": message_id or (msgs[-1]["id"] if msgs else "")}
         x["selected_sources"] = list(src.get("selected_sources") or [])
+        if src.get("topic_id"):
+            x["topic_id"] = src["topic_id"]
         return x
     return update(s["id"], fn)
 

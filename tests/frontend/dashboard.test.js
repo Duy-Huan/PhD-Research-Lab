@@ -1,6 +1,6 @@
 'use strict';
 // dashboard.js: the minimal tracking page (goal, current step, status, next decision, pending work, pins, recent runs)
-// and its "advanced" section (hardware guard, GPU / VRAM, providers, acceptance evidence, research state).
+// and its system status section (hardware guard, GPU / VRAM, providers, research state).
 const test = require('node:test');
 const assert = require('node:assert');
 const {boot, R, fixtures} = require('./harness');
@@ -24,7 +24,8 @@ test('tiles, pending work, recent runs; tiles and rows open the right place', as
   det.open = true;
   det.dispatchEvent(new h.w.Event('toggle'));
   await h.idle(40);
-  assert.match(det.textContent, /Nghiệm thu AI Research OS · 20\d\d-/);
+  assert.ok(!det.textContent.includes('Nghiệm thu'));  // the acceptance checklist is no longer part of the system status
+  assert.match(det.textContent, /Guard phần cứng/);
   tiles[0].click();
   await h.idle(40);
   assert.strictEqual(h.$('#panel-title').textContent, 'Đề cương nghiên cứu');
@@ -85,7 +86,7 @@ test('a running project: current step, run in pending work, pins with their menu
   assert.match(h.$$('.tile')[2].textContent, /something/);
 });
 
-test('advanced details: guard slots, GPU, models in VRAM, providers, acceptance, research state, unload', async () => {
+test('advanced details: guard slots, GPU, models in VRAM, providers, research state, unload (no acceptance checklist)', async () => {
   const adv = {...fixtures.get('GET /api/dashboard?advanced=1')};
   adv.resources.gpu.held_by = ['RR-1:S2'];
   adv.gpus.push({name: '', vram_total_mb: 0});
@@ -102,7 +103,6 @@ test('advanced details: guard slots, GPU, models in VRAM, providers, acceptance,
   for (const s of ['RR-1:S2', 'RTX 3060', '1030 / 12288 MB', '41°C', 'GPU', '? °C'.replace(' ', ''), 'Trong VRAM: ollama: qwen', 'Feynman', 'NOT_CONFIGURED',
     '1 quyết định', '1 giả thuyết']) assert.ok(t.includes(s), s);
   assert.ok(!t.includes('Nghiệm thu AI Research OS ·'));
-  assert.strictEqual([...det.querySelectorAll('table')[1].querySelectorAll('.chip')].map((c) => c.className).join(' '), 'chip ok chip err chip warn');
   assert.ok(det.querySelectorAll('.li .dot.ok').length >= 1);
   assert.ok(det.querySelectorAll('.li .dot.warn').length >= 1);
   await h.clickText('details.adv button', 'Unload tất cả', 20);
@@ -113,7 +113,8 @@ test('advanced details: guard slots, GPU, models in VRAM, providers, acceptance,
   det.open = false;
   det.dispatchEvent(new h.w.Event('toggle'));
   await h.idle(20);
-  assert.strictEqual(h.server.calledWith('GET', '/api/acceptance').length, 1);
+  assert.strictEqual(h.server.calledWith('GET', '/api/acceptance').length, 0);
+  assert.strictEqual(h.server.calledWith('GET', '/api/research').length, 1);
 });
 
 test('advanced details when everything is unavailable', async () => {

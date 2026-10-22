@@ -2,6 +2,8 @@
 name: latex
 title: Xuất PDF
 description: Ghép các phần đã duyệt thành LaTeX và biên dịch PDF
+title_en: Export PDF
+description_en: Assemble the accepted sections into LaTeX and compile the PDF
 category: writing
 agent: research
 mode: run

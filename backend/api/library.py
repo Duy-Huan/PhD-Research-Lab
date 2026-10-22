@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse, PlainTextResponse
 from backend.api.common import call
 from backend.core import bus
 from backend.core.config import data_dir, load_config, project_scope, refs_dir
-from backend.knowledge.library import (PDF_BACKEND, build_bibtex, first_pages_text, load_library, merge_llm_metadata,
+from backend.knowledge.library import (PDF_BACKEND, build_bibtex, first_pages_text, ingest_pdf, load_library, merge_llm_metadata,
                                        save_library, scan_directory)
 
 router = APIRouter()
@@ -86,16 +86,15 @@ async def library():
 
 @router.post("/api/library/upload")
 async def upload(files: list[UploadFile] = File(...)):
-    rdir = refs_dir()
     saved, skipped = [], []
     for f in files:
         name = re.sub(r"[^\w.\- ()\[\]]", "_", Path(f.filename or "").name)
-        data = await f.read()
+        data = await f.read(30 * 1024 * 1024 + 1)
         if not name.lower().endswith(".pdf") or not data.startswith(b"%PDF"):
             skipped.append(name)
             continue
-        (rdir / name).write_bytes(data)
-        saved.append(name)
+        entry = await call(ingest_pdf, f.filename or name, data)
+        saved.append(entry["file"])
     res = await run_in_threadpool(scan_directory)
     if saved:
         bus.publish("library.updated", added=len(saved))

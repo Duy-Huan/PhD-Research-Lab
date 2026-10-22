@@ -2,6 +2,8 @@
 name: write
 title: Viết bài
 description: Viết / sửa một phần của bài báo theo yêu cầu và văn phong của bạn (bạn duyệt trước khi lưu)
+title_en: Write
+description_en: Write / revise a paper section in your style (you approve before it is saved)
 usage: <phần> [yêu cầu văn phong]
 category: writing
 agent: research

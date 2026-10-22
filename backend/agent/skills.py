@@ -20,6 +20,8 @@ A skill is a Markdown file with a small front matter block and the instructions 
 
 Lookup order (a later layer overrides an earlier one with the same name):
     backend/agent/skills/*.md     built-in skills
+    <data>/plugins/<id>/          skills of GitHub plugins enabled in this project (backend/plugins; never override a
+                                  built-in skill — a clashing plugin skill is renamed <plugin>-<name>)
     <data>/skills/*.md            the researcher's skills for every project
     <project>/skills/*.md         skills of the active research project
 A skill never grants rights: risk only decides whether the researcher must accept before anything runs.
@@ -36,7 +38,7 @@ NAME_RE = re.compile(r"^[a-z][a-z0-9_-]{1,30}$")
 CATEGORIES = ("research", "experiment", "writing", "system")
 AGENTS = ("research", "reviewer")
 MODES = ("chat", "run")
-PROVIDERS = ("app", "feynman", "coding")
+PROVIDERS = ("app", "feynman", "coding", "openscience")
 CMD_RE = re.compile(r"^/([a-z][a-z0-9_-]{0,30})(?:\s+([\s\S]*))?$")
 _cache: dict = {}
 
@@ -75,6 +77,7 @@ def parse(text: str, origin: str = "builtin") -> dict:
          "pipeline": str(meta.get("pipeline") or ""), "provider": meta.get("provider") or "app",
          "feynman": str(meta.get("feynman") or ""), "risk": meta.get("risk", 0),
          "aliases": [a for a in (meta.get("aliases") or []) if NAME_RE.match(str(a))], "origin": origin,
+         "title_en": str(meta.get("title_en") or "")[:80], "description_en": str(meta.get("description_en") or "")[:300],
          "instructions": m.group(2).strip()}
     for key, allowed in (("category", CATEGORIES), ("agent", AGENTS), ("mode", MODES), ("provider", PROVIDERS)):
         if s[key] not in allowed:
@@ -101,14 +104,32 @@ def _stamp(dirs: list) -> tuple:
     return tuple(out)
 
 
+def _plugin_skills(skills: dict, errors: list) -> None:
+    from backend import plugins
+    try:
+        found = plugins.project_skills()
+    except Exception as e:  # a damaged plugin folder never disables the built-in commands
+        errors.append({"file": "plugins", "origin": "plugin", "error": str(e)[:200]})
+        return
+    for s in found:
+        s = dict(s)
+        if skills.get(s["name"], {}).get("origin") == "builtin":
+            short = re.sub(r"[^a-z0-9]", "", s["plugin"].split("-")[-1])[:8] or "plugin"
+            s["name"] = f"{short}-{s['name']}"[:31].rstrip("-_")
+        skills[s["name"]] = s
+
+
 def load() -> dict:
     """name → skill (aliases resolved separately). Files that do not parse are reported, never fatal."""
+    from backend import plugins
     dirs = _dirs()
-    key = _stamp(dirs)
+    key = (_stamp(dirs), plugins.stamp())
     if _cache.get("key") == key:
         return _cache["skills"]
     skills, errors = {}, []
     for d, origin in dirs:
+        if origin == "user":
+            _plugin_skills(skills, errors)
         if not d.is_dir():
             continue
         for f in sorted(d.glob("*.md")):

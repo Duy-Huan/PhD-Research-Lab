@@ -2,22 +2,23 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PhD Research Lab</title>
 <meta name="description" content="AI research operating system — one chat for the whole research project">
+<meta name="color-scheme" content="light dark">
 <link rel="icon" type="image/png" href="/img/favicon-32.png">
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-<script>try { var t = localStorage.getItem("pl.theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<script src="/assets/appearance-init.js"></script>
 <link rel="stylesheet" href="/assets/app.css">
 </head>
 <body>
 <div id="app">
-  <aside id="side" aria-label="Thanh bên">
+  <aside id="side" data-t-aria="Thanh bên" aria-label="Thanh bên">
     <div class="brand">
-      <img src="/img/logo-64.png" alt="">
-      <div><b>PhD Research Lab</b><small>AI research OS</small></div>
+      <img src="/img/logo-64.png" alt="" width="28" height="28">
+      <div><b>PhD Research Lab</b><small data-t="Hệ điều hành nghiên cứu AI">Hệ điều hành nghiên cứu AI</small></div>
       <span class="grow"></span>
-      <button class="icon" id="side-toggle" title="Thu gọn thanh bên" aria-label="Thu gọn thanh bên" data-i="sidebar"></button>
+      <button class="icon" id="side-toggle" data-t-title="Thu gọn thanh bên" data-t-aria="Thu gọn thanh bên" title="Thu gọn thanh bên" aria-label="Thu gọn thanh bên" data-i="sidebar"></button>
     </div>
     <div class="side-project">
       <button class="proj-btn" id="proj-btn" aria-haspopup="menu">
@@ -25,36 +26,41 @@
         <span data-i="chev"></span>
       </button>
     </div>
-    <div class="side-new"><button class="btn" id="new-chat"><span data-i="plus"></span>Cuộc trò chuyện mới</button></div>
-    <div class="side-search"><input type="search" id="search" placeholder="Tìm cuộc trò chuyện…" aria-label="Tìm cuộc trò chuyện"></div>
-    <nav id="threads" aria-label="Cuộc trò chuyện"></nav>
+    <div class="side-project-actions"><button class="btn sm ghost" id="projects-btn" data-t="Dự án & hội thoại">Dự án & hội thoại</button><button class="icon" id="create-project" data-i="plus" data-t-title="Tạo dự án" data-t-aria="Tạo dự án"></button></div>
+    <div class="side-new"><button class="btn" id="new-chat"><span data-i="plus"></span><span data-t="Cuộc trò chuyện mới">Cuộc trò chuyện mới</span></button></div>
+    <div class="side-search"><input type="search" id="search" data-t-placeholder="Tìm cuộc trò chuyện…" data-t-aria="Tìm cuộc trò chuyện" placeholder="Tìm cuộc trò chuyện…" aria-label="Tìm cuộc trò chuyện"></div>
+    <nav id="threads" data-t-aria="Cuộc trò chuyện" aria-label="Cuộc trò chuyện"></nav>
     <div class="side-nav">
-      <button class="nav" data-go="dashboard"><span data-i="gauge"></span>Theo dõi<span class="count" id="pending-count"></span></button>
-      <button class="nav" data-go="library"><span data-i="book"></span>Tài liệu</button>
-      <button class="nav" data-go="code"><span data-i="code"></span>Thí nghiệm · VS Code</button>
-      <button class="nav" data-go="review"><span data-i="review"></span>Phản biện bài báo</button>
-      <button class="nav" data-go="settings"><span data-i="gear"></span>Cài đặt</button>
+      <button class="nav" data-go="dashboard"><span data-i="gauge"></span><span data-t="Theo dõi">Theo dõi</span><span class="count" id="pending-count"></span></button>
+      <button class="nav" data-go="library"><span data-i="book"></span><span data-t="Tài liệu">Tài liệu</span></button>
+      <button class="nav" data-go="research"><span data-i="brain"></span><span data-t="Chủ đề · Cơ sở tri thức">Chủ đề · Cơ sở tri thức</span></button>
+      <button class="nav" data-go="paper"><span data-i="paper"></span><span data-t="Viết bài báo">Viết bài báo</span></button>
+      <button class="nav" data-go="code"><span data-i="code"></span><span data-t="Thí nghiệm · VS Code">Thí nghiệm · VS Code</span></button>
+      <button class="nav" data-go="review"><span data-i="review"></span><span data-t="Phản biện bài báo">Phản biện bài báo</span></button>
+      <button class="nav" data-go="settings"><span data-i="gear"></span><span data-t="Cài đặt">Cài đặt</span></button>
     </div>
   </aside>
 
   <main id="main">
-    <div class="banner" id="offline" hidden><span data-i="alert"></span><span>Mất kết nối tới máy chủ PhD Lab — đang thử kết nối lại…</span></div>
+    <div class="banner" id="offline" hidden><span data-i="alert"></span><span data-t="Mất kết nối tới máy chủ PhD Lab — đang thử kết nối lại…">Mất kết nối tới máy chủ PhD Lab — đang thử kết nối lại…</span></div>
     <header id="top">
-      <button class="icon" id="side-open" title="Mở thanh bên" aria-label="Mở thanh bên" data-i="sidebar"></button>
+      <button class="icon" id="side-open" data-t-title="Mở thanh bên" data-t-aria="Mở thanh bên" title="Mở thanh bên" aria-label="Mở thanh bên" data-i="sidebar"></button>
       <span class="title" id="title"></span>
       <span class="crumb" id="crumb"></span>
       <span class="grow"></span>
-      <span class="dot" id="live" title="Đồng bộ với CLI"></span>
-      <button class="icon" id="panel-btn" title="Bảng kết quả" aria-label="Bảng kết quả" data-i="panel"></button>
+      <button class="btn sm ghost" id="topic-btn" type="button">Topic · Dự án</button>
+      <span id="top-tools" class="row"></span>
+      <span class="dot" id="live" data-t-title="Đồng bộ với CLI" title="Đồng bộ với CLI"></span>
+      <button class="icon" id="panel-btn" data-t-title="Bảng kết quả" data-t-aria="Bảng kết quả" title="Bảng kết quả" aria-label="Bảng kết quả" data-i="panel"></button>
     </header>
     <div id="view"></div>
   </main>
 
-  <aside id="panel" hidden aria-label="Chi tiết">
+  <aside id="panel" hidden data-t-aria="Chi tiết" aria-label="Chi tiết">
     <div class="panel-h">
       <span class="ttl" id="panel-title"></span>
       <span id="panel-actions" class="row"></span>
-      <button class="icon" id="panel-close" title="Đóng" aria-label="Đóng" data-i="x"></button>
+      <button class="icon" id="panel-close" data-t-title="Đóng" data-t-aria="Đóng" title="Đóng" aria-label="Đóng" data-i="x"></button>
     </div>
     <div class="panel-b" id="panel-body"></div>
   </aside>
@@ -63,9 +69,15 @@
 <div id="toast" role="status" aria-live="polite"></div>
 <script src="/vendor/marked.min.js"></script>
 <script src="/vendor/purify.min.js"></script>
+<script src="/assets/i18n.js"></script>
+<script src="/assets/i18n-en.js"></script>
+<script src="/assets/ui-locales.js"></script>
 <script src="/assets/core.js"></script>
+<script src="/assets/themes.js"></script>
+<script src="/assets/tools.js"></script>
 <script src="/assets/chat.js"></script>
 <script src="/assets/panels.js"></script>
+<script src="/assets/research.js"></script>
 <script src="/assets/dashboard.js"></script>
 <script src="/assets/review.js"></script>
 <script src="/assets/settings.js"></script>

@@ -39,7 +39,9 @@ class Base(unittest.TestCase):
         _env.isolate_config(self)
         _env.fresh_project("ag-" + self._testMethodName[:28])
         config.save_config({"runs": {"web_search": False}})
+        provider_for = launch.provider_for
         for p in (mock.patch.object(llm, "stream_agent", answer),
+                  mock.patch.object(launch, "provider_for", side_effect=lambda skill: "app" if skill["provider"] == "feynman" else provider_for(skill)),
                   mock.patch.object(RP, "app_complete", return_value="lit text (Doe, 2020)")):
             p.start()
             self.addCleanup(p.stop)

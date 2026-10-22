@@ -1,0 +1,23 @@
+{
+  "model_work_submitted": false,
+  "status": "passed",
+  "server_version": "2.0.152",
+  "capabilities": {
+    "protocolVersion": "1.0",
+    "serverVersion": "2.0.152",
+    "idempotentPrompts": true,
+    "richInputs": true,
+    "runSnapshots": true,
+    "eventRetention": 2048,
+    "crashRecovery": "interrupt",
+    "decisionScope": "connected_runtime"
+  },
+  "deployment_auth_checked": true,
+  "effective_policy_checked": true,
+  "artifact_inventory_checked": true,
+  "cursor_conflict_checked": true,
+  "missing_run_checked": true,
+  "session_created": true,
+  "snapshot_checked": true,
+  "replay_checked": true
+}

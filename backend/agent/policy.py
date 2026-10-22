@@ -106,7 +106,7 @@ def clean_overrides(ov: dict) -> dict:
 
 
 def clean_sources(v) -> list:
-    if not isinstance(v, list) or any(not isinstance(x, str) or not re.fullmatch(r"(ref|mem|run|note|att):[\w.:@/+-]{1,120}", x)
+    if not isinstance(v, list) or any(not isinstance(x, str) or not re.fullmatch(r"(ref|mem|run|note|att|paper|evidence|artifact|claim):[\w.:@/+-]{1,120}", x)
                                       for x in v):
         raise AIWSError("sources must be a list of ids like ref:<key>, mem:<id>, run:<id>, note:<id>, att:<id>")
     return list(dict.fromkeys(v))[:100]
@@ -134,6 +134,10 @@ def effective(session: dict, overrides: dict | None = None) -> dict:
             eff["mcp_auto"] = {"value": False, "source": "manual mode"}
         if eff["memory_mode"]["source"] in ("global", "module") and eff["memory_mode"]["value"] in ("suggest", "auto"):
             eff["memory_mode"] = {"value": "manual", "source": "manual mode"}
+    if session.get("topic_id"):
+        # Existing MCP tools and memory extraction operate at project scope. Do not expose them implicitly to Topics.
+        for key, value in {"mcp_auto": False, "mcp_tools": ["-"], "memory_mode": "off"}.items():
+            eff[key] = {"value": value, "source": "topic isolation"}
     return eff
 
 

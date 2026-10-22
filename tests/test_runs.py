@@ -372,12 +372,31 @@ class Providers(RunsBase):
             "setup": [], "category": "research"})
 
     def test_an_unconfigured_provider_falls_back_visibly(self):
+        _env.isolate_config(self)
+        config.save_config({"routing": {"capability_aware": False}})  # explicit legacy opt-out
         with self.ready(set()):
             r = self.wait(runs.create("research", "lit", "x", {"topic": "x", "workflow": "lit"}, risk=0, provider="feynman")["id"])
         s = r["steps"][0]
         self.assertEqual((r["status"], s["provider"], s["resource"]), ("COMPLETED", "app", "cloud"))
         self.assertIn("NOT_CONFIGURED", s["notes"][0])
         self.assertTrue(any(e["type"] == "step.provider" for e in runs.events(r["id"])))
+
+    def test_unconfigured_provider_waits_without_changing_the_step(self):
+        _env.isolate_config(self)
+        config.save_config({"routing": {"capability_aware": True}})
+        with self.ready(set()):
+            r = self.wait(runs.create("research", "lit", "x", {"topic": "x"}, risk=0, provider="feynman")["id"])
+        self.assertEqual(r["status"], "NEEDS_USER_ACTION")
+        self.assertEqual(r["steps"][0]["provider"], "feynman")
+        self.assertEqual(r["steps"][0]["attempt"], 0)
+
+    def test_quota_does_not_consume_automatic_retries(self):
+        with self.ready({"feynman"}), mock.patch.object(RP, "run_feynman", side_effect=RP.ProviderUnavailable("quota exceeded")) as run:
+            r = self.wait(runs.create("research", "lit", "x", {"topic": "x"}, risk=0, provider="feynman",
+                                      budget={"auto_recover": True, "max_retries": 4})["id"])
+        self.assertEqual(r["status"], "NEEDS_USER_ACTION")
+        self.assertEqual(run.call_count, 1)
+        self.assertEqual(r["usage"]["retries"], 0)
 
     def test_feynman_runs_the_workflow(self):
         def fake_feynman(task, workflow, prompt, ctx, outdir, cancelled=None, timeout_s=0):

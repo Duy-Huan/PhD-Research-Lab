@@ -2,7 +2,7 @@
    Classic script (no build step): everything hangs off window.PL so the other files and the tests can reach it. */
 (function (W) {
   "use strict";
-  const PL = (W.PL = W.PL || {});
+  const PL = W.PL; // i18n.js initializes the namespace before core.js (index.html load contract).
   const D = W.document;
 
   // ------------------------------------------------------------------ DOM
@@ -45,6 +45,9 @@
     ext: "M14 4h6v6M20 4l-9 9M18 14v6H4V6h6", trash: "M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13", dots: "M5 12h.01M12 12h.01M19 12h.01",
     sync: "M20 11a8 8 0 00-14.9-3M4 5v4h4M4 13a8 8 0 0014.9 3M20 19v-4h-4", spark: "M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6z",
     flask: "M9 3h6M10 3v6L4 19a1.5 1.5 0 001.3 2h13.4A1.5 1.5 0 0020 19l-6-10V3", folder: "M3 6a2 2 0 012-2h4l2 2h8a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z",
+    note: "M4 4h16v12H9l-5 4zM8 9h8M8 12h5", download: "M12 4v12M7 11l5 5 5-5M4 20h16", chart: "M4 20V4M4 20h16M8 16l4-5 3 3 5-7",
+    plug: "M9 7V3M15 7V3M7 7h10v4a5 5 0 01-10 0zM12 16v5", globe: "M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18",
+    paper: "M6 3h9l4 4v14H6zM9 9h6M9 13h6M9 17h4",
   };
   PL.icon = (n) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${P[n] || ""}"/></svg>`;
   PL.paintIcons = (root) => PL.$$("[data-i]", root).forEach((el) => {
@@ -65,7 +68,7 @@
     try { r = await W.fetch(url, init); } catch (e) {
       if (e && e.name === "AbortError") throw e;
       PL.online(false);
-      throw new ApiError(0, "Không kết nối được máy chủ PhD Lab");
+      throw new ApiError(0, PL.t("Không kết nối được máy chủ PhD Lab"));
     }
     PL.online(true);
     const ct = r.headers.get("content-type") || "";
@@ -73,7 +76,7 @@
     if (!r.ok) {
       let d = data && data.detail !== undefined ? data.detail : data;
       if (d && typeof d === "object") d = d.message || JSON.stringify(d);
-      throw new ApiError(r.status, String(d || r.statusText || "Lỗi"), data);
+      throw new ApiError(r.status, String(d || r.statusText || PL.t("Lỗi")), data);
     }
     return data;
   };
@@ -133,8 +136,8 @@
   PL.startBus = function () {
     const live = PL.$("#live");
     return PL.stream("/api/events/stream", (ev) => { if (ev.type !== "hello") PL.emit(ev); }, {
-      onOpen: () => { if (live) { live.className = "dot live"; live.title = "Đang đồng bộ với CLI"; } },
-      onError: () => { if (live) { live.className = "dot warn"; live.title = "Mất đồng bộ — đang kết nối lại"; } },
+      onOpen: () => { if (live) { live.className = "dot live"; live.title = PL.t("Đang đồng bộ với CLI"); } },
+      onError: () => { if (live) { live.className = "dot warn"; live.title = PL.t("Mất đồng bộ — đang kết nối lại"); } },
     });
   };
 
@@ -161,7 +164,15 @@
       .replace(/(^|[^\\$\w])\$(?!\s)([^$\n]{0,300}?[^\s$])\$(?!\w)/g, (_, pre, m) => { math.push([m, false]); return `${pre}@@M${math.length - 1}@@`; });
     return { out, math };
   }
+  const mdCache = new Map();  // text → sanitised HTML (a refresh never re-parses an unchanged answer)
   PL.md = function (text) {
+    const key = String(text || "");
+    if (mdCache.has(key)) return mdCache.get(key);
+    const html = renderMd(key);
+    if (key.length > 200) { mdCache.set(key, html); if (mdCache.size > 120) mdCache.delete(mdCache.keys().next().value); }
+    return html;
+  };
+  function renderMd(text) {
     const src = String(text || "").replace(HIDE, "").trim();
     const { out, math } = protectMath(src);
     let html = W.marked ? W.marked.parse(out, { gfm: true, breaks: false }) : PL.esc(out).replace(/\n/g, "<br>");
@@ -170,11 +181,21 @@
       return `<span class="math${display ? " display" : ""}" data-tex="${PL.esc(m)}">${PL.esc(display ? "$$" + m + "$$" : "$" + m + "$")}</span>`;
     });
     return W.DOMPurify ? W.DOMPurify.sanitize(html, { ADD_ATTR: ["data-tex", "target"] }) : PL.esc(src);
-  };
-  /** Render Markdown into el, then enhance it (math, code highlight, copy buttons, external links). */
-  PL.rich = function (el, text) {
+  }
+  /** Render Markdown into el, then enhance it (math, figures, code highlight, copy buttons, external links).
+      opts.stream: a partial answer being streamed — only the cheap Markdown pass (math, highlighting and figures are
+      done once, on the final answer). opts.onPoint / opts.marks: chart point notes (tools.js). */
+  PL.rich = function (el, text, opts) {
+    opts = opts || {};
+    if (opts.stream) {
+      // close an unterminated code fence so a half-streamed block does not swallow the rest of the answer
+      const t = String(text || "");
+      el.innerHTML = PL.md((t.match(/```/g) || []).length % 2 ? t + "\n```" : t);
+      return el;
+    }
     el.innerHTML = PL.md(text);
     PL.$$("a[href^='http']", el).forEach((a) => { a.target = "_blank"; a.rel = "noopener"; });
+    if (PL.tools) PL.tools.enhance(el, opts);
     const maths = PL.$$(".math", el);
     if (maths.length) {
       load("/vendor/katex/katex.min.js", "/vendor/katex/katex.min.css").then((ok) => {
@@ -184,7 +205,7 @@
     }
     const codes = PL.$$("pre > code", el);
     codes.forEach((c) => {
-      const b = PL.h("button.copy-code", { type: "button", onclick: () => PL.copy(c.textContent) }, "Sao chép");
+      const b = PL.h("button.copy-code", { type: "button", onclick: () => PL.copy(c.textContent) }, PL.t("Sao chép"));
       c.parentElement.append(b);
     });
     if (codes.length) {
@@ -196,8 +217,8 @@
     return el;
   };
   PL.copy = function (text) {
-    const done = () => PL.toast("Đã sao chép");
-    if (W.navigator.clipboard) W.navigator.clipboard.writeText(text).then(done, () => PL.toast("Không sao chép được", "err"));
+    const done = () => PL.toast(PL.t("Đã sao chép"));
+    if (W.navigator.clipboard) W.navigator.clipboard.writeText(text).then(done, () => PL.toast(PL.t("Không sao chép được"), "err"));
     else done();
   };
 
@@ -220,7 +241,7 @@
     const foot = (o.actions || []).length ? PL.h("div.dialog-f", {}, o.actions.map((a) =>
       PL.h("button.btn" + (a.kind ? "." + a.kind : ""), { type: "button", onclick: async () => { if ((await a.onClick?.()) !== false) close(); } }, a.label))) : null;
     const dlg = PL.h("div.dialog" + (o.wide ? ".wide" : ""), { role: "dialog", "aria-modal": "true", "aria-label": o.title || "" },
-      PL.h("div.dialog-h", {}, PL.h("h2", {}, o.title || ""), PL.h("button.icon", { type: "button", "aria-label": "Đóng", onclick: close, html: PL.icon("x") })),
+      PL.h("div.dialog-h", {}, PL.h("h2", {}, o.title || ""), PL.h("button.icon", { type: "button", "aria-label": PL.t("Đóng"), onclick: close, html: PL.icon("x") })),
       o.raw ? body : PL.h("div.dialog-b", {}, body), foot);
     m.innerHTML = "";
     m.append(dlg);
@@ -233,32 +254,32 @@
   };
   PL.confirm = (text, okLabel) => new Promise((res) => {
     let v = false;
-    PL.modal({ title: "Xác nhận", body: PL.h("p", {}, text), onClose: () => res(v),
-      actions: [{ label: "Huỷ" }, { label: okLabel || "Đồng ý", kind: "accent", onClick: () => { v = true; } }] });
+    PL.modal({ title: PL.t("Xác nhận"), body: PL.h("p", {}, text), onClose: () => res(v),
+      actions: [{ label: PL.t("Huỷ") }, { label: okLabel || PL.t("Đồng ý"), kind: "accent", onClick: () => { v = true; } }] });
   });
   PL.prompt = (title, label, value) => new Promise((res) => {
     const inp = PL.h("input.input", { value: value || "" });
     let v = null;
-    PL.modal({ title, body: PL.h("label.field", {}, PL.h("span", {}, label), inp), onClose: () => res(v),
-      actions: [{ label: "Huỷ" }, { label: "Lưu", kind: "accent", onClick: () => { v = inp.value.trim(); } }] });
-    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { v = inp.value.trim(); PL.$("#modal").hidden = true; PL.$("#modal").innerHTML = ""; res(v); } });
+    const close = PL.modal({ title, body: PL.h("label.field", {}, PL.h("span", {}, label), inp), onClose: () => res(v),
+      actions: [{ label: PL.t("Huỷ") }, { label: PL.t("Lưu"), kind: "accent", onClick: () => { v = inp.value.trim(); } }] });
+    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); v = inp.value.trim(); close(); } });
   });
 
   // ------------------------------------------------------------------ formatting
   PL.ago = function (ts) {
     if (!ts) return "";
     const s = Math.max(0, Date.now() / 1000 - ts);
-    if (s < 60) return "vừa xong";
-    if (s < 3600) return Math.floor(s / 60) + " phút trước";
-    if (s < 86400) return Math.floor(s / 3600) + " giờ trước";
-    if (s < 86400 * 7) return Math.floor(s / 86400) + " ngày trước";
-    return new Date(ts * 1000).toLocaleDateString("vi-VN");
+    if (s < 60) return PL.t("vừa xong");
+    if (s < 3600) return Math.floor(s / 60) + PL.t(" phút trước");
+    if (s < 86400) return Math.floor(s / 3600) + PL.t(" giờ trước");
+    if (s < 86400 * 7) return Math.floor(s / 86400) + PL.t(" ngày trước");
+    return new Date(ts * 1000).toLocaleDateString(PL.lang === "en" ? "en-GB" : "vi-VN");
   };
   PL.size = (n) => (n > 1e6 ? (n / 1e6).toFixed(1) + " MB" : n > 1e3 ? Math.round(n / 1e3) + " KB" : (n || 0) + " B");
   PL.STATUS = {
-    CREATED: "Đã tạo", PLANNED: "Đã lập kế hoạch", APPROVAL_PENDING: "Chờ duyệt", RUNNING: "Đang chạy", VERIFYING: "Đang kiểm chứng",
-    COMPLETED: "Hoàn tất", BLOCKED: "Đang chờ tài nguyên", FAILED: "Lỗi", RECOVERING: "Đang phục hồi", NEEDS_USER_ACTION: "Cần bạn quyết định",
-    CANCELLED: "Đã huỷ",
+    CREATED: PL.t("Đã tạo"), PLANNED: PL.t("Đã lập kế hoạch"), APPROVAL_PENDING: PL.t("Chờ duyệt"), RUNNING: PL.t("Đang chạy"), VERIFYING: PL.t("Đang kiểm chứng"),
+    COMPLETED: PL.t("Hoàn tất"), BLOCKED: PL.t("Đang chờ tài nguyên"), FAILED: PL.t("Lỗi"), RECOVERING: PL.t("Đang phục hồi"), NEEDS_USER_ACTION: PL.t("Cần bạn quyết định"),
+    CANCELLED: PL.t("Đã huỷ"),
   };
   PL.statusChip = (s) => PL.h("span.chip.status-chip", { dataset: { s } }, PL.STATUS[s] || s);
 
@@ -272,6 +293,42 @@
     if (fn) fn(...parts.slice(1).map(decodeURIComponent));
   };
   W.addEventListener("hashchange", () => PL.dispatch());
+
+  /** POST body to a streaming agent endpoint and read its events (start → delta… → done | error).
+      onText(fullText) is called at most once per frame. Resolves to the done event, or null after an error toast. */
+  PL.sse = async function (url, body, onText) {
+    let text = "", done = null, queued = false;
+    const paint = () => { queued = false; if (onText) onText(text); };
+    try {
+      const r = await W.fetch(url, { method: "POST", headers: { "Content-Type": "application/json", "X-PhDLab-Client": "ui" }, body: JSON.stringify(body || {}) });
+      if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail || r.statusText);
+      const rd = r.body.getReader();
+      const dec = new W.TextDecoder();
+      let buf = "";
+      for (;;) {
+        const { value, done: end } = await rd.read();
+        if (end) break;
+        buf += dec.decode(value, { stream: true });
+        let i;
+        while ((i = buf.indexOf("\n\n")) >= 0) {
+          const line = buf.slice(0, i).replace(/^data: /, "");
+          buf = buf.slice(i + 2);
+          let ev;
+          try { ev = JSON.parse(line); } catch (e) { continue; }
+          if (ev.type === "delta") {
+            text += ev.text;
+            if (!queued) { queued = true; (W.requestAnimationFrame || ((f) => W.setTimeout(f, 16)))(paint); }
+          } else if (ev.type === "error") throw new Error(ev.detail);
+          else if (ev.type === "done") done = ev;
+        }
+      }
+    } catch (e) {
+      PL.toast(e.message || String(e), "err");
+      return null;
+    }
+    paint();
+    return done;
+  };
 
   PL.store = {
     get: (k, d) => { try { const v = W.localStorage.getItem("pl." + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },

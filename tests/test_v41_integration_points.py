@@ -26,10 +26,11 @@ def transport(handler):
 
 class LocalLeases(unittest.TestCase):
     def setUp(self):
+        _env.isolate_config(self)
         _env.fresh_project("v41-hooks")
         LC.reset()
         config.save_config({"lifecycle": {"enabled": True, "local_background": "unload_after_task", "local_interactive": "idle_unload"},
-                            "agent_modes": {"summarizer": "ollama", "chat_lit2plan": "ollama"}, "ollama_model": "qwen2.5:7b",
+                            "agent_modes": {"utility": "ollama", "research": "ollama"}, "ollama_model": "qwen2.5:7b",
                             "fallback_to_cloud": False})
 
     def tearDown(self):
@@ -40,7 +41,7 @@ class LocalLeases(unittest.TestCase):
             self.assertEqual(LC._res["local:ollama:qwen2.5:7b"].leases, 1)
             return "summary"
         with Fakes(), mock.patch.object(llm, "openai_compat_chat", fake_chat), mock.patch.object(llm, "ollama_offload_options", return_value=None):
-            r = asyncio.run(llm.call_agent("summarizer", "sys", "text"))
+            r = asyncio.run(llm.call_agent("utility", "sys", "text"))
         self.assertEqual(r["text"], "summary")
         res = LC._res["local:ollama:qwen2.5:7b"]
         self.assertEqual((res.leases, res.policy), (0, "unload_after_task"))
@@ -69,13 +70,13 @@ class LocalLeases(unittest.TestCase):
                 yield p
         with Fakes(), mock.patch.object(llm, "_stream_openai", fake_stream), mock.patch.object(llm, "ollama_offload_options", return_value=None):
             async def full():
-                return [x async for x in llm.stream_agent("chat_lit2plan", "sys", [{"role": "user", "content": "q"}])]
+                return [x async for x in llm.stream_agent("research", "sys", [{"role": "user", "content": "q"}])]
             out = asyncio.run(full())
             self.assertEqual(out[-1][1]["text"], "Hello")
             self.assertEqual(LC._res["local:ollama:qwen2.5:7b"].policy, "idle_unload")
 
             async def early():
-                g = llm.stream_agent("chat_lit2plan", "sys", [{"role": "user", "content": "q"}])
+                g = llm.stream_agent("research", "sys", [{"role": "user", "content": "q"}])
                 await g.__anext__()
                 await g.aclose()  # the reader left: the lease must still be released
             asyncio.run(early())
@@ -87,8 +88,8 @@ class LocalLeases(unittest.TestCase):
         with Fakes(), mock.patch.object(llm, "openai_compat_chat", fake_chat), mock.patch.object(llm, "ollama_offload_options", return_value=None), \
                 mock.patch("backend.providers.router.plan", return_value={"kind": "summarize", "candidates": ["ollama"], "gpu_busy": False,
                                                                        "online": True, "skipped": {}}):
-            config.save_config({"agent_modes": {"summarizer": "auto"}})
-            self.assertEqual(asyncio.run(llm.call_agent("summarizer", "s", "u"))["text"], "auto")
+            config.save_config({"agent_modes": {"utility": "auto"}})
+            self.assertEqual(asyncio.run(llm.call_agent("utility", "s", "u"))["text"], "auto")
         self.assertIn("local:ollama:qwen2.5:7b", LC._res)
 
     def test_embeddings_are_background_leases(self):

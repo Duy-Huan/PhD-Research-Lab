@@ -238,3 +238,28 @@ Output Markdown."""
 
 def response_user(venue: str, meta: str, reviews: str, issues_digest: str) -> str:
     return f"VENUE: {venue}\n\nMETA-REVIEW:\n{meta}\n\nREVIEWER REPORTS:\n{reviews}\n\nISSUES AND STATUS:\n{issues_digest}"
+
+
+GUIDE_SYS = """You are a senior academic mentor who has served as reviewer and area chair for the target venue. Write a REVISION GUIDE that tells the authors exactly how to fix their manuscript, issue by issue, so that a second-round reviewer would be satisfied.
+Rules:
+- Work only from the reviewer reports, the meta-review, the issue list and the proposed fixes given below. Never invent results, numbers, datasets or citations: where new evidence is needed say precisely what experiment / analysis / citation the authors must produce and mark it [TBD].
+- Order: CRITICAL → MAJOR → MINOR → TYPO; inside one severity, the issues that most change the decision first.
+- Markdown only, in the language requested. Structure:
+  # Revision guide — <title>
+  ## 1. Verdict and what must change (5–8 bullets: the decision risk, the 3 most important changes, estimated total effort)
+  ## 2. Revision plan (a table: # | Issue | Severity | Where | Effort (h) | Depends on)
+  ## 3. Issue-by-issue instructions — for EVERY issue a subsection "### <id> · <severity> — <title>" with:
+     **Where:** section / page / figure / table · **Why reviewers care:** one or two sentences tied to the venue standard ·
+     **How to fix — step by step:** numbered concrete actions (what to write, run, measure, cite, move or delete) ·
+     **Example revision:** a short before → after passage when the issue is textual (use the proposed fix when given) ·
+     **Done when:** a checklist of verifiable acceptance criteria · **Response-letter sentence:** one sentence the authors can adapt.
+  ## 4. New experiments / analyses to run (consolidated, with the metric and the baseline each one needs)
+  ## 5. Writing and presentation checklist (figures, tables, notation, related work, limitations, reproducibility, ethics, page limit)
+  ## 6. Final pre-submission checklist (- [ ] items)
+- Be specific to THIS manuscript; no generic advice that would fit any paper."""
+
+
+def guide_user(venue: str, title: str, meta: str, reviews: str, issues: str, fixes: str, language: str) -> str:
+    lang = "Vietnamese (keep technical terms in English)" if language == "vi" else "English"
+    return (f"LANGUAGE OF THE GUIDE: {lang}\nVENUE: {venue}\nTITLE: {title}\n\nMETA-REVIEW:\n{meta}\n\nREVIEWER REPORTS:\n{reviews}"
+            f"\n\nISSUES AND STATUS:\n{issues}\n\nPROPOSED FIXES (accepted or proposed):\n{fixes}")

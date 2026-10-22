@@ -30,6 +30,10 @@ ANSWER = ("Dựa trên **2 tài liệu** trong thư viện và đề cương hi�
           "2. Các đánh giá chỉ báo accuracy; thiếu **độ trễ đo thật** trên phần cứng biên.\n\n"
           "| Hướng | Dữ liệu | Chỉ số |\n|---|---|---|\n| Token pruning + distillation | ImageNet-100 | Top-1, latency |\n\n"
           "Ước lượng FLOPs: $F \\approx 2 N d^2 L$ với $N$ token.\n\n"
+          "```chart\n{\"type\": \"line\", \"title\": \"Top-1 theo số tham số (minh hoạ)\", \"xlabel\": \"Tham số (M)\", "
+          "\"ylabel\": \"Top-1 (%)\", \"x\": [1, 2, 3, 5, 8], \"series\": [{\"name\": \"ViT-Tiny + pruning\", \"data\": [71.2, 76.5, "
+          "79.8, 83.1, 84.6], \"error\": [0.6, 0.5, 0.4, 0.4, 0.3]}, {\"name\": \"MobileViT\", \"data\": [69.0, 74.1, 78.2, 81.0, 83.4]}]}\n```\n\n"
+          "```mermaid\nflowchart LR\n  A[Ảnh đầu vào] --> B[Patch embedding] --> C[Token pruning] --> D[Distillation] --> E[Dự đoán]\n```\n\n"
           "Open question: pruning theo attention có giữ được độ chính xác ở độ phân giải thấp không?\n\n"
           '```phdlab-action\n{"action": "propose_gap", "args": {"text": "No sub-5M-parameter ViT with measured edge latency"}}\n```\n')
 

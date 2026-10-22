@@ -31,6 +31,8 @@ async def lifespan(_app):
     stop = asyncio.Event()
     task = asyncio.create_task(worker(stop))
     reap = asyncio.create_task(reaper(stop))
+    from backend.knowledge.research_jobs import worker as research_worker
+    research_task = asyncio.create_task(research_worker(stop))
     try:
         await asyncio.to_thread(runs.recover_all)
     except Exception:  # a damaged run file must never keep the app from starting
@@ -41,6 +43,8 @@ async def lifespan(_app):
     finally:
         stop.set()
         task.cancel()
+        research_task.cancel()
+        await asyncio.gather(research_task, return_exceptions=True)
         await _shutdown()
         try:
             await asyncio.wait_for(reap, timeout=3)
@@ -49,12 +53,17 @@ async def lifespan(_app):
 
 
 def _warm() -> None:
-    """Probe the CLI providers once in the background, so the model picker opens instantly."""
+    """Probe the CLI providers once in the background, so the model picker opens instantly; refresh venue rankings."""
     try:
         from backend.providers import registry, research
         registry.registry()
         research.describe_all()
     except Exception:
+        pass
+    try:
+        from backend.knowledge import ranking
+        ranking.auto_refresh(load_config())
+    except Exception:  # offline start: the previous ranking data stays in use
         pass
 
 

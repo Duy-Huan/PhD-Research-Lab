@@ -687,6 +687,8 @@ def stop_job(job_id: str) -> dict:
                 f'sleep 2; [ -n "$P" ] && (pkill -KILL -P $P 2>/dev/null; kill -KILL $P 2>/dev/null); true'], 20)
     try:
         if IS_WIN:
+            from backend.execution.processes import stop_descendants
+            stop_descendants(job.proc)
             subprocess.run(["taskkill", "/F", "/T", "/PID", str(job.proc.pid)], capture_output=True,
                            creationflags=NO_WINDOW, timeout=5)
             # A sharing/permission failure is reported by taskkill's exit code rather than an exception. Ensure the

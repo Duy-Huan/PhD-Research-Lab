@@ -4,6 +4,7 @@ from __future__ import annotations
 import mimetypes
 import os
 import sys
+from pathlib import Path
 
 from fastapi import APIRouter, Body, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
@@ -30,6 +31,21 @@ def _after_switch() -> None:
 @router.get("/api/projects")
 def projects():
     return {"projects": list_projects()}
+
+
+@router.get("/api/projects/conversations")
+async def project_conversations(directory: str):
+    """Explicitly browse a registered project without changing the active project."""
+    from backend.core.config import project_scope
+    from backend.agent import sessions
+    target = Path(directory).resolve()
+    if not any(Path(p["data_dir"]).resolve() == target for p in list_projects()):
+        raise HTTPException(404, "Project is not registered")
+
+    def read():
+        with project_scope(target):
+            return {"sessions": sessions.list_sessions()}
+    return await call(read)
 
 
 @router.post("/api/projects")

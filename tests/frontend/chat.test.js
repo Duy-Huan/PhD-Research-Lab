@@ -34,8 +34,14 @@ test('research run in chat exposes source cards that save to the library without
   const source = {id: 'paper-1', title: 'Real paper', source: 'arxiv', url: 'https://arxiv.org/abs/1'};
   const h = await chat({run: (r) => ({...r, steps: r.steps.map((s, i) => i ? s : {...s, result: {sources: [source]}})}),
     routes: {'POST /api/library/save': () => ({pdf_saved: false})}});
-  await h.until(() => h.$('.card.run .paper'));
+  await h.until(() => h.$('.card.run details'));
   assert.match(h.$('.card.run details summary').textContent, /1 nguồn tìm được/);
+  const det = h.$('.card.run details');  // source cards are built when the list is opened
+  det.open = true;
+  det.dispatchEvent(new h.w.Event('toggle'));
+  det.dispatchEvent(new h.w.Event('toggle'));
+  await h.until(() => h.$('.card.run .paper'));
+  assert.strictEqual(h.$$('.card.run .paper').length, 1);
   h.$('.card.run .paper button').click();
   await h.idle(20);
   assert.strictEqual(h.server.last('POST', '/api/library/save').body.source.id, 'paper-1');
@@ -52,7 +58,7 @@ test('conversation list: groups by age, badges, running spinner, keyboard, empty
   ];
   let sessions = list;
   const h = await chat({anyId: true, routes: {'GET /api/chat/sessions': () => ({sessions})}});
-  assert.deepStrictEqual(h.$$('#threads .tgroup').map((x) => x.textContent), ['Hôm nay', '7 ngày qua', 'Cũ hơn']);
+  assert.deepStrictEqual(h.$$('#threads .tgroup').map((x) => x.textContent), ['Hôm nay', '7 ngày qua', new Intl.DateTimeFormat('vi-VN', {month:'long',year:'numeric'}).format(new Date((Date.now()/1000 - 30*86400)*1000))]);
   assert.strictEqual(h.$('#threads .badge').textContent, '2');
   assert.ok(h.$('#threads .thread.active .spin'));
   assert.strictEqual(h.$$('#threads .thread .t')[2].textContent, 'Cuộc trò chuyện');
@@ -149,7 +155,7 @@ test('opening a conversation: messages, proposals, memory card, run card; missin
   const h = await chat();
   assert.strictEqual(h.$('#title').textContent, 'Khoảng trống nghiên cứu ViT gọn nhẹ');
   assert.strictEqual(h.$$('.msg.user').length, 3);
-  assert.ok(h.$('.msg.ai .who').textContent.includes('Research agent'));
+  assert.match(h.$('.msg.ai .who').textContent, /Research agent|Smart router/);
   assert.match(h.$('.activity').textContent, /Đã dùng công cụ research_search_memory \(tự động, chỉ đọc\)/);
   assert.ok(card(h, 'ap-15b0cb8e').classList.contains('pending'));
   assert.match(card(h, 'ap-32450735').textContent, /\/idea/);
@@ -187,7 +193,7 @@ test('message variants: cancelled, partial, other providers + model, unknown pro
   assert.match(codex.textContent, /Codex/);
   assert.match(codex.textContent, /chưa đầy đủ/);
   assert.ok(ai.some((m) => m.querySelector('.who').textContent.includes('web:x')));
-  assert.ok(ai.at(-1).querySelector('.who').textContent.includes('Research agent'));
+  assert.ok(ai.at(-1).querySelector('.who').textContent.includes('Tác nhân nghiên cứu'));
   // copy / retry / remember / pin
   const acts = (m) => [...m.querySelectorAll('.msg-actions button')];
   acts(ai[0])[0].click();
@@ -196,7 +202,7 @@ test('message variants: cancelled, partial, other providers + model, unknown pro
   acts(ai[0])[1].click();
   await h.idle(20);
   assert.strictEqual(h.server.calledWith('POST', `/api/chat/sessions/${SID}/retry`).length, 1);
-  assert.strictEqual(acts(ai.at(-1)).length, 4);
+  assert.strictEqual(acts(ai.at(-1)).length, 7);  // copy, retry, note, export, remember, pin
   acts(h.$$('.msg.ai')[1]).find((b) => b.title.includes('Ghi nhớ')).click();
   await h.idle();
   h.$('#modal select').value = 'finding';
@@ -204,18 +210,18 @@ test('message variants: cancelled, partial, other providers + model, unknown pro
   const mem = h.server.last('POST', `/api/chat/sessions/${SID}/memory`).body;
   assert.strictEqual(mem.type, 'finding');
   assert.strictEqual(mem.save, true);
-  acts(h.$$('.msg.ai')[1]).find((b) => b.title.includes('Ghim')).click();
+  acts(h.$$('.msg.ai')[1]).find((b) => b.title.includes('Ghim vào kết quả')).click();
   await h.idle();
   await h.clickText('.dialog-f button', 'Huỷ', 20);
   assert.strictEqual(h.server.calledWith('POST', '/api/pins').length, 0);
-  acts(h.$$('.msg.ai')[1]).find((b) => b.title.includes('Ghim')).click();
+  acts(h.$$('.msg.ai')[1]).find((b) => b.title.includes('Ghim vào kết quả')).click();
   await h.idle();
   await h.clickText('.dialog-f button', 'Lưu', 30);
   const pin = h.server.last('POST', '/api/pins').body;
   assert.strictEqual(pin.provenance.session_id, SID);
   // the phdlab assistant has no "retry"
   const phd = h.$$('.msg.ai').find((m) => m.querySelector('.who').textContent.startsWith('PhD Lab'));
-  assert.strictEqual(acts(phd).length, 3);
+  assert.strictEqual(acts(phd).length, 6);
 });
 
 test('proposal bodies for every action kind, results, verdict chips', async () => {
@@ -597,7 +603,7 @@ test('model + reasoning picker: groups, filter, unavailable models, choose model
   const h = await chat({routes: {'GET /api/chat/sessions/:id/effective': () => note}});
   const open = async () => { await h.click('#model'); return h.$('.menu.picker'); };
   let pop = await open();
-  assert.deepStrictEqual([...pop.querySelectorAll('.plist .mh')].map((x) => x.textContent), ['Trên máy này', 'Cloud API', 'CLI (gói đăng ký của bạn)']);
+  assert.deepStrictEqual([...pop.querySelectorAll('.plist .mh')].map((x) => x.textContent), ['Trên máy này', 'API đám mây', 'CLI (gói đăng ký của bạn)']);
   assert.match(pop.querySelector('.mi.sel').textContent, /Tự động/);
   const anth = [...pop.querySelectorAll('.plist .mi')].find((x) => x.textContent.includes('Anthropic'));
   assert.ok(anth.disabled);
@@ -735,7 +741,7 @@ test('sparse records: missing optional fields never break the page; every comple
   for (const type of types) { es.send({type}); await h.idle(5); }
   await h.idle(20);
   // pin with an untitled conversation
-  [...h.$$('.msg.ai')[1].querySelectorAll('.msg-actions button')].find((b) => b.title.includes('Ghim')).click();
+  [...h.$$('.msg.ai')[1].querySelectorAll('.msg-actions button')].find((b) => b.title.includes('Ghim vào kết quả')).click();
   await h.idle();
   assert.strictEqual(h.$('#modal input').value, '');
   h.$('#modal').click();

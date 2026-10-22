@@ -1,0 +1,183 @@
+{
+  "schema_version": "1.0",
+  "workers": 16,
+  "rounds": 3,
+  "real_model_calls": 0,
+  "cloud_jobs": 0,
+  "phases": [
+    {
+      "round": 1,
+      "name": "gateway-streaming",
+      "events": 3200,
+      "subscribers": 3,
+      "durable_replay_verified": true,
+      "hot_window": 512,
+      "publish_latency": {
+        "count": 3200,
+        "p50_ms": 10.41,
+        "p95_ms": 14.409,
+        "max_ms": 23.011
+      },
+      "passed": true,
+      "elapsed_s": 2.319
+    },
+    {
+      "round": 1,
+      "name": "concurrent-state",
+      "writers": 16,
+      "messages": 320,
+      "unique_ids": 320,
+      "passed": true,
+      "elapsed_s": 1.625
+    },
+    {
+      "round": 1,
+      "name": "resource-contention",
+      "active": 0,
+      "peak": 1,
+      "completed": 320,
+      "passed": true,
+      "elapsed_s": 2.155
+    },
+    {
+      "round": 1,
+      "name": "subprocess-timeout-cleanup",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 221, in main\n    result.update(run(), passed=True)\n                  ~~~^^\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 216, in <lambda>\n    (\"subprocess-timeout-cleanup\", lambda: process_stress(args.workers)),\n                                           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 148, in process_stress\n    check(all(proc.poll() is not None for proc in processes), \"An owned OS process survived cleanup\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 33, in check\n    raise AssertionError(message)\nAssertionError: An owned OS process survived cleanup\n",
+      "elapsed_s": 0.676
+    },
+    {
+      "round": 1,
+      "name": "http-load",
+      "transport": "actual loopback HTTP",
+      "clients": 16,
+      "latency": {
+        "count": 480,
+        "p50_ms": 30.245,
+        "p95_ms": 63.31,
+        "max_ms": 115.74
+      },
+      "errors": 0,
+      "lifespan": "off; startup/recovery is covered by regression, this phase isolates HTTP admission",
+      "passed": true,
+      "elapsed_s": 1.667
+    },
+    {
+      "round": 2,
+      "name": "gateway-streaming",
+      "events": 3200,
+      "subscribers": 3,
+      "durable_replay_verified": true,
+      "hot_window": 512,
+      "publish_latency": {
+        "count": 3200,
+        "p50_ms": 9.918,
+        "p95_ms": 13.24,
+        "max_ms": 27.161
+      },
+      "passed": true,
+      "elapsed_s": 2.084
+    },
+    {
+      "round": 2,
+      "name": "concurrent-state",
+      "writers": 16,
+      "messages": 320,
+      "unique_ids": 320,
+      "passed": true,
+      "elapsed_s": 1.674
+    },
+    {
+      "round": 2,
+      "name": "resource-contention",
+      "active": 0,
+      "peak": 1,
+      "completed": 320,
+      "passed": true,
+      "elapsed_s": 2.243
+    },
+    {
+      "round": 2,
+      "name": "subprocess-timeout-cleanup",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 221, in main\n    result.update(run(), passed=True)\n                  ~~~^^\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 216, in <lambda>\n    (\"subprocess-timeout-cleanup\", lambda: process_stress(args.workers)),\n                                           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 148, in process_stress\n    check(all(proc.poll() is not None for proc in processes), \"An owned OS process survived cleanup\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 33, in check\n    raise AssertionError(message)\nAssertionError: An owned OS process survived cleanup\n",
+      "elapsed_s": 0.704
+    },
+    {
+      "round": 2,
+      "name": "http-load",
+      "transport": "actual loopback HTTP",
+      "clients": 16,
+      "latency": {
+        "count": 480,
+        "p50_ms": 36.433,
+        "p95_ms": 80.114,
+        "max_ms": 118.784
+      },
+      "errors": 0,
+      "lifespan": "off; startup/recovery is covered by regression, this phase isolates HTTP admission",
+      "passed": true,
+      "elapsed_s": 1.519
+    },
+    {
+      "round": 3,
+      "name": "gateway-streaming",
+      "events": 3200,
+      "subscribers": 3,
+      "durable_replay_verified": true,
+      "hot_window": 512,
+      "publish_latency": {
+        "count": 3200,
+        "p50_ms": 10.38,
+        "p95_ms": 13.455,
+        "max_ms": 19.782
+      },
+      "passed": true,
+      "elapsed_s": 2.183
+    },
+    {
+      "round": 3,
+      "name": "concurrent-state",
+      "writers": 16,
+      "messages": 320,
+      "unique_ids": 320,
+      "passed": true,
+      "elapsed_s": 1.738
+    },
+    {
+      "round": 3,
+      "name": "resource-contention",
+      "active": 0,
+      "peak": 1,
+      "completed": 320,
+      "passed": true,
+      "elapsed_s": 2.019
+    },
+    {
+      "round": 3,
+      "name": "subprocess-timeout-cleanup",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 221, in main\n    result.update(run(), passed=True)\n                  ~~~^^\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 216, in <lambda>\n    (\"subprocess-timeout-cleanup\", lambda: process_stress(args.workers)),\n                                           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 148, in process_stress\n    check(all(proc.poll() is not None for proc in processes), \"An owned OS process survived cleanup\")\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab\\tools\\stress_runtime.py\", line 33, in check\n    raise AssertionError(message)\nAssertionError: An owned OS process survived cleanup\n",
+      "elapsed_s": 0.716
+    },
+    {
+      "round": 3,
+      "name": "http-load",
+      "transport": "actual loopback HTTP",
+      "clients": 16,
+      "latency": {
+        "count": 480,
+        "p50_ms": 34.641,
+        "p95_ms": 66.747,
+        "max_ms": 91.148
+      },
+      "errors": 0,
+      "lifespan": "off; startup/recovery is covered by regression, this phase isolates HTTP admission",
+      "passed": true,
+      "elapsed_s": 1.406
+    }
+  ],
+  "passed": false,
+  "rss_before_mb": 28.74,
+  "rss_after_mb": 116.22
+}

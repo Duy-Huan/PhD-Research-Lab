@@ -90,7 +90,7 @@ def claude(e: dict) -> list:
         return out
     if t == "result":
         if e.get("is_error") or (e.get("subtype") not in (None, "success")):
-            return [ev("error", message=_clip(e.get("result") or e.get("subtype") or "error", 500))]
+            return [ev("error", message=_clip(e.get("result") or " | ".join(str(x) for x in (e.get("errors") or [])) or e.get("subtype") or "error", 500))]
         return [ev("status", state="result", final_text=e.get("result", ""), usage=e.get("usage") or {},
                    session_id=e.get("session_id", ""))]
     return [ev("status", state="event", raw_type=t)] if t else []

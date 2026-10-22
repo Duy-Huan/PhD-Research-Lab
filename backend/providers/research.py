@@ -18,6 +18,7 @@ fixes it) and the task falls back to the app's own model with a visible note —
 from __future__ import annotations
 
 import re
+import os
 import json
 import hashlib
 import shutil
@@ -32,6 +33,7 @@ OUT_EXT = {".md", ".txt", ".csv", ".json", ".bib", ".tex", ".pdf", ".png", ".svg
 CODING = ("claude_code", "codex", "gemini_cli", "antigravity")
 CATALOG = {
     "feynman": ("research", "Feynman (AI research agent)"),
+    "openscience": ("research", "OpenScience (external research runtime)"),
     "app": ("research", "Mô hình của ứng dụng (agent Research / Reviewer)"),
     "claude_code": ("coding", "Claude Code"),
     "codex": ("coding", "OpenAI Codex"),
@@ -143,6 +145,9 @@ def describe(pid: str, cfg: dict | None = None, fresh: bool = False) -> dict:
         try:
             if pid == "feynman":
                 h = _feynman_health(cfg)
+            elif pid == "openscience":
+                from backend.research_engines.registry import get
+                h = get(pid).health()
             elif pid == "app":
                 h = {"state": "READY", "detail": "agent Research + Reviewer theo cấu hình mô hình"}
             elif pid in CODING:
@@ -232,23 +237,44 @@ def run_feynman(task_id: str, workflow: str, prompt: str, context_text: str, out
     argv = pre + ([workflow, topic] if workflow else ["--prompt", "Read ./PROJECT_CONTEXT.md first.\n\n" + topic])
     env = W.minimal_env() | {"NO_COLOR": "1", "FEYNMAN_TELEMETRY": "off"} | _shared_key(cfg)
     proc = subprocess.Popen(argv, cwd=str(cwd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
-                            text=True, encoding="utf-8", errors="replace", env=env, creationflags=NO_WINDOW)
-    out: list = []
-    reader = threading.Thread(target=lambda: out.extend(iter(proc.stdout.readline, "")), daemon=True)
+                            text=True, encoding="utf-8", errors="replace", env=env, creationflags=NO_WINDOW,
+                            start_new_session=os.name != "nt")
+    from collections import deque
+    from backend.core.telemetry import redact
+    out = deque(maxlen=2048)
+    def drain():
+        try:
+            for line in iter(proc.stdout.readline, ""):
+                out.append(redact(line)[:4000])
+        except (OSError, ValueError):
+            pass
+    reader = threading.Thread(target=drain, daemon=True)
     reader.start()
     limit = timeout_s or float(_rp(cfg).get("feynman_timeout_s") or 1800)
     end = time.time() + limit
-    while proc.poll() is None:
-        if (cancelled and cancelled()) or time.time() > end:
-            kill_tree(proc)
-            reader.join(5)
-            raise ProviderUnavailable("Feynman stopped: " + ("cancelled" if cancelled and cancelled() else f"time limit {int(limit)} s"))
-        time.sleep(0.3)
-    reader.join(5)
-    text = strip_ansi("".join(out)).strip()
-    if proc.returncode != 0:
-        raise ProviderUnavailable(f"Feynman exit {proc.returncode}: {text[-600:]}")
-    return {"text": text, "files": _collect(cwd, before, outdir), "workspace": str(cwd)}
+    try:
+        while proc.poll() is None:
+            if (cancelled and cancelled()) or time.time() > end:
+                raise ProviderUnavailable("Feynman stopped: " + ("cancelled" if cancelled and cancelled() else f"time limit {int(limit)} s"))
+            time.sleep(0.3)
+        reader.join(5)
+        text = strip_ansi("".join(out)).strip()
+        if proc.returncode != 0:
+            raise ProviderUnavailable(f"Feynman exit {proc.returncode}: {text[-600:]}")
+        return {"text": text, "files": _collect(cwd, before, outdir), "workspace": str(cwd)}
+    except Exception:
+        kill_tree(proc)
+        reader.join(5)
+        files = _collect(cwd, before, outdir)
+        outdir.mkdir(parents=True, exist_ok=True)
+        (outdir / "interrupted.json").write_text(json.dumps({"task_id": task_id, "workflow": workflow,
+            "workspace": str(cwd), "files": files, "status": "interrupted", "native_resume_verified": False}), "utf-8")
+        (outdir / "partial-output.txt").write_text(strip_ansi("".join(out)), "utf-8")
+        raise
+    finally:
+        kill_tree(proc)
+        reader.join(5)
+        proc.stdout.close()
 
 
 def run_coding(task_id: str, pid: str, prompt: str, context_text: str, outdir: Path, cancelled=None) -> dict:

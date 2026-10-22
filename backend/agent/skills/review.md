@@ -2,6 +2,8 @@
 name: review
 title: Phản biện
 description: Phản biện bài viết như một reviewer khó tính (mở phiên Phản biện để xem từng issue)
+title_en: Review
+description_en: Critically review a paper, a section or a result
 usage: [đường dẫn file trong dự án]
 category: writing
 agent: reviewer

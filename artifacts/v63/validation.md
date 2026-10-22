@@ -1,0 +1,28 @@
+# v6.0 → v6.2 → v6.3 validation — 2026-10-22 (Asia/Saigon)
+
+| Gate | Executed command / observed result |
+|---|---|
+| Baseline v5.6 prerequisites | `tools/run_tests.py test_governance test_protocols test_missions test_research_workspace`: 52 tests OK, 1 Windows privilege skip |
+| v6.0 milestone | OS/mission/protocol/governance/launcher: 44 tests OK; frontend 97 passed; harness 4 local Mission executions with actual CPU reproduction; isolated help/version probes passed |
+| v6.2 milestone | Team/OS/mission/protocol/governance/launcher: 52 tests OK; frontend 98 passed; comparative harness 12 Mission executions across 3 workflow families/modes |
+| Full regression | `.venv/Scripts/python -B tools/run_tests.py`: **638 tests, OK (7 skipped), 367.010s, exit 0**. Executed outside the process sandbox using isolated test data, so the actual local-browser PDF test passed. See `backend-full.log`. |
+| Final targeted regression | `.venv/Scripts/python -B tools/run_tests.py test_workstreams test_teams test_research_os test_missions test_protocols test_governance test_research_workspace test_entrypoints`: **88 tests, OK (1 skipped), 38.262s, exit 0**. See `backend-focused.log`. |
+| Final frontend | `node --test tests/frontend/*.test.js`: **99 passed, 0 failed, 0 skipped, 7.886s, exit 0**. See `frontend.log`. |
+| Final comparative harness | `.venv/Scripts/python -B tools/research_harness.py --stage 6.3`: **8 Mission executions passed**, with 4 actual CPU runs and fresh-process reproduction; 50 independent checks on the selected run passed. See `harness.json`, `benchmark.md`, `measurements.zip`. |
+| Source/artifact integrity | Python AST checks, JavaScript syntax, `git diff --check`, packaged ZIP CRC, observation SHA256 and the original merged audit chain all passed. |
+
+The full run preceded three final storage/migration regressions (PDF preflight, actual indexed-PDF byte accounting and schema6 backup/pending Mission recovery) and small provenance/queue/verification metadata refinements. All final runtime changes are covered by the passing focused suite; final frontend and harness artifacts were regenerated as appropriate. There is no claim that the full 638-test run contained those later added tests. Full-suite skips concern environment privileges, optional dependencies and opt-in live integrations. The `EOF marker not found`/corrupt-JSON messages are intentional parser/recovery fixtures; the suite had no failures. A Starlette test-client deprecation warning does not change test outcomes.
+
+## Acceptance and fault injection
+
+Tests demonstrate minimal literature roles/single-domain fallback; acyclic owned tasks and deterministic independent verification; unavailable native engine blocked before paid admission; quota cooldown with no cloud fallback; bounded replan drafts with consumed budgets subtracted; pause/cancel and uncertain admission reconciliation; project/Topic denial; malicious source text never granting permissions; unsupported performance remaining unverified and disputed; audited authority rejection; central one-GPU capacity with fixed-protocol GPU requests rejected; immutable handoffs/receipt idempotency; recovery at a committed task boundary; conflicting canonical updates preserving the winner and separate task files; versioned PI decisions blocking/unblocking technical review without promoting a claim; and PDF worst-case size denied before network work when it cannot fit a workstream allocation.
+
+Technical completion is not a semantic scientific-quality score. Harness literature metadata and engine workspace files are explicitly synthetic; no actual scientific paper claim is certified. CPU arrays/MSE/PSNR are real generated-fixture measurements. Human approval/review in harness/tests is simulated and labelled; no human scientific pilot signoff is invented. Provider token/currency usage is null, GPU time is zero, and paid model calls are not submitted.
+
+## Reproducible evidence
+
+`harness.json` retains mission contracts, task results, actual role/domain counts, latency/attempt/review indicators, protocol/run metadata, verification and scoped work orders/receipts. Source identity records file hashes/tree fingerprint, the actual Git parent commit and dirty flag rather than pretending an uncommitted acceptance build is the clean parent. Ephemeral paths use `<temporary-data>` in portable JSON only. `measurements.zip` retains raw requests, arrays, stdout/stderr, all declared task-report artifacts and original unredacted test audit records. The original merged project ledger was hash-verified after packaging, and observation checksums/ZIP integrity were checked. Portable path redaction changes serialized audit payload bytes, so use the original audit files in the ZIP for independent hash validation.
+
+Measured multi-team paths add serialization/receipt/accounting overhead on these tiny serial workflows. They do not demonstrate improved research productivity or statistical quality. Multi-team stays off by default. See `benchmark.md` for current exact values; different runs will have normal timing variation.
+
+Not executed/qualified: a real bounded scientific pilot, live scholarly/citation availability, native paid/subscription reasoning, authenticated remote teams, arbitrary scientific code/GPU training, concurrent model teams, live pinned Docker containment/escape tests, or manual interactive browser visual QA. Existing local functionality was regression-tested; external gates are not waived. All application state used for tests/harness was temporary; native/user engine config and user research projects were not reset. No remote Git push was performed.

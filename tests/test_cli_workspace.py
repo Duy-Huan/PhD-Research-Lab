@@ -179,7 +179,9 @@ class Profiles(unittest.TestCase):
         self.assertIn("Write", a[a.index("--disallowedTools") + 1])
         a = C.ClaudeCodeConnector.argv(cl, {"profile": "assisted"})
         self.assertEqual(a[a.index("--permission-mode") + 1], "acceptEdits")
-        self.assertTrue(C.CodexConnector.supports_resume and not C.GeminiCliConnector.supports_resume)
+        self.assertTrue(C.CodexConnector.supports_resume and C.GeminiCliConnector.supports_resume)
+        gm = fake("gemini_cli")
+        self.assertIn("--resume", C.GeminiCliConnector.argv(gm, {"resume_session": "session-123456"}))
 
 
 class Launch(unittest.TestCase):

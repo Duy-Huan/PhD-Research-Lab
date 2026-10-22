@@ -66,6 +66,18 @@ class Api(unittest.TestCase):
         self.assertEqual(r.status_code, code, f"{method} {url} → {r.status_code} {r.text[:300]}")
         return r
 
+    def wait_chat(self, sid, timeout=30):
+        """A cold context/compiler import may exceed six seconds; wait for the actual terminal state."""
+        deadline = time.monotonic() + timeout
+        while True:
+            turn = sessions.get(sid)["turns"][-1]
+            if turn["status"] in ("completed", "failed", "cancelled"):
+                self.assertEqual(turn["status"], "completed", turn.get("error"))
+                return turn
+            if time.monotonic() >= deadline:
+                self.fail(f"Chat did not complete within {timeout}s: {turn['status']} / {turn.get('error')}")
+            time.sleep(0.03)
+
     # ------------------------------------------------------------------ system
     def test_system(self):
         self.assertEqual(self.ok("GET", "/api/version")["version"], config.APP_VERSION)
@@ -154,11 +166,9 @@ class Api(unittest.TestCase):
         att = self.ok("POST", "/api/chat/attachments", files={"file": ("data.csv", b"a,b\n1,2", "text/csv")})
         t = self.ok("POST", f"/api/chat/sessions/{sid}/turns", json={"text": "what is in the file?",
                                                                        "overrides": {"sources": [f"att:{att['id']}"]}})
-        for _ in range(200):
-            if sessions.get(sid)["turns"][-1]["status"] == "completed":
-                break
-            time.sleep(0.03)
+        self.wait_chat(sid)
         g = self.ok("GET", f"/api/chat/sessions/{sid}")
+        self.assertEqual(g["turns"][-1]["status"], "completed", g["turns"][-1])
         self.assertGreater(g["last_seq"], 0)
         self.assertTrue(any(x["id"] == f"att:{att['id']}" for x in self.ok("GET", f"/api/chat/sessions/{sid}/turns/{t['id']}/context")["sources"]))
         self.assertTrue(self.ok("GET", f"/api/chat/sessions/{sid}/events?after=0")["events"])
@@ -171,10 +181,7 @@ class Api(unittest.TestCase):
         self.assertEqual(self.ok("GET", f"/api/chat/sessions/{sid}")["title"], "New")
         self.bad("PUT", f"/api/chat/sessions/{sid}", json={"settings": {"reasoning": "max"}})
         self.ok("POST", f"/api/chat/sessions/{sid}/retry", json={})
-        for _ in range(200):
-            if sessions.get(sid)["turns"][-1]["status"] == "completed":
-                break
-            time.sleep(0.03)
+        self.wait_chat(sid)
         tid = sessions.get(sid)["turns"][-1]["id"]
         self.bad("POST", f"/api/chat/sessions/{sid}/turns/{tid}/cancel")
         self.bad("POST", f"/api/chat/sessions/{sid}/turns/{tid}/launch")
@@ -221,6 +228,9 @@ class Api(unittest.TestCase):
     def test_runs_and_memory(self):
         s = sessions.create("t")
         r = self.ok("POST", "/api/runs", json={"skill": "lit", "input": "vit", "session_id": s["id"]})
+        self.assertEqual(runs.wait(r["id"], 30)["status"], "NEEDS_USER_ACTION")
+        self.ok("POST", f"/api/runs/{r['id']}/provider", json={"step": "S1", "provider": "app"})
+        self.ok("POST", f"/api/runs/{r['id']}/resume", json={"accept": False})
         self.assertEqual(runs.wait(r["id"], 30)["status"], "COMPLETED")
         self.assertTrue(self.ok("GET", "/api/runs")["runs"])
         self.assertEqual(self.ok("GET", f"/api/runs/{r['id']}")["id"], r["id"])
@@ -294,21 +304,23 @@ class Api(unittest.TestCase):
         pdf = make_pdf([[(16, "A Paper About Pruning"), (10, "J. Smith")]])
         r = self.ok("POST", "/api/library/upload", files=[("files", ("p.pdf", pdf, "application/pdf")),
                                                          ("files", ("x.txt", b"no", "text/plain"))])
-        self.assertEqual((r["saved"], r["skipped"]), (["p.pdf"], ["x.txt"]))
+        name = r["saved"][0]
+        self.assertRegex(name, r"^nd_Unknown_A-Paper-About-Pruning_[a-f0-9]{12}\.pdf$")
+        self.assertEqual(r["skipped"], ["x.txt"])
         self.assertEqual(len(self.ok("GET", "/api/library")["references"]), 1)
-        self.ok("PUT", "/api/library/p.pdf", json={"title": "T", "authors": "A; B", "include": False, "key": "k1", "year": "2024"})
+        self.ok("PUT", f"/api/library/{name}", json={"title": "T", "authors": "A; B", "include": False, "key": "k1", "year": "2024"})
         self.bad("PUT", "/api/library/none.pdf", json={})
         with mock.patch("backend.providers.models.call_agent", mock.AsyncMock(return_value={"text": '{"title": "Better"}', "engine": "x"})):
-            self.assertEqual(self.ok("POST", "/api/library/refine", json={"file": "p.pdf"})["entry"]["title"], "Better")
+            self.assertEqual(self.ok("POST", "/api/library/refine", json={"file": name})["entry"]["title"], "Better")
         with mock.patch("backend.providers.models.call_agent", mock.AsyncMock(return_value={"text": "nope", "engine": "x"})):
-            self.bad("POST", "/api/library/refine", json={"file": "p.pdf"}, code=502)
+            self.bad("POST", "/api/library/refine", json={"file": name}, code=502)
         self.bad("POST", "/api/library/refine", json={"file": "none.pdf"}, code=404)
         with mock.patch("backend.api.library.first_pages_text", return_value=""):
-            self.bad("POST", "/api/library/refine", json={"file": "p.pdf"}, code=422)
+            self.bad("POST", "/api/library/refine", json={"file": name}, code=422)
         self.assertIn("references.bib", self.ok("GET", "/api/library/bib").text)
-        self.assertEqual(self.c.get("/api/library/file/p.pdf").status_code, 200)
+        self.assertEqual(self.c.get(f"/api/library/file/{name}").status_code, 200)
         self.bad("GET", "/api/library/file/none.pdf", 404)
-        self.ok("DELETE", "/api/library/p.pdf")
+        self.ok("DELETE", f"/api/library/{name}")
         p = self.ok("GET", "/api/paper")
         self.assertFalse(p["pdf"])
         self.ok("PUT", "/api/paper", json={"title": "My paper", "venue": "CVPR"})

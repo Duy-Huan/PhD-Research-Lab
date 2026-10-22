@@ -1,0 +1,214 @@
+"""Typed control-plane contracts. Data from a model cannot enlarge these permissions."""
+from typing import Literal
+from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+
+class Contract(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    schema_version: Literal["1.0"] = "1.0"
+
+
+class Limits(Contract):
+    max_tasks: int = Field(default=12, ge=1, le=24)
+    max_seconds: int = Field(default=600, ge=1, le=3600)
+    max_attempts: int = Field(default=2, ge=1, le=3)
+    max_reasoning_calls: int = Field(default=1, ge=0, le=3)
+    max_depth: int = Field(default=2, ge=0, le=3)
+    max_hops: int = Field(default=12, ge=1, le=24)
+    max_artifact_mb: int = Field(default=32, ge=1, le=128)
+
+
+class Task(Contract):
+    id: str = Field(pattern=r"^[a-z][a-z0-9_-]{0,39}$")
+    capability: str = Field(max_length=80)
+    args: dict = Field(default_factory=dict)
+    depends_on: list[str] = Field(default_factory=list, max_length=24)
+    preferred_engine: Literal["deterministic", "feynman", "openscience", "app"] = "deterministic"
+    fallback_engines: list[Literal["feynman", "openscience", "app"]] = Field(default_factory=list, max_length=2)
+
+
+class MissionControl(Contract):
+    charter_id: str = ""
+    charter_digest: str = ""
+    hypothesis_id: str = Field(default="",max_length=200)
+    exclusions: list[str] = Field(default_factory=list,max_length=20)
+    success_criteria: list[str] = Field(min_length=1,max_length=20)
+    allowed_engines: list[Literal["deterministic","feynman","openscience","app"]] = Field(default_factory=lambda:["deterministic"],min_length=1,max_length=4)
+    app_backend: str = Field(default="ollama",max_length=80)
+    app_model: str = Field(default="",max_length=200)
+    allow_api_billing: bool = False
+    not_before: datetime|None = None
+    end_date: datetime
+    max_wall_seconds: int = Field(default=3600,ge=1,le=86400)
+    priority: int = Field(default=0,ge=0,le=10)
+    review_required: Literal[True] = True
+    predecessor_id: str = ""
+
+    @model_validator(mode="after")
+    def dates(self):
+        if self.end_date.tzinfo is None or (self.not_before and self.not_before.tzinfo is None):raise ValueError("Mission dates require an explicit timezone")
+        if self.not_before and self.not_before>=self.end_date:raise ValueError("Schedule must precede mission end date")
+        return self
+
+
+class AgentRole(Contract):
+    id:str=Field(pattern=r"^[a-z][a-z0-9_-]{0,39}$")
+    purpose:str=Field(min_length=1,max_length=1000)
+    capabilities:list[str]=Field(min_length=1,max_length=20)
+    permissions:list[Literal["network","workspace_write","reasoning","compute"]]=Field(default_factory=list)
+    engines:list[Literal["deterministic","feynman","openscience","app"]]=Field(min_length=1,max_length=4)
+    expected_value:str=Field(min_length=1,max_length=1000)
+    termination:str=Field(default="Assigned bounded tasks complete or admission stops",max_length=1000)
+
+
+class TaskAssignment(Contract):
+    task_id:str
+    owner:str
+    verifier:str=""
+    acceptance:list[str]=Field(min_length=1,max_length=10)
+    output_contract:Literal["ExecutionResult/1.0"]="ExecutionResult/1.0"
+
+
+class TeamPlan(Contract):
+    mode:Literal["single","fixed","adaptive"]="adaptive"
+    agents:list[AgentRole]=Field(min_length=1,max_length=4)
+    assignments:list[TaskAssignment]=Field(min_length=1,max_length=24)
+    max_agents:int=Field(default=3,ge=1,le=4)
+    max_parallel_tasks:Literal[1]=1
+    max_replans:int=Field(default=2,ge=0,le=2)
+    generation:int=Field(default=0,ge=0,le=2)
+
+
+class TaskEnvelope(Contract):
+    mission_id:str
+    topic_id:str
+    task_id:str
+    sender:str
+    receiver:str
+    dependency_task_id:str
+    input_digest:str=Field(pattern=r"^[a-f0-9]{64}$")
+    artifact_refs:list[dict]=Field(default_factory=list,max_length=100)
+    trust:Literal["untrusted"]="untrusted"
+
+
+class VerificationResult(Contract):
+    status:Literal["unverified","verified","failed"]
+    method:str
+    evidence_refs:list[str]=Field(default_factory=list)
+    checks:list[dict]=Field(default_factory=list)
+    limitations:list[str]=Field(default_factory=list)
+
+
+class Workstream(Contract):
+    id:str=Field(pattern=r"^[a-z][a-z0-9_-]{0,39}$")
+    topic_id:str
+    objective:str=Field(min_length=1,max_length=2000)
+    task_ids:list[str]=Field(min_length=1,max_length=24)
+    depends_on:list[str]=Field(default_factory=list,max_length=4)
+    permissions:list[Literal["network","workspace_write","reasoning","compute"]]=Field(default_factory=list)
+    engines:list[Literal["deterministic","feynman","openscience","app"]]=Field(default_factory=lambda:["deterministic"])
+    max_reasoning_calls:int=Field(default=0,ge=0,le=3)
+    max_active_seconds:int=Field(ge=1,le=3600)
+    max_artifact_mb:int=Field(ge=1,le=128)
+    deliverables:list[str]=Field(min_length=1,max_length=10)
+    evidence_requirements:list[str]=Field(default_factory=lambda:["Owned versioned source/run/artifact references; no self-certification"],max_length=10)
+
+
+class CollaborationPlan(Contract):
+    workstreams:list[Workstream]=Field(min_length=1,max_length=4)
+    max_teams:int=Field(default=4,ge=1,le=4)
+    max_handoffs:int=Field(default=64,ge=1,le=128)
+    rationale:str=Field(min_length=1,max_length=2000)
+
+
+class ArtifactReference(Contract):
+    path:str
+    sha256:str=Field(pattern=r"^[a-f0-9]{64}$")
+    bytes:int=Field(ge=0)
+
+
+class EvidenceBundle(Contract):
+    result_digest:str=Field(pattern=r"^[a-f0-9]{64}$")
+    source_refs:list[str]=Field(default_factory=list,max_length=100)
+    artifacts:list[ArtifactReference]=Field(default_factory=list,max_length=100)
+    trust:Literal["unverified"]="unverified"
+
+
+class WorkOrder(Contract):
+    project_id:str
+    mission_id:str
+    topic_id:str
+    source_team:str
+    target_team:str
+    source_task:str
+    target_task:str
+    evidence:EvidenceBundle
+    expected_output:Literal["ExecutionResult/1.0"]="ExecutionResult/1.0"
+
+
+class MissionSpec(Contract):
+    topic_id: str
+    objective: str = Field(min_length=1, max_length=8000)
+    questions: list[str] = Field(default_factory=list, max_length=20)
+    inputs: list[str] = Field(default_factory=list, max_length=30)
+    expected_artifacts: list[str] = Field(default_factory=list, max_length=20)
+    permissions: list[Literal["network", "workspace_write", "reasoning", "compute"]] = Field(default_factory=list)
+    limits: Limits = Field(default_factory=Limits)
+    stop_conditions: list[str] = Field(default_factory=lambda: ["budget_exceeded", "failed_dependency"])
+    routing_mode: Literal["manual", "assisted"] = "manual"
+    owner: str = Field(default="researcher", min_length=1, max_length=100)
+    parent_mission_id: str = ""
+    control: MissionControl|None = None
+    team: TeamPlan|None = None
+    collaboration: CollaborationPlan|None = None
+    tasks: list[Task] = Field(min_length=1, max_length=24)
+
+    @model_validator(mode="after")
+    def dag(self):
+        ids = {t.id for t in self.tasks}
+        if len(ids) != len(self.tasks) or len(ids) > self.limits.max_tasks or len(ids) > self.limits.max_hops:
+            raise ValueError("Duplicate task IDs or task/hop budget exceeded")
+        pending = {t.id: set(t.depends_on) for t in self.tasks}
+        if any(d not in ids for deps in pending.values() for d in deps):
+            raise ValueError("Unknown task dependency")
+        done = set()
+        while pending:
+            ready = {k for k, deps in pending.items() if deps <= done}
+            if not ready:
+                raise ValueError("Task dependency cycle")
+            done |= ready
+            pending = {k:v for k,v in pending.items() if k not in ready}
+        return self
+
+
+class EvidenceRef(Contract):
+    source_id: str
+    topic_id: str
+    kind: Literal["paper", "evidence", "artifact", "experiment", "mission"]
+    sha256: str = ""
+    trust: Literal["untrusted", "measurement", "human_reviewed"] = "untrusted"
+
+
+class ArtifactManifest(Contract):
+    path: str
+    sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    bytes: int = Field(ge=0)
+    scientific_review: Literal["pending"] = "pending"
+
+
+class ToolCall(Contract):
+    mission_id: str
+    task_id: str
+    idempotency_key: str
+    capability: str
+    args: dict
+
+
+class ExecutionResult(Contract):
+    status: Literal["completed", "failed", "unavailable", "interrupted"]
+    output: dict = Field(default_factory=dict)
+    evidence: list[EvidenceRef] = Field(default_factory=list)
+    artifacts: list[ArtifactManifest] = Field(default_factory=list)
+    engine: str = "deterministic"
+    limitations: list[str] = Field(default_factory=list)

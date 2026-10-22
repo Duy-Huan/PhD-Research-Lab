@@ -64,11 +64,11 @@ class ApiFaults(unittest.IsolatedAsyncioTestCase):
              "runs.wait_events", (rid,)),
         ]:
             for disconnected in (True, False):
-                request = types.SimpleNamespace(is_disconnected=mock.AsyncMock(return_value=disconnected))
+                request = types.SimpleNamespace(headers={}, is_disconnected=mock.AsyncMock(return_value=disconnected))
                 clock = types.SimpleNamespace(time=mock.Mock(side_effect=[0, .1, 2]))
                 parent, attr = waiter.split(".")
                 with mock.patch.object(module, "asyncio", types.SimpleNamespace(get_running_loop=lambda: clock)), \
-                     mock.patch.object(getattr(module, parent), attr, return_value=[{"seq": 5, "type": "sample"}]):
+                     mock.patch.object(getattr(module, parent), attr, return_value=[{"seq": 5, "id": f"{sid}:5", "type": "sample"}]):
                     response = await create(*args, request, timeout=1)
                     output = await records(response)
                 self.assertTrue(any(x.get("seq") == 5 for x in output))

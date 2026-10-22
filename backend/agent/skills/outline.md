@@ -2,6 +2,8 @@
 name: outline
 title: Đề cương nghiên cứu
 description: Xây đề cương theo cấp: từ khoá → chủ đề → định hướng → phương pháp → đề cương đầy đủ
+title_en: Outline
+description_en: Build the research outline from keywords up to a full proposal
 usage: [ý tưởng / từ khoá / yêu cầu chỉnh]
 category: research
 agent: research

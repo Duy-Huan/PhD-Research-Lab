@@ -60,7 +60,28 @@ def instructions(module: str, skill: str = "") -> str:
             + "\n".join(lines) + "\nTo propose a file, use a fenced block with its path, e.g. ```python path=src/train.py. "
             "To propose memory, write lines such as 'Decision: …', 'Finding: …', 'Open question: …'.\n"
             "Background work (literature runs, experiments, code, review, LaTeX) is started with the start_run action; "
-            "the researcher can also type /help to see every skill.\n" + _skill_block(skill))
+            "the researcher can also type /help to see every skill.\n" + RICH_OUTPUT + _language() + _skill_block(skill))
+
+
+# What the chat renders beyond Markdown + KaTeX (frontend/assets/tools.js). Data must come from the context or the
+# researcher — never invented numbers presented as results.
+RICH_OUTPUT = (
+    "The chat renders these fenced blocks, use them when a picture says more than text:\n"
+    "- ```chart with JSON {\"type\": \"line|bar|scatter|area\", \"title\": \"…\", \"x\": [labels or numbers], "
+    "\"series\": [{\"name\": \"…\", \"data\": [numbers], \"error\": [optional ± values]}], \"xlabel\": \"…\", \"ylabel\": \"…\", "
+    "\"ylog\": false} — interactive plot; the researcher can click any point to annotate it.\n"
+    "- ```svg with one <svg> element — diagrams and schematic figures (no scripts).\n"
+    "- ```mermaid — flowcharts / sequence diagrams of pipelines and architectures.\n"
+    "- Markdown images ![caption](project/file.png) for figures that exist in the project.\n"
+    "Plot only values from the context (MEASURED results, tables, papers) or values the researcher gave; label "
+    "illustrative curves as such. The researcher can export any answer to PDF, Word, LaTeX or Markdown.\n")
+
+
+def _language() -> str:
+    from backend.core.config import load_config
+    lang = (load_config().get("ui") or {}).get("language", "vi")
+    return ("Answer in Vietnamese unless the researcher writes in another language; keep technical terms in English.\n"
+            if lang == "vi" else "Answer in English unless the researcher writes in another language.\n")
 
 
 def _skill_block(name: str) -> str:
@@ -96,6 +117,11 @@ def _local(sid: str, tid: str, text: str, **meta) -> None:
 def _route(sid: str, tid: str, s: dict, text: str) -> bool:
     """Skills and intents. True when the turn was handled here (no model call)."""
     from backend.agent import launch, skills
+    from backend.agent.ui_actions import QUICK
+    command = text.split(maxsplit=1)[0].lstrip("/").lower() if text.startswith("/") else ""
+    if command in QUICK:
+        _local(sid, tid, "Open the research drawer: " + QUICK[command][0] + ". This is a deterministic UI action; no model was called.")
+        return True
     m = skills.match(text)
     if m:
         skill, arg = m
@@ -103,10 +129,22 @@ def _route(sid: str, tid: str, s: dict, text: str) -> bool:
             _local(sid, tid, launch.help_text())
             return True
         if skill["name"] == "status":
+            if s.get("topic_id"):
+                from backend.knowledge import research_store as RS, corpus
+                from backend.research_engines.workspaces import list_workspaces
+                topic = RS.get_topic(s["topic_id"])
+                _local(sid, tid, f"Topic: {topic['title']}\n\nPapers: {corpus.search(topic['id'])['total']}\nWorkspaces: {len(list_workspaces(topic['id']))}\n\nUse /jobs or /artifacts for the scoped research state.")
+                return True
             from backend.agent.dashboard import status_text
             _local(sid, tid, status_text())
             return True
         if skill["mode"] == "run":
+            if s.get("topic_id"):
+                if skill["name"] in ("review", "compare", "lit", "gap", "deepresearch"):
+                    _set(sid, tid, skill=skill["name"], question=arg or f"/{skill['name']}")
+                    return False
+                _local(sid, tid, "This run changes project-scoped state. Open a project conversation to run it; Topic chat supports scoped research and review.")
+                return True
             try:
                 r = launch.from_skill(skill["name"], arg, s, turn_id=tid)
             except AIWSError as e:
@@ -115,6 +153,8 @@ def _route(sid: str, tid: str, s: dict, text: str) -> bool:
             _local(sid, tid, _run_started(r), kind="run", run_id=r["id"])
             return True
         _set(sid, tid, skill=skill["name"], question=arg or f"/{skill['name']}")
+        return False
+    if s.get("topic_id"):
         return False
     route = launch.route(text)
     if not route:
@@ -125,7 +165,9 @@ def _route(sid: str, tid: str, s: dict, text: str) -> bool:
         return False
     if route["auto"]:
         r = launch.from_skill(route["skill"], text, s, turn_id=tid)
-        _local(sid, tid, f"Mình hiểu đây là yêu cầu **/{route['skill']}** ({route['title']}).\n\n" + _run_started(r),
+        from backend.core.i18n import L
+        _local(sid, tid, L(f"Mình hiểu đây là yêu cầu **/{route['skill']}** ({route['title']}).\n\n",
+                           f"This looks like a **/{route['skill']}** request ({route['title']}).\n\n") + _run_started(r),
                kind="run", run_id=r["id"])
         return True
     ap = {"id": new_id("ap", 4), "turn_id": tid, "kind": "action", "name": "start_run",
@@ -134,19 +176,27 @@ def _route(sid: str, tid: str, s: dict, text: str) -> bool:
     store.update(sid, lambda x: x["approvals"].append(ap))
     store.emit(sid, "action.proposed", tid, "phdlab", approval=ap["id"], action="start_run")
     store.emit(sid, "action.approval_required", tid, "phdlab", approval=ap["id"], action="start_run", risk=route["risk"])
-    _local(sid, tid, f"Mình đề xuất chạy **/{route['skill']}** ({route['title']}) trong nền với yêu cầu của bạn. "
-                     "Việc này viết code / dùng tài nguyên máy nên cần bạn **Chấp nhận** trước — hoặc bỏ qua để "
-                     "mình chỉ trả lời trong chat.", kind="proposal")
+    from backend.core.i18n import L
+    _local(sid, tid, L(f"Mình đề xuất chạy **/{route['skill']}** ({route['title']}) trong nền với yêu cầu của bạn. "
+                       "Việc này viết code / dùng tài nguyên máy nên cần bạn **Chấp nhận** trước — hoặc bỏ qua để "
+                       "mình chỉ trả lời trong chat.",
+                       f"I propose running **/{route['skill']}** ({route['title']}) in the background for your request. "
+                       "It writes code / uses this machine's resources, so it needs your **Accept** first — or dismiss it "
+                       "and I will only answer in the chat."), kind="proposal")
     return True
 
 
 def _run_started(r: dict) -> str:
+    from backend.core.i18n import L
     steps = " → ".join(x["label"] for x in r["steps"])
     if r["status"] == "APPROVAL_PENDING":
-        return (f"Đã lập kế hoạch run `{r['id']}`: {steps}.\n\nRun này cần bạn **Chấp nhận** trước khi chạy "
-                "(viết code / dùng GPU / thay đổi dự án).")
-    return (f"Đã bắt đầu run `{r['id']}` trong nền: {steps}. Bạn có thể tiếp tục trò chuyện; kết quả sẽ hiện ở đây "
-            "để bạn duyệt.")
+        return L(f"Đã lập kế hoạch run `{r['id']}`: {steps}.\n\nRun này cần bạn **Chấp nhận** trước khi chạy "
+                 "(viết code / dùng GPU / thay đổi dự án).",
+                 f"Planned run `{r['id']}`: {steps}.\n\nThis run needs your **Accept** before it starts "
+                 "(writes code / uses the GPU / changes the project).")
+    return L(f"Đã bắt đầu run `{r['id']}` trong nền: {steps}. Bạn có thể tiếp tục trò chuyện; kết quả sẽ hiện ở đây "
+             "để bạn duyệt.", f"Started run `{r['id']}` in the background: {steps}. You can keep chatting; the results "
+             "will appear here for your review.")
 
 
 # ------------------------------------------------------------------ public API
@@ -160,6 +210,11 @@ def start(sid: str, text: str, overrides: dict | None = None, base_url: str = ""
     if any(t["status"] in ("running", "queued") for t in s["turns"]):
         raise AIWSError("A turn is already running in this session — wait or cancel it")
     ov = clean_overrides(overrides or {})
+    if s.get("topic_id"):
+        from backend.knowledge.research_context import validate_sources
+        validate_sources(s["topic_id"], list(s.get("selected_sources") or []) + list(ov.get("sources") or []))
+        if ov.get("run_tools"):
+            raise AIWSError("Project-scoped tools are unavailable in Topic chat")
     eff = effective(s, ov)
     tid = new_id("t", 4)
     if replace_from:
@@ -239,8 +294,12 @@ def run(sid: str, tid: str, stage: str) -> None:
         extra = [adapters.src(f"tool:{x['id']}", "tool_result", f"{x['name']} result", (x.get("result") or {}).get("text", ""),
                               "untrusted", "research tool run for this turn")
                  for x in s["approvals"] if x["turn_id"] == tid and x["kind"] == "tool" and x["status"] == "executed"]
-        ctx = context.compile(s, t["question"], t["effective"], extra)
-        _set(sid, tid, manifest=ctx["manifest"], context_text=ctx["text"])
+        from backend.core.telemetry import span
+        clock = time.perf_counter()
+        with span("chat.context", session_id=sid, provider=pid):
+            ctx = context.compile(s, t["question"], t["effective"], extra)
+        _set(sid, tid, manifest=ctx["manifest"], context_text=ctx["text"],
+             timings_ms={"context": round((time.perf_counter() - clock) * 1000, 2)})
         store.update(sid, lambda x: x.update(last_manifest=ctx["manifest"]))
         store.emit(sid, "context.compiled", tid, pid, manifest=ctx["manifest"]["id"], sources=len(ctx["manifest"]["sources"]),
                    omitted=len(ctx["manifest"]["omitted"]), tokens=ctx["manifest"]["budget"]["used_tokens"],
@@ -507,7 +566,7 @@ def _cli(sid, tid, s, t, v):
     try:
         r = GS.prepare(t["question"], name, session_id=s["gateway_session"], profile=v["security_profile"],
                        allow_weaker=bool(v.get("consent_weaker")), module_context=ctx_text,
-                       memory=v["use_memory"] and v["context_mode"] != "none")
+                       memory=False)  # upstream context.compile already selected/versioned the memory for this turn
     except GS.GatewayError as e:
         return "", None, str(e), False
     store.update(sid, lambda x: x.update(gateway_session=r["session_id"]))
@@ -516,37 +575,37 @@ def _cli(sid, tid, s, t, v):
     with _lock:
         _running.setdefault(tid, {"cancel": threading.Event(), "rid": ""})["rid"] = r["id"]
     _set(sid, tid, gateway_request=r["id"])
-    GS.send(r["id"], base_url=t["base_url"], mcp=mcp, model=v["model"],
-            reasoning=v["reasoning"] if v["reasoning"] in providers.REASONING.get(name, ()) else "")
-    after, text, err = 0, [], ""
-    while True:
-        e = GS.events(r["id"], after)
-        after = e["next"]
-        for ev in e["events"]:
-            ty = ev["type"]
-            if ty == "text_delta":
-                text.append(ev.get("text", ""))
-                store.emit(sid, "message.delta", tid, v["provider"], text=ev.get("text", ""))
-            elif ty == "tool_call":
-                store.emit(sid, "tool.started", tid, v["provider"], tool=ev.get("name", ""), detail=ev.get("detail", ""),
-                           by="provider")
-            elif ty == "tool_result":
-                store.emit(sid, "tool.failed" if ev.get("is_error") else "tool.completed", tid, v["provider"],
-                           tool=ev.get("name", ""), by="provider")
-            elif ty == "status" and ev.get("state") == "usage":
-                store.emit(sid, "usage.updated", tid, v["provider"], usage=ev.get("usage") or {})
-            elif ty == "error":
-                err = ev.get("message", "")
-                store.emit(sid, "error", tid, v["provider"], message=err)
-        if e["status"] not in ("running", "ready"):
-            break
-        if _cancelled(tid):  # cancelled before the CLI process existed: keep asking until it is stopped
-            try:
-                GS.cancel(r["id"])
-            except GS.GatewayError:  # it finished in the meantime
-                pass
-        time.sleep(0.2)
-    if mcp:
+    try:
+        GS.send(r["id"], base_url=t["base_url"], mcp=mcp, model=v["model"],
+                reasoning=v["reasoning"] if v["reasoning"] in providers.REASONING.get(name, ()) else "")
+        after, text, err = 0, [], ""
+        while True:
+            e = GS.wait_events(r["id"], after, 0.5)
+            after = e["next"]
+            for ev in e["events"]:
+                ty = ev["type"]
+                if ty == "text_delta":
+                    text.append(ev.get("text", ""))
+                    store.emit(sid, "message.delta", tid, v["provider"], text=ev.get("text", ""))
+                elif ty == "tool_call":
+                    store.emit(sid, "tool.started", tid, v["provider"], tool=ev.get("name", ""), detail=ev.get("detail", ""),
+                               by="provider")
+                elif ty == "tool_result":
+                    store.emit(sid, "tool.failed" if ev.get("is_error") else "tool.completed", tid, v["provider"],
+                               tool=ev.get("name", ""), by="provider")
+                elif ty == "status" and ev.get("state") == "usage":
+                    store.emit(sid, "usage.updated", tid, v["provider"], usage=ev.get("usage") or {})
+                elif ty == "error":
+                    err = ev.get("message", "")
+                    store.emit(sid, "error", tid, v["provider"], message=err)
+            if not e["events"] and e["status"] not in ("running", "ready", "starting"):
+                break
+            if _cancelled(tid):  # cancelled before the CLI process existed: keep asking until it is stopped
+                try:
+                    GS.cancel(r["id"])
+                except GS.GatewayError:  # it finished in the meantime
+                    pass
+    finally:
         mcp_policy.revoke(mcp["token"])
     final = GS.get(r["id"])
     answer = final.get("answer") or "".join(text)

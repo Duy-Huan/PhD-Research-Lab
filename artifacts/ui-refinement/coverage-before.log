@@ -1,0 +1,137 @@
+✔ research run in chat exposes source cards that save to the library without leaving the conversation (433.8142ms)
+✔ conversation list: groups by age, badges, running spinner, keyboard, empty state (322.1307ms)
+✔ thread menu: rename, archive, delete (cancel / confirm), on the open and on another conversation (892.9027ms)
+✔ PL.menu: headers, hints, tags, disabled and danger items, above the anchor, outside click (124.6756ms)
+✔ home screen: outline starter for an empty project, current run, pending work, no project name (374.066ms)
+✔ opening a conversation: messages, proposals, memory card, run card; missing conversation (265.9138ms)
+✔ message variants: cancelled, partial, other providers + model, unknown provider, actions (370.1856ms)
+✔ proposal bodies for every action kind, results, verdict chips (129.9561ms)
+✔ Accept / Reject a proposal (ok, failed, server error); memory proposals (416.1586ms)
+✔ memory and artifact cards: every status, conflicts, view / reject / apply (235.4558ms)
+✔ run cards: every status, recovery proposal, approve / cancel / retry / resume; gone run (719.1488ms)
+✔ live events: streaming text, activity, tool use, run updates, completion and failure (414.2428ms)
+✔ stop a running answer; stop with nothing running (216.2846ms)
+✔ composer: send, Enter / Shift+Enter, composing, busy, attachments (upload, failure, pending, remove, + library) (725.222ms)
+✔ a first message creates the conversation (with the model chosen beforehand) (286.3078ms)
+✔ "/" skill menu: filter by name, alias and title, categories, keyboard, pick with the mouse (455.2896ms)
+✔ model + reasoning picker: groups, filter, unavailable models, choose model and level, notes, close (577.9281ms)
+✔ model picker before the model list arrived; models unavailable; skills unavailable (379.9787ms)
+✔ scrolling: follows new content only when the reader is near the bottom (134.3313ms)
+✔ sparse records: missing optional fields never break the page; every completion event refreshes (380.838ms)
+✔ home screen without a project (configuration unavailable); outline without attachments (95.0852ms)
+✔ h() builds elements: classes, id, attributes, events, html/text/dataset, children (165.5044ms)
+✔ api(): JSON, text, FormData, errors, offline banner, abort (51.0774ms)
+✔ stream(): resume cursor, hello, timeout reconnect, bad JSON, errors with backoff, close (196.2398ms)
+✔ bus: prefix subscriptions, unsubscribe, a failing listener never breaks the others; live dot (15.3063ms)
+✔ md()/rich(): hidden action blocks, math, code copy + lazy highlight, links, fallbacks (180.8008ms)
+✔ copy(): clipboard ok, failure, no clipboard (69.8058ms)
+✔ toast / modal / confirm / prompt (249.7714ms)
+✔ formatting: ago, size, status chips (31.2718ms)
+✔ routing and storage (61.4373ms)
+✔ tiles, pending work, recent runs; tiles and rows open the right place (691.4029ms)
+✔ a running project: current step, run in pending work, pins with their menu, statuses (459.4321ms)
+✔ advanced details: guard slots, GPU, models in VRAM, providers, research state, unload (no acceptance checklist) (233.4874ms)
+✔ advanced details when everything is unavailable (107.6735ms)
+✔ memory proposals panel: accept, dismiss, none, unavailable (267.8038ms)
+✔ dashboard error, leaving the page stops live refreshes, reopening replaces the listeners (419.3107ms)
+✔ boot paints the project, conversations, pending count; header + sidebar controls (754.5907ms)
+✔ narrow screens: the sidebar slides over the page (179.386ms)
+✔ navigation buttons open panels, pages and settings (348.4599ms)
+✔ keyboard: Ctrl+Shift+O new chat, "/" opens the skill menu outside inputs (360.2853ms)
+✔ project menu: switch, new project (validation, failure, success), open existing, outline, reveal (797.4269ms)
+✔ live bus: conversation, run, project, outline and config events refresh the right parts (212.9407ms)
+✔ boot survives a failing backend; restores the last run panel; dashboard down → no count (189.3603ms)
+✔ the page boots itself: right away, or on DOMContentLoaded while still loading (49.8599ms)
+✔ run panel: steps, provider switch, outputs, acceptance, every timeline event, live repaint (703.5801ms)
+✔ file viewer: PDF, image, Markdown, CSV with a note, JSON, broken JSON, text, errors (112.4779ms)
+✔ proposed file: diff, reject, apply (ok / refused), read-only when decided, diff error (283.5671ms)
+✔ outline starter: levels, required text, save → AI proposes the next level, attach a proposal file (412.7559ms)
+✔ outline panel: fields, save, AI proposes, attachments, restore versions, load error (491.8337ms)
+✔ library: list, include toggle, open, delete (cancel / confirm), upload by click and drop, error (417.002ms)
+✔ experiments: code projects, open in VS Code, new project, sync back, jobs with metrics, stop (776.8509ms)
+✔ Lit discovery: multi-source search, provider errors, verified journal data and one-click save (182.6879ms)
+✔ Lit handles empty results, search faults, unsafe URLs and save retry without inventing quartiles (218.9745ms)
+✔ metadata-only library records open details and research runs retain saveable sources (74.6552ms)
+✔ Lit source availability and validation: sparse responses, direct search links and source provenance (292.0575ms)
+✔ engine settings remain separate from models; search and model qualification updates (405.5306ms)
+✔ native permission UI permits once/reject and resumes the existing run (290.8751ms)
+✔ uncertain decision never automatically resumes the workflow (158.1789ms)
+✔ /find and /sync are deterministic; drawer preserves the chat composer (459.7158ms)
+✔ search/filter/page calls backend; selections feed explicit AI turn only (320.7676ms)
+✔ bulk download queues real backend job; job failures remain visible and retryable (220.5118ms)
+✔ topic switch clears selections and creates a separate bound conversation (124.77ms)
+✔ missing backend and unavailable plugin show errors without invoking AI (91.5662ms)
+✔ quick palette opens a whitelisted panel; topic sources are removable (204.4037ms)
+✔ Review Room checks evidence and records an explicit decision without a chat turn (205.7935ms)
+✔ mission retries and protocol approval use explicit controls and exact digests (155.1541ms)
+✔ Mission Monitor preserves composer and uses direct scheduling/review controls (138.8268ms)
+✔ Team Monitor shows logical ownership and enables teams without invoking a model (111.856ms)
+✔ Workstreams show receipts and resolve disputes with a versioned human note (137.0575ms)
+✔ empty review page: drop zone (click, keyboard, drag & drop), upload opens the new review (555.4649ms)
+✔ a new review: settings, start reviewing (streamed stages), tabs before any report (720.3454ms)
+✔ a reviewed manuscript: reports, chair, issues with fixes (accept / dismiss / propose), apply, downloads, delete (1061.457ms)
+✔ review list without an active review; a review that cannot be loaded; leaving a chat for the review page (231.9501ms)
+✔ tabs switch; the configuration cannot be loaded (519.5534ms)
+✔ settings search finds hardware and MCP, handles no matches, and clears the filter (404.1079ms)
+✔ models & agents: engines per agent, cloud keys (main list + others), local models in VRAM, lifecycle (604.2944ms)
+✔ models tab when the local servers are offline or unreadable (288.5564ms)
+✔ research providers: states, setup hints, sign-in, Feynman and coding defaults (382.6632ms)
+✔ paper and web search configuration saves scoped keys without returning secrets to password fields (427.6204ms)
+✔ journal ranking CSV import validates year and file, reports faults and permits retry (391.9753ms)
+✔ experiments & hardware: approvals, budgets, recovery, web search, slots, GPU, VS Code path (592.875ms)
+✔ memory & context settings (229.5791ms)
+✔ skills: list, delete a user skill, create one (ok / invalid), load errors (500.3341ms)
+✔ appearance: theme follows the system, light, dark; storage blocked (340.3799ms)
+✔ boots on the home screen with the recorded project (280.4055ms)
+✔ charts: parse, draw (line, bar, scatter, area, log), hover, table, PNG / SVG download, invalid specs (863.5889ms)
+✔ svg figures are sanitised; mermaid diagrams load on demand and fall back to source (183.1101ms)
+✔ export: menu formats, PDF / Word / LaTeX of an answer and of the conversation, print fallback, errors (374.3282ms)
+✔ notes: select a passage, note a chart point, highlights, the notes panel, ask the AI, resolve / edit / delete (1002.3553ms)
+✔ notes panel when there are none; a note whose passage is gone; highlight helper edge cases (276.1047ms)
+✔ composer tools menu; streaming closes an open code fence; md cache (411.8076ms)
+✔ English interface: static markup, constants, dates, skills in English, language switch reloads (242.8011ms)
+✔ settings: language, font, plugins (install, toggle, skills, update, remove, errors), automatic ranking (934.1478ms)
+✔ paper panel: sections, AI-Scientist install, write the manuscript (stream), compile, downloads (915.7657ms)
+✔ library: ranking badges, the ranking check; search results show CORE ranks (161.8653ms)
+✔ review: venue ranking lookup, the revision guide tab (write with AI, show, rewrite) (475.4939ms)
+✔ custom model selection can cancel, add a model, and refresh actual provider catalogs (560.8858ms)
+✔ remote run cards require approval and sync the real task identity (853.0923ms)
+✔ native run recovery, cancellation and questions preserve user intent (345.0886ms)
+ℹ tests 99
+ℹ suites 0
+ℹ pass 99
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8622.1218
+ℹ start of coverage report
+ℹ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ℹ file             | line % | branch % | funcs % | uncovered lines
+ℹ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ℹ     chat.js      | 100.00 |    95.90 |   95.37 |
+ℹ     core.js      | 100.00 |    98.30 |   98.84 |
+ℹ     dashboard.js | 100.00 |   100.00 |   97.96 |
+ℹ     i18n-en.js   | 100.00 |    50.00 |  100.00 |
+ℹ     i18n.js      | 100.00 |    70.83 |  100.00 |
+ℹ     main.js      | 100.00 |    97.48 |   97.87 |
+ℹ     panels.js    | 100.00 |    98.45 |   98.46 |
+ℹ     research.js  |  68.00 |    63.87 |   56.92 | 75-93 95-117 139-140 171-180 182-186 197-201 205-218 222-245 265-268 279-280 305-307 324-325 341-342 353-354 371-373
+ℹ     review.js    | 100.00 |    99.44 |   96.43 |
+ℹ     settings.js  | 100.00 |    95.42 |   85.06 |
+ℹ     tools.js     | 100.00 |    88.96 |   97.40 |
+ℹ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ℹ all files        |  97.06 |    93.81 |   89.98 |
+ℹ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ℹ end of coverage report
+uncovered chat.js: B498 B94 B124 B158 B211 B212 B229 B427 B428 B462 B463 B473 B506 B510 B553 B568 B575 B578 B585 B600 B613 B614 B615 B628 B652 B842 B844 B484 B485 B270 B608 B658
+uncovered core.js: B5 B303 B320 B326
+uncovered i18n-en.js: B4 B5
+uncovered i18n.js: B9 B14 B26 B30 B31
+uncovered main.js: B163 B141
+uncovered panels.js: B91 B366 B402 B405 B419 B413
+uncovered research.js: B10 B15 B17 B30 B33 B35 B51 B52 B56 B58 B59 B60 B63 B122 B188 B189 B203 B204 B248 B249 B251 B252 B253 B258 B259 B270 B275 B283 B285 B288 B291 B292 B293 B294 B295 B300 B303 B316 B320 B322 B329 B344 B347 B348 B356 B361 B132 B134 B135 B137 B151 B153 B157 B158 B159 B160 B164 B274 B313 B334 B355 B359 L75 L76 L77 L78 L79 L80 L81 L82 L83 L84 L85 L86 L87 L88 L89 L90 L91 L92 L93 L95 L96 L97 L98 L99 L100 L101 L102 L103 L104 L105 L106 L107 L108 L109 L110 L111 L112 L113 L114 L115 L116 L117 L139 L140 L171 L172 L173 L174 L175 L176 L177 L178 L179 L180 L182 L183 L184 L185 L186 L197 L198 L199 L200 L201 L205 L206 L207 L208 L209 L210 L211 L212 L213 L214 L215 L216 L217 L218 L222 L223 L224 L225 L226 L227 L228 L229 L230 L231 L232 L233 L234 L235 L236 L237 L238 L239 L240 L241 L242 L243 L244 L245 L265 L266 L267 L268 L279 L280 L305 L306 L307 L324 L325 L341 L342 L353 L354 L371 L372 L373
+uncovered review.js: B74
+uncovered settings.js: B14 B15 B16 B99 B124 B223 B228 B229 B318 B333 B340 B366
+uncovered tools.js: B220 B28 B42 B50 B58 B60 B194 B209 B258 B285 B295 B328 B329 B331 B350 B393 B75 B80 B121 B149 B151 B170 B178 B180 B188 B196 B201 B205 B206 B355
+frontend coverage incomplete: 299 line/branch gaps

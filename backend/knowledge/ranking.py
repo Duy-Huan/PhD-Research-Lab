@@ -1,6 +1,9 @@
-"""Journal indicators with provenance. OpenAlex statistics are never labelled SJR, JIF or a paper quality score.
+"""Venue indicators with provenance. OpenAlex statistics are never labelled SJR, JIF or a paper quality score.
 
-SJR/quartiles come only from a SCImago CSV explicitly imported with its ranking year. Unknown remains unknown.
+SJR/quartiles come only from a SCImago CSV imported with its ranking year — by hand, or automatically when a
+scimagojr*.csv appears in the Downloads folder (SCImago's bot protection blocks direct downloads). Conference ranks
+(A*, A, B, C) come from the CORE portal export, downloaded and refreshed automatically (config "ranking").
+Data lives in <data>/plugins/ranking/. Unknown remains unknown: no fuzzy venue identity guesses.
 """
 from __future__ import annotations
 
@@ -38,11 +41,26 @@ def _number(value):
         return None
 
 
+def _dir():
+    d = GLOBAL_DIR / "plugins" / "ranking"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
 def _path():
-    return GLOBAL_DIR / "journal_rankings.json"
+    legacy = GLOBAL_DIR / "journal_rankings.json"
+    new = _dir() / "scimago.json"
+    if legacy.exists() and not new.exists():  # v5.0 location
+        from backend.memory.store import replace_retry
+        replace_retry(legacy, new)
+    return new
 
 
-def import_scimago(text: str, year: int) -> dict:
+def _core_path():
+    return _dir() / "core.json"
+
+
+def import_scimago(text: str, year: int, origin: str = "") -> dict:
     if not 1900 <= year <= datetime.now().year:
         raise ValueError("Supply the ranking year of this SCImago export")
     delim = ";" if text.splitlines() and text.splitlines()[0].count(";") > text.splitlines()[0].count(",") else ","
@@ -62,21 +80,211 @@ def import_scimago(text: str, year: int) -> dict:
                                                                 else "journalrank.php?string=" + quote(title))})
     if not rows:
         raise ValueError("No valid SCImago rows: expected Title, Issn, SJR and/or SJR Best Quartile columns")
-    doc = {"year": year, "imported_at": datetime.now(timezone.utc).isoformat(), "records": rows}
+    doc = {"year": year, "imported_at": datetime.now(timezone.utc).isoformat(), "records": rows, "origin": origin}
     from backend.memory.store import replace_retry
     with _lock:
         tmp = _path().with_suffix(".json.tmp")
         tmp.write_text(json.dumps(doc, ensure_ascii=False), "utf-8")
         replace_retry(tmp, _path())
+    with _lock:
+        _cache.pop("_records", None)
     return {"year": year, "records": len(rows), "source": "SCImago (imported CSV)"}
 
 
-def _local_records() -> list:
-    try:
-        doc = json.loads(_path().read_text("utf-8"))
-        return doc.get("records", []) if isinstance(doc, dict) else []
-    except (OSError, ValueError):
+# ------------------------------------------------------------------ automatic sources
+CORE_URL = "https://portal.core.edu.au/conf-ranks/?search=&by=all&source={source}&sort=arank&page=1&do=Export"
+CORE_RANKS = ("A*", "A", "B", "C")
+
+
+def refresh_core(source: str = "ICORE2026") -> dict:
+    """Download the CORE conference ranking export (id, title, acronym, source, rank, …) → plugins/ranking/core.json."""
+    import httpx
+    if not re.fullmatch(r"[A-Z]*CORE\d{4}|ERA2010", source or ""):
+        raise ValueError("CORE source must look like ICORE2026 or CORE2023")
+    r = httpx.get(CORE_URL.format(source=source), timeout=60, follow_redirects=True, headers={"User-Agent": "PhD-Research-Lab"})
+    r.raise_for_status()
+    rows = []
+    for row in csv.reader(io.StringIO(r.content.decode("utf-8", errors="replace"))):
+        if len(row) < 5 or not row[1].strip():
+            continue
+        rank = row[4].strip()
+        rows.append({"title": row[1].strip(), "acronym": row[2].strip(), "rank": rank if rank in CORE_RANKS else "",
+                     "rank_raw": rank, "core_id": row[0].strip(), "source": row[3].strip() or source})
+    if len(rows) < 50:
+        raise ValueError("The CORE export looks incomplete — try again later")
+    doc = {"source": source, "fetched_at": datetime.now(timezone.utc).isoformat(), "records": rows}
+    from backend.memory.store import replace_retry
+    with _lock:
+        tmp = _core_path().with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(doc, ensure_ascii=False), "utf-8")
+        replace_retry(tmp, _core_path())
+        _cache.pop("_core", None)
+    return {"source": source, "records": len(rows), "ranked": sum(1 for x in rows if x["rank"])}
+
+
+def _core() -> dict:
+    with _lock:
+        try:
+            mt = _core_path().stat().st_mtime_ns
+        except OSError:
+            return {}
+        hit = _cache.get("_core")
+        if hit and hit[0] == mt:
+            return hit[1]
+        try:
+            doc = json.loads(_core_path().read_text("utf-8"))
+        except (OSError, ValueError):
+            return {}
+        by_acr, by_title = {}, {}
+        for r in doc.get("records") or []:
+            was = re.findall(r"\(was ([^)]+)\)", r.get("title", ""))
+            for a in [r.get("acronym", "")] + [x.strip() for w in was for x in w.split(",")]:
+                if a:
+                    by_acr.setdefault(a.upper(), r)
+            by_title.setdefault(_normal(re.sub(r"\([^)]*\)", "", r.get("title", ""))), r)
+        out = {"doc": doc, "acr": by_acr, "title": by_title}
+        _cache["_core"] = (mt, out)
+        return out
+
+
+def _core_url(c: dict) -> str:
+    return f"https://portal.core.edu.au/conf-ranks/{c['core_id']}/" if str(c.get("core_id", "")).isdigit() else ""
+
+
+def match_core(venue: str) -> dict:
+    """CORE record of a conference venue string: its normalised full title contained in the venue, or a standalone
+    upper-case acronym token of at least 3 characters ('CVPR 2025', 'Proc. ICCV'). No fuzzy matching."""
+    idx = _core()
+    if not idx or not venue:
+        return {}
+    nv = _normal(venue)
+    best = None
+    for t, r in idx["title"].items():
+        if len(t) >= 12 and t in nv and (not best or len(t) > len(_normal(best["title"]))):
+            best = r
+    if best:
+        return best
+    for tok in re.findall(r"(?<![A-Za-z])([A-Za-z][A-Za-z0-9]{2,11})(?![A-Za-z])", venue):
+        if sum(ch.isupper() for ch in tok) >= 2 and tok.upper() in idx["acr"]:  # CVPR, NeurIPS — never plain words
+            return idx["acr"][tok.upper()]
+    return {}
+
+
+def _downloads() -> list:
+    import os
+    from pathlib import Path
+    d = Path(os.environ.get("PHDLAB_DOWNLOADS") or Path(os.environ.get("USERPROFILE") or Path.home()) / "Downloads")
+    if not d.is_dir():
         return []
+    return sorted((f for f in d.glob("scimagojr*.csv") if f.is_file()), key=lambda f: f.stat().st_mtime, reverse=True)
+
+
+def scan_downloads() -> dict:
+    """Import the newest scimagojr*.csv from Downloads when it differs from the last import (year from its name)."""
+    files = _downloads()
+    if not files:
+        return {"imported": False}
+    f = files[0]
+    origin = f"{f.name}:{f.stat().st_mtime_ns}"
+    try:
+        cur = json.loads(_path().read_text("utf-8"))
+    except (OSError, ValueError):
+        cur = {}
+    if cur.get("origin") == origin:
+        return {"imported": False, "file": f.name}
+    m = re.search(r"(?:19|20)\d{2}", f.name)
+    year = min(int(m.group(0)) if m else datetime.now().year - 1, datetime.now().year)
+    raw = f.read_bytes()
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        text = raw.decode("cp1252")
+    return {"imported": True, "file": f.name, **import_scimago(text, year, origin=origin)}
+
+
+def auto_refresh(cfg: dict, force: bool = False) -> dict:
+    """Keep the automatic sources fresh (start-up, Settings and the ranking check of the library)."""
+    rc = cfg.get("ranking") or {}
+    out = {}
+    if not rc.get("auto", True) and not force:
+        return out
+    if rc.get("watch_downloads", True):
+        try:
+            out["scimago"] = scan_downloads()
+        except (OSError, ValueError) as e:
+            out["scimago"] = {"error": str(e)[:200]}
+    core = _core().get("doc") or {}
+    try:
+        age = (time.time() - datetime.fromisoformat(core["fetched_at"]).timestamp()) / 86400
+    except (KeyError, ValueError, TypeError):
+        age = 1e9
+    want = rc.get("core_source") or "ICORE2026"
+    if force or age > max(1, int(rc.get("refresh_days", 30))) or core.get("source") != want:
+        try:
+            out["core"] = refresh_core(want)
+        except Exception as e:  # offline: keep the previous data
+            out["core"] = {"error": str(e)[:200]}
+    return out
+
+
+def status() -> dict:
+    try:
+        sj = json.loads(_path().read_text("utf-8"))
+    except (OSError, ValueError):
+        sj = {}
+    core = _core().get("doc") or {}
+    return {"journals": {"year": sj.get("year"), "records": len(sj.get("records") or []), "imported_at": sj.get("imported_at"),
+                         "origin": (sj.get("origin") or "").rsplit(":", 1)[0]},
+            "conferences": {"source": core.get("source"), "records": len(core.get("records") or []),
+                            "fetched_at": core.get("fetched_at")},
+            "downloads": [f.name for f in _downloads()[:3]],
+            "scimago_url": "https://www.scimagojr.com/journalrank.php?out=xls"}
+
+
+def lookup(venue: str = "", issn: str = "") -> dict:
+    """Ranking of one venue from local data only (no network): journal SJR/quartile and/or CORE conference rank."""
+    out = {"venue": venue}
+    j = _match({"venue": venue, "issn": issn}, _local_records())
+    if j:
+        out["journal"] = {k: j.get(k) for k in ("title", "quartile", "sjr", "year", "categories", "source", "source_url")}
+    c = match_core(venue)
+    if c:
+        out["conference"] = {"title": c["title"], "acronym": c["acronym"], "rank": c["rank"], "rank_raw": c["rank_raw"],
+                             "source": "CORE " + c["source"], "source_url": _core_url(c)}
+    return out
+
+
+def rank_entry(e: dict) -> dict:
+    """journal_ranking of a library entry from local data (used by the automatic library check)."""
+    venue = e.get("venue") or e.get("journal") or e.get("booktitle") or ""
+    found = lookup(venue, e.get("issn", ""))
+    if "journal" in found:
+        j = found["journal"]
+        return {**j, "status": "ranked", "note": NOTE}
+    if "conference" in found:
+        c = found["conference"]
+        return {"status": "conference", "core_rank": c["rank"] or c["rank_raw"], "acronym": c["acronym"], "conference": c["title"],
+                "source": c["source"], "source_url": c["source_url"], "note": NOTE}
+    return {"status": "unavailable", "note": NOTE + " No imported SCImago / CORE record matches this venue.",
+            "lookup_url": "https://www.scimagojr.com/journalrank.php?string=" + quote(venue)} if venue else {}
+
+
+def _local_records() -> list:
+    with _lock:
+        try:
+            mt = _path().stat().st_mtime_ns
+        except OSError:
+            return []
+        hit = _cache.get("_records")
+        if hit and hit[0] == mt:
+            return hit[1]
+        try:
+            doc = json.loads(_path().read_text("utf-8"))
+            recs = doc.get("records", []) if isinstance(doc, dict) else []
+        except (OSError, ValueError):
+            return []
+        _cache["_records"] = (mt, recs)
+        return recs
 
 
 def _match(paper: dict, records: list) -> dict:
@@ -144,8 +352,13 @@ async def enrich(papers: list, cfg: dict) -> None:
 
     async def one(p):
         venue = p.get("venue") or ""
-        if (p.get("publication_type") in ("repository", "conference") or re.search(r"preprint|conference|proceedings", venue, re.I)):
+        if (p.get("publication_type") in ("repository", "conference")
+                or re.search(r"preprint|conference|proceedings|symposium|workshop", venue, re.I)):
+            c = match_core(venue)
             p["journal_ranking"] = {"status": "not_applicable", "note": "Preprint/conference: journal quartile is not applicable. " + NOTE}
+            if c:
+                p["journal_ranking"].update(status="conference", core_rank=c["rank"] or c["rank_raw"], acronym=c["acronym"],
+                                            conference=c["title"], source="CORE " + c["source"], source_url=_core_url(c))
             return
         local = _match(p, records)
         stats, error = {}, ""

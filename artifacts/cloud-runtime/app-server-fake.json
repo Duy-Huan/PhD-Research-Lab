@@ -1,0 +1,47 @@
+{
+  "live": false,
+  "transport": "app-server",
+  "samples": [
+    {
+      "provider": "codex",
+      "run": "cold",
+      "status": "completed",
+      "timings_ms": {
+        "context": 12.54,
+        "prepare": 104.23,
+        "cli_startup": 5.48,
+        "first_cli_event": 48.65,
+        "first_event": 189.81,
+        "first_token": 191.85,
+        "total": 245.02
+      },
+      "consumer_first_token_ms": 195.03,
+      "native_session": true,
+      "resumed": false,
+      "actual_transport": "app-server",
+      "transport_fallback": false,
+      "errors": []
+    },
+    {
+      "provider": "codex",
+      "run": "warm",
+      "status": "completed",
+      "timings_ms": {
+        "context": 8.38,
+        "prepare": 11.68,
+        "cli_startup": 2.45,
+        "first_cli_event": 44.81,
+        "first_event": 86.54,
+        "first_token": 88.78,
+        "total": 143.56
+      },
+      "consumer_first_token_ms": 90.74,
+      "native_session": true,
+      "resumed": true,
+      "actual_transport": "app-server",
+      "transport_fallback": false,
+      "errors": []
+    }
+  ],
+  "definition": "cold=first request; warm=same workspace/native session, fresh CLI process; no daemon reuse"
+}

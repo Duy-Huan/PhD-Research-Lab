@@ -84,7 +84,8 @@ def _cli(pid: str) -> dict:
                              "conversation": "native" if conn.supports_resume else "restored-context",
                              "reasoning_controls": list(REASONING.get(name, ())), "image_or_file_inputs": False,
                              "structured_tool_events": True, "usage_reporting": True, "cancellation": caps.get("cancel") is True,
-                             "model_override": True, "models": [], "sandbox_options": profiles,
+                             "model_override": True, "models": list(dict.fromkeys((_cfg()["gateway"].get("cli_models") or {}).get(name) or
+                                  (["sonnet", "opus", "haiku"] if name == "claude_code" else []))), "sandbox_options": profiles,
                              "approval_options": ["profile"],
                              "mcp": "session-scoped" if name == "claude_code" else "vendor-config"}}
 
