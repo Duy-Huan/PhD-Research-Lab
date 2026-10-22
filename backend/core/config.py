@@ -90,6 +90,7 @@ PROVIDERS = {
 # "local", "ollama" or a provider id. What an agent does is decided by the SKILL it runs (backend/agent/skills/*.md),
 # not by a separate agent per tool.
 AGENTS = {
+    "assistant": {"label": "Trợ lý chat — hội thoại thường ngày, độc lập với agent nghiên cứu", "default": "auto"},
     "research": {"label": "Research agent — điều phối, nghiên cứu, thiết kế, code, viết bài", "default": "auto"},
     "reviewer": {"label": "Reviewer agent — phản biện, kiểm chứng claim / evidence", "default": "claude"},
     "utility":  {"label": "Tiện ích chạy nền — tóm tắt bộ nhớ, trích xuất PDF/BibTeX, truy vấn tìm kiếm", "default": "auto"},
@@ -116,7 +117,7 @@ BACKGROUND_AGENTS = frozenset({"utility", "summarizer", "critic", "pdf_parser", 
 
 # v3.2: task kind of every agent for the "auto" engine mode (backend/llm_router.py)
 AGENT_TASK_KIND = {
-    "research": "reasoning", "reviewer": "reasoning", "utility": "extract",
+    "assistant": "reasoning", "research": "reasoning", "reviewer": "reasoning", "utility": "extract",
     "data_extractor": "extract", "query_expansion": "extract", "web_query": "extract", "coder": "code",
     "lit2plan": "reasoning", "experiment": "reasoning", "author": "writing", "reviewer": "reasoning", "editor": "writing",
     "context_agent": "reasoning", "results_analyst": "reasoning", "masterclass": "writing",

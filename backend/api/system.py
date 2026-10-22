@@ -49,7 +49,16 @@ async def models():
     cfg = load_config()
     agents = await run_in_threadpool(lambda: {a: agent_runtime(cfg, a) | {"label": AGENTS[a]["label"]} for a in AGENTS})
     provs = await run_in_threadpool(registry.registry)
-    return {"agents": agents, "providers": [{k: p[k] for k in ("id", "label", "transport", "state", "available", "detail")}
+    from backend.providers.models import resolve_engine
+    catalog = {}
+    for agent in AGENTS:
+        engine = resolve_engine(cfg, agent)
+        provider = next((p for p in provs if p["id"] == "app:" + engine), None)
+        choices = (cfg.get("mcp_agent") or {}).get("models", []) if engine == "mcp" else (provider or {}).get("capabilities", {}).get("models", [])
+        catalog[agent] = {"engine": engine, "mode": cfg["agent_modes"][agent], "label": (provider or {}).get("label", engine),
+                          "models": list(dict.fromkeys([m for m in [*choices, cfg.get("agent_models", {}).get(agent)] if m])),
+                          "selected": cfg.get("agent_models", {}).get(agent, "")}
+    return {"agents": agents, "agent_catalog": catalog, "providers": [{k: p[k] for k in ("id", "label", "transport", "state", "available", "detail")}
                                             | {"models": p["capabilities"]["models"],
                                                "reasoning": p["capabilities"]["reasoning_controls"]} for p in provs],
             "default": cfg["aiws"]["provider"], "cloud": {k: {"label": v["label"], "models": v["models"]}

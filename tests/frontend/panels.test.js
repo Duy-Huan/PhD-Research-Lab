@@ -253,7 +253,7 @@ test('library: list, include toggle, open, delete (cancel / confirm), upload by 
   await h.idle(20);
   assert.strictEqual(h.server.last('PUT', '/api/library/x.pdf').body.include, true);
   body.querySelector('.li .m').click();
-  assert.ok(h.$('#panel-body iframe').src.includes('/api/library/file/smith2024.pdf'));
+  assert.ok(h.$('#modal iframe').src.includes('/api/library/file/smith2024.pdf'));
   await P(h).library();
   h.$('#panel-body .li button.icon').click();
   await h.idle();
@@ -483,7 +483,8 @@ test('Lit source availability and validation: sparse responses, direct search li
   assert.match(card.textContent, /Tra SJR \/ quartile/);
   assert.ok(P(h).paperCard({}).textContent.includes('Nguồn tài liệu'));
   P(h).reference({file: 'plain.pdf'});
-  assert.ok(h.$('#panel-body iframe'));
+  assert.ok(h.$('#modal iframe'));
+  h.w.PL._closeModal();
   P(h).reference({file: 'record.paper.json', abstract: 'An abstract', url: 'https://example.org'});
   assert.match(h.$('#panel-body').textContent, /An abstract/);
   P(h).reference({snippet: 'A snippet', url: 'https://example.org'});

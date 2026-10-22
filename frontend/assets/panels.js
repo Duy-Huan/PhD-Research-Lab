@@ -339,7 +339,11 @@
   };
   P.reference = function (e) {
     if (e.pdf_available !== false && /\.pdf$/i.test(e.file || "")) {
-      P.open(e.title || e.file, h("iframe.file-frame", { src: "/api/library/file/" + encodeURIComponent(e.file) }));
+      const url = "/api/library/file/" + encodeURIComponent(e.file), title = e.title || e.file;
+      PL.modal({ title, wide: true, raw: true, body: h("div.pdf-reader", {},
+        h("div.pdf-toolbar", {}, h("a.btn.sm", { href: url, target: "_blank", rel: "noopener", title: PL.ui("Open PDF in a new tab") }, PL.ui("Open PDF in a new tab"))),
+        h("iframe.file-frame", { src: url, title })) });
+      PL.$("#modal .dialog").classList.add("pdf-dialog");
       return;
     }
     P.open(e.title || e.file, h("div", {}, h("p.muted", {}, paperMeta(e)),

@@ -107,6 +107,31 @@
     "Chat’s Auto option uses these agent assignments; a fixed provider in chat overrides them.": "Chọn Tự động trong chat để dùng cấu hình agent này; chọn nhà cung cấp cố định trong chat sẽ ưu tiên lựa chọn đó.",
     "Use configured cloud if a local model fails": "Dùng cloud đã cấu hình khi model local lỗi",
     "Cloud fallback may incur API charges. Disable it to keep a fixed local agent local.": "Chuyển sang cloud có thể phát sinh phí API. Tắt tùy chọn này để agent local cố định chỉ chạy trên máy."
+    , "Function menu": "Menu chức năng", "Resize sidebar": "Co giãn thanh bên", "Resize details panel": "Co giãn bảng chi tiết", "Open PDF in a new tab": "Mở PDF trong thẻ mới"
+,
+    "Pinned conversations": "Hội thoại đã ghim",
+    "Pin conversation": "Ghim hội thoại",
+    "Unpin conversation": "Bỏ ghim hội thoại",
+    "Pinned conversation": "Hội thoại đã ghim",
+    "Move to chat project…": "Chuyển vào dự án hội thoại…",
+    "Chat project": "Dự án hội thoại",
+    "Ungrouped": "Chưa phân nhóm",
+    "New chat project": "Dự án hội thoại mới",
+    "Project name": "Tên dự án",
+    "Agent model": "Model của agent",
+    "This list belongs to the assigned agent provider. Changing it updates this agent across chats.": "Danh sách thuộc hãng đã gán cho agent. Thay đổi này cập nhật model của agent cho các cuộc chat.",
+    "Use assigned agent": "Dùng agent đã cấu hình",
+    "Manuscript text": "Văn bản bản thảo",
+    "Read manuscript text": "Đọc văn bản bản thảo",
+    "No extracted text available": "Chưa có văn bản trích xuất"
+    , "Search pinned messages…": "Tìm tin nhắn đã ghim…", "Search pinned messages": "Tìm tin nhắn đã ghim", "No matching pinned messages": "Không có tin nhắn ghim phù hợp"
+,
+    "Chat assistant": "Trợ lý chat",
+    "Chat assistant + research agents": "Trợ lý chat và các agent nghiên cứu",
+    "Chat assistant — regular conversation, independent of research agents": "Trợ lý chat — hội thoại thường ngày, độc lập với agent nghiên cứu",
+    "Assign the chat assistant’s provider in Settings to choose its models.": "Gán hãng cho trợ lý chat trong Cài đặt để chọn model của hãng đó."
+    , "Message is no longer visible; reopen the conversation": "Tin nhắn không còn hiển thị; hãy mở lại hội thoại"
+    , "Assistant model": "Model trợ lý"
   };
   PL.ui = (en) => PL.lang === "en" ? en : (PL.VI[en] || en);
   for (const [en, vi] of Object.entries(PL.VI)) if (!PL.EN[vi]) PL.EN[vi] = en;

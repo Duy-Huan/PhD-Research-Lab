@@ -67,7 +67,7 @@ test('pin user and assistant messages independently of result pins, browse and u
   await h.click('.msg.ai button[title="Ghim tin nhắn"]');
   assert.equal(h.server.calledWith('POST','/api/pins').length,0);
   await h.click('#pinned-btn'); assert.equal(h.$$('.pinned-messages article').length,2);
-  await h.clickText('.pinned-messages button','Đến tin nhắn'); assert.ok(h.document.activeElement.matches('.msg'));
+  await h.clickText('.pinned-messages button','Đến tin nhắn'); await h.until(()=>h.document.activeElement.matches('.msg'));
   const target=h.document.activeElement;
   h.w.matchMedia=()=>({matches:true}); await h.clickText('.pinned-messages button','Đến tin nhắn');
   target.remove(); await h.clickText('.pinned-messages button','Đến tin nhắn');

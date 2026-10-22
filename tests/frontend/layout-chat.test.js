@@ -1,0 +1,77 @@
+'use strict';
+const test=require('node:test'), assert=require('node:assert/strict');
+const {boot,fixtures,R}=require('./harness');
+const SID=fixtures.meta.session;
+function pointer(h,target,type,x=0,id=1,button=0){const e=new h.w.MouseEvent(type,{bubbles:true,cancelable:true,clientX:x,button});Object.defineProperty(e,'pointerId',{value:id});(typeof target==='string'?h.$(target):target).dispatchEvent(e);}
+test('layout proportions drag, clamp, cancel, reset, keyboard, viewport changes and persistence',async()=>{
+  const h=await boot({storage:{'pl.layout':JSON.stringify({side:0.25,panel:-1})},before:w=>{w.innerWidth=1440;}});
+  const side=h.$('#side-resize'),panel=h.$('#panel-resize'),app=h.$('#app');
+  const value=el=>Number(el.getAttribute('aria-valuenow'));
+  assert.equal(value(side),360);
+  pointer(h,side,'pointerdown',360,1,2);assert.equal(app.classList.contains('layout-dragging'),false);
+  pointer(h,h.document,'pointermove',500);
+  pointer(h,side,'pointerdown',360);pointer(h,h.document,'pointermove',380,2);assert.equal(value(side),360);
+  pointer(h,h.document,'pointermove',410);assert.equal(value(side),410);
+  pointer(h,h.document,'pointerup',410,2);assert.ok(app.classList.contains('layout-dragging'));
+  pointer(h,h.document,'pointerup',410);assert.equal(app.classList.contains('layout-dragging'),false);
+  assert.ok(JSON.parse(h.w.localStorage.getItem('pl.layout')).side>0.28);
+  let capture;panel.setPointerCapture=id=>{capture=id;};
+  pointer(h,panel,'pointerdown',900);assert.equal(capture,1);pointer(h,h.document,'pointermove',800);
+  const changed=value(panel);assert.ok(changed>=500);
+  pointer(h,h.document,'pointercancel');assert.notEqual(value(panel),changed);
+  pointer(h,panel,'pointerdown',900);pointer(h,h.document,'pointermove',980);h.w.dispatchEvent(new h.w.Event('blur'));
+  pointer(h,side,'pointerdown',360);await h.key(side,'Escape');assert.equal(app.classList.contains('layout-dragging'),false);
+  pointer(h,side,'pointerdown',360);side.dispatchEvent(new h.w.MouseEvent('dblclick'));assert.equal(value(side),288);
+  for(const el of [side,panel])for(const key of ['Home','End','ArrowLeft','ArrowRight','Enter','x'])await h.key(el,key);
+  app.classList.add('side-collapsed');h.w.dispatchEvent(new h.w.Event('resize'));assert.ok(value(panel)<=720);
+  h.w.innerWidth=1000;h.w.dispatchEvent(new h.w.Event('resize'));assert.ok(value(panel)<=720);
+  h.w.innerWidth=700;h.w.dispatchEvent(new h.w.Event('resize'));
+  pointer(h,side,'pointerdown',100);await h.key(side,'Home');assert.equal(app.classList.contains('layout-dragging'),false);
+  assert.deepEqual(h.errors,[]);
+});
+test('a plain new conversation remains usable without optional research context',async()=>{
+  const h=await boot({routes:{'POST /api/chat/sessions':()=>({id:SID})}});
+  await h.w.PL.chat.open();const research=h.w.PL.research;h.w.PL.research=null;h.w.PL.chat.pending=null;
+  await h.w.PL.chat.submit('Plain assistant chat');h.w.PL.research=research;
+  const request=h.server.calls.find(c=>c.method==='POST'&&c.path==='/api/chat/sessions');assert.deepEqual(JSON.parse(JSON.stringify(request.body)),{});
+});
+test('function menu opens on demand, closes outside, and supports keyboard navigation',async()=>{
+  const h=await boot();const menu=h.$('#nav-popup'),toggle=h.$('#nav-toggle');
+  assert.equal(menu.hidden,true);await h.click(toggle);assert.equal(menu.hidden,false);
+  for(const key of ['ArrowDown','ArrowUp','Home','End','x'])await h.key(h.document.activeElement,key);
+  assert.equal(h.document.activeElement,menu.querySelector('button:last-child'));
+  pointer(h,menu.querySelector('button'),'pointerdown');assert.equal(menu.hidden,false);
+  pointer(h,toggle,'pointerdown');assert.equal(menu.hidden,false);
+  await h.key(menu,'Escape');assert.equal(menu.hidden,true);assert.equal(h.document.activeElement,toggle);
+  await h.click(toggle);await h.click(toggle);assert.equal(menu.hidden,true);
+  await h.click(toggle);pointer(h,h.document.body,'pointerdown');assert.equal(menu.hidden,true);
+  await h.key(toggle,'Tab');assert.equal(h.document.body.dataset.keyboardNavigation,'true');pointer(h,toggle,'pointerdown');assert.equal(h.document.body.dataset.keyboardNavigation,'false');
+  await h.click(toggle);await h.click('[data-go=library]');assert.equal(menu.hidden,true);
+});
+test('Library PDF is centered outside its drawer and leaves the library intact after closing',async()=>{
+  const h=await boot();await h.w.PL.panels.library();const title=h.$('#panel-title').textContent;
+  h.w.PL.panels.reference({title:'PDF title',file:'2026 My paper.pdf'});
+  assert.ok(h.$('#modal .pdf-dialog iframe'));assert.equal(h.$('#panel-body iframe'),null);
+  assert.equal(h.$('#modal iframe').title,'PDF title');assert.match(h.$('#modal iframe').src,/2026%20My%20paper.pdf/);
+  assert.equal(h.$('.pdf-toolbar a').target,'_blank');await h.key('.dialog','Escape');
+  assert.equal(h.$('#panel-title').textContent,title);
+});
+test('assigned-agent chat picker excludes other vendors, updates its model and handles existing sessions',async()=>{
+  let cfg=fixtures.get('GET /api/models');cfg.agent_catalog={assistant:{mode:'openai',engine:'openai',label:'OpenAI',models:['gpt-one','gpt-two'],selected:'gpt-one'},reviewer:{mode:'mcp',engine:'mcp',label:'MCP',models:['own-model'],selected:''}};
+  const h=await boot({routes:{'GET /api/models':()=>cfg}});await h.w.PL.chat.loadModels();
+  await h.click('#model');let select=h.$('select[aria-label="Model trợ lý"]');assert.ok(select);
+  assert.deepEqual(Array.from(select.options,o=>o.value),['','gpt-one','gpt-two']);
+  await h.key(select,'ArrowDown');assert.equal(h.document.activeElement,select);
+  await h.change(select,'gpt-two');await h.idle();assert.equal(h.server.last('POST','/api/config').body.agent_models.assistant,'gpt-two');
+  assert.equal(h.w.PL.chat.pending.provider,'app:auto');
+  await h.w.PL.chat.open(SID);await h.click('#model');await h.clickText('.menu .mi','Dùng agent');
+  assert.deepEqual(JSON.parse(JSON.stringify(h.server.last('PUT','/api/chat/sessions/').body)),{settings:{provider:'app:auto'},settings_reset:['model']});
+  h.server.on('PUT /api/chat/sessions/:id',()=>R({detail:'save failed'},500));await h.click('#model');await h.clickText('.menu .mi','Dùng agent');assert.match(h.toast(),/save failed/);
+  await h.clickText('.menu .mi','Cài đặt');assert.ok(h.$('.settings'));
+  h.w.PL._closeModal();h.w.PL.chat.skills=[{name:'review',agent:'reviewer',aliases:['critique']}];
+  h.$('#input').value='/critique';await h.click('#model');assert.ok(h.$('select[aria-label="Model trợ lý"] option[value=gpt-one]'));
+  h.$('.menu').close();
+  cfg.agent_catalog.assistant.mode='auto';await h.w.PL.chat.loadModels();await h.click('#model');assert.equal(h.$('select[aria-label="Model trợ lý"]').disabled,true);
+  h.$('.menu').close();cfg.agent_catalog.assistant.mode='openai';await h.w.PL.chat.loadModels();
+  h.server.on('POST /api/config',()=>null);await h.click('#model');await h.change('select[aria-label="Model trợ lý"]','gpt-one');
+});

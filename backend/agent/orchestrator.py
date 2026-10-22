@@ -96,14 +96,14 @@ def _skill_block(name: str) -> str:
 
 
 def _agent(t: dict) -> str:
-    """research | reviewer — the agent the turn's skill asks for."""
+    """assistant | research | reviewer — the agent the turn's skill asks for."""
     if not t.get("skill"):
-        return "research"
+        return "assistant"
     from backend.agent import skills
     try:
         return skills.get(t["skill"])["agent"]
     except AIWSError:
-        return "research"
+        return "assistant"
 
 
 def _local(sid: str, tid: str, text: str, **meta) -> None:

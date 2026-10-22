@@ -28,6 +28,8 @@
     const q = (PL.$("#search") || {}).value || "";
     const r = await PL.get("/api/chat/sessions?q=" + encodeURIComponent(q)).catch(() => ({ sessions: [] }));
     C.list = r.sessions;
+    const groups = await PL.get("/api/chat/projects").catch(() => ({ projects: [] }));
+    C.chatProjects = groups.projects;
     renderList();
   };
   let lt = 0;
@@ -45,24 +47,47 @@
     const months = new Set(C.list.filter(s => s.updated * 1000 < week).map(s => new Date(s.updated * 1000).getFullYear() + "-" + new Date(s.updated * 1000).getMonth()));
     for (const month of months) groups.push([new Intl.DateTimeFormat(PL.lang === "en" ? "en-GB" : "vi-VN", { month: "long", year: "numeric" }).format(new Date(...month.split("-").map(Number), 1)), s => new Date(s.updated * 1000).getFullYear() + "-" + new Date(s.updated * 1000).getMonth() === month]);
     const used = new Set();
+    const pinned = C.list.filter(s => s.pinned && !s.chat_project);
+    if (pinned.length) frag.append(h("div.tgroup", {}, PL.ui("Pinned conversations")));
+    for (const s of pinned) { used.add(s.id); frag.append(threadNode(s)); }
+    for (const project of C.chatProjects || []) {
+      const items = C.list.filter(s => s.chat_project === project.id).sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned));
+      const body = h("div.chat-project-items");
+      for (const s of items) { used.add(s.id); body.append(threadNode(s)); }
+      const details = h("details.chat-project", { open: true }, h("summary", {}, project.name, h("span.muted", {}, " · " + items.length)),
+        h("button.btn.sm.ghost", { type: "button", onclick: () => PL.safe(async () => {
+          const session = await PL.post("/api/chat/sessions", { chat_project: project.id }); PL.go("#/chat/" + session.id); await C.loadList();
+        }) }, PL.t("Cuộc trò chuyện mới")), body);
+      frag.append(details);
+    }
     for (const [label, fn] of groups) {
       const items = C.list.filter((s) => !used.has(s.id) && fn(s));
       if (!items.length) continue;
       frag.append(h("div.tgroup", {}, label));
       for (const s of items) {
         used.add(s.id);
-        frag.append(h("div.thread" + (s.id === C.sid ? ".active" : ""), { role: "link", tabindex: "0", title: s.title + " · " + PL.date(s.updated),
-          onclick: () => PL.go("#/chat/" + s.id), onkeydown: (e) => { if (e.key === "Enter") PL.go("#/chat/" + s.id); } },
-        h("span.t", {}, s.title || PL.t("Cuộc trò chuyện")),
-        s.pending_approvals ? h("span.badge", { title: PL.t("Đề xuất chờ bạn duyệt") }, s.pending_approvals) : null,
-        s.status === "running" ? h("span.spin") : null,
-        h("button.icon.more", { type: "button", "aria-label": PL.t("Tuỳ chọn"), html: PL.icon("dots"), onclick: (e) => { e.stopPropagation(); threadMenu(e.currentTarget, s); } })));
+        frag.append(threadNode(s));
       }
     }
     box.replaceChildren(frag);
   }
+  function threadNode(s) {
+    return h("div.thread" + (s.id === C.sid ? ".active" : ""), { role: "link", tabindex: "0", dataset: { session: s.id }, title: s.title + " · " + PL.date(s.updated),
+          onclick: () => PL.go("#/chat/" + s.id), onkeydown: (e) => { if (e.key === "Enter") PL.go("#/chat/" + s.id); } },
+        s.pinned ? h("span.thread-pin", { title: PL.ui("Pinned conversation"), html: PL.icon("pin") }) : null, h("span.t", {}, s.title || PL.t("Cuộc trò chuyện")),
+        s.pending_approvals ? h("span.badge", { title: PL.t("Đề xuất chờ bạn duyệt") }, s.pending_approvals) : null,
+        s.status === "running" ? h("span.spin") : null,
+        h("button.icon.more", { type: "button", "aria-label": PL.t("Tuỳ chọn"), html: PL.icon("dots"), onclick: (e) => { e.stopPropagation(); threadMenu(e.currentTarget, s); } }));
+  }
   function threadMenu(anchor, s) {
     PL.menu(anchor, [
+      { label: PL.ui(s.pinned ? "Unpin conversation" : "Pin conversation"), run: async () => { await PL.safe(() => PL.put("/api/chat/sessions/" + s.id, { pinned: !s.pinned })); await C.loadList(); } },
+      { label: PL.ui("Move to chat project…"), run: () => {
+        const select = h("select.input", { "aria-label": PL.ui("Chat project") }, [["", PL.ui("Ungrouped")], ...(C.chatProjects || []).map(p => [p.id, p.name])].map(([id, name]) => h("option", { value: id, selected: id === (s.chat_project || "") || null }, name)));
+        PL.modal({ title: PL.ui("Move to chat project…"), body: select, actions: [{ label: PL.ui("New chat project"), onClick: () => { C.createChatProject(s.id); } }, { label: PL.ui("Save"), onClick: async () => {
+          const result = await PL.safe(() => PL.put("/api/chat/sessions/" + s.id, { chat_project: select.value })); if (!result) return false; await C.loadList();
+        } }] });
+      } },
       { label: PL.t("Đổi tên"), run: async () => { const t = await PL.prompt(PL.t("Đổi tên"), PL.t("Tên cuộc trò chuyện"), s.title); if (t) { await PL.safe(() => PL.put("/api/chat/sessions/" + s.id, { title: t })); C.loadList(); } } },
       { label: PL.t("Xuất cuộc trò chuyện…"), run: async () => { if (C.sid !== s.id) { PL.go("#/chat/" + s.id); return; } exportConversation(anchor); } },
       { label: PL.t("Lưu trữ"), run: async () => { await PL.safe(() => PL.put("/api/chat/sessions/" + s.id, { archived: true })); if (C.sid === s.id) PL.go("#/"); C.loadList(); } },
@@ -74,6 +99,15 @@
       } },
     ]);
   }
+
+  C.createChatProject = async function (sid) {
+    const name = await PL.prompt(PL.ui("New chat project"), PL.ui("Project name"), "");
+    if (!name || !name.trim()) return;
+    const group = await PL.safe(() => PL.post("/api/chat/projects", { name: name.trim() }));
+    if (!group) return;
+    if (sid) await PL.safe(() => PL.put("/api/chat/sessions/" + sid, { chat_project: group.id }));
+    await C.loadList();
+  };
 
   /** A small popup menu next to an element: items [{label, run, danger, disabled, hint}]. Arrow keys + Escape. */
   PL.menu = function (anchor, items, opts) {
@@ -93,6 +127,7 @@
     else m.style.top = Math.max(8, r.top - m.offsetHeight - 4) + "px";
     const off = (e) => { if (!m.contains(e.target)) close(); };
     const key = (e) => {
+      if (e.key !== "Escape" && /^(SELECT|INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
       const bs = PL.$$(".mi:not(:disabled)", m);
       const i = bs.indexOf(D.activeElement);
       if (e.key === "Escape") { close(); if (anchor.focus) anchor.focus(); }
@@ -100,6 +135,7 @@
       else if (e.key === "ArrowUp") { e.preventDefault(); (bs[i - 1] || bs[bs.length - 1]).focus(); }
     };
     function close() { m.remove(); D.removeEventListener("mousedown", off, true); D.removeEventListener("keydown", key, true); }
+    m.close = close;
     W.setTimeout(() => { D.addEventListener("mousedown", off, true); D.addEventListener("keydown", key, true); }, 0);
     return m;
   };
@@ -110,6 +146,7 @@
     const same = sid && sid === C.sid && PL.$("#msgs");
     C.sid = sid || null;
     if (!same) {
+      C.pinQuery = "";
       C.s = null;
       C.live = {};
       C.runCards = {};
@@ -127,6 +164,7 @@
       return;
     }
     if (C.sid !== sid) return;  // the researcher opened another conversation meanwhile
+    reconcilePins();
     if (PL.research) PL.research.onSession(C.s);
     renderAtts();
     PL.setTitle(C.s.title, "");
@@ -285,27 +323,60 @@
   function messageMeta(m) {
     return h("time.message-time", { datetime: new Date(m.ts * 1000).toISOString(), title: PL.date(m.ts, true) }, PL.date(m.ts, true));
   }
+  const pinChanges = new Map(), pinBusy = new Set();
+  function reconcilePins() {
+    for (const m of C.s.messages) {
+      const key = C.sid + ":" + m.id, change = pinChanges.get(key);
+      if (!change) continue;
+      if (change.settled && !!m.pinned === change.value) pinChanges.delete(key);
+      else m.pinned = change.value;
+    }
+  }
   function pinAction(m) {
     return act("pin", m.pinned ? PL.t("Bỏ ghim tin nhắn") : PL.t("Ghim tin nhắn"), (e) => PL.safe(async () => {
       const sid = C.sid, pinned = !m.pinned, button = e.currentTarget;
+      const key = sid + ":" + m.id;
+      if (pinBusy.has(key)) return;
+      pinBusy.add(key);
+      pinChanges.set(key, { value: pinned, settled: false });
       button.disabled = true;
       try {
         await PL.put(`/api/chat/sessions/${sid}/messages/${m.id}/pin`, { pinned });
-        if (C.sid !== sid) return;
-        m.pinned = pinned; renderMessages(false);
+        if (C.sid !== sid) { pinChanges.delete(key); return; }
+        pinChanges.get(key).settled = true;
+        const current = C.s.messages.find((message) => message.id === m.id);
+        if (current) current.pinned = pinned;
+        renderMessages(false);
         if (!PL.$("#panel").hidden && PL.store.get("panel", {}).kind === "pins") C.pinsPanel();
-      } finally { button.disabled = false; }
+      } catch (error) { pinChanges.delete(key); throw error; }
+      finally { pinBusy.delete(key); button.disabled = false; }
     }));
   }
   C.pinsPanel = function () {
     const body = h("div.pinned-messages");
-    const pins = C.s.messages.filter(m => m.pinned);
-    for (const m of pins) body.append(h("article.research-card", {}, h("p", {}, m.content.slice(0, 300)), messageMeta(m),
+    const allPins = C.s.messages.filter(m => m.pinned), list = h("div"), count = h("p.muted", { role: "status" });
+    const normalize = text => text.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "").replace(/đ/g, "d");
+    const search = h("input.input.pin-search", { type: "search", placeholder: PL.ui("Search pinned messages…"), "aria-label": PL.ui("Search pinned messages"), value: C.pinQuery || "", oninput: () => { C.pinQuery = search.value; paint(); } });
+    const paint = () => {
+    const q = normalize(search.value.trim()), pins = allPins.filter(m => normalize(m.content).includes(q));
+    list.replaceChildren(); count.textContent = pins.length + " / " + allPins.length;
+    for (const m of pins) {
+      const start = Math.max(0, normalize(m.content).indexOf(q) - 60);
+      list.append(h("article.research-card", {}, h("p", {}, m.content.slice(start, start + 300)), messageMeta(m),
       h("button.btn.sm", { type: "button", onclick: () => {
-        const node = PL.$$(".msg").find(n => n.dataset.id === m.id);
-        if (node) { node.scrollIntoView({ block: "center", behavior: W.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" }); node.setAttribute("tabindex", "-1"); node.focus({ preventScroll: true }); }
+        PL.panels.close();
+        W.requestAnimationFrame(() => {
+            const node = PL.$$("#msgs .msg").find(n => n.dataset.id === m.id);
+            if (!node) { PL.toast(PL.ui("Message is no longer visible; reopen the conversation")); return; }
+            node.scrollIntoView({ block: "center", behavior: W.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+            node.setAttribute("tabindex", "-1"); node.focus({ preventScroll: true });
+            node.classList.add("pin-target"); W.setTimeout(() => node.classList.remove("pin-target"), 1800);
+        });
       } }, PL.t("Đến tin nhắn")), pinAction(m)));
-    if (!pins.length) body.append(h("p.muted", {}, PL.t("Chưa có tin nhắn được ghim")));
+    }
+    if (!pins.length) list.append(h("p.muted", {}, allPins.length ? PL.ui("No matching pinned messages") : PL.t("Chưa có tin nhắn được ghim")));
+    };
+    body.append(search, count, list); paint();
     PL.panels.open(PL.t("Tin nhắn đã ghim"), body, { kind: "pins" });
   };
   /** Markdown + figures + the researcher's notes (highlights) of one answer. */
@@ -593,6 +664,7 @@
       const s = await PL.get("/api/chat/sessions/" + sid);
       if (C.sid === sid) {
         C.s = s;
+        reconcilePins();
         PL.setTitle(C.s.title, "");
         paintTopTools();
         renderMessages(false);
@@ -847,11 +919,34 @@
     if (!b) return;
     const pid = currentProvider();
     const lvl = setting("reasoning") || "auto";
-    b.replaceChildren(h("span.ellipsis", {}, pid === "app:auto" ? PL.t("Tự động") : providerLabel(pid)));
+    const assistant = C.models && C.models.agent_catalog && C.models.agent_catalog.assistant;
+    b.replaceChildren(h("span.ellipsis", {}, pid === "app:auto" ? (assistant ? PL.ui("Chat assistant") + " · " + (assistant.selected || assistant.label) : PL.t("Tự động")) : providerLabel(pid)));
     if (lvl !== "auto") b.append(h("span.lvl", { title: PL.t("Cấp độ tư duy") }, LEVEL[lvl]));
     b.append(h("span", { html: PL.icon("chev") }));
   }
   function modelMenu(anchor) {
+    const agent = "assistant", catalog = (C.models && C.models.agent_catalog || {}).assistant;
+    if (!catalog) { genericModelMenu(anchor); return; }
+    const menu = PL.menu(anchor, [{ header: PL.ui("Chat assistant") + " · " + catalog.label }], { above: true });
+    const activate = async () => {
+      if (C.sid) {
+        const saved = await PL.safe(() => PL.put("/api/chat/sessions/" + C.sid, { settings: { provider: "app:auto" }, settings_reset: ["model"] }));
+        if (!saved) return;
+        await refresh();
+      } else C.pending = Object.assign({}, C.pending, { provider: "app:auto", model: "" });
+      paintModel(); menu.close();
+    };
+    const select = h("select.input", { "aria-label": PL.ui("Assistant model"), onchange: (e) => PL.safe(async () => {
+      const result = await PL.post("/api/config", { agent_models: { [agent]: e.target.value } });
+      if (result) { await C.loadModels(); await activate(); }
+    }) }, [["", PL.ui("Provider default")], ...catalog.models.map((m) => [m, m])].map(([v, label]) => h("option", { value: v, selected: v === catalog.selected || null }, label)));
+    select.disabled = catalog.mode === "auto";
+    menu.append(select, h("p.help", {}, catalog.mode === "auto" ? PL.ui("Assign the chat assistant’s provider in Settings to choose its models.") : PL.ui("This list belongs to the assigned agent provider. Changing it updates this agent across chats.")),
+      h("button.mi", { type: "button", onclick: () => PL.safe(activate) }, PL.ui("Use assigned agent")),
+      h("button.mi", { type: "button", onclick: () => { menu.close(); PL.settings.open("models"); } }, PL.t("Cài đặt mô hình & API key…")));
+    select.focus();
+  }
+  function genericModelMenu(anchor) {
     PL.$$(".menu.pop").forEach((m) => m.remove());
     const pop = h("div.menu.pop.picker", { role: "dialog", "aria-label": PL.t("Mô hình") });
     const filter = h("input.filter", { type: "search", placeholder: PL.t("Lọc mô hình…"), "aria-label": PL.t("Lọc mô hình") });

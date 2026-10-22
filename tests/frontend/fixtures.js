@@ -10,7 +10,7 @@ const clone = (v) => JSON.parse(JSON.stringify(v));
 exports.meta = RAW.meta;
 exports.get = (key) => clone(RAW[key].body);
 exports.routes = () => {
-  const out = {};
+  const out = {"GET /api/chat/projects": () => ({projects: []})};
   for (const [k, v] of Object.entries(RAW)) {
     if (k === 'meta') continue;
     out[k] = () => ({__resp: true, body: clone(v.body), status: v.status});

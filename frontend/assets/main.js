@@ -14,6 +14,7 @@
   PL.paintPending = function (n) {
     const c = PL.$("#pending-count");
     if (c) c.textContent = n ? String(n) : "";
+    PL.$("#menu-pending-count").textContent = n ? String(n) : "";
   };
 
   // ------------------------------------------------------------------ projects
@@ -152,6 +153,8 @@
       else { app.classList.remove("side-collapsed"); PL.store.set("side", true); }
     };
     PL.$("#side-open").hidden = false;
+    PL.layout.init();
+    PL.$("#new-chat-project").onclick = () => PL.chat.createChatProject();
     PL.$("#new-chat").onclick = () => { app.classList.remove("side-open"); PL.go("#/"); };
     PL.$("#proj-btn").onclick = (e) => projectMenu(e.currentTarget);
     PL.$("#projects-btn").onclick = () => PL.projectsPanel();
@@ -161,6 +164,7 @@
     PL.$("#topic-btn").onclick = () => PL.research.open("topics");
     PL.$("#panel-btn").onclick = () => (PL.$("#panel").hidden ? PL.panels.outline() : PL.panels.close());
     PL.$$(".nav").forEach((b) => b.addEventListener("click", () => {
+      PL.layout.closeMenu();
       app.classList.remove("side-open");
       const g = b.dataset.go;
       if (g === "library") PL.panels.library();

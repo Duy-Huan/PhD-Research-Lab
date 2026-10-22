@@ -8,6 +8,7 @@
 
   PL.route("review", async function (rid) {
     PL.leaveChat();
+    PL.panels.close();
     PL.activeNav("review");
     PL.setTitle(PL.t("Phản biện bài báo"), "");
     R.rid = rid || null;
@@ -108,6 +109,16 @@
         h("span.grow"), h("button.btn.sm.danger", { type: "button", onclick: async () => { if (await PL.confirm(PL.t("Xoá phiên phản biện này?"), PL.t("Xoá"))) { await PL.safe(() => PL.del("/api/review/" + meta.id)); PL.go("#/review"); } } }, PL.t("Xoá")))));
     const srcFile = h("input", { type: "file", accept: ".tex", hidden: true, onchange: async (e) => { if (e.target.files[0] && await PL.safe(() => PL.upload(`/api/review/${meta.id}/source`, e.target.files[0]), PL.t("Đã đính kèm LaTeX"))) load(meta.id); } });
     box.append(srcFile);
+    const preview = h("pre.manuscript-text", { tabindex: "0", "aria-label": PL.ui("Manuscript text") });
+    const details = h("details.manuscript-preview", {}, h("summary", {}, PL.ui("Read manuscript text")), preview);
+    let loaded = false;
+    details.ontoggle = async () => {
+      if (!details.open || loaded) return;
+      loaded = true; preview.textContent = PL.ui("Loading…");
+      try { const response = await PL.get(`/api/review/${meta.id}/text`); preview.textContent = response || PL.ui("No extracted text available"); }
+      catch (e) { loaded = false; preview.textContent = e.message; }
+    };
+    box.append(details);
   }
 
   function tabBody() {

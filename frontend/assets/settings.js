@@ -59,7 +59,7 @@
 
   // ------------------------------------------------------------------ models & agents
   async function models(b) {
-    b.append(h("h3", {}, PL.t("Hai agent + một tiện ích chạy nền")),
+    b.append(h("h3", {}, PL.ui("Chat assistant + research agents")),
       h("p.help", {}, PL.t("Research agent điều phối mọi việc (nghiên cứu, thiết kế, code, viết bài); Reviewer agent phản biện và kiểm chứng. Kỹ năng (/) quyết định agent làm gì — không cần một agent cho mỗi công cụ.")));
     const engines = [["mcp", PL.ui("MCP inference tool")], ["auto", PL.t("Tự động (local → cloud)")], ["claude", PL.t("Claude (nếu có key)")], ["cloud", PL.t("Cloud mặc định")], ["local", "LM Studio (local)"], ["ollama", "Ollama (local)"]]
       .concat(Object.entries(cfg.provider_specs).map(([k, v]) => [k, v.label]));

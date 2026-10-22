@@ -3,17 +3,33 @@ from __future__ import annotations
 
 import asyncio
 
-from fastapi import APIRouter, Body, File, Request, UploadFile
+from fastapi import APIRouter, Body, Depends, File, Request, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import Response
 
 from backend.agent import artifacts, memory_modes, orchestrator, policy as POL, sessions as store
 from backend.api.common import call, sse, stream
 
-router = APIRouter()
+async def bind_project():
+    from backend.core.config import data_dir, project_scope
+    with project_scope(data_dir()):
+        yield
+
+
+router = APIRouter(dependencies=[Depends(bind_project)])
 
 
 # ------------------------------------------------------------------ conversations
+@router.get("/api/chat/projects")
+async def chat_projects():
+    return {"projects": await call(store.chat_projects)}
+
+
+@router.post("/api/chat/projects")
+async def chat_project_create(body: dict = Body(...)):
+    return await call(store.create_chat_project, body.get("name", ""))
+
+
 @router.get("/api/chat/sessions")
 async def sessions(q: str = "", archived: int = 0, limit: int = 200):
     return {"sessions": await call(store.list_sessions, "", "", q, bool(archived), max(1, min(500, limit)))}
@@ -23,10 +39,16 @@ async def sessions(q: str = "", archived: int = 0, limit: int = 200):
 async def create(body: dict = Body(default={})):
     def run():
         tid = str(body.get("topic_id") or "")
+        gid = body.get("chat_project") or ""
+        if gid and not any(g["id"] == gid for g in store.chat_projects()):
+            raise ValueError("Chat project not found in this research project")
         if tid:
             from backend.knowledge.research_store import get_topic
             get_topic(tid)
         s = store.create(str(body.get("title", "")), "global", "", "", body.get("settings") or {})
+        if gid:
+            store.organize(s["id"], chat_project=gid)
+            s = store.get(s["id"])
         if tid:
             store.update(s["id"], lambda x: x.update(topic_id=tid))
             return store.get(s["id"])
@@ -58,6 +80,8 @@ async def get(sid: str):
 async def update(sid: str, body: dict = Body(...)):
     """{title?, archived?, settings? (provider, model, …), settings_reset?: [keys]}."""
     def run():
+        if "pinned" in body or "chat_project" in body:
+            store.organize(sid, body.get("pinned"), body.get("chat_project"))
         if "title" in body:
             store.rename(sid, str(body["title"]))
         if "archived" in body:
