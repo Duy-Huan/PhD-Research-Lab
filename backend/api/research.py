@@ -40,7 +40,9 @@ class ReviewNote(G.Contract):
 @router.get("/os-settings")
 async def os_settings():
     from backend.agent import teams,collaboration
-    return {"enabled":OS.enabled(),"team_enabled":teams.enabled(),"multi_team_enabled":collaboration.enabled(),"experimental":True,"max_parallel_tasks":1}
+    from backend.core.config import load_config
+    slots = (load_config().get("runs") or {}).get("slot_cloud", 4)
+    return {"enabled":OS.enabled(),"team_enabled":teams.enabled(),"multi_team_enabled":collaboration.enabled(),"experimental":True,"max_parallel_tasks":max(4, int(slots))}
 
 
 @router.put("/os-settings")

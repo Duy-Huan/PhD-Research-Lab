@@ -20,6 +20,12 @@ from backend.agent import AIWSError
 
 REASONING = {"codex": ("low", "medium", "high")}
 APP_LOCAL = {"local": "Local AI (LM Studio / configured local engine)", "ollama": "Ollama (local)"}
+DEFAULT_CLI_MODELS = {
+    "codex": ["gpt-5", "gpt-5-codex", "gpt-5-mini", "o3", "o4-mini", "gpt-4.1"],
+    "claude_code": ["sonnet", "opus", "haiku", "claude-sonnet-4-6", "claude-opus-4-6"],
+    "gemini_cli": ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash"],
+    "antigravity": ["gemini-2.5-pro", "gemini-2.5-flash", "claude-sonnet-4-6"],
+}
 
 
 def _cfg():
@@ -85,7 +91,7 @@ def _cli(pid: str) -> dict:
                              "reasoning_controls": list(REASONING.get(name, ())), "image_or_file_inputs": False,
                              "structured_tool_events": True, "usage_reporting": True, "cancellation": caps.get("cancel") is True,
                              "model_override": True, "models": list(dict.fromkeys((_cfg()["gateway"].get("cli_models") or {}).get(name) or
-                                  (["sonnet", "opus", "haiku"] if name == "claude_code" else []))), "sandbox_options": profiles,
+                                  DEFAULT_CLI_MODELS.get(name, []))), "sandbox_options": profiles,
                              "approval_options": ["profile"],
                              "mcp": "session-scoped" if name == "claude_code" else "vendor-config"}}
 

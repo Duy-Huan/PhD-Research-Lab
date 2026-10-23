@@ -129,7 +129,7 @@ def chat_projects() -> list:
         return read_json(_dir() / "chat_projects.json") or []
 
 
-def create_chat_project(name: str) -> dict:
+def create_chat_project(name: str, instructions: str = "") -> dict:
     name = str(name).strip()
     if not 1 <= len(name) <= 80:
         raise AIWSError("Give a chat project name (1–80 characters)")
@@ -137,10 +137,44 @@ def create_chat_project(name: str) -> dict:
         groups = chat_projects()
         if len(groups) >= 200:
             raise AIWSError("Chat project limit reached")
-        group = {"id": new_id("cg"), "name": name, "created": now()}
+        group = {
+            "id": new_id("cg"),
+            "name": name,
+            "instructions": str(instructions or "").strip()[:4000],
+            "created": now(),
+        }
         groups.append(group)
         write_json(_dir() / "chat_projects.json", groups)
         return group
+
+
+def update_chat_project(gid: str, name: str | None = None, instructions: str | None = None) -> dict:
+    with _lock:
+        groups = chat_projects()
+        g = next((x for x in groups if x["id"] == gid), None)
+        if not g:
+            raise AIWSError("Chat project not found")
+        if name is not None:
+            n = str(name).strip()
+            if not 1 <= len(n) <= 80:
+                raise AIWSError("Give a chat project name (1–80 characters)")
+            g["name"] = n
+        if instructions is not None:
+            g["instructions"] = str(instructions).strip()[:4000]
+        write_json(_dir() / "chat_projects.json", groups)
+        return g
+
+
+def delete_chat_project(gid: str) -> dict:
+    with _lock:
+        groups = [x for x in chat_projects() if x["id"] != gid]
+        write_json(_dir() / "chat_projects.json", groups)
+        for f in _dir().glob("as-*.json"):
+            s = read_json(f)
+            if isinstance(s, dict) and s.get("chat_project") == gid:
+                s["chat_project"] = ""
+                write_json(f, s)
+        return {"deleted": gid}
 
 
 def organize(sid: str, pinned=None, chat_project=None) -> dict:

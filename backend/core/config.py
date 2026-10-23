@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "6.3.0-preview.1"
+APP_VERSION = "6.4.2"
 
 ROOT = Path(__file__).resolve().parents[2]
 # PHDLAB_DATA_DIR (v3.2) moves ALL user data elsewhere — used by the test suite so it never touches the real data/.
@@ -229,12 +229,16 @@ DEFAULTS["research_providers"] = {
     "feynman_share_app_key": False,   # let Feynman use the app's Anthropic / OpenAI key (billed to that API account)
     "feynman_timeout_s": 1800,
     "coding_default": "claude_code",  # claude_code | codex | gemini_cli | antigravity | app
-    "engine_mode": "auto", "engine_priority": ["feynman", "openscience"],
+    "engine_mode": "auto", "engine_priority": ["feynman", "openscience", "opencode"],
 }
 DEFAULTS["openscience"] = {
     "enabled": False, "base_url": "http://127.0.0.1:4096", "token": "", "timeout_s": 600,
     "request_timeout_s": 3.0, "max_artifact_mb": 64, "max_artifacts": 32, "allow_execution": False,
     "policy_confirmed": False, "qualified_tasks": [], "model_provider": "", "model_id": "",
+}
+DEFAULTS["opencode"] = {
+    "enabled": True, "base_url": "http://127.0.0.1:4097", "allow_metered_api": False,
+    "timeout_s": 600, "workspace_mode": "topic_isolated",
 }
 # v5.1 interface language (UI strings + the language the agents answer in) and the reading font of answers
 DEFAULTS["ui"] = {"language": "vi", "prose_font": "sans", "paper_explorer_v2": True, "discovery_inbox": True,
@@ -246,11 +250,11 @@ DEFAULTS["research_os"] = {"enabled":False,"team_enabled":False,"multi_team_enab
 # exports cannot be fetched automatically (bot protection), so a scimagojr*.csv saved in Downloads is imported by itself.
 DEFAULTS["ranking"] = {"auto": True, "core_source": "ICORE2026", "watch_downloads": True, "refresh_days": 30}
 SECTIONS_V32 = ("runs", "research_providers", "memory", "resources", "clearml", "codex", "workspace", "routing", "provenance",
-                "gateway", "mcp", "lifecycle", "aiws", "ui", "ranking", "openscience", "research_os", "mcp_agent")
+                "gateway", "mcp", "lifecycle", "aiws", "ui", "ranking", "openscience", "opencode", "research_os", "mcp_agent")
 LIFECYCLE_POLICIES = ("unload_after_task", "keep_loaded", "idle_unload")
 SECRET_FIELDS = {"mcp": ("token",), "openscience": ("token",), "mcp_agent": ("token",)}
 CHOICES = {("research_providers", "coding_default"): ("claude_code", "codex", "gemini_cli", "antigravity", "app"),
-           ("research_providers", "engine_mode"): ("auto", "feynman", "openscience", "collaborative"),
+           ("research_providers", "engine_mode"): ("auto", "feynman", "openscience", "opencode", "collaborative"),
            ("codex", "sandbox"): ("read-only", "workspace-write"),
            ("codex", "windows_sandbox"): ("unelevated", "elevated", "config"),
            ("memory", "embed_engine"): ("auto", "ollama", "hashing"), ("gateway", "cli_profile"): ("review", "assisted"),
@@ -263,8 +267,14 @@ CHOICES = {("research_providers", "coding_default"): ("claude_code", "codex", "g
 _lock = threading.Lock()
 
 
+CLI_PROVIDERS = ("codex", "claude_code", "gemini_cli", "antigravity", "chatgpt_sub")
+
+
 def _valid_mode(m: str) -> bool:
-    return m in ("cloud", "local", "claude", "ollama", "auto", "mcp") or m in PROVIDERS
+    if not isinstance(m, str):
+        return False
+    clean = m.removeprefix("cli:").removeprefix("app:")
+    return clean in ("cloud", "local", "claude", "ollama", "auto", "mcp", *CLI_PROVIDERS) or clean in PROVIDERS
 
 
 def _coerce(default, val):

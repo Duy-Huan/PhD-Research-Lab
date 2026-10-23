@@ -240,6 +240,57 @@ async def _dispatch(m,task,key) -> ExecutionResult:
         from backend.agent.teams import verify
         result=await asyncio.to_thread(verify,m,task)
         return ExecutionResult(status="completed",output=result,limitations=["Technical task completion does not approve a scientific claim"])
+    if task.capability.startswith("figure."):
+        from backend.figures import store as FS
+        from backend.figures.contracts import FigureSpec
+        if task.capability == "figure.validate":
+            fid = task.args.get("figure_id", "")
+            report = await asyncio.to_thread(FS.validate_figure_version, tid, fid)
+            return ExecutionResult(status="completed", output=report)
+        cat_map = {
+            "figure.create_2d": "plot_2d",
+            "figure.create_comparison": "comparison_plate",
+            "figure.render_diagram": "diagram",
+            "figure.render_waveform": "waveform",
+            "figure.create_3d": "surface_3d",
+            "figure.export": "plot_2d",
+            "figure.regenerate": "plot_2d",
+        }
+        exp_id = task.args.get("experiment_id", "")
+        if not exp_id and task.args.get("from_task"):
+            prev = next((t for t in m["tasks"] if t["id"] == task.args["from_task"]), None)
+            if prev:
+                exp_id = ((prev.get("payload") or {}).get("result") or {}).get("output", {}).get("experiment_run_id", "")
+        fspec = FigureSpec(
+            figure_id=task.args.get("figure_id", ""),
+            topic_id=tid,
+            mission_id=mid,
+            title=task.args.get("title", f"Mission {task.id} Figure"),
+            category=cat_map.get(task.capability, "plot_2d"),
+            plot_kind=task.args.get("plot_kind", "line"),
+            source={
+                "kind": "experiment_artifact" if exp_id else ("diagram_dot" if task.capability == "figure.render_diagram" else "waveform_json" if task.capability == "figure.render_waveform" else "inline_series"),
+                "experiment_id": exp_id,
+                "dot_source": task.args.get("dot_source", ""),
+                "waveform": task.args.get("waveform") or {},
+                "is_synthetic_fixture": not bool(exp_id),
+            },
+        )
+        created = await asyncio.to_thread(FS.create_or_regenerate, fspec, fspec.figure_id)
+        svg_exp = (created.get("provenance") or {}).get("exports", {}).get("svg")
+        arts = [ArtifactManifest(path=svg_exp["path"], sha256=svg_exp["sha256"], bytes=svg_exp["bytes"])] if svg_exp else []
+        return ExecutionResult(status="completed", output={"figure_id": created["id"], "version": created["current_version"], "verification": created["verification"]}, artifacts=arts)
+    if task.capability == "opencode.implement":
+        from backend.research_engines import opencode as OC
+        oc_spec = OC.OpenCodeTaskSpec(
+            topic_id=tid,
+            mission_id=mid,
+            task_id=task.id,
+            goal=task.args.get("goal", "Implement and test baseline"),
+            workspace_id=task.args.get("workspace_id", ""),
+        )
+        sess = await asyncio.to_thread(OC.start_session, oc_spec)
+        return ExecutionResult(status="completed", engine=task.preferred_engine, output={"session_id": sess["id"], "status": sess["status"], "workspace_id": sess["workspace_id"]}, limitations=["OpenCode task output requires diff review and artifact verification"])
     raise ValueError("Capability unavailable")
 
 

@@ -27,7 +27,17 @@ async def chat_projects():
 
 @router.post("/api/chat/projects")
 async def chat_project_create(body: dict = Body(...)):
-    return await call(store.create_chat_project, body.get("name", ""))
+    return await call(store.create_chat_project, body.get("name", ""), body.get("instructions", ""))
+
+
+@router.put("/api/chat/projects/{gid}")
+async def chat_project_update(gid: str, body: dict = Body(...)):
+    return await call(store.update_chat_project, gid, body.get("name"), body.get("instructions"))
+
+
+@router.delete("/api/chat/projects/{gid}")
+async def chat_project_delete(gid: str):
+    return await call(store.delete_chat_project, gid)
 
 
 @router.get("/api/chat/sessions")

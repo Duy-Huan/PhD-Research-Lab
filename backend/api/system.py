@@ -53,7 +53,7 @@ async def models():
     catalog = {}
     for agent in AGENTS:
         engine = resolve_engine(cfg, agent)
-        provider = next((p for p in provs if p["id"] == "app:" + engine), None)
+        provider = next((p for p in provs if p["id"] in ("app:" + engine, "cli:" + engine)), None)
         choices = (cfg.get("mcp_agent") or {}).get("models", []) if engine == "mcp" else (provider or {}).get("capabilities", {}).get("models", [])
         catalog[agent] = {"engine": engine, "mode": cfg["agent_modes"][agent], "label": (provider or {}).get("label", engine),
                           "models": list(dict.fromkeys([m for m in [*choices, cfg.get("agent_models", {}).get(agent)] if m])),

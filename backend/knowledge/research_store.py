@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS chunks(id TEXT PRIMARY KEY, version_id TEXT NOT NULL 
 CREATE INDEX IF NOT EXISTS chunks_version ON chunks(version_id);
 CREATE VIRTUAL TABLE IF NOT EXISTS chunk_search USING fts5(chunk_id UNINDEXED,text);
 CREATE TABLE IF NOT EXISTS workspaces(id TEXT PRIMARY KEY, topic_id TEXT NOT NULL REFERENCES topics(id),
- engine TEXT NOT NULL CHECK(engine IN ('openscience','feynman')), path TEXT UNIQUE NOT NULL, payload TEXT NOT NULL);
+ engine TEXT NOT NULL CHECK(engine IN ('openscience','feynman','opencode')), path TEXT UNIQUE NOT NULL, payload TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS artifact_versions(id TEXT PRIMARY KEY, workspace_id TEXT NOT NULL REFERENCES workspaces(id),
  path TEXT NOT NULL, signature TEXT NOT NULL, version INTEGER NOT NULL, sha256 TEXT, bytes INTEGER NOT NULL,
  available INTEGER NOT NULL DEFAULT 1, observed TEXT NOT NULL, payload TEXT NOT NULL,
@@ -119,8 +119,23 @@ CREATE TRIGGER IF NOT EXISTS task_handoff_immutable BEFORE UPDATE ON task_handof
 CREATE TRIGGER IF NOT EXISTS charter_immutable BEFORE UPDATE ON project_charters BEGIN SELECT RAISE(ABORT,'create a new charter revision'); END;
 CREATE TRIGGER IF NOT EXISTS protocol_snapshot_immutable BEFORE UPDATE OF id,payload,digest,topic_id,parent_id,revision ON experiment_protocols BEGIN SELECT RAISE(ABORT,'protocol snapshot is immutable'); END;
 CREATE TRIGGER IF NOT EXISTS claim_text_immutable BEFORE UPDATE ON scientific_claims WHEN NEW.id IS NOT OLD.id OR NEW.topic_id IS NOT OLD.topic_id OR NEW.parent_id IS NOT OLD.parent_id OR json_extract(NEW.payload,'$.text') IS NOT json_extract(OLD.payload,'$.text') OR json_extract(NEW.payload,'$.kind') IS NOT json_extract(OLD.payload,'$.kind') BEGIN SELECT RAISE(ABORT,'amend the claim through a new revision'); END;
+CREATE TABLE IF NOT EXISTS figures(id TEXT PRIMARY KEY,topic_id TEXT NOT NULL REFERENCES topics(id),mission_id TEXT,title TEXT NOT NULL,category TEXT NOT NULL,current_version INTEGER NOT NULL DEFAULT 1,status TEXT NOT NULL DEFAULT 'draft',payload TEXT NOT NULL,created TEXT NOT NULL,updated TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS figure_versions(id TEXT PRIMARY KEY,figure_id TEXT NOT NULL REFERENCES figures(id),topic_id TEXT NOT NULL REFERENCES topics(id),version INTEGER NOT NULL,spec_sha256 TEXT NOT NULL,script_sha256 TEXT NOT NULL,data_sha256 TEXT NOT NULL,payload TEXT NOT NULL,created TEXT NOT NULL,UNIQUE(figure_id,version));
+CREATE TABLE IF NOT EXISTS figure_verifications(id TEXT PRIMARY KEY,figure_id TEXT NOT NULL REFERENCES figures(id),version INTEGER NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL,created TEXT NOT NULL);
+CREATE TRIGGER IF NOT EXISTS figure_version_no_update BEFORE UPDATE ON figure_versions BEGIN SELECT RAISE(ABORT,'figure versions are immutable'); END;
+CREATE TRIGGER IF NOT EXISTS figure_version_no_delete BEFORE DELETE ON figure_versions BEGIN SELECT RAISE(ABORT,'figure versions are append only'); END;
+CREATE TABLE IF NOT EXISTS opencode_sessions(id TEXT PRIMARY KEY,topic_id TEXT NOT NULL REFERENCES topics(id),mission_id TEXT,task_id TEXT,workspace_id TEXT,native_session_id TEXT NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL,created TEXT NOT NULL,updated TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS opencode_events(id TEXT PRIMARY KEY,session_id TEXT NOT NULL REFERENCES opencode_sessions(id),topic_id TEXT NOT NULL REFERENCES topics(id),fingerprint TEXT UNIQUE NOT NULL,seq INTEGER NOT NULL,event_type TEXT NOT NULL,payload TEXT NOT NULL,created TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS opencode_approvals(id TEXT PRIMARY KEY,session_id TEXT NOT NULL REFERENCES opencode_sessions(id),topic_id TEXT NOT NULL REFERENCES topics(id),action TEXT NOT NULL,risk TEXT NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL,created TEXT NOT NULL,updated TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS research_artifacts(id TEXT PRIMARY KEY,project_id TEXT NOT NULL,topic_id TEXT NOT NULL REFERENCES topics(id),mission_id TEXT,task_id TEXT,artifact_type TEXT NOT NULL,sha256 TEXT NOT NULL,byte_size INTEGER NOT NULL,verification_status TEXT NOT NULL DEFAULT 'unverified',version INTEGER NOT NULL DEFAULT 1,payload TEXT NOT NULL,created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS artifact_edges(id TEXT PRIMARY KEY,topic_id TEXT NOT NULL REFERENCES topics(id),parent_artifact_id TEXT NOT NULL,child_artifact_id TEXT NOT NULL,relation TEXT NOT NULL,created_at TEXT NOT NULL,UNIQUE(parent_artifact_id,child_artifact_id,relation));
+CREATE TABLE IF NOT EXISTS research_trace_events(id TEXT PRIMARY KEY,trace_id TEXT NOT NULL,span_id TEXT NOT NULL,parent_span_id TEXT,project_id TEXT NOT NULL,topic_id TEXT NOT NULL,mission_id TEXT,team_id TEXT,task_id TEXT,runtime_id TEXT,event_type TEXT NOT NULL,severity TEXT NOT NULL DEFAULT 'info',fingerprint TEXT UNIQUE NOT NULL,seq INTEGER NOT NULL,payload TEXT NOT NULL,created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS context_packs(id TEXT PRIMARY KEY,project_id TEXT NOT NULL,topic_id TEXT NOT NULL REFERENCES topics(id),mission_id TEXT,task_id TEXT NOT NULL,role TEXT NOT NULL,digest TEXT NOT NULL,payload TEXT NOT NULL,created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS routing_decisions(id TEXT PRIMARY KEY,topic_id TEXT NOT NULL REFERENCES topics(id),mission_id TEXT,task_id TEXT NOT NULL,selected_engine TEXT NOT NULL,cost_policy TEXT NOT NULL,payload TEXT NOT NULL,created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS reproducibility_exports(id TEXT PRIMARY KEY,topic_id TEXT NOT NULL REFERENCES topics(id),mission_id TEXT NOT NULL,bundle_sha256 TEXT NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL,created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS report_manifests(id TEXT PRIMARY KEY,topic_id TEXT NOT NULL REFERENCES topics(id),mission_id TEXT NOT NULL,title TEXT NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL,created_at TEXT NOT NULL);
 """
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 _schema_lock = threading.RLock()
 
 
@@ -161,6 +176,17 @@ def db():
                     with sqlite3.connect(backup) as target:
                         c.backup(target)
             c.executescript(SCHEMA)
+            ws_sql = c.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='workspaces'").fetchone()
+            if ws_sql and "'opencode'" not in (ws_sql[0] or ""):
+                c.executescript("""
+                PRAGMA foreign_keys=OFF;
+                ALTER TABLE workspaces RENAME TO _workspaces_v7;
+                CREATE TABLE workspaces(id TEXT PRIMARY KEY, topic_id TEXT NOT NULL REFERENCES topics(id),
+                 engine TEXT NOT NULL CHECK(engine IN ('openscience','feynman','opencode')), path TEXT UNIQUE NOT NULL, payload TEXT NOT NULL);
+                INSERT INTO workspaces SELECT * FROM _workspaces_v7;
+                DROP TABLE _workspaces_v7;
+                PRAGMA foreign_keys=ON;
+                """)
             if version < SCHEMA_VERSION:
                 c.execute(f"PRAGMA user_version={SCHEMA_VERSION}")
             c.execute("INSERT INTO meta VALUES('schema',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", (str(SCHEMA_VERSION),))

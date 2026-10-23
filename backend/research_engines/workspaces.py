@@ -25,7 +25,7 @@ IS_WIN = os.name == "nt"
 
 class WorkspaceInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    engine: str = Field(pattern="^(openscience|feynman)$")
+    engine: str = Field(pattern="^(openscience|feynman|opencode)$")
     path: str = Field(default="", max_length=2000)
     sync_interval_minutes: int = Field(default=0, ge=0, le=10080)
 
@@ -33,8 +33,8 @@ class WorkspaceInput(BaseModel):
 def _capabilities(engine: str) -> dict:
     from backend.execution.tools import which
     return {"engine": engine, "binary_available": bool(which(engine)), "artifact_reconciliation": True,
-            "external_session_enumeration": False, "external_event_replay": False,
-            "native_open": "browser_process" if engine == "openscience" else "terminal_window" if IS_WIN else "terminal_command",
+            "external_session_enumeration": engine == "opencode", "external_event_replay": engine == "opencode",
+            "native_open": "browser_process" if engine == "openscience" else "http_loopback" if engine == "opencode" else "terminal_window" if IS_WIN else "terminal_command",
             "fidelity": "artifact_observed", "limitations": OBSERVABILITY, "adapter_version": "1.0"}
 
 
@@ -104,6 +104,12 @@ def link(tid: str, body: WorkspaceInput) -> dict:
         if body.path and not path.is_dir():
             raise ValueError("Existing workspace folder does not exist")
         path.mkdir(parents=True, exist_ok=True)
+        if body.engine == "opencode":
+            plugins_dir = S.safe_child(path, ".opencode", "plugins")
+            plugins_dir.mkdir(parents=True, exist_ok=True)
+            agents_md = S.safe_child(path, "AGENTS.md")
+            if not agents_md.exists():
+                agents_md.write_text("# PhD Research Lab — OpenCode Scoped Workspace\n\nOperate strictly within this topic workspace. Do not exfiltrate secrets or invoke metered APIs without approval.\n", "utf-8")
         payload = {"created": S.now(), "adapter_version": "1.0", "native_project_id": None,
                    "sync_interval_minutes": body.sync_interval_minutes, "origin": "linked" if body.path else "managed_folder"}
         with S.db() as c:
@@ -326,7 +332,7 @@ def open_workspace(wid: str) -> dict:
     from backend.execution.tools import node_argv, which, NO_WINDOW
     w = get(wid)
     root = _root(w)
-    package = "@synsci/openscience/bin/openscience" if w["engine"] == "openscience" else "@companion-ai/feynman/bin/feynman.js"
+    package = "@synsci/openscience/bin/openscience" if w["engine"] == "openscience" else "opencode-ai/bin/opencode" if w["engine"] == "opencode" else "@companion-ai/feynman/bin/feynman.js"
     argv = node_argv(which(w["engine"]), package)
     if not argv:
         return {"status": "unavailable", "detail": "Engine CLI is not installed", "capabilities": w["capabilities"]}

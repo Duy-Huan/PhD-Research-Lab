@@ -424,7 +424,9 @@ async def local_chat(cfg: dict, system: str, messages: list, max_tokens: int, te
 
 # --------------------------------------------------------------------- router
 def resolve_engine(cfg: dict, agent: str) -> str:
-    mode = cfg["agent_modes"].get(agent_key(agent), "cloud")
+    mode = str(cfg["agent_modes"].get(agent_key(agent), "cloud")).removeprefix("cli:").removeprefix("app:")
+    if mode == "chatgpt_sub":
+        return "codex"
     if mode == "claude":  # Claude preferred: Anthropic when it has a key, otherwise the default cloud provider
         return "anthropic" if (cfg["providers"].get("anthropic") or {}).get("api_key") else cfg["default_cloud"]
     return cfg["default_cloud"] if mode == "cloud" else mode
@@ -435,6 +437,14 @@ def resolve_model(cfg: dict, agent: str) -> str | None:
     return (cfg.get("agent_models") or {}).get(agent_key(agent)) or None
 
 
+CLI_LABELS = {
+    "codex": "ChatGPT Subscription (Codex CLI)",
+    "claude_code": "Claude Subscription (Claude Code CLI)",
+    "gemini_cli": "Google Gemini CLI",
+    "antigravity": "Google Antigravity CLI",
+}
+
+
 def engine_label(engine: str) -> str:
     if engine == "mcp":
         return "MCP inference agent"
@@ -442,6 +452,8 @@ def engine_label(engine: str) -> str:
         return "LM Studio (local)"
     if engine == "ollama":
         return "Ollama (local)"
+    if engine in CLI_LABELS:
+        return CLI_LABELS[engine]
     return PROVIDERS.get(engine, {}).get("label", engine)
 
 
@@ -450,6 +462,10 @@ def default_model_for(cfg: dict, engine: str) -> str:
         return cfg.get("local_model") or ""
     if engine == "ollama":
         return cfg.get("ollama_model") or ""
+    if engine in CLI_LABELS:
+        from backend.providers.registry import DEFAULT_CLI_MODELS
+        models = (cfg.get("gateway", {}).get("cli_models") or {}).get(engine) or DEFAULT_CLI_MODELS.get(engine, [])
+        return models[0] if models else ""
     if engine in PROVIDERS:
         return cfg["providers"][engine].get("model") or PROVIDERS[engine]["model"]
     return ""
@@ -471,6 +487,30 @@ def agent_runtime(cfg: dict, agent: str) -> dict:
             "override": bool(resolve_model(cfg, agent))}
 
 
+async def _stream_cli(cfg: dict, engine: str, system: str, messages: list, model: str | None = None):
+    import asyncio
+    from backend.providers import cli as C
+    conn = C.CONNECTORS.get(engine)
+    if not conn:
+        raise LLMError(f"Unknown CLI provider '{engine}'")
+    prompt = (system + "\n\n" if system else "") + "\n\n".join(
+        f"{m.get('role', 'user').upper()}: {m.get('content', '')}" for m in messages
+    )
+    ctx = {"profile": cfg.get("gateway", {}).get("cli_profile", "review"), "model": model or "", "reasoning": _reasoning()}
+
+    def _run_sync():
+        chunks = []
+        for ev in conn.stream_message(prompt, ctx):
+            if ev.get("type") == "text_delta" and ev.get("text"):
+                chunks.append(ev["text"])
+            elif ev.get("type") == "error":
+                raise LLMError(ev.get("message", f"{engine} CLI error"))
+        return chunks
+
+    for piece in await asyncio.to_thread(_run_sync):
+        yield piece
+
+
 async def call_agent(agent: str, system: str, user: str | None = None, messages: list | None = None,
                      max_tokens: int = 4096, temperature: float = 0.2) -> dict:
     """Run an agent on its configured engine/model. Returns {text, engine, engine_label, model, note}."""
@@ -485,6 +525,11 @@ async def call_agent(agent: str, system: str, user: str | None = None, messages:
         text = await complete(cfg, system, msgs, model, max_tokens, temperature)
         return {"text": strip_think(text).strip(), "engine": engine, "engine_label": engine_label(engine),
                 "model": model or "(server default)", "note": "MCP inference tool; server owns model execution"}
+    if engine in CLI_LABELS:
+        parts = [p async for p in _stream_cli(cfg, engine, system, msgs, model)]
+        text = strip_think("".join(parts)).strip()
+        return {"text": text, "engine": engine, "engine_label": engine_label(engine),
+                "model": model or default_model_for(cfg, engine), "note": "CLI subscription connector"}
     if engine not in LOCAL_ENGINES:
         text = await cloud_chat(cfg, engine, system, msgs, max_tokens, temperature, model)
         return {"text": text, "engine": engine, "engine_label": engine_label(engine), "model": model or default_model_for(cfg, engine), "note": ""}
@@ -639,6 +684,10 @@ async def _stream_engine(cfg, engine, system, messages, max_tokens, temperature,
                 return
             async for t in _stream_openai(base, "", model, system, messages, max_tokens, temperature, label, engine, hint):
                 yield t
+        return
+    if engine in CLI_LABELS:
+        async for t in _stream_cli(cfg, engine, system, messages, model):
+            yield t
         return
     spec, key, default_model, base = provider_settings(cfg, engine)
     model = model or default_model

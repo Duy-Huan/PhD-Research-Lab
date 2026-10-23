@@ -56,7 +56,7 @@ def versions(session_id: str = "") -> dict:
             return 0, 0
     for name in ("workspace/research/research.sqlite3", "library.json", "memory/research.json", "memory/project_state.json", "workspace/lit2plan.md",
                  "workspace/research_artifacts.json", "workspace/experiment_design.md", "workspace/outline.json",
-                 "code/.phdlab-code.json"):
+                 "code/.phdlab-code.json", "workspace/ai_sessions/chat_projects.json"):
         v[name] = signature(root / name)
     for pattern in ("runs/*/run.json", "runs/*/metrics_parsed.json", "runs/*/stdout.log", "runs/*/stderr.log",
                     "workspace/research_runs/RR-*.json", "compute/rc-*/run.json"):
@@ -104,6 +104,61 @@ def _retrieved(question: str, allowed: tuple) -> list:
     return out
 
 
+def _folder_context_sources(session: dict) -> list:
+    """When a conversation belongs to a chat folder (`chat_project`), compile shared instructions + sibling chat memory."""
+    gid = session.get("chat_project") or ""
+    if not gid:
+        return []
+    from backend.agent import sessions
+    from backend.agent.project_context import src
+    groups = sessions.chat_projects()
+    group = next((g for g in groups if g.get("id") == gid), None)
+    if not group:
+        return []
+    out = []
+    if group.get("instructions"):
+        out.append(
+            src(
+                f"folder:{gid}:instructions",
+                "folder_instructions",
+                f"Folder '{group.get('name', gid)}' Shared Instructions",
+                str(group["instructions"]),
+                "user",
+                "shared instructions for this chat folder",
+            )
+        )
+    sibling_blocks = []
+    for item in sessions.list_sessions(limit=40):
+        if item["id"] == session["id"] or item.get("chat_project") != gid:
+            continue
+        try:
+            rec = sessions.get(item["id"])
+        except Exception:
+            continue
+        summary = rec.get("summary") or ""
+        if not summary and rec.get("messages"):
+            recent = [
+                f"{'User' if m.get('role') == 'user' else 'Assistant'}: {(m.get('content') or '')[:180]}"
+                for m in rec["messages"][-4:]
+                if m.get("content")
+            ]
+            summary = "\n".join(recent)
+        if summary:
+            sibling_blocks.append(f"### [{rec.get('title', rec['id'])}]\n{summary}")
+    if sibling_blocks:
+        out.append(
+            src(
+                f"folder:{gid}:memory",
+                "folder_memory",
+                f"Folder '{group.get('name', gid)}' Shared Conversation Memory",
+                "\n\n".join(sibling_blocks[:10]),
+                "state",
+                "shared memory from sibling conversations in the same chat folder",
+            )
+        )
+    return out
+
+
 def compile(session: dict, question: str, eff: dict, extra: list | None = None) -> dict:
     """→ {manifest, text}. `extra` = tool results of this turn (untrusted) added before the budget filter."""
     from backend.core.config import data_dir, load_config
@@ -117,8 +172,9 @@ def compile(session: dict, question: str, eff: dict, extra: list | None = None) 
     ent_id = session["binding"]["entity_id"]
     selected = list(dict.fromkeys((session.get("selected_sources") or []) + list(v.get("sources") or [])))
     topic_id = session.get("topic_id", "")
+    chat_project = session.get("chat_project", "")
     budget = int(v["context_budget_tokens"])
-    key = _sha(json.dumps([str(data_dir().resolve()), session["id"], module, ent_id, topic_id, mode, selected, budget, v["use_memory"],
+    key = _sha(json.dumps([str(data_dir().resolve()), session["id"], module, ent_id, topic_id, chat_project, mode, selected, budget, v["use_memory"],
                            versions(session["id"]), question if mode in ("relevant", "expanded") else ""], default=str))
     if not extra:
         with _lock:
@@ -128,6 +184,7 @@ def compile(session: dict, question: str, eff: dict, extra: list | None = None) 
     entity = ad.resolve(ent_id) if ent_id else None
     items, omitted, topic_extra = [], [], []
     if mode != "none":
+        items += _folder_context_sources(session)
         if topic_id:
             from backend.knowledge import research_store as RS, research_context as RC, corpus
             from backend.agent.project_context import src

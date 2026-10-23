@@ -1,8 +1,0 @@
-{
-  "name": "phdlab-frontend-tests",
-  "private": true,
-  "description": "Dev-only test dependencies of the PhD Research Lab frontend (jsdom = a DOM for node:test). Not needed to run the app.",
-  "devDependencies": {
-    "jsdom": "26.1.0"
-  }
-}

@@ -2,7 +2,8 @@
 from backend.research_engines.contracts import EngineFailure
 
 FACTORIES = {"feynman": ("backend.research_engines.feynman", "FeynmanEngine"),
-             "openscience": ("backend.research_engines.openscience", "OpenScienceEngine")}
+             "openscience": ("backend.research_engines.openscience", "OpenScienceEngine"),
+             "opencode": ("backend.research_engines.opencode", "OpenCodeEngine")}
 
 
 def get(engine_id: str):

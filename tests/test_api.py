@@ -114,9 +114,9 @@ class Api(unittest.TestCase):
         with self.c.stream("GET", "/api/events/stream?timeout=1") as r:
             self.assertIn('"hello"', next(r.iter_lines()))
         self.assertEqual(self.c.get("/").status_code, 200)
-        self.assertIn("/assets/app.css?v=", self.c.get("/").text)
+        self.assertIn("/dist/assets/react-", self.c.get("/").text)
         self.assertEqual(self.c.get("/favicon.ico").status_code, 200)
-        self.assertEqual(self.c.get("/assets/core.js").headers["cache-control"], "no-cache, must-revalidate")
+        self.assertEqual(self.c.get("/assets/app.css").headers["cache-control"], "no-cache, must-revalidate")
 
     def test_security_middlewares(self):
         self.assertEqual(self.c.get("/api/version", headers={"host": "evil.example"}).status_code, 421)
