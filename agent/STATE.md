@@ -1,3 +1,15 @@
+# Current: local Chromium cache correction verified
+
+PR7 remains draft ->dev. The staged explicit PLAYWRIGHT_BROWSERS_PATH CI correction passed feature-ci-browser-cache (1040PASS/8skip, source stable; backend851,frontend174,Playwright20,boundary3). Commit/push this same unreleased6.5.0 correction now, then inspect the new actual Linux browser job. The initial947d993 GitHub run has policy/security success, frontend174 and Linux846+5skip but strict coverage/completeness blocks; initial Linux browser had a verified cache-path defect. No UAT model retries, fake green or qa/main merge. Original application changes preserved in the original worktree. Earlier state follows.
+
+# Active follow-up: Linux CI browser cache correction
+
+Code6.5.0 is pushed in commits bd71705 and947d993, PR7 draft ->dev: https://github.com/Duy-Huan/PhD-Research-Lab/pull/7 . Exact initial head947d993c2a93cf8af0087834d2404f2c5d727124. Local feature-index-stable PASS1040/8skip with matching committed source. Actual GitHub run40136777730: policy and security PASS; UAT missing-evidence blocks as expected; browser startup fails because XDG_CACHE_HOME isolated its executable lookup. Added explicit shared workspace PLAYWRIGHT_BROWSERS_PATH to install/runtime and setup guide. Only binaries are shared; profiles/data/cache stay private. Keep unreleased feature version6.5.0.
+
+NEXT: stage this configuration/docs correction BEFORE final local verification, keep source/index frozen, run feature-ci-browser-cache. After PASS commit/push PR update, inspect a new real Linux browser job. No fake green, no QA/main merge, no model retries for exhausted TASK-UAT-LOCAL-ADAPTER. Other original application changes remain preserved in the original workspace.
+
+Earlier checkpoints follow; this header is current.
+
 # Latest verified checkpoint ? v6.5.0
 
 Active worktree: D:/git-repo/PhD-Research-Lab-worktrees/development-governance; branch feature/development-governance. Original application work remains dirty/preserved in D:/git-repo/PhD-Research-Lab on feature/full-harness-20261024. Never reset, stash, clean, delete skills/ or agent/, or overwrite either worktree.

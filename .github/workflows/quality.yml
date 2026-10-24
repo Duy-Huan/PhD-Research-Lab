@@ -17,6 +17,9 @@ concurrency:
 env:
   PYTHONIOENCODING: utf-8
   PHDLAB_QA_OFFLINE: '1'
+  # Binaries are shared within this job; each test still owns its private profile/cache.
+  # Isolating XDG_CACHE_HOME must not change the install/runtime binary lookup.
+  PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/output/playwright/browser-binaries
 
 jobs:
   policy:
