@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../shared/api/client';
 import { useI18n } from '../../shared/state/uiStore';
@@ -41,7 +41,7 @@ export const Composer: React.FC<ComposerProps> = ({
 }) => {
   const { t } = useI18n();
   const [text, setText] = useState('');
-  const [selectedModel, setSelectedModel] = useState<string>('');
+  const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const [reasoningEffort, setReasoningEffort] = useState<string>('auto');
   const [uploadingFile, setUploadingFile] = useState(false);
   const [toolsMenuOpen, setToolsMenuOpen] = useState(false);
@@ -68,14 +68,14 @@ export const Composer: React.FC<ComposerProps> = ({
 
   // Requirement #7: Model selector in chatbox ONLY displays models of the provider assigned to the assistant agent!
   const assistantCatalog = modelsData?.agent_catalog?.assistant;
-  const assistantEngine = assistantCatalog?.engine || 'cloud:google';
+  const assistantEngine = assistantCatalog?.engine || '';
   const assistantLabel = assistantCatalog?.label || assistantEngine;
   const assistantDefaultModel = assistantCatalog?.selected || '';
 
   // Also check providers list for matching engine if agent_catalog models is empty
   const providerCode = assistantEngine.replace(/^(cloud|cli|app):/, '');
   const matchingProvider = (modelsData?.providers || []).find(
-    (p) => p.id === providerCode || p.id === assistantEngine
+    (p) => p.id === providerCode || p.id === assistantEngine || p.id === `cli:${providerCode}` || p.id === `app:${providerCode}`
   );
   const rawAssistantModels =
     assistantCatalog?.models && assistantCatalog.models.length > 0
@@ -95,6 +95,8 @@ export const Composer: React.FC<ComposerProps> = ({
     matchingProvider?.state === 'AUTH_EXPIRED' ||
     matchingProvider?.state === 'UNAVAILABLE' ||
     (matchingProvider?.available === false && isCliOrSub);
+
+  useEffect(() => { setSelectedModel(null); }, [assistantEngine, assistantDefaultModel]);
 
   // Filter skills when typing '/'
   const slashMatches = text.startsWith('/')
@@ -159,20 +161,13 @@ export const Composer: React.FC<ComposerProps> = ({
     } = {};
 
     // Normalize CLI shorthands properly so backend accepts it seamlessly
-    let mappedProvider = assistantEngine;
-    if (mappedProvider === 'codex') mappedProvider = 'cli:codex';
-    else if (mappedProvider === 'claude' || mappedProvider === 'claude_code') mappedProvider = 'cli:claude_code';
-    else if (mappedProvider === 'antigravity') mappedProvider = 'cli:antigravity';
-    else if (mappedProvider === 'gemini_cli') mappedProvider = 'cli:gemini_cli';
+    const mappedProvider = /^(app|cli):/.test(assistantEngine) ? assistantEngine
+      : assistantEngine ? `${isCliOrSub ? 'cli' : 'app'}:${providerCode === 'claude' ? 'claude_code' : providerCode === 'google' ? 'gemini' : providerCode}` : '';
 
     if (mappedProvider) {
       overrides.provider = mappedProvider;
     }
-    if (selectedModel) {
-      overrides.model = selectedModel;
-    } else if (assistantDefaultModel) {
-      overrides.model = assistantDefaultModel;
-    }
+    overrides.model = selectedModel ?? assistantDefaultModel;
     if (reasoningEffort && reasoningEffort !== 'auto') {
       overrides.reasoning = reasoningEffort;
     }
@@ -224,6 +219,7 @@ export const Composer: React.FC<ComposerProps> = ({
   };
 
   const quickCommands = [
+    { cmd: '/paperorchestra ', label: 'PaperOrchestra', icon: FileText },
     { cmd: '/outline', label: 'Outline', icon: Compass },
     { cmd: '/search ', label: 'Search', icon: BookOpen },
     { cmd: '/phdlab ', label: 'PhD Lab Native', icon: Bot },
@@ -552,7 +548,7 @@ export const Composer: React.FC<ComposerProps> = ({
             </div>
 
             {/* Right: Reasoning Effort Selector + Assistant-Scoped Model Selector + Send Circle */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div className="composer-model-controls" style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, maxWidth: '100%', flexWrap: 'wrap' }}>
               {/* Reasoning Effort (Mức độ tư duy) */}
               <div
                 style={{
@@ -568,6 +564,7 @@ export const Composer: React.FC<ComposerProps> = ({
               >
                 <BrainCircuit size={12} color="var(--accent)" />
                 <select
+                  aria-label={t('Mức độ tư duy suy luận', 'Reasoning Effort')}
                   value={reasoningEffort}
                   onChange={(e) => setReasoningEffort(e.target.value)}
                   style={{
@@ -590,7 +587,7 @@ export const Composer: React.FC<ComposerProps> = ({
 
               {/* Assistant Provider Scoped Model Dropdown */}
               <select
-                value={selectedModel || assistantDefaultModel}
+                value={selectedModel ?? assistantDefaultModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
                 style={{
                   fontSize: 11.5,
@@ -600,6 +597,7 @@ export const Composer: React.FC<ComposerProps> = ({
                   background: 'var(--bg-2)',
                   color: 'var(--ink)',
                   maxWidth: compact ? 145 : 210,
+                  minWidth: 0,
                   fontWeight: 500,
                   cursor: 'pointer',
                 }}
@@ -608,15 +606,12 @@ export const Composer: React.FC<ComposerProps> = ({
                   `Models of Assistant's assigned provider (${assistantLabel})`
                 )}
               >
-                {assistantModels.length === 0 ? (
-                  <option value="">{assistantLabel} (Default)</option>
-                ) : (
-                  assistantModels.map((m) => (
+                <option value="">{assistantLabel} (Default)</option>
+                {assistantModels.map((m) => (
                     <option key={m} value={m}>
                       {m}
                     </option>
-                  ))
-                )}
+                  ))}
               </select>
 
               {isStreaming && onCancel ? (

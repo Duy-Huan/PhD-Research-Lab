@@ -17,6 +17,7 @@
     figures          v6.4.0 Scientific Visualization & Figure Studio
     opencode         v6.4.1 OpenCode Parallel Core Integration
     intelligence     v6.4.2 Unified Research Intelligence & Integration Layer
+    paperorchestra   v6.4.3 PaperOrchestra Multi-Agent Research Writing Engine
 """
 from backend.api import (
     chat,
@@ -30,6 +31,7 @@ from backend.api import (
     memory,
     opencode,
     paper,
+    paperorchestra,
     plugins,
     projects,
     research,
@@ -58,4 +60,5 @@ ROUTERS = [
     harness.router,
     opencode.router,
     intelligence.router,
+    paperorchestra.router,
 ]

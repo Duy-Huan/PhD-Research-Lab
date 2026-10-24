@@ -1,10 +1,13 @@
 """Lazy adapter registration. Core dispatch depends on the research-engine port."""
 from backend.research_engines.contracts import EngineFailure
 
-FACTORIES = {"feynman": ("backend.research_engines.feynman", "FeynmanEngine"),
-             "openscience": ("backend.research_engines.openscience", "OpenScienceEngine"),
-             "opencode": ("backend.research_engines.opencode", "OpenCodeEngine"),
-             "phdlab": ("backend.research_engines.phdlab", "PhDLabEngine")}
+FACTORIES = {
+    "feynman": ("backend.research_engines.feynman", "FeynmanEngine"),
+    "openscience": ("backend.research_engines.openscience", "OpenScienceEngine"),
+    "opencode": ("backend.research_engines.opencode", "OpenCodeEngine"),
+    "phdlab": ("backend.research_engines.phdlab", "PhDLabEngine"),
+    "paperorchestra": ("backend.research_engines.paperorchestra.engine", "PaperOrchestraEngine"),
+}
 
 
 def get(engine_id: str):
@@ -32,9 +35,11 @@ def plan(mode: str, capability: str, preferred: str = "feynman") -> list[str]:
         return ["openscience"]
     if preferred == "opencode":
         return ["opencode"]
+    if preferred == "paperorchestra":
+        return ["paperorchestra"]
     settings = cfg.get("openscience") or {}
     qualified = capability in settings.get("qualified_tasks", []) and bool(settings.get("model_provider") and settings.get("model_id"))
-    for candidate in cfg["research_providers"].get("engine_priority", ["feynman", "openscience", "opencode"]):
+    for candidate in cfg.get("research_providers", {}).get("engine_priority", ["feynman", "openscience", "opencode", "paperorchestra"]):
         if candidate not in FACTORIES:
             continue
         engine = get(candidate)
