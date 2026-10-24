@@ -202,9 +202,14 @@ export const PaperOrchestraStudio: React.FC = () => {
           </button>
         </div>
 
-        <p style={{ margin: 0, fontSize: 12, color: 'var(--muted)' }}>
-          {health?.detail || t('Đang kiểm tra môi trường PaperOrchestra…', 'Probing PaperOrchestra environment…')}
-        </p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6, fontSize: 11.5 }}>
+          <p style={{ margin: 0, color: 'var(--muted)' }}>
+            {health?.detail || t('Đang kiểm tra môi trường PaperOrchestra…', 'Probing PaperOrchestra environment…')}
+          </p>
+          <span style={{ color: 'var(--muted)', fontSize: 11, background: 'var(--bg-2)', padding: '2px 8px', borderRadius: 4, border: '1px solid var(--line)' }}>
+            {t('The AI Scientist v2: Plugin tùy chọn (quản lý trong Cài đặt → Kỹ năng & Plugins)', 'The AI Scientist v2: Optional plugin (manage in Settings → Skills & Plugins)')}
+          </span>
+        </div>
 
         {/* Backend & Level Selector */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 4 }}>
