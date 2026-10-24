@@ -83,7 +83,7 @@ describe('CustomHarnessStudio', () => {
     expect(screen.getByRole('button', { name: /Lưu/i })).toBeInTheDocument();
   });
 
-  it('executes harness workflow and displays execution report', async () => {
+  it('displays blocked execution without inventing benchmark measurements', async () => {
     vi.spyOn(api, 'get').mockImplementation((url: string) => {
       if (url.includes('/api/harness/tools')) {
         return Promise.resolve({ tools: mockTools });
@@ -98,8 +98,8 @@ describe('CustomHarnessStudio', () => {
       execution_id: 'exec-test-123',
       workflow_id: 'hw-preset-llm-eval',
       workflow_name: 'Quy trình Đánh giá Năng lực Mô hình',
-      status: 'completed',
-      passed: true,
+      status: 'blocked',
+      passed: false,
       total_duration_s: 1.25,
       nodes_count: 1,
       node_results: {
@@ -108,11 +108,12 @@ describe('CustomHarnessStudio', () => {
           label: 'LM Evaluation Benchmark',
           tool_id: 'lm_evaluation_harness',
           tool_name: 'LM-Evaluation-Harness',
-          status: 'completed',
-          passed: true,
+          status: 'blocked',
+          passed: false,
           duration_s: 0.45,
-          metrics: { avg_score: 0.84 },
-          summary: 'LM-Eval evaluated 2 tasks: average score 84.0% (Đạt tiêu chuẩn).',
+          metrics: {},
+          summary: 'No executable benchmark adapter is configured; no evaluation ran.',
+          execution_mode: 'NOT_EXECUTED',
           timestamp: '2026-10-24T12:00:00Z',
         },
       },
@@ -136,7 +137,8 @@ describe('CustomHarnessStudio', () => {
         })
       );
       expect(screen.getByText(/Báo cáo Thực thi Harness:/i)).toBeInTheDocument();
-      expect(screen.getByText(/LM-Eval evaluated 2 tasks/i)).toBeInTheDocument();
+      expect(screen.getByText(/no evaluation ran/i)).toBeInTheDocument();
+      expect(screen.queryByText(/84.0%/i)).not.toBeInTheDocument();
     });
   });
 

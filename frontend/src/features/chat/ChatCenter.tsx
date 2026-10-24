@@ -168,12 +168,27 @@ export const ChatCenter: React.FC<ChatCenterProps> = ({ compact = false }) => {
         }
         return { sid, result };
       } catch (err: any) {
-        // If a turn was already running/stuck, attempt to cancel it so the user can send again
+        // If a turn was already running/stuck, attempt to cancel it and retry once so the user can send smoothly
         if (err.message && err.message.toLowerCase().includes('already running')) {
           try {
             await api.post(`/api/chat/sessions/${sid}/cancel`, {});
-          } catch {
-            // ignore
+            await new Promise((resolve) => setTimeout(resolve, 350));
+            const retryResult = await api.post<{
+              id?: string;
+              status?: string;
+              turn?: { id: string; status: string };
+              session?: ChatSession;
+            }>(`/api/chat/sessions/${sid}/turns`, {
+              text,
+              overrides: overrides || {},
+            });
+            const turnId = retryResult?.id || retryResult?.turn?.id;
+            if (turnId) {
+              setActiveTurnId(turnId);
+            }
+            return { sid, result: retryResult };
+          } catch (retryErr: any) {
+            throw retryErr || err;
           }
         }
         throw err;
@@ -289,7 +304,43 @@ export const ChatCenter: React.FC<ChatCenterProps> = ({ compact = false }) => {
         color: 'var(--ink)',
       }}
     >
-      {sendMutation.isError && <div role="alert">{sendMutation.error.message}</div>}
+      {sendMutation.isError && (
+        <div
+          role="alert"
+          style={{
+            margin: '8px 24px 0',
+            padding: '10px 14px',
+            borderRadius: '8px',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            color: 'var(--red, #ef4444)',
+            fontSize: '13px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+            zIndex: 10,
+          }}
+        >
+          <span>{sendMutation.error.message}</span>
+          <button
+            type="button"
+            onClick={() => sendMutation.reset()}
+            aria-label="Dismiss error"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'inherit',
+              cursor: 'pointer',
+              fontWeight: 600,
+              fontSize: '12px',
+              padding: '2px 6px',
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
       {memoryFeedback && <div role={memoryFeedback.error ? 'alert' : 'status'} style={{ padding: '8px 16px' }}>{memoryFeedback.text}</div>}
       <MessageList
         sessionTitle={sessionData?.title}

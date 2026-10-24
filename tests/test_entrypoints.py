@@ -47,14 +47,19 @@ class Launcher(unittest.TestCase):
                 stack.enter_context(mock.patch.object(start, "running_lab", return_value=info))
                 stack.enter_context(mock.patch.dict(start.os.environ))
                 server = stack.enter_context(mock.patch.object(uvicorn, "run"))
+                browser = stack.enter_context(mock.patch.object(start.webbrowser, 'open'))
                 output = stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
-                start.main()
                 if info and info["version"] == config.APP_VERSION:
+                    with self.assertRaises(SystemExit) as raised:
+                        start.main()
+                    self.assertEqual(raised.exception.code, 0)
                     server.assert_not_called()
-                    self.assertIn("already running", output.getvalue())
+                    self.assertIn("already running", output.getvalue().lower())
                 else:
+                    start.main()
                     self.assertEqual(server.call_args.kwargs["port"], 9001)
                     self.assertEqual(start.os.environ["PHDLAB_URL"], "http://127.0.0.1:9001")
+                browser.assert_not_called()
 
     def test_no_free_port_and_server_start_failure_are_readable_errors(self):
         import uvicorn

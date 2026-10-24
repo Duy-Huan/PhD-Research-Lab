@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["--prefix", "frontend", "--no-install", "playwright-mcp", "--headless", "--isolated", "--browser", "chromium", "--output-dir", "output/playwright/mcp"]
+    }
+  }
+}

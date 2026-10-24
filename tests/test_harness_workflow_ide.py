@@ -161,7 +161,8 @@ class HarnessWorkflowIDETestSuite(unittest.TestCase):
 
         self.assertTrue(wf["id"].startswith("ai"))
         self.assertFalse(wf["is_preset"])
-        self.assertTrue(wf["generated_by_ai"])
+        self.assertFalse(wf["generated_by_ai"])
+        self.assertEqual(wf['generation_method'], 'deterministic_template')
         self.assertEqual(wf["execution_level"], "L3")
         self.assertGreaterEqual(len(wf["nodes"]), 6)
         self.assertGreaterEqual(len(wf["edges"]), 5)
@@ -230,8 +231,10 @@ class HarnessWorkflowIDETestSuite(unittest.TestCase):
 
         self.assertTrue(report["execution_id"].startswith("exec-"))
         self.assertEqual(report["workflow_id"], "wf-test-runtime")
-        self.assertIn(report["status"], ("completed", "waiting_approval"))
-        self.assertEqual(len(report["node_statuses"]), 4)
+        self.assertEqual(report["status"], "blocked")
+        self.assertFalse(report['passed'])
+        self.assertEqual(report['node_results']['n-engine']['metrics'], {})
+        self.assertFalse(report['node_results']['n-engine']['execution']['executed'])
 
         # Verify execution history persistence
         record = get_execution_record(report["execution_id"])
@@ -284,7 +287,7 @@ class HarnessWorkflowIDETestSuite(unittest.TestCase):
         )
         self.assertEqual(res.status_code, 200)
         wf = res.json()
-        self.assertTrue(wf["generated_by_ai"])
+        self.assertFalse(wf["generated_by_ai"])
         self.assertGreater(len(wf["nodes"]), 0)
 
         # 6. POST /api/harness/execute with modern DAG

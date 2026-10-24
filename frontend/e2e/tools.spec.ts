@@ -1,4 +1,4 @@
-import { test, expect, boot, json, topic } from './live';
+import { MODEL, test, expect, boot, json, topic } from './live';
 
 test('harness run does not invent evaluation metrics when adapters are unavailable', async ({ page }, info) => {
   await boot(page);
@@ -53,6 +53,6 @@ test('real Codex CLI chat follows the provider selected in settings', async ({ p
     expect(saved.turns.at(-1).status).toBe('completed');
     expect(saved.messages.at(-1).provider).toBe('cli:codex');
   } finally {
-    await json(request, 'post', '/api/config', { agent_modes: { assistant: 'local' }, agent_models: { assistant: 'qwen/qwen3.5-9b' } });
+    await json(request, 'post', '/api/config', { agent_modes: { assistant: 'local' }, agent_models: { assistant: MODEL } });
   }
 });

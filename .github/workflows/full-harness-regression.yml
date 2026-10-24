@@ -1,0 +1,95 @@
+name: Full Harness Regression
+
+on:
+  pull_request:
+  push:
+    branches: [main, master, 'qa/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    name: Evidence integrity and protected agent resources
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-dev.txt
+      - name: Reject deleted skills or continuation files
+        env:
+          DIFF_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        shell: bash
+        run: |
+          if git cat-file -e "${DIFF_BASE}^{commit}" 2>/dev/null; then
+            python tools/protect_agent_resources.py --base "$DIFF_BASE"
+          else
+            BASE_PARENT=$(git rev-parse HEAD^)
+            python tools/protect_agent_resources.py --base "$BASE_PARENT"
+          fi
+      - run: python tools/qa_harness.py audit --out output/playwright/ci/integrity.json
+      - run: python tools/qa_harness.py generate --seed 20261024 --count 100 --out output/playwright/ci/generated.json
+      - run: python tools/run_tests.py test_evidence_integrity_regressions test_qa_guards test_native_cli_launch test_intelligence_preservation test_cli_settings_parity
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integrity-evidence
+          path: output/playwright/ci/
+
+  backend:
+    name: Full backend coverage (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-dev.txt
+      - name: Mandatory complete regression and 100 percent production coverage
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python tools/backend_quality_gate.py --profile full --i-understand-full-suite --require-complete --output-dir output/playwright/ci/backend
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-${{ matrix.os }}
+          path: output/playwright/ci/backend/
+
+  frontend:
+    name: Whole frontend coverage and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run typecheck
+        working-directory: frontend
+      - run: npm run test:coverage -- --maxWorkers=2 --coverage.thresholds.lines=100 --coverage.thresholds.branches=100 --coverage.thresholds.functions=100 --coverage.thresholds.statements=100
+        working-directory: frontend
+      - run: npm run build
+        if: always()
+        working-directory: frontend
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/
+
+# Real model/browser/CLI/scientific runs use the documented isolated local profile.
+# Hosted runners have no entitlement to the user's LM Studio or subscription CLIs.
+# Missing live qualification must remain BLOCKED in the release report.

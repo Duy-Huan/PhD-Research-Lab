@@ -23,6 +23,7 @@ describe('AgentStatusView', () => {
     const s = useUIStore.getState();
     s.setLanguage('vi');
     s.setProject({ name: 'Default', data_dir: '/path/data' });
+    s.setActiveTopic(null);
     s.setOfficeFullscreen(false);
     s.setOfficeChatOpen(true);
     s.setSelectedLabObject(null);

@@ -16,6 +16,7 @@ const mission = (status = 'draft') => ({
 
 function setup(rows: unknown[] = [], enabled = true) {
   vi.spyOn(api, 'get').mockImplementation(async (url: string) => {
+    if (url === '/api/config') return { local_model: 'fixture-local-model', agent_models: { research: 'fixture-local-model' } };
     if (url.endsWith('/missions')) return { missions: rows };
     if (url.includes('/papers')) return { papers: [{ id: 'a', title: 'Paper alpha' }, { id: 'b', title: 'Paper beta' }] };
     if (url.endsWith('/protocols')) return { protocols: [protocol, replica, { id: 'unapproved', approval: null }] };

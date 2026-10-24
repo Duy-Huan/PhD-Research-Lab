@@ -542,11 +542,11 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                 ...n.data,
                 status: st.status,
                 result: {
-                  passed: st.status === 'completed',
+                  passed: (st as any).passed === true,
                   duration_s: st.duration_s,
                   output: st.output,
                   error: st.error,
-                  summary: st.error || (st.output ? JSON.stringify(st.output).slice(0, 100) : 'Hoàn tất'),
+                  summary: (st as any).summary || st.error || (st.output ? JSON.stringify(st.output).slice(0, 100) : st.status),
                 },
               },
             };
@@ -566,7 +566,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
               ...n,
               data: {
                 ...n.data,
-                status: r.passed ? 'completed' : 'failed',
+                status: r.status || (r.passed ? 'completed' : 'failed'),
                 result: {
                   passed: r.passed,
                   duration_s: r.duration_s,

@@ -1,10 +1,17 @@
 """Keep backend, npm package/lock and README release metadata synchronized."""
 import argparse
 import json
-from pathlib import Path
 import re
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def replace_version(source: str, version: str) -> str:
+    updated, count = re.subn(r'^APP_VERSION = "[^"]+"', f'APP_VERSION = "{version}"', source, count=1, flags=re.MULTILINE)
+    if count != 1:
+        raise ValueError('Expected exactly one top-level APP_VERSION assignment')
+    return updated
 
 
 def main():
@@ -16,7 +23,9 @@ def main():
         parser.error('Expected MAJOR.MINOR.PATCH')
     updates = {}
     path = ROOT / 'backend/core/config.py'
-    updates[path] = re.sub(r'APP_VERSION = "[^"]+"', f'APP_VERSION = "{args.version}"', path.read_text('utf-8'))
+    updates[path] = replace_version(path.read_text('utf-8'), args.version)
+    path = ROOT / 'start.py'
+    updates[path] = replace_version(path.read_text('utf-8'), args.version)
     for filename in ('package.json', 'package-lock.json'):
         path = ROOT / 'frontend' / filename
         obj = json.loads(path.read_text('utf-8'))

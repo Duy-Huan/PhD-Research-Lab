@@ -1,4 +1,5 @@
 import React from 'react';
+import { useI18n } from '../../shared/state/uiStore';
 import { Handle, Position } from '@xyflow/react';
 import {
   Play,
@@ -185,6 +186,7 @@ const NODE_TYPE_INFO: Record<
 };
 
 export const HarnessNodeComponent: React.FC<HarnessNodeComponentProps> = ({ id, data, selected }) => {
+  const { t } = useI18n();
   const nodeType: WorkflowNodeType = (data.node_type as WorkflowNodeType) || (data.tool ? 'harnessNode' : 'agent_task');
   const status = data.status || 'idle';
 
@@ -211,7 +213,7 @@ export const HarnessNodeComponent: React.FC<HarnessNodeComponentProps> = ({ id, 
   let statusBadge = (
     <span style={{ fontSize: 10, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 3 }}>
       <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--muted)' }} />
-      Sẵn sàng
+      {t('Chưa chạy', 'Not executed')}
     </span>
   );
 
@@ -221,7 +223,7 @@ export const HarnessNodeComponent: React.FC<HarnessNodeComponentProps> = ({ id, 
     statusBadge = (
       <span style={{ fontSize: 10, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}>
         <Loader2 size={11} className="spin" />
-        Đang chạy…
+        {t('Đang chạy…', 'Running…')}
       </span>
     );
   } else if (status === 'completed') {
@@ -230,7 +232,7 @@ export const HarnessNodeComponent: React.FC<HarnessNodeComponentProps> = ({ id, 
     statusBadge = (
       <span style={{ fontSize: 10, color: 'var(--ok, #10b981)', display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}>
         <CheckCircle2 size={11} />
-        Thành công
+        {t('Hoàn tất bước', 'Step completed')}
       </span>
     );
   } else if (status === 'failed') {
@@ -239,7 +241,7 @@ export const HarnessNodeComponent: React.FC<HarnessNodeComponentProps> = ({ id, 
     statusBadge = (
       <span style={{ fontSize: 10, color: 'var(--err, #ef4444)', display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}>
         <XCircle size={11} />
-        Thất bại
+        {t('Thất bại', 'Failed')}
       </span>
     );
   } else if (status === 'waiting_approval') {
@@ -248,7 +250,7 @@ export const HarnessNodeComponent: React.FC<HarnessNodeComponentProps> = ({ id, 
     statusBadge = (
       <span style={{ fontSize: 10, color: '#f43f5e', display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}>
         <ShieldCheck size={11} />
-        Chờ duyệt
+        {t('Chờ duyệt', 'Awaiting approval')}
       </span>
     );
   } else if (status === 'paused') {
@@ -257,9 +259,12 @@ export const HarnessNodeComponent: React.FC<HarnessNodeComponentProps> = ({ id, 
     statusBadge = (
       <span style={{ fontSize: 10, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 3, fontWeight: 600 }}>
         <PauseCircle size={11} />
-        Tạm dừng
+        {t('Tạm dừng', 'Paused')}
       </span>
     );
+  } else if (['blocked', 'unsupported', 'unavailable', 'unverified', 'error', 'skipped'].includes(status)) {
+    statusBorder = 'var(--warn, #f59e0b)';
+    statusBadge = <span role="status" style={{ fontSize: 10, color: 'var(--warn, #f59e0b)' }}>{status.toUpperCase()}</span>;
   }
 
   // Engine or Model Subtitle

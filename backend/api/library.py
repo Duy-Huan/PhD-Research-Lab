@@ -24,67 +24,24 @@ Use exactly what the text shows; leave a field empty when it is not visible. Nev
 
 
 def _enrich_paper(p: dict) -> dict:
+    """Add lookup links and imported ranking data; never invent bibliography."""
+    from backend.knowledge.ranking import rank_entry
     e = dict(p)
-    from backend.knowledge.ranking import rank_entry, match_core
-    venue = e.get("venue") or ""
-    url = e.get("source_url") or e.get("url") or ""
     title = e.get("title") or ""
-    if not venue:
-        if "ieeexplore.ieee.org" in url:
-            venue = "IEEE Transactions on Geoscience and Remote Sensing (TGRS)"
-        elif "arxiv.org" in url:
-            venue = "arXiv: Computer Vision and Pattern Recognition (cs.CV)"
-        elif "sciencedirect.com" in url:
-            venue = "Expert Systems with Applications (Elsevier)"
-        elif "acm.org" in url:
-            venue = "ACM Computing Surveys"
-        elif "nature.com" in url:
-            venue = "Nature Machine Intelligence"
-        e["venue"] = venue
-
-    if not e.get("year"):
-        m = re.search(r"\[(19|20)(\d{2})\.", title) or re.search(r"\b(19|20)(\d{2})\b", title)
-        if m:
-            e["year"] = m.group(1) + m.group(2)
-        elif "ieeexplore" in url or "sciencedirect" in url:
-            e["year"] = "2024"
-        else:
-            e["year"] = "2025"
-
-    rk = rank_entry(e)
+    e.setdefault("venue", "")
+    e.setdefault("year", "")
+    e.setdefault("authors", [])
+    ranking = rank_entry(e)
     tier = ""
-    if rk and rk.get("core_rank"):
-        tier = f"CORE {rk['core_rank']}"
-    elif rk and rk.get("sjr"):
-        tier = f"Q1 (SJR {rk.get('sjr')})"
-    elif venue:
-        mc = match_core(venue)
-        if mc and mc.get("rank"):
-            tier = f"CORE {mc['rank']}"
-        elif "IEEE" in venue or "Transactions" in venue or "Expert Systems" in venue:
-            tier = "Q1 · Top Journal"
-        elif "arXiv" in venue:
-            tier = "Preprint · cs.CV"
-        else:
-            tier = "Q1 / Peer Reviewed"
-    else:
-        tier = "Indexed"
-
+    if ranking.get("core_rank"):
+        tier = f"CORE {ranking['core_rank']}"
+    elif ranking.get("quartile"):
+        tier = str(ranking["quartile"])
+    source = ranking.get("source", "")
     if not e.get("rank"):
-        e["rank"] = {"rank": tier, "tier": tier, "source": "CORE/SCImago 2026"}
+        e["rank"] = {"rank": tier, "tier": tier, "source": source}
     if not e.get("ranking"):
-        e["ranking"] = {"tier": tier, "source": "CORE/SCImago 2026"}
-
-    if not e.get("authors") or len(e.get("authors")) == 0:
-        if "arxiv" in url:
-            e["authors"] = ["arXiv Authors", "Computer Vision Lab"]
-        elif "ieeexplore" in url:
-            e["authors"] = ["IEEE Research Team", "Deep Learning Lab"]
-        elif "sciencedirect" in url:
-            e["authors"] = ["Elsevier Contributing Authors"]
-        else:
-            e["authors"] = ["AI Research Authors"]
-
+        e["ranking"] = {"tier": tier, "source": source}
     scholar_q = urllib.parse.quote(title)
     e["scholar_url"] = f"https://scholar.google.com/scholar?q={scholar_q}"
     e["scholar_cites_url"] = f"https://scholar.google.com/scholar?q=%22{scholar_q}%22"

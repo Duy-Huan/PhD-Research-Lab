@@ -1,4 +1,4 @@
-# PhD Research Lab - v6.4.3
+# PhD Research Lab - v6.4.4
 
 **Independent L1–L4 workflows:** Missions → **Workflows L1–L4** lets users select bounded assistance, execution with per-result review, coordination with final review, or experimental technical closure. Up to four independent workflows share the existing resource limits. L3/L4 are execution policies, with scientific review explicitly pending. See [architecture and development record](docs/architecture/autonomy-workflows.md) and [executed audit / release assessment](docs/testing/autonomy-report.md). The current release does **not** meet the requested 100% whole-project coverage gate.
 

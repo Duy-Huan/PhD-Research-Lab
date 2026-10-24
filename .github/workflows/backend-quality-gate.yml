@@ -38,8 +38,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt || pip install fastapi uvicorn httpx pydantic sqlite3-api coverage
-          pip install coverage
+          pip install -r requirements-dev.txt
 
       - name: Execute Backend Quality Gate (Smoke Profile)
         env:

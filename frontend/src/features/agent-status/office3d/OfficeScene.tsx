@@ -3,6 +3,7 @@ import { Html } from '@react-three/drei';
 import type { AgentOfficeViewModel } from '../../../shared/api/types';
 import type { InteractiveLabObjectKind } from '../../../shared/state/uiStore';
 import { AgentAvatar } from './AgentAvatar';
+import { APP_VERSION } from '../../../shared/version';
 
 export type LabLightingMode = 'biophilic_green' | 'daylight' | 'night_lab' | 'cyber_science';
 
@@ -295,7 +296,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
                     fontWeight: 700,
                   }}
                 >
-                  OpenScience Autonomous University Lab · v6.4.2
+                  OpenScience Autonomous University Lab · v{APP_VERSION}
                 </div>
                 <div style={{ fontSize: 20, fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em' }}>
                   PhD Research Lab

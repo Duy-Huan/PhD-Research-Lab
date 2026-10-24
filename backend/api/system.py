@@ -173,150 +173,43 @@ async def provider_auth_status(pid: str):
 
 @router.post("/api/providers/{pid}/connect")
 async def provider_connect(pid: str, body: dict | None = None):
-    """CLI providers sign in with the vendor's own flow; PhD Lab opens a terminal and/or forwards to the vendor's app/web."""
-    import sys
-    import subprocess
-    import webbrowser
+    """Vendor login stays in its installed native CLI; legacy web/app means native app."""
     from backend.providers.cli import CONNECTORS
-
+    from backend.providers.native import launch_provider, launch_terminal
     payload = body if isinstance(body, dict) else {}
     clean_pid = pid.removeprefix("cli:").removeprefix("app:")
-    mode = str(payload.get("mode") or "both").lower()  # terminal, web, or both
-    open_web = bool(payload.get("open_web")) or mode in ("web", "both", "app")
-    web_url = VENDOR_LOGIN_URLS.get(clean_pid) or VENDOR_LOGIN_URLS.get(pid, "https://chatgpt.com")
-
-    # Forward to app/web browser if requested or mode includes web
-    opened_web = False
-    if open_web and web_url:
-        try:
-            webbrowser.open(web_url)
-            opened_web = True
-        except Exception:
-            pass
-
-    if clean_pid == "feynman":
-        launched = False
-        if sys.platform.startswith("win") and mode in ("terminal", "both"):
-            subprocess.Popen(["cmd", "/c", "start", "", "cmd", "/k", "feynman model login"])
-            launched = True
-        return {
-            "provider": pid,
-            "command": "feynman model login",
-            "launched": launched,
-            "web_url": web_url,
-            "opened_web": opened_web,
-        }
-
-    if clean_pid not in CONNECTORS:
-        if clean_pid in VENDOR_LOGIN_URLS or pid in VENDOR_LOGIN_URLS:
-            return {
-                "provider": pid,
-                "command": "",
-                "launched": False,
-                "web_url": web_url,
-                "opened_web": opened_web,
-                "detail": f"Forwarded to {clean_pid} web portal for authentication.",
-            }
-        raise HTTPException(400, f"{pid} has no sign-in flow")
-
-    conn = CONNECTORS[clean_pid]
-    res = await call(conn.connect, mode in ("terminal", "both"))
-    res["web_url"] = web_url
-    res["opened_web"] = opened_web
-    return res
+    mode = str(payload.get("mode") or "terminal").lower()
+    if clean_pid not in {*CONNECTORS, 'feynman', 'opencode', 'paperorchestra', 'openscience', 'app', 'phdlab'}:
+        raise HTTPException(400, f"{pid} has no installed CLI sign-in flow")
+    if mode not in ("terminal", "app", "web", "both"):
+        raise HTTPException(400, "Choose terminal or app connection mode")
+    if mode in ("app", "web"):
+        result = await call(launch_provider, clean_pid)
+    elif clean_pid in CONNECTORS:
+        connector = CONNECTORS[clean_pid]
+        result = await call(launch_terminal, connector.binary(), connector.login_cmd.split()[1:])
+    elif clean_pid == "feynman":
+        result = await call(launch_terminal, "feynman", ["model", "login"])
+    else:
+        result = await call(launch_provider, clean_pid)
+    if not result.get("launched"):
+        raise HTTPException(503, result.get("detail", "Native CLI is unavailable"))
+    import subprocess
+    argv = result.get('command', [])
+    command = subprocess.list2cmdline(argv) if isinstance(argv, list) else str(argv)
+    return {**result, "command": command, "argv": argv, "provider": pid, "web_url": "", "opened_web": False}
 
 
 @router.post("/api/providers/{pid}/launch")
 async def provider_launch(pid: str, body: dict | None = None):
-    """Direct shortcut to launch or navigate to an app provider (web app, desktop app, or CLI terminal)."""
-    import webbrowser
-    import subprocess
-    import sys
-    payload = body if isinstance(body, dict) else {}
+    """Open the installed CLI app, including npm shims; never a public website."""
+    from backend.providers.native import launch_provider
     clean_pid = pid.removeprefix("cli:").removeprefix("app:")
-    web_url = VENDOR_LOGIN_URLS.get(clean_pid) or VENDOR_LOGIN_URLS.get(pid, "https://chatgpt.com")
-    
-    if clean_pid == "opencode":
-        from backend.research_engines import opencode as OC
-        result = await call(OC.ensure_server_running)
-        if not result.get('running'):
-            raise HTTPException(503, result.get('detail') or 'OpenCode HTTP readiness is not verified')
-        web_url = OC._opencode_cfg()['base_url']
-    elif clean_pid == 'openscience':
-        from backend.research_engines.openscience import OpenScienceEngine, settings
-        result = await call(OpenScienceEngine().health)
-        if not result.get('ready'):
-            raise HTTPException(503, result.get('detail') or 'OpenScience runtime is not configured')
-        web_url = settings().base_url
-
-    opened_web = False
-    open_web = bool(payload.get("open_web")) or (not payload.get("terminal") and bool(web_url))
-    if open_web and web_url:
-        try:
-            webbrowser.open(web_url)
-            opened_web = True
-        except Exception:
-            pass
-
-    terminal_launched = False
-    if payload.get("terminal"):
-        import base64
-        from backend.providers.cli import CONNECTORS
-        if clean_pid in CONNECTORS:
-            await call(CONNECTORS[clean_pid].connect, True)
-            terminal_launched = True
-        elif clean_pid == "feynman":
-            if sys.platform.startswith("win"):
-                cmd = "Write-Host '--- PhD Research Lab: Feynman Research CLI ---' -ForegroundColor Magenta; feynman status; feynman"
-                encoded = base64.b64encode(cmd.encode("utf-16le")).decode("ascii")
-                subprocess.Popen(["powershell.exe", "-NoLogo", "-NoExit", "-EncodedCommand", encoded],
-                                 creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
-                terminal_launched = True
-        elif clean_pid == "opencode":
-            if sys.platform.startswith("win"):
-                cmd = "Write-Host '--- PhD Research Lab: OpenCode Sandbox CLI ---' -ForegroundColor Cyan; opencode"
-                encoded = base64.b64encode(cmd.encode("utf-16le")).decode("ascii")
-                subprocess.Popen(["powershell.exe", "-NoLogo", "-NoExit", "-EncodedCommand", encoded],
-                                 creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
-                terminal_launched = True
-        elif clean_pid == "paperorchestra":
-            if sys.platform.startswith("win"):
-                cmd = "Write-Host '--- PhD Research Lab: PaperOrchestra Writing Engine CLI ---' -ForegroundColor Green; python -c 'import sys, backend.research_engines.paperorchestra; print(\"PaperOrchestra Engine Ready (L2-L4 Orchestration)\")'; powershell"
-                encoded = base64.b64encode(cmd.encode("utf-16le")).decode("ascii")
-                subprocess.Popen(["powershell.exe", "-NoLogo", "-NoExit", "-EncodedCommand", encoded],
-                                 creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
-                terminal_launched = True
-        elif clean_pid == "openscience":
-            if sys.platform.startswith("win"):
-                cmd = "Write-Host '--- PhD Research Lab: OpenScience External Runtime ---' -ForegroundColor DarkCyan; python -m backend.research_engines.openscience; powershell"
-                encoded = base64.b64encode(cmd.encode("utf-16le")).decode("ascii")
-                subprocess.Popen(["powershell.exe", "-NoLogo", "-NoExit", "-EncodedCommand", encoded],
-                                 creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
-                terminal_launched = True
-        elif clean_pid == "python":
-            if sys.platform.startswith("win"):
-                cmd = "Write-Host '--- PhD Research Lab: Python Environment CLI ---' -ForegroundColor Yellow; python -i"
-                encoded = base64.b64encode(cmd.encode("utf-16le")).decode("ascii")
-                subprocess.Popen(["powershell.exe", "-NoLogo", "-NoExit", "-EncodedCommand", encoded],
-                                 creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
-                terminal_launched = True
-        elif clean_pid in ("phdlab", "app"):
-            if sys.platform.startswith("win"):
-                cmd = "Write-Host '--- PhD Research Lab: Multi-Agent Harness CLI ---' -ForegroundColor Blue; python -i -c 'print(\"PhD Research Lab Native Multi-Agent OS\")'"
-                encoded = base64.b64encode(cmd.encode("utf-16le")).decode("ascii")
-                subprocess.Popen(["powershell.exe", "-NoLogo", "-NoExit", "-EncodedCommand", encoded],
-                                 creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
-                terminal_launched = True
-
-    return {
-        "ok": True,
-        "provider": pid,
-        "clean_id": clean_pid,
-        "url": web_url,
-        "opened_web": opened_web,
-        "terminal_launched": terminal_launched,
-        "message": f"Opened {clean_pid} app navigator directly.",
-    }
+    result = await call(launch_provider, clean_pid)
+    if not result.get("launched"):
+        raise HTTPException(503, result.get("detail", "Native CLI is unavailable"))
+    return {**result, "ok": True, "provider": pid, "clean_id": clean_pid, "url": "",
+            "terminal_launched": True, "opened_web": False, "web_url": "", "message": result['detail']}
 
 
 @router.post("/api/providers/{pid}/sync")

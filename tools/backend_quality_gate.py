@@ -101,6 +101,7 @@ class QualityGateTestResult(unittest.TextTestResult):
     def __init__(self, stream, descriptions, verbosity):
         super().__init__(stream, descriptions, verbosity)
         self.test_cases_recorded = []
+        self.subtests = []
 
     def startTest(self, test):
         super().startTest(test)
@@ -146,6 +147,19 @@ class QualityGateTestResult(unittest.TextTestResult):
             "details": reason,
         })
 
+    def addSubTest(self, test, subtest, err):
+        super().addSubTest(test, subtest, err)
+        self.subtests.append({'parent': test.id(), 'id': subtest.id(), 'status': 'PASS' if err is None else 'FAIL' if issubclass(err[0], test.failureException) else 'ERROR',
+                              'details': None if err is None else self._exc_info_to_string(err, subtest)})
+
+    def stopTest(self, test):
+        if not any(case['id'] == test.id() for case in self.test_cases_recorded):
+            failed = [case for case in self.subtests if case['parent'] == test.id() and case['status'] in ('FAIL', 'ERROR')]
+            self.test_cases_recorded.append({'id': test.id(), 'status': 'ERROR' if any(c['status'] == 'ERROR' for c in failed) else 'FAIL' if failed else 'UNVERIFIED',
+                'duration': round(time.perf_counter() - self._test_start_time, 4),
+                'details': '\n'.join(case['details'] for case in failed) or 'No success assertion outcome was recorded'})
+        super().stopTest(test)
+
 
 class TeeStream:
     def __init__(self, *streams):
@@ -166,6 +180,7 @@ def run_gate(
     coverage_enabled: bool = True,
     output_dir: Path | None = None,
     allow_full: bool = False,
+    require_complete: bool = False,
 ) -> int:
     output_dir = (output_dir or DEFAULT_OUTPUT_DIR).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -192,6 +207,8 @@ def run_gate(
     if str(ROOT / "tests") not in sys.path:
         sys.path.insert(0, str(ROOT / "tests"))
 
+    from tools.qa_harness import source_hashes
+    before_hashes = {k: v for k, v in source_hashes().items() if k.startswith('backend/')}
     start_time = datetime.datetime.now(datetime.timezone.utc)
     log_file_path = output_dir / "unittest.log"
     report_file_path = output_dir / "report.json"
@@ -238,6 +255,8 @@ def run_gate(
 
     t0 = time.perf_counter()
     result = runner.run(suite)
+    after_hashes = {k: v for k, v in source_hashes().items() if k.startswith('backend/')}
+    source_stable = before_hashes == after_hashes
     elapsed = time.perf_counter() - t0
     end_time = datetime.datetime.now(datetime.timezone.utc)
 
@@ -305,6 +324,8 @@ def run_gate(
         gates["G0_Test_Integrity"] = "BLOCKED"
     from tools.quality_evidence import assess
     decision = assess({"total_run": result.testsRun, "failures": len(result.failures), "errors": len(result.errors), "skipped": len(result.skipped)}, coverage_summary)
+    if not source_stable and decision != 'FAIL':
+        decision = 'BLOCKED'
 
     report = {
         "metadata": {
@@ -317,13 +338,17 @@ def run_gate(
             "platform": platform.platform(),
             "python_version": sys.version,
             "data_dir_isolated": temp_data_dir,
-            "release_scope": "v6.4.2",
+            "release_scope": 'v' + sys.modules['backend.core.config'].APP_VERSION,
+            "source_stable": source_stable,
+            "source_files_sha256": before_hashes,
         },
         "summary": {
             "total_run": result.testsRun,
-            "passed": result.testsRun - len(result.failures) - len(result.errors) - len(result.skipped),
-            "failures": len(result.failures),
-            "errors": len(result.errors),
+            "passed": sum(case['status'] == 'PASS' for case in result.test_cases_recorded),
+            "failures": sum(case['status'] == 'FAIL' for case in result.test_cases_recorded),
+            "errors": sum(case['status'] == 'ERROR' for case in result.test_cases_recorded),
+            "failure_events": len(result.failures),
+            "error_events": len(result.errors),
             "skipped": len(result.skipped),
             "was_successful": passed_all,
             "overall_decision": decision,
@@ -331,6 +356,7 @@ def run_gate(
         "coverage": coverage_summary,
         "quality_gates": gates,
         "cases": getattr(result, "test_cases_recorded", []),
+        "subtests": result.subtests,
         "limitations": ["Per-test success is scoped to executed cases; no blanket security or platform certification", "Skipped tests and missing coverage prevent release acceptance", "Live-provider and real-browser suites require separate opt-in runs"],
     }
 
@@ -349,18 +375,19 @@ def run_gate(
     print(f"Tests Run: {result.testsRun} | Passed: {report['summary']['passed']} | Failures: {len(result.failures)} | Errors: {len(result.errors)} | Skipped: {len(result.skipped)}")
     print(f"Duration: {elapsed:.2f}s")
     if coverage_summary:
-        print(f"Coverage: {coverage_summary.get('percent_covered')}% ({coverage_summary.get('covered_lines')}/{coverage_summary.get('num_statements')} lines)")
+        print(f"Coverage combined: {coverage_summary.get('percent_covered')}%; lines {coverage_summary.get('covered_lines')}/{coverage_summary.get('num_statements')}; branches {coverage_summary.get('covered_branches')}/{coverage_summary.get('num_branches')}")
     print(f"Report: {report_file_path}")
     print(f"Log: {log_file_path}")
     print("=" * 60)
 
-    return 0 if passed_all else 1
+    return 0 if passed_all and source_stable and (not require_complete or decision == 'CONDITIONAL') else 1
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="PhD Research Lab Backend Quality Gate Orchestrator")
     parser.add_argument("--profile", choices=["smoke", "core", "full"], default="smoke", help="Execution profile")
     parser.add_argument("--no-coverage", action="store_true", help="Disable coverage instrumentation")
+    parser.add_argument('--require-complete', action='store_true', help='Fail on any skip, missing evidence or production coverage below 100%%')
     parser.add_argument("--i-understand-full-suite", action="store_true", help="Confirm execution of the full test suite")
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR, help="Directory to save report and logs")
     args = parser.parse_args()
@@ -370,6 +397,7 @@ def main() -> int:
         coverage_enabled=not args.no_coverage,
         output_dir=args.output_dir,
         allow_full=args.i_understand_full_suite,
+        require_complete=args.require_complete,
     )
 
 

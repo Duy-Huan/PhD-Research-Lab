@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
-import { test, expect, boot, json, topic } from './live';
+import { MODEL, test, expect, boot, json, topic } from './live';
 
-test('real Qwen chat, SSE, pin, memory save and reload', async ({ page, request }, info) => {
+test('real selected local-model chat, SSE, pin, memory save and reload', async ({ page, request }, info) => {
   test.setTimeout(180_000);
   await boot(page);
   const create = page.waitForResponse(res => res.url().endsWith('/api/chat/sessions') && res.request().method() === 'POST');
@@ -49,10 +49,10 @@ test('provider settings persist, memory navigation and responsive settings', asy
   await expect(page.getByRole('combobox', { name: 'assistant provider', exact: true })).toHaveValue('local');
   for (const agent of ['assistant', 'research', 'reviewer', 'utility']) {
     await page.getByRole('combobox', { name: `${agent} provider`, exact: true }).selectOption('local');
-    await page.getByRole('combobox', { name: `${agent} model`, exact: true }).selectOption('qwen/qwen3.5-9b');
+    await page.getByRole('combobox', { name: `${agent} model`, exact: true }).selectOption(MODEL);
   }
   const model = page.getByRole('textbox', { name: 'Model LM Studio', exact: true });
-  await model.fill('qwen/qwen3.5-9b');
+  await model.fill(MODEL);
   await model.press('Tab');
   await expect.poll(async () => (await json(request, 'get', '/api/config')).agent_modes).toEqual({ assistant: 'local', research: 'local', reviewer: 'local', utility: 'local' });
   const nav = page.getByRole('navigation', { name: 'Settings sections', exact: true });
@@ -68,7 +68,7 @@ test('provider settings persist, memory navigation and responsive settings', asy
   await expect(page.locator('#view textarea')).toBeVisible();
   await page.reload();
   const config = await json(request, 'get', '/api/config');
-  expect(config.agent_models.assistant).toBe('qwen/qwen3.5-9b');
+  expect(config.agent_models.assistant).toBe(MODEL);
 });
 
 test('project create, rename, delete cancellation and switch isolate topics', async ({ page, request }) => {

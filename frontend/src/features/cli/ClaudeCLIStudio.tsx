@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUIStore, useI18n } from '../../shared/state/uiStore';
 import { api } from '../../shared/api/client';
+import { APP_VERSION } from '../../shared/version';
 import { waitForChatTurn } from './waitForChatTurn';
 import {
   Terminal,
@@ -77,7 +78,7 @@ export const ClaudeCLIStudio: React.FC = () => {
 
   const assistantModel = config?.agent_models?.assistant || 'tự động';
   const { data: modelsData } = useQuery<any>({queryKey: ['models'], queryFn: () => api.get('/api/models')});
-  const labVersion = config?.version || '6.4.2';
+  const labVersion = config?.version || APP_VERSION;
 
   // 2. Fetch current session messages if activeSessionId exists
   const { data: sessionData, refetch: refetchSession } = useQuery<any>({

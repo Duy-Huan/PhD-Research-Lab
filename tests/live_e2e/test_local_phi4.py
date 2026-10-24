@@ -81,6 +81,8 @@ class TestLocalPhi4LiveInference(unittest.TestCase):
             "temperature": 0.1,
             "stream": True
         }
+        if "qwen3.5" in LOCAL_MODEL:
+            body.update(chat_template_kwargs={"enable_thinking": False}, reasoning_effort="none")
 
         async def run_stream():
             import httpx

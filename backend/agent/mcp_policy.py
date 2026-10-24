@@ -75,6 +75,8 @@ def allowed(settings_value: list) -> list:
 def propose(question: str, allow: list) -> list:
     """Deterministic auto-selection of READ tools for a question (filtered by the allowlist)."""
     q = question or ""
+    if re.search(r"(?i)\b(?:do not|don't|never)\s+use\s+(?:any\s+)?tools?\b|\bno tools\b|không\s+(?:dùng|sử dụng)\s+công cụ", q):
+        return []
     out = []
     for tool, pat, kind in RULES:
         if tool not in allow:

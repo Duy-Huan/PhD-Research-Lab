@@ -102,11 +102,11 @@ class Api(unittest.TestCase):
         self.bad("POST", "/api/models/unload", json={"engine": "tpu"})
         with mock.patch.object(RP, "describe_all", return_value=[{"id": "app"}]):
             self.assertEqual(self.ok("GET", "/api/providers?fresh=1")["providers"], [{"id": "app"}])
-        with mock.patch("subprocess.Popen"):
-            self.assertEqual(self.ok("POST", "/api/providers/feynman/connect")["command"], "feynman model login")
+        with mock.patch("backend.providers.native.launch_terminal", return_value={'launched': True, 'command': ['feynman', 'model', 'login']}):
+            self.assertEqual(self.ok("POST", "/api/providers/feynman/connect")["command"], 'feynman model login')
         self.bad("POST", "/api/providers/nope/connect")
         from backend.providers import cli as C
-        with mock.patch.object(C.CONNECTORS["codex"], "connect", return_value={"provider": "codex"}):
+        with mock.patch("backend.providers.native.launch_terminal", return_value={'launched': True}):
             self.assertEqual(self.ok("POST", "/api/providers/codex/connect")["provider"], "codex")
         self.assertEqual(self.ok("GET", "/api/dashboard")["status"], "idle")
         self.assertIn("resources", self.ok("GET", "/api/dashboard?advanced=1"))

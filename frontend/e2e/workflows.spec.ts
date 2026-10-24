@@ -1,4 +1,4 @@
-import { test, expect, boot, json, topic } from './live';
+import { MODEL, test, expect, boot, json, topic } from './live';
 
 test('four independent L1–L4 workflows execute real local inference and CPU reproduction', async ({ page, request }, info) => {
   test.setTimeout(600_000);
@@ -60,7 +60,7 @@ test('four independent L1–L4 workflows execute real local inference and CPU re
   for (const m of final) {
     expect(m.tasks.every((t: any) => t.status === 'completed' && t.payload.attempts === 1)).toBeTruthy();
     const output = m.tasks.find((t: any) => t.id === 'hypothesis').payload.result.output;
-    expect(output).toMatchObject({ provider: 'local', model: 'qwen/qwen3.5-9b' });
+    expect(output).toMatchObject({ provider: 'local', model: MODEL });
     expect(output.text.trim().length).toBeGreaterThan(20);
     const card = page.locator('#panel article').filter({ has: page.getByRole('heading', { name: new RegExp(`^${m.payload.spec.autonomy.level} ·`) }) });
     await expect(card.getByRole('status')).toContainText('completed');

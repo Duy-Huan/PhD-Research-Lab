@@ -597,6 +597,9 @@ def validate_workflow_graph(workflow: dict[str, Any]) -> dict[str, Any]:
 
     if not isinstance(nodes, list) or len(nodes) == 0:
         return {"valid": False, "errors": ["Workflow must contain at least one node."], "warnings": []}
+    if (not isinstance(edges, list) or any(not isinstance(n, dict) or not isinstance(n.get('data', {}), dict) for n in nodes)
+            or any(not isinstance(e, dict) for e in edges)):
+        return {'valid': False, 'errors': ['Nodes, edges and node data must have the declared object schemas.'], 'warnings': []}
 
     node_ids: set[str] = set()
     node_map: dict[str, dict[str, Any]] = {}
@@ -616,7 +619,7 @@ def validate_workflow_graph(workflow: dict[str, Any]) -> dict[str, Any]:
 
         ntype = node.get("type") or node.get("data", {}).get("node_type") or "harnessNode"
         if ntype not in NODE_REGISTRY:
-            warnings.append(f"Node '{nid}' uses uncataloged type '{ntype}'; defaulting to generic task.")
+            errors.append(f"Node '{nid}' uses unregistered type '{ntype}'.")
 
         if ntype == "start":
             start_nodes += 1

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { MarkdownRenderer } from '../../shared/ui/MarkdownRenderer';
 import { ChatRunCard } from './ChatRunCard';
+import { APP_VERSION } from '../../shared/version';
 import type {
   ChatMessage,
   ChatApproval,
@@ -163,7 +164,7 @@ export const MessageList: React.FC<MessageListProps> = ({
             }}
           >
             <img src="/img/logo-64.png" alt="Logo" width={20} height={20} />
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>PhD Research Lab · v6.4.2</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>PhD Research Lab · v{APP_VERSION}</span>
           </div>
 
           <h2

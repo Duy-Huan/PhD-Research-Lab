@@ -146,9 +146,9 @@ describe('Composer', () => {
     expect(postSpy).toHaveBeenCalledWith('/api/providers/codex/connect', { mode: 'terminal' });
 
     // Test web/app forward click
-    const webBtn = screen.getByRole('button', { name: /Mở Web\/App|Open Web\/App/i });
+    const webBtn = screen.getByRole('button', { name: /Mở ứng dụng CLI|Open CLI App/i });
     fireEvent.click(webBtn);
-    expect(postSpy).toHaveBeenCalledWith('/api/providers/codex/connect', { mode: 'web' });
+    expect(postSpy).toHaveBeenCalledWith('/api/providers/codex/connect', { mode: 'app' });
   });
 
   it('handles pasting screenshot images from clipboard with preview thumbnail', async () => {

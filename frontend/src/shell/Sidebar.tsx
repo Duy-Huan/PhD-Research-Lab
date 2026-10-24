@@ -1152,7 +1152,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 2 }}>
               {ALL_CLI_PROVIDERS.map((prov) => {
                 const liveInfo = providersLiveMap[prov.id];
-                const isReady = liveInfo?.ready ?? true;
+                const isReady = liveInfo?.ready ?? false;
                 const isLaunching = launchingProviderId === prov.id;
                 const isJustLaunched = launchedId === prov.id;
                 const isSelected = drawerKind === 'cli' && selectedCliProvider === prov.id;

@@ -424,165 +424,23 @@ def _is_tool_available(tool_id: str) -> bool:
 
 
 def _execute_harness_tool(tool_id: str, params: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
-    """Execute a single harness tool node, failing closed when external CLI/adapter is absent."""
-    t0 = time.perf_counter()
+    """A detected package is not an executor or a completed benchmark.
 
-    if not _is_tool_available(tool_id):
-        return {
-            "status": "blocked",
-            "passed": False,
-            "duration_s": round(time.perf_counter() - t0, 3),
-            "metrics": {},
-            "summary": f"Harness adapter '{tool_id}' is not configured or unavailable in the current environment.",
-        }
-
-    if tool_id == "lm_evaluation_harness":
-        tasks = str(params.get("tasks", "gsm8k,mmlu")).split(",")
-        min_pass = float(params.get("min_pass_score", 0.75))
-        # Simulated or local benchmark evaluation
-        results = {}
-        for t in tasks:
-            t = t.strip()
-            # Realistic benchmark scores for state-of-the-art models
-            score = 0.84 if "gsm8k" in t else 0.79 if "mmlu" in t else 0.81
-            results[t] = {"acc": score, "acc_norm": score + 0.02, "samples": 100}
-        avg_score = sum(r["acc_norm"] for r in results.values()) / max(1, len(results))
-        passed = avg_score >= min_pass
-        return {
-            "status": "completed" if passed else "failed",
-            "passed": passed,
-            "duration_s": round(time.perf_counter() - t0, 3),
-            "metrics": {
-                "avg_score": round(avg_score, 4),
-                "tasks_evaluated": len(tasks),
-                "target_metric": params.get("metric_target", "acc_norm"),
-                "min_threshold": min_pass,
-            },
-            "task_breakdown": results,
-            "summary": f"LM-Eval evaluated {len(tasks)} tasks: average score {round(avg_score * 100, 1)}% ({'Đạt tiêu chuẩn' if passed else 'Dưới ngưỡng'}).",
-        }
-
-    elif tool_id == "inspect_ai":
-        suite = str(params.get("eval_suite", "agent_reasoning"))
-        min_rate = float(params.get("min_pass_rate", 0.80))
-        # Simulated agent reasoning evaluation
-        pass_at_1 = 0.87
-        tool_accuracy = 0.94
-        safety_score = 0.99
-        passed = pass_at_1 >= min_rate
-        return {
-            "status": "completed" if passed else "failed",
-            "passed": passed,
-            "duration_s": round(time.perf_counter() - t0, 3),
-            "metrics": {
-                "pass_at_1": pass_at_1,
-                "tool_accuracy": tool_accuracy,
-                "safety_score": safety_score,
-                "reasoning_steps": 4.2,
-                "min_rate": min_rate,
-            },
-            "summary": f"Inspect AI [{suite}] hoàn tất với pass@1 = {round(pass_at_1*100, 1)}%, độ chính xác công cụ = {round(tool_accuracy*100, 1)}%.",
-        }
-
-    elif tool_id == "promptfoo":
-        max_lat = int(params.get("max_latency_ms", 1500))
-        rubric_min = float(params.get("rubric_threshold", 0.85))
-        latency = 420
-        rubric_score = 0.92
-        pass_rate = 0.95
-        passed = (latency <= max_lat) and (rubric_score >= rubric_min)
-        return {
-            "status": "completed" if passed else "failed",
-            "passed": passed,
-            "duration_s": round(time.perf_counter() - t0, 3),
-            "metrics": {
-                "assertion_pass_rate": pass_rate,
-                "avg_latency_ms": latency,
-                "rubric_score": rubric_score,
-                "max_latency_threshold": max_lat,
-            },
-            "summary": f"Promptfoo: {int(pass_rate*100)}% assertions pass, độ trễ trung bình {latency}ms (ngưỡng {max_lat}ms).",
-        }
-
-    elif tool_id == "ragas":
-        min_faith = float(params.get("min_faithfulness", 0.90))
-        faithfulness = 0.94
-        answer_relevance = 0.89
-        context_precision = 0.91
-        context_recall = 0.88
-        passed = faithfulness >= min_faith
-        return {
-            "status": "completed" if passed else "failed",
-            "passed": passed,
-            "duration_s": round(time.perf_counter() - t0, 3),
-            "metrics": {
-                "faithfulness": faithfulness,
-                "answer_relevance": answer_relevance,
-                "context_precision": context_precision,
-                "context_recall": context_recall,
-                "min_faithfulness": min_faith,
-            },
-            "summary": f"Ragas RAG metrics: Faithfulness = {round(faithfulness*100, 1)}% ({'Đạt chuẩn' if passed else 'Dưới ngưỡng'}), Context Precision = {round(context_precision*100, 1)}%.",
-        }
-
-    elif tool_id == "swe_bench":
-        min_rate = float(params.get("min_pass_rate", 0.70))
-        resolved = 0.78
-        patch_validity = 1.0
-        test_pass_rate = 0.85
-        passed = resolved >= min_rate
-        return {
-            "status": "completed" if passed else "failed",
-            "passed": passed,
-            "duration_s": round(time.perf_counter() - t0, 3),
-            "metrics": {
-                "resolved_rate": resolved,
-                "patch_validity": patch_validity,
-                "test_pass_rate": test_pass_rate,
-                "min_rate": min_rate,
-            },
-            "summary": f"SWE-Bench: Tỷ lệ giải quyết sự cố phần mềm đạt {round(resolved*100, 1)}% ({'Đạt tiêu chuẩn' if passed else 'Không đạt'}).",
-        }
-
-    elif tool_id == "pytest_harness":
-        min_cov = float(params.get("min_coverage_pct", 85.0))
-        # Execute real pytest if available, or return measured project metrics
-        coverage = 87.95
-        passed = coverage >= min_cov
-        return {
-            "status": "completed" if passed else "failed",
-            "passed": passed,
-            "duration_s": round(time.perf_counter() - t0, 3),
-            "metrics": {
-                "coverage_pct": coverage,
-                "tests_passed": 705,
-                "tests_total": 705,
-                "min_coverage_target": min_cov,
-            },
-            "summary": f"Pytest Harness: 705/705 test cases passed (100%), độ bao phủ nhánh đạt {coverage}% (ngưỡng {min_cov}%).",
-        }
-
-    elif tool_id == "phdlab_research_harness":
-        return {
-            "status": "completed",
-            "passed": True,
-            "duration_s": round(time.perf_counter() - t0, 3),
-            "metrics": {
-                "reproducibility_score": 1.0,
-                "ledger_chain_valid": True,
-                "evidence_verified": True,
-                "trials_completed": int(params.get("reproducibility_trials", 2)),
-            },
-            "summary": "PhDLab Research Harness: Sổ cái minh chứng toàn vẹn, hoàn thành đối soát tái lập thí nghiệm và biên lai có chữ ký số.",
-        }
-
-    # Generic or unknown tool
+    Catalog adapters currently have no bounded dispatch/parser implementation.
+    Preserve the workflow definition, but never emit invented benchmark results.
+    Actual research execution uses workflow_runtime and its registered nodes.
+    """
+    known = tool_id in HARNESS_TOOL_MAP
+    detected = _is_tool_available(tool_id) if known else False
     return {
-        "status": "completed",
-        "passed": True,
-        "duration_s": round(time.perf_counter() - t0, 3),
-        "metrics": {"output": "ok"},
-        "summary": f"Đã thực thi thành công bước kiểm thử: {tool_id}.",
+        "status": "blocked" if known else "unsupported",
+        "passed": False,
+        "duration_s": 0.0,
+        "metrics": {},
+        "execution_mode": "NOT_EXECUTED",
+        "execution": {"executed": False, "adapter_detected": detected},
+        "summary": (f"Harness '{tool_id}' is not configured with an executable benchmark adapter; no evaluation ran."
+                    if known else f"Unknown harness adapter: {tool_id}. No evaluation ran."),
     }
 
 
@@ -615,9 +473,19 @@ def execute_workflow(workflow: dict[str, Any], topic_id: str = "") -> dict[str, 
             if in_degree[neighbor] == 0:
                 queue.append(neighbor)
 
-    # If cycle detected or empty, fallback to natural list order
-    if len(sorted_nodes) < len(nodes):
-        sorted_nodes = [n["id"] for n in nodes]
+    invalid = (not nodes or len(node_map) != len(nodes)
+               or any(e.get("source") not in node_map or e.get("target") not in node_map for e in edges)
+               or len(sorted_nodes) != len(nodes))
+    if invalid:
+        return {
+            "execution_id": f"exec-{uuid.uuid4().hex[:12]}",
+            "workflow_id": workflow.get("id", "custom"),
+            "workflow_name": workflow.get("name", "Custom Harness Workflow"),
+            "status": "failed", "passed": False, "total_duration_s": 0.0,
+            "nodes_count": len(nodes), "node_results": {},
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "error": "Graph must be nonempty, have unique node IDs, valid edges and no cycles.",
+        }
 
     node_results: dict[str, Any] = {}
     context: dict[str, Any] = {"topic_id": topic_id, "prev_outputs": {}}
@@ -656,6 +524,8 @@ def execute_workflow(workflow: dict[str, Any], topic_id: str = "") -> dict[str, 
             "duration_s": result["duration_s"],
             "metrics": result.get("metrics", {}),
             "summary": result.get("summary", ""),
+            "execution_mode": result.get("execution_mode", "NOT_EXECUTED"),
+            "execution": result.get("execution", {"executed": False}),
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         context["prev_outputs"][nid] = result

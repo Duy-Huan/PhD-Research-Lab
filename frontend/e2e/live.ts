@@ -1,7 +1,7 @@
 import { test as base, expect, type Page, type APIRequestContext } from '@playwright/test';
 
 export const test = base.extend<{ audit: void }>({
-  audit: [async ({ page, browser }, use, info) => {
+  audit: [async ({ page, browser, request }, use, info) => {
     const events: unknown[] = [];
     const errors: string[] = [];
     page.on('console', msg => { if (['error', 'warning'].includes(msg.type())) events.push({ kind: 'console', level: msg.type(), text: msg.text() }); });
@@ -9,12 +9,19 @@ export const test = base.extend<{ audit: void }>({
     page.on('requestfailed', req => events.push({ kind: 'failed', method: req.method(), url: req.url(), error: req.failure() }));
     page.on('response', res => { if (res.url().includes('/api/')) events.push({ kind: 'http', method: res.request().method(), url: res.url(), status: res.status() }); });
     await use();
+    const response = await request.get('/api/chat/sessions');
+    if (response.ok()) {
+      for (const session of (await response.json()).sessions || []) {
+        if (session.status === 'running') await request.post(`/api/chat/sessions/${session.id}/cancel`);
+      }
+    }
     await info.attach('browser-and-network.json', { body: JSON.stringify({ browser: browser.version(), events, errors }, null, 2), contentType: 'application/json' });
     await info.attach('rendered-ui.txt', { body: await page.locator('body').innerText().catch(() => 'page closed'), contentType: 'text/plain' });
     expect(errors, 'No rendering exceptions').toEqual([]);
   }, { auto: true }],
 });
 export { expect };
+export const MODEL = process.env.PHDLAB_E2E_MODEL || 'spark-x2.5-4b';
 
 export async function boot(page: Page) {
   await page.goto('/dist/react.html');

@@ -14,6 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data", type=Path, required=True)
     parser.add_argument("--port", type=int, default=8768)
+    parser.add_argument("--model", default="spark-x2.5-4b", help="Explicit installed LM Studio model; no fallback")
     args = parser.parse_args()
     data = args.data.resolve()
     artifact_root = (ROOT / "output" / "playwright").resolve()
@@ -27,10 +28,10 @@ def main():
 
     if not (data / "config.json").exists():
         config.save_config({
-            "local_model": "qwen/qwen3.5-9b",
+            "local_model": args.model,
             "lmstudio_base_url": "http://127.0.0.1:1234/v1",
             "agent_modes": {a: "local" for a in config.AGENTS},
-            "agent_models": {a: "qwen/qwen3.5-9b" for a in config.AGENTS},
+            "agent_models": {a: args.model for a in config.AGENTS},
             "fallback_to_cloud": False,
             "research_os": {"enabled": True},
             "memory": {"embed_engine": "hashing", "auto_summarize": False},

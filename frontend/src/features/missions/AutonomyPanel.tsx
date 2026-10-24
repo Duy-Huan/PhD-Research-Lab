@@ -11,7 +11,9 @@ export const AutonomyPanel: React.FC = () => {
   const cache = useQueryClient();
   const [level, setLevel] = useState<AutonomyLevel>('L2');
   const [objective, setObjective] = useState('');
-  const [model, setModel] = useState('qwen/qwen3.5-9b');
+  const [modelOverride, setModel] = useState<string | null>(null);
+  const configuration = useQuery({ queryKey: ['config'], queryFn: () => api.get<{ local_model?: string; agent_models?: Record<string, string> }>('/api/config') });
+  const model = modelOverride ?? configuration.data?.agent_models?.research ?? configuration.data?.local_model ?? '';
   const [sources, setSources] = useState<string[]>([]);
   const [protocolId, setProtocolId] = useState('');
   const [reproductionId, setReproductionId] = useState('');

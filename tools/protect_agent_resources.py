@@ -1,7 +1,7 @@
 """Reject deletions/renames out of skills/ and agent/ in staged or CI changes."""
 import argparse
-from pathlib import PurePosixPath
 import subprocess
+from pathlib import PurePosixPath
 
 
 def violations(changes: str) -> list[str]:
@@ -21,7 +21,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--base', help='CI diff base; omit to inspect staged changes')
     args = parser.parse_args()
-    command = ['git', 'diff', '--name-status', '-M', args.base, 'HEAD'] if args.base else ['git', 'diff', '--cached', '--name-status', '-M']
+    command = ['git', 'log', '--format=', '--name-status', '-M', f'{args.base}..HEAD'] if args.base else ['git', 'diff', '--cached', '--name-status', '-M']
     result = subprocess.run(command, check=True, capture_output=True, text=True)
     errors = violations(result.stdout)
     for path in errors:

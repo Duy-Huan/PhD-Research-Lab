@@ -18,11 +18,10 @@ for (const label of ['Paper Library & Search', '5-Level Research Outline', 'Rese
 
 test('main views and keyboard return to chat', async ({ page }, info) => {
   await boot(page);
-  for (const label of ['Library', '3D Lab', 'Peer Review R1–R3 & LaTeX', 'System Dashboard']) {
+  for (const label of ['Library', 'Peer Review R1–R3 & LaTeX', 'System Dashboard']) {
     await page.getByRole('button', { name: label, exact: true }).first().click();
     await expect(page.locator('main')).not.toBeEmpty();
     await info.attach(`${label.replace(/[^\w]/g, '-')}.png`, { body: await page.screenshot(), contentType: 'image/png' });
-    if (label === '3D Lab') await page.getByRole('button', { name: 'Back to standard view', exact: true }).click();
     await page.getByRole('button', { name: 'Chat', exact: true }).click();
     await expect(page.locator('#view textarea')).toBeVisible();
   }
