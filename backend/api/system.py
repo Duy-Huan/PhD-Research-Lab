@@ -68,8 +68,9 @@ async def models():
 @router.post("/api/models/test")
 async def test_model(body: dict = Body(...)):
     from backend.providers.models import LLMError, _stream_engine, default_model_for
-    pid = str(body.get("provider", "")).removeprefix("app:")
-    if pid not in (*PROVIDERS, "local", "ollama"):
+    from backend.providers.cli import CONNECTORS
+    pid = str(body.get("provider", "")).removeprefix("app:").removeprefix("cli:")
+    if pid not in (*PROVIDERS, "local", "ollama", *CONNECTORS):
         raise HTTPException(400, "Unknown provider")
     cfg = load_config()
     model = str(body.get("model") or "").strip() or None
@@ -236,25 +237,76 @@ async def provider_launch(pid: str, body: dict | None = None):
     web_url = VENDOR_LOGIN_URLS.get(clean_pid) or VENDOR_LOGIN_URLS.get(pid, "https://chatgpt.com")
     
     if clean_pid == "opencode":
+        from backend.research_engines import opencode as OC
+        result = await call(OC.ensure_server_running)
+        if not result.get('running'):
+            raise HTTPException(503, result.get('detail') or 'OpenCode HTTP readiness is not verified')
+        web_url = OC._opencode_cfg()['base_url']
+    elif clean_pid == 'openscience':
+        from backend.research_engines.openscience import OpenScienceEngine, settings
+        result = await call(OpenScienceEngine().health)
+        if not result.get('ready'):
+            raise HTTPException(503, result.get('detail') or 'OpenScience runtime is not configured')
+        web_url = settings().base_url
+
+    opened_web = False
+    open_web = bool(payload.get("open_web")) or (not payload.get("terminal") and bool(web_url))
+    if open_web and web_url:
         try:
-            from backend.research_engines import opencode as OC
-            OC.ensure_server_running()
+            webbrowser.open(web_url)
+            opened_web = True
         except Exception:
             pass
 
-    opened_web = False
-    try:
-        webbrowser.open(web_url)
-        opened_web = True
-    except Exception:
-        pass
-
     terminal_launched = False
-    if clean_pid in ("feynman", "claude_code", "codex", "gemini_cli", "antigravity") and payload.get("terminal"):
+    if payload.get("terminal"):
+        import base64
         from backend.providers.cli import CONNECTORS
         if clean_pid in CONNECTORS:
             await call(CONNECTORS[clean_pid].connect, True)
             terminal_launched = True
+        elif clean_pid == "feynman":
+            if sys.platform.startswith("win"):
+                cmd = "Write-Host '--- PhD Research Lab: Feynman Research CLI ---' -ForegroundColor Magenta; feynman status; feynman"
+                encoded = base64.b64encode(cmd.encode("utf-16le")).decode("ascii")
+                subprocess.Popen(["powershell.exe", "-NoLogo", "-NoExit", "-EncodedCommand", encoded],
+                                 creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
+                terminal_launched = True
+        elif clean_pid == "opencode":
+            if sys.platform.startswith("win"):
+                cmd = "Write-Host '--- PhD Research Lab: OpenCode Sandbox CLI ---' -ForegroundColor Cyan; opencode"
+                encoded = base64.b64encode(cmd.encode("utf-16le")).decode("ascii")
+                subprocess.Popen(["powershell.exe", "-NoLogo", "-NoExit", "-EncodedCommand", encoded],
+                                 creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
+                terminal_launched = True
+        elif clean_pid == "paperorchestra":
+            if sys.platform.startswith("win"):
+                cmd = "Write-Host '--- PhD Research Lab: PaperOrchestra Writing Engine CLI ---' -ForegroundColor Green; python -c 'import sys, backend.research_engines.paperorchestra; print(\"PaperOrchestra Engine Ready (L2-L4 Orchestration)\")'; powershell"
+                encoded = base64.b64encode(cmd.encode("utf-16le")).decode("ascii")
+                subprocess.Popen(["powershell.exe", "-NoLogo", "-NoExit", "-EncodedCommand", encoded],
+                                 creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
+                terminal_launched = True
+        elif clean_pid == "openscience":
+            if sys.platform.startswith("win"):
+                cmd = "Write-Host '--- PhD Research Lab: OpenScience External Runtime ---' -ForegroundColor DarkCyan; python -m backend.research_engines.openscience; powershell"
+                encoded = base64.b64encode(cmd.encode("utf-16le")).decode("ascii")
+                subprocess.Popen(["powershell.exe", "-NoLogo", "-NoExit", "-EncodedCommand", encoded],
+                                 creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
+                terminal_launched = True
+        elif clean_pid == "python":
+            if sys.platform.startswith("win"):
+                cmd = "Write-Host '--- PhD Research Lab: Python Environment CLI ---' -ForegroundColor Yellow; python -i"
+                encoded = base64.b64encode(cmd.encode("utf-16le")).decode("ascii")
+                subprocess.Popen(["powershell.exe", "-NoLogo", "-NoExit", "-EncodedCommand", encoded],
+                                 creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
+                terminal_launched = True
+        elif clean_pid in ("phdlab", "app"):
+            if sys.platform.startswith("win"):
+                cmd = "Write-Host '--- PhD Research Lab: Multi-Agent Harness CLI ---' -ForegroundColor Blue; python -i -c 'print(\"PhD Research Lab Native Multi-Agent OS\")'"
+                encoded = base64.b64encode(cmd.encode("utf-16le")).decode("ascii")
+                subprocess.Popen(["powershell.exe", "-NoLogo", "-NoExit", "-EncodedCommand", encoded],
+                                 creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
+                terminal_launched = True
 
     return {
         "ok": True,

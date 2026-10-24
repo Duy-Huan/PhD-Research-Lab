@@ -41,8 +41,8 @@ from backend.providers import events as E
 HEALTH = ("CONNECTED", "DISCONNECTED", "AUTH_EXPIRED", "RATE_LIMITED", "UNAVAILABLE", "ERROR", "UNKNOWN")
 NOT_SUPPORTED = "NOT_SUPPORTED"
 CAPS = ("connect", "disconnect", "health", "capabilities", "send", "stream", "cancel", "mcp_client")
-RATE_RE = re.compile(r"(?i)rate.?limit|429|quota|usage limit|too many requests")
-AUTH_RE = re.compile(r"(?i)authenticat|not logged in|login required|sign.?in|unauthori[sz]ed|401|expired")
+RATE_RE = re.compile(r"(?i)rate.?limit|429|quota|usage limit|weekly limit|daily limit|hit your .*limit|too many requests")
+AUTH_RE = re.compile(r"(?i)authenticat|auth method|not logged in|login required|sign.?in|unauthori[sz]ed|401|expired")
 READ_TOOLS = ("research_get_current_state", "research_search_memory", "research_get_hypothesis", "research_get_experiment",
               "research_get_evidence", "research_get_decisions", "research_get_failures", "research_get_context",
               "research_get_provenance")
@@ -184,7 +184,7 @@ class CLIConnector(ProviderConnector):
             return {**base, "state": "ERROR", "detail": f"`{self.binaries[0]} --version` failed", "setup": self.setup()}
         state, detail = self.auth_state(p)
         last = _last_error.get(self.provider_id)
-        if fresh and state == "CONNECTED":
+        if fresh and state == "CONNECTED" and last and last[0] == "AUTH_EXPIRED":
             _last_error.pop(self.provider_id, None)
             last = None
         if last and state in ("CONNECTED", "UNKNOWN"):
@@ -201,9 +201,13 @@ class CLIConnector(ProviderConnector):
     def connect(self, launch: bool = False) -> dict:
         out = {"provider": self.provider_id, "action": "sign_in_with_vendor", "command": self.login_cmd,
                "detail": "Sign in through the vendor's own browser flow. PhD-Lab never sees your password or tokens."}
-        if launch and sys.platform.startswith("win") and self.binary():
-            parts = [self.binary(), *self.login_cmd.split()[1:]]
-            command = "& " + " ".join("'" + part.replace("'", "''") + "'" for part in parts)
+        if launch and sys.platform.startswith("win"):
+            bin_path = self.binary()
+            if bin_path:
+                parts = [bin_path, *self.login_cmd.split()[1:]]
+                command = f"Write-Host '--- PhD Research Lab: {self.label} CLI ---' -ForegroundColor Cyan; & " + " ".join("'" + part.replace("'", "''") + "'" for part in parts)
+            else:
+                command = f"Write-Host '--- PhD Research Lab: {self.label} CLI ---' -ForegroundColor Cyan; {self.login_cmd}"
             encoded = base64.b64encode(command.encode("utf-16le")).decode("ascii")
             subprocess.Popen(["powershell.exe", "-NoLogo", "-NoExit", "-EncodedCommand", encoded],
                              creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
@@ -285,6 +289,7 @@ class CLIConnector(ProviderConnector):
                 pass
             norm = E.NORMALIZERS[self.normalizer]
             errored = False
+            emitted_text = False
             for line in iter(proc.stdout.readline, ""):
                 line = line.strip()
                 if not line:
@@ -296,6 +301,11 @@ class CLIConnector(ProviderConnector):
                     yield E.ev("text_delta", text=line + "\n")
                     continue
                 for e in norm(raw) if isinstance(raw, dict) else []:
+                    if e["type"] == "text_delta" and e.get("text"):
+                        emitted_text = True
+                    if e["type"] == "status" and e.get("state") == "result" and e.get("final_text") and not emitted_text:
+                        emitted_text = True
+                        yield E.ev("text_delta", text=e["final_text"], final=True)
                     bad = firewall.violation(f"{e.get('name', '')} {e.get('detail', '')}") if e["type"] == "tool_call" else ""
                     if bad:  # layer 5: the agent named the app's source / a secret → stop it now (fail closed)
                         kill_tree(proc)
@@ -305,6 +315,7 @@ class CLIConnector(ProviderConnector):
                     if e["type"] == "error":
                         errored = True
                         st = classify_error(e.get("message", ""))
+                        e["state"] = st
                         if st != "ERROR":
                             _last_error[self.provider_id] = (st, e.get("message", "")[:200])
                     yield e
@@ -324,6 +335,8 @@ class CLIConnector(ProviderConnector):
                 if st != "ERROR":
                     _last_error[self.provider_id] = (st, msg[:200])
                 yield E.ev("error", message=msg[:500], state=st)
+            elif not errored and not emitted_text:
+                yield E.ev("error", message=f"{self.label} returned no answer. Check CLI sign-in, model access and logs.", state="ERROR")
             elif not errored:
                 _last_error.pop(self.provider_id, None)
             yield E.ev("request_completed", provider=self.provider_id, request_id=rid, exit_code=proc.returncode)
@@ -512,7 +525,7 @@ class AntigravityConnector(CLIConnector):
                 "register the PhD-Lab MCP server (Gateway → Antigravity → Register MCP)"]
 
     def argv(self, context: dict) -> list:
-        args = [self.binary(), "-p", "--output-format", "stream-json", "--input-format", "stream-json", "--sandbox"]
+        args = [self.binary(), "--output-format", "stream-json", "--input-format", "stream-json", "--sandbox", "--print="]
         if context.get("model"):
             args += ["--model", str(context["model"])[:80]]
         if context.get("resume_session") and re.fullmatch(r"[\w-]{6,80}", context["resume_session"]):
@@ -528,6 +541,22 @@ class GeminiCliConnector(CLIConnector):
     binaries, binary_key, normalizer, login_cmd = ("gemini",), "gemini_binary", "gemini", "gemini"
     api_env = ("GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GENAI_USE_VERTEXAI", "GOOGLE_APPLICATION_CREDENTIALS")
     supports_resume = True
+
+    def _probe(self) -> dict:
+        probe = super()._probe()
+        home = Path(os.environ.get("GEMINI_CLI_HOME") or Path.home())
+        try:
+            settings = json.loads((home / ".gemini" / "settings.json").read_text("utf-8"))
+            method = settings.get("security", {}).get("auth", {}).get("selectedType")
+        except (OSError, ValueError, AttributeError):
+            method = None
+        probe['auth_configured'] = bool(method)
+        return probe
+
+    def auth_state(self, probe: dict) -> tuple[str, str]:
+        if probe.get('auth_configured') is False and not self.api_fallback():
+            return "AUTH_EXPIRED", "Gemini CLI has no configured sign-in method. Run `gemini` and choose Login with Google."
+        return super().auth_state(probe)
 
     def setup(self) -> list:
         return ["npm install -g @google/gemini-cli", "run `gemini` once and choose 'Login with Google'"]
