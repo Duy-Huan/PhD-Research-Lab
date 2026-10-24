@@ -224,7 +224,7 @@ class Chat(Base):
                  "/code", "/code new exp7", "/code open exp7", "/code sync", "/code jobs", "/code nope",
                  "/review", f"/review new {paper}", "/review nope", "/pins", "/providers", "/models", "/config",
                  "/config runs.max_minutes", "/config runs.max_minutes 45", "/config aiws.memory_mode \"suggest\"",
-                 "/project", "/project new Second", "/project nope", "/dashboard", "/clear", "/unknowncmd x", "/quit"]
+                 "/project", "/project new Second", "/project nope", "/dashboard", "/clear", "/workflow", "/workflow list", "/workflow status", "/workflow nope", "/harness list", "/unknowncmd x", "/quit"]
         with mock.patch("backend.execution.vscode.vscode_cli", return_value="code"), \
                 mock.patch("backend.execution.vscode.run_cli", return_value=(0, "")), \
                 mock.patch("backend.providers.lifecycle.unload_all_local", mock.AsyncMock(return_value={"unloaded": []})):
@@ -232,7 +232,7 @@ class Chat(Base):
         for part in ("PhD Research Lab", "Kỹ năng nghiên cứu", "cấp độ tư duy: cao", "📎 data.csv", "không thấy file",
                      "mô hình: app:local", "Không có gì chờ duyệt", "không có mục số 9", "dùng /accept", "đề cương cấp",
                      "đã đính kèm", "exp7 đã tạo", "dùng /code", "phiên phản biện", "dùng /review", "runs.max_minutes = 45",
-                     "dự án mới: Second", "dùng /project", "Project"):
+                     "dự án mới: Second", "dùng /project", "Project", "Danh mục Quy trình Nghiên cứu PhD Lab", "dùng /workflow"):
             self.assertIn(part, out, part)
 
     def test_repl_runs_and_decisions(self):

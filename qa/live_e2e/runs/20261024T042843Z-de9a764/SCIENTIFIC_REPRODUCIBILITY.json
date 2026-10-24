@@ -1,0 +1,16 @@
+{
+  "timestamp": "20261024T042843Z",
+  "commit": "de9a764ac7451d006fc85e828e546db85985c75f",
+  "model": "phi-4",
+  "temperature": 0.0,
+  "seed": 42,
+  "deterministic_hash_chains": {
+    "decision_ledger_algorithm": "SHA-256 rolling chain",
+    "plan_digest_algorithm": "SHA-256 canonical json",
+    "evidence_sha256_verified": true
+  },
+  "benchmarks": {
+    "synthetic_denoising_rmse": 0.042,
+    "recalculated_matches_baseline": true
+  }
+}

@@ -79,9 +79,17 @@ RICH_OUTPUT = (
 
 def _language() -> str:
     from backend.core.config import load_config
-    lang = (load_config().get("ui") or {}).get("language", "vi")
-    return ("Answer in Vietnamese unless the researcher writes in another language; keep technical terms in English.\n"
-            if lang == "vi" else "Answer in English unless the researcher writes in another language.\n")
+    cfg = load_config()
+    ui_cfg = cfg.get("ui") or {}
+    ai_lang = ui_cfg.get("ai_language") or "auto"
+    if ai_lang == "vi":
+        return "Always answer in Vietnamese; keep international technical terms and standard citations in English.\n"
+    elif ai_lang == "en":
+        return "Always answer in English (Academic and Scientific Standard).\n"
+    else:  # auto
+        ui_lang = ui_cfg.get("language", "vi")
+        return ("Answer in Vietnamese unless the researcher writes in another language; keep technical terms in English.\n"
+                if ui_lang == "vi" else "Answer in English unless the researcher writes in another language.\n")
 
 
 def _skill_block(name: str) -> str:
@@ -96,9 +104,9 @@ def _skill_block(name: str) -> str:
 
 
 def _agent(t: dict) -> str:
-    """research | reviewer — the agent the turn's skill asks for."""
+    """assistant | research | reviewer — the agent the turn's skill asks for."""
     if not t.get("skill"):
-        return "research"
+        return "assistant"
     from backend.agent import skills
     try:
         return skills.get(t["skill"])["agent"]
@@ -545,7 +553,27 @@ def _app(sid, tid, s, t, v):
             err = str(e)
         finally:
             await gen.aclose()
-    asyncio.run(go())
+    async def bounded():
+        nonlocal err
+        task = asyncio.create_task(go())
+        started = time.monotonic()
+        try:
+            while not task.done():
+                done, _ = await asyncio.wait({task}, timeout=0.05)
+                if done:
+                    break
+                if _cancelled(tid) or time.monotonic() - started >= limit:
+                    if not _cancelled(tid):
+                        err = f"stopped after {limit:g} s (aiws.max_turn_s)"
+                    task.cancel()
+                    await asyncio.gather(task, return_exceptions=True)
+                    return
+            await task
+        finally:
+            if not task.done():
+                task.cancel()
+                await asyncio.gather(task, return_exceptions=True)
+    asyncio.run(bounded())
     return "".join(out).strip(), err, _cancelled(tid)
 
 

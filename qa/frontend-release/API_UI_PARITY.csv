@@ -1,0 +1,30 @@
+backend capability,route,frontend action/screen,observable state,test_id,status,notes
+Get active projects,GET /api/projects,ProjectSwitcher.tsx,Project cards rendered in modal,T-PROJ-01,PASS,Supports custom data_dir and references_dir
+Create new project,POST /api/projects,ProjectSwitcher.tsx (form submit),Project created and selected in uiStore,T-PROJ-02,PASS,Validates name and custom paths
+Switch active project,POST /api/projects/switch,ProjectSwitcher.tsx (click card),Header updates active project badge,T-PROJ-03,PASS,Updates active project context
+List research topics,GET /api/research/topics,TopicView.tsx,Topic cards rendered with mission count,T-TOPIC-01,PASS,Shows active badge on selected
+Create research topic,POST /api/research/topics,TopicView.tsx (new topic form),New topic card prepended to list,T-TOPIC-02,PASS,Validates title and domain
+Get chat sessions,GET /api/chat/sessions,Sidebar.tsx,Pinned and Recent sessions rendered,T-SIDE-01,PASS,Pinned excluded from Recents
+Create chat session,POST /api/chat/sessions,Sidebar.tsx ("Cuoc tro chuyen moi"),New session created and made active,T-SIDE-02,PASS,Selects new session in uiStore
+Delete chat session,DELETE /api/chat/sessions/{id},Sidebar.tsx (context menu -> Xoa),Session removed from sidebar,T-SIDE-03,PASS,Scoped context menu
+Send chat prompt,POST /api/chat,Composer.tsx (submit form),User message prepended, assistant typing indicator,T-CHAT-01,PASS,Preserves multiline text
+Stream chat tokens,GET /api/chat/stream,MessageList.tsx,Real-time token appending, honest cancel,T-CHAT-02,PASS,Handles timeout and retry
+List library references,GET /api/library,LibraryPanel.tsx,List of paper cards with ranking and year,T-LIB-01,PASS,Displays CORE and SJR ranking
+Upload reference PDF,POST /api/library/upload,LibraryPanel.tsx (file input),New reference added with metadata,T-LIB-02,PASS,Multipart form upload
+Preview reference PDF,GET /api/library/file/{name},LibraryPanel.tsx (paper modal),In-app iframe PDF preview rendered,T-LIB-03,PASS,Has Open In New Tab button
+Refine library metadata,POST /api/library/refine,LibraryPanel.tsx (Refine button),Paper ranking and BibTeX updated,T-LIB-04,PASS,LLM refinement
+Export BibTeX bibliography,GET /api/library/bib,LibraryPanel.tsx (Export BibTeX),BibTeX text downloaded/copied,T-LIB-05,PASS,Formatted .bib citations
+List active missions,GET /api/missions,MissionLiveWorkspace.tsx,Mission list with progress and DAG graph,T-MISS-01,PASS,Graph nodes colored by task state
+Create mission plan,POST /api/missions,MissionBuilder.tsx (form submit),DAG generated with dependency edges,T-MISS-02,PASS,Honors DAG dependency topology
+Approve mission,POST /api/missions/{id}/approve,MissionLiveWorkspace.tsx (Approve button),Status changed to running/approved,T-MISS-03,PASS,Requires explicit user approval
+Reject mission,POST /api/missions/{id}/reject,MissionLiveWorkspace.tsx (Reject button),Status marked rejected, reason recorded,T-MISS-04,PASS,Never auto-approves
+List workstreams,GET /api/workstreams,WorkstreamMonitor.tsx,Partitioned workstream cards,T-WORK-01,PASS,Truthful dependency edges
+Pause workstream,POST /api/workstreams/{id}/pause,WorkstreamMonitor.tsx (Pause button),Status set to paused,T-WORK-02,PASS,Honors idempotency
+Resume workstream,POST /api/workstreams/{id}/resume,WorkstreamMonitor.tsx (Resume button),Status set to active,T-WORK-03,PASS,Resumes queued tasks
+List evidence ledger,GET /api/evidence,EvidenceReview.tsx,Evidence cards with SHA-256 hash,T-EVID-01,PASS,Audit ledger verification
+Resolve finding dispute,POST /api/evidence/{id}/resolve,EvidenceReview.tsx (Resolve button),Dispute marked resolved,T-EVID-02,PASS,Preserves audit trail
+Get review stages,GET /api/review,ReviewView.tsx,Review timeline and pending approvals,T-REV-01,PASS,Shows reviewer comments
+Save canonical output,POST /api/canonical/output,ReviewView.tsx (Save Revision),Revision 0->1->2 with expected_revision,T-REV-02,PASS,Handles 409 conflict correctly
+Get system metrics,GET /api/metrics,DashboardView.tsx,Usage charts and provider status,T-DASH-01,PASS,Shows real metrics or unknown
+Get runtime configuration,GET /api/config,SettingsModal.tsx,Active agent provider bindings,T-SET-01,PASS,Filters models by provider
+Save configuration,POST /api/config,SettingsModal.tsx (Save button),Success toast, reload settings,T-SET-02,PASS,Bilingual VI/EN support

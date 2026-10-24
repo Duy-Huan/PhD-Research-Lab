@@ -58,7 +58,7 @@ def _summary(s: dict) -> dict:
     return {"id": s["id"], "title": s["title"], "created": s["created"], "updated": s["updated"], "status": s["status"],
             "archived": s["archived"], "binding": s["binding"], "provider": s["settings"].get("provider", ""),
             "messages": len(s["messages"]), "pending_approvals": sum(1 for a in s["approvals"] if a["status"] == "pending"),
-            "topic_id": s.get("topic_id", ""),
+            "topic_id": s.get("topic_id", ""), "pinned": bool(s.get("pinned")), "chat_project": s.get("chat_project", ""),
             "last": (last or {}).get("content", "")[:160]}
 
 
@@ -117,10 +117,80 @@ def list_sessions(module: str = "", entity_id: str = "", q: str = "", archived: 
         if q and q.lower() not in (s["title"] + " " + " ".join(m["content"][:400] for m in s["messages"])).lower():
             continue
         out.append(_summary(s))
-    return sorted(out, key=lambda x: -x["updated"])[:limit]
+    return sorted(out, key=lambda x: (not x["pinned"], -x["updated"]))[:limit]
 
 
 NOTE_FIELDS = {"message_id": 64, "quote": 2000, "prefix": 120, "suffix": 120, "text": 4000}
+
+
+def chat_projects() -> list:
+    """Lightweight conversation groups inside this research project; no data-folder moves."""
+    with _lock:
+        return read_json(_dir() / "chat_projects.json") or []
+
+
+def create_chat_project(name: str, instructions: str = "") -> dict:
+    name = str(name).strip()
+    if not 1 <= len(name) <= 80:
+        raise AIWSError("Give a chat project name (1–80 characters)")
+    with _lock:
+        groups = chat_projects()
+        if len(groups) >= 200:
+            raise AIWSError("Chat project limit reached")
+        group = {
+            "id": new_id("cg"),
+            "name": name,
+            "instructions": str(instructions or "").strip()[:4000],
+            "created": now(),
+        }
+        groups.append(group)
+        write_json(_dir() / "chat_projects.json", groups)
+        return group
+
+
+def update_chat_project(gid: str, name: str | None = None, instructions: str | None = None) -> dict:
+    with _lock:
+        groups = chat_projects()
+        g = next((x for x in groups if x["id"] == gid), None)
+        if not g:
+            raise AIWSError("Chat project not found")
+        if name is not None:
+            n = str(name).strip()
+            if not 1 <= len(n) <= 80:
+                raise AIWSError("Give a chat project name (1–80 characters)")
+            g["name"] = n
+        if instructions is not None:
+            g["instructions"] = str(instructions).strip()[:4000]
+        write_json(_dir() / "chat_projects.json", groups)
+        return g
+
+
+def delete_chat_project(gid: str) -> dict:
+    with _lock:
+        groups = [x for x in chat_projects() if x["id"] != gid]
+        write_json(_dir() / "chat_projects.json", groups)
+        for f in _dir().glob("as-*.json"):
+            s = read_json(f)
+            if isinstance(s, dict) and s.get("chat_project") == gid:
+                s["chat_project"] = ""
+                write_json(f, s)
+        return {"deleted": gid}
+
+
+def organize(sid: str, pinned=None, chat_project=None) -> dict:
+    if pinned is not None and not isinstance(pinned, bool):
+        raise AIWSError("pinned must be a boolean")
+    with _lock:
+        if chat_project is not None and chat_project != "" and not any(g["id"] == chat_project for g in chat_projects()):
+            raise AIWSError("Chat project not found in this research project")
+        def change(s):
+            if pinned is not None:
+                s["pinned"] = pinned
+            if chat_project is not None:
+                s["chat_project"] = chat_project
+        update(sid, change)
+        emit(sid, "session.updated", field="organization")
+        return get(sid)
 
 
 def pin_message(sid: str, mid: str, pinned: bool) -> dict:

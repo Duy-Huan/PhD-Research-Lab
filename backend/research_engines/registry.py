@@ -2,7 +2,9 @@
 from backend.research_engines.contracts import EngineFailure
 
 FACTORIES = {"feynman": ("backend.research_engines.feynman", "FeynmanEngine"),
-             "openscience": ("backend.research_engines.openscience", "OpenScienceEngine")}
+             "openscience": ("backend.research_engines.openscience", "OpenScienceEngine"),
+             "opencode": ("backend.research_engines.opencode", "OpenCodeEngine"),
+             "phdlab": ("backend.research_engines.phdlab", "PhDLabEngine")}
 
 
 def get(engine_id: str):
@@ -18,15 +20,21 @@ def plan(mode: str, capability: str, preferred: str = "feynman") -> list[str]:
     cfg = load_config()
     if mode == "collaborative":
         return ["openscience", "feynman"] if capability in ("analysis", "prototype") else ["feynman", "openscience"]
+    if mode in ("phdlab", "app", "native"):
+        return ["phdlab"]
     if mode in FACTORIES:
         return [mode]
     if mode != "auto":
         raise EngineFailure("Unknown research engine mode", "capability")
+    if preferred in ("phdlab", "app"):
+        return ["phdlab"]
     if preferred == "openscience":  # explicit /science delegation never silently changes engine
         return ["openscience"]
+    if preferred == "opencode":
+        return ["opencode"]
     settings = cfg.get("openscience") or {}
     qualified = capability in settings.get("qualified_tasks", []) and bool(settings.get("model_provider") and settings.get("model_id"))
-    for candidate in cfg["research_providers"].get("engine_priority", ["feynman", "openscience"]):
+    for candidate in cfg["research_providers"].get("engine_priority", ["feynman", "openscience", "opencode"]):
         if candidate not in FACTORIES:
             continue
         engine = get(candidate)

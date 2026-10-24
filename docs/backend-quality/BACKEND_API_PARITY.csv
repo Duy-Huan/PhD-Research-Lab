@@ -1,0 +1,275 @@
+Path,Method,OperationId,Tags,Summary,HasRequestBody,Responses,Streaming,FrontendParity
+/api/version,GET,version_api_version_get,,Version,No,200,No,Verified
+/api/config,GET,get_config_api_config_get,,Get Config,No,200,No,Verified
+/api/config,POST,set_config_api_config_post,,Set Config,Yes,200;422,No,Verified
+/api/models/cli/codex,POST,codex_catalog_api_models_cli_codex_post,,Codex Catalog,No,200,No,Verified
+/api/models,GET,models_api_models_get,,Models,No,200,No,Verified
+/api/models/test,POST,test_model_api_models_test_post,,Test Model,Yes,200;422,No,Verified
+/api/models/list,POST,provider_models_api_models_list_post,,Provider Models,Yes,200;422,No,Verified
+/api/models/local,GET,local_status_api_models_local_get,,Local Status,No,200,No,Verified
+/api/models/unload,POST,unload_models_api_models_unload_post,,Unload Models,Yes,200;422,No,Verified
+/api/providers,GET,providers_api_providers_get,,Providers,No,200;422,No,Verified
+/api/providers/{pid}/connect,POST,provider_connect_api_providers__pid__connect_post,,Provider Connect,No,200;422,No,Verified
+/api/dashboard,GET,dashboard_api_dashboard_get,,Dashboard,No,200;422,No,Verified
+/api/events,GET,events_api_events_get,,Events,No,200;422,No,Verified
+/api/events/stream,GET,events_stream_api_events_stream_get,,Events Stream,No,200;422,No,Verified
+/api/projects,GET,projects_api_projects_get,,Projects,No,200,No,Verified
+/api/projects,POST,projects_create_api_projects_post,,Projects Create,Yes,200;422,No,Verified
+/api/projects/conversations,GET,project_conversations_api_projects_conversations_get,,Project Conversations,No,200;422,No,Verified
+/api/projects/open,POST,projects_open_api_projects_open_post,,Projects Open,Yes,200;422,No,Verified
+/api/projects/activate,POST,projects_activate_api_projects_activate_post,,Projects Activate,Yes,200;422,No,Verified
+/api/projects/rename,PUT,projects_rename_api_projects_rename_put,,Projects Rename,Yes,200;422,No,Verified
+/api/projects/forget,POST,projects_forget_api_projects_forget_post,,Projects Forget,Yes,200;422,No,Verified
+/api/projects/reveal,POST,projects_reveal_api_projects_reveal_post,,Projects Reveal,No,200,No,Verified
+/api/outline,GET,outline_get_api_outline_get,,Outline Get,No,200,No,Verified
+/api/outline,PUT,outline_put_api_outline_put,,Outline Put,Yes,200;422,No,Verified
+/api/outline/restore,POST,outline_restore_api_outline_restore_post,,Outline Restore,Yes,200;422,No,Verified
+/api/outline/attach,POST,outline_attach_api_outline_attach_post,,Outline Attach,Yes,200;422,No,Verified
+/api/outline/attach/{aid},GET,outline_attachment_api_outline_attach__aid__get,,Outline Attachment,No,200;422,No,Verified
+/api/outline/attach/{aid},DELETE,outline_detach_api_outline_attach__aid__delete,,Outline Detach,No,200;422,No,Verified
+/api/files,GET,project_file_api_files_get,,Project File,No,200;422,No,Verified
+/api/chat/projects,GET,chat_projects_api_chat_projects_get,,Chat Projects,No,200,No,Verified
+/api/chat/projects,POST,chat_project_create_api_chat_projects_post,,Chat Project Create,Yes,200;422,No,Verified
+/api/chat/projects/{gid},PUT,chat_project_update_api_chat_projects__gid__put,,Chat Project Update,Yes,200;422,No,Verified
+/api/chat/projects/{gid},DELETE,chat_project_delete_api_chat_projects__gid__delete,,Chat Project Delete,No,200;422,No,Verified
+/api/chat/sessions,GET,sessions_api_chat_sessions_get,,Sessions,No,200;422,No,Verified
+/api/chat/sessions,POST,create_api_chat_sessions_post,,Create,Yes,200;422,No,Verified
+/api/chat/sessions/{sid},GET,get_api_chat_sessions__sid__get,,Get,No,200;422,No,Verified
+/api/chat/sessions/{sid},PUT,update_api_chat_sessions__sid__put,,Update,Yes,200;422,No,Verified
+/api/chat/sessions/{sid},DELETE,delete_api_chat_sessions__sid__delete,,Delete,No,200;422,No,Verified
+/api/chat/sessions/{sid}/effective,GET,effective_api_chat_sessions__sid__effective_get,,Effective,No,200;422,No,Verified
+/api/chat/sessions/{sid}/fork,POST,fork_api_chat_sessions__sid__fork_post,,Fork,Yes,200;422,No,Verified
+/api/chat/sessions/{sid}/messages/{mid}/pin,PUT,pin_message_api_chat_sessions__sid__messages__mid__pin_put,,Pin Message,Yes,200;422,No,Verified
+/api/chat/sessions/{sid}/turns,POST,turn_api_chat_sessions__sid__turns_post,,Turn,Yes,200;422,No,Verified
+/api/chat/sessions/{sid}/retry,POST,retry_api_chat_sessions__sid__retry_post,,Retry,Yes,200;422,No,Verified
+/api/chat/sessions/{sid}/turns/{tid}/cancel,POST,cancel_api_chat_sessions__sid__turns__tid__cancel_post,,Cancel,No,200;422,No,Verified
+/api/chat/sessions/{sid}/cancel,POST,cancel_session_turns_api_chat_sessions__sid__cancel_post,,Cancel Session Turns,No,200;422,No,Verified
+/api/chat/sessions/{sid}/turns/{tid}/launch,POST,launch_api_chat_sessions__sid__turns__tid__launch_post,,Launch,Yes,200;422,No,Verified
+/api/chat/sessions/{sid}/turns/{tid}/context,GET,turn_context_api_chat_sessions__sid__turns__tid__context_get,,Turn Context,No,200;422,No,Verified
+/api/chat/sessions/{sid}/events,GET,events_api_chat_sessions__sid__events_get,,Events,No,200;422,No,Verified
+/api/chat/sessions/{sid}/stream,GET,events_stream_api_chat_sessions__sid__stream_get,,Events Stream,No,200;422,No,Verified
+/api/chat/sessions/{sid}/approvals/{aid},POST,decide_api_chat_sessions__sid__approvals__aid__post,,Decide,Yes,200;422,No,Verified
+/api/chat/attachments,POST,attach_api_chat_attachments_post,,Attach,Yes,200;422,No,Verified
+/api/chat/sessions/{sid}/artifacts/{aid},GET,artifact_api_chat_sessions__sid__artifacts__aid__get,,Artifact,No,200;422,No,Verified
+/api/chat/sessions/{sid}/artifacts/{aid}/diff,GET,artifact_diff_api_chat_sessions__sid__artifacts__aid__diff_get,,Artifact Diff,No,200;422,No,Verified
+/api/chat/sessions/{sid}/artifacts/{aid}/download,GET,artifact_download_api_chat_sessions__sid__artifacts__aid__download_get,,Artifact Download,No,200;422,No,Verified
+/api/chat/sessions/{sid}/artifacts/{aid}/apply,POST,artifact_apply_api_chat_sessions__sid__artifacts__aid__apply_post,,Artifact Apply,Yes,200;422,No,Verified
+/api/chat/sessions/{sid}/artifacts/{aid}/reject,POST,artifact_reject_api_chat_sessions__sid__artifacts__aid__reject_post,,Artifact Reject,Yes,200;422,No,Verified
+/api/chat/sessions/{sid}/memory,POST,remember_api_chat_sessions__sid__memory_post,,Remember,Yes,200;422,No,Verified
+/api/chat/sessions/{sid}/notes,GET,notes_list_api_chat_sessions__sid__notes_get,,Notes List,No,200;422,No,Verified
+/api/chat/sessions/{sid}/notes,POST,notes_add_api_chat_sessions__sid__notes_post,,Notes Add,Yes,200;422,No,Verified
+/api/chat/sessions/{sid}/notes/{nid},PUT,notes_update_api_chat_sessions__sid__notes__nid__put,,Notes Update,Yes,200;422,No,Verified
+/api/chat/sessions/{sid}/notes/{nid},DELETE,notes_delete_api_chat_sessions__sid__notes__nid__delete,,Notes Delete,No,200;422,No,Verified
+/api/skills,GET,skills_list_api_skills_get,,Skills List,No,200,No,Verified
+/api/skills,POST,skill_save_api_skills_post,,Skill Save,Yes,200;422,No,Verified
+/api/skills/{name},GET,skill_get_api_skills__name__get,,Skill Get,No,200;422,No,Verified
+/api/skills/{name},DELETE,skill_delete_api_skills__name__delete,,Skill Delete,No,200;422,No,Verified
+/api/runs,GET,runs_list_api_runs_get,,Runs List,No,200;422,No,Verified
+/api/runs,POST,runs_create_api_runs_post,,Runs Create,Yes,200;422,No,Verified
+/api/runs/{rid},GET,runs_get_api_runs__rid__get,,Runs Get,No,200;422,No,Verified
+/api/runs/{rid}/approve,POST,runs_approve_api_runs__rid__approve_post,,Runs Approve,No,200;422,No,Verified
+/api/runs/{rid}/cancel,POST,runs_cancel_api_runs__rid__cancel_post,,Runs Cancel,No,200;422,No,Verified
+/api/runs/{rid}/resume,POST,runs_resume_api_runs__rid__resume_post,,Runs Resume,Yes,200;422,No,Verified
+/api/runs/{rid}/provider,POST,runs_provider_api_runs__rid__provider_post,,Runs Provider,Yes,200;422,No,Verified
+/api/runs/{rid}/events,GET,runs_events_api_runs__rid__events_get,,Runs Events,No,200;422,No,Verified
+/api/runs/{rid}/stream,GET,runs_stream_api_runs__rid__stream_get,,Runs Stream,No,200;422,No,Verified
+/api/acceptance,GET,acceptance_api_acceptance_get,,Acceptance,No,200,No,Verified
+/api/memory/candidates,GET,candidates_api_memory_candidates_get,,Candidates,No,200;422,No,Verified
+/api/memory/candidates/{cid}/approve,POST,approve_api_memory_candidates__cid__approve_post,,Approve,Yes,200;422,No,Verified
+/api/memory/candidates/{cid}/reject,POST,reject_api_memory_candidates__cid__reject_post,,Reject,Yes,200;422,No,Verified
+/api/memory/sensitivity,PUT,sensitivity_api_memory_sensitivity_put,,Sensitivity,Yes,200;422,No,Verified
+/api/research,GET,research_state_api_research_get,,Research State,No,200,No,Verified
+/api/pins,GET,pins_list_api_pins_get,,Pins List,No,200;422,No,Verified
+/api/pins,POST,pins_add_api_pins_post,,Pins Add,Yes,200;422,No,Verified
+/api/pins/{pid},PUT,pins_update_api_pins__pid__put,,Pins Update,Yes,200;422,No,Verified
+/api/pins/{pid},DELETE,pins_delete_api_pins__pid__delete,,Pins Delete,No,200;422,No,Verified
+/api/code,GET,code_list_api_code_get,,Code List,No,200,No,Verified
+/api/code,POST,code_create_api_code_post,,Code Create,Yes,200;422,No,Verified
+/api/code/open,POST,code_open_api_code_open_post,,Code Open,Yes,200;422,No,Verified
+/api/code/close,POST,code_close_api_code_close_post,,Code Close,No,200,No,Verified
+/api/code/delete,POST,code_delete_api_code_delete_post,,Code Delete,Yes,200;422,No,Verified
+/api/code/environment,GET,code_env_api_code_environment_get,,Code Env,No,200,No,Verified
+/api/code/vscode,POST,code_vscode_api_code_vscode_post,,Code Vscode,No,200,No,Verified
+/api/code/sync,POST,code_sync_api_code_sync_post,,Code Sync,Yes,200;422,No,Verified
+/api/code/scan,GET,code_scan_api_code_scan_get,,Code Scan,No,200,No,Verified
+/api/jobs,GET,jobs_api_jobs_get,,Jobs,No,200;422,No,Verified
+/api/jobs/{job_id},GET,job_api_jobs__job_id__get,,Job,No,200;422,No,Verified
+/api/jobs/{job_id}/stop,POST,job_stop_api_jobs__job_id__stop_post,,Job Stop,No,200;422,No,Verified
+/api/jobs/{job_id}/file,GET,job_file_api_jobs__job_id__file_get,,Job File,No,200;422,No,Verified
+/api/jobs/{job_id}/stream,GET,job_stream_api_jobs__job_id__stream_get,,Job Stream,No,200;422,No,Verified
+/api/search,POST,search_api_search_post,,Search,Yes,200;422,No,Verified
+/api/journals/import,POST,import_rankings_api_journals_import_post,,Import Rankings,Yes,200;422,No,Verified
+/api/library/save,POST,save_paper_api_library_save_post,,Save Paper,Yes,200;422,No,Verified
+/api/library,GET,library_api_library_get,,Library,No,200,No,Verified
+/api/papers,GET,library_api_papers_get,,Library,No,200,No,Verified
+/api/library/upload,POST,upload_api_library_upload_post,,Upload,Yes,200;422,No,Verified
+/api/library/refine,POST,refine_api_library_refine_post,,Refine,Yes,200;422,No,Verified
+/api/library/{name},PUT,update_api_library__name__put,,Update,Yes,200;422,No,Verified
+/api/library/{name},DELETE,delete_api_library__name__delete,,Delete,No,200;422,No,Verified
+/api/library/file/{name},GET,file_api_library_file__name__get,,File,No,200;422,No,Verified
+/api/library/bib,GET,bib_api_library_bib_get,,Bib,No,200,No,Verified
+/api/paper,GET,paper_api_paper_get,,Paper,No,200,No,Verified
+/api/paper,PUT,paper_update_api_paper_put,,Paper Update,Yes,200;422,No,Verified
+/api/paper/section,PUT,section_api_paper_section_put,,Section,Yes,200;422,No,Verified
+/api/paper/compile,POST,compile_pdf_api_paper_compile_post,,Compile Pdf,Yes,200;422,No,Verified
+/api/paper/pdf,GET,pdf_api_paper_pdf_get,,Pdf,No,200;422,No,Verified
+/api/paper/log,GET,log_api_paper_log_get,,Log,No,200,No,Verified
+/api/paper/latex.zip,GET,export_zip_api_paper_latex_zip_get,,Export Zip,No,200,No,Verified
+/api/review,GET,review_list_api_review_get,,Review List,No,200,No,Verified
+/api/review/upload,POST,review_upload_api_review_upload_post,,Review Upload,Yes,200;422,No,Verified
+/api/review/{rid},GET,review_get_api_review__rid__get,,Review Get,No,200;422,No,Verified
+/api/review/{rid},DELETE,review_delete_api_review__rid__delete,,Review Delete,No,200;422,No,Verified
+/api/review/{rid}/settings,PUT,review_settings_api_review__rid__settings_put,,Review Settings,Yes,200;422,No,Verified
+/api/review/{rid}/source,POST,review_source_api_review__rid__source_post,,Review Source,Yes,200;422,No,Verified
+/api/review/{rid}/text,GET,review_text_api_review__rid__text_get,,Review Text,No,200;422,No,Verified
+/api/review/{rid}/original,GET,review_original_api_review__rid__original_get,,Review Original,No,200;422,No,Verified
+/api/review/{rid}/stage,POST,review_stage_api_review__rid__stage_post,,Review Stage,Yes,200;422,No,Verified
+/api/review/{rid}/fix,POST,review_fix_api_review__rid__fix_post,,Review Fix,Yes,200;422,No,Verified
+/api/review/{rid}/issue/{iid},PUT,review_issue_api_review__rid__issue__iid__put,,Review Issue,Yes,200;422,No,Verified
+/api/review/{rid}/apply,POST,review_apply_api_review__rid__apply_post,,Review Apply,Yes,200;422,No,Verified
+/api/review/{rid}/download/{kind},GET,review_download_api_review__rid__download__kind__get,,Review Download,No,200;422,No,Verified
+/mcp,GET,mcp_get_mcp_get,,Mcp Get,No,200,No,Verified
+/mcp,POST,mcp_mcp_post,,Mcp,No,200,No,Verified
+/api/plugins,GET,plugins_list_api_plugins_get,,Plugins List,No,200,No,Verified
+/api/plugins,POST,plugins_install_api_plugins_post,,Plugins Install,Yes,200;422,No,Verified
+/api/plugins/{pid}/update,POST,plugins_update_api_plugins__pid__update_post,,Plugins Update,No,200;422,No,Verified
+/api/plugins/{pid},PUT,plugins_toggle_api_plugins__pid__put,,Plugins Toggle,Yes,200;422,No,Verified
+/api/plugins/{pid},DELETE,plugins_remove_api_plugins__pid__delete,,Plugins Remove,No,200;422,No,Verified
+/api/plugins/skills/{name},PUT,plugins_skill_toggle_api_plugins_skills__name__put,,Plugins Skill Toggle,Yes,200;422,No,Verified
+/api/ranking,GET,ranking_status_api_ranking_get,,Ranking Status,No,200;422,No,Verified
+/api/ranking/lookup,GET,ranking_lookup_api_ranking_lookup_get,,Ranking Lookup,No,200;422,No,Verified
+/api/library/rank,POST,library_rank_api_library_rank_post,,Library Rank,Yes,200;422,No,Verified
+/api/paper/ais,GET,ais_status_api_paper_ais_get,,Ais Status,No,200,No,Verified
+/api/paper/ais/install,POST,ais_install_api_paper_ais_install_post,,Ais Install,No,200,No,Verified
+/api/paper/ais/writeup,POST,ais_writeup_api_paper_ais_writeup_post,,Ais Writeup,Yes,200;422,No,Verified
+/api/paper/ais/compile,POST,ais_compile_api_paper_ais_compile_post,,Ais Compile,No,200,No,Verified
+/api/paper/ais/download/{kind},GET,ais_download_api_paper_ais_download__kind__get,,Ais Download,No,200;422,No,Verified
+/api/export/capabilities,GET,export_caps_api_export_capabilities_get,,Export Caps,No,200,No,Verified
+/api/export,POST,export_api_export_post,,Export,Yes,200;422,No,Verified
+/api/compute/runs,GET,listing_api_compute_runs_get,,Listing,No,200,No,Verified
+/api/compute/runs,POST,create_api_compute_runs_post,,Create,Yes,200;422,No,Verified
+/api/compute/runs/{rid},GET,get_api_compute_runs__rid__get,,Get,No,200;422,No,Verified
+/api/compute/runs/{rid}/approve,POST,approve_api_compute_runs__rid__approve_post,,Approve,No,200;422,No,Verified
+/api/compute/runs/{rid}/bundle,GET,bundle_api_compute_runs__rid__bundle_get,,Bundle,No,200;422,No,Verified
+/api/compute/runs/{rid}/sync,POST,sync_api_compute_runs__rid__sync_post,,Sync,Yes,200;422,No,Verified
+/api/research-engines,GET,engines_api_research_engines_get,,Engines,No,200,No,Verified
+/api/research-engines/jobs/{job_id},GET,job_api_research_engines_jobs__job_id__get,,Job,No,200;422,No,Verified
+/api/research-engines/jobs/{job_id}/decisions,POST,decision_api_research_engines_jobs__job_id__decisions_post,,Decision,Yes,200;422,No,Verified
+/api/research-engines/jobs/{job_id}/recover-admission,POST,recover_api_research_engines_jobs__job_id__recover_admission_post,,Recover,No,200;422,No,Verified
+/api/research-engines/jobs/{job_id}/cancel,POST,cancel_api_research_engines_jobs__job_id__cancel_post,,Cancel,No,200;422,No,Verified
+/api/research/os-settings,GET,os_settings_api_research_os_settings_get,research-workspace,Os Settings,No,200,No,Verified
+/api/research/os-settings,PUT,os_settings_update_api_research_os_settings_put,research-workspace,Os Settings Update,Yes,200;422,No,Verified
+/api/research/charters,GET,charter_list_api_research_charters_get,research-workspace,Charter List,No,200,No,Verified
+/api/research/charters,POST,charter_create_api_research_charters_post,research-workspace,Charter Create,Yes,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/request-approval,POST,mission_request_api_research_topics__tid__missions__mid__request_approval_post,research-workspace,Mission Request,No,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/pause,POST,mission_pause_api_research_topics__tid__missions__mid__pause_post,research-workspace,Mission Pause,Yes,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/review,POST,mission_review_api_research_topics__tid__missions__mid__review_post,research-workspace,Mission Review,Yes,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/report,GET,mission_bundle_api_research_topics__tid__missions__mid__report_get,research-workspace,Mission Bundle,No,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/artifacts/{task_id}/{index},GET,mission_artifact_api_research_topics__tid__missions__mid__artifacts__task_id___index__get,research-workspace,Mission Artifact,No,200;422,No,Verified
+/api/research/team-capabilities,GET,team_capabilities_api_research_team_capabilities_get,research-workspace,Team Capabilities,No,200,No,Verified
+/api/research/teams/propose,POST,team_propose_api_research_teams_propose_post,research-workspace,Team Propose,Yes,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/team,GET,team_monitor_api_research_topics__tid__missions__mid__team_get,research-workspace,Team Monitor,No,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/replan,POST,team_replan_api_research_topics__tid__missions__mid__replan_post,research-workspace,Team Replan,Yes,200;422,No,Verified
+/api/research/workstreams/propose,POST,workstream_propose_api_research_workstreams_propose_post,research-workspace,Workstream Propose,Yes,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/workstreams,GET,workstream_monitor_api_research_topics__tid__missions__mid__workstreams_get,research-workspace,Workstream Monitor,No,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/handoffs,POST,workstream_publish_api_research_topics__tid__missions__mid__handoffs_post,research-workspace,Workstream Publish,Yes,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/handoffs/{hid}/ack,POST,workstream_receive_api_research_topics__tid__missions__mid__handoffs__hid__ack_post,research-workspace,Workstream Receive,Yes,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/outputs,POST,workstream_output_api_research_topics__tid__missions__mid__outputs_post,research-workspace,Workstream Output,Yes,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/disputes,POST,workstream_dispute_api_research_topics__tid__missions__mid__disputes_post,research-workspace,Workstream Dispute,Yes,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/disputes/{did}/resolve,POST,workstream_resolve_api_research_topics__tid__missions__mid__disputes__did__resolve_post,research-workspace,Workstream Resolve,Yes,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/findings,POST,workstream_finding_api_research_topics__tid__missions__mid__findings_post,research-workspace,Workstream Finding,Yes,200;422,No,Verified
+/api/research/topics/{tid}/claims,GET,claims_api_research_topics__tid__claims_get,research-workspace,Claims,No,200;422,No,Verified
+/api/research/topics/{tid}/claims,POST,claim_create_api_research_topics__tid__claims_post,research-workspace,Claim Create,Yes,200;422,No,Verified
+/api/research/topics/{tid}/claims/{cid}/check,POST,claim_check_api_research_topics__tid__claims__cid__check_post,research-workspace,Claim Check,No,200;422,No,Verified
+/api/research/topics/{tid}/claims/{cid}/decision,POST,claim_decide_api_research_topics__tid__claims__cid__decision_post,research-workspace,Claim Decide,Yes,200;422,No,Verified
+/api/research/topics/{tid}/citations/resolve,POST,citation_resolve_api_research_topics__tid__citations_resolve_post,research-workspace,Citation Resolve,Yes,200;422,No,Verified
+/api/research/topics/{tid}/audit,GET,audit_api_research_topics__tid__audit_get,research-workspace,Audit,No,200;422,No,Verified
+/api/research/topics/{tid}/claims/export,GET,claim_export_api_research_topics__tid__claims_export_get,research-workspace,Claim Export,No,200;422,No,Verified
+/api/research/topics/{tid}/prior-art,GET,prior_art_api_research_topics__tid__prior_art_get,research-workspace,Prior Art,No,200;422,No,Verified
+/api/research/topics/{tid}/experiments/{rid}/verification,GET,experiment_verification_api_research_topics__tid__experiments__rid__verification_get,research-workspace,Experiment Verification,No,200;422,No,Verified
+/api/research/topics/{tid}/protocols,GET,protocol_list_api_research_topics__tid__protocols_get,research-workspace,Protocol List,No,200;422,No,Verified
+/api/research/topics/{tid}/protocols,POST,protocol_create_api_research_topics__tid__protocols_post,research-workspace,Protocol Create,Yes,200;422,No,Verified
+/api/research/topics/{tid}/protocols/{pid}/approve,POST,protocol_approve_api_research_topics__tid__protocols__pid__approve_post,research-workspace,Protocol Approve,Yes,200;422,No,Verified
+/api/research/topics/{tid}/protocols/{pid}/mission,POST,protocol_mission_api_research_topics__tid__protocols__pid__mission_post,research-workspace,Protocol Mission,No,200;422,No,Verified
+/api/research/mission-capabilities,GET,mission_capabilities_api_research_mission_capabilities_get,research-workspace,Mission Capabilities,No,200,No,Verified
+/api/research/topics/{tid}/missions,GET,mission_list_api_research_topics__tid__missions_get,research-workspace,Mission List,No,200;422,No,Verified
+/api/research/topics/{tid}/missions,POST,mission_create_api_research_topics__tid__missions_post,research-workspace,Mission Create,Yes,200;422,No,Verified
+/api/research/topics/{tid}/missions/plan,POST,mission_plan_api_research_topics__tid__missions_plan_post,research-workspace,Mission Plan,Yes,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/approve,POST,mission_approve_api_research_topics__tid__missions__mid__approve_post,research-workspace,Mission Approve,Yes,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/cancel,POST,mission_cancel_api_research_topics__tid__missions__mid__cancel_post,research-workspace,Mission Cancel,No,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/retry,POST,mission_retry_api_research_topics__tid__missions__mid__retry_post,research-workspace,Mission Retry,Yes,200;422,No,Verified
+/api/research/capabilities,GET,capabilities_api_research_capabilities_get,research-workspace,Capabilities,No,200,No,Verified
+/api/research/sources,GET,source_catalog_api_research_sources_get,research-workspace,Source Catalog,No,200,No,Verified
+/api/research/topics/{tid}/zotero/import,POST,zotero_import_api_research_topics__tid__zotero_import_post,research-workspace,Zotero Import,Yes,200;422,No,Verified
+/api/research/topics/{tid}/zotero/sync,POST,zotero_sync_api_research_topics__tid__zotero_sync_post,research-workspace,Zotero Sync,Yes,200;422,No,Verified
+/api/research/topics,GET,topics_api_research_topics_get,research-workspace,Topics,No,200,No,Verified
+/api/research/topics,POST,create_topic_api_research_topics_post,research-workspace,Create Topic,Yes,200;422,No,Verified
+/api/research/topics/{tid},GET,topic_api_research_topics__tid__get,research-workspace,Topic,No,200;422,No,Verified
+/api/research/topics/{tid},PUT,update_topic_api_research_topics__tid__put,research-workspace,Update Topic,Yes,200;422,No,Verified
+/api/research/topics/{tid}/papers,GET,papers_api_research_topics__tid__papers_get,research-workspace,Papers,No,200;422,No,Verified
+/api/research/topics/{tid}/papers/import,POST,import_papers_api_research_topics__tid__papers_import_post,research-workspace,Import Papers,Yes,200;422,No,Verified
+/api/research/topics/{tid}/papers/import-library,POST,import_library_api_research_topics__tid__papers_import_library_post,research-workspace,Import Library,No,200;422,No,Verified
+/api/research/topics/{tid}/papers/bulk,POST,bulk_api_research_topics__tid__papers_bulk_post,research-workspace,Bulk,Yes,200;422,No,Verified
+/api/research/topics/{tid}/papers/{pid},GET,paper_api_research_topics__tid__papers__pid__get,research-workspace,Paper,No,200;422,No,Verified
+/api/research/topics/{tid}/papers/{pid}/pdf/{vid},GET,pdf_api_research_topics__tid__papers__pid__pdf__vid__get,research-workspace,Pdf,No,200;422,No,Verified
+/api/research/topics/{tid}/evidence,GET,evidence_api_research_topics__tid__evidence_get,research-workspace,Evidence,No,200;422,No,Verified
+/api/research/topics/{tid}/bibliography,GET,bibliography_api_research_topics__tid__bibliography_get,research-workspace,Bibliography,No,200;422,No,Verified
+/api/research/topics/{tid}/citation-graph,GET,citation_graph_api_research_topics__tid__citation_graph_get,research-workspace,Citation Graph,No,200;422,No,Verified
+/api/research/topics/{tid}/discover,POST,discover_api_research_topics__tid__discover_post,research-workspace,Discover,Yes,200;422,No,Verified
+/api/research/jobs,GET,jobs_api_research_jobs_get,research-workspace,Jobs,No,200;422,No,Verified
+/api/research/jobs/{jid}/cancel,POST,cancel_api_research_jobs__jid__cancel_post,research-workspace,Cancel,No,200;422,No,Verified
+/api/research/jobs/{jid}/retry,POST,retry_api_research_jobs__jid__retry_post,research-workspace,Retry,No,200;422,No,Verified
+/api/research/topics/{tid}/workspaces,GET,workspaces_api_research_topics__tid__workspaces_get,research-workspace,Workspaces,No,200;422,No,Verified
+/api/research/topics/{tid}/workspaces,POST,link_workspace_api_research_topics__tid__workspaces_post,research-workspace,Link Workspace,Yes,200;422,No,Verified
+/api/research/workspaces/{wid}/open,POST,open_workspace_api_research_workspaces__wid__open_post,research-workspace,Open Workspace,No,200;422,No,Verified
+/api/research/workspaces/{wid}/editor,POST,workspace_editor_api_research_workspaces__wid__editor_post,research-workspace,Workspace Editor,No,200;422,No,Verified
+/api/research/workspaces/{wid},PUT,relink_workspace_api_research_workspaces__wid__put,research-workspace,Relink Workspace,Yes,200;422,No,Verified
+/api/research/workspaces/{wid}/sync,POST,sync_workspace_api_research_workspaces__wid__sync_post,research-workspace,Sync Workspace,No,200;422,No,Verified
+/api/research/workspaces/{wid}/sync-status,GET,sync_status_api_research_workspaces__wid__sync_status_get,research-workspace,Sync Status,No,200;422,No,Verified
+/api/research/topics/{tid}/artifacts,GET,artifacts_api_research_topics__tid__artifacts_get,research-workspace,Artifacts,No,200;422,No,Verified
+/api/research/topics/{tid}/artifacts/{aid},GET,artifact_detail_api_research_topics__tid__artifacts__aid__get,research-workspace,Artifact Detail,No,200;422,No,Verified
+/api/research/topics/{tid}/provenance,GET,provenance_api_research_topics__tid__provenance_get,research-workspace,Provenance,No,200;422,No,Verified
+/api/research/topics/{tid}/findings,GET,findings_api_research_topics__tid__findings_get,research-workspace,Findings,No,200;422,No,Verified
+/api/research/topics/{tid}/findings,POST,propose_finding_api_research_topics__tid__findings_post,research-workspace,Propose Finding,Yes,200;422,No,Verified
+/api/research/topics/{tid}/findings/{fid}/review,POST,review_finding_api_research_topics__tid__findings__fid__review_post,research-workspace,Review Finding,Yes,200;422,No,Verified
+/api/research/topics/{tid}/research-state,GET,state_api_research_topics__tid__research_state_get,research-workspace,State,No,200;422,No,Verified
+/api/figures/capabilities,GET,figure_capabilities_api_figures_capabilities_get,,Figure Capabilities,No,200,No,Verified
+/api/research/topics/{tid}/figures,GET,list_topic_figures_api_research_topics__tid__figures_get,,List Topic Figures,No,200;422,No,Verified
+/api/research/topics/{tid}/figures,POST,create_topic_figure_api_research_topics__tid__figures_post,,Create Topic Figure,Yes,200;422,No,Verified
+/api/research/topics/{tid}/figures/{fid},GET,get_topic_figure_api_research_topics__tid__figures__fid__get,,Get Topic Figure,No,200;422,No,Verified
+/api/research/topics/{tid}/figures/{fid}/style,PUT,update_figure_style_api_research_topics__tid__figures__fid__style_put,,Update Figure Style,Yes,200;422,No,Verified
+/api/research/topics/{tid}/figures/{fid}/regenerate,POST,regenerate_topic_figure_api_research_topics__tid__figures__fid__regenerate_post,,Regenerate Topic Figure,Yes,200;422,No,Verified
+/api/research/topics/{tid}/figures/{fid}/validate,POST,validate_topic_figure_api_research_topics__tid__figures__fid__validate_post,,Validate Topic Figure,Yes,200;422,No,Verified
+/api/figures/{fid}/validate,POST,validate_figure_direct_api_figures__fid__validate_post,,Validate Figure Direct,Yes,200;422,No,Verified
+/api/research/topics/{tid}/figures/{fid}/approve,POST,approve_topic_figure_api_research_topics__tid__figures__fid__approve_post,,Approve Topic Figure,Yes,200;422,No,Verified
+/api/research/topics/{tid}/figures/{fid}/attach-paper,POST,attach_figure_to_paper_api_research_topics__tid__figures__fid__attach_paper_post,,Attach Figure To Paper,Yes,200;422,No,Verified
+/api/research/topics/{tid}/figures/{fid}/export/{fmt},GET,export_topic_figure_api_research_topics__tid__figures__fid__export__fmt__get,,Export Topic Figure,No,200;422,No,Verified
+/api/opencode/status,GET,opencode_status_api_opencode_status_get,,Opencode Status,No,200,No,Verified
+/api/research/topics/{tid}/opencode/workspace,POST,ensure_opencode_workspace_api_research_topics__tid__opencode_workspace_post,,Ensure Opencode Workspace,Yes,200;422,No,Verified
+/api/research/topics/{tid}/opencode/sessions,GET,list_opencode_sessions_api_research_topics__tid__opencode_sessions_get,,List Opencode Sessions,No,200;422,No,Verified
+/api/research/topics/{tid}/opencode/sessions,POST,create_opencode_session_api_research_topics__tid__opencode_sessions_post,,Create Opencode Session,Yes,200;422,No,Verified
+/api/research/topics/{tid}/opencode/sessions/{sid},GET,get_opencode_session_api_research_topics__tid__opencode_sessions__sid__get,,Get Opencode Session,No,200;422,No,Verified
+/api/research/topics/{tid}/opencode/sessions/{sid}/events,POST,post_opencode_event_api_research_topics__tid__opencode_sessions__sid__events_post,,Post Opencode Event,Yes,200;422,No,Verified
+/api/research/topics/{tid}/opencode/sessions/{sid}/approvals,POST,request_opencode_approval_api_research_topics__tid__opencode_sessions__sid__approvals_post,,Request Opencode Approval,Yes,200;422,No,Verified
+/api/research/topics/{tid}/opencode/sessions/{sid}/approvals/{aid},POST,decide_opencode_approval_api_research_topics__tid__opencode_sessions__sid__approvals__aid__post,,Decide Opencode Approval,Yes,200;422,No,Verified
+/api/research/topics/{tid}/opencode/sessions/{sid}/cancel,POST,cancel_opencode_session_api_research_topics__tid__opencode_sessions__sid__cancel_post,,Cancel Opencode Session,No,200;422,No,Verified
+/api/research/topics/{tid}/opencode/sessions/{sid}/reconcile,POST,reconcile_opencode_session_api_research_topics__tid__opencode_sessions__sid__reconcile_post,,Reconcile Opencode Session,Yes,200;422,No,Verified
+/api/research/topics/{tid}/urap/artifacts,POST,api_register_topic_artifact_api_research_topics__tid__urap_artifacts_post,,Api Register Topic Artifact,Yes,200;422,No,Verified
+/api/research/topics/{tid}/urap/artifacts,GET,api_list_topic_urap_artifacts_api_research_topics__tid__urap_artifacts_get,,Api List Topic Urap Artifacts,No,200;422,No,Verified
+/api/research/topics/{tid}/artifacts-urap,POST,api_register_topic_artifact_api_research_topics__tid__artifacts_urap_post,,Api Register Topic Artifact,Yes,200;422,No,Verified
+/api/research/topics/{tid}/artifacts-urap,GET,api_list_topic_urap_artifacts_api_research_topics__tid__artifacts_urap_get,,Api List Topic Urap Artifacts,No,200;422,No,Verified
+/api/artifacts,POST,api_register_artifact_root_api_artifacts_post,,Api Register Artifact Root,Yes,200;422,No,Verified
+/api/artifacts,GET,api_list_artifacts_root_api_artifacts_get,,Api List Artifacts Root,No,200;422,No,Verified
+/api/artifacts/{aid},GET,api_get_artifact_api_artifacts__aid__get,,Api Get Artifact,No,200;422,No,Verified
+/api/artifacts/{aid}/lineage,GET,api_get_artifact_lineage_api_artifacts__aid__lineage_get,,Api Get Artifact Lineage,No,200;422,No,Verified
+/api/artifacts/{aid}/verify-integrity,POST,api_verify_artifact_integrity_api_artifacts__aid__verify_integrity_post,,Api Verify Artifact Integrity,No,200;422,No,Verified
+/api/missions/{mid}/trace,GET,api_get_mission_trace_api_missions__mid__trace_get,,Api Get Mission Trace,No,200;422,No,Verified
+/api/missions/{mid}/trace,POST,api_emit_mission_trace_api_missions__mid__trace_post,,Api Emit Mission Trace,Yes,200;422,No,Verified
+/api/research/topics/{tid}/missions/{mid}/trace,GET,api_get_topic_mission_trace_api_research_topics__tid__missions__mid__trace_get,,Api Get Topic Mission Trace,No,200;422,No,Verified
+/api/tasks/{task_id}/context-pack,POST,api_build_task_context_pack_api_tasks__task_id__context_pack_post,,Api Build Task Context Pack,Yes,200;422,No,Verified
+/api/tasks/{task_id}/context-pack,GET,api_get_task_context_pack_api_tasks__task_id__context_pack_get,,Api Get Task Context Pack,No,200;422,No,Verified
+/api/tasks/{task_id}/route-preview,POST,api_preview_task_route_api_tasks__task_id__route_preview_post,,Api Preview Task Route,Yes,200;422,No,Verified
+/api/missions/{mid}/reproducibility-export,POST,api_export_reproducibility_api_missions__mid__reproducibility_export_post,,Api Export Reproducibility,Yes,200;422,No,Verified
+/api/missions/{mid}/reproducibility-export/download,GET,api_download_reproducibility_api_missions__mid__reproducibility_export_download_get,,Api Download Reproducibility,No,200;422,No,Verified
+/api/missions/{mid}/reproducibility-replay,POST,api_replay_reproducibility_api_missions__mid__reproducibility_replay_post,,Api Replay Reproducibility,Yes,200;422,No,Verified
+/api/missions/{mid}/report-manifest,POST,api_compose_report_manifest_api_missions__mid__report_manifest_post,,Api Compose Report Manifest,Yes,200;422,No,Verified

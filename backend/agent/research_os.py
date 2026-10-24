@@ -154,11 +154,13 @@ def trip(c,m,key,reason):
 
 def gate(c,m,task=None):
     """Return a persistent blocking reason. Called again in the admission transaction."""
-    control=m["payload"]["spec"].get("control")
+    p=m.get("payload") or {}
+    spec=p.get("spec") or {}
+    control=spec.get("control")
     if not control:return ""
-    p=m["payload"];now=datetime.now(timezone.utc)
+    now=datetime.now(timezone.utc)
     if not enabled():return "Research OS is disabled"
-    if m["payload"]["spec"].get("team"):
+    if spec.get("team"):
         from backend.agent import teams
         if not teams.enabled():return "Team execution is disabled"
     from backend.agent import collaboration
@@ -171,6 +173,10 @@ def gate(c,m,task=None):
         row=c.execute("SELECT ch.payload,u.reasoning_calls,u.active_seconds FROM project_charters ch JOIN charter_usage u ON u.charter_id=ch.id WHERE ch.id=?",(control["charter_id"],)).fetchone()
         if not row:return "Charter unavailable"
         charter_spec=json.loads(row["payload"])
+        topic_goal=next(t for t in charter_spec["topics"] if t["topic_id"]==m["topic_id"])
+        for dependency in topic_goal["depends_on"]:
+            completed=c.execute("SELECT 1 FROM missions WHERE topic_id=? AND status='completed' AND json_extract(payload,'$.spec.control.charter_id')=? LIMIT 1",(dependency,control["charter_id"])).fetchone()
+            if not completed:return "Charter Topic dependency awaiting completed human review: "+dependency
         if row["active_seconds"]>=charter_spec["max_active_seconds"]:return "Aggregate charter time budget exhausted"
         if task and task.capability=="paper.compare" and row["reasoning_calls"]>=charter_spec["max_reasoning_calls"]:return "Aggregate charter reasoning budget exhausted"
     if task and task.capability=="paper.compare":
@@ -216,8 +222,8 @@ def report(tid,mid):
     if control.get("charter_id"):
         ch=charter(control["charter_id"])
         allowed={g["source_topic"] for g in ch["payload"]["retrieval"] if g["requester_topic"]==tid}
-        related=[{"topic_id":t,"title":S.get_topic(t)["title"],"papers":corpus.search(t)["papers"]} for t in sorted(allowed)]
-    bundle={"project_id":S.project_id(),"topic_id":tid,"mission":m,"related_topics":related,"papers":corpus.search(tid)["papers"],"experiments":protocols.runs(tid),"claims":governance.export_markdown(tid),"bibliography":corpus.bibliography(tid),"workspaces":workspaces.list_workspaces(tid),"audit":L.export(tid),"limitations":["Scientific review is independent of mission completion","Private native session visibility is partial; sync uses exposed files","Token/currency cost and remaining subscription quota are unknown unless the provider reports them","No paper draft or external dissemination is generated"]}
+        related=[{"topic_id":t,"title":S.get_topic(t)["title"],"papers":corpus.all_papers(t)} for t in sorted(allowed)]
+    bundle={"project_id":S.project_id(),"topic_id":tid,"mission":m,"related_topics":related,"papers":corpus.all_papers(tid),"experiments":protocols.runs(tid),"claims":governance.export_markdown(tid),"bibliography":corpus.bibliography(tid),"workspaces":workspaces.list_workspaces(tid),"audit":L.export(tid),"limitations":["Scientific review is independent of mission completion","Private native session visibility is partial; sync uses exposed files","Token/currency cost and remaining subscription quota are unknown unless the provider reports them","No paper draft or external dissemination is generated"]}
     return bundle
 
 

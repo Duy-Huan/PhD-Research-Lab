@@ -7,6 +7,11 @@ def lang() -> str:
     return "en" if (load_config().get("ui") or {}).get("language") == "en" else "vi"
 
 
+def ai_lang() -> str:
+    from backend.core.config import load_config
+    return (load_config().get("ui") or {}).get("ai_language") or "auto"
+
+
 def L(vi: str, en: str) -> str:
     """The Vietnamese or English variant of one message, by the researcher's interface language."""
     return en if lang() == "en" else vi

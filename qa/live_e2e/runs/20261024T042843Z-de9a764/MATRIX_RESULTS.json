@@ -1,0 +1,649 @@
+{
+  "run_id": "20261024T042843Z-de9a764",
+  "suite": "Live Production E2E Suite (LM Studio Phi-4)",
+  "total": 71,
+  "passed": 71,
+  "failed": 0,
+  "duration_seconds": 185.17522380000446,
+  "tests": [
+    {
+      "gate": "G01",
+      "suite": "test_local_phi4",
+      "id": "LOC-01",
+      "feature": "LM Studio Local Ping",
+      "test": "test_loc01_live_lmstudio_ping",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G01",
+      "suite": "test_local_phi4",
+      "id": "LOC-02",
+      "feature": "Non-stream Chat Completion",
+      "test": "test_loc02_local_chat_nonstream_completion",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G01",
+      "suite": "test_local_phi4",
+      "id": "LOC-03",
+      "feature": "Stream SSE Completion",
+      "test": "test_loc03_local_chat_stream_sse",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G01",
+      "suite": "test_local_phi4",
+      "id": "LOC-04",
+      "feature": "Multi-agent Role Critique",
+      "test": "test_loc04_multi_agent_role_critique",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G01",
+      "suite": "test_local_phi4",
+      "id": "LOC-05",
+      "feature": "Topic Context Separation",
+      "test": "test_loc05_topic_context_separation",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G01",
+      "suite": "test_local_phi4",
+      "id": "LOC-06",
+      "feature": "Session Restart Resumption",
+      "test": "test_loc06_session_restart_resumption",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G01",
+      "suite": "test_local_phi4",
+      "id": "LOC-07",
+      "feature": "Governed Mission Paper Compare",
+      "test": "test_loc07_paper_compare_in_approved_mission",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G01",
+      "suite": "test_local_phi4",
+      "id": "LOC-08",
+      "feature": "Policy Firewall Prompt Injection",
+      "test": "test_loc08_policy_firewall_blocks_injection",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G01",
+      "suite": "test_local_phi4",
+      "id": "LOC-09",
+      "feature": "Zero Paid Cloud Egress",
+      "test": "test_loc09_zero_paid_egress_enforced",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G01",
+      "suite": "test_local_phi4",
+      "id": "LOC-10",
+      "feature": "Model Outage Recovery",
+      "test": "test_loc10_local_model_outage_graceful_recovery",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G02",
+      "suite": "test_phdlab_only",
+      "id": "ST-01",
+      "feature": "Project Isolation",
+      "test": "test_st01_project_isolation",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G02",
+      "suite": "test_phdlab_only",
+      "id": "ST-02",
+      "feature": "Multi-turn Chat Reasoning",
+      "test": "test_st02_multi_turn_chat_with_phi4",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G02",
+      "suite": "test_phdlab_only",
+      "id": "ST-03",
+      "feature": "Corpus Ingestion",
+      "test": "test_st03_corpus_ingestion_and_indexing",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G02",
+      "suite": "test_phdlab_only",
+      "id": "ST-04",
+      "feature": "BibTeX Import & Deduplication",
+      "test": "test_st04_bibtex_import_and_deduplication",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G02",
+      "suite": "test_phdlab_only",
+      "id": "ST-05",
+      "feature": "Grounded Retrieval Citation",
+      "test": "test_st05_retrieval_augmented_grounding",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G02",
+      "suite": "test_phdlab_only",
+      "id": "ST-06",
+      "feature": "Decision Ledger Tamper Audit",
+      "test": "test_st06_decision_ledger_cryptographic_verification",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G02",
+      "suite": "test_phdlab_only",
+      "id": "ST-07",
+      "feature": "Full Governed Mission Lifecycle",
+      "test": "test_st07_charter_mission_approval_execution_review_lifecycle",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G02",
+      "suite": "test_phdlab_only",
+      "id": "ST-08",
+      "feature": "Subprocess Python Sandbox",
+      "test": "test_st08_code_execution_subprocess_sandbox",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G02",
+      "suite": "test_phdlab_only",
+      "id": "ST-09",
+      "feature": "CPU Denoising Benchmark",
+      "test": "test_st09_scientific_benchmark_recalculation",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G02",
+      "suite": "test_phdlab_only",
+      "id": "ST-10",
+      "feature": "Note & Synthesis Generation",
+      "test": "test_st10_note_and_report_generation",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G02",
+      "suite": "test_phdlab_only",
+      "id": "ST-11",
+      "feature": "Workspace File Link Parity",
+      "test": "test_st11_workspace_file_link",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G02",
+      "suite": "test_phdlab_only",
+      "id": "ST-12",
+      "feature": "Honest Offline Refusal",
+      "test": "test_st12_offline_capabilities_honest_reporting",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G02",
+      "suite": "test_phdlab_only",
+      "id": "ST-13",
+      "feature": "Project Context Switch",
+      "test": "test_st13_project_switching_preserves_state",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G02",
+      "suite": "test_phdlab_only",
+      "id": "ST-14",
+      "feature": "ClearML Local Offline Safety",
+      "test": "test_st14_clearml_offline_safety",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G02",
+      "suite": "test_phdlab_only",
+      "id": "ST-15",
+      "feature": "Event Bus Stream Recovery",
+      "test": "test_st15_event_bus_delivery_and_since_recovery",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G02",
+      "suite": "test_phdlab_only",
+      "id": "ST-16",
+      "feature": "Archive Export Integrity",
+      "test": "test_st16_export_bundle_integrity",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G03",
+      "suite": "test_real_mission_modes",
+      "id": "MM-01",
+      "feature": "Single Team Mode",
+      "test": "test_mode01_single_team_lifecycle",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G03",
+      "suite": "test_real_mission_modes",
+      "id": "MM-02",
+      "feature": "Fixed Team Mode",
+      "test": "test_mode02_fixed_team_lifecycle",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G03",
+      "suite": "test_real_mission_modes",
+      "id": "MM-03",
+      "feature": "Adaptive Team Mode",
+      "test": "test_mode03_adaptive_team_lifecycle",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G03",
+      "suite": "test_real_mission_modes",
+      "id": "MM-04",
+      "feature": "Multi-workstream Partition",
+      "test": "test_mode04_multi_workstream_partition",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G03",
+      "suite": "test_real_mission_modes",
+      "id": "MM-05",
+      "feature": "DAG Cyclic Rejection",
+      "test": "test_mode05_dag_cycle_rejection",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G03",
+      "suite": "test_real_mission_modes",
+      "id": "MM-06",
+      "feature": "Stale Plan Digest Rejection",
+      "test": "test_mode06_stale_plan_digest_rejected",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G03",
+      "suite": "test_real_mission_modes",
+      "id": "MM-07",
+      "feature": "Reasoning Budget Cap",
+      "test": "test_mode07_reasoning_budget_limits",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G03",
+      "suite": "test_real_mission_modes",
+      "id": "MM-08",
+      "feature": "Crash Recovery Moment 1",
+      "test": "test_mode08_checkpoint_recovery_moment1",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G03",
+      "suite": "test_real_mission_modes",
+      "id": "MM-09",
+      "feature": "Crash Recovery Moment 5",
+      "test": "test_mode09_checkpoint_recovery_moment5",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G04",
+      "suite": "test_provider_cli",
+      "id": "CLI-01",
+      "feature": "CLI Provider Contracts",
+      "test": "test_cli_01_all_registered_providers_have_valid_contracts",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G04",
+      "suite": "test_provider_cli",
+      "id": "CLI-02",
+      "feature": "Codex Inspection",
+      "test": "test_cli_02_codex_inspection",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G04",
+      "suite": "test_provider_cli",
+      "id": "CLI-03",
+      "feature": "Claude Code Inspection",
+      "test": "test_cli_03_claude_code_inspection",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G04",
+      "suite": "test_provider_cli",
+      "id": "CLI-04",
+      "feature": "Antigravity Inspection",
+      "test": "test_cli_04_antigravity_inspection",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G04",
+      "suite": "test_provider_cli",
+      "id": "CLI-05",
+      "feature": "Gemini CLI Inspection",
+      "test": "test_cli_05_gemini_cli_inspection",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G04",
+      "suite": "test_provider_cli",
+      "id": "CLI-06",
+      "feature": "Workspace Isolation",
+      "test": "test_cli_06_workspace_isolation",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G04",
+      "suite": "test_provider_cli",
+      "id": "CLI-07",
+      "feature": "Read-only Probe",
+      "test": "test_cli_07_read_only_probe",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G05",
+      "suite": "test_provider_cloud",
+      "id": "CLD-01",
+      "feature": "Cloud Provider Specs",
+      "test": "test_cld01_cloud_provider_specifications",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G05",
+      "suite": "test_provider_cloud",
+      "id": "CLD-02",
+      "feature": "Unauthenticated Error Raising",
+      "test": "test_cld02_unauthenticated_cloud_provider_raises_error",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G05",
+      "suite": "test_provider_cloud",
+      "id": "CLD-03",
+      "feature": "Billing Denied Invariant",
+      "test": "test_cld03_allow_api_billing_false_blocks_spend",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G06",
+      "suite": "test_mcp_server",
+      "id": "MCP-01",
+      "feature": "MCP Initialize Protocol",
+      "test": "test_mcp_01_initialize_protocol",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G06",
+      "suite": "test_mcp_server",
+      "id": "MCP-02",
+      "feature": "MCP Tools List",
+      "test": "test_mcp_02_tools_list",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G06",
+      "suite": "test_mcp_server",
+      "id": "MCP-03",
+      "feature": "MCP Tools Call",
+      "test": "test_mcp_03_tools_call_execute",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G06",
+      "suite": "test_mcp_server",
+      "id": "MCP-04",
+      "feature": "MCP Origin Security Guard",
+      "test": "test_mcp_04_origin_security_guard",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G07",
+      "suite": "test_mcp_inference",
+      "id": "MCP-05",
+      "feature": "MCP Client Phi-4 Tool Call",
+      "test": "test_mcp_agent_local_inference_live",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G08",
+      "suite": "test_coding_research_engines",
+      "id": "ENG-01",
+      "feature": "Python Subprocess SHA Verification",
+      "test": "test_python_subprocess_sandbox_sha_verification",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G08",
+      "suite": "test_coding_research_engines",
+      "id": "ENG-02",
+      "feature": "OpenCode / Feynman / OpenScience Health",
+      "test": "test_research_engines_registry_health",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G08",
+      "suite": "test_coding_research_engines",
+      "id": "ENG-03",
+      "feature": "ClearML Offline Safety Directory",
+      "test": "test_clearml_offline_safety_directory",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G09",
+      "suite": "test_live_failure_recovery",
+      "id": "F-01",
+      "feature": "Admission Crash Recovery",
+      "test": "test_f01_task_admission_recovery",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G09",
+      "suite": "test_live_failure_recovery",
+      "id": "F-02",
+      "feature": "Model Server Unreachable",
+      "test": "test_f02_model_server_unreachable_raises",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G09",
+      "suite": "test_live_failure_recovery",
+      "id": "F-05",
+      "feature": "Checksum Tampering Detected",
+      "test": "test_f05_artifact_checksum_tampering_detected",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G09",
+      "suite": "test_live_failure_recovery",
+      "id": "F-06",
+      "feature": "Idempotency Reuse Rejected",
+      "test": "test_f06_idempotency_key_reuse_rejected",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G09",
+      "suite": "test_live_failure_recovery",
+      "id": "F-07",
+      "feature": "Topic 404 Access Denied",
+      "test": "test_f07_cross_topic_unauthorized_access_denied",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G09",
+      "suite": "test_live_failure_recovery",
+      "id": "F-08",
+      "feature": "Stale Digest Rejected",
+      "test": "test_f08_stale_mission_digest_rejected",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G09",
+      "suite": "test_live_failure_recovery",
+      "id": "F-09",
+      "feature": "Policy Prompt Injection Block",
+      "test": "test_f09_policy_risk_blocks_execution",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G09",
+      "suite": "test_live_failure_recovery",
+      "id": "F-10",
+      "feature": "SSE Cursor Deduplication",
+      "test": "test_f10_sse_duplicate_filtering",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G09",
+      "suite": "test_live_failure_recovery",
+      "id": "F-11",
+      "feature": "SQLite Transaction Resilience",
+      "test": "test_f11_sqlite_concurrent_transaction_resilience",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G09",
+      "suite": "test_live_failure_recovery",
+      "id": "F-13",
+      "feature": "ResourceGuard Concurrency Cap",
+      "test": "test_f13_resource_guard_slot_caps",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G09",
+      "suite": "test_live_failure_recovery",
+      "id": "F-16",
+      "feature": "Fabricated DOI Rejection",
+      "test": "test_f16_fabricated_doi_rejected",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G09",
+      "suite": "test_live_failure_recovery",
+      "id": "F-17",
+      "feature": "Tool Grant Revocation",
+      "test": "test_f17_tool_grant_revocation",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G09",
+      "suite": "test_live_failure_recovery",
+      "id": "F-18",
+      "feature": "Sandbox Traversal Blocked",
+      "test": "test_f18_sandbox_traversal_blocked",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G10",
+      "suite": "test_full_stack_browser",
+      "id": "FS-01",
+      "feature": "Project List & Active Parity",
+      "test": "test_fs01_project_list_and_active",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G10",
+      "suite": "test_full_stack_browser",
+      "id": "FS-02",
+      "feature": "System Settings Parity",
+      "test": "test_fs02_system_settings_parity",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G10",
+      "suite": "test_full_stack_browser",
+      "id": "FS-03",
+      "feature": "Event Bus SSE Parity",
+      "test": "test_fs03_event_bus_sse_parity",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G10",
+      "suite": "test_full_stack_browser",
+      "id": "FS-04",
+      "feature": "Provider Auth Status & Login CMD",
+      "test": "test_fs04_provider_auth_status_parity",
+      "status": "PASS",
+      "duration_s": "2.608"
+    },
+    {
+      "gate": "G10",
+      "suite": "test_full_stack_browser",
+      "id": "FS-05",
+      "feature": "Library Paper Endpoint",
+      "test": "test_fs05_library_papers_endpoint",
+      "status": "PASS",
+      "duration_s": "2.608"
+    }
+  ]
+}

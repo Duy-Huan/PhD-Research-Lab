@@ -1,0 +1,72 @@
+Gate,Suite,Test ID,Feature Description,Test Function,Status,Est Duration (s)
+G01,test_local_phi4,LOC-01,LM Studio Local Ping,test_loc01_live_lmstudio_ping,PASS,2.926
+G01,test_local_phi4,LOC-02,Non-stream Chat Completion,test_loc02_local_chat_nonstream_completion,PASS,2.926
+G01,test_local_phi4,LOC-03,Stream SSE Completion,test_loc03_local_chat_stream_sse,PASS,2.926
+G01,test_local_phi4,LOC-04,Multi-agent Role Critique,test_loc04_multi_agent_role_critique,PASS,2.926
+G01,test_local_phi4,LOC-05,Topic Context Separation,test_loc05_topic_context_separation,PASS,2.926
+G01,test_local_phi4,LOC-06,Session Restart Resumption,test_loc06_session_restart_resumption,PASS,2.926
+G01,test_local_phi4,LOC-07,Governed Mission Paper Compare,test_loc07_paper_compare_in_approved_mission,PASS,2.926
+G01,test_local_phi4,LOC-08,Policy Firewall Prompt Injection,test_loc08_policy_firewall_blocks_injection,PASS,2.926
+G01,test_local_phi4,LOC-09,Zero Paid Cloud Egress,test_loc09_zero_paid_egress_enforced,PASS,2.926
+G01,test_local_phi4,LOC-10,Model Outage Recovery,test_loc10_local_model_outage_graceful_recovery,PASS,2.926
+G02,test_phdlab_only,ST-01,Project Isolation,test_st01_project_isolation,PASS,2.926
+G02,test_phdlab_only,ST-02,Multi-turn Chat Reasoning,test_st02_multi_turn_chat_with_phi4,PASS,2.926
+G02,test_phdlab_only,ST-03,Corpus Ingestion,test_st03_corpus_ingestion_and_indexing,PASS,2.926
+G02,test_phdlab_only,ST-04,BibTeX Import & Deduplication,test_st04_bibtex_import_and_deduplication,PASS,2.926
+G02,test_phdlab_only,ST-05,Grounded Retrieval Citation,test_st05_retrieval_augmented_grounding,PASS,2.926
+G02,test_phdlab_only,ST-06,Decision Ledger Tamper Audit,test_st06_decision_ledger_cryptographic_verification,PASS,2.926
+G02,test_phdlab_only,ST-07,Full Governed Mission Lifecycle,test_st07_charter_mission_approval_execution_review_lifecycle,PASS,2.926
+G02,test_phdlab_only,ST-08,Subprocess Python Sandbox,test_st08_code_execution_subprocess_sandbox,PASS,2.926
+G02,test_phdlab_only,ST-09,CPU Denoising Benchmark,test_st09_scientific_benchmark_recalculation,PASS,2.926
+G02,test_phdlab_only,ST-10,Note & Synthesis Generation,test_st10_note_and_report_generation,PASS,2.926
+G02,test_phdlab_only,ST-11,Workspace File Link Parity,test_st11_workspace_file_link,PASS,2.926
+G02,test_phdlab_only,ST-12,Honest Offline Refusal,test_st12_offline_capabilities_honest_reporting,PASS,2.926
+G02,test_phdlab_only,ST-13,Project Context Switch,test_st13_project_switching_preserves_state,PASS,2.926
+G02,test_phdlab_only,ST-14,ClearML Local Offline Safety,test_st14_clearml_offline_safety,PASS,2.926
+G02,test_phdlab_only,ST-15,Event Bus Stream Recovery,test_st15_event_bus_delivery_and_since_recovery,PASS,2.926
+G02,test_phdlab_only,ST-16,Archive Export Integrity,test_st16_export_bundle_integrity,PASS,2.926
+G03,test_real_mission_modes,MM-01,Single Team Mode,test_mode01_single_team_lifecycle,PASS,2.926
+G03,test_real_mission_modes,MM-02,Fixed Team Mode,test_mode02_fixed_team_lifecycle,PASS,2.926
+G03,test_real_mission_modes,MM-03,Adaptive Team Mode,test_mode03_adaptive_team_lifecycle,PASS,2.926
+G03,test_real_mission_modes,MM-04,Multi-workstream Partition,test_mode04_multi_workstream_partition,PASS,2.926
+G03,test_real_mission_modes,MM-05,DAG Cyclic Rejection,test_mode05_dag_cycle_rejection,PASS,2.926
+G03,test_real_mission_modes,MM-06,Stale Plan Digest Rejection,test_mode06_stale_plan_digest_rejected,PASS,2.926
+G03,test_real_mission_modes,MM-07,Reasoning Budget Cap,test_mode07_reasoning_budget_limits,PASS,2.926
+G03,test_real_mission_modes,MM-08,Crash Recovery Moment 1,test_mode08_checkpoint_recovery_moment1,PASS,2.926
+G03,test_real_mission_modes,MM-09,Crash Recovery Moment 5,test_mode09_checkpoint_recovery_moment5,PASS,2.926
+G04,test_provider_cli,CLI-01,CLI Provider Contracts,test_cli_01_all_registered_providers_have_valid_contracts,PASS,2.926
+G04,test_provider_cli,CLI-02,Codex Inspection,test_cli_02_codex_inspection,PASS,2.926
+G04,test_provider_cli,CLI-03,Claude Code Inspection,test_cli_03_claude_code_inspection,PASS,2.926
+G04,test_provider_cli,CLI-04,Antigravity Inspection,test_cli_04_antigravity_inspection,PASS,2.926
+G04,test_provider_cli,CLI-05,Gemini CLI Inspection,test_cli_05_gemini_cli_inspection,PASS,2.926
+G04,test_provider_cli,CLI-06,Workspace Isolation,test_cli_06_workspace_isolation,PASS,2.926
+G04,test_provider_cli,CLI-07,Read-only Probe,test_cli_07_read_only_probe,PASS,2.926
+G05,test_provider_cloud,CLD-01,Cloud Provider Specs,test_cld01_cloud_provider_specifications,PASS,2.926
+G05,test_provider_cloud,CLD-02,Unauthenticated Error Raising,test_cld02_unauthenticated_cloud_provider_raises_error,PASS,2.926
+G05,test_provider_cloud,CLD-03,Billing Denied Invariant,test_cld03_allow_api_billing_false_blocks_spend,PASS,2.926
+G06,test_mcp_server,MCP-01,MCP Initialize Protocol,test_mcp_01_initialize_protocol,PASS,2.926
+G06,test_mcp_server,MCP-02,MCP Tools List,test_mcp_02_tools_list,PASS,2.926
+G06,test_mcp_server,MCP-03,MCP Tools Call,test_mcp_03_tools_call_execute,PASS,2.926
+G06,test_mcp_server,MCP-04,MCP Origin Security Guard,test_mcp_04_origin_security_guard,PASS,2.926
+G07,test_mcp_inference,MCP-05,MCP Client Phi-4 Tool Call,test_mcp_agent_local_inference_live,PASS,2.926
+G08,test_coding_research_engines,ENG-01,Python Subprocess SHA Verification,test_python_subprocess_sandbox_sha_verification,PASS,2.926
+G08,test_coding_research_engines,ENG-02,OpenCode / Feynman / OpenScience Health,test_research_engines_registry_health,PASS,2.926
+G08,test_coding_research_engines,ENG-03,ClearML Offline Safety Directory,test_clearml_offline_safety_directory,PASS,2.926
+G09,test_live_failure_recovery,F-01,Admission Crash Recovery,test_f01_task_admission_recovery,PASS,2.926
+G09,test_live_failure_recovery,F-02,Model Server Unreachable,test_f02_model_server_unreachable_raises,PASS,2.926
+G09,test_live_failure_recovery,F-05,Checksum Tampering Detected,test_f05_artifact_checksum_tampering_detected,PASS,2.926
+G09,test_live_failure_recovery,F-06,Idempotency Reuse Rejected,test_f06_idempotency_key_reuse_rejected,PASS,2.926
+G09,test_live_failure_recovery,F-07,Topic 404 Access Denied,test_f07_cross_topic_unauthorized_access_denied,PASS,2.926
+G09,test_live_failure_recovery,F-08,Stale Digest Rejected,test_f08_stale_mission_digest_rejected,PASS,2.926
+G09,test_live_failure_recovery,F-09,Policy Prompt Injection Block,test_f09_policy_risk_blocks_execution,PASS,2.926
+G09,test_live_failure_recovery,F-10,SSE Cursor Deduplication,test_f10_sse_duplicate_filtering,PASS,2.926
+G09,test_live_failure_recovery,F-11,SQLite Transaction Resilience,test_f11_sqlite_concurrent_transaction_resilience,PASS,2.926
+G09,test_live_failure_recovery,F-13,ResourceGuard Concurrency Cap,test_f13_resource_guard_slot_caps,PASS,2.926
+G09,test_live_failure_recovery,F-16,Fabricated DOI Rejection,test_f16_fabricated_doi_rejected,PASS,2.926
+G09,test_live_failure_recovery,F-17,Tool Grant Revocation,test_f17_tool_grant_revocation,PASS,2.926
+G09,test_live_failure_recovery,F-18,Sandbox Traversal Blocked,test_f18_sandbox_traversal_blocked,PASS,2.926
+G10,test_full_stack_browser,FS-01,Project List & Active Parity,test_fs01_project_list_and_active,PASS,2.926
+G10,test_full_stack_browser,FS-02,System Settings Parity,test_fs02_system_settings_parity,PASS,2.926
+G10,test_full_stack_browser,FS-03,Event Bus SSE Parity,test_fs03_event_bus_sse_parity,PASS,2.926
+G10,test_full_stack_browser,FS-04,Provider Auth Status & Login CMD,test_fs04_provider_auth_status_parity,PASS,2.926
+G10,test_full_stack_browser,FS-05,Library Paper Endpoint,test_fs05_library_papers_endpoint,PASS,2.926

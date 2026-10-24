@@ -1,0 +1,37 @@
+{
+  "tests": 664,
+  "failures": 0,
+  "errors": 0,
+  "skipped": [
+    {
+      "test": "test_inner_symlink_is_allowed (test_cli_workspace.Paths.test_inner_symlink_is_allowed)",
+      "reason": "symlinks need developer mode / admin on Windows"
+    },
+    {
+      "test": "test_symlink_escape_is_refused (test_cli_workspace.Paths.test_symlink_escape_is_refused)",
+      "reason": "symlinks need developer mode / admin on Windows"
+    },
+    {
+      "test": "test_create_log_read (test_live_integrations.ClearMLLive.test_create_log_read)",
+      "reason": "set PHDLAB_CLEARML_LIVE=1 to run against a real ClearML server"
+    },
+    {
+      "test": "test_read_only_run (test_live_integrations.CodexLive.test_read_only_run)",
+      "reason": "set PHDLAB_CODEX_LIVE=1 to run one real read-only Codex task"
+    },
+    {
+      "test": "test_real_sdk_through_adapter_with_bounded_socket_fixture (test_research_engines.OfficialSDKSocket.test_real_sdk_through_adapter_with_bounded_socket_fixture)",
+      "reason": "Optional official SDK not installed; run with audited SDK source on PYTHONPATH"
+    },
+    {
+      "test": "test_workspace_paths_symlinks_missing_cli_no_model (test_research_workspace.ResearchWorkspace.test_workspace_paths_symlinks_missing_cli_no_model)",
+      "reason": "Symlink creation needs Windows Developer Mode/admin; traversal and overlap checks executed"
+    },
+    {
+      "test": "test_real_gate_and_manual_unload (test_vram_gate.LMStudioLive.test_real_gate_and_manual_unload)",
+      "reason": "set PHDLAB_LMSTUDIO_LIVE=1 (+ optional PHDLAB_LMSTUDIO_MODEL) to load/unload a real LM Studio model"
+    }
+  ],
+  "seconds": 386.0859308000072,
+  "passed": true
+}

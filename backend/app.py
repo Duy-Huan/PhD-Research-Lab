@@ -97,7 +97,9 @@ async def no_code_project_handler(_, exc: NoCodeProject):
 
 def _page() -> Response:
     """The page links its assets with ?v=<version> so a browser never mixes files from two versions."""
-    html = (FRONTEND / "index.html").read_text("utf-8")
+    dist_html = FRONTEND / "dist" / "index.html"
+    target = dist_html if dist_html.is_file() else (FRONTEND / "react.html")
+    html = target.read_text("utf-8")
     html = re.sub(r'((?:src|href)="/assets/[\w./-]+)"', lambda m: f'{m.group(1)}?v={APP_VERSION}"', html)
     return Response(html, media_type="text/html; charset=utf-8", headers={"Cache-Control": "no-cache, must-revalidate"})
 
@@ -118,7 +120,7 @@ class _NoStaleUI:
         self.inner = inner
 
     async def __call__(self, scope, receive, send):
-        if scope["type"] != "http" or not scope["path"].startswith("/assets/"):
+        if scope["type"] != "http" or not (scope["path"].startswith("/assets/") or scope["path"].startswith("/dist/")):
             return await self.inner(scope, receive, send)
 
         async def snd(msg):
@@ -169,6 +171,8 @@ class _LocalHostOnly:
 
 for _r in ROUTERS:
     app.include_router(_r)
+(FRONTEND / "dist").mkdir(parents=True, exist_ok=True)
+app.mount("/dist", StaticFiles(directory=str(FRONTEND / "dist")), name="dist")
 app.mount("/assets", StaticFiles(directory=str(FRONTEND / "assets")), name="assets")
 app.mount("/vendor", StaticFiles(directory=str(FRONTEND / "vendor")), name="vendor")  # offline UI libraries
 app.mount("/img", StaticFiles(directory=str(FRONTEND / "img")), name="img")

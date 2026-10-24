@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "6.3.0-preview.1"
+APP_VERSION = "6.4.2"
 
 ROOT = Path(__file__).resolve().parents[2]
 # PHDLAB_DATA_DIR (v3.2) moves ALL user data elsewhere — used by the test suite so it never touches the real data/.
@@ -90,6 +90,7 @@ PROVIDERS = {
 # "local", "ollama" or a provider id. What an agent does is decided by the SKILL it runs (backend/agent/skills/*.md),
 # not by a separate agent per tool.
 AGENTS = {
+    "assistant": {"label": "Trợ lý chat — hội thoại thường ngày, độc lập với agent nghiên cứu", "default": "auto"},
     "research": {"label": "Research agent — điều phối, nghiên cứu, thiết kế, code, viết bài", "default": "auto"},
     "reviewer": {"label": "Reviewer agent — phản biện, kiểm chứng claim / evidence", "default": "claude"},
     "utility":  {"label": "Tiện ích chạy nền — tóm tắt bộ nhớ, trích xuất PDF/BibTeX, truy vấn tìm kiếm", "default": "auto"},
@@ -116,7 +117,7 @@ BACKGROUND_AGENTS = frozenset({"utility", "summarizer", "critic", "pdf_parser", 
 
 # v3.2: task kind of every agent for the "auto" engine mode (backend/llm_router.py)
 AGENT_TASK_KIND = {
-    "research": "reasoning", "reviewer": "reasoning", "utility": "extract",
+    "assistant": "reasoning", "research": "reasoning", "reviewer": "reasoning", "utility": "extract",
     "data_extractor": "extract", "query_expansion": "extract", "web_query": "extract", "coder": "code",
     "lit2plan": "reasoning", "experiment": "reasoning", "author": "writing", "reviewer": "reasoning", "editor": "writing",
     "context_agent": "reasoning", "results_analyst": "reasoning", "masterclass": "writing",
@@ -228,40 +229,56 @@ DEFAULTS["research_providers"] = {
     "feynman_share_app_key": False,   # let Feynman use the app's Anthropic / OpenAI key (billed to that API account)
     "feynman_timeout_s": 1800,
     "coding_default": "claude_code",  # claude_code | codex | gemini_cli | antigravity | app
-    "engine_mode": "auto", "engine_priority": ["feynman", "openscience"],
+    "engine_mode": "auto", "engine_priority": ["feynman", "openscience", "opencode"],
 }
 DEFAULTS["openscience"] = {
     "enabled": False, "base_url": "http://127.0.0.1:4096", "token": "", "timeout_s": 600,
     "request_timeout_s": 3.0, "max_artifact_mb": 64, "max_artifacts": 32, "allow_execution": False,
     "policy_confirmed": False, "qualified_tasks": [], "model_provider": "", "model_id": "",
 }
-# v5.1 interface language (UI strings + the language the agents answer in) and the reading font of answers
-DEFAULTS["ui"] = {"language": "vi", "prose_font": "sans", "paper_explorer_v2": True, "discovery_inbox": True,
+DEFAULTS["opencode"] = {
+    "enabled": True, "base_url": "http://127.0.0.1:4097", "allow_metered_api": False,
+    "timeout_s": 600, "workspace_mode": "topic_isolated",
+}
+# v5.1 interface language (UI strings) and AI response language
+DEFAULTS["ui"] = {"language": "vi", "ai_language": "auto", "prose_font": "sans", "paper_explorer_v2": True, "discovery_inbox": True,
                   "contextual_actions": True, "topic_scheduler_ui": True}
+DEFAULTS["mcp_agent"] = {"enabled": False, "url": "http://127.0.0.1:8766/mcp", "token": "",
+                         "tool": "research", "models": [], "timeout_s": 120}
 DEFAULTS["research_os"] = {"enabled":False,"team_enabled":False,"multi_team_enabled":False}
 # v5.1 automatic venue ranking: CORE conference ranks are downloaded (refreshed after refresh_days); SCImago journal
 # exports cannot be fetched automatically (bot protection), so a scimagojr*.csv saved in Downloads is imported by itself.
 DEFAULTS["ranking"] = {"auto": True, "core_source": "ICORE2026", "watch_downloads": True, "refresh_days": 30}
 SECTIONS_V32 = ("runs", "research_providers", "memory", "resources", "clearml", "codex", "workspace", "routing", "provenance",
-                "gateway", "mcp", "lifecycle", "aiws", "ui", "ranking", "openscience", "research_os")
+                "gateway", "mcp", "lifecycle", "aiws", "ui", "ranking", "openscience", "opencode", "research_os", "mcp_agent")
 LIFECYCLE_POLICIES = ("unload_after_task", "keep_loaded", "idle_unload")
-SECRET_FIELDS = {"mcp": ("token",), "openscience": ("token",)}
+SECRET_FIELDS = {"mcp": ("token",), "openscience": ("token",), "mcp_agent": ("token",)}
 CHOICES = {("research_providers", "coding_default"): ("claude_code", "codex", "gemini_cli", "antigravity", "app"),
-           ("research_providers", "engine_mode"): ("auto", "feynman", "openscience", "collaborative"),
+           ("research_providers", "engine_mode"): ("auto", "feynman", "openscience", "opencode", "collaborative", "phdlab"),
            ("codex", "sandbox"): ("read-only", "workspace-write"),
            ("codex", "windows_sandbox"): ("unelevated", "elevated", "config"),
            ("memory", "embed_engine"): ("auto", "ollama", "hashing"), ("gateway", "cli_profile"): ("review", "assisted"),
            ("aiws", "operating_mode"): ("automation", "manual"), ("aiws", "context_mode"): ("none", "selected", "relevant", "expanded"),
            ("aiws", "memory_mode"): ("off", "manual", "suggest", "auto"), ("aiws", "security_profile"): ("review", "assisted"),
            ("aiws", "reasoning"): ("auto", "off", "low", "medium", "high"),
-           ("ui", "language"): ("vi", "en"), ("ui", "prose_font"): ("sans", "serif"),
+           ("ui", "language"): ("vi", "en"), ("ui", "ai_language"): ("auto", "vi", "en", "bilingual"),
+           ("ui", "prose_font"): (
+               "sans", "serif", "source-serif", "latex", "merriweather", "lora",
+               "garamond", "times", "charter", "inter", "roboto", "mono", "fira"
+           ),
            **{("lifecycle", k): LIFECYCLE_POLICIES for k in ("local_background", "local_interactive", "cli", "mcp", "cloud")}}
 
 _lock = threading.Lock()
 
 
+CLI_PROVIDERS = ("codex", "claude_code", "gemini_cli", "antigravity", "chatgpt_sub")
+
+
 def _valid_mode(m: str) -> bool:
-    return m in ("cloud", "local", "claude", "ollama", "auto") or m in PROVIDERS
+    if not isinstance(m, str):
+        return False
+    clean = m.removeprefix("cli:").removeprefix("app:")
+    return clean in ("cloud", "local", "claude", "ollama", "auto", "mcp", *CLI_PROVIDERS) or clean in PROVIDERS
 
 
 def _coerce(default, val):
@@ -294,6 +311,16 @@ def _merge_section(sec: str, target: dict, patch: dict, masked_ok: bool) -> None
         if allowed and v not in allowed:
             v = DEFAULTS[sec][f]
         target[f] = v
+    if sec == "mcp_agent":
+        from backend.providers.mcp_agent import endpoint
+        if target["url"] or target["enabled"]:
+            endpoint(target["url"])
+        if not re.fullmatch(r"[A-Za-z0-9_.:-]{1,128}", target["tool"]):
+            raise ValueError("MCP inference tool must have a valid name")
+        if len(target["models"]) > 500 or any(not isinstance(m, str) or not m.strip() or len(m) > 256 for m in target["models"]):
+            raise ValueError("MCP catalog must contain at most 500 nonempty model IDs")
+        target["models"] = list(dict.fromkeys(m.strip() for m in target["models"]))
+        target["timeout_s"] = max(5, min(600, target["timeout_s"]))
 
 
 def load_config() -> dict:
@@ -326,7 +353,12 @@ def load_config() -> dict:
                                if a in AGENTS and _valid_mode(m)})
     for sec in SECTIONS_V32:
         if isinstance(saved.get(sec), dict):
-            _merge_section(sec, cfg[sec], saved[sec], masked_ok=False)
+            try:
+                _merge_section(sec, cfg[sec], saved[sec], masked_ok=False)
+            except ValueError:
+                if sec != "mcp_agent":
+                    raise
+                cfg[sec] = deepcopy(DEFAULTS[sec])  # malformed manual config disables this optional adapter
     cfg["agent_models"].update({a: str(m) for a, m in (saved.get("agent_models") or {}).items() if a in AGENTS and m})
     cfg["search"].update({k: v for k, v in (saved.get("search") or {}).items() if k in SEARCH_DEFAULTS})
     if cfg["default_cloud"] not in PROVIDERS:
@@ -349,9 +381,16 @@ def _write_config(cfg: dict) -> None:
 def save_config(patch: dict) -> dict:
     with _lock:
         cfg = load_config()
-        for k, v in patch.items():
+        def source(a):
+            mode = cfg["agent_modes"][a]
+            return ("anthropic" if cfg["providers"]["anthropic"].get("api_key") else cfg["default_cloud"]) if mode == "claude" else cfg["default_cloud"] if mode == "cloud" else mode
+        previous_sources = {a: source(a) for a in AGENTS}
+        for k, v in sorted(patch.items(), key=lambda item: item[0] != "agent_modes"):
             if k == "agent_modes" and isinstance(v, dict):
-                cfg["agent_modes"].update({a: m for a, m in v.items() if a in AGENTS and _valid_mode(m)})
+                for a, m in v.items():
+                    if a in AGENTS and _valid_mode(m) and cfg["agent_modes"].get(a) != m:
+                        cfg["agent_modes"][a] = m
+                        cfg["agent_models"].pop(a, None)
             elif k == "providers" and isinstance(v, dict):
                 for pid, p in v.items():
                     if pid not in PROVIDERS or not isinstance(p, dict):
@@ -408,6 +447,9 @@ def save_config(patch: dict) -> dict:
                         sc[f] = bool(val)
                     elif f == "mailto":
                         sc[f] = str(val).strip()[:120]
+        for a in AGENTS:
+            if previous_sources[a] != source(a) and a not in (patch.get("agent_models") or {}):
+                cfg["agent_models"].pop(a, None)
         _write_config(cfg)
         return cfg
 

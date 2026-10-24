@@ -1,0 +1,17 @@
+...................................................................................................................s...s...................................................................................EOF marker not found
+............................................................ss..........................................................................................................................................................................................s..............................s.......................................................................EOF marker not found
+EOF marker not found
+....................................................................................s.....................
+----------------------------------------------------------------------
+Ran 660 tests in 403.882s
+
+OK (skipped=7)
+[memory] config.json is not valid JSON � kept a copy as config.json.corrupt-20261022T123945
+[memory] run.json is not valid JSON � kept a copy as run.json.corrupt-20261022T123956
+[memory] run.json is not valid JSON � kept a copy as run.json.corrupt-20261022T124058
+[memory] index.json is not valid JSON � kept a copy as index.json.corrupt-20261022T124122
+[memory] library.json is not valid JSON � kept a copy as library.json.corrupt-20261022T124123
+[memory] shared_context.json is not valid JSON � kept a copy as shared_context.json.corrupt-20261022T124124
+[memory] shared_context.json is not valid JSON � kept a copy as shared_context.json.corrupt-20261022T124136
+[memory] research.json is not valid JSON � kept a copy as research.json.corrupt-20261022T124139
+[memory] context_graph.json is not valid JSON � kept a copy as context_graph.json.corrupt-20261022T124233

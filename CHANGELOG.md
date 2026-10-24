@@ -1,5 +1,24 @@
 # Changelog
 
+## Frontend workflow and model resources — 2026-10-22
+
+- Scoped agent model lists to the selected API/local/MCP source; reset overrides atomically when the source changes, preserve custom model controls on refresh, expose API base URLs and local/cloud fallback policy, retain entered keys after failed saves.
+- Added an opt-in HTTP MCP inference-tool adapter with schema/session/protocol checks, bounded JSON/SSE replies, scoped credentials and no cloud fallback. Chat Stop and turn deadlines now cancel requests even before the first output.
+- Added a sidebar entry and independent Windows native windows for OpenScience/Feynman plus registered-workspace launch in a separate VS Code window. Native authentication remains engine-owned.
+- Improved mobile agent controls, dialog focus/keyboard lifecycle, duplicate-action protection, and Vietnamese/English labels including the Library/Paper dictionary collision. See `docs/FRONTEND_WORKFLOW_REVIEW.md` and `artifacts/workflow-ux/verification.md`.
+
+## Cross-version harness verification — 2026-10-22
+
+- Added one-command verification of current 6.0/6.2/6.3 stages and exact historical release commits in isolated exports, with independent raw metric, reproduction, artifact, role-envelope, receipt and audit checks.
+- Harness exports now identify stage/schema/flags and retain original control-plane snapshots. Added adversarial bundle tests and a two-process abrupt-exit/checkpoint recovery test. Original release export limitations remain visible; no independent v6.1 release or scientific-autonomy qualification is claimed.
+
+## Upgrade reconciliation — 2026-10-22
+
+- Audited all 11 v5.1–v6.3 upgrade documents with a repeatable source inventory, 49 feature groups, implementation/test references and explicit external qualification gates.
+- Added opt-in public scholarly/venue source packs; scoped tags and advanced paper filters; retained citation/retraction/native identifiers; versioned source-declared citation graphs; hybrid local evidence retrieval and exact paper/page navigation.
+- Added bounded read-only local Zotero sync, Topic archive/restore, PDF reprocessing and artifact snapshot/timeline controls. All new UI labels support English/Vietnamese.
+- Fixed discovery scheduling beyond 100 jobs and dry runs, charter Topic dependency admission, metadata enrichment overwrites and truncated Mission reports. Existing SQLite schema, central composer, providers and opt-in autonomy defaults are preserved.
+
 ## v6.3.0-preview.1 — 2026-10-22
 
 - Added optional bounded workstream charters, schema-validated cross-team evidence messages/receipts, partitioned resource accounting, optimistic canonical output revisions and human dispute resolution on the existing Mission runtime.

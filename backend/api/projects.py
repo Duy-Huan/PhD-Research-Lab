@@ -80,22 +80,61 @@ async def projects_activate(body: dict = Body(...)):
 
 @router.put("/api/projects/rename")
 async def projects_rename(body: dict = Body(...)):
-    return await call(rename_project, str(body.get("data_dir", "")), str(body.get("name", "")))
+    new_name = str(body.get("name", "")).strip()
+    target_dir = str(body.get("data_dir", "")).strip()
+    if not new_name:
+        raise HTTPException(400, "Project name cannot be empty")
+    out = await call(rename_project, target_dir, new_name)
+    bus.publish("project.renamed", data_dir=target_dir, name=new_name)
+    return out
 
 
 @router.post("/api/projects/forget")
 async def projects_forget(body: dict = Body(...)):
-    """Remove from the list only — no file is deleted."""
-    await call(forget_project, str(body.get("data_dir", "")))
+    target_dir = str(body.get("data_dir", "")).strip()
+    await call(forget_project, target_dir)
+    _after_switch()
+    bus.publish("project.forgotten", data_dir=target_dir)
     return {"projects": list_projects()}
 
 
+@router.delete("/api/projects")
+async def projects_delete(data_dir: str = "", delete_files: bool = False, body: dict | None = None):
+    """Delete or forget a project from PhD Lab. If delete_files=True, removes directory from disk."""
+    payload = body if isinstance(body, dict) else {}
+    target_dir = (data_dir or str(payload.get("data_dir") or "")).strip()
+    should_delete_files = bool(delete_files or payload.get("delete_files"))
+    if not target_dir:
+        raise HTTPException(400, "data_dir is required")
+
+    def run():
+        import shutil
+        from backend.core.config import GLOBAL_DIR, _resolve, forget_project
+        d = _resolve(target_dir)
+        if d == GLOBAL_DIR.resolve():
+            raise HTTPException(400, "The Default project cannot be deleted")
+        forget_project(str(d))
+        _after_switch()
+        if should_delete_files and d.exists() and d.is_dir():
+            shutil.rmtree(str(d), ignore_errors=True)
+        return {"ok": True, "projects": list_projects()}
+
+    out = await call(run)
+    bus.publish("project.deleted", data_dir=target_dir, delete_files=should_delete_files)
+    return out
+
+
 @router.post("/api/projects/reveal")
-def projects_reveal():
+def projects_reveal(body: dict | None = None):
     """Open the project folder in the file explorer of this computer."""
-    path = data_dir()
+    data = body if isinstance(body, dict) else {}
+    target_dir = str(data.get("data_dir") or "").strip()
+    path = Path(target_dir).resolve() if target_dir else data_dir()
     if sys.platform.startswith("win"):
-        os.startfile(str(path))  # type: ignore[attr-defined]
+        try:
+            os.startfile(str(path))  # type: ignore[attr-defined]
+        except Exception:
+            pass
     return {"path": str(path)}
 
 

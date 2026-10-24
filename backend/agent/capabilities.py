@@ -44,9 +44,37 @@ class Verify(Contract):
     run_id:str=""
 
 
+class FigureAction(Contract):
+    figure_id: str = ""
+    title: str = Field(default="Scientific Figure", max_length=300)
+    experiment_id: str = ""
+    from_task: str = ""
+    preset: str = "ieee-single-column"
+    plot_kind: str = "line"
+    dot_source: str = ""
+    waveform: dict = Field(default_factory=dict)
+
+
+class OpenCodeTaskArgs(Contract):
+    goal: str = Field(default="Implement and verify baseline module", max_length=8000)
+    workspace_id: str = ""
+    from_task: str = ""
+
+
 INPUTS = {"paper.discover": Discover, "paper.download": PaperIDs, "paper.inspect": PaperIDs,
           "paper.compare": Compare, "workspace.sync": Sync, "mission.report": Report,"experiment.run":ProtocolRef}
 INPUTS.update({"experiment.verify":Verify,"artifact.verify":Verify})
+INPUTS.update({
+    "figure.create_2d": FigureAction,
+    "figure.create_comparison": FigureAction,
+    "figure.render_diagram": FigureAction,
+    "figure.render_waveform": FigureAction,
+    "figure.create_3d": FigureAction,
+    "figure.validate": FigureAction,
+    "figure.export": FigureAction,
+    "figure.regenerate": FigureAction,
+    "opencode.implement": OpenCodeTaskArgs,
+})
 META = {
     "experiment.verify": ("Independently check raw experiment artifacts",True,[],["deterministic"]),
     "artifact.verify": ("Check artifact hashes without certifying scientific interpretation",True,[],["deterministic"]),
@@ -54,9 +82,18 @@ META = {
     "paper.discover": ("Discover topic metadata", True, ["network", "workspace_write"], ["deterministic"]),
     "paper.download": ("Resolve/download bounded OA PDFs", True, ["network", "workspace_write"], ["deterministic"]),
     "paper.inspect": ("Inspect scoped metadata and source versions", True, [], ["deterministic"]),
-    "paper.compare": ("Synthesize selected source evidence", False, ["reasoning", "network", "workspace_write"], ["feynman", "openscience", "app"]),
+    "paper.compare": ("Synthesize selected source evidence", False, ["reasoning", "network", "workspace_write"], ["feynman", "openscience", "opencode", "app"]),
     "workspace.sync": ("Reconcile native workspace files", True, ["workspace_write"], ["deterministic"]),
     "mission.report": ("Write evidence manifest and pending-review report", True, ["workspace_write"], ["deterministic"]),
+    "figure.create_2d": ("Create deterministic 2D publication plot from verified source data", True, ["workspace_write"], ["deterministic"]),
+    "figure.create_comparison": ("Create multi-panel scientific image comparison plate", True, ["workspace_write"], ["deterministic"]),
+    "figure.render_diagram": ("Render deterministic Graphviz/DOT architecture or DAG diagram", True, ["workspace_write"], ["deterministic"]),
+    "figure.render_waveform": ("Render deterministic WaveDrom digital timing diagram", True, ["workspace_write"], ["deterministic"]),
+    "figure.create_3d": ("Render deterministic 3D scientific surface/mesh projection", True, ["workspace_write"], ["deterministic"]),
+    "figure.validate": ("Verify figure numerical integrity and data hash against source", True, [], ["deterministic"]),
+    "figure.export": ("Export verified figure artifact in SVG/PNG/PDF formats", True, ["workspace_write"], ["deterministic"]),
+    "figure.regenerate": ("Regenerate immutable figure version from FigureSpec and source data", True, ["workspace_write"], ["deterministic"]),
+    "opencode.implement": ("Delegate scoped repository analysis, code edit, or test execution to OpenCode", False, ["reasoning", "workspace_write"], ["opencode", "app"]),
 }
 
 

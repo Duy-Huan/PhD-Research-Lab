@@ -20,29 +20,50 @@ def normalize(record: dict) -> dict:
     d = doi(record.get("doi"))
     aid = arxiv_id(record.get("arxiv_id")) or arxiv_id(record.get("url")) or arxiv_id(record.get("pdf_url"))
     provider = str(record.get("source") or "user_imported")[:120]
+    native = str(record.get("openalex_id") or "").replace("https://openalex.org/", "")
+    native = native if re.fullmatch(r"W\d+", native) else ""
+    references = record.get("references") or []
+    if not isinstance(references, list) or len(references) > 2000:
+        raise ValueError("References must be a list of at most 2000 DOI/OpenAlex identifiers")
+    references = list(dict.fromkeys(key for value in references if (key := reference_id(value))))
     urls = list(record.get("oa_locations") or [])
     # Only established discovery adapters declare their PDF fields open-access.
     if record.get("pdf_url") and provider in ("OpenAlex", "arXiv", "Semantic Scholar", "IEEE Xplore"):
         urls.append({"url": record["pdf_url"], "provider": provider, "access": "open", "license": "unknown",
                      "version": "preprint" if "arxiv" in provider.lower() else "unknown"})
-    urls = [{k: str(v)[:4000] for k, v in x.items() if k in ("url", "provider", "access", "license", "version")}
+    urls = [{k: str(v)[:4000] for k, v in x.items() if k in ("url", "provider", "access", "license", "version", "checked_at")}
             for x in urls if isinstance(x, dict) and x.get("url")][:20]
-    return {"title": title, "doi": d, "arxiv_id": aid, "authors": [str(a)[:200] for a in record.get("authors") or []][:50],
+    return {"title": title, "doi": d, "arxiv_id": aid, "openalex_id": native, "references": references, "pmid": str(record.get("pmid") or "") if str(record.get("pmid") or "").isdigit() else "", "authors": [str(a)[:200] for a in record.get("authors") or []][:50],
             "year": str(record.get("year") or "")[:4], "abstract": str(record.get("abstract") or "")[:50000],
             "venue": str(record.get("venue") or "")[:500], "url": str(record.get("url") or ("https://doi.org/" + d if d else ""))[:4000],
             "source": provider, "sources": list(dict.fromkeys([provider] + list(record.get("sources") or []))),
             "oa_locations": urls, "flags": list(dict.fromkeys([str(f)[:120] for f in record.get("flags") or []] + (["preprint"] if aid else []))),
             "publication_type": str(record.get("publication_type") or "unknown"), "license": record.get("license") or "unknown",
+            "citations": record.get("citations") if isinstance(record.get("citations"), int) and not isinstance(record.get("citations"), bool) and record["citations"] >= 0 else None,
+            "peer_review_status": str(record.get("peer_review_status") or "unknown")[:100],
             "version": str(record.get("version") or ("preprint" if aid else "unknown"))[:120], "retrieved_at": S.now()}
 
 
 def _aliases(p: dict) -> list[str]:
     out = (["doi:" + p["doi"]] if p["doi"] else []) + (["arxiv:" + p["arxiv_id"]] if p["arxiv_id"] else [])
+    if p.get("pmid"):
+        out.append("pmid:" + p["pmid"])
+    if p.get("openalex_id"):
+        out.append("openalex:" + p["openalex_id"])
     if not out:
         # Exact source metadata fingerprint only, not fuzzy title merging.
         value = [p["title"].casefold(), p["year"], p["authors"], p["url"]]
         out.append("metadata:" + hashlib.sha256(S.dumps(value).encode()).hexdigest())
     return out
+
+
+def reference_id(value) -> str:
+    value = str(value or "")
+    d = doi(value)
+    if d:
+        return "doi:" + d
+    value = value.removeprefix("https://openalex.org/").removeprefix("openalex:")
+    return "openalex:" + value if re.fullmatch(r"W\d+", value) else ""
 
 
 def _reset_review(c, pid: str):
@@ -74,10 +95,11 @@ def ingest(tid: str, records: list[dict]) -> dict:
                 if previous["doi"] and p["doi"] and previous["doi"] != p["doi"]:
                     conflicts.append({"aliases": aliases, "reason": "Conflicting DOI for arXiv alias"})
                     continue
-                merged = {**previous, **{k: v for k, v in p.items() if v not in ("", [], None)}}
+                merged = {**previous, **{k: v for k, v in p.items() if v not in ("", [], None, "unknown")}}
                 merged["sources"] = list(dict.fromkeys(previous["sources"] + p["sources"]))
                 merged["oa_locations"] = list({S.dumps(x): x for x in previous["oa_locations"] + p["oa_locations"]}.values())
                 merged["flags"] = list(dict.fromkeys(previous["flags"] + p["flags"]))
+                merged["references"] = list(dict.fromkeys(previous.get("references", []) + p["references"]))
                 c.execute("UPDATE papers SET payload=? WHERE id=?", (S.dumps(merged), pid))
             else:
                 c.execute("INSERT INTO papers VALUES(?,?,?)", (pid, S.dumps(p), S.now()))
@@ -85,6 +107,9 @@ def ingest(tid: str, records: list[dict]) -> dict:
                 c.execute("INSERT OR IGNORE INTO aliases VALUES(?,?)", (a, pid))
             # A version is source + native URL/version + metadata, not ingestion timestamp.
             version = {k: p[k] for k in ("source", "url", "doi", "arxiv_id", "version", "title", "abstract", "authors", "year", "venue", "publication_type", "flags", "oa_locations", "license")}
+            # Empty newly supported metadata must preserve pre-upgrade version digests/attestations.
+            if p["references"]:
+                version["references"] = p["references"]
             signature = hashlib.sha256(S.dumps(version).encode()).hexdigest()
             created_version = c.execute("INSERT OR IGNORE INTO versions VALUES(?,?,?,?)", (S.uid(), pid, signature, S.dumps({**version, "retrieved_at": p["retrieved_at"]})))
             if old and created_version.rowcount:
@@ -119,7 +144,9 @@ def paper(tid: str, pid: str) -> dict:
 
 
 def search(tid: str, q: str = "", level: int = -1, state: str = "", source: str = "", year: int = 0,
-           oa: bool = False, offset: int = 0, limit: int = 25, sort: str = "relevance") -> dict:
+           oa: bool = False, offset: int = 0, limit: int = 25, sort: str = "relevance", *,
+           max_year: int = 0, venue: str = "", publication_type: str = "", tag: str = "",
+           pdf: bool | None = None, flag: str = "") -> dict:
     with S.db() as c:
         S.topic(c, tid)
         # JSON extract operates on authoritative metadata; SQL parameters keep filters inert.
@@ -127,12 +154,65 @@ def search(tid: str, q: str = "", level: int = -1, state: str = "", source: str 
         where += "AND (?='' OR instr(lower(p.payload),lower(?))>0) AND (?=0 OR CAST(json_extract(p.payload,'$.year') AS INTEGER)>=?) "
         where += "AND (?='' OR instr(lower(json_extract(p.payload,'$.sources')),lower(?))>0) "
         where += "AND (?=0 OR json_array_length(json_extract(p.payload,'$.oa_locations'))>0)"
-        params = (tid, level, level, state, state, q, q, year, year, source, source, int(oa))
+        where += " AND (?=0 OR CAST(json_extract(p.payload,'$.year') AS INTEGER)<=?)"
+        where += " AND (?='' OR instr(lower(json_extract(p.payload,'$.venue')),lower(?))>0)"
+        where += " AND (?='' OR json_extract(p.payload,'$.publication_type')=?)"
+        where += " AND (?='' OR EXISTS(SELECT 1 FROM json_each(pt.payload,'$.tags') WHERE value=?))"
+        where += " AND (?='' OR EXISTS(SELECT 1 FROM json_each(p.payload,'$.flags') WHERE value=?))"
+        where += " AND (? IS NULL OR EXISTS(SELECT 1 FROM versions v JOIN version_documents vd ON vd.version_id=v.id WHERE v.paper_id=p.id)=?)"
+        params = (tid, level, level, state, state, q, q, year, year, source, source, int(oa),
+                  max_year, max_year, venue, venue, publication_type, publication_type, tag, tag, flag, flag, pdf, pdf)
         base = " FROM papers p JOIN paper_topics pt ON p.id=pt.paper_id WHERE " + where
         count = c.execute("SELECT count(*)" + base, params).fetchone()[0]
-        order = "CAST(json_extract(p.payload,'$.year') AS INTEGER) DESC" if sort == "year" else "CAST(json_extract(pt.payload,'$.relevance') AS INTEGER) DESC"
+        if sort not in ("relevance", "year", "citations"):
+            raise ValueError("Unsupported paper sort")
+        order = {"year": "CAST(json_extract(p.payload,'$.year') AS INTEGER) DESC",
+                 "citations": "json_extract(p.payload,'$.citations') DESC",
+                 "relevance": "CAST(json_extract(pt.payload,'$.relevance') AS INTEGER) DESC"}[sort]
         rows = c.execute("SELECT p.id" + base + " ORDER BY " + order + ",p.id LIMIT ? OFFSET ?", (*params, min(100, max(1, limit)), max(0, offset)))
         return {"papers": [_paper(c, tid, r[0]) for r in rows], "total": count, "offset": max(0, offset)}
+
+
+def all_papers(tid: str) -> list:
+    """A report is a complete scoped snapshot, independent of Explorer page size."""
+    with S.db() as c:
+        S.topic(c, tid)
+        return [_paper(c, tid, r[0]) for r in c.execute("SELECT paper_id FROM paper_topics WHERE topic_id=? ORDER BY paper_id", (tid,))]
+
+
+def citation_graph(tid: str) -> dict:
+    """Only registered source-declared links. Unknown/out-of-Topic targets stay unresolved."""
+    papers = all_papers(tid)
+    aliases = {a: p["id"] for p in papers for a in _aliases(p)}
+    edges = []
+    for p in papers:
+        for v in p["versions"]:
+            for ref in v.get("references", []):
+                edges.append({"citing_paper_id": p["id"], "cited_paper_id": aliases.get(ref), "target_identifier": ref,
+                              "version_id": v["id"], "source": v["source"], "source_url": v["url"],
+                              "trust": "source_declared_unverified"})
+    return {"topic_id": tid, "nodes": [{"id": p["id"], "title": p["title"], "doi": p["doi"]} for p in papers],
+            "edges": edges, "limits": "Only references explicitly provided by registered source versions; not a complete scholarly citation graph or validation of a citation"}
+
+
+def tag_papers(tid: str, ids: list[str], tags: list[str], remove: bool = False) -> dict:
+    if not 1 <= len(ids) <= 100 or not isinstance(tags, list) or not 1 <= len(tags) <= 30:
+        raise ValueError("Select 1–100 papers and 1–30 tags")
+    if any(not isinstance(t, str) or not t.strip() or len(t) > 80 for t in tags):
+        raise ValueError("Tags must be nonempty strings of at most 80 characters")
+    tags = list(dict.fromkeys(t.strip() for t in tags))
+    with S.db() as c:
+        for pid in dict.fromkeys(ids):
+            p = _paper(c, tid, pid)
+            details = p["association"]
+            previous = details.get("tags", [])
+            updated = [t for t in previous if t not in tags] if remove else list(dict.fromkeys(previous + tags))
+            if len(updated) > 30:
+                raise ValueError("At most 30 tags per paper and Topic")
+            details["tags"] = updated
+            c.execute("UPDATE paper_topics SET payload=? WHERE topic_id=? AND paper_id=?", (S.dumps(details), tid, pid))
+            S.event(c, tid, "paper.tags", {"paper_id": pid, "previous": previous, "tags": updated, "by": "researcher"})
+    return {"updated": list(dict.fromkeys(ids))}
 
 
 def curate(tid: str, ids: list[str], action: str, note: str = "") -> dict:
@@ -286,26 +366,33 @@ def index_document(tid: str, pid: str, vid: str) -> dict:
     return {"chunks": len(chunks), "pages": len(pages), "total_pages": total}
 
 
-def retrieve(tid: str, query: str, limit: int = 10) -> list:
+def retrieve(tid: str, query: str, limit: int = 10, paper_id: str = "") -> list:
     terms = re.findall(r"\w+", query, flags=re.UNICODE)[:20]
     if not terms:
         return []
+    limit = min(30, max(1, limit))
     match = " OR ".join('"' + t + '"' for t in terms)
     with S.db() as c:
         S.topic(c, tid)
-        rows = c.execute("SELECT ch.*,v.paper_id,pt.level,bm25(chunk_search) AS rank FROM chunk_search "
-                         "JOIN chunks ch ON ch.id=chunk_search.chunk_id JOIN versions v ON v.id=ch.version_id "
-                         "JOIN paper_topics pt ON pt.paper_id=v.paper_id WHERE pt.topic_id=? AND pt.state!='dismissed' AND chunk_search MATCH ? "
-                         "ORDER BY rank LIMIT ?", (tid, match, min(30, max(1, limit))))
+        if paper_id:
+            _paper(c, tid, paper_id)
+        rows = list(c.execute("SELECT ch.id FROM chunk_search JOIN chunks ch ON ch.id=chunk_search.chunk_id "
+                         "JOIN versions v ON v.id=ch.version_id JOIN paper_topics pt ON pt.paper_id=v.paper_id "
+                         "WHERE pt.topic_id=? AND pt.state!='dismissed' AND (?='' OR v.paper_id=?) AND chunk_search MATCH ? "
+                         "ORDER BY bm25(chunk_search),ch.id LIMIT 100", (tid, paper_id, paper_id, match)))
+        from backend.knowledge.evidence_retrieval import rank
+        ids, diagnostics = rank(c, tid, query, [r[0] for r in rows], paper_id)
         out = []
-        for r in rows:
+        for chunk_id in ids[:limit]:
+            r = c.execute("SELECT ch.*,v.paper_id FROM chunks ch JOIN versions v ON v.id=ch.version_id WHERE ch.id=?", (chunk_id,)).fetchone()
             p = _paper(c, tid, r["paper_id"])
             out.append({"id": "evidence:" + r["id"], "paper_id": p["id"], "title": p["title"], "doi": p["doi"],
                         "version_id": r["version_id"], "page": r["page"], "section": r["section"], "text": r["text"],
-                        "level": r["level"], "trust": "untrusted", "rank": r["rank"], "status": "full_text_extract"})
+                        "level": p["level"], "trust": "untrusted", "rank": ids.index(chunk_id) + 1, "status": "full_text_extract",
+                        "flags": p["flags"], "retrieval": diagnostics})
         if len(out) < limit:
             clause = " OR ".join("instr(lower(json_extract(p.payload,'$.title') || ' ' || json_extract(p.payload,'$.abstract')),lower(?))>0" for _ in terms)
-            metadata = c.execute("SELECT p.id FROM papers p JOIN paper_topics pt ON pt.paper_id=p.id WHERE pt.topic_id=? AND pt.state!='dismissed' AND (" + clause + ") LIMIT ?", (tid, *terms, min(30, limit)))
+            metadata = c.execute("SELECT p.id FROM papers p JOIN paper_topics pt ON pt.paper_id=p.id WHERE pt.topic_id=? AND pt.state!='dismissed' AND (?='' OR p.id=?) AND (" + clause + ") ORDER BY p.id LIMIT ?", (tid, paper_id, paper_id, *terms, limit))
             seen = {r["paper_id"] for r in out}
             for r in metadata:
                 if r[0] in seen or len(out) >= limit:
@@ -313,9 +400,10 @@ def retrieve(tid: str, query: str, limit: int = 10) -> list:
                 p = _paper(c, tid, r[0])
                 out.append({"id": "paper:" + p["id"], "paper_id": p["id"], "title": p["title"], "doi": p["doi"],
                             "version_id": None, "page": None, "section": "abstract metadata", "text": p["abstract"],
-                            "level": p["level"], "trust": "untrusted", "rank": None, "status": "abstract_metadata_not_full_text_verified"})
+                            "level": p["level"], "trust": "untrusted", "rank": None, "status": "abstract_metadata_not_full_text_verified",
+                            "flags": p["flags"], "retrieval": diagnostics})
     from backend.research_engines.workspaces import search as artifact_search
-    return out + artifact_search(tid, query, min(5, limit))
+    return out if paper_id else (out + artifact_search(tid, query, min(5, limit)))[:limit]
 
 
 def import_legacy(tid: str) -> dict:

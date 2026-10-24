@@ -22,6 +22,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stage",choices=["6.0","6.2","6.3"],default="6.0")
     parser.add_argument("--probe-engines",action="store_true")
+    parser.add_argument("--output", type=Path, help="Separate evidence directory (default: artifacts/v<stage>)")
     args=parser.parse_args()
     with tempfile.TemporaryDirectory(prefix="phdlab-harness-") as temporary:
         os.environ["PHDLAB_DATA_DIR"]=temporary
@@ -104,8 +105,20 @@ def main():
             if isinstance(value,dict):return {k:portable(v) for k,v in value.items()}
             if isinstance(value,list):return [portable(v) for v in value]
             return value.replace(temporary,"<temporary-data>") if isinstance(value,str) else value
-        output=ROOT/"artifacts"/("v"+args.stage.replace(".",""));output.mkdir(parents=True,exist_ok=True)
+        snapshots=[]
+        for tid,mid in mission_ids:
+            m=M.get(mid,tid);snapshot={"project_id":S.project_id(),"topic_id":tid,"mission":m}
+            if m["payload"]["spec"].get("team"):
+                from backend.agent import teams
+                snapshot["team"]={k:v for k,v in teams.monitor(tid,mid).items() if k!="mission"}
+            if m["payload"]["spec"].get("collaboration"):
+                from backend.agent import collaboration
+                snapshot["collaboration"]={k:v for k,v in collaboration.monitor(tid,mid).items() if k!="mission"}
+            snapshots.append(snapshot)
+        output=args.output or ROOT/"artifacts"/("v"+args.stage.replace(".",""));output.mkdir(parents=True,exist_ok=True)
         with zipfile.ZipFile(output/"measurements.zip","w",compression=zipfile.ZIP_DEFLATED) as archive:
+            # Keep exact original handoff/result bytes as well as the portable redacted report.
+            archive.writestr("control-plane.json",S.dumps(snapshots))
             for run in P.runs(a):
                 for trial in run["trials"]:
                     folder=Path(trial["payload"]["artifact"]["path"]).parent
@@ -127,13 +140,6 @@ def main():
                 item={k:event[k] for k in ("topic_id","entity_id","kind","at","previous_hash","payload")}
                 assert item["previous_hash"]==previous and L.digest(item)==event["hash"]
                 previous=event["hash"]
-        snapshots=[]
-        for tid,mid in mission_ids:
-            m=M.get(mid,tid);snapshot={"project_id":S.project_id(),"topic_id":tid,"mission":m}
-            if m["payload"]["spec"].get("collaboration"):
-                from backend.agent import collaboration
-                snapshot["collaboration"]={k:v for k,v in collaboration.monitor(tid,mid).items() if k!="mission"}
-            snapshots.append(snapshot)
         source_files=sorted([*ROOT.glob("backend/**/*.py"),*ROOT.glob("frontend/assets/*.js"),*ROOT.glob("frontend/assets/*.css"),*ROOT.glob("tools/*.py"),ROOT/"frontend/index.html",ROOT/"start.py",ROOT/"requirements.txt"])
         source_hashes={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in source_files}
         identity={"source_tree_sha256":L.digest(source_hashes),"files":source_hashes,"git_parent_commit":None,"git_dirty":None,"note":"Exact source bytes are fingerprinted; parent commit plus dirty flag honestly describes a pre-commit acceptance run"}
@@ -141,7 +147,7 @@ def main():
             identity["git_parent_commit"]=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True,stderr=subprocess.DEVNULL).strip()
             identity["git_dirty"]=bool(subprocess.check_output(["git","status","--porcelain"],cwd=ROOT,text=True,stderr=subprocess.DEVNULL).strip())
         except (OSError,subprocess.CalledProcessError):pass
-        report={"version":config.APP_VERSION,"at":S.now(),"source_identity":identity,"status":"passed","scope":"Real local software and CPU workers; synthetic literature/workspace fixtures; no live inference/GPU or scientific endorsement","rows":rows,"verification":verification,"experiment_runs":P.runs(a),"restart":{"uncertain_status":"interrupted","automatically_repeated":False},"claims":{"unresolved_doi":"unverifiable"},"mission_reports":snapshots,"engine_probes":probes,"limitations":["No real scientific pilot signoff","No live provider billing, quota or native inference qualification","Wall time includes durable SQLite/worker overhead, not model productivity","Portable JSON paths are redacted; original hash-verifiable audits and raw measurements are in measurements.zip"]}
+        report={"stage":args.stage,"version":config.APP_VERSION,"research_store_schema":S.SCHEMA_VERSION,"enabled_features":config.load_config()["research_os"],"at":S.now(),"source_identity":identity,"status":"passed","scope":"Real local software and CPU workers; synthetic literature/workspace fixtures; no live inference/GPU or scientific endorsement","rows":rows,"verification":verification,"experiment_runs":P.runs(a),"restart":{"uncertain_status":"interrupted","automatically_repeated":False},"claims":{"unresolved_doi":"unverifiable"},"mission_reports":snapshots,"engine_probes":probes,"limitations":["No real scientific pilot signoff","No live provider billing, quota or native inference qualification","Wall time includes durable SQLite/worker overhead, not model productivity","Portable JSON paths are redacted; original control-plane snapshots, hash-verifiable audits and raw measurements are in measurements.zip"]}
         (output/"harness.json").write_text(json.dumps(portable(report),indent=2,ensure_ascii=False),"utf-8")
         lines=["# Measured local research harness", "Synthetic literature/workspace fixtures; actual local code and CPU workers. These serial samples do not establish a productivity or scientific quality advantage.", "| Workflow | Mode | Domains | Logical roles | Wall seconds | Task executions | Technical completion |", "|---|---|---:|---:|---:|---:|---|"]
         for row in rows:lines.append(f"| {row['workflow']} | {row['mode']} | {row['workstreams']} | {row['logical_roles']} | {row['wall_seconds']:.3f} | {row['executions']} | {row['verified_completion']} |")

@@ -19,8 +19,7 @@ def list_jobs(tid: str = "") -> list:
 
 
 def schedule_status(profile: dict) -> dict:
-    with S.db() as c:
-        previous = c.execute("SELECT created,status FROM jobs WHERE topic_id=? AND kind='discover' ORDER BY created DESC LIMIT 1", (profile["id"],)).fetchone()
+    previous = last_scheduled_job(profile["id"], "discover")
     enabled = profile["enabled"] and not profile["archived"] and profile["cadence"] in ("daily", "weekly")
     next_run = None
     if enabled:
@@ -28,6 +27,16 @@ def schedule_status(profile: dict) -> dict:
                     if previous else S.now())
     return {"enabled": enabled, "timezone": "UTC", "last_run": previous["created"] if previous else None,
             "last_status": previous["status"] if previous else None, "next_run": next_run}
+
+
+def last_scheduled_job(tid: str, kind: str, workspace_id: str = ""):
+    """Scheduling must not depend on the UI's latest-100-jobs window or dry runs."""
+    with S.db() as c:
+        S.topic(c, tid)
+        row = c.execute("SELECT * FROM jobs WHERE topic_id=? AND kind=? AND coalesce(json_extract(payload,'$.dry_run'),0)!=1 "
+                        "AND (?='' OR json_extract(payload,'$.workspace_id')=?) ORDER BY created DESC LIMIT 1",
+                        (tid, kind, workspace_id, workspace_id)).fetchone()
+        return dict(row) if row else None
 
 
 def enqueue(tid: str, kind: str, payload: dict | None = None) -> dict:
@@ -221,11 +230,10 @@ async def execute(job: dict):
 
 def schedule_due():
     now = datetime.now(timezone.utc)
-    jobs = list_jobs()
     for t in S.topics():
         if not t["enabled"] or t["archived"] or t["cadence"] not in ("daily", "weekly"):
             continue
-        previous = next((j for j in jobs if j["topic_id"] == t["id"] and j["kind"] == "discover"), None)
+        previous = last_scheduled_job(t["id"], "discover")
         days = 1 if t["cadence"] == "daily" else 7
         if not previous or now - datetime.fromisoformat(previous["created"]) >= timedelta(days=days):
             try:
@@ -238,7 +246,7 @@ def schedule_due():
             continue
         for w in list_workspaces(t["id"]):
             interval = w.get("sync_interval_minutes", 0)
-            previous = next((j for j in jobs if j["kind"] == "sync" and j["payload"].get("workspace_id") == w["id"]), None)
+            previous = last_scheduled_job(t["id"], "sync", w["id"])
             if interval and (not previous or now - datetime.fromisoformat(previous["created"]) >= timedelta(minutes=interval)):
                 try:
                     enqueue(t["id"], "sync", {"workspace_id": w["id"], "scheduled": True})

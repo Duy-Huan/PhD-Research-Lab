@@ -1,0 +1,12 @@
+Provider,Type,Installed/Configured,Auth Status,Login CMD / Fallback,Billing Policy
+codex,cli,True,unauthenticated,codex login,Local CLI Sandbox
+claude_code,cli,False,unauthenticated,claude login,Local CLI Sandbox
+antigravity,cli,False,unauthenticated,agy auth login,Local CLI Sandbox
+gemini_cli,cli,False,unauthenticated,gemini login,Local CLI Sandbox
+openai,cloud,False,unauthenticated,N/A,allow_api_billing=False forces safe refusal on unmetered egress
+anthropic,cloud,False,unauthenticated,N/A,allow_api_billing=False forces safe refusal on unmetered egress
+gemini_cloud,cloud,False,unauthenticated,N/A,allow_api_billing=False forces safe refusal on unmetered egress
+deepseek,cloud,False,unauthenticated,N/A,allow_api_billing=False forces safe refusal on unmetered egress
+mistral,cloud,False,unauthenticated,N/A,allow_api_billing=False forces safe refusal on unmetered egress
+together,cloud,False,unauthenticated,N/A,allow_api_billing=False forces safe refusal on unmetered egress
+openrouter,cloud,False,unauthenticated,N/A,allow_api_billing=False forces safe refusal on unmetered egress

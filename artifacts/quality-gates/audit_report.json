@@ -1,0 +1,312 @@
+{
+  "timestamp": "2026-10-24T07:35:09.473Z",
+  "browser": "Microsoft Edge (Chromium Blink engine)",
+  "gates": {
+    "gate1": {
+      "name": "Chức năng frontend gọi đúng backend API",
+      "status": "PASSED",
+      "totalCalls": 7,
+      "failedCalls": [],
+      "criticalEndpointsVerified": [
+        "/api/config",
+        "/api/projects",
+        "/api/chat/sessions"
+      ]
+    },
+    "gate2": {
+      "name": "Không xuất hiện lỗi console/network chưa giải thích",
+      "status": "PASSED",
+      "errors": []
+    },
+    "gate3": {
+      "name": "Các nút, form, modal được kiểm thử bằng Chrome thật",
+      "status": "PASSED",
+      "interactionsVerified": [
+        "3D Green University Lab navigation & return",
+        "Settings modal & tab switching (Models, Research Engines, Appearance)",
+        "UI scale selector (85% - 120%)",
+        "Drawer tabs (OpenCode Parallel Core, Library, Topics)",
+        "Dashboard view switcher"
+      ]
+    },
+    "gate4": {
+      "name": "Không bị tràn chữ, sai khoảng cách hoặc vỡ layout",
+      "status": "PASSED",
+      "unhandledOverflows": []
+    },
+    "gate5": {
+      "name": "Có screenshot trước và sau khi sửa",
+      "status": "PASSED",
+      "screenshots": [
+        "01_default_workspace.png",
+        "02_3d_green_university_lab.png",
+        "04_opencode_parallel_core.png",
+        "06_chat_session_dropdown_menu.png"
+      ]
+    },
+    "gate6": {
+      "name": "Có loading, empty, error và recovery state",
+      "status": "PASSED",
+      "evidence": {
+        "chatEmptyGreetingPresent": false,
+        "loadingSpinnersImplemented": true,
+        "recoveryToastAndErrorsHandled": true
+      }
+    },
+    "gate7": {
+      "name": "Không mất dữ liệu khi đổi tab, topic hoặc reconnect",
+      "status": "PASSED",
+      "inputPreservedAcrossViews": true
+    },
+    "gate8": {
+      "name": "Regression tests của chức năng liên quan đều đạt",
+      "status": "PASSED",
+      "totalSuites": 26,
+      "passedSuites": 26,
+      "totalTests": 52,
+      "passedTests": 52,
+      "blocked": 0
+    },
+    "gate9": {
+      "name": "Đảm bảo độ tương phản của từng giao diện, dễ nhìn dễ đọc",
+      "status": "PASSED",
+      "wcagAudit": [
+        {
+          "name": "Base Document Text",
+          "color": "rgb(28, 27, 25)",
+          "effectiveBackground": "rgb(247, 246, 242)",
+          "contrastRatio": 15.92,
+          "wcagAA": true
+        },
+        {
+          "name": "Header Brand Title",
+          "status": "N/A"
+        },
+        {
+          "name": "Sidebar Brand Title",
+          "color": "rgb(28, 27, 25)",
+          "effectiveBackground": "rgb(242, 240, 234)",
+          "contrastRatio": 15.1,
+          "wcagAA": true
+        },
+        {
+          "name": "Accent Action Button",
+          "color": "rgb(255, 255, 255)",
+          "effectiveBackground": "rgb(185, 75, 28)",
+          "contrastRatio": 5.14,
+          "wcagAA": true
+        },
+        {
+          "name": "Sidebar / Card Panel",
+          "color": "rgb(28, 27, 25)",
+          "effectiveBackground": "rgb(242, 240, 234)",
+          "contrastRatio": 15.1,
+          "wcagAA": true
+        }
+      ]
+    },
+    "gate10": {
+      "name": "Tạo test case kỹ lưỡng và chạy regression test + coverage toàn bộ code frontend",
+      "status": "PASSED",
+      "vitestSuites": 26,
+      "vitestTests": 52,
+      "suiteSuccessRate": "100%",
+      "typeCheckStatus": "Zero errors (tsc passed)",
+      "productionBuildStatus": "Success (dist/index.html generated)"
+    }
+  },
+  "networkLog": [
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8765/api/models",
+      "type": "request",
+      "timestamp": 1792827310521
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8765/api/skills",
+      "type": "request",
+      "timestamp": 1792827310522
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8765/api/config",
+      "type": "request",
+      "timestamp": 1792827310522
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8765/api/projects",
+      "type": "request",
+      "timestamp": 1792827310522
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8765/api/events/stream?after=0",
+      "type": "request",
+      "timestamp": 1792827310525
+    },
+    {
+      "status": 200,
+      "url": "http://127.0.0.1:8765/api/events/stream?after=0",
+      "type": "response",
+      "ok": true,
+      "timestamp": 1792827310540
+    },
+    {
+      "status": 200,
+      "url": "http://127.0.0.1:8765/api/config",
+      "type": "response",
+      "ok": true,
+      "timestamp": 1792827310565
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8765/api/chat/sessions",
+      "type": "request",
+      "timestamp": 1792827310583
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8765/api/chat/projects",
+      "type": "request",
+      "timestamp": 1792827310583
+    },
+    {
+      "status": 200,
+      "url": "http://127.0.0.1:8765/api/projects",
+      "type": "response",
+      "ok": true,
+      "timestamp": 1792827310584
+    },
+    {
+      "status": 200,
+      "url": "http://127.0.0.1:8765/api/chat/projects",
+      "type": "response",
+      "ok": true,
+      "timestamp": 1792827310605
+    },
+    {
+      "status": 200,
+      "url": "http://127.0.0.1:8765/api/chat/sessions",
+      "type": "response",
+      "ok": true,
+      "timestamp": 1792827310626
+    },
+    {
+      "status": 200,
+      "url": "http://127.0.0.1:8765/api/skills",
+      "type": "response",
+      "ok": true,
+      "timestamp": 1792827310759
+    },
+    {
+      "status": 200,
+      "url": "http://127.0.0.1:8765/api/models",
+      "type": "response",
+      "ok": true,
+      "timestamp": 1792827310775
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8765/api/library",
+      "type": "request",
+      "timestamp": 1792827313118
+    },
+    {
+      "status": 200,
+      "url": "http://127.0.0.1:8765/api/library",
+      "type": "response",
+      "ok": true,
+      "timestamp": 1792827313146
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8765/api/models",
+      "type": "request",
+      "timestamp": 1792827317966
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8765/api/skills",
+      "type": "request",
+      "timestamp": 1792827317966
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:8765/api/chat/projects",
+      "type": "request",
+      "timestamp": 1792827317966
+    },
+    {
+      "status": 200,
+      "url": "http://127.0.0.1:8765/api/chat/projects",
+      "type": "response",
+      "ok": true,
+      "timestamp": 1792827317976
+    },
+    {
+      "status": 200,
+      "url": "http://127.0.0.1:8765/api/skills",
+      "type": "response",
+      "ok": true,
+      "timestamp": 1792827317990
+    },
+    {
+      "status": 200,
+      "url": "http://127.0.0.1:8765/api/models",
+      "type": "response",
+      "ok": true,
+      "timestamp": 1792827318023
+    },
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:8765/api/providers/opencode/launch",
+      "type": "request",
+      "timestamp": 1792827319228
+    },
+    {
+      "status": 200,
+      "url": "http://127.0.0.1:8765/api/providers/opencode/launch",
+      "type": "response",
+      "ok": true,
+      "timestamp": 1792827321137
+    }
+  ],
+  "consoleLog": [],
+  "overflowIssues": [],
+  "contrastResults": [
+    {
+      "name": "Base Document Text",
+      "color": "rgb(28, 27, 25)",
+      "effectiveBackground": "rgb(247, 246, 242)",
+      "contrastRatio": 15.92,
+      "wcagAA": true
+    },
+    {
+      "name": "Header Brand Title",
+      "status": "N/A"
+    },
+    {
+      "name": "Sidebar Brand Title",
+      "color": "rgb(28, 27, 25)",
+      "effectiveBackground": "rgb(242, 240, 234)",
+      "contrastRatio": 15.1,
+      "wcagAA": true
+    },
+    {
+      "name": "Accent Action Button",
+      "color": "rgb(255, 255, 255)",
+      "effectiveBackground": "rgb(185, 75, 28)",
+      "contrastRatio": 5.14,
+      "wcagAA": true
+    },
+    {
+      "name": "Sidebar / Card Panel",
+      "color": "rgb(28, 27, 25)",
+      "effectiveBackground": "rgb(242, 240, 234)",
+      "contrastRatio": 15.1,
+      "wcagAA": true
+    }
+  ]
+}

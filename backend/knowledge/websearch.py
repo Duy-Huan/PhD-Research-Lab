@@ -85,6 +85,12 @@ async def openalex(q: str, n: int, mailto: str = "", year_from: int | None = Non
                     "url": f"https://doi.org/{doi}" if doi else (loc.get("landing_page_url") or w.get("id")),
                     "pdf_url": best.get("pdf_url") or "", "abstract": _oa_abstract(w.get("abstract_inverted_index"))[:ABSTRACT_CHARS]})
         out[-1].update(source_id=venue.get("id", ""), issn=venue.get("issn") or [], publication_type=venue.get("type", ""))
+        out[-1]["flags"] = ["retracted"] if w.get("is_retracted") else []
+        out[-1]["openalex_id"] = w.get("id", "")
+        out[-1]["references"] = (w.get("referenced_works") or [])[:2000]
+        out[-1]["oa_locations"] = [{"url": l["pdf_url"], "provider": "OpenAlex", "access": "open",
+                                    "license": l.get("license") or "unknown", "version": l.get("version") or "unknown"}
+                                   for l in w.get("locations") or [] if l.get("is_oa") and l.get("pdf_url")]
     return out
 
 
@@ -179,6 +185,8 @@ async def semantic_scholar(q: str, n: int, key: str = "", year_from: int | None 
                     "url": f"https://doi.org/{doi}" if doi else p.get("url", ""),
                     "pdf_url": ((p.get("openAccessPdf") or {}) or {}).get("url", "") or "",
                     "abstract": _clean(p.get("abstract"))[:ABSTRACT_CHARS]})
+        out[-1]["arxiv_id"] = (p.get("externalIds") or {}).get("ArXiv", "")
+        out[-1]["pmid"] = (p.get("externalIds") or {}).get("PubMed", "")
     return out
 
 
