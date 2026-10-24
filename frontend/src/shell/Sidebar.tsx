@@ -954,17 +954,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
         <button
           type="button"
           className="btn sm ghost"
-          onClick={() => openDrawer('harness')}
+          onClick={() => {
+            setMainView('harness');
+            if (window.matchMedia('(max-width: 820px)').matches && sidebarOpen) toggleSidebar();
+          }}
           style={{
             justifyContent: 'flex-start',
             padding: '6px 10px',
             borderRadius: 8,
             gap: 8,
-            color: drawerKind === 'harness' ? 'var(--accent)' : undefined,
+            color: mainView === 'harness' ? 'var(--accent)' : undefined,
+            background: mainView === 'harness' ? 'var(--panel)' : 'transparent',
           }}
         >
           <Sliders size={15} />
-          <span>{t('Harness Kéo thả', 'Harness Studio')}</span>
+          <span>{t('Harness Studio', 'Harness Studio')}</span>
         </button>
 
         <button
@@ -1073,6 +1077,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
                   onClick={() => api.post(`/api/providers/${app.id}/sync`, {})}
                   title={t('Đồng bộ dữ liệu từ ', 'Sync data from ') + app.title}
                   style={{
+                    minWidth: 24,
+                    minHeight: 24,
                     padding: '3px 5px',
                     background: 'var(--bg-2)',
                     border: 'none',

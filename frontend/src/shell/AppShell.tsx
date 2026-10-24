@@ -15,6 +15,7 @@ import { DashboardView } from '../features/dashboard/DashboardView';
 import { ReviewView } from '../features/review/ReviewView';
 import { LibraryPanel } from '../features/library/LibraryPanel';
 import { UserGuidePanel } from '../features/guide/UserGuidePanel';
+import { CustomHarnessStudio } from '../features/harness/CustomHarnessStudio';
 import { PanelRightOpen } from 'lucide-react';
 
 export const AppShell: React.FC = () => {
@@ -22,6 +23,7 @@ export const AppShell: React.FC = () => {
     setProject,
     setProjects,
     mainView,
+    activeTopicId,
     sidebarOpen,
     toggleSidebar,
     drawerKind,
@@ -32,6 +34,21 @@ export const AppShell: React.FC = () => {
   } = useUIStore();
   const { t } = useI18n();
   const { isConnected } = useAppBus();
+
+  // Split panes become overlays on small screens; do not reserve a hidden sidebar column.
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 820px)');
+    const collapse = () => {
+      if (media.matches && useUIStore.getState().sidebarOpen) toggleSidebar();
+    };
+    collapse();
+    media.addEventListener('change', collapse);
+    return () => media.removeEventListener('change', collapse);
+  }, [toggleSidebar]);
+
+  useEffect(() => {
+    if (drawerKind && window.matchMedia('(max-width: 820px)').matches && useUIStore.getState().sidebarOpen) toggleSidebar();
+  }, [drawerKind, mainView, toggleSidebar]);
 
   // Load app config & projects on boot
   const { data: config } = useQuery<AppConfig>({
@@ -73,6 +90,24 @@ export const AppShell: React.FC = () => {
     switch (mainView) {
       case 'office3d':
         return <AgentStatusView />;
+      case 'harness':
+        return (
+          <div
+            id="harness-space-viewport"
+            style={{
+              flex: 1,
+              height: '100%',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              position: 'relative',
+              background: 'var(--bg)',
+            }}
+          >
+            <CustomHarnessStudio topicId={activeTopicId || undefined} isFullSpace={true} />
+          </div>
+        );
       case 'settings':
         return <SettingsModal />;
       case 'dashboard':
@@ -115,7 +150,7 @@ export const AppShell: React.FC = () => {
   };
 
   return (
-    <div id="app" style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
+    <div id="app" className="react-shell" style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
       {!sidebarOpen && (
         <div
           id="sidebar-collapsed-rail"

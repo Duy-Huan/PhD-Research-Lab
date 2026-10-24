@@ -146,8 +146,8 @@ def verify_experiment_provenance(topic_id: str, text: str, mission_tasks: Sequen
     unverified_claims = 0
 
     # Extract claims containing metrics
-    sentences = re.split(r"[.\n]\s*", text)
-    metric_sentences = [s.strip() for s in sentences if METRIC_NUM_PATTERN.search(s) and len(s.strip()) > 15]
+    sentences = [s.strip() for s in re.split(r"(?<!\d)\.(?:\s+|$)|[\r\n]+", text) if s.strip()]
+    metric_sentences = [s for s in sentences if METRIC_NUM_PATTERN.search(s) and len(s) > 15]
 
     # Gather known measured metrics from mission tasks
     known_metrics: dict[str, Any] = {}

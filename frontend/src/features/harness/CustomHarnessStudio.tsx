@@ -39,19 +39,28 @@ import {
   Sparkles,
   Bot,
   Zap,
+  ArrowLeft,
+  Maximize2,
+  X,
 } from 'lucide-react';
 
 interface CustomHarnessStudioProps {
   topicId?: string;
   onSwitchToAutomated?: () => void;
+  isFullSpace?: boolean;
 }
 
 export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
   topicId,
   onSwitchToAutomated,
+  isFullSpace,
 }) => {
   const queryClient = useQueryClient();
   const { t } = useI18n();
+  const { setMainView, open3DOffice, openHarnessStudio, mainView } = useUIStore();
+  const fullSpaceActive = isFullSpace ?? (mainView === 'harness');
+  const [paletteOpen, setPaletteOpen] = useState<boolean>(true);
+  const [inspectorOpen, setInspectorOpen] = useState<boolean>(true);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
   // Studio mode: 'manual' (this canvas) vs 'automated' (agent teams)
@@ -401,10 +410,11 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
         overflow: 'hidden',
       }}
     >
-      {/* Top Header: Mode Pill Selector (Automated Agent Flow vs Manual Drag-Drop Studio) */}
+      {/* Top Header: Mode Pill Selector + Full Space Navigation Controls */}
       <div
+        id="harness-space-header"
         style={{
-          padding: '10px 14px',
+          padding: '8px 14px',
           borderBottom: '1px solid var(--line)',
           background: 'var(--panel)',
           display: 'flex',
@@ -414,11 +424,57 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
           gap: 10,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Layers size={18} color="var(--accent)" />
-          <span style={{ fontWeight: 700, fontSize: 14 }}>
-            {t('Harness Studio & Thiết kế Quy trình', 'Harness Studio & Workflow Builder')}
-          </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          {fullSpaceActive && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <button
+                type="button"
+                className="btn sm ghost"
+                onClick={() => setMainView('chat')}
+                title={t('Quay lại Trò chuyện Nghiên cứu', 'Back to Research Chat')}
+                style={{ borderRadius: 6, gap: 5, padding: '4px 8px' }}
+              >
+                <ArrowLeft size={14} />
+                <span style={{ fontSize: 12 }}>{t('Trò chuyện', 'Chat')}</span>
+              </button>
+              <button
+                type="button"
+                className="btn sm ghost"
+                onClick={() => open3DOffice(true)}
+                title={t('Mở Phòng Lab 3D', 'Open 3D Lab')}
+                style={{ borderRadius: 6, gap: 5, padding: '4px 8px' }}
+              >
+                <Bot size={14} />
+                <span style={{ fontSize: 12 }}>{t('Lab 3D', '3D Lab')}</span>
+              </button>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Layers size={18} color="var(--accent)" />
+            <span style={{ fontWeight: 700, fontSize: 14 }}>
+              {t('Harness Studio & Thiết kế Quy trình', 'Harness Studio & Workflow Builder')}
+            </span>
+            {fullSpaceActive && (
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  background: 'rgba(16, 185, 129, 0.1)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: 999,
+                  padding: '2px 8px',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: 'var(--accent)',
+                }}
+              >
+                <Sliders size={11} />
+                <span>{t('Không gian Full Canvas', 'Full Canvas Space')}</span>
+              </span>
+            )}
+          </div>
 
           {/* Mode Switcher */}
           <div
@@ -428,7 +484,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
               borderRadius: 6,
               padding: 2,
               border: '1px solid var(--line)',
-              marginLeft: 8,
+              marginLeft: 4,
             }}
           >
             <button
@@ -457,10 +513,23 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
 
         {/* Workflow Action Bar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+          {!fullSpaceActive && (
+            <button
+              type="button"
+              className="btn sm accent"
+              onClick={() => openHarnessStudio()}
+              title={t('Mở rộng ra thành một space riêng có full không gian như 3D space', 'Pop out into a dedicated full canvas space like 3D space')}
+              style={{ borderRadius: 6, display: 'flex', alignItems: 'center', gap: 5 }}
+            >
+              <Maximize2 size={13} />
+              <span>{t('Topup Space Riêng', 'Topup Full Space')}</span>
+            </button>
+          )}
+
           {/* Preset / Custom Selector */}
           <select
             className="input sm"
-            style={{ minWidth: 200, fontSize: 12 }}
+            style={{ minWidth: 190, fontSize: 12 }}
             value={selectedWorkflowId}
             onChange={(e) => {
               const wf = workflows.find((w) => w.id === e.target.value);
@@ -524,15 +593,54 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
           >
             <FileDown size={13} />
           </button>
+
+          {fullSpaceActive && (
+            <>
+              <button
+                type="button"
+                className={`btn sm ${paletteOpen ? 'accent' : 'ghost'}`}
+                onClick={() => setPaletteOpen(!paletteOpen)}
+                title={paletteOpen ? t('Ẩn bảng công cụ', 'Hide tools palette') : t('Hiện bảng công cụ', 'Show tools palette')}
+                style={{ borderRadius: 6, gap: 4 }}
+              >
+                <Layers size={13} />
+                <span>{paletteOpen ? t('Ẩn Công cụ', 'Hide Tools') : t('Công cụ', 'Tools')}</span>
+              </button>
+
+              {selectedNode && (
+                <button
+                  type="button"
+                  className={`btn sm ${inspectorOpen ? 'accent' : 'ghost'}`}
+                  onClick={() => setInspectorOpen(!inspectorOpen)}
+                  title={inspectorOpen ? t('Ẩn bảng cấu hình', 'Hide config') : t('Hiện bảng cấu hình', 'Show config')}
+                  style={{ borderRadius: 6, gap: 4 }}
+                >
+                  <Sliders size={13} />
+                  <span>{inspectorOpen ? t('Ẩn Cấu hình', 'Hide Config') : t('Cấu hình', 'Config')}</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                className="icon sm"
+                onClick={() => setMainView('chat')}
+                title={t('Đóng Space, về Trò chuyện', 'Close Space, back to Chat')}
+                style={{ marginLeft: 2 }}
+              >
+                <X size={15} />
+              </button>
+            </>
+          )}
         </div>
       </div>
 
       {/* Main Studio Body: Left Palette + Center Canvas + Right Config Inspector */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
         {/* 1. Left Sidebar: Tool Palette */}
-        <aside
-          style={{
-            width: 250,
+        {paletteOpen ? (
+          <aside
+            style={{
+              width: 250,
             background: 'var(--panel)',
             borderRight: '1px solid var(--line)',
             display: 'flex',
@@ -611,6 +719,30 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
             ))}
           </div>
         </aside>
+        ) : (
+          <div
+            style={{
+              width: 36,
+              background: 'var(--panel)',
+              borderRight: '1px solid var(--line)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: '10px 4px',
+              gap: 8,
+              flexShrink: 0,
+            }}
+          >
+            <button
+              type="button"
+              className="icon sm"
+              onClick={() => setPaletteOpen(true)}
+              title={t('Mở bảng công cụ Harness', 'Open Harness tool palette')}
+            >
+              <Layers size={16} color="var(--accent)" />
+            </button>
+          </div>
+        )}
 
         {/* 2. Center: ReactFlow Canvas */}
         <div
@@ -658,7 +790,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
         </div>
 
         {/* 3. Right Sidebar: Node & Parameter Inspector */}
-        {selectedNode && (
+        {selectedNode && inspectorOpen ? (
           <aside
             style={{
               width: 270,
@@ -758,7 +890,30 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
               {t('Xóa node này', 'Delete this node')}
             </button>
           </aside>
-        )}
+        ) : selectedNode && !inspectorOpen ? (
+          <div
+            style={{
+              width: 36,
+              background: 'var(--panel)',
+              borderLeft: '1px solid var(--line)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: '10px 4px',
+              gap: 8,
+              flexShrink: 0,
+            }}
+          >
+            <button
+              type="button"
+              className="icon sm"
+              onClick={() => setInspectorOpen(true)}
+              title={t('Mở cấu hình bước kiểm thử', 'Open stage configuration')}
+            >
+              <Sliders size={16} color="var(--accent)" />
+            </button>
+          </div>
+        ) : null}
       </div>
 
       {/* Execution Report Modal */}

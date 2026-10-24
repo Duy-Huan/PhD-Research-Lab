@@ -12,6 +12,7 @@ import {
   Bot,
   Gauge,
   Award,
+  Sliders,
   MessageSquare,
   BookOpen,
   Compass,
@@ -62,6 +63,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
       id="top"
       style={{
         display: 'flex',
+        flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 8,
@@ -72,7 +74,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
       }}
     >
       {/* Left: Sidebar Toggle + Topic Pill */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+      <div className="header-topic" style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
         {!sidebarOpen && (
           <button
             className="icon"
@@ -107,6 +109,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
 
       {/* Center: ChatGPT-Style Segmented Mode Pill Switcher */}
       <div
+        className="header-modes"
         style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -152,6 +155,19 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
         </button>
         <button
           type="button"
+          className={`btn sm ${mainView === 'harness' ? 'accent' : 'ghost'}`}
+          onClick={() => setMainView('harness')}
+          title={t(
+            'Không gian Kiểm định & Thiết kế Quy trình Harness Studio Toàn màn hình',
+            'Full-Space Visual Harness Studio & Evaluation Pipeline'
+          )}
+          style={{ borderRadius: 999, padding: '4px 12px', gap: 5 }}
+        >
+          <Sliders size={14} />
+          <span style={{ fontSize: 12 }}>{t('Harness', 'Harness')}</span>
+        </button>
+        <button
+          type="button"
           className={`btn sm ${mainView === 'review' ? 'accent' : 'ghost'}`}
           onClick={() => setMainView('review')}
           title={t('Hội đồng Bình duyệt R1–R3 & LaTeX', 'Peer Review R1–R3 & LaTeX')}
@@ -171,7 +187,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
       </div>
 
       {/* Right: Icon-First Studio Bar + Language + Scale + Settings + Dedicated Panel Toggle */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, minWidth: 0 }}>
+      <div className="header-tools" style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, minWidth: 0 }}>
         {/* Collapsible/Scrollable Studio Shortcut Icons */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 3, minWidth: 0 }}>
           <button

@@ -50,7 +50,7 @@ export type DrawerKind =
   | 'cli'
   | null;
 
-export type MainViewMode = 'chat' | 'library' | 'office3d' | 'settings' | 'dashboard' | 'review' | 'guide';
+export type MainViewMode = 'chat' | 'library' | 'office3d' | 'harness' | 'settings' | 'dashboard' | 'review' | 'guide';
 export type AgentStatusViewMode = 'office3d' | 'list' | 'timeline';
 
 export type LabInteractiveObject =
@@ -124,6 +124,7 @@ interface UIState {
   toggleDrawer: (defaultKind?: DrawerKind) => void;
   openSettings: (tab?: string) => void;
   open3DOffice: (fullscreen?: boolean) => void;
+  openHarnessStudio: () => void;
   setSelectedAgentId: (id: string | null) => void;
   setSelectedMissionId: (id: string | null) => void;
   setSelectedLabObject: (obj: LabInteractiveObject) => void;
@@ -210,6 +211,9 @@ export const useUIStore = create<UIState>((set) => ({
       if (drawerKind === 'review') {
         return { mainView: 'review', drawerKind: null };
       }
+      if (drawerKind === 'harness') {
+        return { mainView: 'harness', drawerKind: null };
+      }
       return {
         drawerKind,
         drawerTab,
@@ -229,6 +233,7 @@ export const useUIStore = create<UIState>((set) => ({
     set({ mainView: 'settings', settingsTab: tab, drawerKind: null }),
   open3DOffice: (fullscreen = true) =>
     set({ mainView: 'office3d', officeFullscreen: fullscreen, drawerKind: null }),
+  openHarnessStudio: () => set({ mainView: 'harness', drawerKind: null }),
   setSelectedAgentId: (selectedAgentId) => set({ selectedAgentId }),
   setSelectedMissionId: (selectedMissionId) => set({ selectedMissionId }),
   setSelectedLabObject: (selectedLabObject) => set({ selectedLabObject }),

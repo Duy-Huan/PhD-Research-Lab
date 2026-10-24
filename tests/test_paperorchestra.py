@@ -16,6 +16,7 @@ Covers all prompt requirements (§8):
 """
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import os
@@ -185,7 +186,7 @@ class TestPaperOrchestraIntegration(unittest.TestCase):
     # ── 3. Capability-based Skill Backend ────────────────────────────────────
     def test_skill_backend_execution(self):
         task = EngineTask(
-            operation_id="PO-test0001:S1",
+            operation_id="RR-00000001:S1",
             attempt=1,
             project_id="top-po",
             workflow_id="wf-test-skill",
@@ -208,7 +209,7 @@ class TestPaperOrchestraIntegration(unittest.TestCase):
     # ── 4. Official CLI Backend in Isolated Environment ──────────────────────
     def test_cli_backend_isolation_and_execution(self):
         task = EngineTask(
-            operation_id="PO-test0002:S1",
+            operation_id="RR-00000002:S1",
             attempt=1,
             project_id="top-po",
             workflow_id="wf-test-cli",
@@ -395,7 +396,7 @@ class TestPaperOrchestraIntegration(unittest.TestCase):
     # ── 13. Execution Safety: Cancellation & Timeout Handling (§6) ───────────
     def test_execution_safety_cancellation(self):
         task = EngineTask(
-            operation_id="PO-test0003:S1",
+            operation_id="RR-00000003:S1",
             attempt=1,
             project_id="top-po",
             workflow_id="wf-cancel",
@@ -443,7 +444,7 @@ class TestPaperOrchestraIntegration(unittest.TestCase):
     def test_provider_fallback_to_harness_skills(self):
         engine = PaperOrchestraEngine()
         task = EngineTask(
-            operation_id="PO-test0004:S1",
+            operation_id="RR-00000004:S1",
             attempt=1,
             project_id="top-po",
             workflow_id="wf-fallback",
