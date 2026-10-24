@@ -5,7 +5,7 @@ import asyncio
 
 from fastapi import APIRouter, Body, Depends, File, Request, UploadFile
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import Response
+from fastapi.responses import FileResponse, Response
 
 from backend.agent import artifacts, memory_modes, orchestrator, policy as POL, sessions as store
 from backend.api.common import call, sse, stream
@@ -226,6 +226,31 @@ async def attach(file: UploadFile = File(...)):
     """Any file: PDF, Word, PowerPoint, Excel, notebooks, text/code, images. PDFs can also go to the library."""
     from backend.knowledge import attachments as AT
     return await call(AT.add_upload, file.filename or "file", await file.read())
+
+
+@router.get("/api/chat/attachments/{att_id}/file")
+async def attachment_file(att_id: str):
+    """Inline file for image previews, thumbnails and documents."""
+    import mimetypes
+    from backend.knowledge import attachments as AT
+    p = await call(AT.get_file_path, att_id)
+    meta = await call(AT.get_meta, att_id)
+    mt = meta.get("media_type") or mimetypes.guess_type(p.name)[0] or "application/octet-stream"
+    return FileResponse(p, media_type=mt, filename=meta.get("name") or p.name, content_disposition_type="inline")
+
+
+@router.get("/api/chat/attachments/{att_id}")
+async def attachment_meta(att_id: str):
+    """Metadata of an attachment."""
+    from backend.knowledge import attachments as AT
+    return await call(AT.get_meta, att_id)
+
+
+@router.post("/api/chat/attachments/{att_id}/analyze")
+async def attachment_analyze(att_id: str, body: dict = Body(default={})):
+    """Vision and image analysis tool endpoint."""
+    from backend.knowledge import attachments as AT
+    return await call(AT.analyze_image_attachment, att_id, str(body.get("focus", "")))
 
 
 # ------------------------------------------------------------------ artifacts (files a provider proposed)

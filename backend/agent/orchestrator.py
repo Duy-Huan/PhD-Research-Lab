@@ -328,6 +328,18 @@ def _tools(sid: str, tid: str, v: dict) -> bool:
     wanted = mcp_policy.propose(t["question"], allow) if v["mcp_auto"] else []
     wanted += [{"tool": x["tool"], "args": x.get("args") or {}, "reason": "requested for this turn"}
                for x in (t["overrides"].get("run_tools") or [])]
+    # Auto-propose image analysis when images are attached to the turn
+    attached_sources = list(t["overrides"].get("sources") or []) + list(s.get("selected_sources") or [])
+    for asrc in attached_sources:
+        if asrc.startswith("att:"):
+            aid = asrc[4:]
+            try:
+                from backend.knowledge import attachments as AT
+                ameta = AT.get_meta(aid)
+                if ameta.get("kind") == "image" and "research_analyze_image" in allow:
+                    wanted.append({"tool": "research_analyze_image", "args": {"attachment_id": aid, "focus": t["question"][:200]}, "reason": f"image {ameta.get('name', aid)} attached to turn"})
+            except Exception:
+                pass
     waiting = False
     for w in wanted:
         r = mcp_policy.risk(w["tool"])
@@ -527,7 +539,24 @@ def _app(sid, tid, s, t, v):
     if v["provider"] not in ENGINE and v["provider"] != "app:auto":
         from backend.providers.privacy import sanitize
         system = sanitize(system)[0]  # leaves the machine: credentials redacted, code under block_source_code
-    msgs = _history(s, tid) + [{"role": "user", "content": t["question"]}]
+    # Multimodal image attachment extraction for vision models
+    images = []
+    attached_sources = list(t["overrides"].get("sources") or []) + list(s.get("selected_sources") or [])
+    for asrc in attached_sources:
+        if asrc.startswith("att:"):
+            aid = asrc[4:]
+            try:
+                from backend.knowledge import attachments as AT
+                ameta = AT.get_meta(aid)
+                if ameta.get("kind") == "image":
+                    img_dict = AT.get_base64_image(aid)
+                    images.append({"media_type": img_dict["media_type"], "data": img_dict["data"]})
+            except Exception:
+                pass
+    user_msg = {"role": "user", "content": t["question"]}
+    if images:
+        user_msg["images"] = images
+    msgs = _history(s, tid) + [user_msg]
     out, err = [], ""
     limit = float(load_config()["aiws"].get("max_turn_s") or 900)
 

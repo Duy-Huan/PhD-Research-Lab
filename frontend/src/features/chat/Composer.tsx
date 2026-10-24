@@ -19,7 +19,35 @@ import {
   AlertCircle,
   ExternalLink,
   Bot,
+  Eye,
+  Copy,
+  Image as ImageIcon,
 } from 'lucide-react';
+
+interface AttachedImage {
+  id: string;
+  name: string;
+  url: string;
+  size: number;
+  width?: number;
+  height?: number;
+}
+
+interface AttachedDocument {
+  id: string;
+  name: string;
+  content: string;
+  size: number;
+  lines: number;
+  chars: number;
+  attId?: string;
+}
+
+const formatBytes = (bytes: number): string => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
 
 interface ComposerProps {
   onSend: (
@@ -49,6 +77,12 @@ export const Composer: React.FC<ComposerProps> = ({
   const [contextChips, setContextChips] = useState<
     Array<{ id: string; label: string; sourceKey: string }>
   >([]);
+  const [attachedImages, setAttachedImages] = useState<AttachedImage[]>([]);
+  const [attachedDocuments, setAttachedDocuments] = useState<AttachedDocument[]>([]);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const [previewDoc, setPreviewDoc] = useState<AttachedDocument | null>(null);
+  const [previewImage, setPreviewImage] = useState<AttachedImage | null>(null);
+  const [copiedDoc, setCopiedDoc] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -149,9 +183,222 @@ export const Composer: React.FC<ComposerProps> = ({
     }
   };
 
+  const uploadAndAttachFile = async (file: File) => {
+    setUploadingFile(true);
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      const res = await api.post<{
+        id: string;
+        name?: string;
+        filename?: string;
+        kind?: string;
+        width?: number;
+        height?: number;
+      }>('/api/chat/attachments', form);
+
+      if (res?.id) {
+        const attId = res.id;
+        const name = res.name || res.filename || file.name;
+        const isImg = res.kind === 'image' || file.type.startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|tiff?)$/i.test(name);
+
+        if (isImg) {
+          setAttachedImages((prev) => [
+            ...prev,
+            {
+              id: attId,
+              name,
+              url: `/api/chat/attachments/${attId}/file`,
+              size: file.size,
+              width: res.width,
+              height: res.height,
+            },
+          ]);
+        }
+
+        setContextChips((prev) => {
+          if (prev.some((c) => c.id === attId)) return prev;
+          return [
+            ...prev,
+            {
+              id: attId,
+              label: name,
+              sourceKey: `att:${attId}`,
+            },
+          ];
+        });
+      }
+    } catch (err) {
+      alert(`Error: ${(err as Error).message}`);
+    } finally {
+      setUploadingFile(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const uploadTextAttachment = async (file: File, docLocalId: string) => {
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      const res = await api.post<{ id: string }>('/api/chat/attachments', form);
+      if (res?.id) {
+        setAttachedDocuments((prev) =>
+          prev.map((d) => (d.id === docLocalId ? { ...d, attId: res.id } : d))
+        );
+        setContextChips((prev) => {
+          if (prev.some((c) => c.id === res.id)) return prev;
+          return [
+            ...prev,
+            {
+              id: res.id,
+              label: file.name,
+              sourceKey: `att:${res.id}`,
+            },
+          ];
+        });
+      }
+    } catch (err) {
+      console.warn('Could not register text attachment in backend:', err);
+    }
+  };
+
+  const handlePaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    // 1. Check for image files in clipboard items (e.g. screenshot Win+Shift+S)
+    const items = Array.from(e.clipboardData.items || []);
+    const imageItem = items.find((item) => item.type.startsWith('image/'));
+    if (imageItem) {
+      e.preventDefault();
+      const file = imageItem.getAsFile();
+      if (file) {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(11, 19);
+        const namedFile = new File([file], `screenshot_${timestamp}.png`, { type: file.type || 'image/png' });
+        await uploadAndAttachFile(namedFile);
+      }
+      return;
+    }
+
+    // 2. Check for long text pasted into composer
+    const pastedText = e.clipboardData.getData('text');
+    if (pastedText && (pastedText.length > 600 || pastedText.split('\n').length > 10)) {
+      e.preventDefault();
+      const docLocalId = `doc_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+      const lines = pastedText.split('\n').length;
+      const chars = pastedText.length;
+      const filename = `pasted_prompt_${new Date().toLocaleTimeString().replace(/:/g, '')}.txt`;
+      const blob = new Blob([pastedText], { type: 'text/plain;charset=utf-8' });
+      const textFile = new File([blob], filename, { type: 'text/plain' });
+
+      setAttachedDocuments((prev) => [
+        ...prev,
+        {
+          id: docLocalId,
+          name: filename,
+          content: pastedText,
+          size: blob.size,
+          lines,
+          chars,
+        },
+      ]);
+
+      await uploadTextAttachment(textFile, docLocalId);
+      return;
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(false);
+
+    const files = Array.from(e.dataTransfer.files || []);
+    if (!files.length) return;
+
+    for (const file of files) {
+      if (file.type.startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|tiff?)$/i.test(file.name)) {
+        await uploadAndAttachFile(file);
+      } else if (
+        file.type.startsWith('text/') ||
+        /\.(txt|md|py|json|csv|tsv|log|tex|js|ts|tsx|jsx|html|css|yaml|yml|sh|bat)$/i.test(file.name)
+      ) {
+        try {
+          const content = await file.text();
+          if (content.length > 600 || content.split('\n').length > 10) {
+            const docLocalId = `doc_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+            const lines = content.split('\n').length;
+            setAttachedDocuments((prev) => [
+              ...prev,
+              {
+                id: docLocalId,
+                name: file.name,
+                content,
+                size: file.size,
+                lines,
+                chars: content.length,
+              },
+            ]);
+            await uploadTextAttachment(file, docLocalId);
+          } else {
+            await uploadAndAttachFile(file);
+          }
+        } catch {
+          await uploadAndAttachFile(file);
+        }
+      } else {
+        await uploadAndAttachFile(file);
+      }
+    }
+  };
+
+  const removeImage = (id: string) => {
+    setAttachedImages((prev) => prev.filter((img) => img.id !== id));
+    setContextChips((prev) => prev.filter((c) => c.id !== id && c.sourceKey !== `att:${id}`));
+  };
+
+  const removeDocument = (id: string, attId?: string) => {
+    setAttachedDocuments((prev) => prev.filter((d) => d.id !== id));
+    if (attId) {
+      setContextChips((prev) => prev.filter((c) => c.id !== attId && c.sourceKey !== `att:${attId}`));
+    }
+  };
+
   const handleSend = () => {
     const trimmed = text.trim();
-    if (!trimmed || disabled) return;
+    const hasDocuments = attachedDocuments.length > 0;
+    const hasImages = attachedImages.length > 0;
+
+    if (!trimmed && !hasDocuments && !hasImages) return;
+    if (disabled) return;
+
+    let finalPrompt = trimmed;
+    if (hasDocuments) {
+      const docSections = attachedDocuments
+        .map(
+          (d) =>
+            `\n\n--- [Đính kèm: ${d.name} (${d.lines} dòng, ${formatBytes(d.size)})] ---\n${d.content}\n--- [Hết file ${d.name}] ---`
+        )
+        .join('');
+      if (!finalPrompt) {
+        finalPrompt =
+          t(
+            'Vui lòng đọc và phân tích tài liệu đính kèm bên dưới:',
+            'Please inspect and analyze the attached document below:'
+          ) + docSections;
+      } else {
+        finalPrompt = finalPrompt + docSections;
+      }
+    }
 
     const overrides: {
       provider?: string;
@@ -175,8 +422,10 @@ export const Composer: React.FC<ComposerProps> = ({
       overrides.sources = contextChips.map((c) => c.sourceKey);
     }
 
-    onSend(trimmed, Object.keys(overrides).length > 0 ? overrides : undefined);
+    onSend(finalPrompt, Object.keys(overrides).length > 0 ? overrides : undefined);
     setText('');
+    setAttachedDocuments([]);
+    setAttachedImages([]);
     setToolsMenuOpen(false);
   };
 
@@ -187,35 +436,14 @@ export const Composer: React.FC<ComposerProps> = ({
 
   const removeChip = (id: string) => {
     setContextChips((prev) => prev.filter((c) => c.id !== id));
+    setAttachedImages((prev) => prev.filter((img) => img.id !== id));
+    setAttachedDocuments((prev) => prev.filter((d) => d.attId !== id));
   };
 
   const handleFileAttach = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploadingFile(true);
-    try {
-      const form = new FormData();
-      form.append('file', file);
-      const res = await api.post<{ id: string; name?: string; filename?: string }>(
-        '/api/chat/attachments',
-        form
-      );
-      if (res?.id) {
-        setContextChips((prev) => [
-          ...prev,
-          {
-            id: res.id,
-            label: res.name || res.filename || file.name,
-            sourceKey: `att:${res.id}`,
-          },
-        ]);
-      }
-    } catch (err) {
-      alert(`Error: ${(err as Error).message}`);
-    } finally {
-      setUploadingFile(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
+    await uploadAndAttachFile(file);
   };
 
   const quickCommands = [
@@ -375,23 +603,172 @@ export const Composer: React.FC<ComposerProps> = ({
 
         {/* ChatGPT-Style Rounded Pill Box */}
         <div
+          onDragOver={handleDragOver}
+          onDragEnter={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
           style={{
             display: 'flex',
             flexDirection: 'column',
             gap: 6,
-            border: '1px solid var(--line-2)',
+            border: isDraggingOver ? '2px dashed var(--accent)' : '1px solid var(--line-2)',
             borderRadius: 24,
             padding: compact ? '8px 12px' : '10px 16px',
-            background: 'var(--panel)',
+            background: isDraggingOver ? 'var(--accent-soft)' : 'var(--panel)',
             color: 'var(--ink)',
             boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
+            transition: 'all 0.15s ease',
+            position: 'relative',
           }}
         >
+          {/* Drag Overlay Hint */}
+          {isDraggingOver && (
+            <div
+              style={{
+                padding: '8px 12px',
+                textAlign: 'center',
+                color: 'var(--accent)',
+                fontWeight: 600,
+                fontSize: 12.5,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+              }}
+            >
+              <ImageIcon size={18} />
+              <span>{t('Thả hình ảnh hoặc file văn bản vào đây để đính kèm…', 'Drop image or text file here to attach…')}</span>
+            </div>
+          )}
+
+          {/* Attached Images Preview Strip */}
+          {attachedImages.length > 0 && (
+            <div
+              data-testid="attached-images-strip"
+              style={{
+                display: 'flex',
+                gap: 8,
+                flexWrap: 'wrap',
+                paddingBottom: 6,
+                borderBottom: '1px solid var(--line)',
+              }}
+            >
+              {attachedImages.map((img) => (
+                <div
+                  key={img.id}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '3px 8px 3px 4px',
+                    borderRadius: 10,
+                    background: 'var(--bg-2)',
+                    border: '1px solid var(--line-2)',
+                    fontSize: 11.5,
+                  }}
+                >
+                  <img
+                    src={img.url}
+                    alt={img.name}
+                    onClick={() => setPreviewImage(img)}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      objectFit: 'cover',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      border: '1px solid var(--line)',
+                    }}
+                    title={t('Bấm để xem ảnh lớn', 'Click to view full image')}
+                  />
+                  <div style={{ display: 'flex', flexDirection: 'column', maxWidth: 120 }}>
+                    <span className="ellipsis" style={{ fontWeight: 500 }} title={img.name}>
+                      {img.name}
+                    </span>
+                    <span className="muted" style={{ fontSize: 10 }}>
+                      {formatBytes(img.size)}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="icon sm"
+                    onClick={() => removeImage(img.id)}
+                    style={{ width: 16, height: 16, padding: 0 }}
+                    title={t('Xóa ảnh', 'Remove image')}
+                  >
+                    <X size={11} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Attached Long Prompts / .txt Cards Strip */}
+          {attachedDocuments.length > 0 && (
+            <div
+              data-testid="attached-documents-strip"
+              style={{
+                display: 'flex',
+                gap: 8,
+                flexWrap: 'wrap',
+                paddingBottom: 6,
+                borderBottom: '1px solid var(--line)',
+              }}
+            >
+              {attachedDocuments.map((doc) => (
+                <div
+                  key={doc.id}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '6px 10px',
+                    borderRadius: 12,
+                    background: 'var(--accent-soft)',
+                    border: '1px solid var(--accent)',
+                    color: 'var(--ink)',
+                    fontSize: 12,
+                  }}
+                >
+                  <FileText size={16} color="var(--accent)" style={{ flexShrink: 0 }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, maxWidth: 160 }}>
+                    <b className="ellipsis" style={{ fontSize: 11.5 }} title={doc.name}>
+                      {doc.name}
+                    </b>
+                    <span style={{ fontSize: 10.5, color: 'var(--muted)' }}>
+                      {doc.lines} {t('dòng', 'lines')} · {formatBytes(doc.size)}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn sm ghost"
+                    onClick={() => setPreviewDoc(doc)}
+                    style={{ padding: '2px 6px', fontSize: 11, height: 22, borderRadius: 6, gap: 3 }}
+                    title={t('Xem nội dung văn bản', 'Preview text content')}
+                  >
+                    <Eye size={11} />
+                    <span>{t('Xem', 'View')}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="icon sm"
+                    onClick={() => removeDocument(doc.id, doc.attId)}
+                    style={{ width: 18, height: 18, padding: 0 }}
+                    title={t('Gỡ bỏ tài liệu', 'Remove document')}
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
           <textarea
             ref={textareaRef}
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
+            onPaste={handlePaste}
             placeholder={t(
               'Hỏi bất kỳ điều gì hoặc gõ / để gọi kỹ năng nghiên cứu…',
               'Ask anything, or type / for research skills…'
@@ -638,19 +1015,19 @@ export const Composer: React.FC<ComposerProps> = ({
                 <button
                   type="button"
                   onClick={handleSend}
-                  disabled={!text.trim() || disabled}
+                  disabled={(!text.trim() && attachedDocuments.length === 0 && attachedImages.length === 0) || disabled}
                   title={t('Gửi', 'Send (Enter)')}
                   style={{
                     width: 30,
                     height: 30,
                     borderRadius: '50%',
                     border: 'none',
-                    background: text.trim() && !disabled ? 'var(--accent)' : 'var(--line-2)',
-                    color: text.trim() && !disabled ? 'var(--accent-ink)' : 'var(--muted)',
+                    background: (text.trim() || attachedDocuments.length > 0 || attachedImages.length > 0) && !disabled ? 'var(--accent)' : 'var(--line-2)',
+                    color: (text.trim() || attachedDocuments.length > 0 || attachedImages.length > 0) && !disabled ? 'var(--accent-ink)' : 'var(--muted)',
                     display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    cursor: text.trim() && !disabled ? 'pointer' : 'not-allowed',
+                    cursor: (text.trim() || attachedDocuments.length > 0 || attachedImages.length > 0) && !disabled ? 'pointer' : 'not-allowed',
                     transition: 'all 0.15s',
                   }}
                 >
@@ -661,6 +1038,165 @@ export const Composer: React.FC<ComposerProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Document Content Preview Modal */}
+      {previewDoc && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.6)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+          }}
+          onClick={() => setPreviewDoc(null)}
+        >
+          <div
+            style={{
+              background: 'var(--panel)',
+              border: '1px solid var(--line-2)',
+              borderRadius: 16,
+              maxWidth: 720,
+              width: '100%',
+              maxHeight: '80vh',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: 'var(--shadow)',
+              overflow: 'hidden',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                padding: '12px 18px',
+                borderBottom: '1px solid var(--line)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <FileText size={18} color="var(--accent)" />
+                <b style={{ fontSize: 13.5 }}>{previewDoc.name}</b>
+                <span className="muted" style={{ fontSize: 12 }}>
+                  ({previewDoc.lines} {t('dòng', 'lines')} · {formatBytes(previewDoc.size)})
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <button
+                  type="button"
+                  className="btn sm ghost"
+                  onClick={() => {
+                    navigator.clipboard.writeText(previewDoc.content);
+                    setCopiedDoc(true);
+                    setTimeout(() => setCopiedDoc(false), 2000);
+                  }}
+                  style={{ fontSize: 11.5, gap: 4 }}
+                >
+                  <Copy size={12} />
+                  <span>{copiedDoc ? t('Đã chép!', 'Copied!') : t('Sao chép', 'Copy')}</span>
+                </button>
+                <button
+                  type="button"
+                  className="icon sm"
+                  onClick={() => setPreviewDoc(null)}
+                >
+                  <X size={15} />
+                </button>
+              </div>
+            </div>
+            <div
+              style={{
+                padding: 16,
+                overflowY: 'auto',
+                flex: 1,
+                fontFamily: 'monospace',
+                fontSize: 12.5,
+                lineHeight: 1.6,
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+                background: 'var(--bg-2)',
+              }}
+            >
+              {previewDoc.content}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Preview Lightbox Modal */}
+      {previewImage && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.75)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 24,
+          }}
+          onClick={() => setPreviewImage(null)}
+        >
+          <div
+            style={{
+              position: 'relative',
+              maxWidth: 900,
+              maxHeight: '90vh',
+              background: 'var(--panel)',
+              borderRadius: 14,
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                padding: '10px 16px',
+                borderBottom: '1px solid var(--line)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <span style={{ fontWeight: 600, fontSize: 13 }}>{previewImage.name}</span>
+              <button
+                type="button"
+                className="icon sm"
+                onClick={() => setPreviewImage(null)}
+              >
+                <X size={15} />
+              </button>
+            </div>
+            <div
+              style={{
+                padding: 16,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: '#000',
+                overflow: 'auto',
+              }}
+            >
+              <img
+                src={previewImage.url}
+                alt={previewImage.name}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '75vh',
+                  objectFit: 'contain',
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

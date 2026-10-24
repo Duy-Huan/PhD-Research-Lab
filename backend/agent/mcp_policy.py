@@ -30,6 +30,7 @@ RULES = (  # (tool, pattern, args builder) — first matching rules win, at most
     ("research_get_failures", r"(?i)\b(fail|failure|oom|crash|diverg|nan)\w*|lỗi|thất bại", "query"),
     ("research_get_decisions", r"(?i)\bdecision|decided|chose|quyết định", "none"),
     ("research_get_evidence", r"(?i)\bevidence|claim|support|refut|bằng chứng|chứng cứ", "query"),
+    ("research_analyze_image", r"(?i)\b(image|picture|figure|plot|chart|diagram|photo|screenshot|đồ thị|hình ảnh|ảnh|sơ đồ)\b", "image"),
     ("web_search", r"(?i)internet|\bweb\b|google|trên mạng|mới nhất|gần đây|latest|recent|news|tin tức", "query"),
 )
 
@@ -82,6 +83,11 @@ def propose(question: str, allow: list) -> list:
             m = re.search(ID_PAT[tool], q)
             if m:
                 out.append({"tool": tool, "args": {"id": m.group(0)}, "reason": f"the question names {m.group(0)}"})
+        elif kind == "image" and re.search(pat, q):
+            m = re.search(r"\batt:([a-f0-9]{12})\b|\b([a-f0-9]{12})\b", q)
+            att_id = (m.group(1) or m.group(2)) if m else ""
+            if att_id:
+                out.append({"tool": tool, "args": {"attachment_id": att_id, "focus": q[:200]}, "reason": f"the question refers to image {att_id}"})
         elif re.search(pat, q):
             args = {"query": q[:280 if tool == "web_search" else 500]} if kind == "query" else {}
             out.append({"tool": tool, "args": args, "reason": "keywords in the question"})

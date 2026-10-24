@@ -8,6 +8,8 @@ import { api } from '../../shared/api/client';
 
 describe('AgentStatusView', () => {
   const mockConfig = {
+    projects: [{ name: 'Default', data_dir: '/path/data' }],
+    active_project: { name: 'Default', data_dir: '/path/data' },
     agent_modes: {
       assistant: 'cloud:google',
       research: 'claude_code',
