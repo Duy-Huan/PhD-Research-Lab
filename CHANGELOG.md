@@ -1,5 +1,11 @@
 # Changelog
 
+## 6.4.3 — QA foundation — 2026-10-24
+
+- Pin four reviewed GitHub skills with source revisions and upstream licenses. Add session continuation plan, state and repository QA instructions.
+- Protect `skills/` and `agent/` from deletion, including CI/staged-change checks. Preserve existing research data and unrelated working changes.
+- Add a single version synchronization command. Full-project 100% coverage and release qualification remain unachieved; see `agent/STATE.md`.
+
 ## Frontend workflow and model resources — 2026-10-22
 
 - Scoped agent model lists to the selected API/local/MCP source; reset overrides atomically when the source changes, preserve custom model controls on refresh, expose API base URLs and local/cloud fallback policy, retain entered keys after failed saves.
