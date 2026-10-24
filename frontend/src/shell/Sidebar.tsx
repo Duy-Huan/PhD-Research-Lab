@@ -76,6 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
   const [editingFolder, setEditingFolder] = useState<ChatProject | null>(null);
   const [assigningSessionId, setAssigningSessionId] = useState<string | null>(null);
   const [sessionMenuOpenId, setSessionMenuOpenId] = useState<string | null>(null);
+  const [folderMenuOpenId, setFolderMenuOpenId] = useState<string | null>(null);
   const [renamingSessionId, setRenamingSessionId] = useState<string | null>(null);
   const [renameTitle, setRenameTitle] = useState('');
 
