@@ -575,12 +575,13 @@ export const Composer: React.FC<ComposerProps> = ({
               <button
                 type="button"
                 className="btn sm accent"
-                style={{ padding: '2px 8px', fontSize: 11, borderRadius: 6 }}
+                style={{ padding: '4px 10px', minHeight: 26, minWidth: 28, fontSize: 11, borderRadius: 6 }}
                 onClick={async () => {
                   await api.post(`/api/providers/${providerCode}/connect`, { mode: 'terminal' });
                   alert(t(`Đã mở terminal đăng nhập cho ${assistantLabel}`, `Opened terminal login for ${assistantLabel}`));
                 }}
                 title={t('Mở Terminal trên máy để đăng nhập CLI', 'Open terminal to log in CLI')}
+                aria-label={t('Mở Terminal trên máy để đăng nhập CLI', 'Open terminal to log in CLI')}
               >
                 <Terminal size={11} style={{ marginRight: 3 }} />
                 <span>{t('Đăng nhập CLI', 'Terminal Login')}</span>
@@ -588,11 +589,12 @@ export const Composer: React.FC<ComposerProps> = ({
               <button
                 type="button"
                 className="btn sm ghost"
-                style={{ padding: '2px 8px', fontSize: 11, borderRadius: 6 }}
+                style={{ padding: '4px 10px', minHeight: 26, minWidth: 28, fontSize: 11, borderRadius: 6 }}
                 onClick={async () => {
                   await api.post(`/api/providers/${providerCode}/connect`, { mode: 'web' });
                 }}
                 title={t('Chuyển tiếp đến Web/App để đăng nhập tài khoản', 'Forward to Web/App login')}
+                aria-label={t('Chuyển tiếp đến Web/App để đăng nhập tài khoản', 'Forward to Web/App login')}
               >
                 <ExternalLink size={11} style={{ marginRight: 3 }} />
                 <span>{t('Mở Web/App', 'Open Web/App')}</span>

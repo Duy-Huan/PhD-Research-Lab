@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUIStore, useI18n } from '../../shared/state/uiStore';
+import type { DrawerKind } from '../../shared/state/uiStore';
 import { api } from '../../shared/api/client';
 import type { ChatSession, ChatProject } from '../../shared/api/types';
 import { MessageList } from './MessageList';
@@ -18,13 +19,18 @@ export const ChatCenter: React.FC<ChatCenterProps> = ({ compact = false }) => {
   const [streamingText, setStreamingText] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [activeTurnId, setActiveTurnId] = useState<string | null>(null);
+  const [memoryFeedback, setMemoryFeedback] = useState<{ error: boolean; text: string } | null>(null);
   const esRef = useRef<EventSource | null>(null);
+  const { data: actionsData } = useQuery<{ actions: Array<{ name: string; route_or_component_key: string }> }>({
+    queryKey: ['skills'], queryFn: () => api.get('/api/skills'),
+  });
 
   // Fetch current session details directly
   const { data: sessionData, refetch: refetchSession } = useQuery<ChatSession>({
     queryKey: ['chat', activeSessionId],
     queryFn: () => api.get<ChatSession>(`/api/chat/sessions/${activeSessionId}`),
     enabled: !!activeSessionId,
+    refetchInterval: query => query.state.data?.turns?.some(t => ['queued', 'running'].includes(t.status)) ? 1500 : false,
   });
 
   // Fetch chat folders so we can display shared folder context badge
@@ -42,9 +48,22 @@ export const ChatCenter: React.FC<ChatCenterProps> = ({ compact = false }) => {
   const memoryItems = sessionData?.memory_items || [];
   const turns = sessionData?.turns || [];
 
+  useEffect(() => {
+    if (!activeSessionId || sessionData?.id !== activeSessionId) {
+      setIsStreaming(false);
+      setActiveTurnId(null);
+      setStreamingText('');
+      return;
+    }
+    const running = sessionData.turns?.find(t => ['queued', 'running'].includes(t.status));
+    setIsStreaming(Boolean(running));
+    setActiveTurnId(running?.id || null);
+    if (!running) setStreamingText('');
+  }, [sessionData, activeSessionId]);
+
   // Subscribe to session SSE stream for live token deltas and turn completion
   useEffect(() => {
-    if (!activeSessionId) {
+    if (!activeSessionId || sessionData?.id !== activeSessionId) {
       if (esRef.current) {
         esRef.current.close();
         esRef.current = null;
@@ -62,18 +81,24 @@ export const ChatCenter: React.FC<ChatCenterProps> = ({ compact = false }) => {
         if (data.type === 'message.delta') {
           setIsStreaming(true);
           if (data.turn_id) setActiveTurnId(data.turn_id);
-          setStreamingText((prev) => prev + (data.delta || data.text || ''));
+          setStreamingText((prev) => prev + (data.data?.text || data.delta || data.text || ''));
         } else if (
           data.type === 'turn.completed' ||
           data.type === 'turn.failed' ||
           data.type === 'turn.cancelled' ||
           data.type === 'message.created' ||
+          data.type === 'message.completed' ||
+          data.type === 'turn.awaiting_launch' ||
+          data.type === 'action.approval_required' ||
+          data.type === 'tool.approval_required' ||
           data.type === 'approval.requested'
         ) {
           if (
             data.type === 'turn.completed' ||
             data.type === 'turn.failed' ||
-            data.type === 'turn.cancelled'
+          data.type === 'turn.cancelled' ||
+          data.type === 'turn.awaiting_launch' ||
+          data.type === 'tool.approval_required'
           ) {
             setIsStreaming(false);
             setStreamingText('');
@@ -91,7 +116,7 @@ export const ChatCenter: React.FC<ChatCenterProps> = ({ compact = false }) => {
       es.close();
       esRef.current = null;
     };
-  }, [activeSessionId, queryClient]);
+  }, [activeSessionId, sessionData?.id, queryClient]);
 
   // Send turn mutation
   const sendMutation = useMutation({
@@ -154,7 +179,13 @@ export const ChatCenter: React.FC<ChatCenterProps> = ({ compact = false }) => {
         throw err;
       }
     },
-    onSuccess: ({ sid }) => {
+    onSuccess: ({ sid, result }) => {
+      const status = result.status || result.turn?.status;
+      if (status && !['queued', 'running'].includes(status)) {
+        setIsStreaming(false);
+        setStreamingText('');
+        setActiveTurnId(null);
+      }
       queryClient.invalidateQueries({ queryKey: ['chat', sid] });
       queryClient.invalidateQueries({ queryKey: ['sessions'] });
     },
@@ -168,6 +199,15 @@ export const ChatCenter: React.FC<ChatCenterProps> = ({ compact = false }) => {
     text: string,
     overrides?: { provider?: string; model?: string; reasoning?: string; sources?: string[] }
   ) => {
+    const command = text.trim().split(/\s+/)[0].slice(1);
+    const action = actionsData?.actions?.find(a => a.name === command && text.trim().startsWith('/'));
+    const drawers: Record<string, DrawerKind> = { papers: 'library', library: 'library', topics: 'topics',
+      settings: 'settings', missions: 'missions', monitor: 'missions', workstreams: 'workstreams',
+      teams: 'missions', protocols: 'protocols', claims: 'claims' };
+    if (action && drawers[action.route_or_component_key]) {
+      useUIStore.getState().openDrawer(drawers[action.route_or_component_key]);
+      return;
+    }
     sendMutation.mutate({ text, overrides });
   };
 
@@ -210,14 +250,21 @@ export const ChatCenter: React.FC<ChatCenterProps> = ({ compact = false }) => {
 
   const handleRememberMessage = async (messageId: string, content: string) => {
     if (!activeSessionId) return;
-    await api.post(`/api/chat/sessions/${activeSessionId}/memory`, {
-      message_id: messageId,
-      type: 'fact',
-      content: content.slice(0, 600),
-      title: content.slice(0, 60),
-      save: true,
-    });
-    queryClient.invalidateQueries({ queryKey: ['chat', activeSessionId] });
+    setMemoryFeedback(null);
+    try {
+      await api.post(`/api/chat/sessions/${activeSessionId}/memory`, {
+        message_id: messageId,
+        // Saving model prose creates a knowledge note, not a verified scientific fact.
+        type: 'knowledge',
+        content: content.slice(0, 600),
+        title: content.slice(0, 60),
+        save: true,
+      });
+      queryClient.invalidateQueries({ queryKey: ['chat', activeSessionId] });
+      setMemoryFeedback({ error: false, text: t('Đã lưu vào Bộ nhớ Dự án', 'Saved to Project Memory') });
+    } catch (error) {
+      setMemoryFeedback({ error: true, text: (error as Error).message });
+    }
   };
 
   const handlePinMessage = async (messageId: string, pinned: boolean) => {
@@ -242,6 +289,8 @@ export const ChatCenter: React.FC<ChatCenterProps> = ({ compact = false }) => {
         color: 'var(--ink)',
       }}
     >
+      {sendMutation.isError && <div role="alert">{sendMutation.error.message}</div>}
+      {memoryFeedback && <div role={memoryFeedback.error ? 'alert' : 'status'} style={{ padding: '8px 16px' }}>{memoryFeedback.text}</div>}
       <MessageList
         sessionTitle={sessionData?.title}
         activeFolder={activeFolder}
@@ -259,6 +308,11 @@ export const ChatCenter: React.FC<ChatCenterProps> = ({ compact = false }) => {
         onPinMessage={handlePinMessage}
         onQuickSend={(prompt) => handleSend(prompt)}
         onCancelTurn={activeTurnId ? handleCancelTurn : undefined}
+        onLaunchTurn={async tid => {
+          if (!activeSessionId) return;
+          await api.post(`/api/chat/sessions/${activeSessionId}/turns/${tid}/launch`, {});
+          refetchSession();
+        }}
       />
       <Composer
         onSend={handleSend}

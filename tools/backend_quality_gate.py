@@ -76,6 +76,10 @@ CORE_MODULES = [
     "test_harness_verification",
 ]
 
+AUTONOMY_MODULES = ["test_autonomy", "test_workflow_worker", "test_qwen_local", "test_quality_evidence", "test_xml_search_security"]
+SMOKE_MODULES += AUTONOMY_MODULES
+CORE_MODULES += AUTONOMY_MODULES
+
 
 def get_git_commit() -> str:
     try:
@@ -163,7 +167,7 @@ def run_gate(
     output_dir: Path | None = None,
     allow_full: bool = False,
 ) -> int:
-    output_dir = output_dir or DEFAULT_OUTPUT_DIR
+    output_dir = (output_dir or DEFAULT_OUTPUT_DIR).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
     if profile == "full" and not allow_full:
@@ -188,9 +192,6 @@ def run_gate(
     if str(ROOT / "tests") not in sys.path:
         sys.path.insert(0, str(ROOT / "tests"))
 
-    # Import environment setup
-    import _env  # noqa: F401
-
     start_time = datetime.datetime.now(datetime.timezone.utc)
     log_file_path = output_dir / "unittest.log"
     report_file_path = output_dir / "report.json"
@@ -204,11 +205,15 @@ def run_gate(
                 config_file=str(ROOT / ".coveragerc") if (ROOT / ".coveragerc").exists() else True,
                 branch=True,
                 source=["backend"],
+                data_file=str(output_dir / ".coverage"),
             )
             cov.start()
         except Exception as e:
             print(f"Warning: Coverage collection could not start: {e}")
             cov = None
+
+    # Begin tracing before application imports, including module-level declarations.
+    import _env  # noqa: F401
 
     log_buffer = io.StringIO()
     tee_stream = TeeStream(sys.stderr, log_buffer)
@@ -286,12 +291,20 @@ def run_gate(
         "G6_Security_ASVS": "PASS" if passed_all else "FAIL",
         "G7_Multi_Provider": "PASS" if passed_all else "FAIL",
         "G8_Resource_Guard": "PASS" if passed_all else "FAIL",
-        "G9_Coverage": "PASS" if coverage_summary.get("percent_covered", 0) > 0 else "PASS",
+        "G9_Coverage": "BLOCKED" if not coverage_summary else "PASS" if coverage_summary["covered_lines"] == coverage_summary["num_statements"] and coverage_summary["covered_branches"] == coverage_summary["num_branches"] else "FAIL",
         "G10_Performance": "PASS" if elapsed < 600 else "FAIL",
         "G11_Observability": "PASS" if passed_all else "FAIL",
-        "G12_Cross_Platform": "PASS",
+        "G12_Cross_Platform": "BLOCKED",
         "G13_Offline_Integration": "PASS" if passed_all else "FAIL",
     }
+
+    # Passing a selected test suite cannot establish unexecuted production/security gates.
+    for name in ("G1_Data_Safety", "G3_Recovery", "G6_Security_ASVS", "G7_Multi_Provider", "G10_Performance", "G11_Observability"):
+        gates[name] = "CONDITIONAL" if passed_all else "FAIL"
+    if result.skipped:
+        gates["G0_Test_Integrity"] = "BLOCKED"
+    from tools.quality_evidence import assess
+    decision = assess({"total_run": result.testsRun, "failures": len(result.failures), "errors": len(result.errors), "skipped": len(result.skipped)}, coverage_summary)
 
     report = {
         "metadata": {
@@ -313,11 +326,12 @@ def run_gate(
             "errors": len(result.errors),
             "skipped": len(result.skipped),
             "was_successful": passed_all,
-            "overall_decision": "PASS" if passed_all else "FAIL",
+            "overall_decision": decision,
         },
         "coverage": coverage_summary,
         "quality_gates": gates,
         "cases": getattr(result, "test_cases_recorded", []),
+        "limitations": ["Per-test success is scoped to executed cases; no blanket security or platform certification", "Skipped tests and missing coverage prevent release acceptance", "Live-provider and real-browser suites require separate opt-in runs"],
     }
 
     with open(report_file_path, "w", encoding="utf-8") as rf:
@@ -331,6 +345,7 @@ def run_gate(
 
     print("\n" + "=" * 60)
     print(f"Backend Quality Gate [{profile.upper()}]: {'PASS' if passed_all else 'FAIL'}")
+    print(f"Release assessment: {decision}")
     print(f"Tests Run: {result.testsRun} | Passed: {report['summary']['passed']} | Failures: {len(result.failures)} | Errors: {len(result.errors)} | Skipped: {len(result.skipped)}")
     print(f"Duration: {elapsed:.2f}s")
     if coverage_summary:

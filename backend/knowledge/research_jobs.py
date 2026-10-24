@@ -267,8 +267,6 @@ async def worker(stop: asyncio.Event):
                         with S.db() as c:
                             c.execute("UPDATE jobs SET status='interrupted',updated=? WHERE status IN ('running','cancelling')", (S.now(),))
                         recovered.add(str(path))
-                        from backend.agent import missions
-                        await asyncio.to_thread(missions.recover)
                         from backend.execution import protocols
                         await asyncio.to_thread(protocols.recover)
                     await asyncio.to_thread(schedule_due)
@@ -277,8 +275,6 @@ async def worker(stop: asyncio.Event):
                         queued = {**dict(row), "payload": json.loads(row["payload"])} if row else None
                     if queued:
                         await execute(queued)
-                    from backend.agent import missions
-                    await missions.tick()
                 except asyncio.CancelledError:
                     raise
                 except Exception:

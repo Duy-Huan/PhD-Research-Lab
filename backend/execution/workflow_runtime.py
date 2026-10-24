@@ -330,8 +330,11 @@ def execute_workflow_graph(
 
     node_map = {n["id"]: n for n in nodes}
     edge_map: dict[str, list[dict[str, Any]]] = {}
+    in_edges_map: dict[str, list[str]] = {}
     for e in edges:
         edge_map.setdefault(e.get("source"), []).append(e)
+        if e.get("source") and e.get("target"):
+            in_edges_map.setdefault(e["target"], []).append(e["source"])
 
     context: dict[str, Any] = {
         "topic_id": topic_id,
@@ -369,7 +372,28 @@ def execute_workflow_graph(
         curr_id = queue.pop(0)
         curr_node = node_map[curr_id]
 
-        res = _execute_single_node(curr_node, context, execution_level)
+        parents = in_edges_map.get(curr_id, [])
+        parent_blocked = any(
+            context["node_results"].get(p, {}).get("status") in ("blocked", "failed")
+            or not context["node_results"].get(p, {}).get("passed", True)
+            for p in parents
+        )
+        if parent_blocked:
+            res = {
+                "node_id": curr_id,
+                "node_type": curr_node.get("type") or curr_node.get("data", {}).get("node_type") or "harnessNode",
+                "label": curr_node.get("data", {}).get("label", curr_id),
+                "status": "blocked",
+                "passed": False,
+                "duration_s": 0.0,
+                "out_branch": "fail",
+                "metrics": {},
+                "summary": "Tác vụ bị chặn do các bước phụ thuộc trước đó không hoàn thành hoặc adapter chưa sẵn sàng.",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        else:
+            res = _execute_single_node(curr_node, context, execution_level)
+
         context["node_results"][curr_id] = res
         execution_order.append(curr_id)
 
@@ -408,13 +432,14 @@ def execute_workflow_graph(
         for r in node_statuses
     ]
 
+    has_blocked = any(r.get("status") == "blocked" for r in node_statuses)
     report: dict[str, Any] = {
         "execution_id": eid,
         "workflow_id": workflow.get("id", "custom"),
         "workflow_name": workflow.get("name", "Custom Workflow"),
         "execution_level": execution_level,
-        "status": "completed" if overall_passed else "failed",
-        "passed": overall_passed,
+        "status": "blocked" if has_blocked else ("completed" if overall_passed else "failed"),
+        "passed": overall_passed and not has_blocked,
         "total_duration_s": total_duration,
         "nodes_count": len(nodes),
         "steps_executed": len(execution_order),

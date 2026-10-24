@@ -402,9 +402,39 @@ def delete_workflow(wid: str) -> bool:
 # 4. Harness Tool Execution Engine
 # -----------------------------------------------------------------------------
 
+def _is_tool_available(tool_id: str) -> bool:
+    """Check if the real underlying harness tool or CLI is installed and available."""
+    import shutil
+    import importlib.util
+    if tool_id == "lm_evaluation_harness":
+        return bool(shutil.which("lm_eval") or importlib.util.find_spec("lm_eval"))
+    elif tool_id == "inspect_ai":
+        return bool(shutil.which("inspect") or importlib.util.find_spec("inspect_ai"))
+    elif tool_id == "ragas":
+        return bool(importlib.util.find_spec("ragas"))
+    elif tool_id == "promptfoo":
+        return bool(shutil.which("promptfoo"))
+    elif tool_id == "swe_bench":
+        return bool(importlib.util.find_spec("swebench"))
+    elif tool_id == "pytest_harness":
+        return bool(shutil.which("pytest") or importlib.util.find_spec("pytest"))
+    elif tool_id == "phdlab_research_harness":
+        return True
+    return False
+
+
 def _execute_harness_tool(tool_id: str, params: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
-    """Execute a single harness tool node, falling back to deterministic oracle when CLI is absent."""
+    """Execute a single harness tool node, failing closed when external CLI/adapter is absent."""
     t0 = time.perf_counter()
+
+    if not _is_tool_available(tool_id):
+        return {
+            "status": "blocked",
+            "passed": False,
+            "duration_s": round(time.perf_counter() - t0, 3),
+            "metrics": {},
+            "summary": f"Harness adapter '{tool_id}' is not configured or unavailable in the current environment.",
+        }
 
     if tool_id == "lm_evaluation_harness":
         tasks = str(params.get("tasks", "gsm8k,mmlu")).split(",")
@@ -599,7 +629,23 @@ def execute_workflow(workflow: dict[str, Any], topic_id: str = "") -> dict[str, 
         tool_id = data.get("tool", "phdlab_research_harness")
         params = data.get("params", {})
 
-        result = _execute_harness_tool(tool_id, params, context)
+        parents = [src for src, tgts in adj.items() if nid in tgts]
+        upstream_blocked = any(
+            node_results.get(p, {}).get("status") in ("blocked", "failed")
+            or not node_results.get(p, {}).get("passed", True)
+            for p in parents
+        )
+        if upstream_blocked:
+            result = {
+                "status": "blocked",
+                "passed": False,
+                "duration_s": 0.0,
+                "metrics": {},
+                "summary": "Tác vụ bị chặn do các bước phụ thuộc trước đó không hoàn thành hoặc adapter chưa sẵn sàng.",
+            }
+        else:
+            result = _execute_harness_tool(tool_id, params, context)
+
         node_results[nid] = {
             "node_id": nid,
             "label": data.get("label", nid),
@@ -619,12 +665,15 @@ def execute_workflow(workflow: dict[str, Any], topic_id: str = "") -> dict[str, 
     total_duration = round(time.perf_counter() - t_start, 3)
     eid = f"exec-{uuid.uuid4().hex[:12]}"
 
+    has_blocked = any(r.get("status") == "blocked" for r in node_results.values())
+    status = "blocked" if has_blocked else ("completed" if overall_passed else "failed")
+
     report: dict[str, Any] = {
         "execution_id": eid,
         "workflow_id": workflow.get("id", "custom"),
         "workflow_name": workflow.get("name", "Custom Harness Workflow"),
-        "status": "completed" if overall_passed else "failed",
-        "passed": overall_passed,
+        "status": status,
+        "passed": overall_passed and not has_blocked,
         "total_duration_s": total_duration,
         "nodes_count": len(nodes),
         "node_results": node_results,

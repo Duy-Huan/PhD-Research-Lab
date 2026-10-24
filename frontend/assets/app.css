@@ -1,6 +1,44 @@
 /* PhD Research Lab — one chat for the whole research project.
    Tokens → base → layout (sidebar · thread · side panel) → components → views (dashboard, review, settings) → responsive. */
 
+/* A mobile inspector must occupy the viewport instead of competing with desktop split panes. */
+@media (max-width: 820px) {
+  #drawer-panel {
+    position: fixed !important;
+    inset: 0;
+    width: 100% !important;
+    max-width: none !important;
+    z-index: 50;
+  }
+}
+
+/* React shell: keep navigation and the composer usable without horizontal clipping. */
+.react-shell #top { height: auto; min-height: 52px; }
+.react-shell #top > div { max-width: 100%; }
+.react-shell .header-modes { flex-wrap: wrap; }
+.react-shell .header-tools { flex-wrap: wrap; }
+.react-shell .topic-view { overflow-wrap: anywhere; }
+.react-shell .topic-view > div { min-width: 0; }
+.react-shell .topic-view .btn { white-space: normal; }
+@media (max-width: 820px) {
+  .react-shell #sidebar-collapsed-rail { display: none !important; }
+  .react-shell #sidebar-panel { position: fixed !important; inset: 0 auto 0 0; width: min(300px, 86vw) !important; max-width: none !important; z-index: 45; box-shadow: var(--shadow-lg); }
+  .react-shell #sidebar-panel #side { position: static; width: 100%; transform: none; }
+  .react-shell [data-separator] { display: none; }
+  .react-shell #top { gap: 6px; padding: 6px 8px; }
+  .react-shell .header-modes { order: 3; justify-content: center; }
+  .react-shell .header-tools { gap: 3px !important; }
+  .react-shell .composer-wrap { padding: 8px 12px 12px !important; }
+  .react-shell .composer-model-controls { flex: 1 1 100%; }
+  .react-shell .composer-model-controls > select { flex: 1; max-width: 100% !important; }
+  .react-shell .composer-model-controls > button { flex-shrink: 0; }
+  .settings-studio-header { flex-wrap: wrap; gap: 12px; padding: 12px !important; overflow-wrap: anywhere; }
+  .settings-studio-header > div { min-width: 0; max-width: 100%; flex-wrap: wrap; }
+  .settings-studio-body { flex-direction: column; }
+  .settings-studio-body > nav { width: 100% !important; max-height: 190px; border-right: 0 !important; border-bottom: 1px solid var(--line); }
+  .settings-studio-content { padding: 16px 12px 32px !important; min-width: 0; }
+}
+
 :root {
   --bg: #f7f6f2; --panel: #ffffff; --side: #efede7; --raise: #ffffff;
   --ink: #1c1b19; --ink-2: #45433d; --muted: #69665e; --faint: #77736a;

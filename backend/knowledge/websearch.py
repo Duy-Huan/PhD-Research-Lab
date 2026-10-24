@@ -13,7 +13,7 @@ import asyncio
 import json
 import os
 import re
-import xml.etree.ElementTree as ET
+from defusedxml import ElementTree as ET
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
 import httpx

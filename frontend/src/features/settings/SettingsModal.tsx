@@ -505,7 +505,7 @@ export const SettingsModal: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '14px 24px',
+          padding: '14px 110px 14px 24px',
           background: 'var(--panel)',
           borderBottom: '1px solid var(--line)',
           flexShrink: 0,
@@ -559,6 +559,7 @@ export const SettingsModal: React.FC = () => {
           >
             <span className="muted">{t('Tỉ lệ:', 'Scale:')}</span>
             <select
+              aria-label={t('Tỉ lệ thu phóng giao diện', 'UI Display Scale')}
               value={String(uiScale)}
               onChange={(e) => setUiScale(Number(e.target.value))}
               style={{
@@ -582,17 +583,15 @@ export const SettingsModal: React.FC = () => {
           <div
             style={{
               display: 'inline-flex',
-              borderRadius: 8,
-              border: '1px solid var(--line-2)',
-              overflow: 'hidden',
-              background: 'var(--bg-2)',
+              alignItems: 'center',
+              gap: 6,
             }}
             title={t('Chuyển đổi ngôn ngữ Tiếng Việt / English', 'Switch Language Vietnamese / English')}
           >
             <button
               type="button"
               className={`btn sm ${(config.ui?.language || language) === 'vi' ? 'accent' : 'ghost'}`}
-              style={{ borderRadius: 0, padding: '4px 10px', fontWeight: 700 }}
+              style={{ borderRadius: 6, minWidth: 38, height: 28, fontWeight: 700 }}
               onClick={() => {
                 setLanguage('vi');
                 savePatch({ ui: { language: 'vi' } });
@@ -603,7 +602,7 @@ export const SettingsModal: React.FC = () => {
             <button
               type="button"
               className={`btn sm ${(config.ui?.language || language) === 'en' ? 'accent' : 'ghost'}`}
-              style={{ borderRadius: 0, padding: '4px 10px', fontWeight: 700 }}
+              style={{ borderRadius: 6, minWidth: 38, height: 28, fontWeight: 700 }}
               onClick={() => {
                 setLanguage('en');
                 savePatch({ ui: { language: 'en' } });
@@ -850,6 +849,7 @@ export const SettingsModal: React.FC = () => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span className="muted" style={{ fontSize: 12.5 }}>{t('Đám mây mặc định:', 'Default Cloud:')}</span>
                     <select
+                      aria-label={t('Đám mây mặc định', 'Default Cloud')}
                       className="input"
                       style={{ width: 210, padding: '4px 8px' }}
                       value={config.default_cloud}
@@ -1121,6 +1121,7 @@ export const SettingsModal: React.FC = () => {
                     <span style={{ fontSize: 13 }}>{t('Tự gỡ mô hình khỏi VRAM khi rảnh sau (phút):', 'Idle VRAM unload timeout (minutes):')}</span>
                     <input
                       type="number"
+                      aria-label={t('Tự gỡ mô hình khỏi VRAM khi rảnh sau (phút)', 'Idle VRAM unload timeout (minutes)')}
                       className="input"
                       style={{ width: 90 }}
                       min={1}
@@ -2413,6 +2414,7 @@ export const SettingsModal: React.FC = () => {
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
                   <select
+                    aria-label={t('Phạm vi lưu kỹ năng', 'Skill save scope')}
                     className="input"
                     style={{ width: 220 }}
                     value={newSkillScope}

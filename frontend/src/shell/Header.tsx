@@ -113,8 +113,8 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
         style={{
           display: 'inline-flex',
           alignItems: 'center',
-          gap: 2,
-          padding: 3,
+          gap: 6,
+          padding: 4,
           borderRadius: 999,
           background: 'var(--bg-2)',
           border: '1px solid var(--line)',
@@ -125,7 +125,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           className={`btn sm ${mainView === 'chat' ? 'accent' : 'ghost'}`}
           onClick={() => setMainView('chat')}
           title={t('Trò chuyện Nghiên cứu', 'Research Chat')}
-          style={{ borderRadius: 999, padding: '4px 12px', gap: 5 }}
+          style={{ borderRadius: 999, padding: '5px 12px', minHeight: 28, gap: 5 }}
         >
           <MessageSquare size={14} />
           <span style={{ fontSize: 12 }}>{t('Trò chuyện', 'Chat')}</span>
@@ -135,7 +135,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           className={`btn sm ${mainView === 'library' ? 'accent' : 'ghost'}`}
           onClick={() => setMainView('library')}
           title={t('Thư viện Bài báo & Tài liệu', 'Paper Library & Documents')}
-          style={{ borderRadius: 999, padding: '4px 12px', gap: 5 }}
+          style={{ borderRadius: 999, padding: '5px 12px', minHeight: 28, gap: 5 }}
         >
           <BookOpen size={14} />
           <span style={{ fontSize: 12 }}>{t('Thư viện', 'Library')}</span>
@@ -148,7 +148,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
             'Không gian Phòng Lab Đại học 3D Toàn màn hình',
             'Full-Screen 3D University Research Lab'
           )}
-          style={{ borderRadius: 999, padding: '4px 12px', gap: 5 }}
+          style={{ borderRadius: 999, padding: '5px 12px', minHeight: 28, gap: 5 }}
         >
           <Bot size={14} />
           <span style={{ fontSize: 12 }}>{t('Lab 3D', '3D Lab')}</span>
@@ -161,7 +161,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
             'Không gian Kiểm định & Thiết kế Quy trình Harness Studio Toàn màn hình',
             'Full-Space Visual Harness Studio & Evaluation Pipeline'
           )}
-          style={{ borderRadius: 999, padding: '4px 12px', gap: 5 }}
+          style={{ borderRadius: 999, padding: '5px 12px', minHeight: 28, gap: 5 }}
         >
           <Sliders size={14} />
           <span style={{ fontSize: 12 }}>{t('Harness', 'Harness')}</span>
@@ -171,7 +171,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           className={`btn sm ${mainView === 'review' ? 'accent' : 'ghost'}`}
           onClick={() => setMainView('review')}
           title={t('Hội đồng Bình duyệt R1–R3 & LaTeX', 'Peer Review R1–R3 & LaTeX')}
-          style={{ borderRadius: 999, padding: '4px 10px', gap: 4 }}
+          style={{ borderRadius: 999, padding: '5px 10px', minHeight: 28, minWidth: 32, gap: 4 }}
         >
           <Award size={14} />
         </button>
@@ -180,7 +180,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           className={`btn sm ${mainView === 'dashboard' ? 'accent' : 'ghost'}`}
           onClick={() => setMainView('dashboard')}
           title={t('Bảng điều khiển Hệ thống', 'System Dashboard')}
-          style={{ borderRadius: 999, padding: '4px 10px', gap: 4 }}
+          style={{ borderRadius: 999, padding: '5px 10px', minHeight: 28, minWidth: 32, gap: 4 }}
         >
           <Gauge size={14} />
         </button>
@@ -238,13 +238,16 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           className="btn sm ghost"
           onClick={() => setLanguage(language === 'vi' ? 'en' : 'vi')}
           title={t('Chuyển đổi ngôn ngữ VI / ENG', 'Switch language VI / ENG')}
+          aria-label={t('Chuyển đổi ngôn ngữ VI / ENG', 'Switch language VI / ENG')}
           style={{
             borderRadius: 999,
-            padding: '3px 8px',
+            padding: '4px 10px',
             fontSize: 11,
             fontWeight: 700,
             border: '1px solid var(--line)',
             flexShrink: 0,
+            minHeight: 26,
+            minWidth: 32,
           }}
         >
           {language.toUpperCase()}
@@ -256,13 +259,16 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           className="btn sm ghost"
           onClick={cycleScale}
           title={t('Tỉ lệ hiển thị giao diện', 'UI Display Scale')}
+          aria-label={t('Tỉ lệ hiển thị giao diện', 'UI Display Scale')}
           style={{
             borderRadius: 999,
-            padding: '3px 7px',
+            padding: '4px 8px',
             fontSize: 11,
             border: '1px solid var(--line)',
             gap: 3,
             flexShrink: 0,
+            minHeight: 26,
+            minWidth: 44,
           }}
         >
           <ZoomIn size={12} />

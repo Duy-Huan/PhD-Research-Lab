@@ -166,7 +166,12 @@ export const useUIStore = create<UIState>((set) => ({
   offline: false,
   agentProfiles: loadStoredAgentProfiles(),
 
-  setProject: (project) => set({ project }),
+  setProject: (project) =>
+    set((s) => ({
+      project,
+      activeTopic: s.project?.data_dir === project?.data_dir ? s.activeTopic : null,
+      activeTopicId: s.project?.data_dir === project?.data_dir ? s.activeTopicId : null,
+    })),
   setProjects: (projects) => set({ projects }),
   setActiveTopic: (activeTopic) =>
     set({ activeTopic, activeTopicId: activeTopic ? activeTopic.id : null }),

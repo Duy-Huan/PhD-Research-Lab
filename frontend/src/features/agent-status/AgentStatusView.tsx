@@ -255,6 +255,7 @@ export const AgentStatusView: React.FC = () => {
               setOfficeFullscreen(false);
               setMainView('chat');
             }}
+            aria-label={t('Quay lại giao diện thường', 'Back to standard view')}
             title={t('Quay lại giao diện thường', 'Back to standard view')}
             style={{
               display: 'inline-flex',

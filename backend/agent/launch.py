@@ -91,6 +91,7 @@ def provider_for(s: dict) -> str:
 def from_skill(name: str, text: str, session: dict | None = None, approved: bool = False, turn_id: str = "", engine_mode: str = "") -> dict:
     """Create the research run of a run skill. approved=True when the researcher already accepted it (chat card)."""
     s = skills.get(name)
+    name = s["name"]
     if s["mode"] != "run":
         raise AIWSError(f"/{name} answers in the chat — it is not a background run")
     if s["pipeline"] == "experiment" and not inputs_for(s, text).get("command"):
@@ -99,10 +100,11 @@ def from_skill(name: str, text: str, session: dict | None = None, approved: bool
     from backend.core.config import load_config
     cfg = load_config()
     steps, provider, risk = None, provider_for(s), effective_risk(s)
-    if s["pipeline"] in ("research", "review") and (engine_mode or cfg["openscience"].get("enabled") or cfg["research_providers"].get("engine_mode", "auto") != "auto" or provider in ("openscience", "phdlab")):
+    explicit_engine = name in ("science", "feynman", "opencode", "phdlab")
+    if s["pipeline"] in ("research", "review") and (explicit_engine or engine_mode or cfg["openscience"].get("enabled") or cfg["research_providers"].get("engine_mode", "auto") != "auto" or provider in ("openscience", "phdlab")):
         from backend.research_engines.registry import plan
-        mode = engine_mode or ("openscience" if provider == "openscience" else "phdlab" if provider == "phdlab" else cfg["research_providers"].get("engine_mode", "auto"))
-        capability = "analysis" if name in ("science", "phdlab") else "review" if s["pipeline"] == "review" else "literature"
+        mode = engine_mode or (provider if explicit_engine else cfg["research_providers"].get("engine_mode", "auto"))
+        capability = "prototype" if name == "opencode" else "analysis" if name in ("science", "phdlab") else "review" if s["pipeline"] == "review" else "literature"
         engines = plan(mode, capability, provider)
         provider = engines[0]
         if "openscience" in engines:

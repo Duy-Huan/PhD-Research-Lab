@@ -1484,6 +1484,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
         {/* 3. Right Sidebar: Inspector & Debugger */}
         {inspectorOpen ? (
           <aside
+            id={fullSpaceActive ? 'panel' : undefined}
             style={{
               width: 300,
               background: 'var(--panel)',
@@ -1746,17 +1747,24 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                             borderRadius: 6,
                             padding: '6px 8px',
                             display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
+                            flexDirection: 'column',
+                            gap: 4,
                             fontSize: 11,
                           }}
                         >
-                          <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
-                            <b>{st.label}</b>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
+                              <b>{st.label}</b>
+                            </div>
+                            <span className={`chip xs ${st.status === 'completed' ? 'ok' : st.status === 'blocked' ? 'muted' : st.status === 'failed' ? 'err' : 'muted'}`}>
+                              {st.status}
+                            </span>
                           </div>
-                          <span className={`chip xs ${st.status === 'completed' ? 'ok' : st.status === 'failed' ? 'err' : 'muted'}`}>
-                            {st.status}
-                          </span>
+                          {st.summary && (
+                            <div style={{ fontSize: 10, color: 'var(--muted)', lineHeight: 1.3 }}>
+                              {st.summary}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>

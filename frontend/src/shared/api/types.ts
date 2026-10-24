@@ -1086,7 +1086,7 @@ export interface WorkflowExecutionState {
   execution_id: string;
   workflow_id: string;
   workflow_name: string;
-  status: 'pending' | 'running' | 'paused' | 'waiting_approval' | 'completed' | 'failed' | 'cancelled';
+  status: 'pending' | 'running' | 'paused' | 'waiting_approval' | 'completed' | 'failed' | 'cancelled' | 'blocked';
   execution_level: string;
   step_mode: boolean;
   current_node_id?: string | null;
@@ -1094,13 +1094,14 @@ export interface WorkflowExecutionState {
     node_id: string;
     label: string;
     node_type: string;
-    status: 'idle' | 'running' | 'completed' | 'failed' | 'skipped' | 'waiting_approval';
+    status: 'idle' | 'running' | 'completed' | 'failed' | 'skipped' | 'waiting_approval' | 'blocked';
     started_at?: string;
     completed_at?: string;
     duration_s?: number;
     output?: unknown;
     error?: string;
     feedback?: string;
+    summary?: string;
   }>;
   total_duration_s: number;
   checkpoints: Array<Record<string, unknown>>;
