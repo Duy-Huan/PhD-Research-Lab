@@ -179,7 +179,8 @@ def _summary(rec: dict, act: str | None) -> dict:
 
 def container_for(rec: dict) -> str:
     import hashlib
-    return f"phdlab-{hashlib.sha1(str(data_dir().resolve()).encode()).hexdigest()[:10]}-{rec['id']}"
+    # Preserve legacy resource names; this digest is not an authorization token.
+    return f"phdlab-{hashlib.sha1(str(data_dir().resolve()).encode(), usedforsecurity=False).hexdigest()[:10]}-{rec['id']}"
 
 
 def list_projects() -> dict:

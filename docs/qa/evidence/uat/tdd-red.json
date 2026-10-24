@@ -1,0 +1,18 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "unittest.loader._FailedTest.test_uat_harness",
+      "status": "ERROR",
+      "duration": 0.0001,
+      "details": "ImportError: Failed to import test module: test_uat_harness\nTraceback (most recent call last):\n  File \"C:\\Users\\win\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\unittest\\loader.py\", line 141, in loadTestsFromName\n    module = __import__(module_name)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_uat_harness.py\", line 6, in <module>\n    from devtools.verification.uat import validate_target, run_space, exploration_required, bounded_options, exploratory_verdict\nModuleNotFoundError: No module named 'devtools.verification.uat'\n\n"
+    }
+  ],
+  "subtests": [],
+  "total": 1,
+  "passed": false,
+  "skipped": 0,
+  "limitations": [
+    "Hermetic offline scope; skips remain unqualified and block full release"
+  ]
+}

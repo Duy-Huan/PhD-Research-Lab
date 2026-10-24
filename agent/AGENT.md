@@ -3,12 +3,13 @@
 ## Start and resume
 
 1. Read `agent/STATE.md`, `agent/PLAN.md` and `docs/quality/ZERO_FAKE_TESTING_POLICY.md`.
-2. Run `git status --short`; preserve existing changes. Work on the recorded QA branch.
+2. Read `agent/DEVELOPMENT_WORKFLOW.md`. Run `git status --short`; preserve existing changes. Use the recorded worktree/feature branch and current dev baseline.
+   Read `agent/UAT.md` for UI/browser/acceptance work and `agent/CLI_COMPATIBILITY.md` for client registration and actual qualification limits.
 3. Read the latest run's machine-readable report and logs. An older report does not certify changed sources.
 4. Select the first unfinished plan item, reproduce any failure, fix the cause and rerun affected checks. Record exact commands, source hashes, case counts, coverage and blockers in STATE.md.
 5. Never reset, clean, stash, overwrite or commit unrelated user changes. Never run tests against real `data/` or `projects/`.
 6. Never delete a file inside `skills/` or `agent/`, even when cleaning up. Preserve these continuation resources across versions and sessions.
-7. User authorized versioned commits and pushes by stage on the task branch. Preserve unrelated dirty changes; never merge automatically. Native CLI forward actions must resolve installed local apps, not public websites.
+7. User authorized staged versioned commits and feature pushes after the local feature gate, and native auto-merge of eligible trusted dev PRs only after independent required CI passes. Never auto-merge qa/main or bypass protection. Native CLI actions resolve installed local apps; project containment and shared filtered context remain mandatory.
 
 ## Test layers
 
@@ -22,8 +23,10 @@ Run 2D browser journeys first, then 3D/WebGL, then native CLI chat/settings/loca
 
 ## Commands (PowerShell, repository root)
 
+Canonical entrypoint: `python scripts/verify.py --profile quick|feature|pr|uat|full|release|targeted --base origin/dev`. The `|` notation lists alternatives; pass one profile. Before pushing run feature; CI runs pr; risk-selected browser exploration uses uat; QA uses full. Release includes full checks and cannot grant protected GitHub human approval locally. See DEVELOPMENT_WORKFLOW.md and UAT.md for the actual stopping conditions.
+
 ```powershell
-.venv/Scripts/python.exe tools/backend_quality_gate.py --profile full --i-understand-full-suite --output-dir output/playwright/<run>/backend
+.venv/Scripts/python.exe tools/backend_quality_gate.py --profile full --i-understand-full-suite --require-complete --output-dir output/playwright/<run>/backend
 Push-Location frontend
 npm ci
 npx playwright install chromium

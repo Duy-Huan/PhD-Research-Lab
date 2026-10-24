@@ -82,9 +82,11 @@ class ClearMLOffline(unittest.TestCase):
             with mock.patch.object(importlib.util, "find_spec", return_value=None):
                 CM.auto_record(rid)
             rec.assert_not_called()
-            CM.auto_record(rid)
+            with mock.patch.object(importlib.util, "find_spec", return_value=object()):
+                CM.auto_record(rid)
             rec.assert_called_once_with(rid, "PhD Research Lab")
-        with mock.patch.object(CM, "run_worker", side_effect=IntegrationError("no SDK")):
+        with mock.patch.object(importlib.util, "find_spec", return_value=object()), \
+                mock.patch.object(CM, "run_worker", side_effect=IntegrationError("no SDK")):
             CM.auto_record(rid)
         self.assertIn("no SDK", sandbox.get_run(rid)["clearml"]["error"])
         CM._store_pointer(rid, {"mode": "offline", "task_id": "t9"})

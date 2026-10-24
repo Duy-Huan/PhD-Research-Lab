@@ -1,0 +1,139 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_uat_harness.UATPolicy.test_ai_success_is_unverified_until_reproduced",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "status": "ERROR",
+      "duration": 0.0019,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_uat_harness.py\", line 44, in test_bounds_steps_and_deadlines\n    with self.subTest(steps=steps,deadline=deadline),self.assertRaises(ValueError):bounded_options(steps,deadline)\n                                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^\nAssertionError: ValueError not raised\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_uat_harness.py\", line 44, in test_bounds_steps_and_deadlines\n    with self.subTest(steps=steps,deadline=deadline),self.assertRaises(ValueError):bounded_options(steps,deadline)\n                                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^\nAssertionError: ValueError not raised\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_uat_harness.py\", line 44, in test_bounds_steps_and_deadlines\n    with self.subTest(steps=steps,deadline=deadline),self.assertRaises(ValueError):bounded_options(steps,deadline)\n                                                                                   ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\devtools\\verification\\uat.py\", line 33, in bounded_options\n    if isinstance(steps,bool) or isinstance(deadline,bool) or not 1<=steps<=12 or not 1<=deadline<=180:\n                                                                  ^^^^^^^^^^^^\nTypeError: '<=' not supported between instances of 'int' and 'str'\n"
+    },
+    {
+      "id": "test_uat_harness.UATPolicy.test_profiles_are_unique_and_inside_disposable_root",
+      "status": "PASS",
+      "duration": 0.003,
+      "details": null
+    },
+    {
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "status": "PASS",
+      "duration": 0.0003,
+      "details": null
+    },
+    {
+      "id": "test_uat_harness.UATPolicy.test_risk_policy_preserves_optional_low_risk_exploration",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_uat_harness.UATPolicy.test_unavailable_adapter_never_passes",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=0, deadline=120)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=99, deadline=120)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=3, deadline=0)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=3, deadline=3600)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=3.5, deadline=120)",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_uat_harness.py\", line 44, in test_bounds_steps_and_deadlines\n    with self.subTest(steps=steps,deadline=deadline),self.assertRaises(ValueError):bounded_options(steps,deadline)\n                                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^\nAssertionError: ValueError not raised\n"
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=3, deadline=2.5)",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_uat_harness.py\", line 44, in test_bounds_steps_and_deadlines\n    with self.subTest(steps=steps,deadline=deadline),self.assertRaises(ValueError):bounded_options(steps,deadline)\n                                                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^\nAssertionError: ValueError not raised\n"
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps='3', deadline=120)",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_uat_harness.py\", line 44, in test_bounds_steps_and_deadlines\n    with self.subTest(steps=steps,deadline=deadline),self.assertRaises(ValueError):bounded_options(steps,deadline)\n                                                                                   ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\devtools\\verification\\uat.py\", line 33, in bounded_options\n    if isinstance(steps,bool) or isinstance(deadline,bool) or not 1<=steps<=12 or not 1<=deadline<=180:\n                                                                  ^^^^^^^^^^^^\nTypeError: '<=' not supported between instances of 'int' and 'str'\n"
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=True, deadline=120)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='https://example.com')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='file:///C:/Windows/system.ini')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='http://127.0.0.1.evil:8765')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='http://user:pass@127.0.0.1:8765')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='http://192.168.1.1:8765')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='http://127.0.0.1:0')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='http://localhost')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "total": 6,
+  "passed": false,
+  "skipped": 0,
+  "limitations": [
+    "Hermetic offline scope; skips remain unqualified and block full release"
+  ]
+}

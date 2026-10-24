@@ -1,0 +1,2 @@
+# Evidence digests bind exact bytes, including JSON; preserve across platform checkout.
+* -text whitespace=cr-at-eol

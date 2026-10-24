@@ -15,6 +15,8 @@ def main():
     parser.add_argument("--data", type=Path, required=True)
     parser.add_argument("--port", type=int, default=8768)
     parser.add_argument("--model", default="spark-x2.5-4b", help="Explicit installed LM Studio model; no fallback")
+    parser.add_argument('--lease-token', default='', help='Owned disposable-server readiness nonce')
+    parser.add_argument('--browser-uat',action='store_true',help='First-time persona: deny all writes except UI language; no CLI launches')
     args = parser.parse_args()
     data = args.data.resolve()
     artifact_root = (ROOT / "output" / "playwright").resolve()
@@ -42,6 +44,23 @@ def main():
     import uvicorn
     from copy import deepcopy
     from backend.app import app
+
+    if args.browser_uat:
+        from fastapi.responses import JSONResponse
+        from devtools.verification.uat import allowed_settings_write
+        @app.middleware('http')
+        async def scoped_browser_lease(request,call_next):
+            if request.method not in ('GET','HEAD','OPTIONS'):
+                try:body=await request.json()
+                except ValueError:body=None
+                if not allowed_settings_write(request.method,request.url.path,body):
+                    return JSONResponse({'error':'Outside disposable settings-language UAT capability scope'},status_code=403)
+            return await call_next(request)
+
+    if args.lease_token:
+        @app.get('/api/qa/lease', include_in_schema=False)
+        def qa_lease():
+            return {'nonce': args.lease_token, 'data': str(data)}
 
     logging_config = deepcopy(uvicorn.config.LOGGING_CONFIG)
     logging_config['handlers']['qa_file'] = {

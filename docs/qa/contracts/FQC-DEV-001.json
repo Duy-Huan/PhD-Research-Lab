@@ -1,0 +1,189 @@
+{
+  "id": "FQC-DEV-001",
+  "title": "Deterministic development verification and GitHub governance",
+  "risk": "CRITICAL",
+  "mode": "MOCKED",
+  "user_story": "As repository owner I can request a feature by chat and require reproducible independent gates before any dev merge or release.",
+  "requirements": [
+    {
+      "id": "REQ-SELECT",
+      "description": "Conservatively select affected tests; never narrow mandatory PR/full gates"
+    },
+    {
+      "id": "REQ-REPORT",
+      "description": "Aggregate root failures with exact case IDs and raw evidence"
+    },
+    {
+      "id": "REQ-GATE",
+      "description": "Fail closed on missing checks and invalid branch promotion"
+    },
+    {
+      "id": "REQ-BUDGET",
+      "description": "Stop after three failed repair cycles per stable task/PR"
+    },
+    {
+      "id": "REQ-CONTRACT",
+      "description": "Require reviewed feature contracts and executable requirement traceability"
+    }
+  ],
+  "nonfunctional": [
+    "No LLM calls for selection, parsing, reporting or retry accounting",
+    "Source/environment provenance and bounded console logs",
+    "Never delete skills/ or agent/; never weaken 100% release coverage"
+  ],
+  "inputs": [
+    "Git base/diff",
+    "Versioned contract",
+    "Existing test runners"
+  ],
+  "outputs": [
+    "report.json",
+    "summary.txt",
+    "Raw logs",
+    "Required GitHub check conclusions"
+  ],
+  "preconditions": [
+    "Preserved dirty work and branch SHAs",
+    "Pinned GitHub skills selected before implementation",
+    "Dependencies installed from lock files"
+  ],
+  "postconditions": [
+    "CI alone never promotes missing live/scientific qualification",
+    "main and qa cannot auto-merge",
+    "No application Research Harness imports from development infrastructure"
+  ],
+  "dependencies": [
+    "Python 3.11/3.12",
+    "Node 24",
+    "Git",
+    "GitHub Actions hosted runners; real AI requires separately authorized trusted infrastructure"
+  ],
+  "affected_modules": [
+    "devtools/**",
+    "scripts/verify.py",
+    ".github/**",
+    "agent/**",
+    "skills/**",
+    "docs/**",
+    "tests/**",
+    "tools/**",
+    "backend/research_engines/paperorchestra/backends/skill_backend.py",
+    "backend/execution/sysinfo.py"
+  ],
+  "acceptance_criteria": [
+    "All named contract tests execute and pass",
+    "The same PR source must satisfy every independent required check",
+    "Absent 100% production coverage blocks PR/QA/release; no waiver introduced",
+    "Real provider results remain separate from deterministic unit doubles"
+  ],
+  "scenarios": [
+    {
+      "id": "select",
+      "requirement": "REQ-SELECT",
+      "kind": "positive",
+      "expected": "Reverse imports select dependent tests",
+      "test": "tests/test_verification_harness.py::Selection.test_transitive_python_dependency"
+    },
+    {
+      "id": "fallback",
+      "requirement": "REQ-SELECT",
+      "kind": "negative",
+      "expected": "Unknown/deleted dependencies broaden scope",
+      "test": "tests/test_verification_harness.py::Selection.test_unknown_or_deleted_dependency_broadens"
+    },
+    {
+      "id": "mandatory",
+      "requirement": "REQ-SELECT",
+      "kind": "boundary",
+      "expected": "PR/full always run full scope",
+      "test": "tests/test_verification_harness.py::Selection.test_pr_and_full_never_use_incremental_selection"
+    },
+    {
+      "id": "fingerprint",
+      "requirement": "REQ-REPORT",
+      "kind": "performance",
+      "expected": "50 identical root exceptions retain 50 IDs and one group",
+      "test": "tests/test_verification_harness.py::Evidence.test_fifty_database_errors_have_one_fingerprint"
+    },
+    {
+      "id": "distinct",
+      "requirement": "REQ-REPORT",
+      "kind": "negative",
+      "expected": "Different assertion values remain separate",
+      "test": "tests/test_verification_harness.py::Evidence.test_distinct_assertion_causes_remain_distinct"
+    },
+    {
+      "id": "missing",
+      "requirement": "REQ-GATE",
+      "kind": "security",
+      "expected": "Absent or nonpassing mandatory checks block",
+      "test": "tests/test_verification_harness.py::Evidence.test_missing_skipped_failed_and_cancelled_never_pass"
+    },
+    {
+      "id": "budget",
+      "requirement": "REQ-BUDGET",
+      "kind": "failure",
+      "expected": "A fourth failed repair is prohibited across changed heads",
+      "test": "tests/test_verification_harness.py::Evidence.test_repair_budget_is_persistent_and_bounded"
+    },
+    {
+      "id": "corrupt",
+      "requirement": "REQ-BUDGET",
+      "kind": "boundary",
+      "expected": "Corrupt persistent state blocks further repairs",
+      "test": "tests/test_verification_harness.py::Evidence.test_corrupt_repair_state_fails_closed"
+    },
+    {
+      "id": "contracts",
+      "requirement": "REQ-CONTRACT",
+      "kind": "positive",
+      "expected": "Traceability points to actual executable test symbols",
+      "test": "tests/test_verification_harness.py::Contracts.test_valid_contract_has_executable_traceability"
+    },
+    {
+      "id": "invalid",
+      "requirement": "REQ-CONTRACT",
+      "kind": "negative",
+      "expected": "Untraced or missing test cases are rejected",
+      "test": "tests/test_verification_harness.py::Contracts.test_missing_requirements_traceability_and_security_block"
+    },
+    {
+      "id": "promote",
+      "requirement": "REQ-GATE",
+      "kind": "failure",
+      "expected": "Only intended promotion direction and human release pass",
+      "test": "tests/test_verification_harness.py::Contracts.test_branch_promotion_direction_and_human_release"
+    }
+  ],
+  "recovery": "Inspect concise fingerprints; preserve failing evidence; target failed cases then affected suite; max three automatic repair cycles, then stop and report.",
+  "performance_budget": {
+    "max_console_failure_groups": 5,
+    "max_auto_repair_cycles": 3,
+    "benchmark_claim": "No measured token savings percentage"
+  },
+  "test_environment": "Disposable directories and local subprocess fixtures; no paid provider calls.",
+  "skill_sources": [
+    "skills/github-actions-hardening/SKILL.md",
+    "skills/gh-fix-ci/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent adversarial review; no independent reviewer or user approval fabricated"
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "test_sha256": "2cb3cb7d64c33b553288031020867c26544216246b1bf92abe94ecb4856beb0e",
+    "scope": "Malformed-field validation case plus initial 16 harness tests; not retrospective certification of application code.",
+    "red": {
+      "path": "docs/qa/evidence/governance/tdd-functional-red.json",
+      "sha256": "a7989a48266b375dad9761edd3b4a5552796150f97474daa7cc557f1d9b0cd10",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/governance/tdd-functional-green.json",
+      "sha256": "49ca4e26dac7908eca67857224cb343b3b61c8c82e28538a8c461ff517f366fb",
+      "exit_code": 0
+    }
+  }
+}

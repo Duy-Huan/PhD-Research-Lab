@@ -1,4 +1,4 @@
-# PhD Research Lab - v6.4.4
+# PhD Research Lab - v6.5.0
 
 **Independent L1–L4 workflows:** Missions → **Workflows L1–L4** lets users select bounded assistance, execution with per-result review, coordination with final review, or experimental technical closure. Up to four independent workflows share the existing resource limits. L3/L4 are execution policies, with scientific review explicitly pending. See [architecture and development record](docs/architecture/autonomy-workflows.md) and [executed audit / release assessment](docs/testing/autonomy-report.md). The current release does **not** meet the requested 100% whole-project coverage gate.
 
@@ -167,3 +167,7 @@ Windows process-cancellation regressions require permission to terminate the sub
 Cloud runtime optimization, capability-aware failover, searchable provider/model settings, terminal chat launcher and the attended remote-compute/ClearML MVP are documented in [the v5.1 runtime audit](docs/cloud-runtime-v51.md), including benchmark evidence and unfinished integrations. Run `chat.bat` once to enter terminal chat; subsequent questions need no `phdlab` prefix.
 
 The [CLI and tool repair report](docs/testing/cli-connectivity-report.md) records actual Codex/Antigravity chat checks, the unsupported-model repair, remaining login/quota/runtime limits and OpenCode native dispatch limitations.
+
+## Development verification and AI-UAT
+
+Start with [agent instructions](AGENTS.md), [CI/CD user guide](docs/devops/CI_CD_USER_GUIDE.vi.md) and [browser acceptance procedure](agent/UAT.md). Run `python scripts/verify.py --profile quick` while editing and `feature` before pushing. Browser acceptance status and gaps are recorded in the [UAT report](docs/qa/UAT_ACCEPTANCE_REPORT.md). Version 6.5.0 infrastructure work is not release-qualified while coverage, required exploration or live/scientific gates remain incomplete.

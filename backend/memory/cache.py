@@ -52,7 +52,7 @@ def fingerprint() -> tuple:
 def version() -> str:
     """Short, stable id of the current memory state (exposed as context_version)."""
     import hashlib
-    return hashlib.sha1(repr(fingerprint()).encode()).hexdigest()[:12]
+    return hashlib.sha1(repr(fingerprint()).encode(), usedforsecurity=False).hexdigest()[:12]
 
 
 class LRU:

@@ -87,7 +87,8 @@ class RetrievalContext:
     def key(self) -> str:
         body = {"q": self.query, "r": self.role, "s": self.session_id, "f": self.filters, "t": self.temporal, "k": self.k,
                 "p": sorted(self.purged), "a": list(self.allowed), "v": self.state.get("context_version", "")}
-        return hashlib.sha1(json.dumps(body, sort_keys=True, default=str).encode()).hexdigest()
+        # Non-secret memoization identity; keep stored/vector cache keys compatible.
+        return hashlib.sha1(json.dumps(body, sort_keys=True, default=str).encode(), usedforsecurity=False).hexdigest()
 
     def to_dict(self) -> dict:
         return {"query": self.query, "role": self.role, "session_id": self.session_id, "filters": self.filters,

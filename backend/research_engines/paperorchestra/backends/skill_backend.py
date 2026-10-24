@@ -173,13 +173,14 @@ def write_section(
 ) -> str:
     """Section Writing Agent: synthesizes a complete, rigorous LaTeX section."""
     hints_text = ", ".join(f"\\cite{{{c}}}" for c in (citation_hints or []))
+    citation_example = hints_text or "\\cite{...}"
 
     sys_prompt = (
         f"You are the PaperOrchestra Section Writing Agent specializing in '{section_id}'.\n"
         "Guidelines:\n"
         "1. Write clean, publication-ready LaTeX body text (do NOT include \\documentclass or \\begin{document}).\n"
         "2. Ground every assertion in verifiable evidence; do not fabricate synthetic results.\n"
-        f"3. Use LaTeX citations where appropriate (e.g., {hints_text or '\\cite{...}'}).\n"
+        f"3. Use LaTeX citations where appropriate (e.g., {citation_example}).\n"
         "4. Include formal mathematical notation ($...$, $$...$$) where applicable.\n"
         "5. Output ONLY the LaTeX section body."
     )

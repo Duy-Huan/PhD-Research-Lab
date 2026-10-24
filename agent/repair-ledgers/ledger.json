@@ -1,0 +1,32 @@
+{
+  "TASK-UAT-LOCAL-ADAPTER": {
+    "attempts": 3,
+    "history": [
+      {
+        "sha": "9bef17c7bb5f9062ed8324aed3e5927cc2ca53b6",
+        "status": "FAIL"
+      },
+      {
+        "sha": "9bef17c7bb5f9062ed8324aed3e5927cc2ca53b6",
+        "status": "FAIL"
+      },
+      {
+        "sha": "9bef17c7bb5f9062ed8324aed3e5927cc2ca53b6",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "TASK-SELECTION-NESTED": {
+    "attempts": 1,
+    "history": [
+      {
+        "sha": "9bef17c7bb5f9062ed8324aed3e5927cc2ca53b6",
+        "status": "FAIL"
+      },
+      {
+        "sha": "9bef17c7bb5f9062ed8324aed3e5927cc2ca53b6",
+        "status": "PASS"
+      }
+    ]
+  }
+}

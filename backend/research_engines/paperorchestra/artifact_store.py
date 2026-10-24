@@ -12,7 +12,7 @@ import json
 import sqlite3
 import threading
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from backend.agent import decision_ledger as L
 from backend.core.config import data_dir, workspace

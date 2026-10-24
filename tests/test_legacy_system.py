@@ -256,7 +256,7 @@ class Machine(unittest.TestCase):
         with mock.patch("shutil.which", return_value=None):
             self.assertFalse(SI.docker_info()["installed"])
             self.assertFalse(SI.wsl_info()["installed"])
-        with mock.patch("shutil.which", return_value="wsl"), mock.patch.object(SI, "run", return_value=(0, "NAME STATE VERSION\n* Ubuntu Running 2\nx")):
+        with mock.patch.object(SI, "IS_WIN", True), mock.patch("shutil.which", return_value="wsl"), mock.patch.object(SI, "run", return_value=(0, "NAME STATE VERSION\n* Ubuntu Running 2\nx")):
             self.assertTrue(SI.wsl_info()["wsl2"])
         with mock.patch.object(SI, "IS_WIN", False):
             self.assertFalse(SI.wsl_info()["applicable"])

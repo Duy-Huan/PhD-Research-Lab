@@ -1,0 +1,109 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_uat_gate.UATGate.test_contract_order_cannot_lower_critical_risk",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_uat_gate.UATGate.test_low_risk_docs_do_not_require_paid_or_local_llm",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy",
+      "status": "PASS",
+      "duration": 0.0583,
+      "details": null
+    },
+    {
+      "id": "test_uat_gate.UATGate.test_required_missing_exploration_blocks",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify",
+      "status": "PASS",
+      "duration": 0.0213,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy",
+      "id": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy (acceptance={'required': 'yes', 'journeys': ['settings-language']})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy",
+      "id": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy (acceptance={'required': True, 'journeys': 'settings-language'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy",
+      "id": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy (acceptance={'required': True, 'journeys': []})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy",
+      "id": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy (acceptance={'required': True, 'journeys': ['settings-language'], 'applies_to': '*'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy",
+      "id": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy (acceptance={'required': True, 'journeys': ['settings-language'], 'independent_review': 'approved'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify",
+      "id": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify (key='decision')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify",
+      "id": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify (key='mode')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify",
+      "id": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify (key='source_sha256')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify",
+      "id": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify (key='verified_journeys')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify",
+      "id": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify (key='review')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify",
+      "id": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify (key='release_blocking_defects')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "total": 5,
+  "passed": true,
+  "skipped": 0,
+  "limitations": [
+    "Hermetic offline scope; skips remain unqualified and block full release"
+  ]
+}
