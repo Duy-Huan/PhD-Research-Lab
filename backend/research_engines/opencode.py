@@ -169,6 +169,43 @@ def health() -> dict:
     }
 
 
+def ensure_server_running(port: int = 4097) -> dict:
+    """Verify loopback OpenCode server status and launch background process if binary is present."""
+    global _server_proc
+    h = health()
+    if h.get("server_reachable"):
+        return {"running": True, "state": "running", "base_url": h["base_url"], "detail": "Loopback server is already active"}
+    info = probe_binary()
+    binary = info.get("binary")
+    if not binary:
+        return {
+            "running": False,
+            "state": "standby_internal_fallback",
+            "installed": False,
+            "detail": "OpenCode binary not found on PATH; falling back to internal sandbox",
+            "setup": ["npm install -g opencode-ai"],
+        }
+    with _server_lock:
+        if _server_proc and _server_proc.poll() is None:
+            return {"running": True, "state": "running", "pid": _server_proc.pid, "detail": "Loopback server process active"}
+        try:
+            from backend.execution.tools import NO_WINDOW
+            env = os.environ.copy()
+            env["OPENCODE_SERVER_PASSWORD"] = _server_password
+            prefix = ["cmd", "/d", "/c", binary] if os.name == "nt" and Path(binary).suffix.lower() in (".cmd", ".bat") else [binary]
+            _server_proc = subprocess.Popen(
+                [*prefix, "serve", "--port", str(port), "--host", "127.0.0.1"],
+                env=env,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                creationflags=NO_WINDOW,
+            )
+            time.sleep(0.4)
+            return {"running": True, "state": "launched", "pid": _server_proc.pid, "port": port}
+        except Exception as e:
+            return {"running": False, "state": "error", "detail": f"Failed to launch background server: {e}"}
+
 def ensure_topic_workspace(tid: str, workspace_id: str = "", enable_plugin: bool = True) -> dict:
     """Get or create the isolated `<topic>/opencode_prj` workspace and write safe bridge config."""
     S.get_topic(tid)
@@ -491,10 +528,13 @@ class OpenCodeEngine:
         if cancelled():
             raise EngineFailure("Cancelled before dispatch", "cancelled")
         h = self.health()
+        fallback_mode = False
         if not h.get("ready"):
-            raise EngineFailure("OpenCode runtime is not installed or reachable", "unavailable")
+            fallback_mode = True
+            emit(EngineEvent(engine="opencode", type="status", sequence=1, data={"state": "fallback_internal_sandbox", "detail": "OpenCode CLI not reachable, executing in PhD Lab internal sandbox"}))
+        else:
+            emit(EngineEvent(engine="opencode", type="status", sequence=1, data={"state": "running", "operation_id": task.operation_id}))
         task.output_dir.mkdir(parents=True, exist_ok=True)
-        emit(EngineEvent(engine="opencode", type="status", sequence=1, data={"state": "running", "operation_id": task.operation_id}))
         report_path = task.output_dir / "opencode-task-manifest.json"
         manifest = {
             "operation_id": task.operation_id,

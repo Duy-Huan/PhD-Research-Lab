@@ -13,6 +13,7 @@ export interface Project {
 
 export interface UIConfig {
   language?: string;
+  ai_language?: string;
   theme?: string;
   prose_font?: string;
   paper_explorer_v2?: boolean;
@@ -618,6 +619,9 @@ export interface LibraryPaper {
   arxiv_id?: string;
   venue?: string;
   abstract?: string;
+  source_url?: string;
+  url?: string;
+  pdf_url?: string;
   pdf_available?: boolean;
   metadata_only?: boolean;
   include?: boolean;
@@ -842,6 +846,16 @@ export type AgentActivity =
   | 'none'
   | 'unknown';
 
+export interface AgentCustomProfile {
+  agentId: string;
+  customName?: string;
+  customTitle?: string;
+  customBio?: string;
+  customColor?: string;
+  customGreeting?: string;
+  updatedAt?: string;
+}
+
 export interface AgentOfficeViewModel {
   agentId: string;
   sessionId?: string;
@@ -866,4 +880,139 @@ export interface AgentOfficeViewModel {
   personality?: string;
   skillCommand?: string;
   speechBubble?: string;
+  customName?: string;
+  customTitle?: string;
+  customBio?: string;
+  customColor?: string;
+  customGreeting?: string;
+}
+
+export interface LatexEnginesInfo {
+  available: string[];
+  paths: Record<string, string>;
+  online: boolean;
+  default: string;
+  platform: string;
+}
+
+export interface PaperSection {
+  id: string;
+  title: string;
+  text: string;
+  state: string;
+  versions: number;
+}
+
+export interface PaperProject {
+  title: string;
+  authors: string;
+  style: string;
+  venue: string;
+  sections: PaperSection[];
+  pdf: boolean;
+}
+
+export interface CompilePaperResponse {
+  ok: boolean;
+  engine: string;
+  layout: string;
+  seconds: number;
+  pdf_mtime?: number | null;
+  report?: {
+    figures?: number;
+    tables?: number;
+    cites?: number;
+    sections?: number;
+    [key: string]: unknown;
+  };
+  notes?: string[];
+  errors?: Array<{
+    message: string;
+    line?: number | null;
+    context?: string;
+    section?: string;
+    section_title?: string;
+  }>;
+  undefined_citations?: string[];
+  undefined_refs?: string[];
+  overfull?: number;
+  pages?: number | null;
+  missing_files?: string[];
+}
+
+export interface HarnessToolSpec {
+  id: string;
+  name: string;
+  category: string;
+  icon: string;
+  description: string;
+  description_en: string;
+  default_params: Record<string, unknown>;
+  available_metrics: string[];
+  docs_url: string;
+}
+
+export interface HarnessNodeData {
+  label: string;
+  tool: string;
+  category?: string;
+  params: Record<string, unknown>;
+  status?: 'idle' | 'running' | 'completed' | 'failed' | 'skipped';
+  result?: {
+    passed?: boolean;
+    duration_s?: number;
+    metrics?: Record<string, unknown>;
+    summary?: string;
+  };
+  [key: string]: unknown;
+}
+
+export interface CustomHarnessWorkflow {
+  id: string;
+  name: string;
+  name_en?: string;
+  description: string;
+  description_en?: string;
+  topic_id?: string;
+  is_preset?: boolean;
+  nodes: Array<{
+    id: string;
+    type?: string;
+    position: { x: number; y: number };
+    data: HarnessNodeData;
+  }>;
+  edges: Array<{
+    id: string;
+    source: string;
+    target: string;
+    label?: string;
+  }>;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface HarnessExecutionReport {
+  execution_id: string;
+  workflow_id: string;
+  workflow_name: string;
+  status: 'completed' | 'failed' | 'partial';
+  passed: boolean;
+  total_duration_s: number;
+  nodes_count: number;
+  node_results: Record<
+    string,
+    {
+      node_id: string;
+      label: string;
+      tool_id: string;
+      tool_name: string;
+      status: string;
+      passed: boolean;
+      duration_s: number;
+      metrics: Record<string, unknown>;
+      summary: string;
+      timestamp: string;
+    }
+  >;
+  created_at: string;
 }

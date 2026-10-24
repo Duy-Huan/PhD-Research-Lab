@@ -156,11 +156,11 @@ export const EvidenceReview: React.FC = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span className="chip" style={{ fontSize: 11 }}>
-                Loại: {claim.payload.kind}
+                Loại: {claim.payload?.kind || (claim.payload as any)?.spec?.kind || (claim as any).kind || 'empirical_finding'}
               </span>
               <span
                 className={`chip ${
-                  claim.status === 'accepted' || claim.status === 'supported'
+                  claim.status === 'accepted' || claim.status === 'supported' || claim.status === 'checked'
                     ? 'ok'
                     : claim.status === 'rejected' || claim.status === 'contested'
                     ? 'err'
@@ -173,18 +173,18 @@ export const EvidenceReview: React.FC = () => {
             </div>
 
             <div style={{ fontSize: 13.5, lineHeight: 1.5, fontWeight: 500 }}>
-              {claim.payload.text}
+              {claim.payload?.text || (claim.payload as any)?.spec?.text || (claim as any).text || claim.id}
             </div>
 
             {/* Evidence items */}
-            {claim.evidence && claim.evidence.length > 0 && (
+            {claim.evidence && Array.isArray(claim.evidence) && claim.evidence.length > 0 && (
               <div style={{ borderTop: '1px solid var(--line-2)', paddingTop: 6, fontSize: 12 }}>
                 <span className="muted">Bằng chứng liên kết:</span>
                 {claim.evidence.map((ev, i) => (
                   <div key={i} style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <FileText size={13} color="var(--accent)" />
-                    <span>Nguồn: {ev.payload.source_id}</span>
-                    {ev.payload.provenance?.page && (
+                    <span>Nguồn: {ev.payload?.source_id || (ev as any).source_id || 'N/A'}</span>
+                    {ev.payload?.provenance?.page && (
                       <span className="muted">(Trang {ev.payload.provenance.page})</span>
                     )}
                   </div>

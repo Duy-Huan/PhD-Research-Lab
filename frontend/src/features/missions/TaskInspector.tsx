@@ -70,7 +70,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ task, onClose }) =
           <div>Engine thực thi: <code>{result?.engine || spec.preferred_engine || 'deterministic'}</code></div>
           <div>Số lần thử (Attempts): {task.payload.attempts}</div>
           {execRecord && (
-            <div>Thời gian chạy: {execRecord.elapsed_seconds.toFixed(2)}s</div>
+            <div>Thời gian chạy: {execRecord.elapsed_seconds != null ? `${execRecord.elapsed_seconds.toFixed(2)}s` : 'N/A'}</div>
           )}
         </div>
       )}

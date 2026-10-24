@@ -1,13 +1,18 @@
 import React from 'react';
 import type { AgentOfficeViewModel } from '../../shared/api/types';
-import { Bot, CheckCircle, Clock, Pause, AlertCircle, ShieldAlert } from 'lucide-react';
+import { Bot, CheckCircle, Clock, Pause, AlertCircle, ShieldAlert, UserCog } from 'lucide-react';
 
 interface AgentStatusListProps {
   agents: AgentOfficeViewModel[];
   onSelectAgent?: (agent: AgentOfficeViewModel) => void;
+  onEditProfile?: (agent: AgentOfficeViewModel) => void;
 }
 
-export const AgentStatusList: React.FC<AgentStatusListProps> = ({ agents, onSelectAgent }) => {
+export const AgentStatusList: React.FC<AgentStatusListProps> = ({
+  agents,
+  onSelectAgent,
+  onEditProfile,
+}) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {/* Serial Scheduler Badge (F08 Remediation) */}
@@ -80,6 +85,20 @@ export const AgentStatusList: React.FC<AgentStatusListProps> = ({ agents, onSele
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {onEditProfile && (
+                  <button
+                    type="button"
+                    className="btn ghost sm"
+                    title="Chỉnh sửa hồ sơ & Đặt tên"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditProfile(agent);
+                    }}
+                    style={{ padding: '3px 6px', borderRadius: 6 }}
+                  >
+                    <UserCog size={13} />
+                  </button>
+                )}
                 <span className={badgeClass} style={{ fontSize: 11 }}>
                   {icon}
                   <span style={{ marginLeft: 4 }}>{agent.presence.toUpperCase()}</span>

@@ -153,6 +153,22 @@ async def cancel(sid: str, tid: str):
     return await call(orchestrator.cancel, sid, tid)
 
 
+@router.post("/api/chat/sessions/{sid}/cancel")
+async def cancel_session_turns(sid: str):
+    def _cancel():
+        s = store.get(sid)
+        cancelled = []
+        for t in s.get("turns", []):
+            if t.get("status") in ("running", "queued"):
+                try:
+                    orchestrator.cancel(sid, t["id"])
+                    cancelled.append(t["id"])
+                except Exception:
+                    pass
+        return {"cancelled": cancelled}
+    return await call(_cancel)
+
+
 @router.post("/api/chat/sessions/{sid}/turns/{tid}/launch")
 async def launch(sid: str, tid: str, body: dict = Body(default={})):
     return await call(orchestrator.launch, sid, tid, body.get("context"))

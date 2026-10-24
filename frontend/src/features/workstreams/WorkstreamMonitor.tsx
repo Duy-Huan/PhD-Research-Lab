@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useUIStore } from '../../shared/state/uiStore';
+import { useUIStore, useI18n } from '../../shared/state/uiStore';
 import { api } from '../../shared/api/client';
 import type { Mission, WorkstreamView } from '../../shared/api/types';
 import { GitBranch, AlertCircle, CheckCircle2, ArrowRight, RefreshCw, KeyRound } from 'lucide-react';
 
 export const WorkstreamMonitor: React.FC = () => {
   const queryClient = useQueryClient();
+  const { t } = useI18n();
   const { activeTopicId } = useUIStore();
   const [selectedMissionId, setSelectedMissionId] = useState<string | null>(null);
 
@@ -71,7 +72,7 @@ export const WorkstreamMonitor: React.FC = () => {
     },
     onError: (err: any) => {
       if (err.status === 409 || err.code === 'CONFLICT') {
-        setCasConflict('Xung đột phiên bản (409 Conflict): Output đã được cập nhật bởi tiến trình khác. Vui lòng kiểm tra lại phiên bản mới nhất.');
+        setCasConflict(t('Xung đột phiên bản: Kết quả đã được cập nhật bởi tiến trình khác. Vui lòng kiểm tra lại phiên bản mới nhất.', 'Version conflict: Output has been updated by another process. Please check the latest version.'));
       } else {
         alert(`Lỗi lưu output: ${err.message}`);
       }
@@ -166,7 +167,7 @@ export const WorkstreamMonitor: React.FC = () => {
                 <span className="chip" style={{ fontSize: 11 }}>Vai trò: {ws.lead_role}</span>
               </div>
               <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>
-                Nhiệm vụ: {ws.task_ids.join(', ')}
+                Nhiệm vụ: {ws.task_ids?.join(', ') || 'Chưa gán nhiệm vụ'}
               </div>
             </div>
           ))}
@@ -177,11 +178,11 @@ export const WorkstreamMonitor: React.FC = () => {
       {workstreamData && (
         <div style={{ display: 'grid', gap: 8 }}>
           <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--muted)' }}>
-            Handoffs & Biên lai nhận ({workstreamData.messages.length} bàn giao, {workstreamData.receipts.length} đã nhận):
+            Handoffs & Biên lai nhận ({workstreamData.messages?.length || 0} bàn giao, {workstreamData.receipts?.length || 0} đã nhận):
           </span>
           <div style={{ maxHeight: 150, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {workstreamData.messages.map((msg) => {
-              const ack = workstreamData.receipts.find((r) => r.handoff_id === msg.id);
+            {(workstreamData.messages || []).map((msg) => {
+              const ack = (workstreamData.receipts || []).find((r) => r.handoff_id === msg.id);
               return (
                 <div
                   key={msg.id}
@@ -216,7 +217,7 @@ export const WorkstreamMonitor: React.FC = () => {
                 </div>
               );
             })}
-            {workstreamData.messages.length === 0 && (
+            {(!workstreamData.messages || workstreamData.messages.length === 0) && (
               <p className="muted" style={{ fontSize: 12 }}>Chưa có sự kiện bàn giao handoff nào.</p>
             )}
           </div>
@@ -224,7 +225,7 @@ export const WorkstreamMonitor: React.FC = () => {
       )}
 
       {/* Disputes Inbox (F02) */}
-      {workstreamData && workstreamData.disputes.length > 0 && (
+      {workstreamData && (workstreamData.disputes || []).length > 0 && (
         <div style={{ display: 'grid', gap: 8 }}>
           <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--err)' }}>
             Tranh chấp đang mở (Disputes):
@@ -321,7 +322,7 @@ export const WorkstreamMonitor: React.FC = () => {
             onSubmit={(e) => {
               e.preventDefault();
               const owner = workstreams[0]?.id || '';
-              const firstTask = workstreams[0]?.task_ids[0] || 'report';
+              const firstTask = workstreams[0]?.task_ids?.[0] || 'report';
               casMutation.mutate({
                 key: casKey.trim(),
                 expectedRevision: casRevision,

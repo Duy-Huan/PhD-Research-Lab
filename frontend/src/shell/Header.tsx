@@ -3,18 +3,20 @@ import { useUIStore, useI18n } from '../shared/state/uiStore';
 import {
   Menu,
   PanelRight,
+  PanelRightClose,
+  PanelRightOpen,
   ChevronDown,
   BarChart3,
   Terminal,
   Cpu,
   Bot,
-  Settings,
   Gauge,
   Award,
   MessageSquare,
   BookOpen,
   Compass,
   ZoomIn,
+  HelpCircle,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -31,10 +33,10 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
     openDrawer,
     drawerKind,
     closeDrawer,
+    toggleDrawer,
     mainView,
     setMainView,
     open3DOffice,
-    openSettings,
     language,
     setLanguage,
     uiScale,
@@ -45,11 +47,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
   const topicLabel = activeTopic ? activeTopic.title || activeTopic.name : '';
 
   const handlePanelToggle = () => {
-    if (drawerKind) {
-      closeDrawer();
-    } else {
-      openDrawer('outline');
-    }
+    toggleDrawer();
   };
 
   const cycleScale = () => {
@@ -101,7 +99,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           }}
         >
           <span className="ellipsis" style={{ maxWidth: 160 }}>
-            {topicLabel || t('Topic SKB', 'Topic SKB')}
+            {topicLabel || t('Chủ đề SKB', 'Topic SKB')}
           </span>
           <ChevronDown size={13} style={{ marginLeft: 3 }} />
         </button>
@@ -123,11 +121,21 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           type="button"
           className={`btn sm ${mainView === 'chat' ? 'accent' : 'ghost'}`}
           onClick={() => setMainView('chat')}
-          title={t('Trò chuyện Nghiên cứu (Chat)', 'Research Chat')}
+          title={t('Trò chuyện Nghiên cứu', 'Research Chat')}
           style={{ borderRadius: 999, padding: '4px 12px', gap: 5 }}
         >
           <MessageSquare size={14} />
-          <span style={{ fontSize: 12 }}>Chat</span>
+          <span style={{ fontSize: 12 }}>{t('Trò chuyện', 'Chat')}</span>
+        </button>
+        <button
+          type="button"
+          className={`btn sm ${mainView === 'library' ? 'accent' : 'ghost'}`}
+          onClick={() => setMainView('library')}
+          title={t('Thư viện Bài báo & Tài liệu', 'Paper Library & Documents')}
+          style={{ borderRadius: 999, padding: '4px 12px', gap: 5 }}
+        >
+          <BookOpen size={14} />
+          <span style={{ fontSize: 12 }}>{t('Thư viện', 'Library')}</span>
         </button>
         <button
           type="button"
@@ -140,7 +148,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           style={{ borderRadius: 999, padding: '4px 12px', gap: 5 }}
         >
           <Bot size={14} />
-          <span style={{ fontSize: 12 }}>3D Lab</span>
+          <span style={{ fontSize: 12 }}>{t('Lab 3D', '3D Lab')}</span>
         </button>
         <button
           type="button"
@@ -155,55 +163,58 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           type="button"
           className={`btn sm ${mainView === 'dashboard' ? 'accent' : 'ghost'}`}
           onClick={() => setMainView('dashboard')}
-          title={t('Bảng điều khiển Hệ thống (Dashboard)', 'System Dashboard')}
+          title={t('Bảng điều khiển Hệ thống', 'System Dashboard')}
           style={{ borderRadius: 999, padding: '4px 10px', gap: 4 }}
         >
           <Gauge size={14} />
         </button>
       </div>
 
-      {/* Right: Icon-First Studio Bar + Language + Scale + Settings */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-        <button
-          className={`icon ${drawerKind === 'outline' ? 'active' : ''}`}
-          type="button"
-          onClick={() => openDrawer('outline')}
-          title={t('Đề cương 5 cấp độ (Outline)', '5-Level Research Outline')}
-        >
-          <Compass size={16} />
-        </button>
-        <button
-          className={`icon ${drawerKind === 'library' ? 'active' : ''}`}
-          type="button"
-          onClick={() => openDrawer('library')}
-          title={t('Thư viện PDF & Tìm kiếm bài báo', 'PDF Library & Paper Search')}
-        >
-          <BookOpen size={16} />
-        </button>
-        <button
-          className={`icon ${drawerKind === 'figures' ? 'active' : ''}`}
-          type="button"
-          onClick={() => openDrawer('figures')}
-          title="Figure Studio (v6.4.0)"
-        >
-          <BarChart3 size={16} />
-        </button>
-        <button
-          className={`icon ${drawerKind === 'opencode' ? 'active' : ''}`}
-          type="button"
-          onClick={() => openDrawer('opencode')}
-          title="OpenCode Parallel Core (v6.4.1)"
-        >
-          <Terminal size={16} />
-        </button>
-        <button
-          className={`icon ${drawerKind === 'intelligence' ? 'active' : ''}`}
-          type="button"
-          onClick={() => openDrawer('intelligence')}
-          title="Unified Research Intelligence (v6.4.2)"
-        >
-          <Cpu size={16} />
-        </button>
+      {/* Right: Icon-First Studio Bar + Language + Scale + Settings + Dedicated Panel Toggle */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, minWidth: 0 }}>
+        {/* Collapsible/Scrollable Studio Shortcut Icons */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 3, minWidth: 0 }}>
+          <button
+            className={`icon ${drawerKind === 'outline' ? 'active' : ''}`}
+            type="button"
+            onClick={() => openDrawer('outline')}
+            title={t('Đề cương Nghiên cứu 5 Cấp độ', '5-Level Research Outline')}
+          >
+            <Compass size={16} />
+          </button>
+          <button
+            className={`icon ${drawerKind === 'library' ? 'active' : ''}`}
+            type="button"
+            onClick={() => openDrawer('library')}
+            title={t('Thư viện PDF & Tìm kiếm bài báo', 'PDF Library & Paper Search')}
+          >
+            <BookOpen size={16} />
+          </button>
+          <button
+            className={`icon ${drawerKind === 'figures' ? 'active' : ''}`}
+            type="button"
+            onClick={() => openDrawer('figures')}
+            title={t('Xưởng Đồ họa Khoa học', 'Figure Studio')}
+          >
+            <BarChart3 size={16} />
+          </button>
+          <button
+            className={`icon ${drawerKind === 'opencode' ? 'active' : ''}`}
+            type="button"
+            onClick={() => openDrawer('opencode')}
+            title={t('Nhân Thực nghiệm Tính toán OpenCode', 'OpenCode Parallel Core')}
+          >
+            <Terminal size={16} />
+          </button>
+          <button
+            className={`icon ${drawerKind === 'intelligence' ? 'active' : ''}`}
+            type="button"
+            onClick={() => openDrawer('intelligence')}
+            title={t('Trung tâm Phân tích Tri thức', 'Unified Research Intelligence')}
+          >
+            <Cpu size={16} />
+          </button>
+        </div>
 
         {/* Language Toggle Pill (VI / EN) */}
         <button
@@ -217,6 +228,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
             fontSize: 11,
             fontWeight: 700,
             border: '1px solid var(--line)',
+            flexShrink: 0,
           }}
         >
           {language.toUpperCase()}
@@ -227,28 +239,31 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           type="button"
           className="btn sm ghost"
           onClick={cycleScale}
-          title={t('Tỉ lệ hiển thị giao diện (Scale)', 'UI Display Scale')}
+          title={t('Tỉ lệ hiển thị giao diện', 'UI Display Scale')}
           style={{
             borderRadius: 999,
             padding: '3px 7px',
             fontSize: 11,
             border: '1px solid var(--line)',
             gap: 3,
+            flexShrink: 0,
           }}
         >
           <ZoomIn size={12} />
           <span>{Math.round(uiScale * 100)}%</span>
         </button>
 
-        {/* Settings Icon */}
+        {/* User Guide Button */}
         <button
           type="button"
-          className={`icon ${mainView === 'settings' ? 'active' : ''}`}
-          onClick={() => openSettings()}
-          title={t('Cài đặt Hệ thống & Models', 'System & Model Settings')}
+          className={`icon ${drawerKind === 'guide' ? 'active' : ''}`}
+          onClick={() => (drawerKind === 'guide' ? closeDrawer() : openDrawer('guide'))}
+          title={t('Hướng dẫn Người dùng & Sổ tay Nghiên cứu', 'User Guide & Beginner Onboarding')}
+          style={{ flexShrink: 0 }}
         >
-          <Settings size={16} />
+          <HelpCircle size={16} />
         </button>
+
 
         <span
           className={`dot ${isLive ? 'active' : ''}`}
@@ -265,17 +280,39 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
             borderRadius: '50%',
             backgroundColor: isLive ? 'var(--ok)' : 'var(--muted)',
             margin: '0 3px',
+            flexShrink: 0,
           }}
         />
 
+        {/* Dedicated, prominent right-corner toggle button that NEVER gets pushed off-screen */}
         <button
-          className={`icon ${drawerKind ? 'active' : ''}`}
+          className={`btn sm ${drawerKind ? 'accent' : 'ghost'}`}
           id="panel-btn"
-          title={t('Đóng/Mở Bảng Công cụ', 'Toggle Inspector Drawer')}
+          title={
+            drawerKind
+              ? t('Ẩn bảng công cụ bên phải', 'Hide right tools panel')
+              : t('Mở bảng công cụ bên phải', 'Open right tools panel')
+          }
           aria-label={t('Bảng kết quả & công cụ', 'Inspector Drawer')}
           onClick={handlePanelToggle}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 5,
+            padding: '4px 10px',
+            borderRadius: 8,
+            border: drawerKind ? '1px solid var(--accent)' : '1px solid var(--line)',
+            background: drawerKind ? 'var(--accent-soft, var(--bg-2))' : 'var(--bg-2)',
+            color: drawerKind ? 'var(--accent)' : 'var(--ink)',
+            fontWeight: 600,
+            fontSize: 12,
+            flexShrink: 0,
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+          }}
         >
-          <PanelRight size={17} />
+          {drawerKind ? <PanelRightClose size={15} /> : <PanelRightOpen size={15} />}
+          <span>{drawerKind ? t('Ẩn bảng công cụ', 'Hide panel') : t('Bảng công cụ', 'Tools panel')}</span>
         </button>
       </div>
     </header>

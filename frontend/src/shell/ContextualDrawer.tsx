@@ -19,7 +19,10 @@ import {
   CodePanel,
   ProtocolsPanel,
 } from '../features/workspace-tools/OutlinePaperCodePanels';
-import { X } from 'lucide-react';
+import { UserGuidePanel } from '../features/guide/UserGuidePanel';
+import { CustomHarnessStudio } from '../features/harness/CustomHarnessStudio';
+import { ClaudeCLIStudio } from '../features/cli/ClaudeCLIStudio';
+import { X, PanelRightClose } from 'lucide-react';
 
 export const ContextualDrawer: React.FC = () => {
   const { drawerKind, closeDrawer } = useUIStore();
@@ -40,43 +43,43 @@ export const ContextualDrawer: React.FC = () => {
       content = <LibraryPanel />;
       break;
     case 'missions':
-      title = t('Nhiệm vụ Tự hành (Missions)', 'Autonomous Missions');
+      title = t('Nhiệm vụ Tự hành', 'Autonomous Missions');
       content = <MissionLiveWorkspace />;
       break;
     case 'workstreams':
-      title = t('Phân luồng Workstreams', 'Parallel Workstreams');
+      title = t('Phân luồng Công việc', 'Parallel Workstreams');
       content = <WorkstreamMonitor />;
       break;
     case 'figures':
-      title = t('Figure Studio (v6.4.0)', 'Figure Studio (v6.4.0)');
+      title = t('Xưởng Đồ họa Khoa học', 'Scientific Figure Studio');
       content = <FigureStudioPanel />;
       break;
     case 'opencode':
-      title = t('OpenCode Parallel Core (v6.4.1)', 'OpenCode Parallel Core (v6.4.1)');
+      title = t('Nhân Thực nghiệm Tính toán OpenCode', 'OpenCode Parallel Core');
       content = <OpenCodePanel />;
       break;
     case 'intelligence':
-      title = t('Research Intelligence Hub (v6.4.2)', 'Research Intelligence Hub (v6.4.2)');
+      title = t('Trung tâm Phân tích Tri thức', 'Research Intelligence Hub');
       content = <IntelligenceHubPanel />;
       break;
     case 'agent-status':
-      title = t('AI Agents & 3D Lab', 'AI Agents & 3D Lab');
+      title = t('AI Agents & Phòng Lab 3D', 'AI Agents & 3D Lab');
       content = <AgentStatusView />;
       break;
     case 'protocols':
-      title = t('Protocols & Thí nghiệm', 'Controlled Protocols');
+      title = t('Giao thức Thí nghiệm', 'Controlled Protocols');
       content = <ProtocolsPanel />;
       break;
     case 'claims':
-      title = t('Bằng chứng & Claims', 'Claims & Evidence');
+      title = t('Bằng chứng & Luận điểm', 'Claims & Evidence');
       content = <EvidenceReview />;
       break;
     case 'dashboard':
-      title = t('Bảng điều khiển (Dashboard)', 'System Dashboard');
+      title = t('Bảng điều khiển Hệ thống', 'System Dashboard');
       content = <DashboardView />;
       break;
     case 'settings':
-      title = t('Cài đặt hệ thống', 'System Settings');
+      title = t('Cài đặt Hệ thống', 'System Settings');
       content = <SettingsModal />;
       break;
     case 'review':
@@ -88,16 +91,28 @@ export const ContextualDrawer: React.FC = () => {
       content = <ProjectSwitcher />;
       break;
     case 'outline':
-      title = t('Đề cương 5 cấp độ (Outline)', '5-Level Research Outline');
+      title = t('Đề cương Nghiên cứu 5 Cấp độ', '5-Level Research Outline');
       content = <OutlinePanel />;
       break;
     case 'code':
-      title = t('Dự án Mã nguồn & VS Code', 'Code Workspace & VS Code');
+      title = t('Mã nguồn & VS Code', 'Code Workspace & VS Code');
       content = <CodePanel />;
       break;
     case 'paper':
-      title = t('Bản thảo Bài báo (LaTeX)', 'Paper Manuscript (LaTeX)');
+      title = t('Bản thảo Bài báo LaTeX', 'Paper Manuscript (LaTeX)');
       content = <PaperPanel />;
+      break;
+    case 'guide':
+      title = t('Sổ tay Hướng dẫn Người mới', 'User Guide & Onboarding Manual');
+      content = <UserGuidePanel />;
+      break;
+    case 'harness':
+      title = t('Harness Studio & Thiết kế Quy trình Kéo thả', 'Harness Studio & Visual Drag-and-Drop Workflow');
+      content = <CustomHarnessStudio />;
+      break;
+    case 'cli':
+      title = t('Giao diện Dòng lệnh Claude CLI', 'Claude CLI Terminal Studio');
+      content = <ClaudeCLIStudio />;
       break;
     default:
       content = null;
@@ -131,14 +146,36 @@ export const ContextualDrawer: React.FC = () => {
         <span className="ttl" style={{ fontWeight: 600, fontSize: 13 }}>
           {title}
         </span>
-        <button
-          className="icon sm"
-          title={t('Đóng bảng', 'Close panel')}
-          aria-label={t('Đóng bảng', 'Close panel')}
-          onClick={closeDrawer}
-        >
-          <X size={15} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <button
+            className="btn sm ghost"
+            id="drawer-collapse-btn"
+            title={t('Ẩn bảng công cụ bên phải (Thu gọn)', 'Collapse right menu')}
+            aria-label={t('Ẩn bảng công cụ bên phải', 'Collapse right menu')}
+            onClick={closeDrawer}
+            style={{
+              padding: '2px 7px',
+              fontSize: 11.5,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              border: '1px solid var(--line)',
+              borderRadius: 6,
+            }}
+          >
+            <PanelRightClose size={13} />
+            <span>{t('Ẩn', 'Hide')}</span>
+          </button>
+          <button
+            className="icon sm"
+            id="drawer-close-btn"
+            title={t('Đóng bảng', 'Close panel')}
+            aria-label={t('Đóng bảng', 'Close panel')}
+            onClick={closeDrawer}
+          >
+            <X size={15} />
+          </button>
+        </div>
       </div>
       <div className="panel-b" style={{ flex: 1, overflowY: 'auto' }}>
         {content}

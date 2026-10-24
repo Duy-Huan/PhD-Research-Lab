@@ -123,6 +123,9 @@ export const AgentAvatar: React.FC<AgentAvatarProps> = ({
   const isFailed = agent.presence === 'failed';
 
   const appearance = getCharacterAppearance(agent.archetype, index);
+  if (agent.customColor) {
+    appearance.coatColor = agent.customColor;
+  }
 
   // Social meeting spots in world space (central green collaboration hub)
   const meetingAngle = (index * Math.PI * 2) / 6;
@@ -490,7 +493,7 @@ export const AgentAvatar: React.FC<AgentAvatarProps> = ({
             }}
           >
             {/* Live Speech Bubble when conversing or hovered/selected */}
-            {(isTalkingNow || hovered || isSelected) && agent.speechBubble && (
+            {(isTalkingNow || hovered || isSelected) && (agent.customGreeting || agent.speechBubble) && (
               <div
                 style={{
                   maxWidth: 220,
@@ -498,7 +501,7 @@ export const AgentAvatar: React.FC<AgentAvatarProps> = ({
                   borderRadius: 10,
                   background: 'rgba(255, 255, 255, 0.96)',
                   color: '#0f172a',
-                  border: '1.5px solid #10b981',
+                  border: `1.5px solid ${agent.customColor || '#10b981'}`,
                   boxShadow: '0 4px 14px rgba(0,0,0,0.18)',
                   fontSize: 10.5,
                   lineHeight: 1.35,
@@ -506,7 +509,7 @@ export const AgentAvatar: React.FC<AgentAvatarProps> = ({
                   textAlign: 'center',
                 }}
               >
-                💬 {agent.speechBubble}
+                💬 {agent.customGreeting || agent.speechBubble}
               </div>
             )}
 

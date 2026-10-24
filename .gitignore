@@ -6,8 +6,10 @@ __pycache__/
 /claude/
 
 # Frontend dependencies
+node_modules/
 frontend/node_modules/
 tests/frontend/node_modules/
+frontend/coverage/
 
 # Coverage & temporary test outputs
 .coverage

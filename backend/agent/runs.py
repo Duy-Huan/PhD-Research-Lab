@@ -903,7 +903,7 @@ def _research(ctx: Ctx) -> dict:
                           project_id=data_dir().name, workflow_id=ctx.rid, step_id=ctx.step["id"], question=topic,
                           context=brief, capability=capability,
                           native_workflow=ctx.step["spec"].get("workflow") or ctx.run["inputs"].get("workflow") or "",
-                          output_dir=ctx.out / ("feynman" if pid == "feynman" else "openscience-" + ctx.step["id"]),
+                          output_dir=ctx.out / ("feynman" if pid == "feynman" else "phdlab" if pid == "phdlab" else "openscience-" + ctx.step["id"]),
                           time_limit_s=max(1, min(7200, ctx.run["budget"]["max_minutes"] * 60 - _active_s(ctx.run))),
                           approved=ctx.run["approval"]["status"] == "approved", hypothesis_id=ctx.run["inputs"].get("hypothesis_id", ""),
                           experiment_id=ctx.run["inputs"].get("experiment_id", ""))

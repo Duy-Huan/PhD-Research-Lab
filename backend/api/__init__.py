@@ -23,6 +23,7 @@ from backend.api import (
     code,
     compute,
     figures,
+    harness,
     intelligence,
     library,
     mcp,
@@ -54,6 +55,7 @@ ROUTERS = [
     research_engines.router,
     research.router,
     figures.router,
+    harness.router,
     opencode.router,
     intelligence.router,
 ]

@@ -253,7 +253,7 @@ export const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
         <button
           type="button"
           onClick={() => setLightingMode('biophilic_green')}
-          title={t('Không gian Xanh Tươi sáng (Biophilic Green Lab)', 'Biophilic Green Lab')}
+          title={t('Không gian Phòng Lab Xanh', 'Biophilic Green Lab')}
           style={{
             border: 'none',
             borderRadius: 999,

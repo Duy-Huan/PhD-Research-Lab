@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useUIStore } from '../../shared/state/uiStore';
+import { useUIStore, useI18n } from '../../shared/state/uiStore';
 import { api } from '../../shared/api/client';
 import type { Topic, LibraryPaper } from '../../shared/api/types';
 import { Plus, Check, Brain, Folder, Search, ShieldCheck, BookOpen } from 'lucide-react';
 
 export const TopicView: React.FC = () => {
   const queryClient = useQueryClient();
-  const { activeTopicId, setActiveTopic } = useUIStore();
+  const { t } = useI18n();
+  const { activeTopicId, setActiveTopic, openDrawer } = useUIStore();
   const [showCreate, setShowCreate] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -56,7 +57,7 @@ export const TopicView: React.FC = () => {
     mutationFn: (tid: string) => api.post(`/api/research/topics/${tid}/discover`, {}),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['topic-papers', activeTopicId] });
-      alert('Đã kích hoạt tiến trình tìm kiếm tài liệu khoa học (Discovery Job)!');
+      alert(t('Đã kích hoạt tiến trình tìm kiếm tài liệu khoa học!', 'Academic literature discovery job triggered!'));
     },
   });
 
@@ -240,9 +241,14 @@ export const TopicView: React.FC = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <b style={{ fontSize: 13 }}>Tài liệu trong SKB của Topic ({papersData?.papers?.length || 0})</b>
-            <button className="btn sm ghost" onClick={() => discoverMutation.mutate(activeTopicId)}>
-              <Search size={13} style={{ marginRight: 4 }} /> Chạy Discovery
-            </button>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button className="btn sm ghost" onClick={() => openDrawer('library')} title="Mở Thư viện Bài báo & Tìm kiếm PDF">
+                <BookOpen size={13} style={{ marginRight: 4 }} /> Thư viện Toàn cục
+              </button>
+              <button className="btn sm ghost" onClick={() => discoverMutation.mutate(activeTopicId)}>
+                <Search size={13} style={{ marginRight: 4 }} /> Chạy Discovery
+              </button>
+            </div>
           </div>
           {papersData?.papers?.map((p) => (
             <div

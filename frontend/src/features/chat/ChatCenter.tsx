@@ -126,18 +126,33 @@ export const ChatCenter: React.FC<ChatCenterProps> = ({ compact = false }) => {
       setIsStreaming(true);
       setStreamingText('');
 
-      const result = await api.post<{
-        turn?: { id: string; status: string };
-        session?: ChatSession;
-      }>(`/api/chat/sessions/${sid}/turns`, {
-        text,
-        overrides: overrides || {},
-      });
+      try {
+        const result = await api.post<{
+          id?: string;
+          status?: string;
+          turn?: { id: string; status: string };
+          session?: ChatSession;
+        }>(`/api/chat/sessions/${sid}/turns`, {
+          text,
+          overrides: overrides || {},
+        });
 
-      if (result?.turn?.id) {
-        setActiveTurnId(result.turn.id);
+        const turnId = result?.id || result?.turn?.id;
+        if (turnId) {
+          setActiveTurnId(turnId);
+        }
+        return { sid, result };
+      } catch (err: any) {
+        // If a turn was already running/stuck, attempt to cancel it so the user can send again
+        if (err.message && err.message.toLowerCase().includes('already running')) {
+          try {
+            await api.post(`/api/chat/sessions/${sid}/cancel`, {});
+          } catch {
+            // ignore
+          }
+        }
+        throw err;
       }
-      return { sid, result };
     },
     onSuccess: ({ sid }) => {
       queryClient.invalidateQueries({ queryKey: ['chat', sid] });
@@ -224,6 +239,7 @@ export const ChatCenter: React.FC<ChatCenterProps> = ({ compact = false }) => {
         minHeight: 0,
         position: 'relative',
         background: 'var(--bg)',
+        color: 'var(--ink)',
       }}
     >
       <MessageList

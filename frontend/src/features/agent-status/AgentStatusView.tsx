@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Group, Panel, Separator } from 'react-resizable-panels';
-import { useUIStore, useI18n, type InteractiveLabObjectKind } from '../../shared/state/uiStore';
+import {
+  useUIStore,
+  useI18n,
+  applyAgentProfiles,
+  type InteractiveLabObjectKind,
+} from '../../shared/state/uiStore';
 import { api } from '../../shared/api/client';
 import type {
   Mission,
@@ -17,6 +22,7 @@ import {
 } from '../../shared/events/eventAdapter';
 import { AgentStatusList } from './AgentStatusList';
 import { OfficeCanvas } from './office3d/OfficeCanvas';
+import { AgentProfileModal } from './AgentProfileModal';
 import { ChatCenter } from '../chat/ChatCenter';
 import { LibraryPanel } from '../library/LibraryPanel';
 import { OutlinePanel } from '../workspace-tools/OutlinePaperCodePanels';
@@ -44,6 +50,7 @@ import {
   BarChart3,
   Cpu,
   Send,
+  UserCog,
 } from 'lucide-react';
 
 type DockTab = 'chat' | 'agent' | 'object';
@@ -69,10 +76,12 @@ export const AgentStatusView: React.FC = () => {
     activeSessionId,
     setActiveSessionId,
     activeChatProjectId,
+    agentProfiles,
   } = useUIStore();
   const { t } = useI18n();
 
   const [selectedAgent, setSelectedAgent] = useState<AgentOfficeViewModel | null>(null);
+  const [editingProfileAgent, setEditingProfileAgent] = useState<AgentOfficeViewModel | null>(null);
   const [rosterOpen, setRosterOpen] = useState(true);
   const [dockTab, setDockTab] = useState<DockTab>('chat');
   const [directAgentInput, setDirectAgentInput] = useState('');
@@ -84,9 +93,9 @@ export const AgentStatusView: React.FC = () => {
   });
 
   // Fetch papers count for 3D Library badge
-  const { data: papersData } = useQuery<{ papers: LibraryPaper[] }>({
-    queryKey: ['papers', project?.data_dir],
-    queryFn: () => api.get<{ papers: LibraryPaper[] }>('/api/papers'),
+  const { data: libraryData } = useQuery<{ references?: LibraryPaper[]; papers?: LibraryPaper[] }>({
+    queryKey: ['library', project?.data_dir],
+    queryFn: () => api.get<{ references?: LibraryPaper[]; papers?: LibraryPaper[] }>('/api/library'),
     enabled: !!project,
   });
 
@@ -108,7 +117,7 @@ export const AgentStatusView: React.FC = () => {
     enabled: !!activeTopicId,
   });
 
-  const papers = papersData?.papers || [];
+  const papers = libraryData?.references || libraryData?.papers || [];
   const missions = missionsData?.missions || [];
   const opencodeSessions = opencodeData?.sessions || [];
   const liveAgents = mapMissionsToAgentViewModels(
@@ -118,13 +127,19 @@ export const AgentStatusView: React.FC = () => {
     opencodeSessions
   );
 
-  // Build full University Lab roster
-  const agents = buildUniversityLabRoster(
+  // Build full University Lab roster with user custom personal profiles applied
+  const baseAgents = buildUniversityLabRoster(
     liveAgents,
     project?.data_dir || '',
     activeTopicId || undefined,
     config?.agent_modes
   );
+  const agents = useMemo(() => applyAgentProfiles(baseAgents, agentProfiles), [baseAgents, agentProfiles]);
+
+  const activeSelectedAgent = useMemo(() => {
+    if (!selectedAgent) return null;
+    return agents.find((a) => a.agentId === selectedAgent.agentId) || selectedAgent;
+  }, [agents, selectedAgent]);
 
   const runningCount = agents.filter((a) => a.presence === 'running').length;
 
@@ -144,7 +159,8 @@ export const AgentStatusView: React.FC = () => {
 
   // Send a direct message/task to the clicked 3D Agent and sync with main chat session
   const handleSendDirectToAgent = async (customPrompt?: string) => {
-    if (!selectedAgent) return;
+    const targetAgent = activeSelectedAgent || selectedAgent;
+    if (!targetAgent) return;
     const raw = (customPrompt ?? directAgentInput).trim();
     if (!raw || sendingDirect) return;
 
@@ -153,7 +169,7 @@ export const AgentStatusView: React.FC = () => {
       let sid = activeSessionId;
       if (!sid) {
         const created = await api.post<ChatSession>('/api/chat/sessions', {
-          title: `[${selectedAgent.displayName}] ${raw.slice(0, 36)}`,
+          title: `[${targetAgent.displayName}] ${raw.slice(0, 36)}`,
           topic_id: activeTopic?.id || '',
           chat_project: activeChatProjectId || '',
         });
@@ -161,10 +177,10 @@ export const AgentStatusView: React.FC = () => {
         setActiveSessionId(sid);
       }
 
-      const skillPrefix = selectedAgent.skillCommand || '';
+      const skillPrefix = targetAgent.skillCommand || '';
       const formattedText = raw.startsWith('/')
         ? raw
-        : `${skillPrefix ? skillPrefix + ' ' : ''}[Gửi trực tiếp tới ${selectedAgent.displayName}]: ${raw}`;
+        : `${skillPrefix ? skillPrefix + ' ' : ''}[Gửi trực tiếp tới ${targetAgent.displayName}]: ${raw}`;
 
       await api.post(`/api/chat/sessions/${sid}/turns`, {
         text: formattedText,
@@ -622,9 +638,13 @@ export const AgentStatusView: React.FC = () => {
               >
                 <div style={{ maxWidth: 1120, margin: '0 auto' }}>
                   <h3 style={{ marginTop: 0 }}>
-                    {t('Ma trận Trạng thái AI Researchers (2D)', 'AI Researchers Status Matrix (2D)')}
+                    {t('Ma trận Trạng thái Nhà nghiên cứu AI 2D', 'AI Researchers Status Matrix (2D)')}
                   </h3>
-                  <AgentStatusList agents={agents} onSelectAgent={handleSelect3DAgent} />
+                  <AgentStatusList
+                    agents={agents}
+                    onSelectAgent={handleSelect3DAgent}
+                    onEditProfile={(a) => setEditingProfileAgent(a)}
+                  />
                 </div>
               </div>
             )}
@@ -770,17 +790,40 @@ export const AgentStatusView: React.FC = () => {
                           <span style={{ fontWeight: 700, fontSize: 11.5 }} className="ellipsis">
                             {a.displayName}
                           </span>
-                          <span
-                            style={{
-                              fontSize: 9.5,
-                              padding: '1px 5px',
-                              borderRadius: 999,
-                              background: 'rgba(16, 185, 129, 0.25)',
-                              color: '#6ee7b7',
-                            }}
-                          >
-                            {a.engine}
-                          </span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <span
+                              role="button"
+                              tabIndex={0}
+                              title={t('Tùy biến hồ sơ & Đặt tên', 'Customize Profile & Custom Name')}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingProfileAgent(a);
+                              }}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: '2px 4px',
+                                borderRadius: 4,
+                                color: '#a7f3d0',
+                                background: 'rgba(52, 211, 153, 0.15)',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              <UserCog size={11} />
+                            </span>
+                            <span
+                              style={{
+                                fontSize: 9.5,
+                                padding: '1px 5px',
+                                borderRadius: 999,
+                                background: 'rgba(16, 185, 129, 0.25)',
+                                color: '#6ee7b7',
+                              }}
+                            >
+                              {a.engine}
+                            </span>
+                          </div>
                         </div>
                         <div className="ellipsis" style={{ fontSize: 10.5, color: '#cbd5e1' }}>
                           {a.role}
@@ -813,7 +856,7 @@ export const AgentStatusView: React.FC = () => {
                   flexDirection: 'column',
                   height: '100%',
                   background: 'var(--panel)',
-                  color: 'var(--fg)',
+                  color: 'var(--ink)',
                   overflow: 'hidden',
                 }}
               >
@@ -906,13 +949,17 @@ export const AgentStatusView: React.FC = () => {
                     display: 'flex',
                     flexDirection: 'column',
                     overflow: 'hidden',
+                    background: 'var(--bg)',
+                    color: 'var(--ink)',
                   }}
                 >
                   {/* TAB 1: Full Synchronized Main Chat Center */}
                   {dockTab === 'chat' && <ChatCenter compact />}
 
                   {/* TAB 2: Direct Agent Status & Interactive Conversation */}
-                  {dockTab === 'agent' && (
+                  {dockTab === 'agent' && (() => {
+                    const currentAgent = activeSelectedAgent || selectedAgent;
+                    return (
                     <div
                       style={{
                         flex: 1,
@@ -923,7 +970,7 @@ export const AgentStatusView: React.FC = () => {
                         gap: 12,
                       }}
                     >
-                      {selectedAgent ? (
+                      {currentAgent ? (
                         <>
                           <div
                             style={{
@@ -953,29 +1000,39 @@ export const AgentStatusView: React.FC = () => {
                                     marginBottom: 4,
                                   }}
                                 >
-                                  {selectedAgent.engine} · {selectedAgent.presence}
+                                  {currentAgent.engine} · {currentAgent.presence}
                                 </span>
                                 <h3 style={{ margin: '4px 0 2px', fontSize: 16 }}>
-                                  {selectedAgent.displayName}
+                                  {currentAgent.displayName}
                                 </h3>
                                 <div className="muted" style={{ fontSize: 12.5 }}>
-                                  {selectedAgent.role}
+                                  {currentAgent.role}
                                 </div>
                               </div>
-                              <button
-                                type="button"
-                                className="btn sm ghost"
-                                onClick={() => {
-                                  setOfficeFullscreen(false);
-                                  openSettings('models');
-                                }}
-                              >
-                                <Sparkles size={12} style={{ marginRight: 4 }} />
-                                {t('Đổi Model', 'Change Model')}
-                              </button>
+                              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                                <button
+                                  type="button"
+                                  className="btn sm accent"
+                                  onClick={() => setEditingProfileAgent(currentAgent)}
+                                >
+                                  <UserCog size={12} style={{ marginRight: 4 }} />
+                                  {t('Hồ sơ & Đổi tên', 'Profile & Custom Name')}
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn sm ghost"
+                                  onClick={() => {
+                                    setOfficeFullscreen(false);
+                                    openSettings('models');
+                                  }}
+                                >
+                                  <Sparkles size={12} style={{ marginRight: 4 }} />
+                                  {t('Đổi Model', 'Change Model')}
+                                </button>
+                              </div>
                             </div>
 
-                            {selectedAgent.personality && (
+                            {currentAgent.personality && (
                               <div
                                 style={{
                                   fontSize: 12,
@@ -986,11 +1043,11 @@ export const AgentStatusView: React.FC = () => {
                                 }}
                               >
                                 <b>{t('Tính cách & Chuyên môn:', 'Persona & Expertise:')}</b>{' '}
-                                {selectedAgent.personality}
+                                {currentAgent.personality}
                               </div>
                             )}
 
-                            {selectedAgent.speechBubble && (
+                            {(currentAgent.customGreeting || currentAgent.speechBubble) && (
                               <div
                                 style={{
                                   fontSize: 12.5,
@@ -1000,7 +1057,7 @@ export const AgentStatusView: React.FC = () => {
                                   border: '1px solid #10b981',
                                 }}
                               >
-                                💬 <b>{t('Đang nói:', 'Speaking:')}</b> "{selectedAgent.speechBubble}"
+                                💬 <b>{t('Đang nói:', 'Speaking:')}</b> "{currentAgent.customGreeting || currentAgent.speechBubble}"
                               </div>
                             )}
 
@@ -1018,7 +1075,7 @@ export const AgentStatusView: React.FC = () => {
                                   )
                                 }
                               >
-                                {t('Hỏi Trạng thái (Ask Status)', 'Ask Status')}
+                                {t('Hỏi Trạng thái', 'Ask Status')}
                               </button>
                               <button
                                 type="button"
@@ -1052,8 +1109,8 @@ export const AgentStatusView: React.FC = () => {
                                   if (e.key === 'Enter') handleSendDirectToAgent();
                                 }}
                                 placeholder={t(
-                                  `Nhắn trực tiếp cho ${selectedAgent.displayName}…`,
-                                  `Message ${selectedAgent.displayName} directly…`
+                                  `Nhắn trực tiếp cho ${currentAgent.displayName}…`,
+                                  `Message ${currentAgent.displayName} directly…`
                                 )}
                                 style={{
                                   flex: 1,
@@ -1061,6 +1118,7 @@ export const AgentStatusView: React.FC = () => {
                                   borderRadius: 8,
                                   border: '1px solid var(--line-2)',
                                   background: 'var(--panel)',
+                                  color: 'var(--ink)',
                                   fontSize: 12.5,
                                 }}
                               />
@@ -1099,7 +1157,8 @@ export const AgentStatusView: React.FC = () => {
                         </p>
                       )}
                     </div>
-                  )}
+                  );
+                })()}
 
                   {/* TAB 3: Interactive 3D Furniture / Object Workflow */}
                   {dockTab === 'object' && (
@@ -1113,6 +1172,13 @@ export const AgentStatusView: React.FC = () => {
           )}
         </Group>
       </div>
+
+      {/* AI Agent Custom Profile & Name Dialog */}
+      <AgentProfileModal
+        agent={editingProfileAgent}
+        isOpen={!!editingProfileAgent}
+        onClose={() => setEditingProfileAgent(null)}
+      />
     </div>
   );
 };

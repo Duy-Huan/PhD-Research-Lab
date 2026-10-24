@@ -1,0 +1,8 @@
+.................................................................C:\Users\win\AppData\Local\Python\pythoncore-3.14-64\Lib\pathlib\__init__.py:330: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x000001787C86BC40>
+  @property
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+......
+----------------------------------------------------------------------
+Ran 71 tests in 184.270s
+
+OK

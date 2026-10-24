@@ -34,11 +34,13 @@ CODING = ("claude_code", "codex", "gemini_cli", "antigravity")
 CATALOG = {
     "feynman": ("research", "Feynman (AI research agent)"),
     "openscience": ("research", "OpenScience (external research runtime)"),
+    "phdlab": ("research", "PhD Lab Native (Toàn bộ Agent nội bộ của PhD Lab)"),
     "app": ("research", "Mô hình của ứng dụng (agent Research / Reviewer)"),
     "claude_code": ("coding", "Claude Code"),
     "codex": ("coding", "OpenAI Codex"),
     "gemini_cli": ("coding", "Gemini CLI"),
     "antigravity": ("coding", "Google Antigravity"),
+    "opencode": ("coding", "OpenCode Sandbox Thực nghiệm"),
     "python": ("experiment", "Python venv (máy này)"),
     "docker": ("experiment", "Docker (Linux, chạy ngầm khi cần)"),
     "clearml": ("experiment", "ClearML (offline tracking)"),
@@ -148,8 +150,16 @@ def describe(pid: str, cfg: dict | None = None, fresh: bool = False) -> dict:
             elif pid == "openscience":
                 from backend.research_engines.registry import get
                 h = get(pid).health()
-            elif pid == "app":
-                h = {"state": "READY", "detail": "agent Research + Reviewer theo cấu hình mô hình"}
+            elif pid == "opencode":
+                from backend.research_engines.registry import get
+                oc_h = get(pid).health()
+                h = {
+                    "state": "READY" if oc_h.get("ready") else "UNAVAILABLE",
+                    "detail": oc_h.get("detail") or ("OpenCode runtime sẵn sàng" if oc_h.get("ready") else "Chưa cài đặt OpenCode CLI"),
+                    "setup": ["npm install -g opencode-ai"] if not oc_h.get("installed") else [],
+                }
+            elif pid in ("app", "phdlab"):
+                h = {"state": "READY", "detail": "PhD Lab Native Multi-Agent OS (chạy toàn bộ hội đồng Agent nội bộ)"}
             elif pid in CODING:
                 h = _coding_health(pid, fresh)
             else:
@@ -176,8 +186,8 @@ def pick(preferred: str, category: str = "research") -> tuple[str, str]:
     want = preferred
     if preferred == "coding":
         want = _rp().get("coding_default") or "claude_code"
-    if want == "app" or want not in CATALOG:
-        return "app", ""
+    if want in ("app", "phdlab") or want not in CATALOG:
+        return want if want in CATALOG else "app", ""
     d = describe(want)
     if d["ready"]:
         return want, ""

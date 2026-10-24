@@ -88,6 +88,27 @@ class Out:
         self.stream.write(text)
         self.stream.flush()
 
+    def panel(self, content, title: str = "", subtitle: str = "", border_style: str = "#d2602a", style: str = "") -> None:
+        if self.console:
+            from rich.panel import Panel
+            from rich import box
+            p = Panel(content, title=f"[bold]{title}[/bold]" if title else None,
+                      subtitle=subtitle or None, box=box.ROUNDED, border_style=border_style,
+                      style=style or None)
+            self.console.print(p)
+        else:
+            if title:
+                self.line(f"╭── {title} " + "─" * max(2, 50 - len(title)) + "╮")
+            if isinstance(content, str):
+                for l in content.splitlines():
+                    self.line(f"│ {l}")
+            else:
+                self.line(str(content))
+            if subtitle:
+                self.line(f"╰── {subtitle} " + "─" * max(2, 50 - len(subtitle)) + "╯")
+            elif title:
+                self.line("╰" + "─" * 56 + "╯")
+
 
 class Repl:
     def __init__(self, x):
@@ -146,22 +167,31 @@ class Repl:
             except Exception:  # e.g. Git Bash / mintty without a Windows console: plain input still works
                 self.inp = input
                 return self.inp("\n› ")
-        return self.session.prompt("› ", bottom_toolbar=self.toolbar)
+        return self.session.prompt("❯ ", bottom_toolbar=self.toolbar)
 
     def banner(self) -> None:
         cfg = self.c.get("/api/config")
         title = self.c.get(f"/api/chat/sessions/{self.sid}")["title"] if self.sid else "cuộc trò chuyện mới"
+        proj = cfg.get("project") or {}
+        pname = proj.get("name") or "Dự án Hiện tại"
+        ver = cfg.get("version", "6.4.2")
+        agents = cfg.get("agent_models") or {}
+        model_str = agents.get("assistant") or "tự động"
         if self.o.console:
             from rich.panel import Panel
             from rich.text import Text
+            from rich import box
             t = Text()
-            t.append("PhD Research Lab", style="bold")
-            t.append(f"  v{cfg.get('version', '')}\n", style="dim")
-            t.append(f"{cfg['project']['name']} · {title}\n", style="cyan")
-            t.append("Gõ câu hỏi hoặc / để chọn lệnh · Tab hoàn thành · /help · Ctrl+D thoát", style="dim")
-            self.o.console.print(Panel(t, border_style="#d2602a", expand=False))
+            t.append("● PhD Research Lab ", style="bold #d2602a")
+            t.append(f"v{ver}  ·  Claude CLI Mode\n", style="bold cyan")
+            t.append(f"Dự án: {pname}   Mô hình: {model_str}\n", style="bold white")
+            t.append(f"Đoạn chat: {title}\n", style="cyan")
+            t.append("─" * 60 + "\n", style="dim")
+            t.append("Gõ câu hỏi hoặc / để chọn lệnh/kỹ năng · Tab hoàn thành · /help · Ctrl+D thoát\n", style="yellow")
+            t.append("Hỗ trợ toàn diện mọi workflow: /lit, /outline, /workflow, /code, /review, /paper", style="dim green")
+            self.o.console.print(Panel(t, title="[bold #d2602a]✦ Claude CLI Terminal[/bold #d2602a]", border_style="#d2602a", box=box.ROUNDED, expand=False))
         else:
-            self.o.line(f"PhD Research Lab — {cfg['project']['name']} · {title}")
+            self.o.line(f"PhD Research Lab — {pname} · {title}")
             self.o.line("gõ câu hỏi hoặc /lệnh · /help · /accept · /quit")
 
     def toolbar(self):
@@ -174,7 +204,7 @@ class Repl:
         model = st.get("provider") or "tự động"
         lvl = LEVELS.get(st.get("reasoning") or "auto", "tự động")
         att = f" · 📎 {len(self.atts)}" if self.atts else ""
-        return f" {model} · tư duy {lvl}{att} · {n} chờ duyệt · Enter gửi · Alt+Enter xuống dòng · / lệnh "
+        return f" ✦ {model} · tư duy {lvl}{att} · {n} chờ duyệt · /workflow · [?] /help · [Enter] gửi · [Alt+Enter] dòng mới "
 
     def _prompt_session(self):
         from prompt_toolkit import PromptSession
@@ -204,6 +234,8 @@ class Repl:
         """name → (handler, usage, description). Server skills (/lit, /idea …) are sent to the chat as they are."""
         return {
             "help": (self.c_help, "", "mọi lệnh / (kỹ năng + lệnh terminal)"),
+            "workflow": (self.c_workflow, "[list|run <tên>|status]", "điều phối và thực thi mọi quy trình nghiên cứu"),
+            "harness": (self.c_workflow, "[list|run <tên>|status]", "quy trình harness tự động hoá và kiểm định"),
             "quit": (lambda a: "quit", "", "thoát"), "exit": (lambda a: "quit", "", "thoát"),
             "new": (self.c_new, "", "cuộc trò chuyện mới"),
             "sessions": (self.c_sessions, "", "các cuộc trò chuyện của dự án"),
@@ -319,10 +351,19 @@ class Repl:
             items.append(("run", r["id"], f"Run {r['id']} {r['status']} — {r['title'][:70]}: {r['next_decision'] or r['reason']}"[:200]))
         self.items = items
         if items:
-            self.o.line("Chờ bạn duyệt:", "bold")
-            for i, (_, _, label) in enumerate(items, 1):
-                self.o.line(f"  [{i}] {label}")
-            self.o.line("  → /accept <số|all> · /reject <số|all>", "dim")
+            if self.o.console:
+                from rich.panel import Panel
+                from rich import box
+                text_card = "Chờ bạn duyệt:\n\n"
+                for i, (_, _, label) in enumerate(items, 1):
+                    text_card += f"  [{i}] {label}\n"
+                text_card += "\n  → /accept <số|all> · /reject <số|all>"
+                self.o.console.print(Panel(text_card.rstrip(), title="[bold yellow]⚠ Quyết định & Phê duyệt[/bold yellow]", border_style="yellow", box=box.ROUNDED))
+            else:
+                self.o.line("Chờ bạn duyệt:", "bold")
+                for i, (_, _, label) in enumerate(items, 1):
+                    self.o.line(f"  [{i}] {label}")
+                self.o.line("  → /accept <số|all> · /reject <số|all>", "dim")
         elif not quiet and not turn:
             self.o.line("Không có gì chờ duyệt.")
         return items
@@ -580,6 +621,61 @@ class Repl:
     def c_dashboard(self, a):
         from backend.cli import _status
         _status(self.x, type("A", (), {})())
+
+    def c_workflow(self, a):
+        """Điều phối và thực thi mọi quy trình nghiên cứu của PhD Research Lab."""
+        parts = _split(a) or ["list"]
+        sub = parts[0]
+        workflows = [
+            {"id": "lit", "name": "Khảo sát Tài liệu & Research Gap", "desc": "Thu thập bài báo, trích xuất phương pháp & lập bản đồ khoảng trống", "cmd": "/lit <từ khoá>"},
+            {"id": "outline", "name": "Đề cương Nghiên cứu 5 Cấp độ", "desc": "Phát triển đề cương từng bước từ ý tưởng đến bài báo hoàn chỉnh", "cmd": "/outline"},
+            {"id": "experiment", "name": "Thực nghiệm & Mã nguồn Sandbox", "desc": "Sinh mã, chạy thử nghiệm cô lập và tích hợp VS Code", "cmd": "/code"},
+            {"id": "paper", "name": "Soạn thảo Bài báo LaTeX", "desc": "Viết từng mục bài báo, biên dịch LaTeX online & local", "cmd": "/paper"},
+            {"id": "review", "name": "Hội đồng Bình duyệt R1–R3", "desc": "Đánh giá học thuật nghiêm ngặt, chấm điểm và gợi ý sửa đổi", "cmd": "/review"},
+            {"id": "deepresearch", "name": "Nghiên cứu Toàn diện Đa Tác nhân", "desc": "Tự động hóa hoàn toàn chu trình nghiên cứu đa bước", "cmd": "/deepresearch <chủ đề>"},
+            {"id": "harness", "name": "Harness Tự động hoá Tùy biến", "desc": "Quy trình kiểm thử giả thuyết và chạy thí nghiệm tự hành", "cmd": "/harness run <id>"},
+        ]
+        if sub == "list":
+            if self.o.console:
+                from rich.table import Table
+                from rich import box
+                tbl = Table(title="[bold #d2602a]✦ Danh mục Quy trình Nghiên cứu PhD Lab[/bold #d2602a]", box=box.ROUNDED, border_style="#d2602a")
+                tbl.add_column("Mã", style="bold cyan")
+                tbl.add_column("Tên Quy trình", style="bold white")
+                tbl.add_column("Lệnh thực thi", style="green")
+                tbl.add_column("Mô tả", style="dim")
+                for w in workflows:
+                    tbl.add_row(w["id"], w["name"], w["cmd"], w["desc"])
+                self.o.console.print(tbl)
+            else:
+                self.o.line("Danh mục Quy trình Nghiên cứu PhD Lab:")
+                for w in workflows:
+                    self.o.line(f"  {w['id']:<14} {w['name']:<32} {w['cmd']:<24} {w['desc']}")
+            self.o.line("→ Gõ /workflow run <mã> hoặc gõ trực tiếp lệnh của quy trình đó", "dim")
+        elif sub == "run" and len(parts) >= 2:
+            wid = parts[1]
+            extra = " ".join(parts[2:]) if len(parts) > 2 else ""
+            if wid in ("lit", "deepresearch"):
+                self._need_session()
+                return self.send(f"/{wid} {extra or 'machine learning'}")
+            elif wid == "outline":
+                return self.c_outline(extra)
+            elif wid in ("code", "experiment"):
+                return self.c_code(extra or "list")
+            elif wid == "paper":
+                self._need_session()
+                return self.send(f"/paper {extra or 'tổng hợp kết quả bài báo'}")
+            elif wid == "review":
+                return self.c_review(extra or "list")
+            else:
+                r = self.c.post(f"/api/harness/workflows/{wid}/run", {"input": extra})
+                self.o.line(f"Đã khởi động quy trình {wid}: Run {r.get('run_id', 'RR')}")
+                if r.get("run_id"):
+                    self.c_follow(r["run_id"])
+        elif sub == "status":
+            self.c_runs("")
+        else:
+            raise CLIError(2, "dùng /workflow list | /workflow run <mã> | /workflow status")
 
     def c_clear(self, a):
         self.o.raw("\033[2J\033[H" if self.tty else "\n")

@@ -57,14 +57,56 @@ async def section(body: dict = Body(...)):
     return await call(run)
 
 
+@router.get("/api/paper/engines")
+async def paper_engines():
+    """Returns detected local engines and online compilation availability."""
+    return await run_in_threadpool(LB.engines)
+
+
+@router.post("/api/paper/engines/online")
+async def toggle_online_compilation(body: dict = Body(default={})):
+    """Toggle online LaTeX compilation permission in project/global config."""
+    from backend.core.config import save_config
+    enabled = bool(body.get("enabled", True))
+    save_config({"latex_online": enabled})
+    return await run_in_threadpool(LB.engines)
+
+
 @router.post("/api/paper/compile")
 async def compile_pdf(body: dict = Body(default={})):
     try:
-        return await run_in_threadpool(LB.compile_pdf, str(body.get("engine", "")), str(body.get("layout", "template")))
+        raw_engine = str(body.get("engine", "")).strip()
+        layout = str(body.get("layout", "template")).strip()
+        allow_online = body.get("allow_online")
+
+        # Auto-enable latex_online in config if explicitly requested
+        if raw_engine == "online" or allow_online is True:
+            from backend.core.config import load_config, save_config
+            if not load_config().get("latex_online"):
+                save_config({"latex_online": True})
+
+        if raw_engine == "local":
+            eng_info = LB.engines()
+            engine = eng_info["available"][0] if eng_info["available"] else ""
+        else:
+            engine = raw_engine
+
+        return await run_in_threadpool(LB.compile_pdf, engine, layout)
     except LB.NoEngine as e:
         raise HTTPException(424, {"message": str(e), "install_help": LB.install_help()})
     except RuntimeError as e:
         raise HTTPException(400, str(e))
+
+
+@router.get("/api/paper/tex", response_class=PlainTextResponse)
+def tex():
+    """Return the assembled main.tex source code."""
+    f = LB.build_dir() / "main.tex"
+    if f.exists():
+        return f.read_text("utf-8", "replace")
+    from backend.paper.writer import assemble
+    main, _, _ = assemble()
+    return main
 
 
 @router.get("/api/paper/pdf")

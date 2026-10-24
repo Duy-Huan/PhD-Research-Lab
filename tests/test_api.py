@@ -3,6 +3,7 @@ import _env  # noqa: F401  (must be first)
 import io
 import json
 import sys
+import threading
 import time
 import unittest
 import zipfile
@@ -277,13 +278,14 @@ class Api(unittest.TestCase):
         s = sessions.create("t")
         self.assertIn("proposals", self.ok("POST", "/api/code/sync", json={"session_id": s["id"]}))
         self.assertIn("changes", self.ok("GET", "/api/code/scan"))
-        (sandbox.code_dir() / "t.py").write_text("import time\nprint('a')\ntime.sleep(20)\n", "utf-8")
-        job = sandbox.start_job("python t.py", "run", "t")
+        (sandbox.code_dir() / "t.py").write_text("import time\nprint('a', flush=True)\ntime.sleep(20)\n", "utf-8")
+        job = sandbox.start_job("python t.py", "run", "t", extra_env={"CUDA_VISIBLE_DEVICES": ""})
         time.sleep(0.5)
-        with self.c.stream("GET", f"/api/jobs/{job.id}/stream") as r:
-            first = next(l for l in r.iter_lines() if l.startswith("data:"))
-        self.assertIn("line", first)
-        self.ok("POST", f"/api/jobs/{job.id}/stop")
+        threading.Thread(target=lambda: (time.sleep(0.3), self.ok("POST", f"/api/jobs/{job.id}/stop")), daemon=True).start()
+        with self.c.stream("GET", f"/api/jobs/{job.id}/stream") as resp:
+            lines = [l for l in resp.iter_lines() if l.startswith("data:")]
+            first = next(l for l in lines if '"type": "line"' in l or '"type":"line"' in l)
+            self.assertIn("line", first)
         end = time.time() + 15
         while job.status == "running" and time.time() < end:
             time.sleep(0.1)
@@ -329,12 +331,22 @@ class Api(unittest.TestCase):
         self.assertEqual(next(x for x in self.ok("GET", "/api/paper")["sections"] if x["id"] == "abstract")["versions"], 1)
         self.bad("PUT", "/api/paper/section", json={"section": "nope", "text": "x"})
         from backend.paper import latex as LB
+        eng_info = self.ok("GET", "/api/paper/engines")
+        self.assertIn("available", eng_info)
+        self.assertIn("online", eng_info)
+        eng_after = self.ok("POST", "/api/paper/engines/online", json={"enabled": True})
+        self.assertTrue(eng_after["online"])
+        self.ok("POST", "/api/paper/engines/online", json={"enabled": False})
+        tex_raw = self.ok("GET", "/api/paper/tex").text
+        self.assertIn("documentclass", tex_raw)
         with mock.patch.object(LB, "compile_pdf", side_effect=LB.NoEngine()):
             self.bad("POST", "/api/paper/compile", json={}, code=424)
         with mock.patch.object(LB, "compile_pdf", side_effect=RuntimeError("busy")):
             self.bad("POST", "/api/paper/compile", json={})
         with mock.patch.object(LB, "compile_pdf", return_value={"ok": True}):
             self.assertTrue(self.ok("POST", "/api/paper/compile", json={})["ok"])
+            self.assertTrue(self.ok("POST", "/api/paper/compile", json={"engine": "local"})["ok"])
+            self.assertTrue(self.ok("POST", "/api/paper/compile", json={"engine": "online"})["ok"])
         self.bad("GET", "/api/paper/pdf", 404)
         (LB.build_dir() / "main.pdf").write_bytes(b"%PDF-1.4")
         (LB.build_dir() / "build.log").write_text("log", "utf-8")

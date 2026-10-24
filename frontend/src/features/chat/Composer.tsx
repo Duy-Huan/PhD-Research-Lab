@@ -16,6 +16,9 @@ import {
   FileText,
   Cpu,
   BrainCircuit,
+  AlertCircle,
+  ExternalLink,
+  Bot,
 } from 'lucide-react';
 
 interface ComposerProps {
@@ -41,6 +44,8 @@ export const Composer: React.FC<ComposerProps> = ({
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [reasoningEffort, setReasoningEffort] = useState<string>('auto');
   const [uploadingFile, setUploadingFile] = useState(false);
+  const [toolsMenuOpen, setToolsMenuOpen] = useState(false);
+  const [slashIndex, setSlashIndex] = useState(0);
   const [contextChips, setContextChips] = useState<
     Array<{ id: string; label: string; sourceKey: string }>
   >([]);
@@ -68,9 +73,7 @@ export const Composer: React.FC<ComposerProps> = ({
   const assistantDefaultModel = assistantCatalog?.selected || '';
 
   // Also check providers list for matching engine if agent_catalog models is empty
-  const providerCode = assistantEngine.startsWith('cloud:')
-    ? assistantEngine.split(':', 2)[1]
-    : assistantEngine;
+  const providerCode = assistantEngine.replace(/^(cloud|cli|app):/, '');
   const matchingProvider = (modelsData?.providers || []).find(
     (p) => p.id === providerCode || p.id === assistantEngine
   );
@@ -85,6 +88,14 @@ export const Composer: React.FC<ComposerProps> = ({
     ])
   ).filter(Boolean);
 
+  const isCliOrSub =
+    ['codex', 'claude_code', 'claude', 'antigravity', 'gemini_cli'].includes(providerCode) ||
+    assistantEngine.startsWith('cli:');
+  const isAuthExpired =
+    matchingProvider?.state === 'AUTH_EXPIRED' ||
+    matchingProvider?.state === 'UNAVAILABLE' ||
+    (matchingProvider?.available === false && isCliOrSub);
+
   // Filter skills when typing '/'
   const slashMatches = text.startsWith('/')
     ? skills.filter(
@@ -95,6 +106,41 @@ export const Composer: React.FC<ComposerProps> = ({
     : [];
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Slash commands keyboard navigation & Tab autocomplete
+    if (text.startsWith('/') && slashMatches.length > 0) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const selected = slashMatches[slashIndex] || slashMatches[0];
+        if (selected) {
+          selectSkill(selected.name);
+        }
+        return;
+      }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setSlashIndex((prev) => (prev + 1) % slashMatches.length);
+        return;
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setSlashIndex((prev) => (prev - 1 + slashMatches.length) % slashMatches.length);
+        return;
+      }
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        const selected = slashMatches[slashIndex] || slashMatches[0];
+        if (selected) {
+          selectSkill(selected.name);
+        }
+        return;
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setText('');
+        return;
+      }
+    }
+
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
@@ -112,9 +158,15 @@ export const Composer: React.FC<ComposerProps> = ({
       sources?: string[];
     } = {};
 
-    // Always use the provider assigned to assistant, and the selected model from that provider
-    if (assistantEngine) {
-      overrides.provider = assistantEngine;
+    // Normalize CLI shorthands properly so backend accepts it seamlessly
+    let mappedProvider = assistantEngine;
+    if (mappedProvider === 'codex') mappedProvider = 'cli:codex';
+    else if (mappedProvider === 'claude' || mappedProvider === 'claude_code') mappedProvider = 'cli:claude_code';
+    else if (mappedProvider === 'antigravity') mappedProvider = 'cli:antigravity';
+    else if (mappedProvider === 'gemini_cli') mappedProvider = 'cli:gemini_cli';
+
+    if (mappedProvider) {
+      overrides.provider = mappedProvider;
     }
     if (selectedModel) {
       overrides.model = selectedModel;
@@ -130,6 +182,7 @@ export const Composer: React.FC<ComposerProps> = ({
 
     onSend(trimmed, Object.keys(overrides).length > 0 ? overrides : undefined);
     setText('');
+    setToolsMenuOpen(false);
   };
 
   const selectSkill = (skillName: string) => {
@@ -173,6 +226,7 @@ export const Composer: React.FC<ComposerProps> = ({
   const quickCommands = [
     { cmd: '/outline', label: 'Outline', icon: Compass },
     { cmd: '/search ', label: 'Search', icon: BookOpen },
+    { cmd: '/phdlab ', label: 'PhD Lab Native', icon: Bot },
     { cmd: '/feynman ', label: 'Feynman', icon: Sparkles },
     { cmd: '/openscience ', label: 'OpenScience', icon: FlaskConical },
     { cmd: '/opencode ', label: 'OpenCode', icon: Terminal },
@@ -244,10 +298,10 @@ export const Composer: React.FC<ComposerProps> = ({
               padding: 6,
             }}
           >
-            {slashMatches.map((s) => (
+            {slashMatches.map((s, idx) => (
               <button
                 key={s.name}
-                className="btn sm ghost"
+                className={`btn sm ghost ${idx === slashIndex ? 'active' : ''}`}
                 onClick={() => selectSkill(s.name)}
                 style={{
                   display: 'flex',
@@ -255,6 +309,8 @@ export const Composer: React.FC<ComposerProps> = ({
                   width: '100%',
                   textAlign: 'left',
                   padding: '7px 10px',
+                  background: idx === slashIndex ? 'var(--accent-soft)' : 'transparent',
+                  borderRadius: 8,
                 }}
               >
                 <b>/{s.name}</b>
@@ -263,6 +319,61 @@ export const Composer: React.FC<ComposerProps> = ({
                 </span>
               </button>
             ))}
+          </div>
+        )}
+
+        {/* Unauthenticated CLI / Subscription Banner */}
+        {isCliOrSub && isAuthExpired && (
+          <div
+            style={{
+              padding: '6px 12px',
+              borderRadius: 12,
+              background: 'rgba(239, 68, 68, 0.08)',
+              border: '1px solid rgba(239, 68, 68, 0.25)',
+              fontSize: 12,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 8,
+              marginBottom: 4,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+              <AlertCircle size={14} color="#ef4444" style={{ flexShrink: 0 }} />
+              <span className="ellipsis" style={{ color: 'var(--ink)', fontSize: 11.5 }}>
+                {t(
+                  `Chưa đăng nhập ${assistantLabel} trên máy tính.`,
+                  `Not signed in to ${assistantLabel} on this computer.`
+                )}
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+              <button
+                type="button"
+                className="btn sm accent"
+                style={{ padding: '2px 8px', fontSize: 11, borderRadius: 6 }}
+                onClick={async () => {
+                  await api.post(`/api/providers/${providerCode}/connect`, { mode: 'terminal' });
+                  alert(t(`Đã mở terminal đăng nhập cho ${assistantLabel}`, `Opened terminal login for ${assistantLabel}`));
+                }}
+                title={t('Mở Terminal trên máy để đăng nhập CLI', 'Open terminal to log in CLI')}
+              >
+                <Terminal size={11} style={{ marginRight: 3 }} />
+                <span>{t('Đăng nhập CLI', 'Terminal Login')}</span>
+              </button>
+              <button
+                type="button"
+                className="btn sm ghost"
+                style={{ padding: '2px 8px', fontSize: 11, borderRadius: 6 }}
+                onClick={async () => {
+                  await api.post(`/api/providers/${providerCode}/connect`, { mode: 'web' });
+                }}
+                title={t('Chuyển tiếp đến Web/App để đăng nhập tài khoản', 'Forward to Web/App login')}
+              >
+                <ExternalLink size={11} style={{ marginRight: 3 }} />
+                <span>{t('Mở Web/App', 'Open Web/App')}</span>
+              </button>
+            </div>
           </div>
         )}
 
@@ -276,6 +387,7 @@ export const Composer: React.FC<ComposerProps> = ({
             borderRadius: 24,
             padding: compact ? '8px 12px' : '10px 16px',
             background: 'var(--panel)',
+            color: 'var(--ink)',
             boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
           }}
         >
@@ -299,6 +411,7 @@ export const Composer: React.FC<ComposerProps> = ({
               fontSize: 13.5,
               lineHeight: 1.5,
               maxHeight: 160,
+              color: 'var(--ink)',
             }}
           />
 
@@ -335,41 +448,107 @@ export const Composer: React.FC<ComposerProps> = ({
                   borderRadius: '50%',
                   border: '1px solid var(--line-2)',
                   background: 'var(--bg-2)',
+                  color: 'var(--ink)',
                 }}
               >
                 <Plus size={15} />
               </button>
 
-              {!compact &&
-                quickCommands.map((q) => {
-                  const Icon = q.icon;
-                  return (
-                    <button
-                      key={q.cmd}
-                      type="button"
-                      className="btn sm ghost"
-                      title={q.cmd}
-                      onClick={() => {
-                        if (q.cmd === '/status' || q.cmd === '/outline') {
-                          onSend(q.cmd);
-                        } else {
-                          setText(q.cmd);
-                          textareaRef.current?.focus();
-                        }
-                      }}
+              {/* Single compact icon for Research Utilities (User Request #3: gom lai trong mot icon nho, click vao xo ra) */}
+              <div style={{ position: 'relative' }}>
+                <button
+                  type="button"
+                  className="icon sm"
+                  title={t('Tiện ích & Kỹ năng nghiên cứu', 'Research Utilities')}
+                  onClick={() => setToolsMenuOpen((prev) => !prev)}
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: '50%',
+                    border: '1px solid var(--line-2)',
+                    background: toolsMenuOpen ? 'var(--accent-soft)' : 'var(--bg-2)',
+                    color: toolsMenuOpen ? 'var(--accent)' : 'var(--ink)',
+                  }}
+                >
+                  <Sparkles size={14} />
+                </button>
+
+                {toolsMenuOpen && (
+                  <>
+                    <div
+                      style={{ position: 'fixed', inset: 0, zIndex: 90 }}
+                      onClick={() => setToolsMenuOpen(false)}
+                    />
+                    <div
+                      className="tools-dropdown"
                       style={{
-                        fontSize: 11,
-                        padding: '3px 8px',
-                        borderRadius: 999,
-                        border: '1px solid var(--line)',
-                        gap: 4,
+                        position: 'absolute',
+                        bottom: '100%',
+                        left: 0,
+                        marginBottom: 6,
+                        background: 'var(--panel)',
+                        border: '1px solid var(--line-2)',
+                        borderRadius: 12,
+                        boxShadow: 'var(--shadow)',
+                        padding: 6,
+                        zIndex: 95,
+                        minWidth: 230,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 2,
                       }}
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <Icon size={11} color="var(--accent)" />
-                      <span>{q.label}</span>
-                    </button>
-                  );
-                })}
+                      <div
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 600,
+                          color: 'var(--muted)',
+                          padding: '4px 8px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.04em',
+                        }}
+                      >
+                        {t('Tiện ích nghiên cứu', 'Research Utilities')}
+                      </div>
+                      {quickCommands.map((q) => {
+                        const Icon = q.icon;
+                        return (
+                          <button
+                            key={q.cmd}
+                            type="button"
+                            className="btn sm ghost"
+                            onClick={() => {
+                              setToolsMenuOpen(false);
+                              if (q.cmd === '/status' || q.cmd === '/outline') {
+                                onSend(q.cmd);
+                              } else {
+                                setText(q.cmd);
+                                textareaRef.current?.focus();
+                              }
+                            }}
+                            style={{
+                              justifyContent: 'flex-start',
+                              padding: '6px 10px',
+                              borderRadius: 8,
+                              fontSize: 12.5,
+                              gap: 8,
+                              width: '100%',
+                              textAlign: 'left',
+                            }}
+                          >
+                            <Icon size={14} color="var(--accent)" />
+                            <span style={{ fontWeight: 500 }}>{q.label}</span>
+                            <span className="muted" style={{ marginLeft: 'auto', fontSize: 11 }}>
+                              {q.cmd.trim()}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Right: Reasoning Effort Selector + Assistant-Scoped Model Selector + Send Circle */}
@@ -385,7 +564,7 @@ export const Composer: React.FC<ComposerProps> = ({
                   border: '1px solid var(--line)',
                   background: 'var(--bg-2)',
                 }}
-                title={t('Mức độ tư duy suy luận (Reasoning Effort)', 'Reasoning Effort')}
+                title={t('Mức độ tư duy suy luận', 'Reasoning Effort')}
               >
                 <BrainCircuit size={12} color="var(--accent)" />
                 <select
@@ -395,17 +574,17 @@ export const Composer: React.FC<ComposerProps> = ({
                     fontSize: 11.5,
                     border: 'none',
                     background: 'transparent',
-                    color: 'var(--fg)',
+                    color: 'var(--ink)',
                     outline: 'none',
                     cursor: 'pointer',
                     fontWeight: 500,
                   }}
                 >
-                  <option value="auto">{t('Tư duy: Auto', 'Thinking: Auto')}</option>
-                  <option value="low">{t('Tư duy: Nhanh (Low)', 'Thinking: Low')}</option>
-                  <option value="medium">{t('Tư duy: Vừa (Medium)', 'Thinking: Medium')}</option>
-                  <option value="high">{t('Tư duy: Sâu (High)', 'Thinking: High')}</option>
-                  <option value="off">{t('Tư duy: Tắt (Off)', 'Thinking: Off')}</option>
+                  <option value="auto">{t('Tư duy: Tự động', 'Thinking: Auto')}</option>
+                  <option value="low">{t('Tư duy: Nhanh', 'Thinking: Low')}</option>
+                  <option value="medium">{t('Tư duy: Vừa', 'Thinking: Medium')}</option>
+                  <option value="high">{t('Tư duy: Chuyên sâu', 'Thinking: High')}</option>
+                  <option value="off">{t('Tư duy: Tắt', 'Thinking: Off')}</option>
                 </select>
               </div>
 
@@ -419,7 +598,7 @@ export const Composer: React.FC<ComposerProps> = ({
                   borderRadius: 999,
                   border: '1px solid var(--line)',
                   background: 'var(--bg-2)',
-                  color: 'var(--fg)',
+                  color: 'var(--ink)',
                   maxWidth: compact ? 145 : 210,
                   fontWeight: 500,
                   cursor: 'pointer',
@@ -465,14 +644,14 @@ export const Composer: React.FC<ComposerProps> = ({
                   type="button"
                   onClick={handleSend}
                   disabled={!text.trim() || disabled}
-                  title={t('Gửi (Enter)', 'Send (Enter)')}
+                  title={t('Gửi', 'Send (Enter)')}
                   style={{
                     width: 30,
                     height: 30,
                     borderRadius: '50%',
                     border: 'none',
-                    background: text.trim() && !disabled ? 'var(--fg)' : 'var(--line-2)',
-                    color: text.trim() && !disabled ? 'var(--bg)' : 'var(--muted)',
+                    background: text.trim() && !disabled ? 'var(--accent)' : 'var(--line-2)',
+                    color: text.trim() && !disabled ? 'var(--accent-ink)' : 'var(--muted)',
                     display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',

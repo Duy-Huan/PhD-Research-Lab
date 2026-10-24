@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { MarkdownRenderer } from '../../shared/ui/MarkdownRenderer';
 import type {
   ChatMessage,
   ChatApproval,
@@ -145,10 +146,11 @@ export const MessageList: React.FC<MessageListProps> = ({
               background: 'var(--panel)',
               border: '1px solid var(--line)',
               boxShadow: 'var(--shadow)',
+              color: 'var(--ink)',
             }}
           >
             <img src="/img/logo-64.png" alt="Logo" width={20} height={20} />
-            <span style={{ fontSize: 12, fontWeight: 600 }}>PhD Research Lab · v6.4.2</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>PhD Research Lab · v6.4.2</span>
           </div>
 
           <h2
@@ -157,6 +159,7 @@ export const MessageList: React.FC<MessageListProps> = ({
               fontSize: compact ? 20 : 28,
               fontWeight: 600,
               letterSpacing: '-0.02em',
+              color: 'var(--ink)',
             }}
           >
             {t('Hôm nay chúng ta bắt đầu từ đâu?', 'Where should we begin?')}
@@ -188,6 +191,7 @@ export const MessageList: React.FC<MessageListProps> = ({
                 padding: '7px 14px',
                 border: '1px solid var(--line-2)',
                 background: 'var(--panel)',
+                color: 'var(--ink)',
                 gap: 6,
               }}
             >
@@ -211,6 +215,7 @@ export const MessageList: React.FC<MessageListProps> = ({
                 padding: '7px 14px',
                 border: '1px solid var(--line-2)',
                 background: 'var(--panel)',
+                color: 'var(--ink)',
                 gap: 6,
               }}
             >
@@ -224,7 +229,7 @@ export const MessageList: React.FC<MessageListProps> = ({
               onClick={() =>
                 onQuickSend?.(
                   t(
-                    '/openscience Thiết kế giao thức thí nghiệm có kiểm soát (Protocol) & Ablation.',
+                    '/openscience Thiết kế giao thức thí nghiệm có kiểm soát & nghiên cứu loại trừ Ablation.',
                     '/openscience Design a controlled experimental protocol & ablation study.'
                   )
                 )
@@ -234,6 +239,7 @@ export const MessageList: React.FC<MessageListProps> = ({
                 padding: '7px 14px',
                 border: '1px solid var(--line-2)',
                 background: 'var(--panel)',
+                color: 'var(--ink)',
                 gap: 6,
               }}
             >
@@ -250,6 +256,7 @@ export const MessageList: React.FC<MessageListProps> = ({
                 padding: '7px 14px',
                 border: '1px solid var(--line-2)',
                 background: 'var(--panel)',
+                color: 'var(--ink)',
                 gap: 6,
               }}
             >
@@ -266,6 +273,7 @@ export const MessageList: React.FC<MessageListProps> = ({
                 padding: '7px 14px',
                 border: '1px solid var(--line-2)',
                 background: 'var(--panel)',
+                color: 'var(--ink)',
                 gap: 6,
               }}
             >
@@ -298,6 +306,7 @@ export const MessageList: React.FC<MessageListProps> = ({
                 padding: '7px 14px',
                 border: '1px solid var(--line-2)',
                 background: 'var(--panel)',
+                color: 'var(--ink)',
                 gap: 6,
               }}
             >
@@ -333,6 +342,7 @@ export const MessageList: React.FC<MessageListProps> = ({
                 maxWidth: isUser ? '82%' : '100%',
                 alignSelf: isUser ? 'flex-end' : 'stretch',
                 background: isUser ? 'var(--bg-2)' : 'var(--panel)',
+                color: 'var(--ink)',
                 padding: isUser ? '10px 16px' : '14px 18px',
                 borderRadius: isUser ? 20 : 14,
                 border: `1px solid ${msg.pinned ? 'var(--accent)' : 'var(--line)'}`,
@@ -407,10 +417,9 @@ export const MessageList: React.FC<MessageListProps> = ({
                     fontSize: 13.5,
                     lineHeight: 1.65,
                     wordBreak: 'break-word',
-                    whiteSpace: 'pre-wrap',
                   }}
                 >
-                  {bodyText}
+                  <MarkdownRenderer content={bodyText} />
                 </div>
 
                 {/* Citations if present */}
@@ -561,6 +570,7 @@ export const MessageList: React.FC<MessageListProps> = ({
               display: 'flex',
               gap: 12,
               background: 'var(--panel)',
+              color: 'var(--ink)',
               padding: '14px 18px',
               borderRadius: 14,
               border: '1px solid var(--accent)',
@@ -585,10 +595,13 @@ export const MessageList: React.FC<MessageListProps> = ({
                   fontSize: 13.5,
                   lineHeight: 1.65,
                   wordBreak: 'break-word',
-                  whiteSpace: 'pre-wrap',
                 }}
               >
-                {streamingText || t('Đang kết nối tới Agent…', 'Connecting to Agent…')}
+                {streamingText ? (
+                  <MarkdownRenderer content={streamingText} />
+                ) : (
+                  <span className="muted">{t('Đang kết nối tới Agent…', 'Connecting to Agent…')}</span>
+                )}
               </div>
             </div>
           </article>

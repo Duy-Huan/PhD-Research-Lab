@@ -142,13 +142,13 @@ export const OpenCodePanel: React.FC = () => {
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <b>Trạng thái Runtime: {statusData.state.toUpperCase()}</b>
+            <b>Trạng thái Runtime: {(statusData?.state || 'ready').toUpperCase()}</b>
             <div style={{ display: 'flex', gap: 6 }}>
               <span className="chip ok" style={{ fontSize: 11 }}>
                 <Lock size={11} style={{ marginRight: 3 }} /> Loopback Only
               </span>
               <span className="chip" style={{ fontSize: 11 }}>
-                Metered API: {statusData.metered_api_allowed ? 'ALLOWED' : 'DISABLED (0$)'}
+                Metered API: {statusData?.metered_api_allowed ? 'ALLOWED' : 'DISABLED (0$)'}
               </span>
             </div>
           </div>

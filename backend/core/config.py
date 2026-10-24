@@ -240,8 +240,8 @@ DEFAULTS["opencode"] = {
     "enabled": True, "base_url": "http://127.0.0.1:4097", "allow_metered_api": False,
     "timeout_s": 600, "workspace_mode": "topic_isolated",
 }
-# v5.1 interface language (UI strings + the language the agents answer in) and the reading font of answers
-DEFAULTS["ui"] = {"language": "vi", "prose_font": "sans", "paper_explorer_v2": True, "discovery_inbox": True,
+# v5.1 interface language (UI strings) and AI response language
+DEFAULTS["ui"] = {"language": "vi", "ai_language": "auto", "prose_font": "sans", "paper_explorer_v2": True, "discovery_inbox": True,
                   "contextual_actions": True, "topic_scheduler_ui": True}
 DEFAULTS["mcp_agent"] = {"enabled": False, "url": "http://127.0.0.1:8766/mcp", "token": "",
                          "tool": "research", "models": [], "timeout_s": 120}
@@ -254,14 +254,18 @@ SECTIONS_V32 = ("runs", "research_providers", "memory", "resources", "clearml", 
 LIFECYCLE_POLICIES = ("unload_after_task", "keep_loaded", "idle_unload")
 SECRET_FIELDS = {"mcp": ("token",), "openscience": ("token",), "mcp_agent": ("token",)}
 CHOICES = {("research_providers", "coding_default"): ("claude_code", "codex", "gemini_cli", "antigravity", "app"),
-           ("research_providers", "engine_mode"): ("auto", "feynman", "openscience", "opencode", "collaborative"),
+           ("research_providers", "engine_mode"): ("auto", "feynman", "openscience", "opencode", "collaborative", "phdlab"),
            ("codex", "sandbox"): ("read-only", "workspace-write"),
            ("codex", "windows_sandbox"): ("unelevated", "elevated", "config"),
            ("memory", "embed_engine"): ("auto", "ollama", "hashing"), ("gateway", "cli_profile"): ("review", "assisted"),
            ("aiws", "operating_mode"): ("automation", "manual"), ("aiws", "context_mode"): ("none", "selected", "relevant", "expanded"),
            ("aiws", "memory_mode"): ("off", "manual", "suggest", "auto"), ("aiws", "security_profile"): ("review", "assisted"),
            ("aiws", "reasoning"): ("auto", "off", "low", "medium", "high"),
-           ("ui", "language"): ("vi", "en"), ("ui", "prose_font"): ("sans", "serif"),
+           ("ui", "language"): ("vi", "en"), ("ui", "ai_language"): ("auto", "vi", "en", "bilingual"),
+           ("ui", "prose_font"): (
+               "sans", "serif", "source-serif", "latex", "merriweather", "lora",
+               "garamond", "times", "charter", "inter", "roboto", "mono", "fira"
+           ),
            **{("lifecycle", k): LIFECYCLE_POLICIES for k in ("local_background", "local_interactive", "cli", "mcp", "cloud")}}
 
 _lock = threading.Lock()

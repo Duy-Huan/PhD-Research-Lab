@@ -28,6 +28,11 @@ async def opencode_status():
     return await call(OC.health)
 
 
+@router.post("/api/opencode/server/launch")
+async def launch_opencode_server():
+    return await call(OC.ensure_server_running)
+
+
 @router.post("/api/research/topics/{tid}/opencode/workspace")
 async def ensure_opencode_workspace(tid: str, body: dict = Body(default={})):
     wid = str(body.get("workspace_id") or "")

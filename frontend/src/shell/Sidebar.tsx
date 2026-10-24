@@ -31,11 +31,23 @@ import {
   Search,
   Edit3,
   SquarePen,
+  MoreHorizontal,
+  Compass,
+  HelpCircle,
+  MessageSquare,
+  Sliders,
+  ExternalLink,
+  RefreshCw,
 } from 'lucide-react';
 
-export const Sidebar: React.FC = () => {
+export interface SidebarProps {
+  collapsed?: boolean;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) => {
   const queryClient = useQueryClient();
   const {
+    sidebarOpen,
     toggleSidebar,
     project,
     activeSessionId,
@@ -43,6 +55,8 @@ export const Sidebar: React.FC = () => {
     activeChatProjectId,
     setActiveChatProjectId,
     openDrawer,
+    closeDrawer,
+    drawerKind,
     open3DOffice,
     openSettings,
     setMainView,
@@ -61,6 +75,9 @@ export const Sidebar: React.FC = () => {
   const [newFolderInstructions, setNewFolderInstructions] = useState('');
   const [editingFolder, setEditingFolder] = useState<ChatProject | null>(null);
   const [assigningSessionId, setAssigningSessionId] = useState<string | null>(null);
+  const [sessionMenuOpenId, setSessionMenuOpenId] = useState<string | null>(null);
+  const [renamingSessionId, setRenamingSessionId] = useState<string | null>(null);
+  const [renameTitle, setRenameTitle] = useState('');
 
   // Fetch conversations
   const { data: sessionData } = useQuery<{ sessions: ChatSession[] }>({
@@ -84,9 +101,11 @@ export const Sidebar: React.FC = () => {
     : sessions;
 
   const pinnedSessions = filteredSessions.filter((s) => s.pinned);
-  const recentSessions = activeChatProjectId
-    ? filteredSessions.filter((s) => s.chat_project === activeChatProjectId)
-    : filteredSessions;
+  const recentSessions = (
+    activeChatProjectId
+      ? filteredSessions.filter((s) => s.chat_project === activeChatProjectId)
+      : filteredSessions
+  ).filter((s) => !s.pinned);
 
   const handleTogglePin = async (e: React.MouseEvent, s: ChatSession) => {
     e.stopPropagation();
@@ -147,8 +166,71 @@ export const Sidebar: React.FC = () => {
     queryClient.invalidateQueries({ queryKey: ['sessions'] });
   };
 
+  const handleRenameSession = async (sid: string, newTitle: string) => {
+    if (!newTitle.trim()) {
+      setRenamingSessionId(null);
+      return;
+    }
+    await api.put(`/api/chat/sessions/${sid}`, { title: newTitle.trim() });
+    setRenamingSessionId(null);
+    queryClient.invalidateQueries({ queryKey: ['sessions'] });
+  };
+
   const renderSessionRow = (s: ChatSession) => {
     const isActive = activeSessionId === s.id && mainView === 'chat';
+    const isMenuOpen = sessionMenuOpenId === s.id;
+    const isRenaming = renamingSessionId === s.id;
+
+    if (isRenaming) {
+      return (
+        <form
+          key={s.id}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleRenameSession(s.id, renameTitle);
+          }}
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+            padding: '4px 6px',
+            background: 'var(--panel)',
+            border: '1px solid var(--accent)',
+            borderRadius: 8,
+            marginBottom: 2,
+          }}
+        >
+          <input
+            autoFocus
+            className="input sm"
+            value={renameTitle}
+            onChange={(e) => setRenameTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') setRenamingSessionId(null);
+            }}
+            placeholder={t('Tên đoạn chat…', 'Chat title…')}
+            style={{ flex: 1, fontSize: 12, height: 26, padding: '2px 6px' }}
+          />
+          <button
+            type="submit"
+            className="btn sm accent"
+            style={{ padding: '2px 8px', height: 26, fontSize: 11 }}
+          >
+            {t('Lưu', 'Save')}
+          </button>
+          <button
+            type="button"
+            className="btn sm ghost"
+            onClick={() => setRenamingSessionId(null)}
+            style={{ padding: '2px 6px', height: 26, fontSize: 11 }}
+          >
+            ✕
+          </button>
+        </form>
+      );
+    }
+
     return (
       <div key={s.id} style={{ position: 'relative' }}>
         <div
@@ -164,56 +246,161 @@ export const Sidebar: React.FC = () => {
             width: '100%',
             textAlign: 'left',
             padding: '6px 8px',
-            background: isActive ? 'var(--sel)' : 'transparent',
+            background: isActive ? 'var(--sel)' : isMenuOpen ? 'var(--line-2)' : 'transparent',
             borderRadius: 8,
             cursor: 'pointer',
             marginBottom: 2,
-            gap: 4,
+            gap: 6,
           }}
         >
-          <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{ minWidth: 0, flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+            {s.pinned && (
+              <span title={t('Đoạn chat đã ghim', 'Pinned conversation')} style={{ display: 'inline-flex', flexShrink: 0 }}>
+                <Pin
+                  size={11}
+                  color="var(--accent)"
+                  style={{ transform: 'rotate(25deg)' }}
+                />
+              </span>
+            )}
             <div className="ellipsis" style={{ fontWeight: isActive ? 600 : 400, fontSize: 12.5 }}>
               {s.title || t('Phiên nghiên cứu mới', 'New conversation')}
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+
+          {/* Grouped Actions: Single ... button */}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
             <button
               type="button"
-              className="icon sm"
-              title={s.pinned ? t('Bỏ ghim', 'Unpin') : t('Ghim đoạn chat', 'Pin chat')}
-              onClick={(e) => handleTogglePin(e, s)}
-              style={{
-                width: 20,
-                height: 20,
-                opacity: s.pinned ? 1 : 0.5,
-                color: s.pinned ? 'var(--accent)' : 'inherit',
-              }}
-            >
-              <Pin size={11} />
-            </button>
-            <button
-              type="button"
-              className="icon sm"
-              title={t('Chuyển vào Thư mục Nhóm Chat', 'Move to Chat Folder')}
+              className="icon sm thread-more-btn"
+              title={t('Tùy chọn đoạn chat', 'Chat options')}
               onClick={(e) => {
                 e.stopPropagation();
-                setAssigningSessionId(assigningSessionId === s.id ? null : s.id);
+                setSessionMenuOpenId(isMenuOpen ? null : s.id);
               }}
-              style={{ width: 20, height: 20, opacity: 0.55 }}
+              style={{
+                width: 22,
+                height: 22,
+                opacity: isMenuOpen || isActive ? 0.9 : 0.6,
+                borderRadius: 6,
+                background: isMenuOpen ? 'var(--line-2)' : 'transparent',
+              }}
             >
-              <Folder size={11} />
-            </button>
-            <button
-              type="button"
-              className="icon sm"
-              title={t('Xóa', 'Delete')}
-              onClick={(e) => handleDeleteSession(e, s.id)}
-              style={{ width: 20, height: 20, opacity: 0.55 }}
-            >
-              <Trash2 size={11} />
+              <MoreHorizontal size={14} />
             </button>
           </div>
         </div>
+
+        {/* Floating Context Menu */}
+        {isMenuOpen && (
+          <>
+            <div
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 90,
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSessionMenuOpenId(null);
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                top: '100%',
+                right: 4,
+                marginTop: 2,
+                background: 'var(--panel)',
+                border: '1px solid var(--line-2)',
+                borderRadius: 8,
+                boxShadow: 'var(--shadow)',
+                padding: 4,
+                zIndex: 95,
+                minWidth: 180,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* 1. Pin / Unpin */}
+              <button
+                type="button"
+                className="btn sm ghost"
+                onClick={(e) => {
+                  handleTogglePin(e, s);
+                  setSessionMenuOpenId(null);
+                }}
+                style={{ justifyContent: 'flex-start', padding: '5px 8px', fontSize: 12 }}
+              >
+                <Pin
+                  size={12}
+                  style={{
+                    marginRight: 6,
+                    color: s.pinned ? 'var(--accent)' : 'inherit',
+                  }}
+                />
+                <span>{s.pinned ? t('Bỏ ghim', 'Unpin') : t('Ghim đoạn chat', 'Pin chat')}</span>
+              </button>
+
+              {/* 2. Move to Folder */}
+              <button
+                type="button"
+                className="btn sm ghost"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setAssigningSessionId(assigningSessionId === s.id ? null : s.id);
+                  setSessionMenuOpenId(null);
+                }}
+                style={{ justifyContent: 'flex-start', padding: '5px 8px', fontSize: 12 }}
+              >
+                <Folder size={12} style={{ marginRight: 6 }} />
+                <span>{t('Chuyển vào nhóm chat…', 'Move to folder…')}</span>
+              </button>
+
+              {/* 3. Rename */}
+              <button
+                type="button"
+                className="btn sm ghost"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setRenamingSessionId(s.id);
+                  setRenameTitle(s.title || '');
+                  setSessionMenuOpenId(null);
+                }}
+                style={{ justifyContent: 'flex-start', padding: '5px 8px', fontSize: 12 }}
+              >
+                <Edit3 size={12} style={{ marginRight: 6 }} />
+                <span>{t('Đổi tên', 'Rename')}</span>
+              </button>
+
+              <div style={{ height: 1, background: 'var(--line-2)', margin: '2px 0' }} />
+
+              {/* 4. Delete / Archive */}
+              <button
+                type="button"
+                className="btn sm ghost"
+                onClick={(e) => {
+                  handleDeleteSession(e, s.id);
+                  setSessionMenuOpenId(null);
+                }}
+                style={{
+                  justifyContent: 'flex-start',
+                  padding: '5px 8px',
+                  fontSize: 12,
+                  color: 'var(--err)',
+                }}
+              >
+                <Trash2 size={12} style={{ marginRight: 6 }} />
+                <span>{t('Xóa cuộc trò chuyện', 'Delete conversation')}</span>
+              </button>
+            </div>
+          </>
+        )}
 
         {/* Folder assignment popover */}
         {assigningSessionId === s.id && (
@@ -258,6 +445,374 @@ export const Sidebar: React.FC = () => {
       </div>
     );
   };
+
+  const isCollapsed = propCollapsed !== undefined ? propCollapsed : !sidebarOpen;
+
+  if (isCollapsed) {
+    return (
+      <aside
+        id="side"
+        className="sidebar-collapsed-rail"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          width: '100%',
+          height: '100%',
+          background: 'var(--bg-2)',
+          padding: '8px 0',
+          gap: 6,
+          boxSizing: 'border-box',
+          overflow: 'hidden',
+        }}
+        aria-label={t('Thanh bên thu gọn', 'Collapsed sidebar')}
+      >
+        {/* Top: PhD Lab Logo & Expand Button */}
+        <button
+          type="button"
+          id="side-expand"
+          className="icon sm"
+          title={t('Mở rộng thanh bên', 'Expand sidebar')}
+          aria-label={t('Mở rộng thanh bên', 'Expand sidebar')}
+          onClick={toggleSidebar}
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: 8,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            background: 'transparent',
+            border: 'none',
+            padding: 0,
+            transition: 'background 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--panel)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+          }}
+        >
+          <img
+            src="/img/logo-64.png"
+            alt="PhD Lab Logo"
+            width="24"
+            height="24"
+            style={{ borderRadius: 6 }}
+          />
+        </button>
+
+        {/* 1. New Chat (SquarePen) */}
+        <button
+          type="button"
+          id="side-rail-new-chat"
+          className="icon sm"
+          title={t('Cuộc trò chuyện mới', 'New chat')}
+          aria-label={t('Cuộc trò chuyện mới', 'New chat')}
+          onClick={() => {
+            setActiveSessionId(null);
+            setMainView('chat');
+          }}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 8,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--ink)',
+            cursor: 'pointer',
+            background: 'transparent',
+            border: 'none',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--panel)';
+            e.currentTarget.style.color = 'var(--accent)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.color = 'var(--ink)';
+          }}
+        >
+          <SquarePen size={18} />
+        </button>
+
+        {/* 2. Search (Search) */}
+        <button
+          type="button"
+          id="side-rail-search"
+          className="icon sm"
+          title={t('Tìm kiếm đoạn chat', 'Search chats')}
+          aria-label={t('Tìm kiếm đoạn chat', 'Search chats')}
+          onClick={() => {
+            toggleSidebar();
+            setShowSearch(true);
+          }}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 8,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--ink)',
+            cursor: 'pointer',
+            background: 'transparent',
+            border: 'none',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--panel)';
+            e.currentTarget.style.color = 'var(--accent)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.color = 'var(--ink)';
+          }}
+        >
+          <Search size={18} />
+        </button>
+
+        {/* 3. Pinned (Pin) */}
+        <button
+          type="button"
+          id="side-rail-pinned"
+          className="icon sm"
+          title={t('Đoạn chat đã ghim', 'Pinned chats')}
+          aria-label={t('Đoạn chat đã ghim', 'Pinned chats')}
+          onClick={toggleSidebar}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 8,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: pinnedSessions.length > 0 ? 'var(--accent)' : 'var(--ink)',
+            cursor: 'pointer',
+            background: 'transparent',
+            border: 'none',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--panel)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+          }}
+        >
+          <Pin size={18} />
+        </button>
+
+        {/* 4. Chat History / Recents (MessageSquare) */}
+        <button
+          type="button"
+          id="side-rail-recents"
+          className="icon sm"
+          title={t('Lịch sử đoạn chat gần đây', 'Recent chat history')}
+          aria-label={t('Lịch sử đoạn chat gần đây', 'Recent chat history')}
+          onClick={toggleSidebar}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 8,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--ink)',
+            cursor: 'pointer',
+            background: 'transparent',
+            border: 'none',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--panel)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+          }}
+        >
+          <MessageSquare size={18} />
+        </button>
+
+        {/* 5. Paper Library (BookOpen) */}
+        <button
+          type="button"
+          id="side-rail-library"
+          className="icon sm"
+          title={t('Thư viện bài báo', 'Paper Library')}
+          aria-label={t('Thư viện bài báo', 'Paper Library')}
+          onClick={() => setMainView('library')}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 8,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: mainView === 'library' ? 'var(--accent)' : 'var(--ink)',
+            background: mainView === 'library' ? 'var(--panel)' : 'transparent',
+            cursor: 'pointer',
+            border: 'none',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--panel)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = mainView === 'library' ? 'var(--panel)' : 'transparent';
+          }}
+        >
+          <BookOpen size={18} />
+        </button>
+
+        {/* 6. 3D University Lab (FlaskConical / Bot) */}
+        <button
+          type="button"
+          id="side-rail-3dlab"
+          className="icon sm"
+          title={t('Lab 3D Trường Đại học', '3D University Lab')}
+          aria-label={t('Lab 3D Trường Đại học', '3D University Lab')}
+          onClick={() => open3DOffice()}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 8,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: mainView === 'office3d' ? 'var(--accent)' : 'var(--ink)',
+            background: mainView === 'office3d' ? 'var(--panel)' : 'transparent',
+            cursor: 'pointer',
+            border: 'none',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--panel)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = mainView === 'office3d' ? 'var(--panel)' : 'transparent';
+          }}
+        >
+          <Bot size={18} />
+        </button>
+
+        {/* 7. Autonomous Missions (Compass) */}
+        <button
+          type="button"
+          id="side-rail-missions"
+          className="icon sm"
+          title={t('Nhiệm vụ tự trị', 'Autonomous Missions')}
+          aria-label={t('Nhiệm vụ tự trị', 'Autonomous Missions')}
+          onClick={() => openDrawer('missions')}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 8,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: drawerKind === 'missions' ? 'var(--accent)' : 'var(--ink)',
+            background: drawerKind === 'missions' ? 'var(--panel)' : 'transparent',
+            cursor: 'pointer',
+            border: 'none',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--panel)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = drawerKind === 'missions' ? 'var(--panel)' : 'transparent';
+          }}
+        >
+          <Compass size={18} />
+        </button>
+
+        <div style={{ flex: 1 }} />
+
+        {/* Bottom 1: User Guide */}
+        <button
+          type="button"
+          id="side-rail-guide"
+          className="icon sm"
+          title={t('Hướng dẫn sử dụng', 'User Guide')}
+          aria-label={t('Hướng dẫn sử dụng', 'User Guide')}
+          onClick={() => setMainView('guide')}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 8,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: mainView === 'guide' ? 'var(--accent)' : 'var(--ink)',
+            background: mainView === 'guide' ? 'var(--panel)' : 'transparent',
+            cursor: 'pointer',
+            border: 'none',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--panel)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = mainView === 'guide' ? 'var(--panel)' : 'transparent';
+          }}
+        >
+          <HelpCircle size={18} />
+        </button>
+
+        {/* Bottom 2: Settings / User Profile Avatar (matching ChatGPT Image 2 bottom avatar) */}
+        <button
+          type="button"
+          id="side-rail-settings"
+          className="icon sm"
+          title={t('Cài đặt & Hồ sơ', 'Settings & Profile')}
+          aria-label={t('Cài đặt & Hồ sơ', 'Settings & Profile')}
+          onClick={() => openSettings()}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            background: 'transparent',
+            border: 'none',
+            padding: 0,
+            transition: 'transform 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.08)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+        >
+          <div
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #4f46e5, #06b6d4)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#ffffff',
+              fontSize: 13,
+              fontWeight: 700,
+              boxShadow: '0 2px 5px rgba(0,0,0,0.15)',
+            }}
+          >
+            P
+          </div>
+        </button>
+      </aside>
+    );
+  }
 
   return (
     <aside
@@ -363,7 +918,7 @@ export const Sidebar: React.FC = () => {
           }}
         >
           <Bot size={15} />
-          <span>{t('Phòng Lab 3D (University Lab)', '3D University Lab')}</span>
+          <span>{t('Phòng Lab 3D', '3D University Lab')}</span>
         </button>
 
         <button
@@ -393,7 +948,40 @@ export const Sidebar: React.FC = () => {
           }}
         >
           <Layers size={15} />
-          <span>{t('Nhiệm vụ Tự hành (Missions)', 'Autonomous Missions')}</span>
+          <span>{t('Nhiệm vụ Tự hành', 'Autonomous Missions')}</span>
+        </button>
+
+        <button
+          type="button"
+          className="btn sm ghost"
+          onClick={() => openDrawer('harness')}
+          style={{
+            justifyContent: 'flex-start',
+            padding: '6px 10px',
+            borderRadius: 8,
+            gap: 8,
+            color: drawerKind === 'harness' ? 'var(--accent)' : undefined,
+          }}
+        >
+          <Sliders size={15} />
+          <span>{t('Harness Kéo thả', 'Harness Studio')}</span>
+        </button>
+
+        <button
+          type="button"
+          className="btn sm ghost"
+          onClick={() => openDrawer('cli')}
+          style={{
+            justifyContent: 'flex-start',
+            padding: '6px 10px',
+            borderRadius: 8,
+            gap: 8,
+            color: drawerKind === 'cli' ? 'var(--accent)' : undefined,
+          }}
+          title={t('Mở Giao diện Dòng lệnh Claude CLI Học thuật', 'Open Academic Claude CLI Terminal Studio')}
+        >
+          <Terminal size={15} />
+          <span>{t('Claude CLI Học thuật', 'Claude CLI Terminal')}</span>
         </button>
 
         {/* Active Workspace switcher pill */}
@@ -410,10 +998,97 @@ export const Sidebar: React.FC = () => {
           }}
         >
           <span className="ellipsis">
-            Workspace: <b style={{ color: 'var(--fg)' }}>{project?.name || 'Default'}</b>
+            {t('Không gian làm việc:', 'Workspace:')} <b style={{ color: 'var(--fg)' }}>{project?.name || t('Mặc định', 'Default')}</b>
           </span>
           <ChevronDown size={13} />
         </button>
+
+        {/* Quick App Providers & Sync Strip */}
+        <div
+          style={{
+            padding: '7px 9px',
+            borderRadius: 8,
+            background: 'var(--bg-2)',
+            border: '1px solid var(--line)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 5,
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 10.5, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              {t('Ứng dụng Nhanh & Đồng bộ', 'Quick Apps & Sync')}
+            </span>
+            <button
+              type="button"
+              className="btn sm ghost"
+              onClick={() => openSettings('models')}
+              title={t('Mở Cài đặt Nhà cung cấp', 'Open Provider Settings')}
+              style={{ fontSize: 10.5, padding: '1px 6px', height: 'auto', borderRadius: 4 }}
+            >
+              {t('Tất cả', 'All')}
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+            {[
+              { id: 'chatgpt', label: 'ChatGPT', title: 'OpenAI ChatGPT' },
+              { id: 'claude', label: 'Claude', title: 'Anthropic Claude' },
+              { id: 'opencode', label: 'OpenCode', title: 'OpenCode' },
+              { id: 'antigravity', label: 'Antigravity', title: 'Google Antigravity' },
+              { id: 'feynman', label: 'Feynman', title: 'Feynman AI' },
+              { id: 'lmstudio', label: 'LM Studio', title: 'LM Studio' },
+            ].map((app) => (
+              <div
+                key={app.id}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  background: 'var(--panel)',
+                  border: '1px solid var(--line)',
+                  borderRadius: 6,
+                  overflow: 'hidden',
+                  fontSize: 11,
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => api.post(`/api/providers/${app.id}/launch`, {})}
+                  title={t('Mở trực tiếp ', 'Open directly ') + app.title}
+                  style={{
+                    padding: '3px 6px',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--fg)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 3,
+                  }}
+                >
+                  <ExternalLink size={10} />
+                  <span>{app.label}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => api.post(`/api/providers/${app.id}/sync`, {})}
+                  title={t('Đồng bộ dữ liệu từ ', 'Sync data from ') + app.title}
+                  style={{
+                    padding: '3px 5px',
+                    background: 'var(--bg-2)',
+                    border: 'none',
+                    borderLeft: '1px solid var(--line)',
+                    cursor: 'pointer',
+                    color: 'var(--accent)',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <RefreshCw size={10} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Scrollable Pinned + Projects (Chat Folders) + Recents */}
@@ -443,7 +1118,7 @@ export const Sidebar: React.FC = () => {
               }}
             >
               <Pin size={11} />
-              <span>{t('Đã ghim (Pinned)', 'Pinned')}</span>
+              <span>{t('Đã ghim', 'Pinned')}</span>
             </div>
             {pinnedSessions.map((s) => renderSessionRow(s))}
           </div>
@@ -462,7 +1137,7 @@ export const Sidebar: React.FC = () => {
               justifyContent: 'space-between',
             }}
           >
-            <span>{t('Nhóm Chat (Projects · Nhớ Context)', 'Projects (Shared Context)')}</span>
+            <span>{t('Nhóm Chat Nghiên cứu', 'Chat Projects')}</span>
             <button
               type="button"
               className="icon sm"
@@ -630,7 +1305,7 @@ export const Sidebar: React.FC = () => {
                   <button
                     type="button"
                     className="icon sm"
-                    title={t('Sửa Bối cảnh Chung (Context)', 'Edit Shared Context')}
+                    title={t('Chỉnh sửa Ngữ cảnh Chung', 'Edit Shared Context')}
                     onClick={(e) => {
                       e.stopPropagation();
                       setEditingFolder(folder);
@@ -672,7 +1347,7 @@ export const Sidebar: React.FC = () => {
                 ? `${t('Trong nhóm:', 'In folder:')} ${
                     chatFolders.find((f) => f.id === activeChatProjectId)?.name || ''
                   }`
-                : t('Gần đây (Recents)', 'Recents')}
+                : t('Gần đây', 'Recents')}
             </span>
             {activeChatProjectId && (
               <button
@@ -721,9 +1396,20 @@ export const Sidebar: React.FC = () => {
 
         <button
           type="button"
+          className={`icon sm ${drawerKind === 'guide' ? 'active' : ''}`}
+          onClick={() => (drawerKind === 'guide' ? closeDrawer() : openDrawer('guide'))}
+          title={t('Hướng dẫn Người dùng', 'User Guide & Onboarding')}
+        >
+          <HelpCircle size={15} />
+        </button>
+
+        <button
+          type="button"
           className={`icon sm ${mainView === 'settings' ? 'active' : ''}`}
           onClick={() => openSettings()}
-          title={t('Cài đặt Hệ thống', 'Settings')}
+          id="side-settings-btn"
+          title={t('Cài đặt Hệ thống', 'System Settings')}
+          aria-label={t('Cài đặt Hệ thống', 'System Settings')}
         >
           <Settings size={15} />
         </button>
@@ -752,12 +1438,42 @@ export const Sidebar: React.FC = () => {
             <button
               className="btn sm ghost"
               onClick={() => {
+                openDrawer('guide');
+                setMenuOpen(false);
+              }}
+              style={{ justifyContent: 'flex-start', color: 'var(--accent)', fontWeight: 600 }}
+            >
+              <HelpCircle size={14} style={{ marginRight: 6 }} /> {t('Sổ tay Người dùng', 'User Guide & Manual')}
+            </button>
+            <button
+              className="btn sm ghost"
+              onClick={() => {
+                openDrawer('library');
+                setMenuOpen(false);
+              }}
+              style={{ justifyContent: 'flex-start' }}
+            >
+              <BookOpen size={14} style={{ marginRight: 6 }} /> {t('Thư viện Bài báo', 'Paper Library & Search')}
+            </button>
+            <button
+              className="btn sm ghost"
+              onClick={() => {
+                openDrawer('outline');
+                setMenuOpen(false);
+              }}
+              style={{ justifyContent: 'flex-start' }}
+            >
+              <Compass size={14} style={{ marginRight: 6 }} /> {t('Đề cương Nghiên cứu 5 Cấp độ', '5-Level Research Outline')}
+            </button>
+            <button
+              className="btn sm ghost"
+              onClick={() => {
                 openDrawer('topics');
                 setMenuOpen(false);
               }}
               style={{ justifyContent: 'flex-start' }}
             >
-              <Brain size={14} style={{ marginRight: 6 }} /> {t('Chủ đề · SKB', 'Topics · SKB')}
+              <Brain size={14} style={{ marginRight: 6 }} /> {t('Chủ đề Nghiên cứu', 'Research Topics')}
             </button>
             <button
               className="btn sm ghost"
@@ -767,7 +1483,7 @@ export const Sidebar: React.FC = () => {
               }}
               style={{ justifyContent: 'flex-start' }}
             >
-              <GitBranch size={14} style={{ marginRight: 6 }} /> Workstreams
+              <GitBranch size={14} style={{ marginRight: 6 }} /> {t('Luồng công việc', 'Workstreams')}
             </button>
             <button
               className="btn sm ghost"
@@ -777,7 +1493,7 @@ export const Sidebar: React.FC = () => {
               }}
               style={{ justifyContent: 'flex-start' }}
             >
-              <BarChart3 size={14} style={{ marginRight: 6 }} /> Figure Studio
+              <BarChart3 size={14} style={{ marginRight: 6 }} /> {t('Xưởng biểu đồ', 'Figure Studio')}
             </button>
             <button
               className="btn sm ghost"
@@ -787,7 +1503,7 @@ export const Sidebar: React.FC = () => {
               }}
               style={{ justifyContent: 'flex-start' }}
             >
-              <Terminal size={14} style={{ marginRight: 6 }} /> OpenCode Runtime
+              <Terminal size={14} style={{ marginRight: 6 }} /> {t('Môi trường OpenCode', 'OpenCode Runtime')}
             </button>
             <button
               className="btn sm ghost"
@@ -797,7 +1513,7 @@ export const Sidebar: React.FC = () => {
               }}
               style={{ justifyContent: 'flex-start' }}
             >
-              <Cpu size={14} style={{ marginRight: 6 }} /> Intelligence & RO-Crate
+              <Cpu size={14} style={{ marginRight: 6 }} /> {t('Tri thức & RO-Crate', 'Intelligence & RO-Crate')}
             </button>
             <button
               className="btn sm ghost"
@@ -807,7 +1523,7 @@ export const Sidebar: React.FC = () => {
               }}
               style={{ justifyContent: 'flex-start' }}
             >
-              <FlaskConical size={14} style={{ marginRight: 6 }} /> Protocols
+              <FlaskConical size={14} style={{ marginRight: 6 }} /> {t('Giao thức nghiên cứu', 'Protocols')}
             </button>
             <button
               className="btn sm ghost"
@@ -817,7 +1533,7 @@ export const Sidebar: React.FC = () => {
               }}
               style={{ justifyContent: 'flex-start' }}
             >
-              <CheckCircle size={14} style={{ marginRight: 6 }} /> Claims & Evidence
+              <CheckCircle size={14} style={{ marginRight: 6 }} /> {t('Luận điểm & Bằng chứng', 'Claims & Evidence')}
             </button>
             <button
               className="btn sm ghost"
@@ -827,7 +1543,7 @@ export const Sidebar: React.FC = () => {
               }}
               style={{ justifyContent: 'flex-start' }}
             >
-              <FileText size={14} style={{ marginRight: 6 }} /> Paper LaTeX
+              <FileText size={14} style={{ marginRight: 6 }} /> {t('Bản thảo LaTeX', 'Paper LaTeX')}
             </button>
             <button
               className="btn sm ghost"
@@ -837,7 +1553,7 @@ export const Sidebar: React.FC = () => {
               }}
               style={{ justifyContent: 'flex-start' }}
             >
-              <Award size={14} style={{ marginRight: 6 }} /> Peer Review R1–R3
+              <Award size={14} style={{ marginRight: 6 }} /> {t('Hội đồng bình duyệt R1–R3', 'Peer Review R1–R3')}
             </button>
             <button
               className="btn sm ghost"
@@ -847,7 +1563,7 @@ export const Sidebar: React.FC = () => {
               }}
               style={{ justifyContent: 'flex-start' }}
             >
-              <Code size={14} style={{ marginRight: 6 }} /> Code · VS Code
+              <Code size={14} style={{ marginRight: 6 }} /> {t('Mã nguồn & VS Code', 'Code · VS Code')}
             </button>
             <button
               className="btn sm ghost"
@@ -857,7 +1573,7 @@ export const Sidebar: React.FC = () => {
               }}
               style={{ justifyContent: 'flex-start' }}
             >
-              <Gauge size={14} style={{ marginRight: 6 }} /> Dashboard
+              <Gauge size={14} style={{ marginRight: 6 }} /> {t('Bảng điều khiển', 'Dashboard')}
             </button>
           </div>
         )}

@@ -154,11 +154,13 @@ def trip(c,m,key,reason):
 
 def gate(c,m,task=None):
     """Return a persistent blocking reason. Called again in the admission transaction."""
-    control=m["payload"]["spec"].get("control")
+    p=m.get("payload") or {}
+    spec=p.get("spec") or {}
+    control=spec.get("control")
     if not control:return ""
-    p=m["payload"];now=datetime.now(timezone.utc)
+    now=datetime.now(timezone.utc)
     if not enabled():return "Research OS is disabled"
-    if m["payload"]["spec"].get("team"):
+    if spec.get("team"):
         from backend.agent import teams
         if not teams.enabled():return "Team execution is disabled"
     from backend.agent import collaboration

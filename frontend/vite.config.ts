@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
@@ -11,6 +12,17 @@ export default defineConfig({
       input: resolve(__dirname, 'react.html'),
     },
     chunkSizeWarningLimit: 1500,
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    testTimeout: 15000,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html', 'lcov'],
+      exclude: ['node_modules/', 'dist/', 'src/test/'],
+    },
   },
   server: {
     port: 5173,

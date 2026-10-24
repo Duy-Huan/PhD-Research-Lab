@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../shared/api/client';
-import { useUIStore } from '../../shared/state/uiStore';
+import { useUIStore, useI18n } from '../../shared/state/uiStore';
+import { MarkdownRenderer } from '../../shared/ui/MarkdownRenderer';
 import {
   Award,
   Upload,
@@ -73,10 +74,28 @@ interface ReviewDetail {
 export const ReviewView: React.FC = () => {
   const queryClient = useQueryClient();
   const { setMainView } = useUIStore();
+  const { t } = useI18n();
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [streamingStage, setStreamingStage] = useState<string | null>(null);
   const [streamBuffer, setStreamBuffer] = useState('');
+
+  const getPersonaLabel = (revId: string, persona?: string): string => {
+    if (!persona) return revId;
+    if (persona.includes('Domain expert')) {
+      return `${revId} · ${t('Chuyên gia Lĩnh vực - Tính mới & Đóng góp', 'Domain expert - Novelty & Significance')}`;
+    }
+    if (persona.includes('Methodology') || persona.includes('demanding')) {
+      return `${revId} · ${t('Chuyên gia Phương pháp & Thực nghiệm', 'Methodology & Experiments Expert')}`;
+    }
+    if (persona.includes('Clarity') || persona.includes('presentation')) {
+      return `${revId} · ${t('Tính rõ ràng, Trình bày & Chuẩn hội nghị', 'Clarity, Presentation & Venue-fit')}`;
+    }
+    if (persona.includes('Comprehensive')) {
+      return `${revId} · ${t('Phản biện Toàn diện', 'Comprehensive Reviewer')}`;
+    }
+    return `${revId} · ${persona}`;
+  };
 
   // List reviews
   const { data: listData } = useQuery<{ reviews: ReviewMeta[]; active?: string }>({
@@ -265,19 +284,21 @@ export const ReviewView: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Award size={22} color="var(--accent)" />
             <h2 style={{ margin: 0, fontSize: 20 }}>
-              Hội đồng Bình duyệt Học thuật (Peer Review Studio R1–R3 & Area Chair)
+              {t('Hội đồng Bình duyệt Học thuật (R1–R3 & Trưởng ban)', 'Academic Peer Review Studio (R1–R3 & Area Chair)')}
             </h2>
           </div>
           <p className="muted" style={{ margin: '4px 0 0', fontSize: 13 }}>
-            Tải bản thảo PDF/DOCX/LaTeX → Chạy 3 Phản biện độc lập → Tổng hợp Meta-Review → Trích xuất
-            Issues & Vá tự động mã nguồn LaTeX.
+            {t(
+              'Tải bản thảo PDF/DOCX/LaTeX → Chạy 3 Phản biện độc lập → Tổng hợp Đánh giá chung → Trích xuất Vấn đề & Tự động sửa LaTeX.',
+              'Upload manuscript PDF/DOCX/LaTeX → Run 3 Independent Reviews → Synthesize Meta-Review → Extract Issues & Auto-patch LaTeX.'
+            )}
           </p>
         </div>
 
         <div style={{ display: 'flex', gap: 8 }}>
           <label className="btn sm accent" style={{ cursor: 'pointer', margin: 0 }}>
             <Upload size={14} style={{ marginRight: 5 }} />
-            <span>{uploading ? 'Đang tải…' : 'Tải Bản thảo mới (PDF/TEX/DOCX)'}</span>
+            <span>{uploading ? t('Đang tải…', 'Uploading…') : t('Tải Bản thảo mới dạng tệp PDF, TEX hoặc DOCX', 'Upload Manuscript (PDF/TEX/DOCX)')}</span>
             <input
               type="file"
               accept=".pdf,.tex,.docx,.md,.txt"
@@ -292,7 +313,7 @@ export const ReviewView: React.FC = () => {
             onClick={() => setMainView('chat')}
           >
             <MessageSquare size={14} style={{ marginRight: 5 }} />
-            <span>Quay lại Hội thoại</span>
+            <span>{t('Quay lại Hội thoại', 'Back to Chat')}</span>
           </button>
         </div>
       </div>
@@ -343,10 +364,12 @@ export const ReviewView: React.FC = () => {
           }}
         >
           <Award size={36} color="var(--accent)" style={{ marginBottom: 10 }} />
-          <h3 style={{ margin: '0 0 6px' }}>Chưa có bản thảo nào đang bình duyệt</h3>
+          <h3 style={{ margin: '0 0 6px' }}>{t('Chưa có bản thảo nào đang bình duyệt', 'No manuscript currently under review')}</h3>
           <p className="muted" style={{ margin: 0, fontSize: 13.5 }}>
-            Nhấn nút <b>Tải Bản thảo mới (PDF/TEX/DOCX)</b> ở góc trên bên phải để bắt đầu quy trình
-            phản biện R1–R3 chuẩn hội nghị A* / tạp chí Q1.
+            {t(
+              'Nhấn nút "Tải Bản thảo mới" ở góc trên bên phải để bắt đầu quy trình phản biện R1–R3 chuẩn hội nghị A* và tạp chí Q1.',
+              'Click "Upload Manuscript (PDF/TEX/DOCX)" at top right to start R1–R3 review calibrated for A* conferences and Q1 journals.'
+            )}
           </p>
         </div>
       ) : (
@@ -372,7 +395,7 @@ export const ReviewView: React.FC = () => {
                 disabled={!!streamingStage}
                 onClick={() => runStageStream('reviewer', { idx: 1 })}
               >
-                <Play size={13} style={{ marginRight: 4 }} /> Chạy Reviewer #1
+                <Play size={13} style={{ marginRight: 4 }} /> {t('Chạy Phản biện #1', 'Run Reviewer #1')}
               </button>
               <button
                 type="button"
@@ -380,7 +403,7 @@ export const ReviewView: React.FC = () => {
                 disabled={!!streamingStage}
                 onClick={() => runStageStream('reviewer', { idx: 2 })}
               >
-                <Play size={13} style={{ marginRight: 4 }} /> Chạy Reviewer #2
+                <Play size={13} style={{ marginRight: 4 }} /> {t('Chạy Phản biện #2', 'Run Reviewer #2')}
               </button>
               <button
                 type="button"
@@ -388,7 +411,7 @@ export const ReviewView: React.FC = () => {
                 disabled={!!streamingStage}
                 onClick={() => runStageStream('reviewer', { idx: 3 })}
               >
-                <Play size={13} style={{ marginRight: 4 }} /> Chạy Reviewer #3
+                <Play size={13} style={{ marginRight: 4 }} /> {t('Chạy Phản biện #3', 'Run Reviewer #3')}
               </button>
               <button
                 type="button"
@@ -396,7 +419,7 @@ export const ReviewView: React.FC = () => {
                 disabled={!!streamingStage}
                 onClick={() => runStageStream('meta')}
               >
-                Tổng hợp Area Chair (Meta)
+                {t('Tổng hợp Đánh giá chung', 'Synthesize Meta-Review')}
               </button>
               <button
                 type="button"
@@ -404,7 +427,7 @@ export const ReviewView: React.FC = () => {
                 disabled={!!streamingStage}
                 onClick={() => runStageStream('issues')}
               >
-                Trích xuất Danh sách Lỗi (Issues)
+                {t('Trích xuất Danh sách Vấn đề', 'Extract Issue Checklist')}
               </button>
               <button
                 type="button"
@@ -412,14 +435,14 @@ export const ReviewView: React.FC = () => {
                 disabled={!!streamingStage}
                 onClick={() => runStageStream('response')}
               >
-                Sinh Thư Giải trình (Rebuttal Letter)
+                {t('Tạo Thư Phản hồi', 'Generate Rebuttal Letter')}
               </button>
             </div>
 
             <div style={{ display: 'flex', gap: 6 }}>
               <label className="btn sm ghost" style={{ cursor: 'pointer', margin: 0 }}>
                 <FileCode size={13} style={{ marginRight: 4 }} />
-                <span>Đính kèm .tex gốc</span>
+                <span>{t('Đính kèm tệp .tex gốc', 'Attach Source .tex')}</span>
                 <input
                   type="file"
                   accept=".tex"
@@ -432,7 +455,7 @@ export const ReviewView: React.FC = () => {
                 className="btn sm ghost"
                 onClick={handleApplyFixesToLatex}
               >
-                Áp dụng vá .tex
+                {t('Áp dụng vá .tex', 'Apply Patches to .tex')}
               </button>
               <a
                 className="btn sm ghost"
@@ -441,7 +464,7 @@ export const ReviewView: React.FC = () => {
                 rel="noopener noreferrer"
                 style={{ textDecoration: 'none' }}
               >
-                <Download size={13} style={{ marginRight: 4 }} /> Tải Báo cáo
+                <Download size={13} style={{ marginRight: 4 }} /> {t('Tải Báo cáo', 'Download Report')}
               </a>
             </div>
           </div>
@@ -457,7 +480,7 @@ export const ReviewView: React.FC = () => {
               }}
             >
               <div style={{ fontWeight: 600, color: 'var(--accent)', marginBottom: 6 }}>
-                Đang chạy giai đoạn: {streamingStage}…
+                {t('Đang chạy giai đoạn:', 'Running stage:')} {streamingStage}…
               </div>
               <pre
                 style={{
@@ -468,7 +491,7 @@ export const ReviewView: React.FC = () => {
                   margin: 0,
                 }}
               >
-                {streamBuffer || 'Đang khởi tạo hội đồng phản biện…'}
+                {streamBuffer || t('Đang khởi tạo hội đồng phản biện…', 'Initializing peer review panel…')}
               </pre>
             </div>
           )}
@@ -496,7 +519,7 @@ export const ReviewView: React.FC = () => {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <b>
-                    {rev.id} · {rev.persona}
+                    {getPersonaLabel(rev.id, rev.persona)}
                   </b>
                   {rev.score && <span className="chip ok">{rev.score}</span>}
                 </div>
@@ -504,12 +527,11 @@ export const ReviewView: React.FC = () => {
                   style={{
                     fontSize: 12.5,
                     lineHeight: 1.55,
-                    whiteSpace: 'pre-wrap',
-                    maxHeight: 320,
+                    maxHeight: 380,
                     overflowY: 'auto',
                   }}
                 >
-                  {rev.text}
+                  <MarkdownRenderer content={rev.text || ''} />
                 </div>
               </div>
             ))}
@@ -526,10 +548,10 @@ export const ReviewView: React.FC = () => {
               }}
             >
               <h4 style={{ margin: '0 0 8px' }}>
-                Tổng hợp của Area Chair / Tổng Biên tập (Meta-Review)
+                {t('Tổng hợp của Trưởng ban Chuyên môn', 'Area Chair Meta-Review & Synthesis')}
               </h4>
-              <div style={{ fontSize: 13, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
-                {reviewDetail.state.meta.text}
+              <div style={{ fontSize: 13, lineHeight: 1.6 }}>
+                <MarkdownRenderer content={reviewDetail.state.meta.text || ''} />
               </div>
             </div>
           )}
@@ -548,7 +570,7 @@ export const ReviewView: React.FC = () => {
               }}
             >
               <h4 style={{ margin: 0 }}>
-                Danh sách Vấn đề Cần Chỉnh sửa ({issues.length} Issues)
+                {t('Danh sách Vấn đề Cần Chỉnh sửa', 'Manuscript Revision Checklist')} ({issues.length} {t('vấn đề', 'issues')})
               </h4>
               {issues.map((iss) => {
                 const fix = fixes[iss.id];
@@ -589,7 +611,7 @@ export const ReviewView: React.FC = () => {
                         }}
                       >
                         <div>
-                          <b>Đoạn văn đề xuất sửa ({fix.status}):</b>
+                          <b>{t('Đoạn văn đề xuất sửa', 'Proposed patch')} ({fix.status}):</b>
                         </div>
                         <pre style={{ whiteSpace: 'pre-wrap', margin: '6px 0' }}>
                           {fix.revised}
@@ -600,14 +622,14 @@ export const ReviewView: React.FC = () => {
                             className="btn sm accent"
                             onClick={() => handleIssueDecision(iss.id, 'done', 'accepted')}
                           >
-                            <Check size={12} style={{ marginRight: 4 }} /> Chấp nhận bản sửa
+                            <Check size={12} style={{ marginRight: 4 }} /> {t('Chấp nhận bản sửa', 'Accept patch')}
                           </button>
                           <button
                             type="button"
                             className="btn sm ghost"
                             onClick={() => handleIssueDecision(iss.id, 'open', 'dismissed')}
                           >
-                            <X size={12} style={{ marginRight: 4 }} /> Từ chối
+                            <X size={12} style={{ marginRight: 4 }} /> {t('Từ chối', 'Dismiss')}
                           </button>
                         </div>
                       </div>
@@ -619,14 +641,14 @@ export const ReviewView: React.FC = () => {
                           onClick={() => handleProposeFix(iss.id)}
                           disabled={!!streamingStage}
                         >
-                          <Sparkles size={13} style={{ marginRight: 4 }} /> Đề xuất sửa tự động (AI Fix)
+                          <Sparkles size={13} style={{ marginRight: 4 }} /> {t('Đề xuất chỉnh sửa tự động', 'Auto Propose AI Fix')}
                         </button>
                         <button
                           type="button"
                           className="btn sm ghost"
                           onClick={() => handleIssueDecision(iss.id, 'done')}
                         >
-                          Đánh dấu Đã xong
+                          {t('Đánh dấu Đã xong', 'Mark Done')}
                         </button>
                       </div>
                     )}

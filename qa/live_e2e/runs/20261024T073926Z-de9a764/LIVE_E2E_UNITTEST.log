@@ -1,0 +1,8 @@
+......................................................s............C:\Users\win\AppData\Local\Python\pythoncore-3.14-64\Lib\json\decoder.py:361: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x00000245EB2DFB50>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+....
+----------------------------------------------------------------------
+Ran 71 tests in 164.297s
+
+OK (skipped=1)

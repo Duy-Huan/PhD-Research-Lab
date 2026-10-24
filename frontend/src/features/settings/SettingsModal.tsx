@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useUIStore } from '../../shared/state/uiStore';
+import { useUIStore, useI18n } from '../../shared/state/uiStore';
 import { api } from '../../shared/api/client';
 import type { AppConfig, SkillItem } from '../../shared/api/types';
 import {
@@ -25,6 +25,11 @@ import {
   ArrowLeft,
   Award,
   Plug,
+  Globe,
+  Bot,
+  Type,
+  BookOpen,
+  CheckCircle2,
 } from 'lucide-react';
 
 const BUILTIN_THEMES = [
@@ -116,6 +121,21 @@ const BUILTIN_THEMES = [
   },
 ];
 
+export function applyFontById(id: string) {
+  const root = document.documentElement;
+  if (!id || id === 'sans') {
+    root.removeAttribute('data-font');
+  } else {
+    root.setAttribute('data-font', id);
+  }
+  try {
+    if (!id || id === 'sans') localStorage.removeItem('pl.font');
+    else localStorage.setItem('pl.font', id);
+  } catch {
+    // ignore storage errors
+  }
+}
+
 export function applyThemeById(id: string) {
   const root = document.documentElement;
   const customTokens = [
@@ -148,20 +168,63 @@ export function applyThemeById(id: string) {
   }
 }
 
-const TABS = [
-  { id: 'models', label: 'Mô hình & AI Agents', icon: Cpu, desc: 'Cloud API keys, 4 Agents, VRAM local & Routing' },
-  { id: 'engines', label: 'Research Engines', icon: Terminal, desc: 'OpenScience, Feynman, OpenCode & CLI' },
-  { id: 'search', label: 'Tìm kiếm & Xếp hạng', icon: Search, desc: 'OpenAlex, Semantic Scholar, CORE & SCImago' },
-  { id: 'hardware', label: 'Thí nghiệm & Phần cứng', icon: HardDrive, desc: 'GPU Guard, Background Runs, ClearML, VS Code' },
-  { id: 'memory', label: 'Bộ nhớ & Ngữ cảnh', icon: Brain, desc: 'Context Memory v2, Token Budget & AIWS' },
-  { id: 'mcp', label: 'MCP & Bảo mật CLI', icon: Shield, desc: 'MCP Server, Inference Agent & Context Firewall' },
-  { id: 'skills', label: 'Kỹ năng (/) & Plugins', icon: Sparkles, desc: 'Lệnh /skills tùy chỉnh & GitHub Skill Plugins' },
-  { id: 'look', label: 'Giao diện & Ngôn ngữ', icon: Palette, desc: 'Chủ đề màu OpenScience, Font chữ & Ngôn ngữ' },
-];
+// Tab definitions are generated dynamically inside SettingsModal using useI18n()
 
 export const SettingsModal: React.FC = () => {
   const queryClient = useQueryClient();
   const { settingsTab, openSettings, setMainView, language, setLanguage, uiScale, setUiScale } = useUIStore();
+  const { t } = useI18n();
+
+  const tabs = [
+    {
+      id: 'models',
+      label: t('Mô hình & Tác nhân AI', 'Models & AI Agents'),
+      icon: Cpu,
+      desc: t('Khóa API đám mây, 4 Tác nhân, VRAM cục bộ & Điều phối', 'Cloud API keys, 4 Agents, Local VRAM & Routing'),
+    },
+    {
+      id: 'engines',
+      label: t('Công cụ Nghiên cứu', 'Research Engines'),
+      icon: Terminal,
+      desc: t('OpenScience, Feynman, OpenCode & Giao diện dòng lệnh', 'OpenScience, Feynman, OpenCode & CLI'),
+    },
+    {
+      id: 'search',
+      label: t('Tìm kiếm & Xếp hạng', 'Search & Ranking'),
+      icon: Search,
+      desc: t('OpenAlex, Semantic Scholar, CORE & SCImago', 'OpenAlex, Semantic Scholar, CORE & SCImago'),
+    },
+    {
+      id: 'hardware',
+      label: t('Thí nghiệm & Phần cứng', 'Experiments & Hardware'),
+      icon: HardDrive,
+      desc: t('Bảo vệ GPU, Chạy ngầm, ClearML & VS Code', 'GPU Guard, Background Runs, ClearML & VS Code'),
+    },
+    {
+      id: 'memory',
+      label: t('Bộ nhớ & Ngữ cảnh', 'Memory & Context'),
+      icon: Brain,
+      desc: t('Bộ nhớ Ngữ cảnh v2, Định mức Token & AIWS', 'Context Memory v2, Token Budget & AIWS'),
+    },
+    {
+      id: 'mcp',
+      label: t('MCP & Tường lửa Bảo mật', 'MCP & Security Firewall'),
+      icon: Shield,
+      desc: t('Máy chủ MCP, Tác nhân Suy luận & Tường lửa Ngữ cảnh', 'MCP Server, Inference Agent & Context Firewall'),
+    },
+    {
+      id: 'skills',
+      label: t('Kỹ năng & Tiện ích mở rộng', 'Skills & Plugins'),
+      icon: Sparkles,
+      desc: t('Lệnh kỹ năng tùy chỉnh & Tiện ích mở rộng GitHub', 'Custom Skills & GitHub Plugins'),
+    },
+    {
+      id: 'look',
+      label: t('Giao diện & Ngôn ngữ', 'Appearance & Language'),
+      icon: Palette,
+      desc: t('Chủ đề màu sắc, Font chữ học thuật & Ngôn ngữ hiển thị', 'Color Themes, Academic Typography & Language'),
+    },
+  ];
   const [activeTab, setActiveTab] = useState(settingsTab || 'models');
   const [searchFilter, setSearchFilter] = useState('');
   const [toastMsg, setToastMsg] = useState<{ text: string; kind?: 'ok' | 'err' } | null>(null);
@@ -188,10 +251,10 @@ export const SettingsModal: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['config'] });
       queryClient.invalidateQueries({ queryKey: ['models'] });
-      notify('Đã lưu cấu hình thành công!');
+      notify(t('Đã lưu cấu hình thành công!', 'Configuration saved successfully!'));
     },
     onError: (err: Error) => {
-      notify(`Lỗi lưu cấu hình: ${err.message}`, 'err');
+      notify(t('Lỗi lưu cấu hình: ', 'Failed to save configuration: ') + err.message, 'err');
     },
   });
 
@@ -237,6 +300,8 @@ export const SettingsModal: React.FC = () => {
   const [fetchedProviderModels, setFetchedProviderModels] = useState<Record<string, string[]>>({});
   const [testingProvider, setTestingProvider] = useState<string | null>(null);
   const [showAllProviders, setShowAllProviders] = useState(false);
+  const [syncingProvider, setSyncingProvider] = useState<string | null>(null);
+  const [syncResults, setSyncResults] = useState<Record<string, { at: string; changed: number; observed: number }>>({});
 
   // OpenScience token state
   const [osciToken, setOsciToken] = useState('');
@@ -266,14 +331,14 @@ export const SettingsModal: React.FC = () => {
     return (
       <div style={{ padding: 32, display: 'flex', alignItems: 'center', gap: 12 }}>
         <div className="spin" />
-        <span>Đang tải cấu hình hệ thống PhD Research Lab…</span>
+        <span>{t('Đang tải cấu hình hệ thống PhD Research Lab…', 'Loading PhD Research Lab system configuration…')}</span>
       </div>
     );
   }
 
   const providerSpecs = config.provider_specs || {};
   const mainProviders = ['anthropic', 'openai', 'gemini', 'deepseek', 'openrouter', 'groq', config.default_cloud];
-  const visibleTabs = TABS.filter(
+  const visibleTabs = tabs.filter(
     (t) =>
       !searchFilter.trim() ||
       (t.label + ' ' + t.desc).toLowerCase().includes(searchFilter.trim().toLowerCase())
@@ -287,9 +352,9 @@ export const SettingsModal: React.FC = () => {
         provider: pid,
         model: providerModelInputs[pid] || config.providers?.[pid]?.model,
       });
-      notify(`Kết nối ${pid} (${res.model}) thành công! Phản hồi: "${res.reply}"`);
+      notify(t(`Kết nối ${pid} (${res.model}) thành công! Phản hồi: "${res.reply}"`, `Connected to ${pid} (${res.model}) successfully! Reply: "${res.reply}"`));
     } catch (err) {
-      notify(`Lỗi kết nối ${pid}: ${(err as Error).message}`, 'err');
+      notify(t('Lỗi kết nối: ', 'Connection error: ') + `${pid}: ${(err as Error).message}`, 'err');
     } finally {
       setTestingProvider(null);
     }
@@ -300,9 +365,9 @@ export const SettingsModal: React.FC = () => {
     try {
       const res = await api.post<{ models: string[] }>('/api/models/list', { provider: pid });
       setFetchedProviderModels((prev) => ({ ...prev, [pid]: res.models || [] }));
-      notify(`Đã tải ${(res.models || []).length} model từ ${pid}`);
+      notify(t(`Đã tải ${(res.models || []).length} model từ ${pid}`, `Loaded ${(res.models || []).length} models from ${pid}`));
     } catch (err) {
-      notify(`Không tải được danh sách model từ ${pid}: ${(err as Error).message}`, 'err');
+      notify(t('Không tải được danh sách model: ', 'Failed to load model list: ') + `${pid}: ${(err as Error).message}`, 'err');
     }
   };
 
@@ -324,19 +389,54 @@ export const SettingsModal: React.FC = () => {
     setProviderKeyInputs((prev) => ({ ...prev, [pid]: '' }));
   };
 
+  const handleLaunchProvider = async (pid: string, label: string) => {
+    try {
+      await api.post(`/api/providers/${pid}/launch`, {});
+      notify(t('Đã mở điều hướng tới ', 'Opened navigation to ') + label);
+    } catch (err: any) {
+      notify(t('Lỗi mở ứng dụng: ', 'Failed to launch app: ') + (err?.message || 'Unknown error'), 'err');
+    }
+  };
+
+  const handleSyncProvider = async (pid: string, label: string) => {
+    setSyncingProvider(pid);
+    try {
+      const res = await api.post<{ ok: boolean; total_changed: number; total_observed: number }>(`/api/providers/${pid}/sync`, {});
+      setSyncResults((prev) => ({
+        ...prev,
+        [pid]: {
+          at: new Date().toLocaleTimeString(),
+          changed: res.total_changed || 0,
+          observed: res.total_observed || 0,
+        },
+      }));
+      notify(
+        t('Đồng bộ thành công từ ', 'Synchronized successfully from ') +
+          label +
+          ': ' +
+          (res.total_changed || 0) +
+          t(' tệp mới/cập nhật', ' new/updated files')
+      );
+    } catch (err: any) {
+      notify(t('Lỗi đồng bộ dữ liệu: ', 'Failed to sync data: ') + (err?.message || 'Unknown error'), 'err');
+    } finally {
+      setSyncingProvider(null);
+    }
+  };
+
   // Engine options for the 4 agents (includes Subscriptions, CLIs, Local, and all 17 Cloud Providers)
   const agentEngineOptions = [
-    ['auto', 'Tự động (Smart Router: Local → Cloud)'],
-    ['codex', 'ChatGPT Subscription (Plus/Pro/Team · Codex CLI)'],
-    ['claude_code', 'Claude Subscription (Pro/Max · Claude Code CLI)'],
-    ['antigravity', 'Google Antigravity (IDE + agy CLI)'],
-    ['gemini_cli', 'Google Gemini Subscription (Gemini CLI)'],
-    ['claude', 'Anthropic Claude (Ưu tiên nếu có API key)'],
-    ['cloud', `Cloud mặc định (${config.default_cloud})`],
-    ['local', 'LM Studio (Local VRAM)'],
-    ['ollama', 'Ollama (Local VRAM)'],
-    ['mcp', 'MCP Inference Tool'],
-    ...Object.entries(providerSpecs).map(([k, v]) => [k, `${v.label} (Cloud API)`]),
+    ['auto', t('Tự động điều phối thông minh', 'Auto (Smart Router: Local → Cloud)')],
+    ['codex', t('Gói trả phí ChatGPT dòng lệnh', 'ChatGPT Subscription (Codex CLI)')],
+    ['claude_code', t('Gói trả phí Claude dòng lệnh', 'Claude Subscription (Claude Code CLI)')],
+    ['antigravity', t('Google Antigravity và công cụ agy', 'Google Antigravity (IDE + agy CLI)')],
+    ['gemini_cli', t('Gói trả phí Google Gemini dòng lệnh', 'Google Gemini Subscription (Gemini CLI)')],
+    ['claude', t('Anthropic Claude có khóa API', 'Anthropic Claude (API key preferred)')],
+    ['cloud', `${t('Đám mây mặc định', 'Default Cloud')} (${config.default_cloud})`],
+    ['local', t('LM Studio trên bộ nhớ cục bộ', 'LM Studio (Local VRAM)')],
+    ['ollama', t('Ollama trên bộ nhớ cục bộ', 'Ollama (Local VRAM)')],
+    ['mcp', t('Công cụ Suy luận MCP', 'MCP Inference Tool')],
+    ...Object.entries(providerSpecs).map(([k, v]) => [k, `${v.label} (${t('API Đám mây', 'Cloud API')})`]),
   ];
 
   const CLI_DEFAULT_MODELS: Record<string, string[]> = {
@@ -413,19 +513,19 @@ export const SettingsModal: React.FC = () => {
           <button
             className="btn sm ghost"
             onClick={() => setMainView('chat')}
-            title="Quay lại khu vực Nghiên cứu & Trò chuyện"
+            title={t('Quay lại khu vực Nghiên cứu & Trò chuyện', 'Back to Research & Chat Workspace')}
           >
             <ArrowLeft size={15} style={{ marginRight: 4 }} />
-            <span>Quay lại Workspace</span>
+            <span>{t('Quay lại Không gian làm việc', 'Back to Workspace')}</span>
           </button>
           <div style={{ width: 1, height: 20, background: 'var(--line)' }} />
           <Settings size={20} color="var(--accent)" />
           <div>
             <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>
-              Trung tâm Cài đặt & Cấu hình Hệ thống (PhD Research Lab v{config.version})
+              {t('Trung tâm Cài đặt & Cấu hình Hệ thống', 'System Settings & Configuration Center')} (PhD Research Lab v{config.version})
             </h3>
             <span className="muted" style={{ fontSize: 12 }}>
-              Dự án đang mở: <b>{config.project?.name}</b> ({config.project?.data_dir})
+              {t('Dự án đang mở:', 'Active Project:')} <b>{config.project?.name}</b> ({config.project?.data_dir})
             </span>
           </div>
         </div>
@@ -453,9 +553,9 @@ export const SettingsModal: React.FC = () => {
               border: '1px solid var(--line)',
               fontSize: 12,
             }}
-            title="Tỉ lệ thu phóng giao diện (UI Scale)"
+            title={t('Tỉ lệ thu phóng giao diện', 'UI Display Scale')}
           >
-            <span className="muted">Scale:</span>
+            <span className="muted">{t('Tỉ lệ:', 'Scale:')}</span>
             <select
               value={String(uiScale)}
               onChange={(e) => setUiScale(Number(e.target.value))}
@@ -485,7 +585,7 @@ export const SettingsModal: React.FC = () => {
               overflow: 'hidden',
               background: 'var(--bg-2)',
             }}
-            title="Chuyển đổi ngôn ngữ Tiếng Việt / English"
+            title={t('Chuyển đổi ngôn ngữ Tiếng Việt / English', 'Switch Language Vietnamese / English')}
           >
             <button
               type="button"
@@ -539,7 +639,7 @@ export const SettingsModal: React.FC = () => {
               type="search"
               className="input"
               style={{ paddingLeft: 32, fontSize: 13 }}
-              placeholder="Tìm mục cài đặt…"
+              placeholder={t('Tìm mục cài đặt…', 'Search settings…')}
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
             />
@@ -614,7 +714,7 @@ export const SettingsModal: React.FC = () => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Cpu size={18} color="var(--accent)" />
                     <h3 style={{ margin: 0, fontSize: 16 }}>
-                      Phân công Hãng Cung cấp & Model cho 4 AI Agents cốt lõi
+                      {t('Phân công Nhà cung cấp & Mô hình cho 4 Tác nhân AI', 'Assign Providers & Models for 4 Core AI Agents')}
                     </h3>
                   </div>
                   <button
@@ -628,23 +728,23 @@ export const SettingsModal: React.FC = () => {
                         aiws: { operating_mode: 'automation' },
                       })
                     }
-                    title="Bỏ giới hạn chạy đơn lẻ — cho phép nhiều Agent làm việc song song với mức tự động hóa cao nhất"
+                    title={t('Bỏ giới hạn chạy đơn lẻ — cho phép nhiều Agent làm việc song song với mức tự động hóa cao nhất', 'Remove single-run limit — allow multi-agent parallel execution with maximum autonomy')}
                   >
                     <Sparkles size={13} style={{ marginRight: 5 }} />
-                    <span>Bật Tự Động Hóa Đa Agent Tối Đa (Parallel Mode)</span>
+                    <span>{t('Bật Tự động hóa Đa Tác nhân Song song', 'Enable Parallel Multi-Agent Automation')}</span>
                   </button>
                 </div>
                 <p className="muted" style={{ fontSize: 13, margin: '0 0 16px' }}>
-                  Khi chọn hãng cung cấp (Cloud API, ChatGPT Subscription, Claude CLI, Gemini CLI, Antigravity, hoặc Local), danh sách Model bên phải sẽ tự động lọc chỉ hiển thị các model được hãng đó hỗ trợ. Model của <b>assistant</b> sẽ được dùng trực tiếp trong khung Chatbox chính.
+                  {t('Khi chọn nhà cung cấp (API Đám mây, Gói trả phí ChatGPT, Claude CLI, Gemini CLI, Antigravity, hoặc Cục bộ), danh sách Mô hình bên phải sẽ tự động lọc chỉ hiển thị các model được nhà cung cấp đó hỗ trợ. Model của assistant sẽ được dùng trực tiếp trong khung Chatbox chính.', 'When selecting a provider (Cloud API, ChatGPT Subscription, Claude CLI, Gemini CLI, Antigravity, or Local), the Model list will automatically filter to show only supported models. The assistant model will be used directly in the primary Chatbox.')}
                 </p>
 
                 <div className="table-scroll">
                   <table className="grid">
                     <thead>
                       <tr>
-                        <th style={{ width: '34%' }}>Vai trò Agent</th>
-                        <th style={{ width: '34%' }}>Hãng cung cấp / Nguồn Engine</th>
-                        <th style={{ width: '32%' }}>Model hỗ trợ bởi Hãng đã chọn</th>
+                        <th style={{ width: '34%' }}>{t('Vai trò Tác nhân', 'Agent Role')}</th>
+                        <th style={{ width: '34%' }}>{t('Nhà cung cấp / Nguồn Engine', 'Provider / Engine Source')}</th>
+                        <th style={{ width: '32%' }}>{t('Mô hình Hỗ trợ', 'Supported Models')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -690,7 +790,7 @@ export const SettingsModal: React.FC = () => {
                             <td>
                               {mode === 'auto' ? (
                                 <span className="muted" style={{ fontSize: 12.5 }}>
-                                  Tự động điều phối theo Smart Router
+                                  {t('Tự động điều phối theo Router Thông minh', 'Auto-routed by Smart Router')}
                                 </span>
                               ) : (
                                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -703,7 +803,7 @@ export const SettingsModal: React.FC = () => {
                                     }
                                   >
                                     {supportedModels.length === 0 && (
-                                      <option value="">(Mặc định của {targetPid})</option>
+                                      <option value="">({t('Mặc định của', 'Default for')} {targetPid})</option>
                                     )}
                                     {supportedModels.map((m) => (
                                       <option key={m} value={m}>
@@ -715,7 +815,7 @@ export const SettingsModal: React.FC = () => {
                                     <button
                                       type="button"
                                       className="btn sm ghost"
-                                      title={`Tải danh sách model mới nhất từ ${targetPid}`}
+                                      title={t(`Tải danh sách model mới nhất từ ${targetPid}`, `Fetch latest models from ${targetPid}`)}
                                       onClick={() => handleFetchModels(targetPid)}
                                     >
                                       <RefreshCw size={13} />
@@ -738,11 +838,11 @@ export const SettingsModal: React.FC = () => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Key size={18} color="var(--accent)" />
                     <h3 style={{ margin: 0, fontSize: 16 }}>
-                      Nhà cung cấp Cloud API & Khóa Bảo mật (17 Providers)
+                      {t('Nhà cung cấp API Đám mây & Khóa Bảo mật', 'Cloud API Providers & Security Keys')} (17 Providers)
                     </h3>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span className="muted" style={{ fontSize: 12.5 }}>Cloud mặc định:</span>
+                    <span className="muted" style={{ fontSize: 12.5 }}>{t('Đám mây mặc định:', 'Default Cloud:')}</span>
                     <select
                       className="input"
                       style={{ width: 210, padding: '4px 8px' }}
@@ -758,17 +858,17 @@ export const SettingsModal: React.FC = () => {
                   </div>
                 </div>
                 <p className="muted" style={{ fontSize: 13, margin: '0 0 14px' }}>
-                  Khóa API chỉ được lưu cục bộ trong <code>data/config.json</code> và chỉ gửi trực tiếp tới endpoint của nhà cung cấp tương ứng.
+                  {t('Khóa API chỉ được lưu cục bộ trong data/config.json và chỉ gửi trực tiếp tới endpoint của nhà cung cấp tương ứng.', 'API keys are stored exclusively in local data/config.json and dispatched directly to the chosen provider endpoint.')}
                 </p>
 
                 <div className="table-scroll">
                   <table className="grid">
                     <thead>
                       <tr>
-                        <th>Nhà cung cấp</th>
-                        <th>API Key & Endpoint</th>
-                        <th>Model Mặc định</th>
-                        <th>Thao tác</th>
+                        <th>{t('Nhà cung cấp', 'Provider')}</th>
+                        <th>{t('API Key & Endpoint', 'API Key & Endpoint')}</th>
+                        <th>{t('Mô hình Mặc định', 'Default Model')}</th>
+                        <th>{t('Thao tác', 'Actions')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -791,7 +891,7 @@ export const SettingsModal: React.FC = () => {
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                   <span
                                     className={`dot ${p.has_key ? 'ok' : ''}`}
-                                    title={p.has_key ? 'Đã lưu API Key' : 'Chưa có API Key'}
+                                    title={p.has_key ? t('Đã lưu API Key', 'API Key saved') : t('Chưa có API Key', 'No API Key')}
                                   />
                                   <b>{spec.label}</b>
                                 </div>
@@ -802,7 +902,7 @@ export const SettingsModal: React.FC = () => {
                                     rel="noopener noreferrer"
                                     style={{ fontSize: 11.5, display: 'inline-flex', alignItems: 'center', gap: 3 }}
                                   >
-                                    Lấy API Key <ExternalLink size={10} />
+                                    {t('Lấy API Key', 'Get API Key')} <ExternalLink size={10} />
                                   </a>
                                 )}
                               </td>
@@ -811,7 +911,7 @@ export const SettingsModal: React.FC = () => {
                                   type="password"
                                   className="input"
                                   style={{ fontSize: 12.5 }}
-                                  placeholder={p.has_key ? '•••••••• (Đã lưu — nhập để đổi)' : 'Nhập API key…'}
+                                  placeholder={p.has_key ? t('•••••••• (Đã lưu — nhập để đổi)', '•••••••• (Saved — enter to change)') : t('Nhập API key…', 'Enter API key…')}
                                   value={providerKeyInputs[pid] || ''}
                                   onChange={(e) =>
                                     setProviderKeyInputs((prev) => ({ ...prev, [pid]: e.target.value }))
@@ -845,7 +945,7 @@ export const SettingsModal: React.FC = () => {
                                   onChange={(e) =>
                                     setProviderModelInputs((prev) => ({ ...prev, [pid]: e.target.value }))
                                   }
-                                  placeholder="Nhập hoặc chọn model ID…"
+                                  placeholder={t('Nhập hoặc chọn model ID…', 'Enter or select model ID…')}
                                 />
                                 <datalist id={`models-list-${pid}`}>
                                   {modelChoices.map((m) => (
@@ -860,7 +960,7 @@ export const SettingsModal: React.FC = () => {
                                     className="btn sm accent"
                                     onClick={() => handleSaveProvider(pid)}
                                   >
-                                    <Check size={13} /> Lưu
+                                    <Check size={13} /> {t('Lưu', 'Save')}
                                   </button>
                                   <button
                                     type="button"
@@ -868,13 +968,13 @@ export const SettingsModal: React.FC = () => {
                                     disabled={testingProvider === pid}
                                     onClick={() => handleTestProvider(pid)}
                                   >
-                                    <Play size={12} /> {testingProvider === pid ? 'Đang thử…' : 'Thử'}
+                                    <Play size={12} /> {testingProvider === pid ? t('Đang thử…', 'Testing…') : t('Thử', 'Test')}
                                   </button>
                                   <button
                                     type="button"
                                     className="btn sm ghost"
                                     onClick={() => handleFetchModels(pid)}
-                                    title="Tải danh sách model từ nhà cung cấp"
+                                    title={t('Tải danh sách model từ nhà cung cấp', 'Fetch models from provider')}
                                   >
                                     ↻ Models
                                   </button>
@@ -894,8 +994,8 @@ export const SettingsModal: React.FC = () => {
                     onClick={() => setShowAllProviders(!showAllProviders)}
                   >
                     {showAllProviders
-                      ? 'Thu gọn danh sách nhà cung cấp phụ'
-                      : `Hiển thị tất cả ${Object.keys(providerSpecs).length} nhà cung cấp (Mistral, Qwen, Moonshot, Cohere, Perplexity, Together, DeepInfra, 9Router, OmniRoute, Custom…)`}
+                      ? t('Thu gọn danh sách nhà cung cấp phụ', 'Collapse secondary providers')
+                      : `${t('Hiển thị tất cả', 'Show all')} ${Object.keys(providerSpecs).length} ${t('nhà cung cấp', 'providers')} (Mistral, Qwen, Moonshot, Cohere, Perplexity, Together, DeepInfra, 9Router, OmniRoute, Custom…)`}
                   </button>
                 </div>
               </section>
@@ -906,12 +1006,12 @@ export const SettingsModal: React.FC = () => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Server size={18} color="var(--accent)" />
                     <h3 style={{ margin: 0, fontSize: 16 }}>
-                      Mô hình Local trên máy (LM Studio & Ollama VRAM)
+                      {t('Mô hình Cục bộ trên máy (LM Studio & Ollama VRAM)', 'Local Offline Models (LM Studio & Ollama VRAM)')}
                     </h3>
                   </div>
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button type="button" className="btn sm ghost" onClick={() => refetchLocal()}>
-                      <RefreshCw size={13} /> Kiểm tra VRAM
+                      <RefreshCw size={13} /> {t('Kiểm tra VRAM', 'Check VRAM')}
                     </button>
                     <button
                       type="button"
@@ -919,10 +1019,10 @@ export const SettingsModal: React.FC = () => {
                       onClick={async () => {
                         await api.post('/api/models/unload', { engine: 'all' });
                         refetchLocal();
-                        notify('Đã giải phóng toàn bộ mô hình local khỏi VRAM!');
+                        notify(t('Đã giải phóng toàn bộ mô hình cục bộ khỏi VRAM!', 'Unloaded all local models from VRAM!'));
                       }}
                     >
-                      Giải phóng VRAM (Unload All)
+                      {t('Giải phóng VRAM', 'Unload All VRAM')}
                     </button>
                   </div>
                 </div>
@@ -946,12 +1046,12 @@ export const SettingsModal: React.FC = () => {
                     <span className={`dot ${localStatus.ollama?.online ? 'ok' : ''}`} />
                     <span>Ollama: {localStatus.ollama?.online ? 'Online' : 'Offline'}</span>
                     <span className="muted" style={{ marginLeft: 'auto' }}>
-                      Đang nạp trong VRAM:{' '}
+                      {t('Đang nạp trong VRAM:', 'Loaded in VRAM:')}{' '}
                       <b>
                         {[
                           ...(localStatus.lmstudio?.loaded || []),
                           ...(localStatus.ollama?.loaded || []).map((m: any) => m.id || m),
-                        ].join(', ') || 'Trống (0 MB)'}
+                        ].join(', ') || t('Trống, 0 MB', 'Empty (0 MB)')}
                       </b>
                     </span>
                   </div>
@@ -970,7 +1070,7 @@ export const SettingsModal: React.FC = () => {
                     <span>Model LM Studio</span>
                     <input
                       className="input"
-                      placeholder="Auto hoặc nhập model ID…"
+                      placeholder={t('Auto hoặc nhập model ID…', 'Auto or enter model ID…')}
                       defaultValue={config.local_model}
                       onBlur={(e) => savePatch({ local_model: e.target.value })}
                     />
@@ -987,7 +1087,7 @@ export const SettingsModal: React.FC = () => {
                     <span>Model Ollama</span>
                     <input
                       className="input"
-                      placeholder="Auto hoặc vd: qwen2.5:14b…"
+                      placeholder={t('Auto hoặc vd: qwen2.5:14b…', 'Auto or e.g. qwen2.5:14b…')}
                       defaultValue={config.ollama_model}
                       onBlur={(e) => savePatch({ ollama_model: e.target.value })}
                     />
@@ -1001,7 +1101,7 @@ export const SettingsModal: React.FC = () => {
                       checked={!!config.fallback_to_cloud}
                       onChange={(e) => savePatch({ fallback_to_cloud: e.target.checked })}
                     />
-                    <span>Tự động chuyển sang Cloud API nếu mô hình Local bị lỗi hoặc quá tải</span>
+                    <span>{t('Tự động chuyển sang Cloud API nếu mô hình Local bị lỗi hoặc quá tải', 'Automatically failover to Cloud API if local model errors or runs out of memory')}</span>
                   </label>
                   <label className="switch">
                     <input
@@ -1009,10 +1109,10 @@ export const SettingsModal: React.FC = () => {
                       checked={config.lifecycle?.unload_on_exit !== false}
                       onChange={(e) => savePatch({ lifecycle: { unload_on_exit: e.target.checked } })}
                     />
-                    <span>Tự động gỡ mô hình Local khỏi VRAM khi đóng ứng dụng PhD Lab</span>
+                    <span>{t('Tự động gỡ mô hình Local khỏi VRAM khi đóng ứng dụng PhD Lab', 'Auto-unload local models from VRAM upon application exit')}</span>
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <span style={{ fontSize: 13 }}>Tự gỡ mô hình khỏi VRAM khi rảnh sau (phút):</span>
+                    <span style={{ fontSize: 13 }}>{t('Tự gỡ mô hình khỏi VRAM khi rảnh sau (phút):', 'Idle VRAM unload timeout (minutes):')}</span>
                     <input
                       type="number"
                       className="input"
@@ -1031,7 +1131,7 @@ export const SettingsModal: React.FC = () => {
               {/* 1D. Capability-Aware Failover & Routing */}
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>
-                  Định tuyến Thông minh & Chuỗi Dự phòng (Capability-Aware Routing)
+                  {t('Định tuyến Thông minh & Chuỗi Dự phòng', 'Smart Routing & Capability-Aware Failover')}
                 </h3>
                 <label className="switch" style={{ marginBottom: 12 }}>
                   <input
@@ -1040,7 +1140,7 @@ export const SettingsModal: React.FC = () => {
                     onChange={(e) => savePatch({ routing: { capability_aware: e.target.checked } })}
                   />
                   <span>
-                    Bật Capability-Aware Failover (Giữ checkpoint và tự động chuyển đổi khi hết hạn mức/quota)
+                    {t('Bật Capability-Aware Failover (Giữ checkpoint và tự động chuyển đổi khi hết hạn mức/quota)', 'Enable Capability-Aware Failover (Checkpoint retention & automatic provider fallback upon quota limit)')}
                   </span>
                 </label>
               </section>
@@ -1055,15 +1155,15 @@ export const SettingsModal: React.FC = () => {
               {/* 2A. Engine Mode & Priority */}
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>
-                  Chế độ Điều phối Research Engines (Feynman · OpenScience · OpenCode)
+                  {t('Chế độ Điều phối Research Engines', 'Research Engines Orchestration Mode (Feynman · OpenScience · OpenCode)')}
                 </h3>
                 <p className="muted" style={{ fontSize: 13, margin: '0 0 14px' }}>
-                  PhD Lab quản lý trạng thái nghiên cứu tập trung và ủy quyền từng tác vụ có phạm vi kiểm soát cho các Runtime Engine chuyên biệt.
+                  {t('PhD Lab quản lý trạng thái nghiên cứu tập trung và ủy quyền từng tác vụ có phạm vi kiểm soát cho các Runtime Engine chuyên biệt.', 'PhD Lab maintains centralized research state while delegating scoped workloads to specialized runtime engines.')}
                 </p>
 
                 <div className="grid2">
                   <label className="field">
-                    <span>Chế độ Research Engine (Engine Mode)</span>
+                    <span>{t('Chế độ Research Engine', 'Research Engine Mode')}</span>
                     <select
                       className="input"
                       value={config.research_providers?.engine_mode || 'auto'}
@@ -1071,16 +1171,17 @@ export const SettingsModal: React.FC = () => {
                         savePatch({ research_providers: { engine_mode: e.target.value } })
                       }
                     >
-                      <option value="auto">Auto Smart Router (Tự động chọn theo năng lực)</option>
-                      <option value="feynman">Feynman Only (Chuyên tổng quan & phản biện)</option>
-                      <option value="openscience">OpenScience Only (Chuyên thực nghiệm khoa học)</option>
-                      <option value="opencode">OpenCode Only (Chuyên lập trình & bản mẫu song song)</option>
-                      <option value="collaborative">Collaborative (Phối hợp đa giai đoạn)</option>
+                      <option value="auto">{t('Router Thông minh (Tự động chọn theo năng lực)', 'Auto Smart Router (Capability-based dynamic routing)')}</option>
+                      <option value="feynman">{t('Chỉ dùng Feynman (Tổng quan văn hiến & phản biện)', 'Feynman Only (Literature review & peer critique)')}</option>
+                      <option value="openscience">{t('Chỉ dùng OpenScience (Thực nghiệm khoa học)', 'OpenScience Only (Scientific experimentation loop)')}</option>
+                      <option value="opencode">{t('Chỉ dùng OpenCode (Lập trình & bản mẫu song song)', 'OpenCode Only (Parallel code prototyping & runtime)')}</option>
+                      <option value="collaborative">{t('Phối hợp Đa giai đoạn', 'Collaborative Multi-Engine Pipeline')}</option>
+                      <option value="phdlab">{t('Chỉ dùng PhD Lab Cốt lõi (Toàn bộ Agent nội bộ)', 'PhD Lab Native Only (Run all agents natively via PhD Lab)')}</option>
                     </select>
                   </label>
 
                   <label className="field">
-                    <span>Coding CLI mặc định cho lệnh /code</span>
+                    <span>{t('Coding CLI mặc định cho lệnh /code', 'Default Coding CLI for /code')}</span>
                     <select
                       className="input"
                       value={config.research_providers?.coding_default || 'claude_code'}
@@ -1092,7 +1193,7 @@ export const SettingsModal: React.FC = () => {
                       <option value="codex">OpenAI Codex CLI</option>
                       <option value="gemini_cli">Google Gemini CLI</option>
                       <option value="antigravity">Google Antigravity CLI</option>
-                      <option value="app">Mô hình nội bộ của ứng dụng</option>
+                      <option value="app">{t('Mô hình nội bộ của ứng dụng', 'In-App Core Model')}</option>
                     </select>
                   </label>
                 </div>
@@ -1102,14 +1203,14 @@ export const SettingsModal: React.FC = () => {
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <h3 style={{ margin: 0, fontSize: 16 }}>
-                    OpenScience Runtime Adapter (v6.0+ · Loopback :4096)
+                    {t('OpenScience Runtime Adapter (v6.0+ · Loopback :4096)', 'OpenScience Runtime Adapter (v6.0+ · Loopback :4096)')}
                   </h3>
                   <span className={`chip ${config.openscience?.enabled ? 'ok' : ''}`}>
-                    {config.openscience?.enabled ? 'Đang bật' : 'Đang tắt'}
+                    {config.openscience?.enabled ? t('Đang bật', 'Enabled') : t('Đang tắt', 'Disabled')}
                   </span>
                 </div>
                 <p className="muted" style={{ fontSize: 13, margin: '0 0 14px' }}>
-                  Kết nối tới OpenScience Studio cục bộ để thực thi các nhiệm vụ nghiên cứu tự hành, kiểm định giả thuyết và thu thập artifacts.
+                  {t('Kết nối tới OpenScience Studio cục bộ để thực thi các nhiệm vụ nghiên cứu tự hành, kiểm định giả thuyết và thu thập artifacts.', 'Connect to local OpenScience Studio to execute autonomous research workflows, test hypotheses, and harvest artifacts.')}
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
@@ -1119,7 +1220,7 @@ export const SettingsModal: React.FC = () => {
                       checked={!!config.openscience?.enabled}
                       onChange={(e) => savePatch({ openscience: { enabled: e.target.checked } })}
                     />
-                    <span>Bật OpenScience Runtime Adapter</span>
+                    <span>{t('Bật OpenScience Runtime Adapter', 'Enable OpenScience Runtime Adapter')}</span>
                   </label>
                   <label className="switch">
                     <input
@@ -1129,7 +1230,7 @@ export const SettingsModal: React.FC = () => {
                         savePatch({ openscience: { policy_confirmed: e.target.checked } })
                       }
                     />
-                    <span>Tôi xác nhận đã xem xét quyền runtime và chính sách chia sẻ trace cục bộ</span>
+                    <span>{t('Tôi xác nhận đã xem xét quyền runtime và chính sách chia sẻ trace cục bộ', 'I confirm review of runtime permissions and local trace sharing policy')}</span>
                   </label>
                   <label className="switch">
                     <input
@@ -1139,7 +1240,7 @@ export const SettingsModal: React.FC = () => {
                         savePatch({ openscience: { allow_execution: e.target.checked } })
                       }
                     />
-                    <span>Cho phép thực thi mã nguồn đề xuất trong Workspace cô lập</span>
+                    <span>{t('Cho phép thực thi mã nguồn đề xuất trong Workspace cô lập', 'Allow execution of proposed code within isolated workspace')}</span>
                   </label>
                 </div>
 
@@ -1160,8 +1261,8 @@ export const SettingsModal: React.FC = () => {
                         className="input"
                         placeholder={
                           config.openscience?.has_token
-                            ? '•••••• (Đã lưu token)'
-                            : 'Nhập OpenScience token…'
+                            ? t('•••••• (Đã lưu token)', '•••••• (Token saved)')
+                            : t('Nhập OpenScience token…', 'Enter OpenScience token…')
                         }
                         value={osciToken}
                         onChange={(e) => setOsciToken(e.target.value)}
@@ -1176,12 +1277,12 @@ export const SettingsModal: React.FC = () => {
                           }
                         }}
                       >
-                        Lưu Token
+                        {t('Lưu Token', 'Save Token')}
                       </button>
                     </div>
                   </label>
                   <label className="field">
-                    <span>Giới hạn thời gian (giây)</span>
+                    <span>{t('Giới hạn thời gian (giây)', 'Timeout (seconds)')}</span>
                     <input
                       type="number"
                       className="input"
@@ -1192,7 +1293,7 @@ export const SettingsModal: React.FC = () => {
                     />
                   </label>
                   <label className="field">
-                    <span>Ngân sách Artifact tối đa (MiB)</span>
+                    <span>{t('Ngân sách Tệp kết quả tối đa theo MB', 'Max Artifact Budget (MB)')}</span>
                     <input
                       type="number"
                       className="input"
@@ -1203,7 +1304,7 @@ export const SettingsModal: React.FC = () => {
                     />
                   </label>
                   <label className="field">
-                    <span>Model Provider của OpenScience</span>
+                    <span>{t('Nhà cung cấp Model của OpenScience', 'OpenScience Model Provider')}</span>
                     <input
                       className="input"
                       placeholder="vd: anthropic, openai…"
@@ -1214,7 +1315,7 @@ export const SettingsModal: React.FC = () => {
                     />
                   </label>
                   <label className="field">
-                    <span>Model ID của OpenScience</span>
+                    <span>{t('Mã định danh Model của OpenScience', 'OpenScience Model ID')}</span>
                     <input
                       className="input"
                       placeholder="vd: claude-sonnet-4-20250514…"
@@ -1229,14 +1330,14 @@ export const SettingsModal: React.FC = () => {
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <h3 style={{ margin: 0, fontSize: 16 }}>
-                    OpenCode Parallel Core Integration (v6.4.1 · Loopback :4097)
+                    {t('Tích hợp OpenCode Parallel Core (v6.4.1 · Loopback :4097)', 'OpenCode Parallel Core Integration (v6.4.1 · Loopback :4097)')}
                   </h3>
                   <span className={`chip ${config.opencode?.enabled !== false ? 'ok' : ''}`}>
-                    {config.opencode?.enabled !== false ? 'Đang bật' : 'Đang tắt'}
+                    {config.opencode?.enabled !== false ? t('Đang bật', 'Enabled') : t('Đang tắt', 'Disabled')}
                   </span>
                 </div>
                 <p className="muted" style={{ fontSize: 13, margin: '0 0 14px' }}>
-                  Thực thi kỹ thuật phần mềm và bản mẫu song song trong không gian cô lập <code>&lt;topic&gt;/opencode_prj/</code> với luồng sự kiện SHA-256 deduplicated.
+                  {t('Thực thi kỹ thuật phần mềm và bản mẫu song song trong không gian cô lập <topic>/opencode_prj/ với luồng sự kiện SHA-256 deduplicated.', 'Executes parallel software engineering and prototyping inside isolated <topic>/opencode_prj/ with deduplicated SHA-256 event streams.')}
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
@@ -1246,7 +1347,7 @@ export const SettingsModal: React.FC = () => {
                       checked={config.opencode?.enabled !== false}
                       onChange={(e) => savePatch({ opencode: { enabled: e.target.checked } })}
                     />
-                    <span>Bật OpenCode Parallel Core Runtime</span>
+                    <span>{t('Bật OpenCode Parallel Core Runtime', 'Enable OpenCode Parallel Core Runtime')}</span>
                   </label>
                   <label className="switch">
                     <input
@@ -1256,7 +1357,7 @@ export const SettingsModal: React.FC = () => {
                         savePatch({ opencode: { allow_metered_api: e.target.checked } })
                       }
                     />
-                    <span>Cho phép dùng Metered API (vẫn yêu cầu cổng phê duyệt từng phiên)</span>
+                    <span>{t('Cho phép dùng Metered API (vẫn yêu cầu cổng phê duyệt từng phiên)', 'Allow metered API calls (still requires per-session risk approval)')}</span>
                   </label>
                 </div>
 
@@ -1270,7 +1371,7 @@ export const SettingsModal: React.FC = () => {
                     />
                   </label>
                   <label className="field">
-                    <span>Timeout mỗi phiên OpenCode (giây)</span>
+                    <span>{t('Timeout mỗi phiên OpenCode (giây)', 'OpenCode Turn Timeout (seconds)')}</span>
                     <input
                       type="number"
                       className="input"
@@ -1287,10 +1388,10 @@ export const SettingsModal: React.FC = () => {
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                   <h3 style={{ margin: 0, fontSize: 16 }}>
-                    Feynman CLI & Trạng thái Các Research Providers
+                    {t('Nhà Cung Cấp Ứng Dụng & Điều Hướng Nhanh Kèm Đồng Bộ', 'App Providers, Quick Launch & 2-Way Data Sync')}
                   </h3>
                   <button type="button" className="btn sm ghost" onClick={() => refetchProviders()}>
-                    <RefreshCw size={13} /> Làm mới trạng thái CLI
+                    <RefreshCw size={13} /> {t('Làm mới trạng thái CLI', 'Refresh CLI Status')}
                   </button>
                 </div>
 
@@ -1303,7 +1404,7 @@ export const SettingsModal: React.FC = () => {
                         savePatch({ research_providers: { feynman_enabled: e.target.checked } })
                       }
                     />
-                    <span>Dùng Feynman cho /lit, /deepresearch, /compare và /review</span>
+                    <span>{t('Dùng Feynman cho /lit, /deepresearch, /compare và /review', 'Use Feynman for /lit, /deepresearch, /compare and /review')}</span>
                   </label>
                   <label className="switch">
                     <input
@@ -1315,12 +1416,12 @@ export const SettingsModal: React.FC = () => {
                         })
                       }
                     />
-                    <span>Cho phép Feynman dùng chung khóa Anthropic/OpenAI của ứng dụng</span>
+                    <span>{t('Cho phép Feynman dùng chung khóa Anthropic/OpenAI của ứng dụng', 'Allow Feynman to share in-app Anthropic/OpenAI keys')}</span>
                   </label>
                 </div>
 
                 <div className="list">
-                  {(researchProvidersData?.providers || []).map((p: any) => (
+                  {(Array.isArray(researchProvidersData?.providers) ? researchProvidersData.providers : []).map((p: any) => (
                     <div
                       key={p.id}
                       className="li"
@@ -1347,21 +1448,54 @@ export const SettingsModal: React.FC = () => {
                           {p.state} — {p.detail}
                         </div>
                       </div>
-                      {!p.ready &&
-                        ['feynman', 'claude_code', 'codex', 'gemini_cli', 'antigravity'].includes(
-                          p.id
-                        ) && (
-                          <button
-                            type="button"
-                            className="btn sm"
-                            onClick={async () => {
-                              await api.post(`/api/providers/${p.id}/connect`, {});
-                              notify(`Đã mở cửa sổ đăng nhập cho ${p.label}`);
-                            }}
-                          >
-                            Đăng nhập CLI
-                          </button>
-                        )}
+                      {syncResults[p.id] && (
+                        <div style={{ fontSize: 11, color: '#10b981', display: 'flex', alignItems: 'center', gap: 5, marginTop: 4, fontWeight: 500 }}>
+                          <CheckCircle2 size={12} />
+                          <span>
+                            {t('Đã đồng bộ lúc ', 'Synced at ')}{syncResults[p.id].at} • {syncResults[p.id].changed} {t('tệp thay đổi', 'files updated')} • {syncResults[p.id].observed} {t('tệp đã quét', 'files scanned')}
+                          </span>
+                        </div>
+                      )}
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
+                        <button
+                          type="button"
+                          className="btn sm ghost"
+                          onClick={() => handleLaunchProvider(p.id, p.label)}
+                          title={t('Mở nhanh ứng dụng hoặc trang quản trị nhà cung cấp', 'Directly open app or provider web')}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', fontSize: 11.5, borderRadius: 6 }}
+                        >
+                          <ExternalLink size={12} />
+                          <span>{t('Mở Ứng dụng', 'Open App')}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn sm accent"
+                          disabled={syncingProvider === p.id}
+                          onClick={() => handleSyncProvider(p.id, p.label)}
+                          title={t('Quét và đồng bộ tệp tin, dữ liệu từ ứng dụng về PhD Lab', 'Scan and sync files from app back into PhD Lab')}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', fontSize: 11.5, borderRadius: 6 }}
+                        >
+                          <RefreshCw size={12} className={syncingProvider === p.id ? 'spin' : ''} />
+                          <span>{syncingProvider === p.id ? t('Đang đồng bộ...', 'Syncing...') : t('Đồng bộ về Lab', 'Sync to Lab')}</span>
+                        </button>
+
+                        {!p.ready &&
+                          ['feynman', 'claude_code', 'codex', 'gemini_cli', 'antigravity'].includes(p.id) && (
+                            <button
+                              type="button"
+                              className="btn sm"
+                              onClick={async () => {
+                                await api.post(`/api/providers/${p.id}/connect`, {});
+                                notify(t('Đã mở cửa sổ đăng nhập cho ', 'Opened login window for ') + p.label);
+                              }}
+                              style={{ padding: '4px 10px', fontSize: 11.5, borderRadius: 6 }}
+                            >
+                              {t('Đăng nhập CLI', 'CLI Login')}
+                            </button>
+                          )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1376,23 +1510,23 @@ export const SettingsModal: React.FC = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>
-                  Tìm kiếm Bài báo Khoa học & Web (OpenAlex · Semantic Scholar · ArXiv)
+                  {t('Tìm kiếm Bài báo Khoa học & Web', 'Academic Paper & Web Search (OpenAlex · Semantic Scholar · ArXiv)')}
                 </h3>
                 <div className="grid2">
                   <label className="field">
-                    <span>Công cụ tìm kiếm Web</span>
+                    <span>{t('Công cụ tìm kiếm Web', 'Web Search Engine')}</span>
                     <select
                       className="input"
                       value={config.search?.web_engine || 'duckduckgo'}
                       onChange={(e) => savePatch({ search: { web_engine: e.target.value } })}
                     >
-                      <option value="duckduckgo">DuckDuckGo (Miễn phí, không cần key)</option>
+                      <option value="duckduckgo">{t('DuckDuckGo (Miễn phí, không cần key)', 'DuckDuckGo (Free, no key required)')}</option>
                       <option value="tavily">Tavily AI Search</option>
                       <option value="brave">Brave Search API</option>
                     </select>
                   </label>
                   <label className="field">
-                    <span>Số kết quả mỗi lần truy vấn (1–30)</span>
+                    <span>{t('Số kết quả mỗi lần truy vấn (1–30)', 'Results per search query (1–30)')}</span>
                     <input
                       type="number"
                       className="input"
@@ -1405,7 +1539,7 @@ export const SettingsModal: React.FC = () => {
                     />
                   </label>
                   <label className="field">
-                    <span>Email cho OpenAlex Polite Pool (tăng tốc độ truy vấn)</span>
+                    <span>{t('Email cho OpenAlex Polite Pool (tăng tốc độ truy vấn)', 'Email for OpenAlex Polite Pool (faster rate limits)')}</span>
                     <input
                       type="email"
                       className="input"
@@ -1422,11 +1556,11 @@ export const SettingsModal: React.FC = () => {
                     checked={config.search?.read_pages !== false}
                     onChange={(e) => savePatch({ search: { read_pages: e.target.checked } })}
                   />
-                  <span>Đọc toàn văn nội dung trang web hàng đầu khi tìm kiếm</span>
+                  <span>{t('Đọc toàn văn nội dung trang web hàng đầu khi tìm kiếm', 'Scrape full-text content of top search results')}</span>
                 </label>
 
                 <h4 style={{ margin: '12px 0 8px', fontSize: 14 }}>
-                  Khóa API Cơ sở dữ liệu Học thuật & Tìm kiếm (Tuỳ chọn)
+                  {t('Khóa API Cơ sở dữ liệu Học thuật & Tìm kiếm (Tuỳ chọn)', 'Academic Database & Search API Keys (Optional)')}
                 </h4>
                 <div className="grid2">
                   {[
@@ -1445,7 +1579,7 @@ export const SettingsModal: React.FC = () => {
                           <input
                             type="password"
                             className="input"
-                            placeholder={hasKey ? '•••••• (Đã lưu key)' : 'Chưa cấu hình'}
+                            placeholder={hasKey ? t('•••••• (Đã lưu key)', '•••••• (Key saved)') : t('Chưa cấu hình', 'Not configured')}
                             value={searchKeyInputs[k] || ''}
                             onChange={(e) =>
                               setSearchKeyInputs((prev) => ({ ...prev, [k]: e.target.value }))
@@ -1461,7 +1595,7 @@ export const SettingsModal: React.FC = () => {
                               }
                             }}
                           >
-                            Lưu
+                            {t('Lưu', 'Save')}
                           </button>
                         </div>
                       </label>
@@ -1476,7 +1610,7 @@ export const SettingsModal: React.FC = () => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Award size={18} color="var(--accent)" />
                     <h3 style={{ margin: 0, fontSize: 16 }}>
-                      Xếp hạng Hội nghị (CORE A*/A/B/C) & Tạp chí (SCImago Q1–Q4)
+                      {t('Xếp hạng Hội nghị (CORE A*/A/B/C) & Tạp chí (SCImago Q1–Q4)', 'Conference Ranking (CORE A*/A/B/C) & Journal Ranking (SCImago Q1–Q4)')}
                     </h3>
                   </div>
                   <button
@@ -1485,28 +1619,28 @@ export const SettingsModal: React.FC = () => {
                     onClick={async () => {
                       await api.get('/api/ranking?refresh=1');
                       refetchRanking();
-                      notify('Đã làm mới cơ sở dữ liệu xếp hạng học thuật!');
+                      notify(t('Đã làm mới cơ sở dữ liệu xếp hạng học thuật!', 'Academic venue ranking database refreshed!'));
                     }}
                   >
-                    <RefreshCw size={13} /> Cập nhật CORE ngay
+                    <RefreshCw size={13} /> {t('Cập nhật CORE ngay', 'Update CORE Now')}
                   </button>
                 </div>
 
                 <div className="grid2" style={{ marginTop: 10 }}>
                   <label className="field">
-                    <span>Phiên bản xếp hạng CORE</span>
+                    <span>{t('Phiên bản xếp hạng CORE', 'CORE Ranking Edition')}</span>
                     <select
                       className="input"
                       value={config.ranking?.core_source || 'ICORE2026'}
                       onChange={(e) => savePatch({ ranking: { core_source: e.target.value } })}
                     >
-                      <option value="ICORE2026">ICORE 2026 (Mới nhất)</option>
+                      <option value="ICORE2026">{t('ICORE 2026 (Mới nhất)', 'ICORE 2026 (Latest)')}</option>
                       <option value="CORE2023">CORE 2023</option>
                       <option value="CORE2021">CORE 2021</option>
                     </select>
                   </label>
                   <label className="field">
-                    <span>Chu kỳ tự động làm mới (ngày)</span>
+                    <span>{t('Chu kỳ tự động làm mới (ngày)', 'Auto-refresh interval (days)')}</span>
                     <input
                       type="number"
                       className="input"
@@ -1531,27 +1665,27 @@ export const SettingsModal: React.FC = () => {
                     }}
                   >
                     <div>
-                      <b>Hội nghị (CORE):</b>{' '}
+                      <b>{t('Phân hạng Hội nghị CORE:', 'Conferences (CORE):')}</b>{' '}
                       {rankingStatus.conferences?.records
-                        ? `${rankingStatus.conferences.records} hội nghị (${rankingStatus.conferences.source})`
-                        : 'Chưa tải dữ liệu'}
+                        ? `${rankingStatus.conferences.records} ${t('hội nghị', 'conferences')} (${rankingStatus.conferences.source})`
+                        : t('Chưa tải dữ liệu', 'No data loaded')}
                     </div>
                     <div>
-                      <b>Tạp chí (SCImago):</b>{' '}
+                      <b>{t('Phân hạng Tạp chí SCImago:', 'Journals (SCImago):')}</b>{' '}
                       {rankingStatus.journals?.records
-                        ? `${rankingStatus.journals.records} tạp chí (Năm ${rankingStatus.journals.year})`
-                        : 'Chưa nhập CSV SCImago'}
+                        ? `${rankingStatus.journals.records} ${t('tạp chí', 'journals')} (${t('Năm', 'Year')} ${rankingStatus.journals.year})`
+                        : t('Chưa nhập CSV SCImago', 'No SCImago CSV imported')}
                     </div>
                   </div>
                 )}
 
                 {/* Live Venue Lookup Tool */}
                 <div style={{ borderTop: '1px solid var(--line)', paddingTop: 12 }}>
-                  <b style={{ fontSize: 13 }}>Tra cứu nhanh hạng Hội nghị / Tạp chí:</b>
+                  <b style={{ fontSize: 13 }}>{t('Tra cứu nhanh hạng Hội nghị / Tạp chí:', 'Quick Conference / Journal Rank Lookup:')}</b>
                   <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
                     <input
                       className="input"
-                      placeholder="Nhập tên hội nghị hoặc tạp chí (vd: NeurIPS, CVPR, IEEE TPAMI, Nature)…"
+                      placeholder={t('Nhập tên hội nghị hoặc tạp chí (vd: NeurIPS, CVPR, IEEE TPAMI, Nature)…', 'Enter venue name (e.g. NeurIPS, CVPR, IEEE TPAMI, Nature)…')}
                       value={venueLookupQuery}
                       onChange={(e) => setVenueLookupQuery(e.target.value)}
                     />
@@ -1566,7 +1700,7 @@ export const SettingsModal: React.FC = () => {
                         setVenueLookupResult(r);
                       }}
                     >
-                      Tra cứu
+                      {t('Tra cứu', 'Lookup')}
                     </button>
                   </div>
                   {venueLookupResult && (
@@ -1589,11 +1723,11 @@ export const SettingsModal: React.FC = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>
-                  Tiến trình Chạy nền (Background Runs) & Cổng Phê duyệt Rủi ro
+                  {t('Tiến trình Chạy nền & Cổng Phê duyệt Rủi ro', 'Background Runs & Risk Governance Gateway')}
                 </h3>
                 <div className="grid2">
                   <label className="field">
-                    <span>Mức độ tự chạy không cần hỏi trước</span>
+                    <span>{t('Mức độ tự chạy không cần hỏi trước', 'Autonomous Approval Level')}</span>
                     <select
                       className="input"
                       value={config.runs?.auto_approve_risk ?? 1}
@@ -1601,12 +1735,12 @@ export const SettingsModal: React.FC = () => {
                         savePatch({ runs: { auto_approve_risk: Number(e.target.value) } })
                       }
                     >
-                      <option value={0}>Mức 0 — Chỉ tác vụ đọc (Tìm tài liệu, Phản biện)</option>
-                      <option value={1}>Mức 1 — Cho phép ghi báo cáo/PDF trong dự án</option>
+                      <option value={0}>{t('Mức 0 — Chỉ tác vụ đọc (Tìm tài liệu, Phản biện)', 'Level 0 — Read-only tasks (Literature discovery, Peer review)')}</option>
+                      <option value={1}>{t('Mức 1 — Cho phép ghi báo cáo/PDF trong dự án', 'Level 1 — Allow report & PDF drafting within project workspace')}</option>
                     </select>
                   </label>
                   <label className="field">
-                    <span>Ngân sách thời gian mỗi Run (phút)</span>
+                    <span>{t('Ngân sách thời gian mỗi Run (phút)', 'Max Run Time Budget (minutes)')}</span>
                     <input
                       type="number"
                       className="input"
@@ -1617,7 +1751,7 @@ export const SettingsModal: React.FC = () => {
                     />
                   </label>
                   <label className="field">
-                    <span>Số lần tự phục hồi khi lỗi (vd: CUDA OOM → giảm batch)</span>
+                    <span>{t('Số lần tự phục hồi khi lỗi (vd: CUDA OOM → giảm batch)', 'Max Error Auto-Retries (e.g., CUDA OOM → reduce batch)')}</span>
                     <input
                       type="number"
                       className="input"
@@ -1638,7 +1772,7 @@ export const SettingsModal: React.FC = () => {
                       checked={config.runs?.auto_recover !== false}
                       onChange={(e) => savePatch({ runs: { auto_recover: e.target.checked } })}
                     />
-                    <span>Tự động phục hồi lỗi có phương án sửa an toàn</span>
+                    <span>{t('Tự động phục hồi lỗi có phương án sửa an toàn', 'Auto-recover errors with safe mitigation plan')}</span>
                   </label>
                   <label className="switch">
                     <input
@@ -1646,18 +1780,18 @@ export const SettingsModal: React.FC = () => {
                       checked={config.runs?.web_search !== false}
                       onChange={(e) => savePatch({ runs: { web_search: e.target.checked } })}
                     />
-                    <span>Truy vấn bài báo thực tế (OpenAlex, Semantic Scholar, ArXiv) trước khi tổng hợp /lit</span>
+                    <span>{t('Truy vấn bài báo thực tế (OpenAlex, Semantic Scholar, ArXiv) trước khi tổng hợp /lit', 'Ground /lit synthesis with real academic search queries (OpenAlex, Semantic Scholar, ArXiv)')}</span>
                   </label>
                 </div>
               </section>
 
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>
-                  Bộ điều phối Tài nguyên Phần cứng (Hardware Resource Governor)
+                  {t('Bộ điều phối Tài nguyên Phần cứng', 'Hardware Resource Governor')}
                 </h3>
                 <div className="grid2">
                   <label className="field">
-                    <span>Số Job CPU đồng thời tối đa</span>
+                    <span>{t('Số Job CPU đồng thời tối đa', 'Max Concurrent CPU Jobs')}</span>
                     <input
                       type="number"
                       className="input"
@@ -1668,7 +1802,7 @@ export const SettingsModal: React.FC = () => {
                     />
                   </label>
                   <label className="field">
-                    <span>Số CLI Provider chạy đồng thời</span>
+                    <span>{t('Số CLI Provider chạy đồng thời', 'Max Concurrent CLI Providers')}</span>
                     <input
                       type="number"
                       className="input"
@@ -1679,7 +1813,7 @@ export const SettingsModal: React.FC = () => {
                     />
                   </label>
                   <label className="field">
-                    <span>Số luồng gọi Cloud API đồng thời</span>
+                    <span>{t('Số luồng gọi Cloud API đồng thời', 'Max Concurrent Cloud API Calls')}</span>
                     <input
                       type="number"
                       className="input"
@@ -1692,7 +1826,7 @@ export const SettingsModal: React.FC = () => {
                     />
                   </label>
                   <label className="field">
-                    <span>Giới hạn nhiệt độ GPU tối đa (°C)</span>
+                    <span>{t('Giới hạn nhiệt độ GPU tối đa (°C)', 'Max GPU Temperature Limit (°C)')}</span>
                     <input
                       type="number"
                       className="input"
@@ -1716,7 +1850,7 @@ export const SettingsModal: React.FC = () => {
                       savePatch({ resources: { auto_unload_for_gpu: e.target.checked } })
                     }
                   />
-                  <span>Tự động giải phóng mô hình Local đang rảnh khỏi VRAM khi cần GPU chạy thí nghiệm</span>
+                  <span>{t('Tự động giải phóng mô hình cục bộ đang rảnh khỏi VRAM khi cần GPU chạy thí nghiệm', 'Auto-offload idle local models from VRAM during compute experiments')}</span>
                 </label>
               </section>
 
@@ -1734,7 +1868,7 @@ export const SettingsModal: React.FC = () => {
                     />
                   </label>
                   <label className="field">
-                    <span>Đường dẫn thực thi VS Code (để trống = tự động tìm)</span>
+                    <span>{t('Đường dẫn thực thi VS Code (để trống = tự động tìm)', 'VS Code Executable Path (empty = auto-detect)')}</span>
                     <input
                       className="input"
                       placeholder="code hoặc C:\...\Code.exe"
@@ -1753,7 +1887,7 @@ export const SettingsModal: React.FC = () => {
                         savePatch({ clearml: { server_enabled: e.target.checked } })
                       }
                     />
-                    <span>Đồng bộ trực tuyến với ClearML Server</span>
+                    <span>{t('Đồng bộ trực tuyến với ClearML Server', 'Sync online with ClearML Server')}</span>
                   </label>
                   <label className="switch">
                     <input
@@ -1763,7 +1897,7 @@ export const SettingsModal: React.FC = () => {
                         savePatch({ research_os: { enabled: e.target.checked } })
                       }
                     />
-                    <span>Bật chế độ Autonomous Research OS (Multi-Agent Teams & Workstreams)</span>
+                    <span>{t('Bật chế độ Autonomous Research OS (Multi-Agent Teams & Workstreams)', 'Enable Autonomous Research OS (Multi-Agent Teams & Workstreams)')}</span>
                   </label>
                 </div>
               </section>
@@ -1777,41 +1911,41 @@ export const SettingsModal: React.FC = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>
-                  Bộ nhớ Ngữ cảnh Dự án (Context Memory v2) & AI Workspace
+                  {t('Bộ nhớ Ngữ cảnh Dự án v2 và Không gian làm việc AI', 'Project Context Memory (v2) & AI Workspace')}
                 </h3>
                 <p className="muted" style={{ fontSize: 13, margin: '0 0 14px' }}>
-                  Ngữ cảnh dự án (đề cương 5 cấp, quyết định, giả thuyết, kết quả thí nghiệm, tài liệu SKB) được biên dịch tự động cho mỗi lượt hội thoại.
+                  {t('Ngữ cảnh dự án (đề cương 5 cấp, quyết định, giả thuyết, kết quả thí nghiệm, tài liệu SKB) được biên dịch tự động cho mỗi lượt hội thoại.', 'Project context (5-level outline, decisions, hypotheses, experiment results, and SKB knowledge) is dynamically compiled for every turn.')}
                 </p>
 
                 <div className="grid2">
                   <label className="field">
-                    <span>Chế độ Ghi nhớ Tri thức (Memory Mode)</span>
+                    <span>{t('Chế độ Ghi nhớ Tri thức', 'Knowledge Memory Mode')}</span>
                     <select
                       className="input"
                       value={config.aiws?.memory_mode || 'suggest'}
                       onChange={(e) => savePatch({ aiws: { memory_mode: e.target.value } })}
                     >
-                      <option value="suggest">Đề xuất — Hiển thị thẻ để bạn Chấp nhận / Bỏ qua (Khuyên dùng)</option>
-                      <option value="manual">Thủ công — Chỉ lưu khi bạn bấm Ghi nhớ trên tin nhắn</option>
-                      <option value="auto">Tự động có giới hạn (Chỉ tự lưu câu hỏi mở)</option>
-                      <option value="off">Tắt ghi nhớ tự động</option>
+                      <option value="suggest">{t('Đề xuất — Hiển thị thẻ để bạn Chấp nhận / Bỏ qua (Khuyên dùng)', 'Suggest — Cards rendered for Accept / Dismiss (Recommended)')}</option>
+                      <option value="manual">{t('Thủ công — Chỉ lưu khi bạn bấm Ghi nhớ trên tin nhắn', 'Manual — Save only when explicitly clicked on messages')}</option>
+                      <option value="auto">{t('Tự động có giới hạn (Chỉ tự lưu câu hỏi mở)', 'Bounded Auto — Automatically store open research questions')}</option>
+                      <option value="off">{t('Tắt ghi nhớ tự động', 'Off — Disable automatic memory')}</option>
                     </select>
                   </label>
 
                   <label className="field">
-                    <span>Chế độ Vận hành AI (Operating Mode)</span>
+                    <span>{t('Chế độ Vận hành AI', 'AI Operating Mode')}</span>
                     <select
                       className="input"
                       value={config.aiws?.operating_mode || 'automation'}
                       onChange={(e) => savePatch({ aiws: { operating_mode: e.target.value } })}
                     >
-                      <option value="automation">Tự động — AI tự dùng công cụ chỉ-đọc, thay đổi chờ duyệt</option>
-                      <option value="manual">Thủ công — Kiểm duyệt gói ngữ cảnh trước mỗi lượt gửi</option>
+                      <option value="automation">{t('Tự động — AI tự dùng công cụ chỉ-đọc, thay đổi chờ duyệt', 'Automation — Autonomous read-only tools, gated mutations')}</option>
+                      <option value="manual">{t('Thủ công — Kiểm duyệt gói ngữ cảnh trước mỗi lượt gửi', 'Manual — Inspect and review context package before prompt dispatch')}</option>
                     </select>
                   </label>
 
                   <label className="field">
-                    <span>Ngân sách Ngữ cảnh mỗi lượt (Tokens)</span>
+                    <span>{t('Ngân sách Ngữ cảnh mỗi lượt theo Tokens', 'Turn Context Budget (Tokens)')}</span>
                     <input
                       type="number"
                       className="input"
@@ -1828,7 +1962,7 @@ export const SettingsModal: React.FC = () => {
                   </label>
 
                   <label className="field">
-                    <span>Thời gian tối đa một lượt trả lời (giây)</span>
+                    <span>{t('Thời gian tối đa một lượt trả lời (giây)', 'Max Turn Timeout (seconds)')}</span>
                     <input
                       type="number"
                       className="input"
@@ -1858,7 +1992,7 @@ export const SettingsModal: React.FC = () => {
                   </h3>
                 </div>
                 <p className="muted" style={{ fontSize: 13, margin: '0 0 14px' }}>
-                  PhD Lab cung cấp MCP Server cục bộ tại <code>{window.location.origin}/mcp</code> cho phép các CLI bên ngoài truy cập công cụ nghiên cứu có kiểm soát.
+                  {t('PhD Lab cung cấp MCP Server cục bộ tại', 'PhD Lab exposes a local MCP Server at')} <code>{window.location.origin}/mcp</code> {t('cho phép các CLI bên ngoài truy cập công cụ nghiên cứu có kiểm soát.', 'allowing external CLIs governed access to research tools.')}
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
@@ -1868,7 +2002,7 @@ export const SettingsModal: React.FC = () => {
                       checked={config.mcp?.expose_research !== false}
                       onChange={(e) => savePatch({ mcp: { expose_research: e.target.checked } })}
                     />
-                    <span>Cung cấp bộ công cụ đọc dữ liệu nghiên cứu qua MCP (Expose Research Tools)</span>
+                    <span>{t('Cung cấp bộ công cụ đọc dữ liệu nghiên cứu qua MCP', 'Expose research read tools via MCP')}</span>
                   </label>
                   <label className="switch">
                     <input
@@ -1876,7 +2010,7 @@ export const SettingsModal: React.FC = () => {
                       checked={config.mcp?.allow_writes !== false}
                       onChange={(e) => savePatch({ mcp: { allow_writes: e.target.checked } })}
                     />
-                    <span>Cho phép MCP tạo đề xuất ghi (Write Proposals — luôn cần nhà nghiên cứu phê duyệt)</span>
+                    <span>{t('Cho phép MCP tạo đề xuất ghi (luôn cần nhà nghiên cứu phê duyệt)', 'Allow MCP write proposals (always requires researcher approval)')}</span>
                   </label>
                   <label className="switch">
                     <input
@@ -1886,7 +2020,7 @@ export const SettingsModal: React.FC = () => {
                         savePatch({ gateway: { block_source_code: e.target.checked } })
                       }
                     />
-                    <span>Context Firewall: Chặn tự động đính kèm mã nguồn nhạy cảm ra ngoài</span>
+                    <span>{t('Context Firewall: Chặn tự động đính kèm mã nguồn nhạy cảm ra ngoài', 'Context Firewall: Block automatic external exfiltration of sensitive source code')}</span>
                   </label>
                 </div>
 
@@ -1897,7 +2031,7 @@ export const SettingsModal: React.FC = () => {
                     checked={!!config.mcp_agent?.enabled}
                     onChange={(e) => savePatch({ mcp_agent: { enabled: e.target.checked } })}
                   />
-                  <span>Bật MCP Inference Agent</span>
+                  <span>{t('Bật MCP Inference Agent', 'Enable MCP Inference Agent')}</span>
                 </label>
                 <div className="grid2">
                   <label className="field">
@@ -1909,7 +2043,7 @@ export const SettingsModal: React.FC = () => {
                     />
                   </label>
                   <label className="field">
-                    <span>Tên công cụ suy luận (Tool Name)</span>
+                    <span>{t('Tên công cụ suy luận', 'Inference Tool Name')}</span>
                     <input
                       className="input"
                       defaultValue={config.mcp_agent?.tool || 'research'}
@@ -1929,16 +2063,16 @@ export const SettingsModal: React.FC = () => {
               {/* 7A. GitHub Plugins */}
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>
-                  Cài đặt Plugin Kỹ năng từ GitHub (Agent Skills & AI-Scientist-v2)
+                  {t('Cài đặt Plugin Kỹ năng từ GitHub (Agent Skills & AI-Scientist-v2)', 'Install Skill Plugins from GitHub (Agent Skills & AI-Scientist-v2)')}
                 </h3>
                 <p className="muted" style={{ fontSize: 13, margin: '0 0 12px' }}>
-                  Cài đặt kỹ năng từ bất kỳ repository GitHub nào chứa <code>SKILL.md</code> hoặc thư mục <code>skills/</code>.
+                  {t('Cài đặt kỹ năng từ bất kỳ kho mã nguồn GitHub nào chứa SKILL.md hoặc thư mục skills/.', 'Install research skills from any GitHub repo containing SKILL.md or skills/ directory.')}
                 </p>
 
                 <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
                   <input
                     className="input"
-                    placeholder="https://github.com/owner/repo (hoặc nhánh/thư mục con)…"
+                    placeholder={t('https://github.com/owner/repo (hoặc nhánh/thư mục con)…', 'https://github.com/owner/repo (or branch/subfolder)…')}
                     value={pluginUrl}
                     onChange={(e) => setPluginUrl(e.target.value)}
                   />
@@ -1953,20 +2087,20 @@ export const SettingsModal: React.FC = () => {
                         setPluginUrl('');
                         refetchPlugins();
                         refetchSkills();
-                        notify('Đã cài đặt Plugin từ GitHub thành công!');
+                        notify(t('Đã cài đặt Plugin từ GitHub thành công!', 'Plugin installed successfully from GitHub!'));
                       } catch (err) {
-                        notify(`Lỗi cài plugin: ${(err as Error).message}`, 'err');
+                        notify(t('Lỗi cài plugin: ', 'Plugin installation error: ') + (err as Error).message, 'err');
                       } finally {
                         setInstallingPlugin(false);
                       }
                     }}
                   >
-                    <Plus size={15} /> {installingPlugin ? 'Đang tải…' : 'Cài Plugin'}
+                    <Plus size={15} /> {installingPlugin ? t('Đang tải…', 'Installing…') : t('Cài Plugin', 'Install Plugin')}
                   </button>
                 </div>
 
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', marginBottom: 14 }}>
-                  <span className="muted" style={{ fontSize: 12 }}>Gợi ý cài nhanh:</span>
+                  <span className="muted" style={{ fontSize: 12 }}>{t('Gợi ý cài nhanh:', 'Quick install suggestions:')}</span>
                   {[
                     ['SakanaAI/AI-Scientist-v2', 'https://github.com/SakanaAI/AI-Scientist-v2'],
                     ['K-Dense Scientific Skills', 'https://github.com/K-Dense-AI/scientific-agent-skills'],
@@ -2006,7 +2140,7 @@ export const SettingsModal: React.FC = () => {
                         </b>
                         <div className="muted" style={{ fontSize: 12 }}>
                           {p.ref} · commit {String(p.commit || '').slice(0, 8)} ·{' '}
-                          {(p.skills || []).length} kỹ năng
+                          {(p.skills || []).length} {t('kỹ năng', 'skills')}
                         </div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -2020,7 +2154,7 @@ export const SettingsModal: React.FC = () => {
                               refetchSkills();
                             }}
                           />
-                          <span>Bật</span>
+                          <span>{t('Bật', 'Enabled')}</span>
                         </label>
                         <button
                           type="button"
@@ -2028,7 +2162,7 @@ export const SettingsModal: React.FC = () => {
                           onClick={async () => {
                             await api.post(`/api/plugins/${p.id}/update`, {});
                             refetchPlugins();
-                            notify(`Đã cập nhật ${p.id}`);
+                            notify(t('Đã cập nhật ', 'Updated ') + p.id);
                           }}
                         >
                           <RefreshCw size={13} />
@@ -2040,7 +2174,7 @@ export const SettingsModal: React.FC = () => {
                             await api.delete(`/api/plugins/${p.id}`);
                             refetchPlugins();
                             refetchSkills();
-                            notify(`Đã gỡ plugin ${p.id}`);
+                            notify(t('Đã gỡ plugin ', 'Uninstalled plugin ') + p.id);
                           }}
                         >
                           <Trash2 size={13} />
@@ -2054,15 +2188,15 @@ export const SettingsModal: React.FC = () => {
               {/* 7B. Built-in & Custom /skills */}
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>
-                  Danh mục Kỹ năng Lệnh <code>/</code> ({skillsData?.skills?.length || 0} kỹ năng)
+                  {t('Danh mục Kỹ năng Lệnh /', 'Slash Command Skills Directory')} ({skillsData?.skills?.length || 0} {t('kỹ năng', 'skills')})
                 </h3>
                 <div className="table-scroll" style={{ maxHeight: 320, overflowY: 'auto' }}>
                   <table className="grid">
                     <thead>
                       <tr>
-                        <th>Lệnh</th>
-                        <th>Mô tả</th>
-                        <th>Chế độ & Nguồn</th>
+                        <th>{t('Lệnh', 'Command')}</th>
+                        <th>{t('Mô tả', 'Description')}</th>
+                        <th>{t('Chế độ & Nguồn', 'Mode & Source')}</th>
                         <th />
                       </tr>
                     </thead>
@@ -2077,7 +2211,7 @@ export const SettingsModal: React.FC = () => {
                             <div className="muted" style={{ fontSize: 12 }}>{s.description}</div>
                           </td>
                           <td>
-                            <span className="chip">{s.mode === 'run' ? 'Chạy nền' : 'Chat'}</span>{' '}
+                            <span className="chip">{s.mode === 'run' ? t('Chạy nền', 'Background') : t('Hội thoại', 'Chat')}</span>{' '}
                             <span className="chip">{s.origin || 'builtin'}</span>
                           </td>
                           <td>
@@ -2088,7 +2222,7 @@ export const SettingsModal: React.FC = () => {
                                 onClick={async () => {
                                   await api.delete(`/api/skills/${s.name}`);
                                   refetchSkills();
-                                  notify(`Đã xoá kỹ năng /${s.name}`);
+                                  notify(t('Đã xoá kỹ năng /', 'Deleted skill /') + s.name);
                                 }}
                               >
                                 <Trash2 size={13} />
@@ -2101,7 +2235,7 @@ export const SettingsModal: React.FC = () => {
                   </table>
                 </div>
 
-                <h4 style={{ margin: '18px 0 8px', fontSize: 14 }}>Tạo hoặc Cập nhật Kỹ năng Tùy chỉnh</h4>
+                <h4 style={{ margin: '18px 0 8px', fontSize: 14 }}>{t('Tạo hoặc Cập nhật Kỹ năng Tùy chỉnh', 'Create or Update Custom Skill')}</h4>
                 <textarea
                   className="input mono"
                   rows={8}
@@ -2115,8 +2249,8 @@ export const SettingsModal: React.FC = () => {
                     value={newSkillScope}
                     onChange={(e) => setNewSkillScope(e.target.value as 'project' | 'user')}
                   >
-                    <option value="project">Lưu cho Dự án hiện tại</option>
-                    <option value="user">Lưu cho Mọi dự án (Global)</option>
+                    <option value="project">{t('Lưu cho Dự án hiện tại', 'Save for Current Project')}</option>
+                    <option value="user">{t('Lưu cho Mọi dự án (Toàn cục)', 'Save Globally (User-level)')}</option>
                   </select>
                   <button
                     type="button"
@@ -2125,13 +2259,13 @@ export const SettingsModal: React.FC = () => {
                       try {
                         await api.post('/api/skills', { text: newSkillText, scope: newSkillScope });
                         refetchSkills();
-                        notify('Đã lưu kỹ năng thành công!');
+                        notify(t('Đã lưu kỹ năng thành công!', 'Skill saved successfully!'));
                       } catch (err) {
-                        notify(`Lỗi lưu kỹ năng: ${(err as Error).message}`, 'err');
+                        notify(t('Lỗi lưu kỹ năng: ', 'Failed to save skill: ') + (err as Error).message, 'err');
                       }
                     }}
                   >
-                    Lưu Kỹ năng
+                    {t('Lưu Kỹ năng', 'Save Skill')}
                   </button>
                 </div>
               </section>
@@ -2145,10 +2279,10 @@ export const SettingsModal: React.FC = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>
-                  Chủ đề Giao diện (Academic & OpenScience Studio Themes)
+                  {t('Chủ đề Giao diện', 'Color Themes & Appearance')}
                 </h3>
                 <p className="muted" style={{ fontSize: 13, margin: '0 0 14px' }}>
-                  Chọn bảng màu phù hợp với không gian làm việc của bạn. Hỗ trợ đầy đủ cả chế độ Sáng học thuật lẫn chế độ Tối OpenScience Studio.
+                  {t('Chọn bảng màu phù hợp với không gian làm việc của bạn. Hỗ trợ đầy đủ cả chế độ Sáng học thuật lẫn chế độ Tối OpenScience Studio.', 'Select the color palette for your research workspace. Fully supports Academic Light and OpenScience Studio Dark modes.')}
                 </p>
 
                 <div
@@ -2158,15 +2292,15 @@ export const SettingsModal: React.FC = () => {
                     gap: 12,
                   }}
                 >
-                  {BUILTIN_THEMES.map((t) => {
-                    const isSelected = selectedTheme === t.id;
+                  {BUILTIN_THEMES.map((themeItem) => {
+                    const isSelected = selectedTheme === themeItem.id;
                     return (
                       <div
-                        key={t.id}
+                        key={themeItem.id}
                         onClick={() => {
-                          setSelectedTheme(t.id);
-                          applyThemeById(t.id);
-                          notify(`Đã áp dụng chủ đề: ${t.name}`);
+                          setSelectedTheme(themeItem.id);
+                          applyThemeById(themeItem.id);
+                          notify(t('Đã áp dụng chủ đề: ', 'Applied theme: ') + themeItem.name);
                         }}
                         style={{
                           border: isSelected ? '2px solid var(--accent)' : '1px solid var(--line)',
@@ -2183,9 +2317,9 @@ export const SettingsModal: React.FC = () => {
                           style={{
                             height: 54,
                             borderRadius: 8,
-                            background: t.swatch.bg,
-                            color: t.swatch.ink,
-                            border: `1px solid ${t.swatch.accent}`,
+                            background: themeItem.swatch.bg,
+                            color: themeItem.swatch.ink,
+                            border: `1px solid ${themeItem.swatch.accent}`,
                             borderLeftWidth: 5,
                             display: 'flex',
                             alignItems: 'center',
@@ -2201,12 +2335,20 @@ export const SettingsModal: React.FC = () => {
                               width: 16,
                               height: 16,
                               borderRadius: '50%',
-                              background: t.swatch.accent,
+                              background: themeItem.swatch.accent,
                             }}
                           />
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <b style={{ fontSize: 13 }}>{t.name}</b>
+                          <b style={{ fontSize: 13 }}>
+                            {themeItem.id === 'system'
+                              ? t('Theo hệ thống', 'System Default')
+                              : themeItem.id === 'light'
+                              ? t('Academic Daylight (Sáng)', 'Academic Daylight (Light)')
+                              : themeItem.id === 'dark'
+                              ? t('Obsidian Research (Tối)', 'Obsidian Research (Dark)')
+                              : themeItem.name}
+                          </b>
                           {isSelected && <Check size={15} color="var(--accent)" />}
                         </div>
                       </div>
@@ -2216,41 +2358,232 @@ export const SettingsModal: React.FC = () => {
               </section>
 
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
-                <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>
-                  Kiểu chữ Học thuật & Ngôn ngữ Hệ thống
-                </h3>
-                <div className="grid2">
-                  <label className="field">
-                    <span>Font chữ hiển thị câu trả lời & bài báo</span>
-                    <select
-                      className="input"
-                      value={config.ui?.prose_font || 'sans'}
-                      onChange={(e) => {
-                        const font = e.target.value;
-                        if (font === 'serif') {
-                          document.documentElement.setAttribute('data-font', 'serif');
-                        } else {
-                          document.documentElement.removeAttribute('data-font');
-                        }
-                        savePatch({ ui: { prose_font: font } });
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <div>
+                    <h3 style={{ margin: '0 0 4px', fontSize: 16 }}>
+                      {t('Kiểu chữ Học thuật & Ngôn ngữ Hệ thống', 'Academic Typography & System Languages')}
+                    </h3>
+                    <p className="muted" style={{ margin: 0, fontSize: 12.5 }}>
+                      {t(
+                        'Cấu hình đồng bộ font chữ hiển thị bài báo khoa học, câu trả lời AI và ngôn ngữ làm việc của hệ thống.',
+                        'Configure synchronized typography for papers, AI responses, and research OS interface.'
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                {/* 3 Đồng bộ Cards: Kích thước, padding, border và visual weight đồng đều 100% */}
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                    gap: 16,
+                    marginBottom: 16,
+                  }}
+                >
+                  {/* Card 1: Kiểu chữ Hiển thị Bài báo & AI */}
+                  <div
+                    style={{
+                      background: 'var(--panel)',
+                      border: '1px solid var(--line)',
+                      borderRadius: 10,
+                      padding: '16px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      minHeight: 185,
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <Type size={16} color="var(--accent)" />
+                        <b style={{ fontSize: 13.5 }}>
+                          {t('Font chữ Bài báo & Câu trả lời AI', 'Paper & AI Prose Typography')}
+                        </b>
+                      </div>
+                      <div className="muted" style={{ fontSize: 12, lineHeight: 1.45, marginBottom: 12 }}>
+                        {t(
+                          'Áp dụng cho nội dung tóm tắt bài báo, bản thảo, câu trả lời của AI và tài liệu nghiên cứu.',
+                          'Applied across paper abstracts, full-text reading, AI markdown responses, and research notes.'
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <select
+                        id="prose-font-select"
+                        className="input"
+                        value={config.ui?.prose_font || 'sans'}
+                        onChange={(e) => {
+                          const font = e.target.value;
+                          applyFontById(font);
+                          savePatch({ ui: { prose_font: font } });
+                        }}
+                        style={{ width: '100%' }}
+                      >
+                        <optgroup label={t('Tạp chí & Xuất bản Khoa học', 'Academic & Journal Serifs')}>
+                          <option value="serif">{t('Source Serif 4 (Adobe Academic — Chuẩn tài liệu nghiên cứu)', 'Source Serif 4 (Adobe Academic — Research Paper Standard)')}</option>
+                          <option value="latex">{t('Computer Modern / KaTeX (LaTeX arXiv Math — Chuẩn toán học)', 'Computer Modern / KaTeX (LaTeX arXiv Math — Mathematical Standard)')}</option>
+                          <option value="merriweather">{t('Merriweather (Google Fonts Library — Tối ưu đọc dài)', 'Merriweather (Google Fonts Library — Optimized Longform Reading)')}</option>
+                          <option value="lora">{t('Lora (Contemporary Scholarly Serif — Dấu thanh chuẩn)', 'Lora (Contemporary Scholarly Serif — Diacritics Calibrated)')}</option>
+                          <option value="garamond">{t('EB Garamond (Oxford & University Press cổ điển)', 'EB Garamond (Oxford & University Press Classic)')}</option>
+                          <option value="times">{t('Times New Roman (Chuẩn nộp bài IEEE / Nature / Springer)', 'Times New Roman (Submission Standard for IEEE / Nature / Springer)')}</option>
+                          <option value="charter">{t('Charter (Bitstream Technical Reports — Báo cáo kỹ thuật)', 'Charter (Bitstream Technical Reports — Engineering Papers)')}</option>
+                        </optgroup>
+                        <optgroup label={t('Hiện đại & Giao diện Rõ nét (Modern Tech & Sans)', 'Modern UI & Sans-Serif')}>
+                          <option value="sans">{t('Segoe UI / Noto Sans (Mặc định hệ điều hành — Sans-serif rõ nét)', 'Segoe UI / Noto Sans (OS Native Default — Clean Sans-Serif)')}</option>
+                          <option value="inter">{t('Inter (React Ecosystem & Shadcn Standard — Tối giản, thanh lịch)', 'Inter (React Ecosystem & Modern UI Standard)')}</option>
+                          <option value="roboto">{t('Roboto & Noto (Google International Standard — Đa ngôn ngữ)', 'Roboto & Noto (Google International Standard — Multilingual)')}</option>
+                        </optgroup>
+                        <optgroup label={t('Mã nguồn & Báo cáo Tính toán (Computational & Monospace)', 'Computational & Code Monospace')}>
+                          <option value="mono">{t('JetBrains Mono (Code, Thuật toán & Dữ liệu toán học)', 'JetBrains Mono (Code, Algorithms & Numerical Data)')}</option>
+                          <option value="fira">{t('Fira Code (Lập trình, Ligatures ký hiệu khoa học)', 'Fira Code (Programming, Scientific Ligatures)')}</option>
+                        </optgroup>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Card 2: 1. Ngôn ngữ Giao diện Người dùng riêng */}
+                  <div
+                    style={{
+                      background: 'var(--panel)',
+                      border: '1px solid var(--line)',
+                      borderRadius: 10,
+                      padding: '16px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      minHeight: 185,
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <Globe size={16} color="var(--accent)" />
+                        <b style={{ fontSize: 13.5 }}>
+                          {t('1. Ngôn ngữ Giao diện', '1. User Interface Language')}
+                        </b>
+                      </div>
+                      <div className="muted" style={{ fontSize: 12, lineHeight: 1.45, marginBottom: 12 }}>
+                        {t(
+                          t('Quy định ngôn ngữ hiển thị của toàn bộ menu, nút bấm, thông báo, nhãn thanh bên và hộp thoại.', 'Controls the display language across all menus, buttons, notifications, sidebar labels, and modals.'),
+                          'Display language for menus, buttons, notifications, sidebar labels, and dialogs across software.'
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <select
+                        id="ui-language-select"
+                        className="input"
+                        value={config.ui?.language || language || 'vi'}
+                        onChange={(e) => {
+                          const newLang = e.target.value as 'vi' | 'en';
+                          setLanguage(newLang);
+                          savePatch({ ui: { language: newLang } });
+                        }}
+                        style={{ width: '100%' }}
+                      >
+                        <option value="vi">{t('Tiếng Việt (Giao diện Tiếng Việt)', 'Vietnamese (Tiếng Việt)')}</option>
+                        <option value="en">English (Academic International Interface)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Card 3: 2. Ngôn ngữ Phản hồi của AI riêng */}
+                  <div
+                    style={{
+                      background: 'var(--panel)',
+                      border: '1px solid var(--line)',
+                      borderRadius: 10,
+                      padding: '16px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      minHeight: 185,
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <Bot size={16} color="#10b981" />
+                        <b style={{ fontSize: 13.5 }}>
+                          {t('2. Ngôn ngữ Phản hồi AI', '2. AI Assistant Output Language')}
+                        </b>
+                      </div>
+                      <div className="muted" style={{ fontSize: 12, lineHeight: 1.45, marginBottom: 12 }}>
+                        {t(
+                          t('Quy định ngôn ngữ các AI Agents và Orchestrator ưu tiên khi giải thích, phân tích và viết báo cáo nghiên cứu.', 'Specifies the default language prioritized by AI Agents and Orchestrator for synthesis, critique, and paper writing.'),
+                          'Language AI Agents and Orchestrator prioritize when answering, explaining, analyzing, and drafting research reports.'
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <select
+                        id="ai-language-select"
+                        className="input"
+                        value={config.ui?.ai_language || 'auto'}
+                        onChange={(e) => savePatch({ ui: { ai_language: e.target.value } })}
+                        style={{ width: '100%' }}
+                      >
+                        <option value="auto">
+                          {t('Tự động nhận diện (Theo ngôn ngữ câu hỏi của bạn)', 'Auto-detect (Match prompt language)')}
+                        </option>
+                        <option value="vi">
+                          {t('Tiếng Việt (Giữ nguyên thuật ngữ khoa học bằng tiếng Anh)', 'Vietnamese (Keep technical terms in English)')}
+                        </option>
+                        <option value="en">
+                          {t('English (Academic & Scientific Standard)', 'English (Academic & Scientific Standard)')}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Khung Xem Trước Trực Tiếp Kiểu Chữ Học Thuật (Interactive Academic Typography Preview) */}
+                <div
+                  style={{
+                    background: 'var(--bg-2, var(--code-bg))',
+                    border: '1px dashed var(--line-2)',
+                    borderRadius: 10,
+                    padding: '14px 18px',
+                    marginBottom: 16,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <BookOpen size={14} color="var(--accent)" />
+                      <span style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--muted)' }}>
+                        {t('Xem trước Trực quan Kiểu chữ Bài báo & Toán học', 'Live Typography & Paper Reading Preview')}
+                      </span>
+                    </div>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        padding: '2px 8px',
+                        borderRadius: 12,
+                        background: 'var(--panel)',
+                        border: '1px solid var(--line)',
+                        color: 'var(--accent)',
+                        fontWeight: 600,
                       }}
                     >
-                      <option value="sans">Sans-serif (Segoe UI / Noto Sans — Hiện đại, rõ nét)</option>
-                      <option value="serif">Serif (Cambria / Source Serif — Phong cách Tạp chí Khoa học)</option>
-                    </select>
-                  </label>
-
-                  <label className="field">
-                    <span>Ngôn ngữ Giao diện & Phản hồi mặc định của AI</span>
-                    <select
-                      className="input"
-                      value={config.ui?.language || 'vi'}
-                      onChange={(e) => savePatch({ ui: { language: e.target.value } })}
-                    >
-                      <option value="vi">Tiếng Việt (Vietnamese)</option>
-                      <option value="en">English (Academic International)</option>
-                    </select>
-                  </label>
+                      {config.ui?.prose_font || 'sans'}
+                    </span>
+                  </div>
+                  <div
+                    className="prose markdown-body"
+                    style={{
+                      fontFamily: 'var(--prose)',
+                      fontSize: 14.5,
+                      lineHeight: 1.65,
+                      color: 'var(--ink)',
+                      margin: 0,
+                    }}
+                  >
+                    <p style={{ margin: 0 }}>
+                      <strong>Abstract:</strong> We formulate the latent representation space{' '}
+                      <code>{"\\mathcal{Z} \\in \\mathbb{R}^d"}</code> with continuous loss{' '}
+                      <code>{"\\min_\\theta \\mathbb{E}[\\|y - \\hat{y}\\|^2]"}</code>.{' '}
+                      <em>{t('Thử nghiệm độ hiển thị sắc nét của font chữ: nghiên cứu khoa học, tối ưu hóa thuật toán, chuyển đổi tri thức và công bố quốc tế.', 'Typography rendering sample: empirical benchmarking, algorithmic optimization, knowledge transfer, and academic dissemination.')}</em>
+                    </p>
+                  </div>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 10 }}>
@@ -2260,7 +2593,7 @@ export const SettingsModal: React.FC = () => {
                       checked={config.ui?.paper_explorer_v2 !== false}
                       onChange={(e) => savePatch({ ui: { paper_explorer_v2: e.target.checked } })}
                     />
-                    <span>Bật Paper Explorer v2 & Bộ lọc Hạng Tạp chí Q1–Q4</span>
+                    <span>{t('Bật Paper Explorer v2 & Bộ lọc Hạng Tạp chí Q1–Q4', 'Enable Paper Explorer v2 & Q1–Q4 Journal Filter')}</span>
                   </label>
                   <label className="switch">
                     <input
@@ -2268,7 +2601,7 @@ export const SettingsModal: React.FC = () => {
                       checked={config.ui?.contextual_actions !== false}
                       onChange={(e) => savePatch({ ui: { contextual_actions: e.target.checked } })}
                     />
-                    <span>Hiển thị thanh công cụ ngữ cảnh nhanh trên Header</span>
+                    <span>{t('Hiển thị thanh công cụ ngữ cảnh nhanh trên Header', 'Show contextual quick-action toolbar on Header')}</span>
                   </label>
                 </div>
               </section>

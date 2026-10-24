@@ -10,13 +10,26 @@ import { Header } from './Header';
 import { ChatCenter } from '../features/chat/ChatCenter';
 import { ContextualDrawer } from './ContextualDrawer';
 import { AgentStatusView } from '../features/agent-status/AgentStatusView';
-import { SettingsModal, applyThemeById } from '../features/settings/SettingsModal';
+import { SettingsModal, applyThemeById, applyFontById } from '../features/settings/SettingsModal';
 import { DashboardView } from '../features/dashboard/DashboardView';
 import { ReviewView } from '../features/review/ReviewView';
+import { LibraryPanel } from '../features/library/LibraryPanel';
+import { UserGuidePanel } from '../features/guide/UserGuidePanel';
+import { PanelRightOpen } from 'lucide-react';
 
 export const AppShell: React.FC = () => {
-  const { setProject, setProjects, mainView, sidebarOpen, drawerKind, setLanguage, uiScale } =
-    useUIStore();
+  const {
+    setProject,
+    setProjects,
+    mainView,
+    sidebarOpen,
+    toggleSidebar,
+    drawerKind,
+    lastDrawerKind,
+    openDrawer,
+    setLanguage,
+    uiScale,
+  } = useUIStore();
   const { t } = useI18n();
   const { isConnected } = useAppBus();
 
@@ -37,6 +50,9 @@ export const AppShell: React.FC = () => {
     }
     if (config?.ui?.theme) {
       applyThemeById(config.ui.theme);
+    }
+    if (config?.ui?.prose_font) {
+      applyFontById(config.ui.prose_font);
     }
     if (config?.ui?.language === 'en' || config?.ui?.language === 'vi') {
       setLanguage(config.ui.language);
@@ -63,6 +79,35 @@ export const AppShell: React.FC = () => {
         return <DashboardView />;
       case 'review':
         return <ReviewView />;
+      case 'library':
+        return (
+          <div
+            style={{
+              flex: 1,
+              height: '100%',
+              overflowY: 'auto',
+              padding: '16px 24px',
+              background: 'var(--bg)',
+            }}
+          >
+            <div style={{ maxWidth: 1100, margin: '0 auto', height: '100%' }}>
+              <LibraryPanel />
+            </div>
+          </div>
+        );
+      case 'guide':
+        return (
+          <div
+            style={{
+              flex: 1,
+              height: '100%',
+              overflowY: 'auto',
+              background: 'var(--bg)',
+            }}
+          >
+            <UserGuidePanel />
+          </div>
+        );
       case 'chat':
       default:
         return <ChatCenter />;
@@ -71,7 +116,28 @@ export const AppShell: React.FC = () => {
 
   return (
     <div id="app" style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
-      <Group orientation="horizontal" style={{ width: '100%', height: '100%' }}>
+      {!sidebarOpen && (
+        <div
+          id="sidebar-collapsed-rail"
+          style={{
+            width: 52,
+            minWidth: 52,
+            maxWidth: 52,
+            height: '100%',
+            flexShrink: 0,
+            background: 'var(--bg-2)',
+            borderRight: '1px solid var(--line)',
+            display: 'flex',
+            flexDirection: 'column',
+            zIndex: 10,
+            boxSizing: 'border-box',
+          }}
+        >
+          <Sidebar collapsed={true} />
+        </div>
+      )}
+
+      <Group orientation="horizontal" style={{ width: sidebarOpen ? '100%' : 'calc(100% - 52px)', height: '100%' }}>
         {sidebarOpen && (
           <>
             <Panel
@@ -81,9 +147,11 @@ export const AppShell: React.FC = () => {
               maxSize="32%"
               style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
             >
-              <Sidebar />
+              <Sidebar collapsed={false} />
             </Panel>
             <Separator
+              onDoubleClick={toggleSidebar}
+              title={t('Kéo để thay đổi kích thước, nhấp đúp để thu nhỏ/mở rộng', 'Drag to resize, double-click to collapse/expand')}
               style={{
                 width: 4,
                 background: 'var(--line)',
@@ -132,6 +200,51 @@ export const AppShell: React.FC = () => {
               }}
             >
               {renderMainStage()}
+
+              {/* Persistent right-edge floating handle when right drawer is closed */}
+              {!drawerKind && (
+                <button
+                  id="floating-drawer-toggle"
+                  type="button"
+                  onClick={() => openDrawer(lastDrawerKind || 'outline')}
+                  title={t('Mở bảng công cụ bên phải (Menu phải)', 'Open right inspector menu')}
+                  aria-label={t('Mở menu bên phải', 'Open right menu')}
+                  style={{
+                    position: 'absolute',
+                    top: 14,
+                    right: 0,
+                    zIndex: 25,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    padding: '6px 10px 6px 12px',
+                    background: 'var(--panel)',
+                    border: '1px solid var(--line)',
+                    borderRight: 'none',
+                    borderTopLeftRadius: 999,
+                    borderBottomLeftRadius: 999,
+                    boxShadow: '-2px 3px 10px rgba(0,0,0,0.08)',
+                    cursor: 'pointer',
+                    color: 'var(--ink)',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'var(--bg-2)';
+                    e.currentTarget.style.color = 'var(--accent)';
+                    e.currentTarget.style.paddingLeft = '16px';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'var(--panel)';
+                    e.currentTarget.style.color = 'var(--ink)';
+                    e.currentTarget.style.paddingLeft = '12px';
+                  }}
+                >
+                  <PanelRightOpen size={16} />
+                  <span>{t('Menu phải', 'Right Menu')}</span>
+                </button>
+              )}
             </div>
           </main>
         </Panel>

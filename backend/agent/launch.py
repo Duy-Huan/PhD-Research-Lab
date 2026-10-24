@@ -99,10 +99,10 @@ def from_skill(name: str, text: str, session: dict | None = None, approved: bool
     from backend.core.config import load_config
     cfg = load_config()
     steps, provider, risk = None, provider_for(s), effective_risk(s)
-    if s["pipeline"] in ("research", "review") and (engine_mode or cfg["openscience"].get("enabled") or cfg["research_providers"].get("engine_mode", "auto") != "auto" or provider == "openscience"):
+    if s["pipeline"] in ("research", "review") and (engine_mode or cfg["openscience"].get("enabled") or cfg["research_providers"].get("engine_mode", "auto") != "auto" or provider in ("openscience", "phdlab")):
         from backend.research_engines.registry import plan
-        mode = engine_mode or ("openscience" if provider == "openscience" else cfg["research_providers"].get("engine_mode", "auto"))
-        capability = "analysis" if name == "science" else "review" if s["pipeline"] == "review" else "literature"
+        mode = engine_mode or ("openscience" if provider == "openscience" else "phdlab" if provider == "phdlab" else cfg["research_providers"].get("engine_mode", "auto"))
+        capability = "analysis" if name in ("science", "phdlab") else "review" if s["pipeline"] == "review" else "literature"
         engines = plan(mode, capability, provider)
         provider = engines[0]
         if "openscience" in engines:

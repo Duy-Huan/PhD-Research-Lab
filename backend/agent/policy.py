@@ -46,8 +46,31 @@ def _check(key: str, v):
         return v
     if key == "provider":
         from backend.providers.registry import ids
-        if v not in ids():
-            raise AIWSError(f"Unknown provider '{v}'")
+        known_ids = ids()
+        if v not in known_ids:
+            alias_map = {
+                "codex": "cli:codex",
+                "claude": "cli:claude_code",
+                "claude_code": "cli:claude_code",
+                "antigravity": "cli:antigravity",
+                "gemini_cli": "cli:gemini_cli",
+                "openai": "app:openai",
+                "anthropic": "app:anthropic",
+                "gemini": "app:gemini",
+                "google": "app:gemini",
+                "cloud:google": "app:gemini",
+                "cloud:openai": "app:openai",
+                "cloud:anthropic": "app:anthropic",
+                "cloud:deepseek": "app:deepseek",
+            }
+            if v in alias_map and alias_map[v] in known_ids:
+                v = alias_map[v]
+            elif f"cli:{v}" in known_ids:
+                v = f"cli:{v}"
+            elif f"app:{v}" in known_ids:
+                v = f"app:{v}"
+            else:
+                raise AIWSError(f"Unknown provider '{v}'")
         return v
     if key == "model":
         v = str(v or "").strip()

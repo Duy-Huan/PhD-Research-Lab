@@ -1,0 +1,6 @@
+{"timestamp": "2026-10-23T22:04:23Z", "event": "mission_live_compare_success", "mid": "c5112dbe-cc21-41fc-a1dc-1ad7a05a3a78", "latency": 9.444589199996699, "model": "phi-4"}
+{"timestamp": "2026-10-23T22:25:24Z", "event": "mission_live_compare_success", "mid": "2fa15156-9685-44c0-a4e5-25884ca5cba0", "latency": 9.548793900001328, "model": "phi-4"}
+{"timestamp": "2026-10-23T22:26:12Z", "event": "mission_live_compare_success", "mid": "77026f36-af83-4d23-bd3f-b230563628f2", "latency": 13.017676499999652, "model": "phi-4"}
+{"timestamp": "2026-10-23T22:31:52Z", "event": "mission_live_compare_success", "mid": "ae7f668a-704c-4fe5-a892-9ac66435bea9", "latency": 11.917095400000107, "model": "phi-4"}
+{"timestamp": "2026-10-24T03:11:12Z", "event": "mission_live_compare_success", "mid": "563dca2c-25ef-4f5e-a852-3242b739a19a", "latency": 9.71986889999971, "model": "phi-4"}
+{"timestamp": "2026-10-24T03:22:18Z", "event": "mission_live_compare_success", "mid": "d5ae275b-e222-4d70-ac31-dd464915f83b", "latency": 9.533940100001928, "model": "phi-4"}
