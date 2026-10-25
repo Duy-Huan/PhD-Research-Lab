@@ -1,0 +1,22 @@
+{
+  "captured_utc": "2026-10-25T07:59:34.317968+00:00",
+  "scope": "Model listing only, not inference or AI-UAT qualification",
+  "status": "RESPONDED",
+  "model_ids": [
+    "spark-x2.5-1.7b",
+    "spark-x2.5-4b",
+    "text-embedding-qwen3-embedding-0.6b",
+    "qwen2.5-coder-14b-instruct",
+    "mistral-nemo-12b-instruct-2407",
+    "qwen2.5-7b-instruct-1m",
+    "text-embedding-nomic-embed-text-v1.5",
+    "phi-4",
+    "meta-llama-3.1-8b-instruct",
+    "qwen3-14b",
+    "deepseek-r1-distill-qwen-14b",
+    "llama-3-groq-8b-tool-use",
+    "qwen/qwen3.5-9b",
+    "google/gemma-4-12b-qat",
+    "nvidia/nemotron-3-nano-4b"
+  ]
+}

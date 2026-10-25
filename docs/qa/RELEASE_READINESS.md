@@ -1,21 +1,19 @@
-# Candidate6.5.5 current status: NO-GO
+# Release readiness:6.5.6
 
-Read AUTONOMOUS_CI_REPAIR_REPORT.md, COMPARISON_PROTOCOL.md and active agent/STATE.md. Actual controlled CLI repair/push/rerun succeeded only through the repair stages; required CI remainsFAIL, no native merge/release occurred. Legacy duplicate workflows disabled, current new CI/CD candidate and same-suite comparison are being verified. No baseline exceptions or threshold relaxation. Earlier assessments below describe older checkpoints.
+**NO-GO. QA100%, dev promotion, qa-to-main PR, native auto-merge acceptance and release are not completed.**
 
-# Emergency recovery decision: NO-GO
+Candidate passes the final local feature scope (1102PASS/8SKIP) and10fixed critical software groups. It still has OPEN P2 BUG-3D-LOCALE-001, incomplete production coverage, mandatory skips, exhausted/incomplete AI-UAT and unavailable matching-source all-provider/research/experiment-to-paper evidence. No approved baseline exceptions exist. This is not a bug-free or IEEE certification.
 
-See [CI_ROOT_CAUSE_REPORT.md](CI_ROOT_CAUSE_REPORT.md) and [KNOWN_ISSUES_BASELINE.json](KNOWN_ISSUES_BASELINE.json). Candidate6.5.3 is not released or merge-qualified. Auto-merge is disabled; never automatically merge main. Mandatory coverage/live gaps remain blocking; no exceptions approved. Earlier enabled-auto-merge/reviewer-count statements below are historical, not current remote state.
+main/dev/qa remain6725975261fe6a4d8a5cb3e10208e31c3e24f0e2; the owner explicitly rejects that preview as trusted production. [PR11](https://github.com/Duy-Huan/PhD-Research-Lab/pull/11) contains the integrated source and new standard. PR7/9 were closed after exact ancestry proof; duplicate Dependabot PR8 was closed after matching its full intent. Branches/worktrees/history remain preserved. Two old workflow registrations are disabled; protected-main files/CD activation await qualified adoption. Main's required pre-merge context is now strictQA gate, with other protections unchanged.
 
-# Release readiness — 2026-10-25
+Hosted run40171931531 completedFAIL before6.5.6 repairs. Post-push CI must be read against the exact latest commit; no future result is presumed. Repo auto-merge remains quarantined. The actual PR10 exercise proves real Codex invocation, fixture repair, supervisor push and fresh CI; required-PASS/native dev merge stages remain BLOCKED and have no mergeSHA.
 
-**NO-GO. No release, tag or protected-branch merge is certified.**
+Next priorities:
 
-Current fix candidate6.5.1 locally repairs the two confirmed UI defects; independent CI and integration are pending. Remaining blocking findings: production coverage below100%; mandatory skips; incomplete/exhausted AI-UAT; missing current-source all-provider/research qualification and trusted live producer; independent critical review and protected main reviewer/production approval pending.
+1. Reproduce EN/VI3D localization with a dedicated behavioral regression; repair and verify without redesign.
+2. Close measured backend/frontend coverage gaps using behavior and failure tests; keep all mandatory assertions/exclusions.
+3. Establish an authorized trusted live producer and service prerequisites. AI-UAT task budget exhausted3 must not be reset or evaded; resolve the explicit authorization/infrastructure blocker before another repair phase.
+4. Pass exact-head mandatory independent CI, then eligible native dev merge. Only qualified dev may promote to qa for full regression/AI-UAT.
+5. Only after QA qualifies, create qa-to-main PR. Never auto-merge qa/main or bypass protection. Main-push CD then verifies QA provenance, packages checksummed assets and publishes; PC update remains controlled with backup/rollback.
 
-Infrastructure6.5.0 is an unreleased candidate. PR7 targets dev and remains draft while required checks fail. The user authorizes testing real promotion after completion: feature→dev→qa→main. Canonical remote branches/protections exist, auto-merge repository flag is enabled, and actual Quality Gates have run. The observed Development gate rejects incomplete qualification. QA/main promotion must wait; bypassing it would invalidate this campaign.
-
-Automatic dev merge controller also requires its approved default-main deployment and separate Administration:read policy credential. Neither the GitHub setting alone nor local policy tests proves operational auto-merge. No local credential is copied to Actions.
-
-Read docs/devops/CI_CD_USER_GUIDE.vi.md for the owner's workflow. Next: finish the separate UI fix group and its RED/GREEN evidence; integrate preserved application work; resolve coverage and live/evidence gaps; then perform one comprehensive final verification on a frozen integrated release candidate. Final evidence must match exact source/head, required CI must pass, no unresolved blockingP1 may remain, and required reviews/production authorization must actually occur.
-
-This baseline is informed by [ISO/IEC/IEEE29119 testing documentation](https://standards.ieee.org/standard/29119-1-2013.html) and [W3C WCAG2.2](https://www.w3.org/TR/WCAG22/). It is not standards certification or a guarantee of an entirely bug-free application. Residual risks include unsurveyed behavior, unsupported provider/platform paths, assistive technology and independent scientific correctness.
+See [comparison](MAIN_CANDIDATE_COMPARISON.md), [defects](BUG_INVENTORY.md), [coverage](REGRESSION_COVERAGE_REPORT.md) and [CI recovery](CI_ROOT_CAUSE_REPORT.md). No protected merge, tag, release or deployment has occurred.

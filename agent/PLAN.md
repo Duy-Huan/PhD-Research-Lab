@@ -1,12 +1,21 @@
-# Active plan
+# Current plan:6.5.6 recovery and qualification
 
-Current next actions (6.5.6): finish frozen v1 comparison; preserve actual reports; complete race/packaging repairs and current-source feature gate; commit scoped6.5.6; repeat identical-suite qualification against main and that exact candidate; publish evidence/repair to PR11 and inspect exact-head independent CI. Keep dev/qa/main unchanged while mandatory gates fail. Only after full/live/AI-UAT qualification passes may dev-to-qa promotion and then a qa-to-main PR proceed. Older pending statuses below must be checked against STATE.md and real evidence.
+Completed with evidence:
 
-1. Preserve worktrees/user changes and actual GitHub failure evidence. DONE for initial inventory; refresh before mutation.
-2. Integrate latest application, resolve conflicts, retain regression failures and repairs. App feature1073PASS/8SKIP; release stillNO-GO.
-3. Complete local-first repair supervisor using canonical verification; explicit owner registry, exact PR/head/worktree, immutable tests, max3 invocations, no external PR execution.
-4. Execute controlled PR10 repair. Actual CLI patch exists, targeted3PASS; full feature verification/commit/push/new-run observation pending. Record manual infrastructure recovery honestly.
-5. Finish clean CI/CD split, package integrity and permanent workflow tests. Main publishing requires real protected qa promotion and matching successful QA source. No automatic qa/main changes.
-6. Run current-source feature gate, publish normal integration PR into dev, close only truly superseded PRs after proving ancestry; keep all branches/worktrees/evidence.
-7. Keep strict coverage, mandatory live/AI-UAT and residual defects visible. No gate relaxation or fake green. Only genuinely eligible exact-head dev PRs can request native GitHub auto-merge; verify actual merge SHA.
-8. Final report includes each actual stage, PR/run/source SHA, unresolved blockers and CD/merge states. No zero-bug or scientific certification claim.
+1. Preserve original changes, every worktree and Git history; integrate latest application on isolated branch.
+2. Implement owner-trusted local repair supervisor with exact-head/worktree checks, deterministic diagnostics, persistent max3invocations and native dev-only merge eligibility.
+3. Execute real Codex repair/push/newCI in controlled PR10; record assisted recovery and failed unrelated mandatory qualification honestly. Native successful merge remains unachieved.
+4. Split PR CI from qualified main-push CD; disable two duplicate legacy registrations, migrate main required pre-merge context to QA gate, close only fully superseded PRs. Keep qa/main history protected.
+5. Repair confirmed metrics completion race and Linux packaging test fixture; retain RED/GREEN evidence and strict assertions.
+6. Execute the same frozen suite/toolchain/policy on main and6.5.6; record critical denominators, coverage, failures/unexecuted cases and actual visual evidence. Correct false newly-introduced classification using main reproduction.
+7. Run final current-source feature1102PASS/8SKIP. Prepare scoped report/accounting commit and task-branch push; inspect exact latest independent GitHub run after push.
+
+Remaining, never marked PASS prematurely:
+
+8. OPEN P2: write behavioral EN/VI3D regression and fix hard-coded locale-sensitive labels/roles. Controlled screenshot review is not exhaustive UI acceptance.
+9. Add meaningful tests for uncovered production lines/branches/functions; strict100% remains mandatory. See COVERAGE_GAPS_6.5.6.json.
+10. Establish authorized trusted live/provider/research evidence producer and unavailable service prerequisites. Existing AI-UAT task already exhausted3 must not be reset or renamed to evade its stop rule.
+11. Require genuinely passing current-head independent CI before eligible native dev auto-merge; record actual mergeSHA. Repo quarantine stays until trustworthy qualification.
+12. Only then dev-to-qa full regression/live/AI-UAT, and only qualified QA may create qa-to-main PR. No automatic qa/main modification, force push, gate bypass or fake scientific outputs.
+
+Final decision remains NO-GO; current comparison/test reports disclose measured scope, source hashes and incomplete inventory. Preserve every file in skills/ and agent/.

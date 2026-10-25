@@ -1,31 +1,21 @@
-# Regression and coverage baseline — 2026-10-25
+# Regression and production coverage:6.5.6
 
-The requested 100% production coverage has not been reached. Passing tests, statement/branch execution, behavioral coverage and provider/scientific acceptance are separate measures. Exclusions and thresholds were not weakened.
+Same-suite policy, environment and source denominators: [measured comparison](MAIN_CANDIDATE_COMPARISON.md). No test/exclusion/threshold was weakened. Raw PASS counts from different source capabilities do not rank branches.
 
-Actual independent GitHub run40137751583 on d244d2d produced:
+| Production metric | Main | Candidate |
+|---|---:|---:|
+| Backend lines |21808/24306|23833/26528|
+| Backend branches |6649/8132|7120/8808|
+| Backend combined coverage |87.73%|87.60%|
+| Frontend lines |UNAVAILABLE: collection errors|2445/3820=64.00%|
+| Frontend branches |UNAVAILABLE|2611/4125=63.29%|
+| Frontend functions |UNAVAILABLE|733/1467=49.96%|
+| Frontend statements |UNAVAILABLE|2574/4117=62.52%|
 
-| Platform | Executed | Result | Combined backend coverage |
-|---|---:|---|---|
-| Ubuntu Python3.11 | 851 | 846 PASS,5 SKIP,0 FAIL/ERROR | 87.32%; lines23485/26218, branches7015/8712 |
-| Ubuntu Python3.12 | 851 | 846 PASS,5 SKIP,0 FAIL/ERROR | 87.39%; lines23509/26218, branches7017/8712 |
-| Windows Python3.12 | 851 | 846 PASS,5 SKIP,0 FAIL/ERROR | 87.72%; lines23584/26218, branches7058/8712 |
-| Windows Python3.11 | incomplete | cancelled regression step; no complete artifact | NOT QUALIFIED |
+Backend and frontend measures are separate. Main's missing frontend measurement is not0% and cannot be numerically ranked. Changed production denominators explain why combined coverage is not a direct correctness ranking.
 
-Frontend:174 PASS; lines2439/3799=64.20%; statements2568/4094=62.72%; functions731/1454=50.27%; branches2592/4092=63.34%. These are exact downloaded CI artifact measurements, not new-source estimates. Raw artifacts retained under evidence/stabilization-2026-10-25/github-d244. The current source's independent baseline reports have their own hashes/counts; consult them before claiming equivalence.
+Candidate gaps:2695backend lines/1688branches,1375frontend lines/1514branches,734frontend functions and1543statements remain uncovered. [Machine-readable gap priority](COVERAGE_GAPS_6.5.6.json) names current files, including API research/system, CLI repl, agent runs/missions. Add meaningful behavior/failure assertions; never execute unasserted paths simply to inflate a number.
 
-## Behavior matrix
+Permanent regression additions retain the delayed metrics-publication oracle, exact release executable permissions, CI install ordering/fail accounting, context completeness, CLI/provider isolation, source evidence identity and local repair trust/state. UI-3D-LOCALE-001 remains NOT_IMPLEMENTED; the actual screenshot exposes why27browser PASS does not cover every localization requirement. No controlled human-approved visual baseline or hardware GPU qualification is claimed.
 
-| Surface | Baseline proof | Missing qualification |
-|---|---|---|
-| Development gates | Unit/Node policy tests, actual CI and fail-closed aggregate | Successful protected merge and live producer |
-| API/memory/research orchestration | Broad offline unit suite with labeled mocks | Every route/state, concurrency, all real providers |
-| React 2D |174 component tests, selected navigation and eight reconnaissance states | Every interaction, reviewed visual baselines, assistive technology |
-| Mobile Settings | Confirmed pointer-interception failure | Controlled fix + permanent regression + independent CI |
-| Header controls | Confirmed accessible-name failure | Both locales and dynamic state regression |
-| 3D | Separate historical WebGL evidence | Current full 3D interactions |
-| CLI | Historical tests/detection | Current settings/language/native containment and real chat |
-| Experiment/paper | Historical synthetic experiment/replay/paper | Current-source real workflow, provenance and independent scientific review |
-
-The heuristic source/test map is a triage aid; 128 unmatched leads do not equal 128 untested modules. FQC-DEV-001 and FQC-UAT-001 CSV matrices trace registered Python scenarios; they do not claim exhaustive TS/source/workflow coverage. All repaired defects must gain permanent behavior regressions and pass affected, feature and independent required CI before merge.
-
-Coverage scope: configured backend Python and frontend/src TS/TSX. Standalone development tools, skill helpers, external dependencies and third-party vendor bundles are not collectively measured by these percentages. No universal all-repository100% denominator is claimed. Current strict local backend measured23571/26218 lines,7056/8712 branches,87.68% combined; its latency case failed.
+Eight selected mandatory skips and separate legacy/live inventories remain unqualified. PR/full gates preserve100%/complete-case enforcement; local feature checks are development feedback, not release acceptance. Full/live/AI-UAT gates must all pass before protected promotion.

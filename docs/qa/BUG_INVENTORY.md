@@ -1,27 +1,18 @@
-# Confirmed defect inventory — 2026-10-25
+# Current defect inventory:6.5.6
 
-Machine-readable source: [defects.json](defects.json). Duplicate viewport findings are grouped under their shared cause; test-infrastructure mistakes are recorded separately.
+Authoritative paired triage: [MAIN_CANDIDATE_DEFECTS.json](MAIN_CANDIDATE_DEFECTS.json). Existing accounting: [KNOWN_ISSUES_BASELINE.json](KNOWN_ISSUES_BASELINE.json) and [historical UI findings](defects.json). No baseline exception is approved or applied.
 
-| ID | Severity | Reproduction / actual result | Status | Regression |
-|---|---|---|---|---|
-| BUG-UI-001 | P1 | 375px: Open sidebar → Settings; navigation remains on top and intercepts Back to Workspace | LOCAL FIX VERIFIED in6.5.1; pending CI/merge | UI-MOBILE-SETTINGS-001 |
-| BUG-UI-002 | P2 | Workspace/Settings: language, zoom and tools-panel names fail label-content-name-mismatch | LOCAL FIX VERIFIED in6.5.1; pending CI/merge | UI-ACCESSIBLE-NAMES-001 |
+| Scope | P0 | P1 | P2 | Qualification |
+|---|---:|---:|---:|---|
+| Main, minimum confirmed groups |0|7|3|Partial inventory; includes shared source-confirmed3D locale defect |
+| Candidate, unresolved groups in same inventory |0|0|1|Partial inventory; not zero-bug certification |
 
-No P0 was confirmed by this limited campaign. This does not prove absence of undiscovered P0 defects. Both current confirmed defects block this requested quality baseline until fixed and independently checked.
+The shared3D localization finding uses identical source-review criteria on both revisions; candidate browser reproduction is retained. Main's runtime localization reproduction is NOT_RUN. It is additional to the10 fixed software groups, not an invented failed automated case.
 
-## Infrastructure findings
+**OPEN BUG-3D-LOCALE-001 / P2 / release-blocking for the owner's requested clean UI baseline.** Set UI English, open3D, select HPC Rack, inspect its label and PI role card. Expected English system labels; actual Vietnamese text is hard-coded in OfficeScene.tsx and eventAdapter.ts. Root cause: locale-sensitive defaults bypass localization. [Source review](evidence/comparison-6.5.6/locale-source-review.json), [actual screenshot](evidence/comparison-6.5.6/candidate/visual/3d-3d-real.png). Owner: recovery frontend/SDET. Repair status OPEN; planned regression UI-3D-LOCALE-001 is NOT_IMPLEMENTED. Next: behavior-based EN/VI regression, smallest localization repair, targeted/feature/full evidence. No intentional redesign is approved.
 
-Historical confirmed repairs retained in governance evidence: Linux Chromium binary lookup, Windows SQLite fixture cleanup, nested unit-package discovery, and missing/staging-sensitive source-attestation inputs. Actual RED/GREEN evidence is under evidence/governance; these repairs do not prove application research correctness.
+Local verified repairs include premature experiment completion (deterministic delayed collector RED then17PASS affected tests), Linux executable packaging fixture (original6tests:1ERROR; corrected6PASS on POSIX and6PASS Windows), remote compute NameError, context completeness, CLI settings parity, evidence authenticity and accessibility naming. Their original failures remain retained. Source-confirmed fixes are not protected merges.
 
-The first two UI reconnaissance scripts used incorrect mobile sidebar selectors; those runs are incomplete infrastructure failures, not product defects. The corrected third run completed eight scans with no script errors. Its accessibility violations remain real findings. No expected assertions were relaxed.
+The remote NameError existed on main; the former newly-introduced classification is withdrawn. Missing newer APIs/modules, selector mismatches and loader errors are separate from proven product regressions. In particular a missing Open sidebar selector cannot reproduce the later overlay-interception root cause. No new product regression is observed in executed common cases; unknown/unexecuted scope remains.
 
-## Next repair order
-
-1. Restore mobile Settings usability, preserving desktop navigation.
-2. Align accessible control names with visible text in both EN and VI.
-3. Add permanent browser regressions to the canonical selector, retain RED/GREEN and update this registry after matching-source verification.
-4. Complete global coverage and mandatory live evidence; these are qualification gaps, not fabricated application bugs.
-
-## Controlled UI repair update
-
-See UI_STABILIZATION_REPORT.md and evidence/ui-stabilization-6.5.1/manifest.json. Same test source: functional RED1PASS/4FAIL, GREEN5PASS/0FAIL/0SKIP. Both fixes remain open for independent CI and integration; no protected merge occurred. Sixteen EN/VI viewport/surface scans passed automated checks in GREEN. This is not full visual/screen-reader certification.
+Coverage deficits, unavailable provider/SDK infrastructure, exhausted AI-UAT and missing trusted research evidence are qualification blockers. Earlier latency318.167ms under a300ms assertion remains an unresolved load/instrumentation observation; later isolated passes do not erase it or establish its cause.

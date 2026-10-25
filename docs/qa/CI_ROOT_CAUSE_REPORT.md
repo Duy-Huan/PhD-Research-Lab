@@ -1,35 +1,33 @@
-# CI recovery root causes — 2026-10-25
+# CI recovery root causes and current6.5.6 decision
 
-Decision: **NO-GO for merge or release.** The inspected CI is correctly refusing incomplete qualification. Not all red jobs are broken test infrastructure.
+**NO-GO for protected promotion.** Deterministic CI is operational on integration PR11; current strict coverage/live/UAT qualification is incomplete. No failure is waived.
 
-## Preserved source and actual runs
+Actual pre-repair hosted run [40171931531](https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40171931531), headb1dcf4b33179317d735238662d71c366c30b3513: policy, security/dependencies and real browserPASS. Backend matrices/frontend/UAT/Development gateFAIL. [Downloaded diagnostics](evidence/ci-stabilization-6.5.6/pr11-b1-diagnostics.json) distinguish assertions, skips, coverage and unavailable evidence. Post6.5.6 independent CI must be inspected against the exact latest pushed head.
 
-The original four worktrees are retained. Their HEADs/status are in [worktrees.json](evidence/ci-recovery-2026-10-25/worktrees.json). Binary HEAD/index patches and untracked copies remain private under the original workspace's `output/playwright/ci-recovery/preserved/`. Recovery started from clean dev `6725975261fe6a4d8a5cb3e10208e31c3e24f0e2`, then explicitly merged published UI/governance dependency `c737d133a193d0737f9bf3c42bfc0bbfe9cca993`. Unpublished `71e5332` automation is parked, not silently discarded or activated.
+| Root group | Classification | Evidence and disposition |
+|---|---|---|
+| Linux release packaging fixture | Introduced test specification defect | Index-only executable bit left the Linux worktree dirty; real packaging correctly rejected it. Original6tests:5PASS/1ERROR. Real chmod plus index fixes fixture, preserving all assertions and dirty-source rejection. POSIX6PASS/Windows6PASS; raw logs retained. |
+| Windows3.11 missing run metrics | Existing application race | Waiter published done before collecting/persisting metrics. Deterministic delayed-collector test RED fails, then affected17PASS. Final status now follows persisted metadata; failed-run postprocessing still receives final status. Same reproducer FAIL on old main, PASS on candidate. |
+| Missing remote context json import | Existing application defect, reclassified | Same unchanged case raises NameError on original main. Earlier provisional newly-introduced label is withdrawn; first known observed main6725975 is not an invented bisection result. Current candidate passes. |
+| Policy dependency order | Introduced CI infrastructure defect, fixed | Earlier actual40154407248 discovery ran before installing httpx. New canonical targeted worker follows hash-locked installation; hosted40171931531 policyPASS confirms repair. |
+| Backend coverage/completeness | Qualification gap | Same-suite candidate23833/26528lines,7120/8808branches,87.60% combined;8local mandatorySKIP. No threshold/exclusion change. |
+| Frontend coverage | Qualification gap |174assertionsPASS, types/buildPASS; lines2445/3820=64%,branches2611/4125=63.29%,functions733/1467=49.96%,statements2574/4117=62.52%. Gate correctlyFAIL. |
+| Verified AI-UAT | Unavailable qualification | Required current-source trusted exploration evidence missing. Canonical uat on both subjects returnsBLOCKED; TASK-UAT-LOCAL-ADAPTER remains exhausted3. Other personas/adapters and trusted research producer are incomplete. |
+|3D locale consistency | Existing OPEN P2 | Same hard-coded Vietnamese system strings exist on main and candidate. Actual candidate English screenshot reproduces mixed language. Dedicated regression is NOT_IMPLEMENTED.27browser PASS does not erase this defect. |
+| Native repair exercise | Real assisted partial acceptance | PR10 actually invokes Codex, fixes immutable-oracle fixture, targeted/feature verifies, supervisor pushes87703f7, new run40155743019 starts and completesFAIL. Initial Windows environment recovery needed operator help. Required-PASS/native dev merge are unachieved; no mergeSHA. |
 
-Downloaded actual job logs and bounded artifact archives for [governance run40148986328](https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328) at `1a7e494` and [UI run40150782744](https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40150782744) at `c737d13`. Full raw downloads remain in the original ignored output; selected raw reports, job metadata and SHA256 manifest are checked in under [evidence](evidence/ci-recovery-2026-10-25/manifest.json). Reports identify observed revisions; they do not certify the recovery candidate.
+The original old runs40148986328/40150782744 and full logs remain preserved. Duplicate matrix symptoms are grouped; no passing successful-job logs are supplied as repair authority. Current issue accounting has exceptions:[] and never filters tests or transforms unavailable results intoPASS.
 
-## Grouped diagnoses
+## Actual GitHub cleanup
 
-| Group | Actual evidence | Classification and action |
-| --- | --- | --- |
-| Python3.11 clean dev | `compileall` fails at `backend/paper/export.py:379`, f-string backslash | Proven existing compatibility defect at6725975; syntax repair already in published governance dependency. Do not blame current hosted dependency installation. |
-| Four backend matrix jobs | Each854 run:849 PASS,5 SKIP,0 assertion failures/errors; combined coverage87.32–87.72% on c737d13 | Coverage qualification gap plus unavailable live/optional infrastructure. Installation, pip check and compilation steps succeeded. Preserve100% requirement and incomplete-case blocking. |
-| Frontend |174 assertions PASS; lines2439/3799=64.20%,branches2595/4095=63.36%,functions731/1454=50.27%,statements2568/4094=62.72% | Whole-source coverage gap. Typecheck/build succeeded in the artifact; test gate exits nonzero for unmet thresholds. No confirmed assertion regression in this run. |
-| AI-UAT | `Required AI-UAT evidence is missing`; current selection NOT_RUN; additional adapters NOT_IMPLEMENTED | Missing execution/evidence producer and exhausted local adapter repair budget. Correctly BLOCKED, not a false test pass. No paid model calls or mock replacement. |
-| Development gate | All upstream `failure` values were rewritten BLOCKED | Introduced reporting defect in bd71705. Reproduced functional RED and fixed to retain FAIL plus raw upstream results. Blocking behavior remains intact. |
-| Baseline policy identity | Initial local baseline addition was omitted from source input hashing | Caught before publication by functional RED; baseline file now invalidates source evidence. |
-| Browser/policy/security | Actual successful checks on inspected runs | Earlier Playwright binary lookup fix is present and actual hosted browser check succeeds. These checks alone do not qualify live/scientific workflows. |
+Two duplicate legacy workflow registrations394955699/395288466 are disabled_manually with readback; Quality Gates remains active and system Dependency Graph is retained. Old run/history evidence is preserved. Legacy files are removed in candidate history; protected main adoption/CD activation waits for qualified promotion.
 
-No new test specification defect is confirmed by these runs. Earlier local latency318.167ms under a300ms assertion remains an unresolved observation in `defects.json`; isolated passes do not erase that failure. First affected revisions are observations, not an invented bisection result.
+PR7/9 closed only after their exact heads were proved ancestors of PR11. PR8 closed because its only weekly-root-pip configuration intent is fully represented by the new Dependabot config. Every branch/worktree/history remains. Queued main auto-merge was separately cancelled. Repository auto-merge stays quarantined.
 
-## Controlled repair and accounting
+Main now requires strict QA gate before merge (Actionsapp15368), with admin enforcement/no-force/no-delete/conversation/review settings unchanged. Release gate belongs to separate main-push CD, avoiding a circular pre-merge release requirement. [Before/after receipt](evidence/ci-stabilization-6.5.6/github-cleanup.json), [actual remote readback](evidence/comparison-6.5.6/github-state-before-publication.json).
 
-Permanent tests preserve failed/missing/skipped/cancelled distinctions; only complete required success may PASS. Machine-readable [known issues](KNOWN_ISSUES_BASELINE.json) bind exact baseline SHA, owners, reproduction, evidence hashes and remediation plans. Policy validates that accounting and rejects all exceptions because none is explicitly approved. It does not suppress any test or lower a threshold. Changes to baseline policy invalidate source identity.
+The browser-control connection was unavailable; these are authenticated API operations/readbacks, not a claim of browser UI control. main/dev/qa history remains6725975. No protected merge, tag, release, deployment or successful auto-merge has occurred.
 
-Targeted actual local execution:39 PASS,0 SKIP in [final-targeted-green.json](evidence/ci-recovery-2026-10-25/final-targeted-green.json). The aggregate functional RED had4 PASS/1 FAIL; baseline identity RED had4 PASS/1 FAIL. The initial missing-module baseline RED is separately retained and is not represented as a behavioral reproduction. Node controller20 fixture tests PASS; they are not live merge proof. Candidate full feature and independent CI results must be read from the recovery handoff before claiming completion.
+Hosted dependency/Chromium installation has executed successfully for passing policy/security/browser jobs. Actions secrets and self-hosted runner counts are both0. A hosted runner cannot use the owner's loopback LM Studio merely because that endpoint responds on the PC. Direct local Spark probes3/3 succeed with128tokens, retaining the original32-token reasoning-only FAIL; they do not provide trusted research/AI-UAT provenance or other-provider qualification.
 
-## Containment and remaining blockers
-
-Repository auto-merge is disabled by verified API readback. PR8 still retained a queued main auto-merge after that setting changed; its native auto-merge request was separately disabled and verified, without changing its source/base/open state. Existing dev/qa/main protection rules were read and preserved. Actual main requires `Release gate`, strict checks/admin enforcement/no force/deletion; its current reviewer count is0, which differs from older handoffs. No reviewer requirement was silently claimed or changed.
-
-Feature/dev auto-merge remains quarantined. No qa/main merge, release or tag occurred. AI Repair Supervisor integration, successful real auto-merge, and a green end-to-end promotion exercise remain NOT RUN/BLOCKED. Next priority: complete auditable live producers/adapters and missing integrations; add meaningful whole-source tests; integrate preserved app work; rerun frozen candidate mandatory gates. Do not substitute a coverage waiver for these tasks.
+[Same-suite comparison](MAIN_CANDIDATE_COMPARISON.md), [defect registry](MAIN_CANDIDATE_DEFECTS.json), [coverage priorities](COVERAGE_GAPS_6.5.6.json) and [readiness](RELEASE_READINESS.md) are the current handoff. Historical old reviewer/auto-merge/pending-application statements in earlier commits are superseded by these measured facts.

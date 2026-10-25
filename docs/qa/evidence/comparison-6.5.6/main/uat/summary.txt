@@ -1,0 +1,8 @@
+VERIFY: BLOCKED
+Profile: uat / all
+Tests: {"PASS": 0, "FAIL": 0, "ERROR": 0, "SKIP": 0, "NOT_RUN": 0, "BLOCKED": 1, "UNVERIFIED": 0}
+Affected: 494 files; risk CRITICAL
+Root cause: Three failed repair cycles exhausted; preserve evidence and stop this loop (1 cases)
+Gate: uat-exploration BLOCKED Three failed repair cycles exhausted; preserve evidence and stop this loop
+Evidence: D:\git-repo\PhD-Research-Lab-worktrees\main-shared-verification-656\output\playwright\same-suite\uat\report.json
+Next action: Read the first relevant raw log; repair at most three cycles

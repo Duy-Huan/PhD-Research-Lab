@@ -1,0 +1,247 @@
+[
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\backend\\report.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/main/backend/report.json",
+    "sha256": "0cfeeb140475be2ef1138ef2861c7563ebb1406c8c6b19b57d5dc87f0a88b143"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\backend\\summary.txt",
+    "published": "docs/qa/evidence/comparison-6.5.6/main/backend/summary.txt",
+    "sha256": "ad4073380cc4c28bda7b755268d21959da359a675cd1a4563c3a16142bf952e2"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\frontend\\report.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/main/frontend/report.json",
+    "sha256": "d96e924f5c38a0c63dbf589b07c905bb828182fc3d449055f5875445a0d3476f"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\frontend\\summary.txt",
+    "published": "docs/qa/evidence/comparison-6.5.6/main/frontend/summary.txt",
+    "sha256": "7a02387dafdc189f5d7dc723baeaa1f2e27e2f5dc1c9e6cda098c63bf8a7433e"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\uat\\report.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/main/uat/report.json",
+    "sha256": "e5aabca81e3edf64edf8153a5835f7da8ed141e71f953cf7df638685dd552d3a"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\uat\\summary.txt",
+    "published": "docs/qa/evidence/comparison-6.5.6/main/uat/summary.txt",
+    "sha256": "53b231b7ed4c800cb72037a4ab98e23844466670e2fcbe467ffde200cb87bd63"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\backend\\backend\\report.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/main/backend-raw/report.json",
+    "sha256": "5143ef0da4d8097e7c4477e561484c2d17e51cc424df2e72b77135e7e41c570d"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\backend\\backend\\coverage.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/main/backend-raw/coverage.json",
+    "sha256": "630e603a11ce1eceda3ab7d1bf2f6ac55e036519d687358d0138fcdda831125d"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\frontend\\frontend-types.log",
+    "published": "docs/qa/evidence/comparison-6.5.6/main/frontend/frontend-types.log",
+    "sha256": "969554267ff414fcf4f836b94b4a3529d2d3d53e5699ff5e21cf109983c363e3"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\browser\\results.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/main/browser/results.json",
+    "sha256": "d10c900f33472f72983838ff0ad168310b253dc8a835965f3799d4a3ea14958c"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\browser\\boundaries.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/main/browser/boundaries.json",
+    "sha256": "29cd2f87d733a4e348c3868fe7c7bc4b30a52839c5f1b1882dd4f941a5be5d60"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\browser\\selection.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/main/browser/selection.json",
+    "sha256": "0fb40336c353c16ee2dcf085ac3d2ccef1e52bd090950b4c13a4b508a30b2dfc"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\main-python311-compatibility.log",
+    "published": "docs/qa/evidence/comparison-6.5.6/logs/main-python311-compatibility.log",
+    "sha256": "ae691f36d6d008a4950da6e380d737b03285005e76e8cd9b91e55899e28edbab"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\main-backend.log",
+    "published": "docs/qa/evidence/comparison-6.5.6/logs/main-backend.log",
+    "sha256": "ad4073380cc4c28bda7b755268d21959da359a675cd1a4563c3a16142bf952e2"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\main-frontend.log",
+    "published": "docs/qa/evidence/comparison-6.5.6/logs/main-frontend.log",
+    "sha256": "7a02387dafdc189f5d7dc723baeaa1f2e27e2f5dc1c9e6cda098c63bf8a7433e"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\main-diagnostic-web-transpile.log",
+    "published": "docs/qa/evidence/comparison-6.5.6/logs/main-diagnostic-web-transpile.log",
+    "sha256": "141b76fc9c6af9a48b497eff6938f5cc4cd33c40dad0eb86b538020f6ecf7f31"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\main-diagnostic-web-index.log",
+    "published": "docs/qa/evidence/comparison-6.5.6/logs/main-diagnostic-web-index.log",
+    "sha256": "63e361548dddc3b5dddafb5e89e04635f9a68329783a646f0656b64eae45711e"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\main-browser.log",
+    "published": "docs/qa/evidence/comparison-6.5.6/logs/main-browser.log",
+    "sha256": "456ff7cda058d1eb9ef10af0758288d20eb27dc2cd8b780c963c0f606824f4b1"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\main-uat.log",
+    "published": "docs/qa/evidence/comparison-6.5.6/logs/main-uat.log",
+    "sha256": "a7f0e7fb79c85851924d892fadce6dc671201e4da13d63c751e5513b6e0049bd"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\browser\\results\\office3d-3D-real-WebGL-ren-be96d-pixels-dock-returns-to-chat\\test-failed-1.png",
+    "published": "docs/qa/evidence/comparison-6.5.6/main/visual/3d-screenshot.png",
+    "sha256": "ffc477e701b22a321ae47f1c5784041dcd444fcae426efd8f155e68c2b5054a9"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\browser\\results\\ui_quality-UI-MOBILE-SETTI-6fe43-ses-mobile-sidebar-at-375px\\test-failed-1.png",
+    "published": "docs/qa/evidence/comparison-6.5.6/main/visual/mobile-screenshot.png",
+    "sha256": "4aad8a01aa52985b68d5638a645f05158359826d6785f5066e79023a7872d2b6"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\browser\\results\\ui_quality-UI-MOBILE-SETTI-6fe43-ses-mobile-sidebar-at-375px\\trace.zip",
+    "published": "docs/qa/evidence/comparison-6.5.6/main/visual/mobile-trace.zip",
+    "sha256": "f742cbbdb7ab98925dc72652ebb6e6468f55429c02ea9f484a03df14651fc2bc"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\backend\\report.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/candidate/backend/report.json",
+    "sha256": "91dbc917b7f014d0695e764315f0e8e4879dca9e42a264cfc552dd4edf6e975c"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\backend\\summary.txt",
+    "published": "docs/qa/evidence/comparison-6.5.6/candidate/backend/summary.txt",
+    "sha256": "0594f74d5f87b0b7796ebcc63b61019c6e38a3cd00d6958e5b906a3158ccd63f"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\frontend\\report.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/candidate/frontend/report.json",
+    "sha256": "0a4c341869d91fb52f4ae2ae442a68387492660ef6520f2a6bec7bef867c4487"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\frontend\\summary.txt",
+    "published": "docs/qa/evidence/comparison-6.5.6/candidate/frontend/summary.txt",
+    "sha256": "368f6a2970f5929680b468db732f631416b14c37774002eb6aa41d6a9c454aed"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\uat\\report.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/candidate/uat/report.json",
+    "sha256": "7fbdc758e207624f4c8bf4b66db3f1846f07449f51c561bf15e29f8957bf25c2"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\uat\\summary.txt",
+    "published": "docs/qa/evidence/comparison-6.5.6/candidate/uat/summary.txt",
+    "sha256": "10b6de7ce5e703ad6a5c7af31b4aa435c4b3e2d5f81eafa0f1965409cf7fdb7b"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\backend\\backend\\report.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/candidate/backend-raw/report.json",
+    "sha256": "a057ea78652ee23a2f765f5abf3a31da0b3c17a4dc9fc7aaa6f681570cd7949f"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\backend\\backend\\coverage.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/candidate/backend-raw/coverage.json",
+    "sha256": "37945f4ccf9b3180f553213fb6201f610a12e031b9b1875707871ec30f321153"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\frontend\\frontend-coverage.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/candidate/frontend/frontend-coverage.json",
+    "sha256": "28ca5cfde415c7bb049e5298e53439f6320849e18a30511cdab9bf9733042703"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\frontend\\frontend-types.log",
+    "published": "docs/qa/evidence/comparison-6.5.6/candidate/frontend/frontend-types.log",
+    "sha256": "bc6aa4d657eac77ccc44229eeb9b0aa595ff26b8678aef01c91b384f859a645f"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\browser\\results.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/candidate/browser/results.json",
+    "sha256": "f0b2d3dd820f0de21d2f75f4d63790132454aef314fa05ea62984e99025ffeb5"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\browser\\boundaries.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/candidate/browser/boundaries.json",
+    "sha256": "f44fbb123f00ff1e1b1f23e0d8b98cc3c04268f08beeeb1e0d8311b145e0842a"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\browser\\selection.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/candidate/browser/selection.json",
+    "sha256": "b4e1deba10da2ca3ca48fd05bea5581a1e396096dff28f3f15350e30299af402"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\candidate-python311-compatibility.log",
+    "published": "docs/qa/evidence/comparison-6.5.6/logs/candidate-python311-compatibility.log",
+    "sha256": "4bc62414662b1ce1279dca846044d09d0ad4d794bf0d0eeaec09661c8c12010d"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\candidate-backend.log",
+    "published": "docs/qa/evidence/comparison-6.5.6/logs/candidate-backend.log",
+    "sha256": "0594f74d5f87b0b7796ebcc63b61019c6e38a3cd00d6958e5b906a3158ccd63f"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\candidate-frontend.log",
+    "published": "docs/qa/evidence/comparison-6.5.6/logs/candidate-frontend.log",
+    "sha256": "368f6a2970f5929680b468db732f631416b14c37774002eb6aa41d6a9c454aed"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\candidate-diagnostic-web-transpile.log",
+    "published": "docs/qa/evidence/comparison-6.5.6/logs/candidate-diagnostic-web-transpile.log",
+    "sha256": "30486a80f58509a3eedb7ad4775ea761432314b8a733333ae2060cd3da45b3a8"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\candidate-diagnostic-web-index.log",
+    "published": "docs/qa/evidence/comparison-6.5.6/logs/candidate-diagnostic-web-index.log",
+    "sha256": "63e361548dddc3b5dddafb5e89e04635f9a68329783a646f0656b64eae45711e"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\candidate-browser.log",
+    "published": "docs/qa/evidence/comparison-6.5.6/logs/candidate-browser.log",
+    "sha256": "b3c042aed28ba54a2ade4936df065491dbd24d1d910eaf4036488ba3bb051ddc"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\candidate-uat.log",
+    "published": "docs/qa/evidence/comparison-6.5.6/logs/candidate-uat.log",
+    "sha256": "10b6de7ce5e703ad6a5c7af31b4aa435c4b3e2d5f81eafa0f1965409cf7fdb7b"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\browser\\results\\office3d-3D-real-WebGL-ren-be96d-pixels-dock-returns-to-chat\\test-finished-1.png",
+    "published": "docs/qa/evidence/comparison-6.5.6/candidate/visual/3d-screenshot.png",
+    "sha256": "796a046c72796cb9f7d0a42dbd9abc864b6abd13af82f1868c64c7c022975eae"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\browser\\results\\ui_quality-UI-MOBILE-SETTI-6fe43-ses-mobile-sidebar-at-375px\\test-finished-1.png",
+    "published": "docs/qa/evidence/comparison-6.5.6/candidate/visual/mobile-screenshot.png",
+    "sha256": "fa8d18accfc34848d44835067188295e311d8aebaa8a42db42fa5c139cdb7354"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\browser\\results\\ui_quality-UI-MOBILE-SETTI-6fe43-ses-mobile-sidebar-at-375px\\trace.zip",
+    "published": "docs/qa/evidence/comparison-6.5.6/candidate/visual/mobile-trace.zip",
+    "sha256": "b00ec4642fa01d550f07f6554f3c084b4655f0835e61411daf1b147c49edc376"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\github-final-state.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/github-state-before-publication.json",
+    "sha256": "c0a45b772adc5a642e5ba9906173e3fbf2ebf604559d1e588da32a7502b8cde8"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\local-model-list-observation.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/local-model-list.json",
+    "sha256": "61c66ccb0e0e4a39a6f1dabcc983a7e3322429bd35c8eae2627c57981e6c9d88"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\spark-connectivity-656\\report.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/spark-probe-32-failed.json",
+    "sha256": "e4d135393d9f6de29eabcbfada82d05cef7745fcdcb7246a765aeda3b9b2bded"
+  },
+  {
+    "original": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\spark-connectivity-656-128\\report.json",
+    "published": "docs/qa/evidence/comparison-6.5.6/spark-probe-128.json",
+    "sha256": "3bd11351e8b2c0222eca12ea42aba5a79806bfddd6a79d3107b5aab0441ab15b"
+  }
+]

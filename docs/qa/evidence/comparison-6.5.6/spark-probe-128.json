@@ -1,0 +1,169 @@
+{
+  "mode": "LIVE_PROVIDER_CONNECTIVITY",
+  "model": "spark-x2.5-4b",
+  "endpoint": "http://127.0.0.1:1234/v1/chat/completions",
+  "required_requests": 3,
+  "started_utc": "2026-10-25T08:26:09.076107+00:00",
+  "cases": [
+    {
+      "id": "spark.local-connection.1",
+      "request": {
+        "model": "spark-x2.5-4b",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Respond with only the single word READY."
+          },
+          {
+            "role": "user",
+            "content": "Local connection check 1"
+          }
+        ],
+        "temperature": 0,
+        "max_tokens": 128,
+        "stream": false
+      },
+      "response": {
+        "id": "chatcmpl-hc3kur3yf1433pmjrj4be5",
+        "object": "chat.completion",
+        "created": 1792916769,
+        "model": "spark-x2.5-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "READY",
+              "reasoning_content": "We are asked: \"Local connection check 1\". The user wants a response with only the single word \"READY\". So we must output exactly \"READY\".",
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 33,
+          "completion_tokens": 38,
+          "total_tokens": 71,
+          "completion_tokens_details": {
+            "reasoning_tokens": 34
+          }
+        },
+        "stats": {},
+        "system_fingerprint": "spark-x2.5-4b"
+      },
+      "status": "PASS",
+      "elapsed_s": 1.89
+    },
+    {
+      "id": "spark.local-connection.2",
+      "request": {
+        "model": "spark-x2.5-4b",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Respond with only the single word READY."
+          },
+          {
+            "role": "user",
+            "content": "Local connection check 2"
+          }
+        ],
+        "temperature": 0,
+        "max_tokens": 128,
+        "stream": false
+      },
+      "response": {
+        "id": "chatcmpl-l68iy9fzouowmjn467dhm",
+        "object": "chat.completion",
+        "created": 1792916770,
+        "model": "spark-x2.5-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "READY",
+              "reasoning_content": "We are asked: \"Local connection check 2\". The user wants a response with only the single word \"READY\". So we must output exactly \"READY\".",
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 33,
+          "completion_tokens": 38,
+          "total_tokens": 71,
+          "completion_tokens_details": {
+            "reasoning_tokens": 34
+          }
+        },
+        "stats": {},
+        "system_fingerprint": "spark-x2.5-4b"
+      },
+      "status": "PASS",
+      "elapsed_s": 0.594
+    },
+    {
+      "id": "spark.local-connection.3",
+      "request": {
+        "model": "spark-x2.5-4b",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Respond with only the single word READY."
+          },
+          {
+            "role": "user",
+            "content": "Local connection check 3"
+          }
+        ],
+        "temperature": 0,
+        "max_tokens": 128,
+        "stream": false
+      },
+      "response": {
+        "id": "chatcmpl-3mk4nzrb5buhtsm60ya0p8",
+        "object": "chat.completion",
+        "created": 1792916771,
+        "model": "spark-x2.5-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "READY",
+              "reasoning_content": "We are asked: \"Local connection check 3\". The user wants a response with only the single word \"READY\". So we must output exactly \"READY\".",
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 33,
+          "completion_tokens": 38,
+          "total_tokens": 71,
+          "completion_tokens_details": {
+            "reasoning_tokens": 34
+          }
+        },
+        "stats": {},
+        "system_fingerprint": "spark-x2.5-4b"
+      },
+      "status": "PASS",
+      "elapsed_s": 0.641
+    }
+  ],
+  "scope": "Direct local model response sample; not application/AI-UAT/scientific acceptance",
+  "calibration": {
+    "original_report": "output\\playwright\\ci-supervisor\\spark-connectivity-656\\report.json",
+    "sha256": "e4d135393d9f6de29eabcbfada82d05cef7745fcdcb7246a765aeda3b9b2bded",
+    "cause": "Original32-token allocation was entirely consumed by reasoning; exact READY assertion is unchanged"
+  },
+  "max_tokens_per_request": 128,
+  "timeout_seconds": 45,
+  "decision": "PASS",
+  "finished_utc": "2026-10-25T08:26:12.190944+00:00"
+}

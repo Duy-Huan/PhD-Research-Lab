@@ -43,6 +43,36 @@
       "regression_test_id": "UI-ACCESSIBLE-NAMES-001",
       "release_blocking": true,
       "local_fix_evidence": "evidence/ui-stabilization-6.5.1/manifest.json"
+    },
+    {
+      "id": "BUG-3D-LOCALE-001",
+      "severity": "P2",
+      "status": "CONFIRMED",
+      "description": "English3D view retains Vietnamese HPC labels and agent role text",
+      "evidence": "locale-source-review.json",
+      "mode": "SOURCE_REVIEW_BOTH_AND_REAL_BROWSER_CANDIDATE",
+      "regression_status": "NOT_IMPLEMENTED",
+      "runtime_reproduction": "NOT_RUN",
+      "module": "frontend/src/features/agent-status/office3d/OfficeScene.tsx; frontend/src/shared/events/eventAdapter.ts",
+      "classification": "EXISTING_APPLICATION_DEFECT",
+      "first_known_affected_commit": "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+      "first_known_note": "Independently reproduced observation, not a bisected introduction",
+      "candidate_status": "UNRESOLVED",
+      "reproduction": "Set UI English; open3D; choose HPC Rack; inspect HPC label and PI role card",
+      "expected": "Locale-sensitive system labels are English",
+      "actual": "Vietnamese labels are unconditional in both sources and visible in actual candidate screenshot",
+      "owner": "Repository maintainer / recovery SDET",
+      "repair_status": "OPEN",
+      "suspected_root_cause": "English3D view retains Vietnamese HPC labels and agent role text",
+      "regression_test_id": "UI-3D-LOCALE-001 (NOT_IMPLEMENTED)",
+      "remediation": "Add behavioral EN/VI3D assertions before localizing labels and agent descriptions; rerun affected/full gates",
+      "release_blocking": true,
+      "reproduction_steps": [
+        "Set interface English",
+        "Open3D and select HPC Rack",
+        "Read HPC world label and Principal Investigator role card"
+      ],
+      "failure_evidence": "evidence/comparison-6.5.6/candidate/visual/3d-3d-real.png"
     }
   ],
   "qualification_gaps": [
@@ -74,5 +104,6 @@
     }
   ],
   "candidate_version": "6.5.1",
-  "candidate_note": "Original baseline evidence retained; defects are not closed before independent CI/merge"
+  "candidate_note": "Original baseline evidence retained; defects are not closed before independent CI/merge",
+  "current_inventory_note": "6.5.6 paired/current findings are in MAIN_CANDIDATE_DEFECTS.json; older source fields below identify historical captures, not current certification"
 }

@@ -1,0 +1,1070 @@
+warning: in the working copy of 'frontend/dist/assets/react-BREGHvBw.css', LF will be replaced by CRLF the next time Git touches it
+test_actual_uat_server_allows_language_and_denies_other_writes (browser_acceptance_integration.OwnedServerCapability.test_actual_uat_server_allows_language_and_denies_other_writes)
+REAL_LOCAL HTTP integration; no model, account or browser credentials. ... ok
+test_owned_browser_origin_proxy_and_finish_without_model (browser_acceptance_integration.OwnedServerCapability.test_owned_browser_origin_proxy_and_finish_without_model) ... ok
+test_python_worker_denies_file_mutation_and_processes_outside_lease (browser_acceptance_integration.OwnedServerCapability.test_python_worker_denies_file_mutation_and_processes_outside_lease) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 33.897s
+
+OK
+
+Running 27 tests using 1 worker
+
+[1/27] e2e\ci_smoke.spec.ts:3:1 › CI: real application shell and settings respond without provider inference
+  1) e2e\ci_smoke.spec.ts:3:1 › CI: real application shell and settings respond without provider inference 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.settings-studio-content')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.settings-studio-content') with timeout 15000ms
+      - waiting for locator('.settings-studio-content')
+
+
+      11 |   await expect(page.getByRole('button', { name: 'System Settings', exact: true })).toBeVisible();
+      12 |   await page.getByRole('button', { name: 'System Settings', exact: true }).click();
+    > 13 |   await expect(page.locator('.settings-studio-content')).toBeVisible();
+         |                                                          ^
+      14 |   await page.getByRole('button', { name: 'Back to Workspace', exact: true }).click();
+      15 |   await expect(page.locator('#view textarea')).toBeVisible();
+      16 |   expect(errors).toEqual([]);
+        at D:\git-repo\PhD-Research-Lab-worktrees\main-shared-verification-656\frontend\e2e\ci_smoke.spec.ts:13:58
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ci_smoke-CI-real-applicati-202b4--without-provider-inference\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ci_smoke-CI-real-applicati-202b4--without-provider-inference\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\output\playwright\same-suite\browser\results\ci_smoke-CI-real-applicati-202b4--without-provider-inference\error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ci_smoke-CI-real-applicati-202b4--without-provider-inference\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\output\playwright\same-suite\browser\results\ci_smoke-CI-real-applicati-202b4--without-provider-inference\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[2/27] e2e\navigation.spec.ts:5:3 › navigation: Paper Library & Search
+[3/27] e2e\navigation.spec.ts:5:3 › navigation: 5-Level Research Outline
+[4/27] e2e\navigation.spec.ts:5:3 › navigation: Research Topics
+[5/27] e2e\navigation.spec.ts:5:3 › navigation: Workstreams
+[6/27] e2e\navigation.spec.ts:5:3 › navigation: Figure Studio
+[7/27] e2e\navigation.spec.ts:5:3 › navigation: OpenCode Runtime
+[8/27] e2e\navigation.spec.ts:5:3 › navigation: Intelligence & RO-Crate
+[9/27] e2e\navigation.spec.ts:5:3 › navigation: Protocols
+[10/27] e2e\navigation.spec.ts:5:3 › navigation: Claims & Evidence
+[11/27] e2e\navigation.spec.ts:5:3 › navigation: Paper LaTeX
+[12/27] e2e\navigation.spec.ts:5:3 › navigation: Code · VS Code
+[13/27] e2e\navigation.spec.ts:19:1 › main views and keyboard return to chat
+[14/27] e2e\navigation.spec.ts:38:1 › mobile chat controls and topic tabs fit the viewport
+  2) e2e\navigation.spec.ts:38:1 › mobile chat controls and topic tabs fit the viewport ────────────
+
+    Error: Header fits 768px
+
+    expect(received).toBeTruthy()
+
+    Received: false
+
+      46 |     expect(box, 'Send has a rendered box').not.toBeNull();
+      47 |     expect.soft(box!.x + box!.width, `Send within ${viewport.width}px`).toBeLessThanOrEqual(viewport.width);
+    > 48 |     expect.soft(await page.locator('#top').evaluate(el => el.scrollWidth <= el.clientWidth + 1), `Header fits ${viewport.width}px`).toBeTruthy();
+         |                                                                                                                                     ^
+      49 |     await page.locator('#topic-btn').click();
+      50 |     await info.attach(`topic-${viewport.width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      51 |     expect.soft(await page.locator('#panel').evaluate(el => el.scrollWidth <= el.clientWidth + 1), `Drawer fits ${viewport.width}px`).toBeTruthy();
+        at D:\git-repo\PhD-Research-Lab-worktrees\main-shared-verification-656\frontend\e2e\navigation.spec.ts:48:133
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for locator('#topic-btn')
+        - locator resolved to <button type="button" id="topic-btn" class="btn sm ghost" title="Select Research Topic & SKB">…</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <svg width="14" height="14" fill="none" stroke-width="2" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open" xmlns="http://www.w3.org/2000/svg">…</svg> from <div>…</div> subtree intercepts pointer events
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <svg width="14" height="14" fill="none" stroke-width="2" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open" xmlns="http://www.w3.org/2000/svg">…</svg> from <div>…</div> subtree intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        28 × waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <svg width="14" height="14" fill="none" stroke-width="2" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open" xmlns="http://www.w3.org/2000/svg">…</svg> from <div>…</div> subtree intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+
+
+      47 |     expect.soft(box!.x + box!.width, `Send within ${viewport.width}px`).toBeLessThanOrEqual(viewport.width);
+      48 |     expect.soft(await page.locator('#top').evaluate(el => el.scrollWidth <= el.clientWidth + 1), `Header fits ${viewport.width}px`).toBeTruthy();
+    > 49 |     await page.locator('#topic-btn').click();
+         |                                      ^
+      50 |     await info.attach(`topic-${viewport.width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      51 |     expect.soft(await page.locator('#panel').evaluate(el => el.scrollWidth <= el.clientWidth + 1), `Drawer fits ${viewport.width}px`).toBeTruthy();
+      52 |     await page.locator('#drawer-close-btn').click();
+        at D:\git-repo\PhD-Research-Lab-worktrees\main-shared-verification-656\frontend\e2e\navigation.spec.ts:49:38
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\navigation-mobile-chat-con-f7404-topic-tabs-fit-the-viewport\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: rendered-ui.txt (text/plain) ────────────────────────────────────────────────────
+    PhD Research Lab
+    New chat
+    3D University Lab
+    Paper Library
+    Autonomous Missions
+    Harness Studio
+    Claude CLI Terminal
+    Workspace: Default project
+    QUICK APPS & SYNC
+    All
+    ChatGPT
+    Claude
+    OpenCode
+    Antigravity
+    Feynman
+    LM Studio
+    Chat Projects
+    Recents
+    
+    No conversations yet.
+    
+    Research Studios
+    PW responsive 1792915...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\navigation-mobile-chat-con-f7404-topic-tabs-fit-the-viewport\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\output\playwright\same-suite\browser\results\navigation-mobile-chat-con-f7404-topic-tabs-fit-the-viewport\error-context.md
+
+    attachment #9: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\navigation-mobile-chat-con-f7404-topic-tabs-fit-the-viewport\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\output\playwright\same-suite\browser\results\navigation-mobile-chat-con-f7404-topic-tabs-fit-the-viewport\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[15/27] e2e\office3d.spec.ts:4:1 › 3D real WebGL renders, camera and lighting change pixels, dock returns to chat
+  3) e2e\office3d.spec.ts:4:1 › 3D real WebGL renders, camera and lighting change pixels, dock returns to chat 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  locator('#office3d-viewport').getByRole('button', { name: 'HPC Rack', exact: true })
+    Expected: "true"
+    Received: ""
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveAttribute" locator('#office3d-viewport').getByRole('button', { name: 'HPC Rack', exact: true }) with timeout 15000ms
+      - waiting for locator('#office3d-viewport').getByRole('button', { name: 'HPC Rack', exact: true })
+        32 × locator resolved to <button type="button">HPC Rack</button>
+           - unexpected value "null"
+
+
+      19 |   const initial = await digest();
+      20 |   await viewport.getByRole('button', { name: 'HPC Rack', exact: true }).click();
+    > 21 |   await expect(viewport.getByRole('button', { name: 'HPC Rack', exact: true })).toHaveAttribute('aria-pressed', 'true');
+         |                                                                                 ^
+      22 |   await expect.poll(digest).not.toBe(initial);
+      23 |   await viewport.getByRole('button', { name: 'Daylight', exact: true }).click();
+      24 |   await expect(viewport.getByRole('button', { name: 'Daylight', exact: true })).toHaveAttribute('aria-pressed', 'true');
+        at D:\git-repo\PhD-Research-Lab-worktrees\main-shared-verification-656\frontend\e2e\office3d.spec.ts:21:81
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\office3d-3D-real-WebGL-ren-be96d-pixels-dock-returns-to-chat\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: rendered-ui.txt (text/plain) ────────────────────────────────────────────────────
+    PhD Research Lab
+    New chat
+    3D University Lab
+    Paper Library
+    Autonomous Missions
+    Harness Studio
+    Claude CLI Terminal
+    Workspace: Default project
+    QUICK APPS & SYNC
+    All
+    ChatGPT
+    Claude
+    OpenCode
+    Antigravity
+    Feynman
+    LM Studio
+    Chat Projects
+    Recents
+    
+    No conversations yet.
+    
+    Research Studios
+    Topic SKB
+    Chat
+    Librar...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\office3d-3D-real-WebGL-ren-be96d-pixels-dock-returns-to-chat\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\output\playwright\same-suite\browser\results\office3d-3D-real-WebGL-ren-be96d-pixels-dock-returns-to-chat\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\office3d-3D-real-WebGL-ren-be96d-pixels-dock-returns-to-chat\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\output\playwright\same-suite\browser\results\office3d-3D-real-WebGL-ren-be96d-pixels-dock-returns-to-chat\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[16/27] e2e\uat_harness.spec.ts:6:1 › UAT harness: real language form reaches backend and persists after refresh without LLM
+[17/27] e2e\uat_harness.spec.ts:20:1 › UAT harness: separate browser contexts do not share cookies or local storage
+[18/27] e2e\uat_harness.spec.ts:34:1 › UAT harness: controlled console error and unhandled rejection produce evidence
+[19/27] e2e\uat_harness.spec.ts:48:1 › UAT harness: injected config-network failure is recorded and reload recovers
+[20/27] e2e\uat_harness.spec.ts:59:1 › UAT harness: failed action preserves screenshot and reproducible actual/expected report
+[21/27] e2e\uat_harness.spec.ts:70:1 › UAT harness: a controlled broken fixture fails its regression then corrected fixture passes
+[22/27] e2e\ui_quality.spec.ts:8:1 › UI-MODEL-RULES-001: cloud preconnection and context budgets persist through the real settings API
+  4) e2e\ui_quality.spec.ts:8:1 › UI-MODEL-RULES-001: cloud preconnection and context budgets persist through the real settings API 
+
+    Error: expect(locator).not.toBeChecked() failed
+
+    Locator: getByRole('checkbox', { name: 'Preconnect Cloud when saving a model', exact: true })
+    Expected: not checked
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "not toBeChecked" getByRole('checkbox', { name: 'Preconnect Cloud when saving a model', exact: true }) with timeout 15000ms
+      - waiting for getByRole('checkbox', { name: 'Preconnect Cloud when saving a model', exact: true })
+
+
+      14 |     await page.getByRole('button', { name: /Models & AI Agents/ }).click();
+      15 |     const preconnect = page.getByRole('checkbox', { name: 'Preconnect Cloud when saving a model', exact: true });
+    > 16 |     await expect(preconnect).not.toBeChecked();
+         |                                  ^
+      17 |     await preconnect.check();
+      18 |     await expect.poll(async () => (await (await request.get('/api/config')).json()).lifecycle.cloud_preconnect).toBe(true);
+      19 |     await page.reload();
+        at D:\git-repo\PhD-Research-Lab-worktrees\main-shared-verification-656\frontend\e2e\ui_quality.spec.ts:16:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-MODEL-RULES--0dcf1-rough-the-real-settings-API\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: rendered-ui.txt (text/plain) ────────────────────────────────────────────────────
+    PhD Research Lab
+    New chat
+    3D University Lab
+    Paper Library
+    Autonomous Missions
+    Harness Studio
+    Claude CLI Terminal
+    Workspace: Default project
+    QUICK APPS & SYNC
+    All
+    ChatGPT
+    Claude
+    OpenCode
+    Antigravity
+    Feynman
+    LM Studio
+    Chat Projects
+    Recents
+    
+    No conversations yet.
+    
+    Research Studios
+    Topic SKB
+    Chat
+    Librar...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-MODEL-RULES--0dcf1-rough-the-real-settings-API\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\output\playwright\same-suite\browser\results\ui_quality-UI-MODEL-RULES--0dcf1-rough-the-real-settings-API\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-MODEL-RULES--0dcf1-rough-the-real-settings-API\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\output\playwright\same-suite\browser\results\ui_quality-UI-MODEL-RULES--0dcf1-rough-the-real-settings-API\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[23/27] e2e\ui_quality.spec.ts:43:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 375px
+  5) e2e\ui_quality.spec.ts:43:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 375px 
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Open sidebar', exact: true })
+
+
+      46 |     await expect(page.locator('#live')).toHaveAttribute('title', 'Connected to PhD Lab server');
+      47 |     await expect(page.locator('#view textarea')).toBeVisible();
+    > 48 |     await page.getByRole('button', { name: 'Open sidebar', exact: true }).click();
+         |                                                                           ^
+      49 |     await page.getByRole('button', { name: 'System Settings', exact: true }).click();
+      50 |     await expect(page.locator('.settings-studio-content')).toBeVisible();
+      51 |     await expect(page.getByRole('complementary', { name: 'Sidebar', exact: true })).toBeHidden();
+        at D:\git-repo\PhD-Research-Lab-worktrees\main-shared-verification-656\frontend\e2e\ui_quality.spec.ts:48:75
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-MOBILE-SETTI-6fe43-ses-mobile-sidebar-at-375px\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: rendered-ui.txt (text/plain) ────────────────────────────────────────────────────
+    PhD Research Lab
+    New chat
+    3D University Lab
+    Paper Library
+    Autonomous Missions
+    Harness Studio
+    Claude CLI Terminal
+    Workspace: Default project
+    QUICK APPS & SYNC
+    All
+    ChatGPT
+    Claude
+    OpenCode
+    Antigravity
+    Feynman
+    LM Studio
+    Chat Projects
+    Recents
+    
+    No conversations yet.
+    
+    Research Studios
+    Topic SKB
+    Chat
+    Librar...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-MOBILE-SETTI-6fe43-ses-mobile-sidebar-at-375px\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\output\playwright\same-suite\browser\results\ui_quality-UI-MOBILE-SETTI-6fe43-ses-mobile-sidebar-at-375px\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-MOBILE-SETTI-6fe43-ses-mobile-sidebar-at-375px\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\output\playwright\same-suite\browser\results\ui_quality-UI-MOBILE-SETTI-6fe43-ses-mobile-sidebar-at-375px\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[24/27] e2e\ui_quality.spec.ts:43:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 768px
+  6) e2e\ui_quality.spec.ts:43:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 768px 
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Open sidebar', exact: true })
+
+
+      46 |     await expect(page.locator('#live')).toHaveAttribute('title', 'Connected to PhD Lab server');
+      47 |     await expect(page.locator('#view textarea')).toBeVisible();
+    > 48 |     await page.getByRole('button', { name: 'Open sidebar', exact: true }).click();
+         |                                                                           ^
+      49 |     await page.getByRole('button', { name: 'System Settings', exact: true }).click();
+      50 |     await expect(page.locator('.settings-studio-content')).toBeVisible();
+      51 |     await expect(page.getByRole('complementary', { name: 'Sidebar', exact: true })).toBeHidden();
+        at D:\git-repo\PhD-Research-Lab-worktrees\main-shared-verification-656\frontend\e2e\ui_quality.spec.ts:48:75
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-MOBILE-SETTI-2f02f-ses-mobile-sidebar-at-768px\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: rendered-ui.txt (text/plain) ────────────────────────────────────────────────────
+    PhD Research Lab
+    New chat
+    3D University Lab
+    Paper Library
+    Autonomous Missions
+    Harness Studio
+    Claude CLI Terminal
+    Workspace: Default project
+    QUICK APPS & SYNC
+    All
+    ChatGPT
+    Claude
+    OpenCode
+    Antigravity
+    Feynman
+    LM Studio
+    Chat Projects
+    Recents
+    
+    No conversations yet.
+    
+    Research Studios
+    Topic SKB
+    Chat
+    Librar...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-MOBILE-SETTI-2f02f-ses-mobile-sidebar-at-768px\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\output\playwright\same-suite\browser\results\ui_quality-UI-MOBILE-SETTI-2f02f-ses-mobile-sidebar-at-768px\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-MOBILE-SETTI-2f02f-ses-mobile-sidebar-at-768px\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\output\playwright\same-suite\browser\results\ui_quality-UI-MOBILE-SETTI-2f02f-ses-mobile-sidebar-at-768px\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[25/27] e2e\ui_quality.spec.ts:57:1 › UI-DESKTOP-SETTINGS-001: Settings preserves desktop navigation
+  7) e2e\ui_quality.spec.ts:57:1 › UI-DESKTOP-SETTINGS-001: Settings preserves desktop navigation ──
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.settings-studio-content')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('.settings-studio-content') with timeout 15000ms
+      - waiting for locator('.settings-studio-content')
+
+
+      59 |   await boot(page);
+      60 |   await page.getByRole('button', { name: 'System Settings', exact: true }).click();
+    > 61 |   await expect(page.locator('.settings-studio-content')).toBeVisible();
+         |                                                          ^
+      62 |   await expect(page.getByRole('complementary', { name: 'Sidebar', exact: true })).toBeVisible();
+      63 |   await page.getByRole('button', { name: 'Back to Workspace', exact: true }).click();
+      64 |   await expect(page.locator('#view textarea')).toBeVisible();
+        at D:\git-repo\PhD-Research-Lab-worktrees\main-shared-verification-656\frontend\e2e\ui_quality.spec.ts:61:58
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-DESKTOP-SETT-407aa-reserves-desktop-navigation\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: rendered-ui.txt (text/plain) ────────────────────────────────────────────────────
+    PhD Research Lab
+    New chat
+    3D University Lab
+    Paper Library
+    Autonomous Missions
+    Harness Studio
+    Claude CLI Terminal
+    Workspace: Default project
+    QUICK APPS & SYNC
+    All
+    ChatGPT
+    Claude
+    OpenCode
+    Antigravity
+    Feynman
+    LM Studio
+    Chat Projects
+    Recents
+    
+    No conversations yet.
+    
+    Research Studios
+    Topic SKB
+    Chat
+    Librar...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-DESKTOP-SETT-407aa-reserves-desktop-navigation\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\output\playwright\same-suite\browser\results\ui_quality-UI-DESKTOP-SETT-407aa-reserves-desktop-navigation\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-DESKTOP-SETT-407aa-reserves-desktop-navigation\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\output\playwright\same-suite\browser\results\ui_quality-UI-DESKTOP-SETT-407aa-reserves-desktop-navigation\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[26/27] e2e\ui_quality.spec.ts:68:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (en)
+  8) e2e\ui_quality.spec.ts:68:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (en) 
+
+    Error: workspace en 375px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -   1
+    + Received  + 145
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure select element has an accessible name",
+    +     "help": "Select element must have an accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/select-name?application=playwright",
+    +     "id": "select-name",
+    +     "impact": "critical",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "implicit-label",
+    +             "impact": "critical",
+    +             "message": "Element does not have an implicit (wrapped) <label>",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "explicit-label",
+    +             "impact": "critical",
+    +             "message": "Element does not have an explicit <label>",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "aria-label",
+    +             "impact": "critical",
+    +             "message": "aria-label attribute does not exist or is empty",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "aria-labelledby",
+    +             "impact": "critical",
+    +             "message": "aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": Object {
+    +               "messageKey": "noAttr",
+    +             },
+    +             "id": "non-empty-title",
+    +             "impact": "critical",
+    +             "message": "Element has no title attribute",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "presentational-role",
+    +             "impact": "critical",
+    +             "message": "Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element does not have an implicit (wrapped) <label>
+    +   Element does not have an explicit <label>
+    +   aria-label attribute does not exist or is empty
+    +   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty
+    +   Element has no title attribute
+    +   Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+    +         "html": "<select style=\"font-size: 11.5px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: transparent; color: var(--ink); outline: none; cursor: pointer; font-weight: 500;\">",
+    +         "impact": "critical",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "div[title=\"Reasoning Effort\"] > select",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.forms",
+    +       "wcag2a",
+    +       "wcag412",
+    +       "section508",
+    +       "section508.22.n",
+    +       "TTv5",
+    +       "TT5.c",
+    +       "EN-301-549",
+    +       "EN-9.4.1.2",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-11.1.1",
+    +     ],
+    +   },
+    +   Object {
+    +     "description": "Ensure touch targets have sufficient size and space",
+    +     "help": "All touch targets must be 24px large, or leave sufficient space",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/target-size?application=playwright",
+    +     "id": "target-size",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "height": 26,
+    +               "minSize": 24,
+    +               "width": 22,
+    +             },
+    +             "id": "target-size",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient size (22px by 26px, should be at least 24px by 24px)",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": Object {
+    +               "closestOffset": 16,
+    +               "minOffset": 24,
+    +             },
+    +             "id": "target-offset",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 16px instead of at least 24px.",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<button type=\"button\" class=\"btn sm accent\" title=\"Research Chat\" style=\"border-radius: 999px; padding: 4px 12px; gap: 5px;\">",
+    +                 "target": Array [
+    +                   "button[title=\"Research Chat\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Target has insufficient size (22px by 26px, should be at least 24px by 24px)
+    +   Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 16px instead of at least 24px.",
+    +         "html": "<button class=\"btn sm ghost\" id=\"topic-btn\" type=\"button\" title=\"Select Research Topic & SKB\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 12px; border: 1px solid var(--line);\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#topic-btn",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.sensory-and-visual-cues",
+    +       "wcag22aa",
+    +       "wcag258",
+    +       "EN-301-549v4",
+    +       "EN-9.2.5.8",
+    +     ],
+    +   },
+    + ]
+
+      82 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      83 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 84 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      85 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      86 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      87 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\main-shared-verification-656\frontend\e2e\ui_quality.spec.ts:84:77
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'System Settings', exact: true })
+        - locator resolved to <button type="button" class="icon sm " id="side-settings-btn" title="System Settings" aria-label="System Settings">…</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - element is outside of the viewport
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - element is outside of the viewport
+        - retrying click action
+          - waiting 100ms
+        29 × waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - element is outside of the viewport
+         - retrying click action
+           - waiting 500ms
+
+
+      77 |           const settings = page.getByRole('button', { name: language === 'vi' ? 'Cài đặt Hệ thống' : 'System Settings', exact: true });
+      78 |           if (!await settings.isVisible()) await page.locator('#side-open').click();
+    > 79 |           await settings.click();
+         |                          ^
+      80 |           await expect(page.locator('.settings-studio-content')).toBeVisible();
+      81 |         }
+      82 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+        at D:\git-repo\PhD-Research-Lab-worktrees\main-shared-verification-656\frontend\e2e\ui_quality.spec.ts:79:26
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: rendered-ui.txt (text/plain) ────────────────────────────────────────────────────
+    PhD Research Lab
+    New chat
+    3D University Lab
+    Paper Library
+    Autonomous Missions
+    Harness Studio
+    Claude CLI Terminal
+    Workspace: Default project
+    QUICK APPS & SYNC
+    All
+    ChatGPT
+    Claude
+    OpenCode
+    Antigravity
+    Feynman
+    LM Studio
+    Chat Projects
+    Recents
+    
+    No conversations yet.
+    
+    Research Studios
+    Topic SKB
+    Chat
+    Librar...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\output\playwright\same-suite\browser\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\output\playwright\same-suite\browser\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[27/27] e2e\ui_quality.spec.ts:68:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (vi)
+  9) e2e\ui_quality.spec.ts:68:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (vi) 
+
+    Error: workspace vi 375px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -   1
+    + Received  + 183
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"floating-drawer-togg...\" type=\"button\" title=\"Mở bảng công cụ bên ...\" aria-label=\"Mở menu bên phải\" style=\"position: absolute; ...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#floating-drawer-toggle",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    +   Object {
+    +     "description": "Ensure select element has an accessible name",
+    +     "help": "Select element must have an accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/select-name?application=playwright",
+    +     "id": "select-name",
+    +     "impact": "critical",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "implicit-label",
+    +             "impact": "critical",
+    +             "message": "Element does not have an implicit (wrapped) <label>",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "explicit-label",
+    +             "impact": "critical",
+    +             "message": "Element does not have an explicit <label>",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "aria-label",
+    +             "impact": "critical",
+    +             "message": "aria-label attribute does not exist or is empty",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "aria-labelledby",
+    +             "impact": "critical",
+    +             "message": "aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": Object {
+    +               "messageKey": "noAttr",
+    +             },
+    +             "id": "non-empty-title",
+    +             "impact": "critical",
+    +             "message": "Element has no title attribute",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "presentational-role",
+    +             "impact": "critical",
+    +             "message": "Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element does not have an implicit (wrapped) <label>
+    +   Element does not have an explicit <label>
+    +   aria-label attribute does not exist or is empty
+    +   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty
+    +   Element has no title attribute
+    +   Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+    +         "html": "<select style=\"font-size: 11.5px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; background: transparent; color: var(--ink); outline: none; cursor: pointer; font-weight: 500;\">",
+    +         "impact": "critical",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "div[title=\"Mức độ tư duy suy luận\"] > select",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.forms",
+    +       "wcag2a",
+    +       "wcag412",
+    +       "section508",
+    +       "section508.22.n",
+    +       "TTv5",
+    +       "TT5.c",
+    +       "EN-301-549",
+    +       "EN-9.4.1.2",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-11.1.1",
+    +     ],
+    +   },
+    +   Object {
+    +     "description": "Ensure touch targets have sufficient size and space",
+    +     "help": "All touch targets must be 24px large, or leave sufficient space",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/target-size?application=playwright",
+    +     "id": "target-size",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "height": 26,
+    +               "minSize": 24,
+    +               "width": 22,
+    +             },
+    +             "id": "target-size",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient size (22px by 26px, should be at least 24px by 24px)",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": Object {
+    +               "closestOffset": 16,
+    +               "minOffset": 24,
+    +             },
+    +             "id": "target-offset",
+    +             "impact": "serious",
+    +             "message": "Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 16px instead of at least 24px.",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<button type=\"button\" class=\"btn sm accent\" title=\"Trò chuyện Nghiên cứu\" style=\"border-radius: 999px; padding: 4px 12px; gap: 5px;\">",
+    +                 "target": Array [
+    +                   "button[title=\"Trò chuyện Nghiên cứu\"]",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Target has insufficient size (22px by 26px, should be at least 24px by 24px)
+    +   Target has insufficient space to its closest neighbors. Safe clickable space has a diameter of 16px instead of at least 24px.",
+    +         "html": "<button class=\"btn sm ghost\" id=\"topic-btn\" type=\"button\" title=\"Chọn Chủ đề Nghiên cứu & SKB\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 12px; border: 1px solid var(--line);\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#topic-btn",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.sensory-and-visual-cues",
+    +       "wcag22aa",
+    +       "wcag258",
+    +       "EN-301-549v4",
+    +       "EN-9.2.5.8",
+    +     ],
+    +   },
+    + ]
+
+      82 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      83 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 84 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      85 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      86 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      87 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\main-shared-verification-656\frontend\e2e\ui_quality.spec.ts:84:77
+
+    TimeoutError: locator.click: Timeout 15000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Cài đặt Hệ thống', exact: true })
+        - locator resolved to <button type="button" class="icon sm " id="side-settings-btn" title="Cài đặt Hệ thống" aria-label="Cài đặt Hệ thống">…</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - element is outside of the viewport
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - element is outside of the viewport
+        - retrying click action
+          - waiting 100ms
+        29 × waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - element is outside of the viewport
+         - retrying click action
+           - waiting 500ms
+
+
+      77 |           const settings = page.getByRole('button', { name: language === 'vi' ? 'Cài đặt Hệ thống' : 'System Settings', exact: true });
+      78 |           if (!await settings.isVisible()) await page.locator('#side-open').click();
+    > 79 |           await settings.click();
+         |                          ^
+      80 |           await expect(page.locator('.settings-studio-content')).toBeVisible();
+      81 |         }
+      82 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+        at D:\git-repo\PhD-Research-Lab-worktrees\main-shared-verification-656\frontend\e2e\ui_quality.spec.ts:79:26
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: rendered-ui.txt (text/plain) ────────────────────────────────────────────────────
+    PhD Research Lab
+    Cuộc trò chuyện mới
+    Phòng Lab 3D
+    Thư viện Bài báo
+    Nhiệm vụ Tự hành
+    Harness Kéo thả
+    Claude CLI Học thuật
+    Không gian làm việc: Default project
+    ỨNG DỤNG NHANH & ĐỒNG BỘ
+    Tất cả
+    ChatGPT
+    Claude
+    OpenCode
+    Antigravity
+    Feynman
+    LM Studio
+    Nhóm Chat Nghiên cứu
+    Gần đây
+    
+    Chưa có cuộc trò chuyện nà...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\output\playwright\same-suite\browser\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\error-context.md
+
+    attachment #8: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\output\playwright\same-suite\browser\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\output\playwright\same-suite\browser\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  9 failed
+    e2e\ci_smoke.spec.ts:3:1 › CI: real application shell and settings respond without provider inference 
+    e2e\navigation.spec.ts:38:1 › mobile chat controls and topic tabs fit the viewport ─────────────
+    e2e\office3d.spec.ts:4:1 › 3D real WebGL renders, camera and lighting change pixels, dock returns to chat 
+    e2e\ui_quality.spec.ts:8:1 › UI-MODEL-RULES-001: cloud preconnection and context budgets persist through the real settings API 
+    e2e\ui_quality.spec.ts:43:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 375px 
+    e2e\ui_quality.spec.ts:43:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 768px 
+    e2e\ui_quality.spec.ts:57:1 › UI-DESKTOP-SETTINGS-001: Settings preserves desktop navigation ───
+    e2e\ui_quality.spec.ts:68:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (en) 
+    e2e\ui_quality.spec.ts:68:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (vi) 
+  18 passed (3.1m)
+{"decision": "FAIL", "scope": "Deterministic Playwright only", "plan": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\browser\\selection.json", "results": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\browser\\results.json"}

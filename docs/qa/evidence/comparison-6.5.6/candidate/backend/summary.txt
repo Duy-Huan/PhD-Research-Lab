@@ -1,0 +1,14 @@
+VERIFY: FAIL
+Profile: full / backend
+Tests: {"PASS": 898, "FAIL": 0, "ERROR": 0, "SKIP": 8, "NOT_RUN": 0, "BLOCKED": 0, "UNVERIFIED": 0}
+Affected: 729 files; risk CRITICAL
+Root cause: symlinks need developer mode / admin on Windows (2 cases)
+Root cause: set PHDLAB_CODEX_LIVE=1 to run one real read-only Codex task (1 cases)
+Root cause: set PHDLAB_LMSTUDIO_LIVE=1 (+ optional PHDLAB_LMSTUDIO_MODEL) to load/unload a real LM Studio model (1 cases)
+Root cause: pip install clearml to record a real offline session (1 cases)
+Root cause: Optional official SDK not installed; run with audited SDK source on PYTHONPATH (1 cases)
+Gate: backend FAIL 
+Gate: live-qualification BLOCKED ['Real 2D, 3D, CLI, all-provider and experiment/paper evidence is not supplied']
+Gate: mandatory-cases BLOCKED Skipped cases cannot qualify a mandatory gate
+Evidence: D:\git-repo\PhD-Research-Lab-worktrees\candidate-shared-verification-656\output\playwright\same-suite\backend\report.json
+Next action: Read the first relevant raw log; repair at most three cycles

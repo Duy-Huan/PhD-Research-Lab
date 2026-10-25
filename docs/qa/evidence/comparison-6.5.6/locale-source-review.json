@@ -1,0 +1,54 @@
+{
+  "id": "BUG-3D-LOCALE-001",
+  "severity": "P2",
+  "criterion": "The same hard-coded locale-sensitive labels exist unconditionally in both source revisions; EN must not render Vietnamese system labels",
+  "mode": "SOURCE_REVIEW_BOTH_AND_REAL_BROWSER_CANDIDATE",
+  "candidate_browser_evidence": "docs/qa/evidence/comparison-6.5.6/candidate/visual/3d-3d-real.png",
+  "main_browser_reproduction": "NOT_RUN: the common3D journey fails before reaching this assertion; no claim it reproduced the locale visually on main",
+  "sources": {
+    "main": [
+      {
+        "file": "frontend/src/features/agent-status/office3d/OfficeScene.tsx",
+        "sha256": "b64bde12abe8c7aae0d5a04f715c93ac64eb98715c0b679b5faffe42995c70d8",
+        "lines": [
+          {
+            "line": 479,
+            "text": "            \ud83d\udda5\ufe0f C\u1ee5m HPC & OpenCode Parallel \u00b7 Click m\u1edf Runtime"
+          }
+        ]
+      },
+      {
+        "file": "frontend/src/shared/events/eventAdapter.ts",
+        "sha256": "b3d189f09fbec810eb8c7c0b5b02dc7e519234914caa049e1bad389d95c32e71",
+        "lines": [
+          {
+            "line": 192,
+            "text": "      role: 'Principal Investigator \u00b7 \u0110i\u1ec1u ph\u1ed1i \u0110\u1ec1 c\u01b0\u01a1ng 5 C\u1ea5p & Mission DAG',"
+          }
+        ]
+      }
+    ],
+    "candidate": [
+      {
+        "file": "frontend/src/features/agent-status/office3d/OfficeScene.tsx",
+        "sha256": "583915889db8d232fcd1c9f458732f4c8c2d14149879cdc7b8d32f1739c3ec78",
+        "lines": [
+          {
+            "line": 480,
+            "text": "            \ud83d\udda5\ufe0f C\u1ee5m HPC & OpenCode Parallel \u00b7 Click m\u1edf Runtime"
+          }
+        ]
+      },
+      {
+        "file": "frontend/src/shared/events/eventAdapter.ts",
+        "sha256": "b3d189f09fbec810eb8c7c0b5b02dc7e519234914caa049e1bad389d95c32e71",
+        "lines": [
+          {
+            "line": 192,
+            "text": "      role: 'Principal Investigator \u00b7 \u0110i\u1ec1u ph\u1ed1i \u0110\u1ec1 c\u01b0\u01a1ng 5 C\u1ea5p & Mission DAG',"
+          }
+        ]
+      }
+    ]
+  }
+}

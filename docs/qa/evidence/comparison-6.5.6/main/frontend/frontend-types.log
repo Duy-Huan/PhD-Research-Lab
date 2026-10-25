@@ -1,0 +1,12 @@
+
+> phdlab-frontend@6.5.6 typecheck
+> tsc --noEmit
+
+src/features/cli/ClaudeCLIStudio.test.tsx(111,34): error TS2339: Property 'selectedCliProvider' does not exist on type 'UIState'.
+src/features/cli/waitForChatTurn.test.ts(2,33): error TS2307: Cannot find module './waitForChatTurn' or its corresponding type declarations.
+src/features/missions/AutonomyPanel.test.tsx(5,31): error TS2307: Cannot find module './AutonomyPanel' or its corresponding type declarations.
+src/features/missions/AutonomyPanel.test.tsx(6,30): error TS2307: Cannot find module './autonomyPlan' or its corresponding type declarations.
+src/features/missions/AutonomyPanel.test.tsx(41,29): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/features/missions/AutonomyPanel.test.tsx(42,30): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/features/missions/AutonomyPanel.test.tsx(47,26): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/shell/Sidebar.test.tsx(312,34): error TS2339: Property 'selectedCliProvider' does not exist on type 'UIState'.

@@ -218,11 +218,11 @@
     },
     {
       "id": "APP-REMOTE-CONTEXT-001",
-      "classification": "NEWLY_INTRODUCED_REGRESSION",
+      "classification": "EXISTING_APPLICATION_DEFECT",
       "severity": "P1",
       "status": "LOCAL_FIX_VERIFIED_PENDING_INTEGRATION",
       "module": "backend/agent/project_context.py",
-      "first_known_affected_commit": "4774f550071558a98f55efcd362dea0a7b5b0d8d",
+      "first_known_affected_commit": "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
       "expected": "Nonempty remote compute records are serialized as unverified state without losing context",
       "actual": "Missingjson import raisesNameError for nonempty remote record branch",
       "reproduction_steps": [
@@ -236,6 +236,10 @@
         {
           "path": "docs/qa/evidence/ci-supervisor-6.5.5/remote-context-and-cli-fixture-green.json",
           "sha256": "d785d617e62539334d6ba6362a8129badc119790204f978deefe8d2438c4091f"
+        },
+        {
+          "path": "docs/qa/evidence/ci-stabilization-6.5.6/main-remote-context-reproduction.json",
+          "sha256": "cac025857bcc7ecd2a8d59a39a9cf195048af046e80b5929f5d72e19a5dd1793"
         }
       ],
       "test_ids": [
@@ -245,13 +249,14 @@
       "baseline_sha": "dbbeb603b0fe439670a68ce901d009fbd0aaafc3",
       "owner": "Repository maintainer / integration SDET",
       "target_review_date": "2026-11-01",
-      "exception": false
+      "exception": false,
+      "first_known_note": "Same unchanged regression reproduces NameError on original main production source. Earlier provisional newly-introduced classification is withdrawn; no bisection of introduction."
     },
     {
       "id": "CI-INSTALL-ORDER-001",
       "classification": "CI_INFRASTRUCTURE",
       "severity": "P2",
-      "status": "LOCAL_FIX_VERIFIED_PENDING_INDEPENDENT_CI",
+      "status": "FIX_CONFIRMED_IN_GITHUB_CI",
       "module": ".github/workflows/quality.yml",
       "first_known_affected_commit": "2c461fe633311f5a68bd115bbe9d884c6da00a5e",
       "expected": "Install hash-locked dependencies before precise worker test execution",
@@ -272,6 +277,10 @@
         {
           "path": "docs/qa/evidence/ci-supervisor-6.5.5/final-contract-green.json",
           "sha256": "01abd318053b91c93eda8f2fc054be1cd6580091c8f4df994ab7698e2abd0a3f"
+        },
+        {
+          "path": "docs/qa/evidence/ci-stabilization-6.5.6/pr11-b1-diagnostics.json",
+          "sha256": "73e615e1f19fce10f363616174936ff2e4dc8ef2751d0b8e9eaf3228db2d0b6e"
         }
       ],
       "test_ids": [
@@ -407,9 +416,10 @@
     }
   ],
   "limitations": [
-    "Coverage gaps are not proof of application bugs",
-    "No new test-specification defect confirmed in inspected runs",
-    "No bisection establishes original introduction dates",
-    "UI defects remain tracked in docs/qa/defects.json; fixes present in published PR9 dependency"
+    "Coverage gaps are not proof of application defects and are never waived",
+    "6.5.6 confirms Linux executable fixture test-specification defect; original baseline observations are retained in Git history",
+    "No bisection establishes original introduction dates; newly observed does not mean newly introduced",
+    "Same-suite comparison triages missing APIs/loader failures separately; incomplete inventory does not establish absence of P0/P1 defects",
+    "UI defects remain tracked separately; a missing sidebar locator does not reproduce the later overlay-interception root cause"
   ]
 }
