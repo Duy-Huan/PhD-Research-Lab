@@ -164,11 +164,26 @@ class Launch(unittest.TestCase):
                   f"'input':{{'file_path':'{src}'}}}}]}}}}),flush=True)\ntime.sleep(20)\n")
         sess = W.open_session("claude_code", "fw-test-1", "review")
         with mock.patch.object(conn, "health", return_value={"state": "CONNECTED", "detail": ""}), \
-                mock.patch.object(conn, "argv", return_value=[sys.executable, "-c", script]):
+                mock.patch.object(conn, "argv", return_value=[sys.executable, "-c", script]), \
+                mock.patch.object(conn, "process_argv", side_effect=lambda args, context: args):
+            # Explicit local malicious-output fixture: Docker isolation is independently
+            # tested below. Keep the real subprocess and original firewall assertions.
             evs = list(conn.stream_message("hi", {"cwd": sess["cwd"], "mcp_url": "http://127.0.0.1:1/mcp", "mcp_token": "t"}))
         err = [e for e in evs if e["type"] == "error"]
         self.assertTrue(err and "firewall" in err[0]["message"], evs)
         self.assertTrue((Path(sess["cwd"]) / ".claude" / "settings.json").exists())
+
+    def test_missing_container_blocks_headless_cli_before_process_start(self):
+        from backend.providers import cli as C, cli_space as W, isolated_cli
+        conn = C.CONNECTORS['claude_code']
+        sess = W.open_session('claude_code', 'fw-unavailable-container', 'review')
+        with mock.patch.object(conn, 'health', return_value={'state':'CONNECTED','detail':''}), \
+                mock.patch.object(conn, 'argv', return_value=['fixture-cli']), \
+                mock.patch.object(isolated_cli, 'prepare', return_value={'state':'BLOCKED','detail':'No verified container runtime'}), \
+                mock.patch.object(C.subprocess, 'Popen') as launch:
+            with self.assertRaises(C.ProviderError):
+                list(conn.stream_message('hi', {'cwd':sess['cwd']}))
+            launch.assert_not_called()
 
 
 if __name__ == "__main__":

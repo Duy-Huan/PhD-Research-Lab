@@ -12,6 +12,7 @@ hypotheses, experiments, memory candidates). A model can propose; it can never e
 """
 from __future__ import annotations
 
+import json
 import re
 
 from backend.agent import AIWSError
