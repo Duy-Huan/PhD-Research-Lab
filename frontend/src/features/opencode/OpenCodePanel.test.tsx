@@ -103,7 +103,7 @@ describe('OpenCodePanel', () => {
     const goalTextarea = screen.getByPlaceholderText(/Nhập mục tiêu kỹ thuật/i);
     fireEvent.change(goalTextarea, { target: { value: 'Write PDE unit test' } });
 
-    const launchBtn = screen.getByText(/Khởi chạy Phiên OpenCode/i);
+    const launchBtn = screen.getByText(/Chuẩn bị phiên theo dõi OpenCode/i);
     fireEvent.click(launchBtn);
 
     await waitFor(() => {

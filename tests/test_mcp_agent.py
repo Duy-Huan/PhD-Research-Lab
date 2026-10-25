@@ -194,7 +194,7 @@ class MCPAgent(unittest.TestCase):
                 cfg = deepcopy(self.cfg)
                 cfg['aiws']['max_turn_s'] = 1 if cancelled else 0.01
                 with patch.object(C, 'load_config', return_value=cfg), patch.object(L, 'stream_agent', blocked), \
-                     patch.object(O, '_history', return_value=[]), patch.object(O, '_cancelled', return_value=cancelled):
+                     patch.object(O, '_history', return_value=[]), patch.object(O, '_set'), patch.object(O, '_cancelled', return_value=cancelled):
                     start = time.monotonic()
                     text, error, stopped = O._app('session', 'turn', {'binding': {'module': 'research'}},
                                                  {'question': 'q'}, {'provider': 'app:auto', 'reasoning': 'auto', 'model': ''})

@@ -1,0 +1,1 @@
+{"python": "3.11.17 (main, Oct 21 2026, 17:46:24) [MSC v.1944 64 bit (AMD64)]", "errors": [{"file": "backend\\paper\\export.py", "error": "f-string expression part cannot include a backslash (export.py, line 379)"}]}

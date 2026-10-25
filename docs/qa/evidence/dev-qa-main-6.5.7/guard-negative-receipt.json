@@ -1,0 +1,7 @@
+{
+  "mode": "REAL_LOCAL",
+  "scope": "Installed Git pre-push hook on actual dev repo; Git dry-run only, no remote mutation",
+  "expected": "Reject dirty/unverified dev push and non-dev development",
+  "actual": "Both commands returned nonzero with explicit policy reasons",
+  "remote_changed": false
+}

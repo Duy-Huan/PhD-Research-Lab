@@ -1,0 +1,142 @@
+{
+  "40148986328/summary.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40148986328/summary.json",
+    "sha256": "87f806f3b352e03c30c797b969dc961eac3101a7e3b6bc4f00007bea7172024c"
+  },
+  "40148986328/jobs.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40148986328/jobs.json",
+    "sha256": "ca2717a275375459fc3a401ab1fe6348d6200609e67e36a322099136f3dc131b"
+  },
+  "40148986328/artifacts.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40148986328/artifacts.json",
+    "sha256": "a5442609033a3de321006034beccf0b7f6ec17f3eaae24cbbe74088880b0fd62"
+  },
+  "40148986328/artifacts/backend-ubuntu-latest-3.11/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40148986328/artifacts/backend-ubuntu-latest-3.11/report.json",
+    "sha256": "2a07ef6085d54564cef0071cc7051d2eca333d8a2b677ffb19e1757cb3966816"
+  },
+  "40148986328/artifacts/backend-ubuntu-latest-3.12/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40148986328/artifacts/backend-ubuntu-latest-3.12/report.json",
+    "sha256": "5d9978549c485bdc44977485ef199eef0bdab6dd806c86d312a2b3d5a6f09533"
+  },
+  "40148986328/artifacts/backend-windows-latest-3.11/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40148986328/artifacts/backend-windows-latest-3.11/report.json",
+    "sha256": "a6fd385337fdd267fe6adfdac1d28396de5c276a0de4383ffd3662800e0c4225"
+  },
+  "40148986328/artifacts/backend-windows-latest-3.12/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40148986328/artifacts/backend-windows-latest-3.12/report.json",
+    "sha256": "cc615dd0b522e7c11781108ae6afd2f6312668ba9bb3d77a19b7236749b87122"
+  },
+  "40148986328/artifacts/uat-policy/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40148986328/artifacts/uat-policy/report.json",
+    "sha256": "9e1ffcf951d77cff105fe445cbb6b0ee7bd24aa13b4042bf5fd334c51eb0b431"
+  },
+  "40148986328/artifacts/frontend/output/playwright/ci/frontend/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40148986328/artifacts/frontend/output/playwright/ci/frontend/report.json",
+    "sha256": "b96bf71a1206e336a73fabef0948a79159c64cabdad130bbb3ead3f3a149f4ab"
+  },
+  "40148986328/artifacts/backend-windows-latest-3.12/backend/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40148986328/artifacts/backend-windows-latest-3.12/backend/report.json",
+    "sha256": "9a47c5e917e48e82b830037e66e71fec9d8bb8135ca6fe9bbb6fe75a7ed0c0c8"
+  },
+  "40148986328/artifacts/backend-windows-latest-3.11/backend/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40148986328/artifacts/backend-windows-latest-3.11/backend/report.json",
+    "sha256": "4a107879a767f02645e6997190d9b64340e318e92a6eb50aadf91ab4457e1903"
+  },
+  "40148986328/artifacts/backend-ubuntu-latest-3.12/backend/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40148986328/artifacts/backend-ubuntu-latest-3.12/backend/report.json",
+    "sha256": "742acf85dccbfe1891b312a6f8c5112e94d2d7ce70b318ecfd63b8db4358e865"
+  },
+  "40148986328/artifacts/backend-ubuntu-latest-3.11/backend/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40148986328/artifacts/backend-ubuntu-latest-3.11/backend/report.json",
+    "sha256": "035e798a3138df4cbd8201e77899726c4d438a79943c293f563c151c33a2ab92"
+  },
+  "40150782744/summary.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/summary.json",
+    "sha256": "f2a7f4e51cf8442b237f1d83dae2e42c258aea5dabb33f274edb02c54941a703"
+  },
+  "40150782744/jobs.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/jobs.json",
+    "sha256": "bd73391bada35d02d5b9cb9da447b7235805c14da54efbdaf75450d994ea59b9"
+  },
+  "40150782744/artifacts.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/artifacts.json",
+    "sha256": "5cc5cf7474b6dd5276e02f0bddf86c947ccb39ab84fd60dd18db6bc08fd77b52"
+  },
+  "40150782744/artifacts/backend-ubuntu-latest-3.11/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/artifacts/backend-ubuntu-latest-3.11/report.json",
+    "sha256": "acc4e928949562a5ff8f2a8689647b6d5b0cee87a11472ba40f5f997eeb905da"
+  },
+  "40150782744/artifacts/backend-ubuntu-latest-3.12/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/artifacts/backend-ubuntu-latest-3.12/report.json",
+    "sha256": "048c0d9ae5286ccef1bb2acdfca123e9cbd6100a41b646465197b9593e4484fc"
+  },
+  "40150782744/artifacts/backend-windows-latest-3.11/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/artifacts/backend-windows-latest-3.11/report.json",
+    "sha256": "a1332cec0a933028d32a0082a20dd35c0a8ed2da83cd8bb17b4e7278efdaf429"
+  },
+  "40150782744/artifacts/backend-windows-latest-3.12/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/artifacts/backend-windows-latest-3.12/report.json",
+    "sha256": "a19e02ef68aabe1774e2eea76048d6aa8fe5570b5019823bd2702cf2eb600005"
+  },
+  "40150782744/artifacts/uat-policy/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/artifacts/uat-policy/report.json",
+    "sha256": "a178721354af1ccf8a8f81c88f07ec14893681f02e1805d89d4469f6e93db3c0"
+  },
+  "40150782744/artifacts/frontend/output/playwright/ci/frontend/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/artifacts/frontend/output/playwright/ci/frontend/report.json",
+    "sha256": "76603eada0772e18eaab20eadef9e66c8ae33129300d80622f074d6f02fbbbc5"
+  },
+  "40150782744/artifacts/backend-windows-latest-3.12/backend/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/artifacts/backend-windows-latest-3.12/backend/report.json",
+    "sha256": "e09d4f1017e3954d0f246b3f9ebeff67d909368d9e93f22de7e441bd29eff26a"
+  },
+  "40150782744/artifacts/backend-windows-latest-3.11/backend/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/artifacts/backend-windows-latest-3.11/backend/report.json",
+    "sha256": "7ccb088016b4f9b8531946ffc378ba95fc36b32c58f719d035a630399dff9ae2"
+  },
+  "40150782744/artifacts/backend-ubuntu-latest-3.12/backend/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/artifacts/backend-ubuntu-latest-3.12/backend/report.json",
+    "sha256": "067b81aefa97abd4322722c95767f69e226c9be38f6331111726d59c21150365"
+  },
+  "40150782744/artifacts/backend-ubuntu-latest-3.11/backend/report.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/artifacts/backend-ubuntu-latest-3.11/backend/report.json",
+    "sha256": "5bbb8babec9ad609495044dd7d5502843e1b5c366b3008fdad3bc5ab30207e65"
+  },
+  "aggregate-red.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/aggregate-red.json",
+    "sha256": "29d74704f2da154ff3db177572bd74983f6579876cb059118c0bcbe8e93a610d"
+  },
+  "aggregate-green.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/aggregate-green.json",
+    "sha256": "3c1922d07fd8cf0b3bc980344385c0ed2f5c094da174c9297d026180844c0573"
+  },
+  "baseline-red.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/baseline-red.json",
+    "sha256": "59e4715b290f69af91b20079fc55511dac0b0b7a626fef28cd90c59f7aa768c1"
+  },
+  "baseline-identity-red.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/baseline-identity-red.json",
+    "sha256": "b0c522fee11464bccefe44b83ec9407dd7fb80bd1f13de4371997a148719c097"
+  },
+  "final-targeted-green.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/final-targeted-green.json",
+    "sha256": "0ea243b6d1daac12c9785a5544a335b0a1138924e436006112203e93706d99b9"
+  },
+  "clean-base-compile311.log": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/clean-base-compile311.log",
+    "sha256": "33736a65a9902d2cc96ae6350b17f97a50171a5b71113487d3c681f355f73d57"
+  },
+  "worktrees.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/worktrees.json",
+    "sha256": "220c7b605a926fccb06f9823689646858a4e3a281773a3f785405601a4d057f8"
+  },
+  "quarantine.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/quarantine.json",
+    "sha256": "1f51d4061940cd7dff1d5aad8160e5d0e6505251c344517fe816b28f3ad91a5b"
+  },
+  "pr8-disabled.json": {
+    "path": "docs/qa/evidence/ci-recovery-2026-10-25/pr8-disabled.json",
+    "sha256": "92ff606ce9f1d47a358ebef41f3dc00601ec39196bbcbc267be0fad2808d12a5"
+  }
+}

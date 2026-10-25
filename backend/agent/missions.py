@@ -37,6 +37,8 @@ def _ancestors(c,m):
 
 
 def create(spec: MissionSpec) -> dict:
+    from backend.agent import autonomy
+    autonomy.validate(spec)
     try:OS.validate(spec)
     except ValueError as exc:
         with S.db() as c:
@@ -234,7 +236,7 @@ async def _dispatch(m,task,key) -> ExecutionResult:
         return ExecutionResult(status="completed",output={"report":str(path)},artifacts=[ArtifactManifest(path=str(path),sha256=__import__('hashlib').sha256(raw).hexdigest(),bytes=len(raw))])
     if task.capability == "experiment.run":
         from backend.execution import protocols
-        result = await protocols.execute(tid,task.args["protocol_id"],mission_id=mid,expected_digest=task.args["protocol_digest"],expected_nonce=task.args["approval_nonce"])
+        result = await protocols.execute(tid,task.args["protocol_id"],mission_id=mid,expected_digest=task.args["protocol_digest"],expected_nonce=task.args["approval_nonce"],resource_holder=m.get("_resource_holder", ""))
         return ExecutionResult(status="completed",output=result)
     if task.capability in ("experiment.verify","artifact.verify"):
         from backend.agent.teams import verify
@@ -291,16 +293,21 @@ async def _dispatch(m,task,key) -> ExecutionResult:
         )
         sess = await asyncio.to_thread(OC.start_session, oc_spec)
         return ExecutionResult(status="completed", engine=task.preferred_engine, output={"session_id": sess["id"], "status": sess["status"], "workspace_id": sess["workspace_id"]}, limitations=["OpenCode task output requires diff review and artifact verification"])
+    if task.capability.startswith("paperorchestra."):
+        from backend.research_engines.paperorchestra.modes import execute_mission_task
+        return await execute_mission_task(m, task, key)
     raise ValueError("Capability unavailable")
 
 
-async def tick():
+async def tick(mid: str = ""):
     with S.db() as c:
-        rows=list(c.execute("SELECT id FROM missions WHERE status IN ('queued','running','scheduled') ORDER BY coalesce(json_extract(payload,'$.spec.control.priority'),0) DESC,created"))
+        rows=list(c.execute("SELECT id FROM missions WHERE status IN ('queued','running','scheduled') AND (?='' OR id=?) ORDER BY coalesce(json_extract(payload,'$.spec.control.priority'),0) DESC,created", (mid,mid)))
         row=next((r for r in rows if not (OS.gate(c,_get(c,r[0])).startswith("Scheduled for"))),None)
     if not row:
         return
     m = get(row[0]);p = m["payload"];limits=p["spec"]["limits"]
+    if any(t["status"] == "running" for t in m["tasks"]):
+        return
     with S.db() as c:blocked=OS.gate(c,m)
     if blocked:
         with S.db() as c:
@@ -314,13 +321,21 @@ async def tick():
             L.append(c,m["topic_id"],m["id"],"mission.paused",{"reason":"Approval expired/digest mismatch or budget exhausted"})
         return
     done={t["id"] for t in m["tasks"] if t["status"]=="completed"}
+    from backend.agent import autonomy
+    if autonomy.level(m) in ("L1", "L2") and autonomy.pending_review(m):
+        with S.db() as c:
+            c.execute("UPDATE missions SET status='awaiting_step_review' WHERE id=? AND status IN ('queued','running')", (m["id"],))
+        return
     taskrow=next((t for t in m["tasks"] if t["status"]=="pending" and set(t["payload"]["spec"]["depends_on"])<=done),None)
     if not taskrow:
         if len(done)==len(m["tasks"]):
             with S.db() as c:
-                state="awaiting_review" if p["spec"].get("control") else "completed"
+                current = _get(c, m["id"])
+                if current["status"] not in ("queued", "running", "scheduled"):
+                    return
+                state=autonomy.completion_state(c,current)
                 c.execute("UPDATE missions SET status=?,updated=? WHERE id=?",(state,S.now(),m["id"]))
-                L.append(c,m["topic_id"],m["id"],"mission.completed",{"scientific_review":"pending"})
+                L.append(c,m["topic_id"],m["id"],"mission."+state,{"scientific_review":"pending"})
         return
     task=Task.model_validate(taskrow["payload"]["spec"])
     routing=None;gate_task=task
@@ -335,9 +350,13 @@ async def tick():
         gate_task=task.model_copy(update={"preferred_engine":routing["engine"]})
     from backend.execution import guard
     slot="cloud" if not CAP.META[task.capability][1] else "none"
+    if task.capability == "experiment.run":
+        slot = "cpu"
+    if task.capability.startswith("paperorchestra."):
+        slot = "local_llm" if (p["spec"].get("control") or {}).get("app_backend") in ("local", "ollama") else "cloud"
     if routing:
         slot="cli" if routing["engine"]!="app" else "local_llm" if p["spec"]["control"]["app_backend"] in ("local","ollama") else "cloud"
-    holder="mission:"+m["id"]
+    holder="mission:"+m["id"]+":"+S.uid()
     try: guard.try_acquire(slot,holder)
     except guard.Busy: return
     started=time.monotonic();key=m["id"]+":"+task.id+":"+str(taskrow["payload"]["attempts"]+1);admitted=False
@@ -345,6 +364,8 @@ async def tick():
         with S.db() as c:
             current=_get(c,m["id"])
             if current["status"] not in ("queued","running","scheduled"):
+                return
+            if any(t["status"] == "running" for t in current["tasks"]):
                 return
             blocked=OS.gate(c,current,gate_task)
             if blocked:
@@ -384,6 +405,7 @@ async def tick():
             remaining=min(OS.time_remaining(c,execution_mission),collaboration.remaining(c,execution_mission,task))
         remaining=min([remaining,*[a["payload"]["spec"]["limits"]["max_seconds"]-a["payload"]["active_seconds"] for a in ancestors]])
         execution=get(m["id"])
+        execution["_resource_holder"] = holder
         if routing:execution["_routing"]=routing
         result=await asyncio.wait_for(_dispatch(execution,task,key),timeout=max(0.001,remaining))
         status="completed" if result.status=="completed" else "failed"
@@ -417,6 +439,7 @@ async def tick():
                 outcome=locals().get("status","interrupted")
                 from backend.agent import collaboration
                 outcome=collaboration.check_output(c,current,task,tp["result"],outcome)
+                tp["result_digest"]=L.digest(tp["result"])
                 c.execute("UPDATE mission_tasks SET status=?,payload=? WHERE mission_id=? AND id=?",(outcome,S.dumps(tp),m["id"],task.id))
                 c.execute("UPDATE mission_attempts SET status=? WHERE key=?",(outcome,key))
                 elapsed=time.monotonic()-started
@@ -431,6 +454,8 @@ async def tick():
                     ancestor["payload"]["active_seconds"]+=elapsed
                     c.execute("UPDATE missions SET payload=? WHERE id=?",(S.dumps(ancestor["payload"]),ancestor["id"]))
                 state=current["status"] if current["status"] in ("cancelled","paused") else "running" if outcome=="completed" else outcome
+                if state == "running" and autonomy.level(current) in ("L1", "L2"):
+                    state = "awaiting_step_review"
                 c.execute("UPDATE missions SET status=?,payload=?,updated=? WHERE id=?",(state,S.dumps(current["payload"]),S.now(),m["id"]))
                 L.append(c,m["topic_id"],m["id"],"task."+outcome,{"task_id":task.id,"result":tp["result"]})
         from backend.core.bus import publish

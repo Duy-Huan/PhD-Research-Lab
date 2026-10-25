@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { MarkdownRenderer } from '../../shared/ui/MarkdownRenderer';
+import { ChatRunCard } from './ChatRunCard';
+import { APP_VERSION } from '../../shared/version';
 import type {
   ChatMessage,
   ChatApproval,
@@ -24,6 +26,8 @@ import {
   BookmarkPlus,
   Pin,
   FolderOpen,
+  FileText,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 interface MessageListProps {
@@ -43,6 +47,7 @@ interface MessageListProps {
   onPinMessage?: (messageId: string, pinned: boolean) => void;
   onQuickSend?: (prompt: string) => void;
   onCancelTurn?: () => void;
+  onLaunchTurn?: (turnId: string) => void;
 }
 
 export const MessageList: React.FC<MessageListProps> = ({
@@ -50,6 +55,7 @@ export const MessageList: React.FC<MessageListProps> = ({
   messages,
   approvals = [],
   memoryItems = [],
+  turns = [],
   streamingText,
   isStreaming = false,
   compact = false,
@@ -59,6 +65,7 @@ export const MessageList: React.FC<MessageListProps> = ({
   onRememberMessage,
   onPinMessage,
   onQuickSend,
+  onLaunchTurn,
 }) => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const { openDrawer, open3DOffice, setMainView } = useUIStore();
@@ -74,6 +81,13 @@ export const MessageList: React.FC<MessageListProps> = ({
 
   const pendingApprovals = approvals.filter((a) => a.status === 'pending');
   const pendingMemories = memoryItems.filter((m) => m.status === 'pending');
+  const shownRuns = new Set<string>();
+  const displayMessages = messages.filter(message => {
+    if (!message.run_id || message.role !== 'assistant') return true;
+    if (shownRuns.has(message.run_id)) return false;
+    shownRuns.add(message.run_id);
+    return true;
+  });
 
   return (
     <div
@@ -150,7 +164,7 @@ export const MessageList: React.FC<MessageListProps> = ({
             }}
           >
             <img src="/img/logo-64.png" alt="Logo" width={20} height={20} />
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>PhD Research Lab · v6.4.2</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>PhD Research Lab · v{APP_VERSION}</span>
           </div>
 
           <h2
@@ -317,6 +331,30 @@ export const MessageList: React.FC<MessageListProps> = ({
         </div>
       )}
 
+      {turns.slice(-1).filter(turn => (turn.manifest?.omitted?.length || turn.manifest?.sources?.some(source => source.truncated) ||
+        turn.history_manifest?.omitted_messages?.length || turn.history_manifest?.truncated_messages?.length)).map(turn => (
+        <details key={`context-${turn.id}`} className="muted" style={{ padding: '8px 12px', fontSize: 12 }}>
+          <summary>{t('Ngữ cảnh có giới hạn — xem nội dung bị lược bớt', 'Context is limited — review omitted content')}</summary>
+          <p>{t('Tăng ngân sách ngữ cảnh/lịch sử trong Cài đặt hoặc chọn nguồn cụ thể trước khi đặt câu hỏi phụ thuộc dữ liệu này.', 'Increase the context/history budget in Settings or select specific sources before asking questions that depend on this data.')}</p>
+          <ul>
+            {(turn.manifest?.omitted || []).map(source => <li key={source.id}>{source.id}: {source.reason}</li>)}
+            {(turn.manifest?.sources || []).filter(source => source.truncated).map(source => <li key={source.id}>{source.id}: {t('Nguồn đã được rút gọn', 'Source was shortened')}</li>)}
+          </ul>
+          {!!turn.history_manifest?.omitted_messages?.length && <p>{t('Tin nhắn lịch sử không được đưa vào:', 'History messages omitted:')} {turn.history_manifest.omitted_messages.length}</p>}
+          {!!turn.history_manifest?.truncated_messages?.length && <p>{t('Tin nhắn lịch sử đã rút gọn:', 'History messages shortened:')} {turn.history_manifest.truncated_messages.length}</p>}
+        </details>
+      ))}
+      {turns.filter(turn => turn.status === 'failed').map(turn => (
+        <div role="alert" key={turn.id} style={{ color: 'var(--danger, #b91c1c)' }}>
+          {t('Không thể trả lời', 'Unable to answer')}: {turn.error || t('Lượt chat thất bại.', 'Chat turn failed.')}
+        </div>
+      ))}
+      {turns.filter(turn => turn.status === 'awaiting_launch').map(turn => (
+        <div key={turn.id}>
+          {t('Đang chờ khởi chạy thủ công.', 'Waiting for manual launch.')}
+          <button className="btn" onClick={() => onLaunchTurn?.(turn.id)}>{t('Khởi chạy', 'Launch')}</button>
+        </div>
+      ))}
       {/* Messages Stream (Centered max-width 820px like ChatGPT) */}
       <div
         style={{
@@ -328,7 +366,7 @@ export const MessageList: React.FC<MessageListProps> = ({
           gap: 14,
         }}
       >
-        {messages.map((msg) => {
+        {displayMessages.map((msg) => {
           const bodyText = msg.text ?? msg.content ?? '';
           const isUser = msg.role === 'user';
 
@@ -370,7 +408,7 @@ export const MessageList: React.FC<MessageListProps> = ({
                         <User size={12} /> {t('Bạn', 'You')}
                       </span>
                     ) : (
-                      `PhD Lab Assistant (${msg.provider || msg.model || 'AI'})`
+                      `PhD Lab Assistant (${msg.provider || (msg.run_id ? 'phdlab' : msg.model) || 'AI'})`
                     )}
                   </b>
                   <div style={{ display: 'flex', gap: 3 }}>
@@ -421,6 +459,45 @@ export const MessageList: React.FC<MessageListProps> = ({
                 >
                   <MarkdownRenderer content={bodyText} />
                 </div>
+
+                {/* Attached Sources & Images if present */}
+                {msg.sources && msg.sources.some((s) => s.startsWith('att:')) && (
+                  <div
+                    style={{
+                      marginTop: 8,
+                      paddingTop: 6,
+                      borderTop: '1px dashed var(--line)',
+                      display: 'flex',
+                      gap: 6,
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    {msg.sources.filter((s) => s.startsWith('att:')).map((s) => {
+                      const attId = s.replace('att:', '');
+                      return (
+                        <a
+                          key={s}
+                          href={`/api/chat/attachments/${attId}/file`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="chip"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 5,
+                            fontSize: 11,
+                            textDecoration: 'none',
+                            color: 'inherit',
+                          }}
+                          title={t('Mở tệp đính kèm trong tab mới', 'Open attachment in new tab')}
+                        >
+                          <FileText size={11} color="var(--accent)" />
+                          <span>att:{attId}</span>
+                        </a>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {/* Citations if present */}
                 {msg.citations && msg.citations.length > 0 && (
@@ -477,6 +554,7 @@ export const MessageList: React.FC<MessageListProps> = ({
                     ))}
                   </div>
                 )}
+                {msg.run_id && <ChatRunCard id={msg.run_id} />}
               </div>
             </article>
           );

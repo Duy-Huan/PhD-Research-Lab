@@ -1,0 +1,52 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_verification_source_identity.SourceIdentity.test_build_outputs_are_not_source_inputs",
+      "status": "FAIL",
+      "duration": 0.1473,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_verification_source_identity.py\", line 38, in test_build_outputs_are_not_source_inputs\n    self.assertEqual(before,identity(root)['sha256'])\nAssertionError: '22615ad388c567f5adce9029ce26df296c4a5599edf9e75ff662c7f43884ac42' != '3da63b3ba43ea00ebf6fb0ded73bb8a0addd9c5f1f03a6d89f8e5d28778f51d2'\n- 22615ad388c567f5adce9029ce26df296c4a5599edf9e75ff662c7f43884ac42\n+ 3da63b3ba43ea00ebf6fb0ded73bb8a0addd9c5f1f03a6d89f8e5d28778f51d2\n\n"
+    },
+    {
+      "id": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence",
+      "status": "PASS",
+      "duration": 0.2126,
+      "details": null
+    },
+    {
+      "id": "test_verification_source_identity.SourceIdentity.test_staging_a_real_deletion_does_not_change_worktree_identity",
+      "status": "PASS",
+      "duration": 0.1661,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence",
+      "id": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence (path='frontend/react.html')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence",
+      "id": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence (path='frontend/public/icon.svg')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence",
+      "id": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence (path='cli.py')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "total": 3,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-7o_yo3ml",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

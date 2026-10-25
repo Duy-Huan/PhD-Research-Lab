@@ -1,0 +1,74 @@
+{
+  "browser": "156.0.8078.4",
+  "events": [
+    {
+      "kind": "http",
+      "method": "GET",
+      "url": "http://127.0.0.1:64692/api/events/stream?after=0",
+      "status": 200
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "url": "http://127.0.0.1:64692/api/config",
+      "status": 200
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "url": "http://127.0.0.1:64692/api/projects",
+      "status": 200
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "url": "http://127.0.0.1:64692/api/skills",
+      "status": 200
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "url": "http://127.0.0.1:64692/api/chat/projects",
+      "status": 200
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "url": "http://127.0.0.1:64692/api/chat/sessions",
+      "status": 200
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "url": "http://127.0.0.1:64692/api/library",
+      "status": 200
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "url": "http://127.0.0.1:64692/api/models",
+      "status": 200
+    },
+    {
+      "kind": "console",
+      "level": "warning",
+      "text": "[.WebGL-0x16fc00422c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "kind": "console",
+      "level": "warning",
+      "text": "[.WebGL-0x16fc00422c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "kind": "console",
+      "level": "warning",
+      "text": "[.WebGL-0x16fc00422c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "kind": "console",
+      "level": "warning",
+      "text": "[.WebGL-0x16fc00422c00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    }
+  ],
+  "errors": []
+}

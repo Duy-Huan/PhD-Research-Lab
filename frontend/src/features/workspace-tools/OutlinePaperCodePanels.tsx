@@ -23,6 +23,8 @@ import {
   FileDown,
 } from 'lucide-react';
 import { LatexEnginesInfo, PaperProject, CompilePaperResponse } from '../../shared/api/types';
+import { PaperOrchestraStudio } from '../paper/PaperOrchestraStudio';
+import { Sparkles } from 'lucide-react';
 
 // ── 1. Outline Panel (/api/outline) ────────────────────────────────────────
 
@@ -120,7 +122,7 @@ export const PaperPanel: React.FC = () => {
   const [engineMode, setEngineMode] = useState<'local' | 'online'>('local');
   const [selectedLocalEngine, setSelectedLocalEngine] = useState<string>('auto');
   const [layoutMode, setLayoutMode] = useState<'template' | 'simple'>('template');
-  const [activeView, setActiveView] = useState<'editor' | 'preview' | 'split' | 'log'>('preview');
+  const [activeView, setActiveView] = useState<'editor' | 'preview' | 'split' | 'log' | 'orchestra'>('preview');
   const [lastCompiledTime, setLastCompiledTime] = useState<number>(Date.now());
   const [compileResult, setCompileResult] = useState<CompilePaperResponse | null>(null);
   const [logContent, setLogContent] = useState<string>('');
@@ -377,6 +379,15 @@ export const PaperPanel: React.FC = () => {
 
       {/* Segmented View Tabs */}
       <div style={{ display: 'flex', gap: 6, borderBottom: '1px solid var(--line)', paddingBottom: 6 }}>
+        <button
+          type="button"
+          className={`btn sm ${activeView === 'orchestra' ? 'accent' : 'ghost'}`}
+          onClick={() => setActiveView('orchestra')}
+          style={{ display: 'flex', alignItems: 'center', gap: 5 }}
+        >
+          <Sparkles size={13} color={activeView === 'orchestra' ? '#fff' : 'var(--accent)'} />
+          <span>PaperOrchestra</span>
+        </button>
         <button
           type="button"
           className={`btn sm ${activeView === 'preview' ? 'accent' : 'ghost'}`}
@@ -664,6 +675,9 @@ export const PaperPanel: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* View 5: PaperOrchestra Studio */}
+      {activeView === 'orchestra' && <PaperOrchestraStudio />}
 
       {/* View 4: Build Log Viewer */}
       {activeView === 'log' && (

@@ -30,5 +30,5 @@ def export(tid: str) -> dict:
             previous = r["hash"]
             if r["topic_id"] == tid:
                 items.append({"seq":r["seq"], **item, "hash":r["hash"]})
-        return {"events":items,"project_chain_valid":bool(valid),"project_head_hash":previous,
+        return {"events":items,"entries":items,"ok":bool(valid),"project_chain_valid":bool(valid),"project_head_hash":previous,
                 "limitations":"Hash-linked local ledger; an OS administrator can replace the entire database. Retain independent backups."}

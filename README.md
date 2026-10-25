@@ -1,4 +1,9 @@
-# PhD Research Lab - v6.3.0-preview.1
+# PhD Research Lab - v6.5.7
+
+**Unreleased integration candidate.** Active workflow: **dev (AI development + complete local software regression) -> qa (independent CI + real provider/research/AI-UAT) -> main (owner-controlled release)**. Coverage is informational; mandatory software regressions must all execute/PASS. See the [operator guide](agent/DEV_QA_MAIN.md). Preview6.3.0 on main/qa is untrusted; current-source QA/live qualification remains BLOCKED. See [CI/CD standard](agent/CI_CD_AUTOMATION.md), [local repair operations](docs/devops/CI_REPAIR_SUPERVISOR.vi.md) and [same-suite comparison](docs/qa/COMPARISON_PROTOCOL.md).
+
+**Measured6.5.6 baseline:** [same-suite main/candidate results](docs/qa/MAIN_CANDIDATE_COMPARISON.md), [remaining defects](docs/qa/BUG_INVENTORY.md) and [release decision](docs/qa/RELEASE_READINESS.md). Local feature1102PASS/8SKIP and10fixed critical software groups do not establish QA100%; those historical results used the older coverage policy. The6.5.7 source repairs the3D locale defect with RED/GREEN regression; current qualification evidence/status is recorded in agent/STATE.md. QA/main remain protected.
+**Independent L1–L4 workflows:** Missions → **Workflows L1–L4** lets users select bounded assistance, execution with per-result review, coordination with final review, or experimental technical closure. Up to four independent workflows share the existing resource limits. L3/L4 are execution policies, with scientific review explicitly pending. See [architecture and development record](docs/architecture/autonomy-workflows.md) and [executed audit / release assessment](docs/testing/autonomy-report.md). Coverage measurements remain visible; coverage is no longer a percentage release gate. Software PASS alone does not certify scientific or live-provider acceptance.
 
 **Upgrade reconciliation (v5.1–v6.3):** [feature audit and operating guide](docs/upgrade-reconciliation.md), [source-linked matrix](artifacts/upgrade-reconciliation/feature-matrix.md) and [executed validation](artifacts/upgrade-reconciliation/validation.md). Adds optional public scholarly source packs, paper tags/filters/citation graph, local hybrid evidence retrieval, read-only local Zotero sync, artifact navigation and fixes for scheduling, charter dependencies and complete Mission reports. The audit preserves explicit preview/external qualification gates.
 
@@ -6,7 +11,7 @@
 
 **Frontend workflow review:** provider-scoped agent model pickers, local/API/MCP inference sources, independent Windows OpenScience/Feynman windows, workspace-to-VS Code launch, mobile agent cards and keyboard/dialog fixes. See [workflow review and usage](docs/FRONTEND_WORKFLOW_REVIEW.md), [model resource contracts](docs/MODEL_RESOURCES.md) and [measured regression evidence](artifacts/workflow-ux/verification.md).
 
-**UI refinement:** bilingual interface labels, local JSON theme packages (including VS Code color imports), a project/conversation browser, persistent message pins and calendar dates. New Library uploads and downloads share a metadata-based PDF naming convention. See [UI usage and verification](docs/ui-refinement.md) and the [visual audit](docs/ui-refinement-audit.md). `node tests/frontend/run.js` enforces 100% lines, branches and functions across all first-party frontend JavaScript, including first-paint initialization.
+**UI refinement:** bilingual interface labels, local JSON theme packages, a project/conversation browser, persistent message pins and calendar dates. The React frontend uses `cd frontend; npm run test:coverage`; coverage includes every production TypeScript/TSX file, including untested startup files. Consult the current audit for measured coverage; historical JavaScript coverage claims do not describe this frontend.
 
 A local research workspace with one project chat, a browser interface and a terminal client sharing the same FastAPI backend. Research and Reviewer agents use Markdown skills; a utility model handles background extraction and memory work.
 
@@ -21,6 +26,8 @@ A local research workspace with one project chat, a browser interface and a term
 **Fixed experiments:** the Experiments drawer (`/experiment`) pre-registers an immutable generated-image denoising protocol, baseline, train/validation/test splits, seeds, MSE/PSNR and compute budgets. Approve the protocol, prepare a mission, then approve that exact execution plan. Native workers measure actual outputs; validation selects a candidate and held-out test is evaluated afterwards. See [v5.5 limits and reproduction](docs/release-v5.5.md).
 
 **Scientific review:** Review Room (`/claims`) links immutable claim revisions to page quotes or measured artifacts, checks source identity and numerical provenance, and records human approval/rejection/retraction in an append-only audit chain. Manuscript exports include claim statuses. Checks certify neither semantic entailment nor novelty; publication still requires human scientific review. See [v5.6 verification matrix and operations](docs/release-v5.6.md).
+
+**PaperOrchestra Writing Engine (opt-in):** `/paperorchestra` exposes multi-agent scientific paper drafting, structuring, and polishing. Supports official isolated CLI execution and harness-created specialist writing teams across L2, L3, and L4 autonomy contracts, featuring citation hallucination verification against local BibTeX libraries, experimental metric provenance validation, figure asset validation, independent 4-criteria peer review, and mandatory human submission sign-off. See [PaperOrchestra integration architecture](docs/architecture/paperorchestra-integration.md).
 
 ## Topic knowledge and independent engine workspaces (preview)
 
@@ -161,3 +168,9 @@ The backend harness isolates all test data and writes logs, JSON/XML/HTML covera
 Windows process-cancellation regressions require permission to terminate the subprocess trees they create. Symlink tests require Developer Mode/admin. Live ClearML, Codex and LM Studio tests are opt-in and are reported as skipped unless configured; mocked integration tests do not establish that a real account is connected. Consult the dated status report for measured results, rather than historical coverage claims.
 
 Cloud runtime optimization, capability-aware failover, searchable provider/model settings, terminal chat launcher and the attended remote-compute/ClearML MVP are documented in [the v5.1 runtime audit](docs/cloud-runtime-v51.md), including benchmark evidence and unfinished integrations. Run `chat.bat` once to enter terminal chat; subsequent questions need no `phdlab` prefix.
+
+The [CLI and tool repair report](docs/testing/cli-connectivity-report.md) records actual Codex/Antigravity chat checks, the unsupported-model repair, remaining login/quota/runtime limits and OpenCode native dispatch limitations.
+
+## Development verification and AI-UAT
+
+Start with [agent instructions](AGENTS.md), [CI/CD user guide](docs/devops/CI_CD_USER_GUIDE.vi.md) and [browser acceptance procedure](agent/UAT.md). Run `python scripts/verify.py --profile quick` while editing and `feature` before pushing. Browser acceptance status and gaps are recorded in the [UAT report](docs/qa/UAT_ACCEPTANCE_REPORT.md). Version 6.5.0 infrastructure work is not release-qualified while coverage, required exploration or live/scientific gates remain incomplete.

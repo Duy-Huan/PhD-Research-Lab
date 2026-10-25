@@ -158,6 +158,7 @@ export interface AppConfig {
     cli: string;
     mcp: string;
     cloud: string;
+    cloud_preconnect?: boolean;
     local_idle_min: number;
     cli_idle_min: number;
     mcp_idle_min: number;
@@ -219,6 +220,7 @@ export interface AppConfig {
     timeout_s: number;
   };
   aiws: {
+    history_budget_tokens?: number;
     enabled: boolean;
     operating_mode: string;
     provider: string;
@@ -315,6 +317,9 @@ export interface ChatNote {
 }
 
 export interface ChatTurn {
+  manifest?: { sources?: Array<{ id: string; truncated?: boolean }>; omitted?: Array<{ id: string; reason?: string }> };
+  history_manifest?: { omitted_messages?: string[]; truncated_messages?: string[]; budget_tokens?: number };
+  error?: string;
   id: string;
   status: 'running' | 'queued' | 'waiting_approval' | 'awaiting_launch' | 'completed' | 'failed' | 'cancelled';
   created?: number;
@@ -452,6 +457,8 @@ export interface MissionTask {
       arguments?: Record<string, unknown>;
     };
     attempts: number;
+    result_digest?: string;
+    human_review?: { accept: boolean; note: string };
     result?: {
       status?: string;
       engine?: string;
@@ -473,11 +480,12 @@ export interface MissionTask {
 export interface Mission {
   id: string;
   topic_id: string;
-  status: 'draft' | 'queued' | 'running' | 'paused' | 'awaiting_review' | 'completed' | 'failed' | 'cancelled' | 'interrupted';
+  status: 'draft' | 'queued' | 'running' | 'paused' | 'awaiting_review' | 'awaiting_step_review' | 'completed' | 'failed' | 'cancelled' | 'interrupted';
   payload: {
     spec: {
       topic_id: string;
       objective: string;
+      autonomy?: { level: 'L1' | 'L2' | 'L3' | 'L4'; max_output_tokens: number };
       permissions: string[];
       tasks: Array<{
         id: string;
@@ -952,17 +960,98 @@ export interface HarnessToolSpec {
   docs_url: string;
 }
 
+export type WorkflowNodeType =
+  | 'start'
+  | 'end'
+  | 'agent_task'
+  | 'multi_agent_team'
+  | 'research_engine'
+  | 'tool_skill'
+  | 'mcp_tool'
+  | 'input'
+  | 'output'
+  | 'condition'
+  | 'parallel_branch'
+  | 'join'
+  | 'bounded_loop'
+  | 'human_approval'
+  | 'evaluation_gate'
+  | 'artifact_transformation'
+  | 'memory_read'
+  | 'memory_write'
+  | 'error_handler'
+  | 'checkpoint'
+  | 'harnessNode';
+
+export interface WorkflowNodePort {
+  id: string;
+  name: string;
+  type: 'control' | 'data' | 'artifact' | 'boolean';
+  direction: 'input' | 'output';
+  required?: boolean;
+  description?: string;
+}
+
+export interface WorkflowNodeMetadata {
+  type: WorkflowNodeType;
+  label: string;
+  label_en: string;
+  category: 'flow' | 'agent' | 'engine' | 'tool' | 'data' | 'governance' | 'benchmark';
+  icon: string;
+  description: string;
+  description_en: string;
+  inputs: WorkflowNodePort[];
+  outputs: WorkflowNodePort[];
+  default_config: Record<string, unknown>;
+  config_schema: Record<string, unknown>;
+}
+
+export interface AgentProfile {
+  id: string;
+  name: string;
+  role: string;
+  purpose: string;
+  system_prompt: string;
+  provider: string;
+  model?: string;
+  reasoning_effort?: string;
+  skills: string[];
+  mcp_tools: string[];
+  memory_scope: string;
+  permissions: string[];
+  max_tokens: number;
+  timeout_seconds: number;
+  max_retries: number;
+  fallback_provider?: string;
+}
+
+export interface WorkflowValidationResult {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  node_count: number;
+  edge_count: number;
+}
+
 export interface HarnessNodeData {
   label: string;
-  tool: string;
+  tool?: string;
+  node_type?: WorkflowNodeType;
   category?: string;
-  params: Record<string, unknown>;
-  status?: 'idle' | 'running' | 'completed' | 'failed' | 'skipped';
+  params?: Record<string, unknown>;
+  config?: Record<string, unknown>;
+  description?: string;
+  input_artifact_ids?: string[];
+  output_artifact_ids?: string[];
+  checkpoint_id?: string;
+  status?: 'idle' | 'running' | 'completed' | 'failed' | 'skipped' | 'waiting_approval' | 'paused';
   result?: {
     passed?: boolean;
     duration_s?: number;
     metrics?: Record<string, unknown>;
     summary?: string;
+    output?: unknown;
+    error?: string;
   };
   [key: string]: unknown;
 }
@@ -974,7 +1063,11 @@ export interface CustomHarnessWorkflow {
   description: string;
   description_en?: string;
   topic_id?: string;
+  category?: string;
+  badge?: string;
   is_preset?: boolean;
+  generated_by_ai?: boolean;
+  execution_level?: 'L2' | 'L3' | 'L4' | string;
   nodes: Array<{
     id: string;
     type?: string;
@@ -985,10 +1078,46 @@ export interface CustomHarnessWorkflow {
     id: string;
     source: string;
     target: string;
+    sourceHandle?: string;
+    targetHandle?: string;
     label?: string;
   }>;
   created_at?: string;
   updated_at?: string;
+}
+
+export interface WorkflowExecutionState {
+  execution_id: string;
+  workflow_id: string;
+  workflow_name: string;
+  status: 'pending' | 'running' | 'paused' | 'waiting_approval' | 'completed' | 'failed' | 'cancelled' | 'blocked';
+  execution_level: string;
+  step_mode: boolean;
+  current_node_id?: string | null;
+  node_statuses: Array<{
+    node_id: string;
+    label: string;
+    node_type: string;
+    status: 'idle' | 'running' | 'completed' | 'failed' | 'skipped' | 'waiting_approval' | 'blocked';
+    started_at?: string;
+    completed_at?: string;
+    duration_s?: number;
+    output?: unknown;
+    error?: string;
+    feedback?: string;
+    summary?: string;
+  }>;
+  total_duration_s: number;
+  checkpoints: Array<Record<string, unknown>>;
+  artifacts_produced: string[];
+  logs: Array<{
+    timestamp: string;
+    level: string;
+    node_id?: string;
+    message: string;
+  }>;
+  started_at: string;
+  completed_at?: string;
 }
 
 export interface HarnessExecutionReport {

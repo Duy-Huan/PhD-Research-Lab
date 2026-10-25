@@ -1,0 +1,5 @@
+
+Running 1 test using 1 worker
+
+[1/1] e2e\office3d.spec.ts:4:1 › 3D real WebGL renders, camera and lighting change pixels, dock returns to chat
+  1 passed (34.4s)

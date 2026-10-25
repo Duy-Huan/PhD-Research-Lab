@@ -517,8 +517,8 @@ def _resolve_provider(rid: str, step: dict) -> dict:
     pid, note = RP.pick(step["provider"])
     if pid == step["provider"]:
         return step
-    if step["provider"] == "openscience":
-        _needs_user(rid, step["id"], note + "; OpenScience is not automatically replaced",
+    if step["provider"] == "openscience" or get(rid).get("skill") in ("science", "feynman", "opencode"):
+        _needs_user(rid, step["id"], note + "; explicitly selected engine is not automatically replaced",
                     {"kind": "provider", "text": "Configure the runtime or explicitly select another research engine", "patch": {}})
         return step
     from backend.core.config import load_config
@@ -898,7 +898,7 @@ def _research(ctx: Ctx) -> dict:
     if pid in engines.FACTORIES:
         from backend.research_engines.contracts import EngineTask, EngineFailure
         from backend.core.config import data_dir
-        capability = "review" if ctx.step["kind"] == "review" else "analysis" if ctx.run.get("skill") == "science" else "literature"
+        capability = "review" if ctx.step["kind"] == "review" else "prototype" if ctx.run.get("skill") == "opencode" else "analysis" if ctx.run.get("skill") == "science" else "literature"
         task = EngineTask(operation_id=f"{ctx.rid}:{ctx.step['id']}", attempt=ctx.step["attempt"],
                           project_id=data_dir().name, workflow_id=ctx.rid, step_id=ctx.step["id"], question=topic,
                           context=brief, capability=capability,

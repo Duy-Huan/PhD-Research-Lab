@@ -38,12 +38,12 @@ from backend.core import config as C
 if C.GLOBAL_DIR.resolve() == (ROOT / "data").resolve():
     raise SystemExit("CRITICAL VIOLATION: Live E2E tests must not run on production data folder!")
 
-QA_DIR = ROOT / "qa" / "live_e2e"
+QA_DIR = Path(os.environ.get("PHDLAB_LIVE_EVIDENCE_DIR") or ROOT / "qa" / "live_e2e")
 QA_DIR.mkdir(parents=True, exist_ok=True)
 CALLS_LOG = QA_DIR / "LLM_CALLS_REDACTED.jsonl"
 HARNESS_LOG = QA_DIR / "HARNESS_STATES.jsonl"
 
-LOCAL_MODEL = "phi-4"
+LOCAL_MODEL = os.environ.get("PHDLAB_LIVE_MODEL", "phi-4")
 LMSTUDIO_BASE_URL = "http://127.0.0.1:1234/v1"
 
 
@@ -65,6 +65,9 @@ def configure_live_phi4():
             "multi_team_enabled": True
         }
     })
+    from backend.providers import models
+    if "qwen3.5" in LOCAL_MODEL:
+        models.REASONING.set("off")
 
 
 def log_llm_call(role: str, prompt: str, response: str, latency: float, model: str = LOCAL_MODEL, engine: str = "local", success: bool = True):
@@ -109,7 +112,7 @@ def check_lmstudio_health() -> Dict[str, Any]:
         with urllib.request.urlopen(req, timeout=5) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             models = [m.get("id") for m in data.get("data", []) if m.get("id")]
-            has_phi4 = any("phi-4" in m.lower() for m in models)
+            has_phi4 = LOCAL_MODEL in models  # legacy key; checks the explicitly selected model
             return {
                 "online": True,
                 "url": LMSTUDIO_BASE_URL,

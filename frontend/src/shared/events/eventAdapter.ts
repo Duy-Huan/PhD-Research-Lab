@@ -178,10 +178,12 @@ export function buildUniversityLabRoster(
   liveAgents: AgentOfficeViewModel[],
   projectId: string,
   topicId?: string,
-  agentModes?: Record<string, string>
+  agentModes?: Record<string, string>,
+  language: 'vi' | 'en' = 'en'
 ): AgentOfficeViewModel[] {
   const nowIso = new Date().toISOString();
   const anyRunning = liveAgents.some((a) => a.presence === 'running');
+  const t = (vi: string, en: string) => language === 'vi' ? vi : en;
 
   const coreFaculty: AgentOfficeViewModel[] = [
     {
@@ -189,7 +191,7 @@ export function buildUniversityLabRoster(
       projectId,
       topicId,
       displayName: 'Prof. AI Orchestrator (PI)',
-      role: 'Principal Investigator · Điều phối Đề cương 5 Cấp & Mission DAG',
+      role: t('Principal Investigator · Điều phối Đề cương 5 Cấp & Mission DAG', 'Principal Investigator · 5-Level Outline & Mission DAG Coordination'),
       engine: agentModes?.assistant || agentModes?.research || 'auto',
       presence: anyRunning ? 'running' : 'idle',
       activity: anyRunning ? 'reviewing' : 'reading',
@@ -200,11 +202,11 @@ export function buildUniversityLabRoster(
       hasApprovalRequest: liveAgents.some((a) => a.hasApprovalRequest),
       zone: 'podium',
       archetype: 'pi',
-      personality: 'Điềm tĩnh, chiến lược, định hướng giả thuyết khoa học & điều phối toàn Lab',
+      personality: t('Điềm tĩnh, chiến lược, định hướng giả thuyết khoa học & điều phối toàn Lab', 'Calm, strategic, hypothesis-driven coordination across the lab'),
       skillCommand: '/outline',
       speechBubble: anyRunning
-        ? 'Đang giám sát tiến độ DAG & đồng bộ kết quả giữa các nhóm…'
-        : 'Sẵn sàng thảo luận Đề cương 5 cấp độ & phân công nhiệm vụ mới!',
+        ? t('Đang giám sát tiến độ DAG & đồng bộ kết quả giữa các nhóm…', 'Monitoring DAG progress and synchronizing team results…')
+        : t('Sẵn sàng thảo luận Đề cương 5 cấp độ & phân công nhiệm vụ mới!', 'Ready to discuss the 5-level outline and assign new tasks!'),
     },
     {
       agentId: 'faculty_feynman_lit',
@@ -222,9 +224,9 @@ export function buildUniversityLabRoster(
       hasApprovalRequest: false,
       zone: 'literature',
       archetype: 'feynman',
-      personality: 'Uyên bác, tò mò, chuyên gia săn tìm bài báo Q1/A* và phát hiện Research Gap',
+      personality: t('Uyên bác, tò mò, chuyên gia săn tìm bài báo Q1/A* và phát hiện Research Gap', 'Curious literature specialist identifying Q1/A* papers and research gaps'),
       skillCommand: '/feynman',
-      speechBubble: 'Đang đối chiếu trích dẫn CORE/SCImago Q1 trong Thư viện SKB…',
+      speechBubble: t('Đang đối chiếu trích dẫn CORE/SCImago Q1 trong Thư viện SKB…', 'Cross-checking CORE/SCImago Q1 references in the SKB library…'),
     },
     {
       agentId: 'faculty_openscience_lab',
@@ -242,9 +244,9 @@ export function buildUniversityLabRoster(
       hasApprovalRequest: false,
       zone: 'lab_bench',
       archetype: 'openscience',
-      personality: 'Thực nghiệm chuẩn mực, kiểm soát biến số chặt chẽ, thiết kế Ablation Study',
+      personality: t('Thực nghiệm chuẩn mực, kiểm soát biến số chặt chẽ, thiết kế Ablation Study', 'Controlled experimentation, careful variable isolation and ablation design'),
       skillCommand: '/openscience',
-      speechBubble: 'Đang kiểm định giao thức thí nghiệm (Protocol) & đối chứng Baseline…',
+      speechBubble: t('Đang kiểm định giao thức thí nghiệm (Protocol) & đối chứng Baseline…', 'Validating experiment protocols and baseline comparisons…'),
     },
     {
       agentId: 'faculty_opencode_core',
@@ -262,9 +264,9 @@ export function buildUniversityLabRoster(
       hasApprovalRequest: false,
       zone: 'compute',
       archetype: 'opencode',
-      personality: 'Tốc độ cao, tối ưu hóa CUDA/VRAM, viết code song song sạch & tái lập 100%',
+      personality: t('Tốc độ cao, tối ưu hóa CUDA/VRAM, viết code song song sạch & tái lập 100%', 'Efficient CUDA/VRAM optimization and reproducible parallel code'),
       skillCommand: '/opencode',
-      speechBubble: 'Cụm HPC & GPU Sandbox sẵn sàng chạy huấn luyện song song!',
+      speechBubble: t('Cụm HPC & GPU Sandbox sẵn sàng chạy huấn luyện song song!', 'HPC and GPU sandbox ready for parallel training!'),
     },
     {
       agentId: 'faculty_reviewer_chair',
@@ -282,9 +284,9 @@ export function buildUniversityLabRoster(
       hasApprovalRequest: false,
       zone: 'review',
       archetype: 'reviewer',
-      personality: 'Khắt khe, khách quan, soi xét từng Claim và bằng chứng theo chuẩn NeurIPS/ICML',
+      personality: t('Khắt khe, khách quan, soi xét từng Claim và bằng chứng theo chuẩn NeurIPS/ICML', 'Rigorous, objective claim and evidence review using NeurIPS/ICML criteria'),
       skillCommand: '/review',
-      speechBubble: 'Sẵn sàng thẩm định bản thảo theo chuẩn Hội đồng R1–R3 & Area Chair.',
+      speechBubble: t('Sẵn sàng thẩm định bản thảo theo chuẩn Hội đồng R1–R3 & Area Chair.', 'Ready for R1–R3 reviewer and Area Chair manuscript assessment.'),
     },
     {
       agentId: 'faculty_figure_studio',
@@ -302,9 +304,9 @@ export function buildUniversityLabRoster(
       hasApprovalRequest: false,
       zone: 'lounge',
       archetype: 'figure_fellow',
-      personality: 'Tinh tế, chuẩn thẩm mỹ Nature/Science/IEEE, chuyên gia biểu đồ vector & LaTeX',
+      personality: t('Tinh tế, chuẩn thẩm mỹ Nature/Science/IEEE, chuyên gia biểu đồ vector & LaTeX', 'Vector graphics and LaTeX specialist using Nature/Science/IEEE visual conventions'),
       skillCommand: '/paper',
-      speechBubble: 'Đang tinh chỉnh đồ thị Vector SVG 600 DPI & bố cục LaTeX.',
+      speechBubble: t('Đang tinh chỉnh đồ thị Vector SVG 600 DPI & bố cục LaTeX.', 'Refining vector SVG figures and LaTeX layout.'),
     },
   ];
 

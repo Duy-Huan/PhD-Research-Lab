@@ -1,0 +1,41 @@
+test_actual_uat_server_allows_language_and_denies_other_writes (browser_acceptance_integration.OwnedServerCapability.test_actual_uat_server_allows_language_and_denies_other_writes)
+REAL_LOCAL HTTP integration; no model, account or browser credentials. ... ok
+test_owned_browser_origin_proxy_and_finish_without_model (browser_acceptance_integration.OwnedServerCapability.test_owned_browser_origin_proxy_and_finish_without_model) ... ok
+test_python_worker_denies_file_mutation_and_processes_outside_lease (browser_acceptance_integration.OwnedServerCapability.test_python_worker_denies_file_mutation_and_processes_outside_lease) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 34.313s
+
+OK
+
+Running 27 tests using 1 worker
+
+[1/27] e2e\ci_smoke.spec.ts:3:1 › CI: real application shell and settings respond without provider inference
+[2/27] e2e\navigation.spec.ts:5:3 › navigation: Paper Library & Search
+[3/27] e2e\navigation.spec.ts:5:3 › navigation: 5-Level Research Outline
+[4/27] e2e\navigation.spec.ts:5:3 › navigation: Research Topics
+[5/27] e2e\navigation.spec.ts:5:3 › navigation: Workstreams
+[6/27] e2e\navigation.spec.ts:5:3 › navigation: Figure Studio
+[7/27] e2e\navigation.spec.ts:5:3 › navigation: OpenCode Runtime
+[8/27] e2e\navigation.spec.ts:5:3 › navigation: Intelligence & RO-Crate
+[9/27] e2e\navigation.spec.ts:5:3 › navigation: Protocols
+[10/27] e2e\navigation.spec.ts:5:3 › navigation: Claims & Evidence
+[11/27] e2e\navigation.spec.ts:5:3 › navigation: Paper LaTeX
+[12/27] e2e\navigation.spec.ts:5:3 › navigation: Code · VS Code
+[13/27] e2e\navigation.spec.ts:19:1 › main views and keyboard return to chat
+[14/27] e2e\navigation.spec.ts:38:1 › mobile chat controls and topic tabs fit the viewport
+[15/27] e2e\office3d.spec.ts:4:1 › 3D real WebGL renders, camera and lighting change pixels, dock returns to chat
+[16/27] e2e\uat_harness.spec.ts:6:1 › UAT harness: real language form reaches backend and persists after refresh without LLM
+[17/27] e2e\uat_harness.spec.ts:20:1 › UAT harness: separate browser contexts do not share cookies or local storage
+[18/27] e2e\uat_harness.spec.ts:34:1 › UAT harness: controlled console error and unhandled rejection produce evidence
+[19/27] e2e\uat_harness.spec.ts:48:1 › UAT harness: injected config-network failure is recorded and reload recovers
+[20/27] e2e\uat_harness.spec.ts:59:1 › UAT harness: failed action preserves screenshot and reproducible actual/expected report
+[21/27] e2e\uat_harness.spec.ts:70:1 › UAT harness: a controlled broken fixture fails its regression then corrected fixture passes
+[22/27] e2e\ui_quality.spec.ts:8:1 › UI-MODEL-RULES-001: cloud preconnection and context budgets persist through the real settings API
+[23/27] e2e\ui_quality.spec.ts:43:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 375px
+[24/27] e2e\ui_quality.spec.ts:43:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 768px
+[25/27] e2e\ui_quality.spec.ts:57:1 › UI-DESKTOP-SETTINGS-001: Settings preserves desktop navigation
+[26/27] e2e\ui_quality.spec.ts:68:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (en)
+[27/27] e2e\ui_quality.spec.ts:68:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (vi)
+  27 passed (1.4m)
+{"decision": "PASS", "scope": "Deterministic Playwright only", "plan": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\pr-all-stable\\browser\\selection.json", "results": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\pr-all-stable\\browser\\results.json"}

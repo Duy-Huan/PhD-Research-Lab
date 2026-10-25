@@ -1,0 +1,13 @@
+{
+  "mode": "MOCKED_SOFTWARE_REGRESSION",
+  "head": "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+  "production_sha256": "39c96f7cc0e115f9e1400cff8b3011ef9be313acfa0cba7fd2b972840532acc1",
+  "suite_sha256": "3d983cea375342c6de160373f0782a4a9a1bf0782fb31952d7afa342b425d3ac",
+  "case": {
+    "id": "test_latest_integration_regressions.LatestIntegration.test_remote_compute_context_preserves_record_identity_and_unverified_status",
+    "status": "ERROR",
+    "duration": 0.0562,
+    "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\tests\\test_latest_integration_regressions.py\", line 19, in test_remote_compute_context_preserves_record_identity_and_unverified_status\n    item=next(x for x in Adapter()._runs() if x['id']=='state:compute_runs')\n                         ^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\backend\\agent\\project_context.py\", line 192, in _runs\n    json.dumps([{k: r.get(k) for k in (\"run_id\", \"hypothesis_id\", \"experiment_id\", \"status\", \"metrics\", \"artifact_refs\", \"evaluation\")} for r in remote]),\n    ^^^^\nNameError: name 'json' is not defined. Did you forget to import 'json'\n"
+  },
+  "source_report": "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\backend\\report.json"
+}

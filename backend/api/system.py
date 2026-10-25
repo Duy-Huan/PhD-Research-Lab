@@ -4,7 +4,7 @@ from __future__ import annotations
 import asyncio
 from asyncio import wait_for
 
-from fastapi import APIRouter, Body, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Body, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
 
 from backend.api.common import call, sse, stream
@@ -25,10 +25,19 @@ def get_config():
 
 
 @router.post("/api/config")
-def set_config(body: dict = Body(...)):
+def set_config(background_tasks: BackgroundTasks, body: dict = Body(...)):
     out = public_config(save_config(body))
     bus.publish("config.updated", keys=",".join(sorted(body))[:200])
+    if set(body) & {'providers', 'default_cloud', 'agent_modes', 'agent_models', 'lifecycle'}:
+        from backend.providers.connections import selected
+        background_tasks.add_task(selected, body)
     return out
+
+
+@router.get('/api/models/connections')
+def model_connections():
+    from backend.providers.connections import status
+    return {'connections': status()}
 
 
 # ------------------------------------------------------------------ models
@@ -68,8 +77,9 @@ async def models():
 @router.post("/api/models/test")
 async def test_model(body: dict = Body(...)):
     from backend.providers.models import LLMError, _stream_engine, default_model_for
-    pid = str(body.get("provider", "")).removeprefix("app:")
-    if pid not in (*PROVIDERS, "local", "ollama"):
+    from backend.providers.cli import CONNECTORS
+    pid = str(body.get("provider", "")).removeprefix("app:").removeprefix("cli:")
+    if pid not in (*PROVIDERS, "local", "ollama", *CONNECTORS):
         raise HTTPException(400, "Unknown provider")
     cfg = load_config()
     model = str(body.get("model") or "").strip() or None
@@ -172,99 +182,43 @@ async def provider_auth_status(pid: str):
 
 @router.post("/api/providers/{pid}/connect")
 async def provider_connect(pid: str, body: dict | None = None):
-    """CLI providers sign in with the vendor's own flow; PhD Lab opens a terminal and/or forwards to the vendor's app/web."""
-    import sys
-    import subprocess
-    import webbrowser
+    """Vendor login stays in its installed native CLI; legacy web/app means native app."""
     from backend.providers.cli import CONNECTORS
-
+    from backend.providers.native import launch_provider
     payload = body if isinstance(body, dict) else {}
     clean_pid = pid.removeprefix("cli:").removeprefix("app:")
-    mode = str(payload.get("mode") or "both").lower()  # terminal, web, or both
-    open_web = bool(payload.get("open_web")) or mode in ("web", "both", "app")
-    web_url = VENDOR_LOGIN_URLS.get(clean_pid) or VENDOR_LOGIN_URLS.get(pid, "https://chatgpt.com")
-
-    # Forward to app/web browser if requested or mode includes web
-    opened_web = False
-    if open_web and web_url:
-        try:
-            webbrowser.open(web_url)
-            opened_web = True
-        except Exception:
-            pass
-
-    if clean_pid == "feynman":
-        launched = False
-        if sys.platform.startswith("win") and mode in ("terminal", "both"):
-            subprocess.Popen(["cmd", "/c", "start", "", "cmd", "/k", "feynman model login"])
-            launched = True
-        return {
-            "provider": pid,
-            "command": "feynman model login",
-            "launched": launched,
-            "web_url": web_url,
-            "opened_web": opened_web,
-        }
-
-    if clean_pid not in CONNECTORS:
-        if clean_pid in VENDOR_LOGIN_URLS or pid in VENDOR_LOGIN_URLS:
-            return {
-                "provider": pid,
-                "command": "",
-                "launched": False,
-                "web_url": web_url,
-                "opened_web": opened_web,
-                "detail": f"Forwarded to {clean_pid} web portal for authentication.",
-            }
-        raise HTTPException(400, f"{pid} has no sign-in flow")
-
-    conn = CONNECTORS[clean_pid]
-    res = await call(conn.connect, mode in ("terminal", "both"))
-    res["web_url"] = web_url
-    res["opened_web"] = opened_web
-    return res
+    mode = str(payload.get("mode") or "terminal").lower()
+    if clean_pid not in {*CONNECTORS, 'feynman', 'opencode', 'paperorchestra', 'openscience', 'app', 'phdlab'}:
+        raise HTTPException(400, f"{pid} has no installed CLI sign-in flow")
+    if mode not in ("terminal", "app", "web", "both"):
+        raise HTTPException(400, "Choose terminal or app connection mode")
+    if mode in ("app", "web"):
+        result = await call(launch_provider, clean_pid)
+    elif clean_pid in CONNECTORS:
+        connector = CONNECTORS[clean_pid]
+        result = await call(launch_provider, clean_pid, True)
+    elif clean_pid == "feynman":
+        result = await call(launch_provider, clean_pid, True)
+    else:
+        result = await call(launch_provider, clean_pid)
+    if not result.get("launched"):
+        raise HTTPException(503, result.get("detail", "Native CLI is unavailable"))
+    import subprocess
+    argv = result.get('command', [])
+    command = subprocess.list2cmdline(argv) if isinstance(argv, list) else str(argv)
+    return {**result, "command": command, "argv": argv, "provider": pid, "web_url": "", "opened_web": False}
 
 
 @router.post("/api/providers/{pid}/launch")
 async def provider_launch(pid: str, body: dict | None = None):
-    """Direct shortcut to launch or navigate to an app provider (web app, desktop app, or CLI terminal)."""
-    import webbrowser
-    import subprocess
-    import sys
-    payload = body if isinstance(body, dict) else {}
+    """Open the installed CLI app, including npm shims; never a public website."""
+    from backend.providers.native import launch_provider
     clean_pid = pid.removeprefix("cli:").removeprefix("app:")
-    web_url = VENDOR_LOGIN_URLS.get(clean_pid) or VENDOR_LOGIN_URLS.get(pid, "https://chatgpt.com")
-    
-    if clean_pid == "opencode":
-        try:
-            from backend.research_engines import opencode as OC
-            OC.ensure_server_running()
-        except Exception:
-            pass
-
-    opened_web = False
-    try:
-        webbrowser.open(web_url)
-        opened_web = True
-    except Exception:
-        pass
-
-    terminal_launched = False
-    if clean_pid in ("feynman", "claude_code", "codex", "gemini_cli", "antigravity") and payload.get("terminal"):
-        from backend.providers.cli import CONNECTORS
-        if clean_pid in CONNECTORS:
-            await call(CONNECTORS[clean_pid].connect, True)
-            terminal_launched = True
-
-    return {
-        "ok": True,
-        "provider": pid,
-        "clean_id": clean_pid,
-        "url": web_url,
-        "opened_web": opened_web,
-        "terminal_launched": terminal_launched,
-        "message": f"Opened {clean_pid} app navigator directly.",
-    }
+    result = await call(launch_provider, clean_pid)
+    if not result.get("launched"):
+        raise HTTPException(503, result.get("detail", "Native CLI is unavailable"))
+    return {**result, "ok": True, "provider": pid, "clean_id": clean_pid, "url": "",
+            "terminal_launched": True, "opened_web": False, "web_url": "", "message": result['detail']}
 
 
 @router.post("/api/providers/{pid}/sync")

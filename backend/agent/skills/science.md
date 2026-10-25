@@ -9,6 +9,7 @@ mode: run
 pipeline: research
 provider: openscience
 risk: 2
+aliases: [openscience]
 ---
 Delegate this bounded scientific task to the configured external OpenScience engine.
 OpenScience discovers and uses its native scientific skills and tools. Do not copy

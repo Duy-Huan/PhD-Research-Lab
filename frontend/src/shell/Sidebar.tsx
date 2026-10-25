@@ -36,6 +36,7 @@ import {
   HelpCircle,
   MessageSquare,
   Sliders,
+  Play,
   ExternalLink,
   RefreshCw,
 } from 'lucide-react';
@@ -43,6 +44,90 @@ import {
 export interface SidebarProps {
   collapsed?: boolean;
 }
+
+interface CLIProviderEntry {
+  id: string;
+  name: string;
+  shortName: string;
+  cmd: string;
+  color: string;
+  desc: string;
+}
+
+const ALL_CLI_PROVIDERS: CLIProviderEntry[] = [
+  {
+    id: 'claude_code',
+    name: 'Claude CLI Terminal',
+    shortName: 'Claude Code',
+    cmd: 'claude',
+    color: '#d97706',
+    desc: 'Anthropic Claude Code CLI',
+  },
+  {
+    id: 'codex',
+    name: 'OpenAI Codex CLI',
+    shortName: 'Codex',
+    cmd: 'codex',
+    color: '#10b981',
+    desc: 'OpenAI Codex & ChatGPT Sign-in',
+  },
+  {
+    id: 'antigravity',
+    name: 'Antigravity CLI (agy)',
+    shortName: 'Antigravity',
+    cmd: 'agy',
+    color: '#3b82f6',
+    desc: 'Google Antigravity CLI & MCP Client',
+  },
+  {
+    id: 'gemini_cli',
+    name: 'Gemini CLI',
+    shortName: 'Gemini',
+    cmd: 'gemini',
+    color: '#8b5cf6',
+    desc: 'Google Gemini CLI Terminal',
+  },
+  {
+    id: 'feynman',
+    name: 'Feynman Research CLI',
+    shortName: 'Feynman',
+    cmd: 'feynman',
+    color: '#ec4899',
+    desc: 'Feynman AI Research Agent CLI',
+  },
+  {
+    id: 'opencode',
+    name: 'OpenCode Sandbox CLI',
+    shortName: 'OpenCode',
+    cmd: 'opencode',
+    color: '#06b6d4',
+    desc: 'OpenCode Execution Sandbox CLI',
+  },
+  {
+    id: 'paperorchestra',
+    name: 'PaperOrchestra Engine',
+    shortName: 'PaperOrchestra',
+    cmd: 'paper-orchestra',
+    color: '#f59e0b',
+    desc: 'Multi-Agent Research Writing CLI',
+  },
+  {
+    id: 'openscience',
+    name: 'OpenScience Runtime',
+    shortName: 'OpenScience',
+    cmd: 'openscience',
+    color: '#6366f1',
+    desc: 'OpenScience External Research Runtime',
+  },
+  {
+    id: 'python',
+    name: 'Python venv Terminal',
+    shortName: 'Python venv',
+    cmd: 'python',
+    color: '#eab308',
+    desc: 'Local Python Virtual Environment',
+  },
+];
 
 export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) => {
   const queryClient = useQueryClient();
@@ -74,8 +159,49 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
   const [newFolderName, setNewFolderName] = useState('');
   const [newFolderInstructions, setNewFolderInstructions] = useState('');
   const [editingFolder, setEditingFolder] = useState<ChatProject | null>(null);
+
+  // CLI Providers list & 1-click launch state
+  const [cliProvidersExpanded, setCliProvidersExpanded] = useState(true);
+  const [launchingProviderId, setLaunchingProviderId] = useState<string | null>(null);
+  const [launchedId, setLaunchedId] = useState<string | null>(null);
+  const selectedCliProvider = useUIStore((s) => s.selectedCliProvider);
+  const setSelectedCliProvider = useUIStore((s) => s.setSelectedCliProvider);
+
+  // Fetch registered providers state
+  const { data: providersCatalogData } = useQuery<{ providers: Array<{ id: string; label: string; state: string; ready: boolean; detail?: string }> }>({
+    queryKey: ['providers'],
+    queryFn: () => api.get('/api/providers'),
+    staleTime: 20000,
+  });
+
+  const providersLiveMap = React.useMemo(() => {
+    const map: Record<string, { ready: boolean; state: string; detail?: string }> = {};
+    if (providersCatalogData?.providers) {
+      for (const p of providersCatalogData.providers) {
+        map[p.id] = { ready: p.ready, state: p.state, detail: p.detail };
+      }
+    }
+    return map;
+  }, [providersCatalogData]);
+
+  const handleManualLaunchProvider = async (e: React.MouseEvent, pid: string, label: string) => {
+    e.stopPropagation();
+    setLaunchingProviderId(pid);
+    try {
+      await api.post(`/api/providers/${pid}/launch`, { terminal: true });
+      setLaunchedId(pid);
+      setTimeout(() => {
+        setLaunchedId((curr) => (curr === pid ? null : curr));
+      }, 2500);
+    } catch (err: any) {
+      console.error(`Failed to launch terminal for ${label}:`, err);
+    } finally {
+      setLaunchingProviderId(null);
+    }
+  };
   const [assigningSessionId, setAssigningSessionId] = useState<string | null>(null);
   const [sessionMenuOpenId, setSessionMenuOpenId] = useState<string | null>(null);
+  const [folderMenuOpenId, setFolderMenuOpenId] = useState<string | null>(null);
   const [renamingSessionId, setRenamingSessionId] = useState<string | null>(null);
   const [renameTitle, setRenameTitle] = useState('');
 
@@ -954,35 +1080,167 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
         <button
           type="button"
           className="btn sm ghost"
-          onClick={() => openDrawer('harness')}
+          onClick={() => {
+            setMainView('harness');
+            if (window.matchMedia('(max-width: 820px)').matches && sidebarOpen) toggleSidebar();
+          }}
           style={{
             justifyContent: 'flex-start',
             padding: '6px 10px',
             borderRadius: 8,
             gap: 8,
-            color: drawerKind === 'harness' ? 'var(--accent)' : undefined,
+            color: mainView === 'harness' ? 'var(--accent)' : undefined,
+            background: mainView === 'harness' ? 'var(--panel)' : 'transparent',
           }}
         >
           <Sliders size={15} />
-          <span>{t('Harness Kéo thả', 'Harness Studio')}</span>
+          <span>{t('Harness Studio', 'Harness Studio')}</span>
         </button>
 
-        <button
-          type="button"
-          className="btn sm ghost"
-          onClick={() => openDrawer('cli')}
+        {/* Danh sách Provider & CLI Tools với cơ chế mở thủ công 1-Click */}
+        <div
           style={{
-            justifyContent: 'flex-start',
-            padding: '6px 10px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 4,
+            padding: '4px 6px',
             borderRadius: 8,
-            gap: 8,
-            color: drawerKind === 'cli' ? 'var(--accent)' : undefined,
+            background: 'var(--bg-2)',
+            border: '1px solid var(--line)',
           }}
-          title={t('Mở Giao diện Dòng lệnh Claude CLI Học thuật', 'Open Academic Claude CLI Terminal Studio')}
         >
-          <Terminal size={15} />
-          <span>{t('Claude CLI Học thuật', 'Claude CLI Terminal')}</span>
-        </button>
+          {/* Header toggle danh sách Provider */}
+          <div
+            onClick={() => setCliProvidersExpanded(!cliProvidersExpanded)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '4px 6px',
+              borderRadius: 6,
+              cursor: 'pointer',
+              userSelect: 'none',
+            }}
+            title={t('Bấm để thu gọn/mở rộng danh sách Provider & CLI', 'Click to collapse/expand Provider & CLI list')}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+              <Terminal size={14} style={{ color: 'var(--accent)' }} />
+              <span style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--fg)' }}>
+                {t('Danh sách Provider & CLI', 'Provider & CLI Hub')}
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <span
+                style={{
+                  fontSize: 10,
+                  padding: '1px 5px',
+                  borderRadius: 8,
+                  background: 'var(--panel)',
+                  color: 'var(--muted)',
+                  fontWeight: 600,
+                  border: '1px solid var(--line)',
+                }}
+              >
+                {ALL_CLI_PROVIDERS.length}
+              </span>
+              {cliProvidersExpanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+            </div>
+          </div>
+
+          {/* Body: Danh sách từng Provider với 1-Click Launch */}
+          {cliProvidersExpanded && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 2 }}>
+              {ALL_CLI_PROVIDERS.map((prov) => {
+                const liveInfo = providersLiveMap[prov.id];
+                const isReady = liveInfo?.ready ?? false;
+                const isLaunching = launchingProviderId === prov.id;
+                const isJustLaunched = launchedId === prov.id;
+                const isSelected = drawerKind === 'cli' && selectedCliProvider === prov.id;
+
+                return (
+                  <div
+                    key={prov.id}
+                    onClick={() => {
+                      setSelectedCliProvider(prov.id);
+                      openDrawer('cli', prov.id);
+                      if (window.matchMedia('(max-width: 820px)').matches && sidebarOpen) toggleSidebar();
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '4px 6px',
+                      borderRadius: 6,
+                      background: isSelected ? 'var(--panel)' : 'transparent',
+                      border: isSelected ? '1px solid var(--accent)' : '1px solid transparent',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      gap: 4,
+                    }}
+                    title={`${prov.name} (${prov.cmd}) - ${t('Bấm để mở Studio, hoặc bấm [1-Click] để mở cửa sổ Terminal ngoài', 'Click to open Studio, or click [1-Click] to open external terminal')}`}
+                  >
+                    {/* Left: Indicator dot + Icon + Name */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flex: 1 }}>
+                      <span
+                        style={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: '50%',
+                          flexShrink: 0,
+                          background: isReady ? '#10b981' : '#f59e0b',
+                          boxShadow: isReady ? '0 0 4px #10b981' : 'none',
+                        }}
+                        title={isReady ? t('Sẵn sàng', 'Ready') : t('Cần cấu hình/đăng nhập', 'Auth/Config needed')}
+                      />
+                      <Terminal size={12} style={{ color: prov.color, flexShrink: 0 }} />
+                      <span
+                        className="ellipsis"
+                        style={{
+                          fontSize: 11,
+                          fontWeight: isSelected ? 600 : 500,
+                          color: isSelected ? 'var(--accent)' : 'var(--fg)',
+                        }}
+                      >
+                        {prov.name}
+                      </span>
+                    </div>
+
+                    {/* Right: Nút cơ chế mở thủ công bằng 1-Click */}
+                    <button
+                      type="button"
+                      className="btn xs"
+                      onClick={(e) => handleManualLaunchProvider(e, prov.id, prov.name)}
+                      disabled={isLaunching}
+                      style={{
+                        padding: '1px 5px',
+                        height: 20,
+                        fontSize: 9.5,
+                        fontWeight: 600,
+                        gap: 3,
+                        borderRadius: 4,
+                        background: isJustLaunched ? '#10b981' : 'var(--panel)',
+                        color: isJustLaunched ? '#ffffff' : 'var(--fg)',
+                        border: '1px solid var(--line)',
+                        flexShrink: 0,
+                        cursor: 'pointer',
+                      }}
+                      title={t(`Mở thủ công 1-Click: khởi chạy ${prov.name} trong cửa sổ terminal ngoài`, `1-Click Manual Launch: open ${prov.name} in native terminal`)}
+                    >
+                      {isLaunching ? (
+                        <RefreshCw size={9} className="spin" />
+                      ) : isJustLaunched ? (
+                        <CheckCircle size={9} />
+                      ) : (
+                        <Play size={8} fill="currentColor" />
+                      )}
+                      <span>{isJustLaunched ? t('Đã mở', 'Opened') : t('1-Click', '1-Click')}</span>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
         {/* Active Workspace switcher pill */}
         <button
@@ -1073,6 +1331,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
                   onClick={() => api.post(`/api/providers/${app.id}/sync`, {})}
                   title={t('Đồng bộ dữ liệu từ ', 'Sync data from ') + app.title}
                   style={{
+                    minWidth: 24,
+                    minHeight: 24,
                     padding: '3px 5px',
                     background: 'var(--bg-2)',
                     border: 'none',

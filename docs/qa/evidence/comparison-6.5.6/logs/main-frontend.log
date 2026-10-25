@@ -1,0 +1,14 @@
+VERIFY: FAIL
+Profile: pr / frontend
+Tests: {"PASS": 141, "FAIL": 17, "ERROR": 0, "SKIP": 0, "NOT_RUN": 0, "BLOCKED": 0, "UNVERIFIED": 0}
+Affected: 490 files; risk CRITICAL
+Root cause: TestingLibraryElementError: Unable to find an element with the title: /Tùy chọn dự án|Project options/i. (3 cases)
+Root cause: at runWithTimeout (file:///D:/git-repo/PhD-Research-Lab-worktrees/local-ci-repair-supervisor/frontend/node_modules/vitest/dist/chunks/run.BPv-BBRv.js:3276:10) (2 cases)
+Root cause: AssertionError: expected 4 to be less than or equal to 3 (1 cases)
+Root cause: TestingLibraryElementError: Unable to find an element with the text: /Danh sách Provider & CLI|Provider & CLI Hub/i. This could be because the text is broken up by multiple elements. In this case, you can provide a funct (1 cases)
+Root cause: AssertionError: expected "post" to be called with arguments: [ '/api/chat/attachments', …(1) ] (1 cases)
+Gate: frontend-types FAIL 
+Gate: frontend-tests FAIL 
+Gate: frontend-build FAIL 
+Evidence: D:\git-repo\PhD-Research-Lab-worktrees\main-shared-verification-656\output\playwright\same-suite\frontend\report.json
+Next action: Read the first relevant raw log; repair at most three cycles

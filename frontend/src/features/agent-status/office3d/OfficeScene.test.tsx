@@ -3,8 +3,24 @@ import { describe, it, expect, vi } from 'vitest';
 import { renderWithProviders } from '../../../test/test-utils';
 import { OfficeScene, type LabLightingMode } from './OfficeScene';
 import type { AgentOfficeViewModel } from '../../../shared/api/types';
+import { screen } from '@testing-library/react';
+import { useUIStore } from '../../../shared/state/uiStore';
 
 describe('OfficeScene', () => {
+  it('renders world labels in the selected EN/VI language', () => {
+    const original = useUIStore.getState().language;
+    try {
+      useUIStore.getState().setLanguage('en');
+      const first = renderWithProviders(<OfficeScene agents={[]} />);
+      expect(screen.getByText(/HPC & OpenCode Parallel · Open Runtime/)).toBeInTheDocument();
+      expect(screen.queryByText(/Click mở Runtime/)).not.toBeInTheDocument();
+      first.unmount();
+      useUIStore.getState().setLanguage('vi');
+      const second = renderWithProviders(<OfficeScene agents={[]} />);
+      expect(screen.getByText(/Cụm HPC & OpenCode Parallel · Click mở Runtime/)).toBeInTheDocument();
+      second.unmount();
+    } finally { useUIStore.getState().setLanguage(original); }
+  });
   const dummyAgents: AgentOfficeViewModel[] = [
     {
       agentId: 'a-1',

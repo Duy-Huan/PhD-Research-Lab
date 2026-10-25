@@ -1,0 +1,6 @@
+VERIFY: PASS
+Profile: targeted / all
+Tests: {"PASS": 3, "FAIL": 0, "ERROR": 0, "SKIP": 0, "NOT_RUN": 0, "BLOCKED": 0, "UNVERIFIED": 0}
+Affected: 671 files; risk CRITICAL
+Evidence: D:\git-repo\PhD-Research-Lab-worktrees\ci-repair-controlled-exercise\output\playwright\ci-repair\397266236df94b14bdbcf85bf64015b4\report.json
+Next action: Use independent CI before merge; full qualification before promotion

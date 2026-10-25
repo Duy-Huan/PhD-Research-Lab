@@ -1,0 +1,142 @@
+[
+  {
+    "id": 12583110049,
+    "node_id": "MDg6QXJ0aWZhY3QxMjU4MzExMDA0OQ==",
+    "name": "backend-ubuntu-latest-3.12",
+    "size_in_bytes": 320496,
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12583110049",
+    "archive_download_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12583110049/zip",
+    "expired": false,
+    "digest": "sha256:dd05c16197c04e5a674cc87aa489c2de689e4b284482b823a7aacd9fffc7dd30",
+    "created_at": "2026-10-25T01:32:56Z",
+    "updated_at": "2026-10-25T01:32:56Z",
+    "expires_at": "2026-11-08T01:32:55Z",
+    "workflow_run": {
+      "id": 40150782744,
+      "repository_id": 1423087330,
+      "head_repository_id": 1423087330,
+      "head_branch": "fix/ui-source-baseline",
+      "head_sha": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993"
+    }
+  },
+  {
+    "id": 12583091325,
+    "node_id": "MDg6QXJ0aWZhY3QxMjU4MzA5MTMyNQ==",
+    "name": "backend-windows-latest-3.12",
+    "size_in_bytes": 322005,
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12583091325",
+    "archive_download_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12583091325/zip",
+    "expired": false,
+    "digest": "sha256:a4a642a339162aed66d16008cb5a005145c41386091d85018a872da12cda45e3",
+    "created_at": "2026-10-25T01:43:31Z",
+    "updated_at": "2026-10-25T01:43:31Z",
+    "expires_at": "2026-11-08T01:43:30Z",
+    "workflow_run": {
+      "id": 40150782744,
+      "repository_id": 1423087330,
+      "head_repository_id": 1423087330,
+      "head_branch": "fix/ui-source-baseline",
+      "head_sha": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993"
+    }
+  },
+  {
+    "id": 12582881544,
+    "node_id": "MDg6QXJ0aWZhY3QxMjU4Mjg4MTU0NA==",
+    "name": "backend-windows-latest-3.11",
+    "size_in_bytes": 322261,
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582881544",
+    "archive_download_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582881544/zip",
+    "expired": false,
+    "digest": "sha256:99c567562f57e230e093a58c8065943ebd2950b69c4a69d640a29dcbaf769556",
+    "created_at": "2026-10-25T01:43:50Z",
+    "updated_at": "2026-10-25T01:43:50Z",
+    "expires_at": "2026-11-08T01:43:49Z",
+    "workflow_run": {
+      "id": 40150782744,
+      "repository_id": 1423087330,
+      "head_repository_id": 1423087330,
+      "head_branch": "fix/ui-source-baseline",
+      "head_sha": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993"
+    }
+  },
+  {
+    "id": 12582620506,
+    "node_id": "MDg6QXJ0aWZhY3QxMjU4MjYyMDUwNg==",
+    "name": "frontend",
+    "size_in_bytes": 1788799,
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582620506",
+    "archive_download_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582620506/zip",
+    "expired": false,
+    "digest": "sha256:779e6f115760b85b3e79dcfb919666ca9ab213bb8fd010f019f407b34019fe5e",
+    "created_at": "2026-10-25T01:30:32Z",
+    "updated_at": "2026-10-25T01:30:32Z",
+    "expires_at": "2026-11-08T01:30:31Z",
+    "workflow_run": {
+      "id": 40150782744,
+      "repository_id": 1423087330,
+      "head_repository_id": 1423087330,
+      "head_branch": "fix/ui-source-baseline",
+      "head_sha": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993"
+    }
+  },
+  {
+    "id": 12582499645,
+    "node_id": "MDg6QXJ0aWZhY3QxMjU4MjQ5OTY0NQ==",
+    "name": "browser",
+    "size_in_bytes": 133126100,
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582499645",
+    "archive_download_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582499645/zip",
+    "expired": false,
+    "digest": "sha256:ca1f428fe4822d351e2e6ce6fd92e193d79ade4263b37e580edccca7f1b65c60",
+    "created_at": "2026-10-25T01:31:50Z",
+    "updated_at": "2026-10-25T01:31:50Z",
+    "expires_at": "2026-11-08T01:31:45Z",
+    "workflow_run": {
+      "id": 40150782744,
+      "repository_id": 1423087330,
+      "head_repository_id": 1423087330,
+      "head_branch": "fix/ui-source-baseline",
+      "head_sha": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993"
+    }
+  },
+  {
+    "id": 12582098524,
+    "node_id": "MDg6QXJ0aWZhY3QxMjU4MjA5ODUyNA==",
+    "name": "backend-ubuntu-latest-3.11",
+    "size_in_bytes": 320325,
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582098524",
+    "archive_download_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582098524/zip",
+    "expired": false,
+    "digest": "sha256:bf69de18c5e179428923d08b70e0e678efa367520522751165b620f81f68fb8f",
+    "created_at": "2026-10-25T01:32:23Z",
+    "updated_at": "2026-10-25T01:32:23Z",
+    "expires_at": "2026-11-08T01:32:22Z",
+    "workflow_run": {
+      "id": 40150782744,
+      "repository_id": 1423087330,
+      "head_repository_id": 1423087330,
+      "head_branch": "fix/ui-source-baseline",
+      "head_sha": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993"
+    }
+  },
+  {
+    "id": 12581858346,
+    "node_id": "MDg6QXJ0aWZhY3QxMjU4MTg1ODM0Ng==",
+    "name": "uat-policy",
+    "size_in_bytes": 749,
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12581858346",
+    "archive_download_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12581858346/zip",
+    "expired": false,
+    "digest": "sha256:fcfc7e5ebc7324b8c4f32029a3d56dfc90409e09f2b644642ad952d98d867124",
+    "created_at": "2026-10-25T01:29:04Z",
+    "updated_at": "2026-10-25T01:29:04Z",
+    "expires_at": "2026-11-08T01:29:03Z",
+    "workflow_run": {
+      "id": 40150782744,
+      "repository_id": 1423087330,
+      "head_repository_id": 1423087330,
+      "head_branch": "fix/ui-source-baseline",
+      "head_sha": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993"
+    }
+  }
+]

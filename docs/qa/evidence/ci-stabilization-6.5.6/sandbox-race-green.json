@@ -1,0 +1,117 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_sandbox_completion_regressions.SandboxCompletion.test_terminal_status_is_published_only_after_metrics_are_persisted",
+      "status": "PASS",
+      "duration": 0.0313,
+      "details": null
+    },
+    {
+      "id": "test_legacy_system.Deps.test_planner_edges",
+      "status": "PASS",
+      "duration": 0.045,
+      "details": null
+    },
+    {
+      "id": "test_legacy_system.Environments.test_discovery_and_probe",
+      "status": "PASS",
+      "duration": 0.3651,
+      "details": null
+    },
+    {
+      "id": "test_legacy_system.Git.test_no_git_and_gitpython_fallback",
+      "status": "PASS",
+      "duration": 0.1527,
+      "details": null
+    },
+    {
+      "id": "test_legacy_system.Governor.test_loaded_models_and_unload",
+      "status": "PASS",
+      "duration": 2.217,
+      "details": null
+    },
+    {
+      "id": "test_legacy_system.Governor.test_policy_and_probes",
+      "status": "PASS",
+      "duration": 0.0095,
+      "details": null
+    },
+    {
+      "id": "test_legacy_system.Machine.test_docker_wsl_toolchain_recommend",
+      "status": "PASS",
+      "duration": 0.3956,
+      "details": null
+    },
+    {
+      "id": "test_legacy_system.Machine.test_run_and_probes",
+      "status": "PASS",
+      "duration": 0.0038,
+      "details": null
+    },
+    {
+      "id": "test_legacy_system.Sandbox.test_after_run_gpu_fault_and_oom",
+      "status": "PASS",
+      "duration": 0.0679,
+      "details": null
+    },
+    {
+      "id": "test_legacy_system.Sandbox.test_docker_cli_wrapper",
+      "status": "PASS",
+      "duration": 0.0386,
+      "details": null
+    },
+    {
+      "id": "test_legacy_system.Sandbox.test_local_jobs_stop_and_runs",
+      "status": "PASS",
+      "duration": 13.9981,
+      "details": null
+    },
+    {
+      "id": "test_legacy_system.Sandbox.test_metrics_parsing_and_python_env",
+      "status": "PASS",
+      "duration": 0.1123,
+      "details": null
+    },
+    {
+      "id": "test_legacy_system.Sandbox.test_settings_validation",
+      "status": "PASS",
+      "duration": 0.1032,
+      "details": null
+    },
+    {
+      "id": "test_regression_final_edges.FinalEdges.test_legacy_summarize_dispatches_to_current_pipeline",
+      "status": "PASS",
+      "duration": 0.0444,
+      "details": null
+    },
+    {
+      "id": "test_regression_final_edges.FinalEdges.test_mcp_retention_unknown_tool_and_telemetry_fault",
+      "status": "PASS",
+      "duration": 0.0419,
+      "details": null
+    },
+    {
+      "id": "test_regression_final_edges.FinalEdges.test_sandbox_preflight_errors_never_spawn_orphan_process",
+      "status": "PASS",
+      "duration": 0.1522,
+      "details": null
+    },
+    {
+      "id": "test_regression_final_edges.FinalEdges.test_web_source_metadata_is_merged_without_losing_richer_record",
+      "status": "PASS",
+      "duration": 0.0276,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "total": 17,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-6mcnj2q2",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

@@ -4,6 +4,7 @@ import os
 import shutil
 import sys
 import tempfile
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -22,7 +23,8 @@ from backend.core import config  # noqa: E402
 if config.GLOBAL_DIR.resolve() == (ROOT / "data").resolve():
     raise SystemExit("tests must not run on the real data folder")
 # no background ClearML subprocess after every sandbox run in the suite (test_clearml_offline turns it on itself)
-config.save_config({"clearml": {"auto_record": False}, "memory": {"embed_engine": "hashing"}})  # hermetic: no local AI server
+config.save_config({"clearml": {"auto_record": False}, "memory": {"embed_engine": "hashing"},
+                    "lifecycle": {"cloud_preconnect": False}})  # hermetic: connection tests opt into their local fixture
 
 
 def _code_project(name: str = "main"):
@@ -33,6 +35,29 @@ def _code_project(name: str = "main"):
 
 
 _code_project()
+
+
+def directory_link(target: Path, link: Path) -> str:
+    """Exercise real filesystem reparse paths: symlink or unprivileged NTFS junction.
+
+    No system Developer Mode setting is changed and failed creation is not a PASS.
+    """
+    temporary = Path(tempfile.gettempdir()).resolve()
+    if not target.resolve().is_relative_to(temporary) or not link.parent.resolve().is_relative_to(temporary):
+        raise ValueError('Directory-link fixture must remain inside owned temporary storage')
+    try:
+        os.symlink(target, link, target_is_directory=True)
+        return 'SYMLINK'
+    except OSError:
+        if os.name != 'nt': raise
+    env = dict(os.environ, PHDLAB_TEST_LINK=str(link), PHDLAB_TEST_TARGET=str(target))
+    subprocess.run(['powershell.exe', '-NoProfile', '-NonInteractive', '-Command',
+                    'New-Item -ItemType Junction -Path $env:PHDLAB_TEST_LINK -Target $env:PHDLAB_TEST_TARGET -ErrorAction Stop | Out-Null'],
+                   env=env, check=True, capture_output=True, timeout=20,
+                   creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+    if link.resolve() != target.resolve():
+        raise AssertionError('Created junction did not resolve to the actual fixture target')
+    return 'NTFS_JUNCTION'
 
 
 def fresh_project(name: str, code_project: str | None = "main"):

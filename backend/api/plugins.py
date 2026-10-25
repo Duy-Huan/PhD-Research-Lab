@@ -14,11 +14,85 @@ router = APIRouter()
 
 
 # ------------------------------------------------------------------ GitHub skill plugins
+OPTIONAL_PLUGINS = [
+    {
+        "id": "sakanaai-ai-scientist-v2",
+        "name": "AI-Scientist-v2",
+        "title": "The AI Scientist v2 (Sakana AI)",
+        "author": "SakanaAI",
+        "repo": "SakanaAI/AI-Scientist-v2",
+        "url": "https://github.com/SakanaAI/AI-Scientist-v2",
+        "category": "writing",
+        "description": "Kho công cụ tự động hóa nghiên cứu và viết bài báo AI Scientist v2 từ Sakana AI (Ideation, Review NeurIPS, Writeup). Cài đặt tùy chọn qua GitHub plugin.",
+        "description_en": "Automated research paper ideation, NeurIPS-style review, and writeup engine from Sakana AI. Optional GitHub skill plugin.",
+        "skills": ["/ais-idea", "/ais-review", "/ais-write"],
+        "adapter": "ai_scientist",
+        "recommended": False,
+        "note": "Tùy chọn: PhD Research Lab mặc định sử dụng PaperOrchestra làm động cơ viết bài chính L2-L4.",
+    },
+    {
+        "id": "k-dense-scientific-skills",
+        "name": "K-Dense Scientific Skills",
+        "title": "Scientific Agent Skills (K-Dense AI)",
+        "author": "K-Dense-AI",
+        "repo": "K-Dense-AI/scientific-agent-skills",
+        "url": "https://github.com/K-Dense-AI/scientific-agent-skills",
+        "category": "research",
+        "description": "Tập hợp các kỹ năng chuyên sâu cho tác nhân nghiên cứu khoa học, mô phỏng và phân tích dữ liệu.",
+        "description_en": "Curated collection of deep scientific research agent skills, simulation and data analysis.",
+        "skills": ["scientific-analysis", "data-synthesis"],
+        "adapter": "",
+        "recommended": False,
+        "note": "Plugin kỹ năng nghiên cứu bổ trợ.",
+    },
+    {
+        "id": "anthropics-skills",
+        "name": "Anthropic Agent Skills",
+        "title": "Official Agent Skills (Anthropic)",
+        "author": "anthropics",
+        "repo": "anthropics/skills",
+        "url": "https://github.com/anthropics/skills",
+        "category": "general",
+        "description": "Bộ kỹ năng tác nhân chuẩn từ Anthropic dành cho Claude và hệ thống tác nhân đa năng.",
+        "description_en": "Official agent skills repository from Anthropic for Claude and multi-agent harnesses.",
+        "skills": ["general-skills"],
+        "adapter": "",
+        "recommended": False,
+        "note": "Plugin kỹ năng tiêu chuẩn.",
+    },
+]
+
 @router.get("/api/plugins")
 async def plugins_list():
     from backend import plugins as PG
     from backend.plugins import ai_scientist
-    return {"plugins": await call(PG.list_plugins), "root": str(PG.root()), "ai_scientist": await call(ai_scientist.status)}
+    installed_plugins = await call(PG.list_plugins)
+    installed_ids = {p.get("id") for p in installed_plugins}
+    catalog = []
+    for opt in OPTIONAL_PLUGINS:
+        is_inst = opt["id"] in installed_ids
+        enabled = any(p.get("enabled") for p in installed_plugins if p.get("id") == opt["id"]) if is_inst else False
+        catalog.append({**opt, "installed": is_inst, "enabled": enabled})
+    return {
+        "plugins": installed_plugins,
+        "optional_plugins": catalog,
+        "root": str(PG.root()),
+        "ai_scientist": await call(ai_scientist.status),
+        "primary_writing_engine": "paperorchestra",
+    }
+
+
+@router.get("/api/plugins/catalog")
+async def plugins_catalog():
+    from backend import plugins as PG
+    installed_plugins = await call(PG.list_plugins)
+    installed_ids = {p.get("id") for p in installed_plugins}
+    catalog = []
+    for opt in OPTIONAL_PLUGINS:
+        is_inst = opt["id"] in installed_ids
+        enabled = any(p.get("enabled") for p in installed_plugins if p.get("id") == opt["id"]) if is_inst else False
+        catalog.append({**opt, "installed": is_inst, "enabled": enabled})
+    return {"optional_plugins": catalog, "primary_writing_engine": "paperorchestra"}
 
 
 @router.post("/api/plugins")
@@ -147,6 +221,14 @@ async def ais_install():
 def ais_writeup(body: dict = Body(default={})):
     """Stream the full manuscript in the AI Scientist template (start → delta… → done {path, dropped_citations})."""
     from backend.plugins import ai_scientist as AS
+    st = AS.status()
+    if not st.get("installed"):
+        raise HTTPException(
+            400,
+            "The AI Scientist v2 is an optional plugin and is not installed. "
+            "PhD Research Lab uses PaperOrchestra as its primary writing engine. "
+            "To use AI Scientist v2, install it via Settings → Skills & Plugins or POST /api/plugins with URL https://github.com/SakanaAI/AI-Scientist-v2."
+        )
     try:
         system, user, out = AS.prepare(str(body.get("template") or "icml"))
     except Exception as e:

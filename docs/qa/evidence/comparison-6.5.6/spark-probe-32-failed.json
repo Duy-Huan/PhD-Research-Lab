@@ -1,0 +1,74 @@
+{
+  "mode": "LIVE_PROVIDER_CONNECTIVITY",
+  "model": "spark-x2.5-4b",
+  "endpoint": "http://127.0.0.1:1234/v1/chat/completions",
+  "required_requests": 3,
+  "started_utc": "2026-10-25T08:24:37.500501+00:00",
+  "cases": [
+    {
+      "id": "spark.local-connection.1",
+      "request": {
+        "model": "spark-x2.5-4b",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Respond with only the single word READY."
+          },
+          {
+            "role": "user",
+            "content": "Local connection check 1"
+          }
+        ],
+        "temperature": 0,
+        "max_tokens": 32,
+        "stream": false
+      },
+      "response": {
+        "id": "chatcmpl-14yu3sk7yqb41os4klv5gg",
+        "object": "chat.completion",
+        "created": 1792916683,
+        "model": "spark-x2.5-4b",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "",
+              "reasoning_content": "We are asked: \"Local connection check 1\". The user wants a response with only the single word \"READY\". So we must output exactly \"READ",
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "length"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 33,
+          "completion_tokens": 32,
+          "total_tokens": 65,
+          "completion_tokens_details": {
+            "reasoning_tokens": 32
+          }
+        },
+        "stats": {},
+        "system_fingerprint": "spark-x2.5-4b"
+      },
+      "status": "FAIL",
+      "elapsed_s": 6.579
+    },
+    {
+      "id": "spark.local-connection.2",
+      "status": "NOT_RUN",
+      "reason": "Stop after first failed probe; no automatic retries"
+    },
+    {
+      "id": "spark.local-connection.3",
+      "status": "NOT_RUN",
+      "reason": "Stop after first failed probe; no automatic retries"
+    }
+  ],
+  "scope": "Three bounded direct local-model protocol probes; not application workflow, AI-UAT or scientific validation",
+  "max_tokens_per_request": 32,
+  "timeout_seconds": 45,
+  "decision": "FAIL",
+  "finished_utc": "2026-10-25T08:24:44.077692+00:00"
+}

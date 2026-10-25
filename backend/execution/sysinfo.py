@@ -154,7 +154,7 @@ def docker_info() -> dict:
 
 def wsl_info() -> dict:
     if not IS_WIN:
-        return {"applicable": False}
+        return {"applicable": False, "installed": False, "wsl2": False, "distros": []}
     exe = shutil.which("wsl")
     if not exe:
         return {"applicable": True, "installed": False}

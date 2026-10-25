@@ -273,7 +273,10 @@ class Providers(Base):
         with mock.patch("backend.execution.sandbox.docker_exe", return_value="docker"), \
                 mock.patch("backend.execution.sandbox.docker_running", return_value=True):
             self.assertEqual(RP._exec_health("docker", cfg)["state"], "READY")
-        self.assertEqual(RP._exec_health("clearml", cfg)["state"], "READY")
+        with mock.patch("importlib.util.find_spec", return_value=object()):
+            self.assertEqual(RP._exec_health("clearml", cfg)["state"], "READY")
+        with mock.patch("importlib.util.find_spec", return_value=None):
+            self.assertEqual(RP._exec_health("clearml", cfg)["state"], "UNAVAILABLE")
         with mock.patch("backend.paper.latex.engines", return_value={"tectonic": "t"}):
             self.assertEqual(RP._exec_health("latex", cfg)["state"], "READY")
         with mock.patch("backend.paper.latex.engines", return_value={}):

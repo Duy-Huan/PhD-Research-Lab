@@ -1,0 +1,4 @@
+
+> phdlab-frontend@6.5.6 typecheck
+> tsc --noEmit
+

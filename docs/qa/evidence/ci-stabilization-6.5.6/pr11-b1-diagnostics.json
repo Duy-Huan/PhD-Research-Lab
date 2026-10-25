@@ -1,0 +1,303 @@
+{
+  "id": 40171931531,
+  "head": "b1dcf4b33179317d735238662d71c366c30b3513",
+  "status": "completed",
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "name": "Real offline browser smoke",
+      "conclusion": "success"
+    },
+    {
+      "name": "Dependency and high-confidence security checks",
+      "conclusion": "success"
+    },
+    {
+      "name": "Backend (ubuntu-latest, Python 3.11)",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Backend (windows-latest, Python 3.11)",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Contract and workflow policy",
+      "conclusion": "success"
+    },
+    {
+      "name": "Frontend types, whole-source coverage and build",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Risk-triggered verified AI-UAT evidence",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Backend (ubuntu-latest, Python 3.12)",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Backend (windows-latest, Python 3.12)",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Matching-source live research qualification",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Development gate",
+      "conclusion": "failure"
+    },
+    {
+      "name": "QA gate",
+      "conclusion": "skipped"
+    }
+  ],
+  "reports": [
+    {
+      "artifact": "backend-windows-latest-3.12",
+      "file": "backend/report.json",
+      "decision": null,
+      "counts": null,
+      "coverage": {
+        "percent_covered": 87.48,
+        "covered_lines": 23800,
+        "num_statements": 26524,
+        "covered_branches": 7104,
+        "num_branches": 8804
+      },
+      "failures": []
+    },
+    {
+      "artifact": "backend-windows-latest-3.12",
+      "file": "report.json",
+      "decision": "FAIL",
+      "counts": {
+        "PASS": 900,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 5,
+        "NOT_RUN": 0,
+        "BLOCKED": 0,
+        "UNVERIFIED": 0
+      },
+      "coverage": {
+        "backend": {
+          "percent_covered": 87.48,
+          "covered_lines": 23800,
+          "num_statements": 26524,
+          "covered_branches": 7104,
+          "num_branches": 8804
+        }
+      },
+      "failures": []
+    },
+    {
+      "artifact": "frontend",
+      "file": "output/playwright/ci/frontend/report.json",
+      "decision": "FAIL",
+      "counts": {
+        "PASS": 174,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "NOT_RUN": 0,
+        "BLOCKED": 0,
+        "UNVERIFIED": 0
+      },
+      "coverage": {
+        "frontend": {
+          "lines": {
+            "total": 3820,
+            "covered": 2445,
+            "skipped": 0,
+            "pct": 64
+          },
+          "statements": {
+            "total": 4117,
+            "covered": 2574,
+            "skipped": 0,
+            "pct": 62.52
+          },
+          "functions": {
+            "total": 1467,
+            "covered": 733,
+            "skipped": 0,
+            "pct": 49.96
+          },
+          "branches": {
+            "total": 4125,
+            "covered": 2611,
+            "skipped": 0,
+            "pct": 63.29
+          },
+          "branchesTrue": {
+            "total": 0,
+            "covered": 0,
+            "skipped": 0,
+            "pct": 100
+          }
+        }
+      },
+      "failures": []
+    },
+    {
+      "artifact": "uat-policy",
+      "file": "report.json",
+      "decision": "BLOCKED",
+      "counts": null,
+      "coverage": null,
+      "failures": []
+    },
+    {
+      "artifact": "backend-windows-latest-3.11",
+      "file": "backend/report.json",
+      "decision": null,
+      "counts": null,
+      "coverage": {
+        "percent_covered": 87.38,
+        "covered_lines": 23773,
+        "num_statements": 26524,
+        "covered_branches": 7097,
+        "num_branches": 8804
+      },
+      "failures": [
+        [
+          "test_legacy_system.Sandbox.test_local_jobs_stop_and_runs",
+          "Traceback (most recent call last):\n  File \"D:\\a\\PhD-Research-Lab\\PhD-Research-Lab\\tests\\test_legacy_system.py\", line 119, in test_local_jobs_stop_and_runs\n    self.assertEqual(r[\"metrics\"][\"acc\"], 0.9)\n                     ~^^^^^^^^^^^\nKeyError: 'metrics'\n"
+        ]
+      ]
+    },
+    {
+      "artifact": "backend-windows-latest-3.11",
+      "file": "report.json",
+      "decision": "FAIL",
+      "counts": {
+        "PASS": 899,
+        "FAIL": 0,
+        "ERROR": 1,
+        "SKIP": 5,
+        "NOT_RUN": 0,
+        "BLOCKED": 0,
+        "UNVERIFIED": 0
+      },
+      "coverage": {
+        "backend": {
+          "percent_covered": 87.38,
+          "covered_lines": 23773,
+          "num_statements": 26524,
+          "covered_branches": 7097,
+          "num_branches": 8804
+        }
+      },
+      "failures": [
+        [
+          "test_legacy_system.Sandbox.test_local_jobs_stop_and_runs",
+          "Traceback (most recent call last):\n  File \"D:\\a\\PhD-Research-Lab\\PhD-Research-Lab\\tests\\test_legacy_system.py\", line 119, in test_local_jobs_stop_and_runs\n    self.assertEqual(r[\"metrics\"][\"acc\"], 0.9)\n                     ~^^^^^^^^^^^\nKeyError: 'metrics'\n"
+        ]
+      ]
+    },
+    {
+      "artifact": "backend-ubuntu-latest-3.11",
+      "file": "backend/report.json",
+      "decision": null,
+      "counts": null,
+      "coverage": {
+        "percent_covered": 87.08,
+        "covered_lines": 23699,
+        "num_statements": 26524,
+        "covered_branches": 7063,
+        "num_branches": 8804
+      },
+      "failures": [
+        [
+          "test_release_packaging.ReleasePackaging.test_source_archive_preserves_git_executable_permissions",
+          "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_release_packaging.py\", line 66, in test_source_archive_preserves_git_executable_permissions\n    out = self.root / 'output/release/executable'; package(self.root, out, sha)\n                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/scripts/package_release.py\", line 22, in package\n    raise ValueError('Uncommitted source cannot be released under the committed SHA')\nValueError: Uncommitted source cannot be released under the committed SHA\n"
+        ]
+      ]
+    },
+    {
+      "artifact": "backend-ubuntu-latest-3.11",
+      "file": "report.json",
+      "decision": "FAIL",
+      "counts": {
+        "PASS": 899,
+        "FAIL": 0,
+        "ERROR": 1,
+        "SKIP": 5,
+        "NOT_RUN": 0,
+        "BLOCKED": 0,
+        "UNVERIFIED": 0
+      },
+      "coverage": {
+        "backend": {
+          "percent_covered": 87.08,
+          "covered_lines": 23699,
+          "num_statements": 26524,
+          "covered_branches": 7063,
+          "num_branches": 8804
+        }
+      },
+      "failures": [
+        [
+          "test_release_packaging.ReleasePackaging.test_source_archive_preserves_git_executable_permissions",
+          "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_release_packaging.py\", line 66, in test_source_archive_preserves_git_executable_permissions\n    out = self.root / 'output/release/executable'; package(self.root, out, sha)\n                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/scripts/package_release.py\", line 22, in package\n    raise ValueError('Uncommitted source cannot be released under the committed SHA')\nValueError: Uncommitted source cannot be released under the committed SHA\n"
+        ]
+      ]
+    },
+    {
+      "artifact": "backend-ubuntu-latest-3.12",
+      "file": "backend/report.json",
+      "decision": null,
+      "counts": null,
+      "coverage": {
+        "percent_covered": 87.15,
+        "covered_lines": 23722,
+        "num_statements": 26524,
+        "covered_branches": 7066,
+        "num_branches": 8804
+      },
+      "failures": [
+        [
+          "test_release_packaging.ReleasePackaging.test_source_archive_preserves_git_executable_permissions",
+          "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_release_packaging.py\", line 66, in test_source_archive_preserves_git_executable_permissions\n    out = self.root / 'output/release/executable'; package(self.root, out, sha)\n                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/scripts/package_release.py\", line 22, in package\n    raise ValueError('Uncommitted source cannot be released under the committed SHA')\nValueError: Uncommitted source cannot be released under the committed SHA\n"
+        ]
+      ]
+    },
+    {
+      "artifact": "backend-ubuntu-latest-3.12",
+      "file": "report.json",
+      "decision": "FAIL",
+      "counts": {
+        "PASS": 899,
+        "FAIL": 0,
+        "ERROR": 1,
+        "SKIP": 5,
+        "NOT_RUN": 0,
+        "BLOCKED": 0,
+        "UNVERIFIED": 0
+      },
+      "coverage": {
+        "backend": {
+          "percent_covered": 87.15,
+          "covered_lines": 23722,
+          "num_statements": 26524,
+          "covered_branches": 7066,
+          "num_branches": 8804
+        }
+      },
+      "failures": [
+        [
+          "test_release_packaging.ReleasePackaging.test_source_archive_preserves_git_executable_permissions",
+          "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_release_packaging.py\", line 66, in test_source_archive_preserves_git_executable_permissions\n    out = self.root / 'output/release/executable'; package(self.root, out, sha)\n                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/scripts/package_release.py\", line 22, in package\n    raise ValueError('Uncommitted source cannot be released under the committed SHA')\nValueError: Uncommitted source cannot be released under the committed SHA\n"
+        ]
+      ]
+    }
+  ],
+  "oversized_artifacts_not_downloaded": [
+    {
+      "name": "browser",
+      "size": 156185046
+    }
+  ]
+}

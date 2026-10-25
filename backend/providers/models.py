@@ -89,6 +89,14 @@ def strip_think(text: str) -> str:
     return re.sub(r"<think>.*\Z", "", text, flags=re.S)
 
 
+def _local_thinking(body: dict, pid: str, model: str) -> None:
+    # Qwen 3.5 uses the hard template switch; /no_think alone can consume the
+    # entire budget in reasoning_content and produce no user-visible answer.
+    if pid == "local" and "qwen3.5" in model.lower().replace("-", "") and _reasoning() == "off":
+        body["chat_template_kwargs"] = {"enable_thinking": False}
+        body["reasoning_effort"] = "none"
+
+
 # --------------------------------------------------------------------- Anthropic native
 def _anthropic_body(model: str, system: str, messages: list, max_tokens: int) -> dict:
     body = {"model": model, "max_tokens": max_tokens, "system": system, "messages": to_anthropic(messages)}
@@ -144,6 +152,7 @@ async def openai_compat_chat(base: str, key: str, model: str, system: str, messa
             "max_tokens": max_tokens, "stream": False}
     if temperature is not None:
         body["temperature"] = temperature
+    _local_thinking(body, pid, model)
     if pid == "openai":  # GPT-5 / o-series: max_completion_tokens, default temperature only
         body["max_completion_tokens"] = body.pop("max_tokens")
         body.pop("temperature", None)
@@ -188,6 +197,8 @@ async def openai_compat_chat(base: str, key: str, model: str, system: str, messa
     if not isinstance(content, str):
         raise LLMError(f"{label} returned unexpected message content; check the selected model.")
     content = strip_think(content).strip()
+    if not content:
+        raise LLMError(f"{label} returned no answer content (finish_reason={data['choices'][0].get('finish_reason')}); check reasoning settings and token budget.")
     if data["choices"][0].get("finish_reason") == "length":
         content += "\n\n% [WARNING: output truncated at max_tokens]"
     return content
@@ -463,9 +474,7 @@ def default_model_for(cfg: dict, engine: str) -> str:
     if engine == "ollama":
         return cfg.get("ollama_model") or ""
     if engine in CLI_LABELS:
-        from backend.providers.registry import DEFAULT_CLI_MODELS
-        models = (cfg.get("gateway", {}).get("cli_models") or {}).get(engine) or DEFAULT_CLI_MODELS.get(engine, [])
-        return models[0] if models else ""
+        return ""  # no override means the signed-in vendor CLI chooses its configured default
     if engine in PROVIDERS:
         return cfg["providers"][engine].get("model") or PROVIDERS[engine]["model"]
     return ""
@@ -627,6 +636,7 @@ async def _stream_openai(base, key, model, system, messages, max_tokens, tempera
         body.pop("temperature", None)
     if _reasoning() != "auto" and pid in ("openai", "local", "ollama"):
         body["reasoning_effort"] = EFFORT[_reasoning()]
+    _local_thinking(body, pid, model)
     headers = {"Content-Type": "application/json", **gateway_headers(pid)}
     if key:
         headers["Authorization"] = f"Bearer {key}"

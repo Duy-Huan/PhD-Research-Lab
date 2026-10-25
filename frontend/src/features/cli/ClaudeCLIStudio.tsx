@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUIStore, useI18n } from '../../shared/state/uiStore';
 import { api } from '../../shared/api/client';
+import { APP_VERSION } from '../../shared/version';
+import { waitForChatTurn } from './waitForChatTurn';
 import {
   Terminal,
   Send,
@@ -32,7 +34,25 @@ interface CLICommandSuggestion {
 export const ClaudeCLIStudio: React.FC = () => {
   const queryClient = useQueryClient();
   const { t } = useI18n();
-  const { project, activeSessionId, setActiveSessionId, closeDrawer } = useUIStore();
+  const { project, activeSessionId, setActiveSessionId, closeDrawer, openDrawer } = useUIStore();
+  const selectedCliProvider = useUIStore((s) => s.selectedCliProvider || 'claude_code');
+  const setSelectedCliProvider = useUIStore((s) => s.setSelectedCliProvider);
+  const [launchingTerminal, setLaunchingTerminal] = useState(false);
+  const [terminalLaunched, setTerminalLaunched] = useState(false);
+
+  const handleLaunchExternalTerminal = async (pidOverride?: string) => {
+    const pid = pidOverride || selectedCliProvider || 'claude_code';
+    setLaunchingTerminal(true);
+    try {
+      await api.post(`/api/providers/${pid}/launch`, { terminal: true });
+      setTerminalLaunched(true);
+      setTimeout(() => setTerminalLaunched(false), 3000);
+    } catch (err: any) {
+      console.error(`Failed to launch terminal for ${pid}:`, err);
+    } finally {
+      setLaunchingTerminal(false);
+    }
+  };
 
   const [inputVal, setInputVal] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -57,7 +77,8 @@ export const ClaudeCLIStudio: React.FC = () => {
   });
 
   const assistantModel = config?.agent_models?.assistant || 'tự động';
-  const labVersion = config?.version || '6.4.2';
+  const { data: modelsData } = useQuery<any>({queryKey: ['models'], queryFn: () => api.get('/api/models')});
+  const labVersion = config?.version || APP_VERSION;
 
   // 2. Fetch current session messages if activeSessionId exists
   const { data: sessionData, refetch: refetchSession } = useQuery<any>({
@@ -73,7 +94,7 @@ export const ClaudeCLIStudio: React.FC = () => {
         id: m.id || Math.random().toString(),
         role: (m.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
         title: m.role === 'user' ? 'User' : 'PhD Research Lab',
-        text: m.content || '',
+        text: m.content || m.text || '',
       }));
       setCliLogs(initialLogs);
     }
@@ -86,20 +107,12 @@ export const ClaudeCLIStudio: React.FC = () => {
   }, [cliLogs, isExecuting]);
 
   // Available workflows & slash commands
+  const { data: commandCatalog } = useQuery<{ skills: Array<{name: string; title?: string; description?: string}> }>({
+    queryKey: ['skills'], queryFn: () => api.get('/api/skills'),
+  });
   const COMMAND_SUGGESTIONS: CLICommandSuggestion[] = [
-    { cmd: '/workflow', label: t('Danh mục Quy trình', 'Workflow Catalog'), desc: t('Liệt kê và thực thi toàn bộ quy trình nghiên cứu', 'List and run all research workflows') },
-    { cmd: '/lit', label: t('Khảo sát Tài liệu', 'Literature Survey'), desc: t('Tìm kiếm bài báo & phát hiện khoảng trống nghiên cứu', 'Search papers and discover research gaps'), workflowId: 'lit' },
-    { cmd: '/outline', label: t('Đề cương 5 Cấp độ', '5-Level Outline'), desc: t('Xây dựng đề cương từ ý tưởng đến bài báo hoàn chỉnh', 'Develop research outline from idea to paper'), workflowId: 'outline' },
-    { cmd: '/code', label: t('Thực nghiệm Mã nguồn', 'Experiment Sandbox'), desc: t('Mã nguồn thí nghiệm, sandbox cô lập & VS Code', 'Code experiments, isolated sandbox & VS Code'), workflowId: 'experiment' },
-    { cmd: '/paper', label: t('Soạn thảo Bài báo LaTeX', 'LaTeX Manuscript'), desc: t('Soạn thảo và xem trước biên dịch PDF bài báo', 'Draft and preview LaTeX compiled paper'), workflowId: 'paper' },
-    { cmd: '/review', label: t('Hội đồng Bình duyệt R1–R3', 'Peer Review R1–R3'), desc: t('Đánh giá học thuật đa tác nhân và phản biện bài báo', 'Multi-agent academic peer review'), workflowId: 'review' },
-    { cmd: '/deepresearch', label: t('Nghiên cứu Toàn diện', 'Deep Research'), desc: t('Tự hành toàn bộ chu trình nghiên cứu chuyên sâu', 'Autonomous end-to-end deep research'), workflowId: 'deepresearch' },
-    { cmd: '/harness', label: t('Harness Tự động hoá', 'Harness Studio'), desc: t('Quy trình harness tuỳ biến kết hợp kiểm thử giả thuyết', 'Custom harness workflow and hypothesis testing'), workflowId: 'harness' },
-    { cmd: '/accept', label: t('Chấp nhận Đề xuất', 'Accept Proposals'), desc: t('Chấp nhận đề xuất cập nhật hoặc chạy thí nghiệm nền', 'Accept proposed changes or background runs') },
-    { cmd: '/reject', label: t('Từ chối Đề xuất', 'Reject Proposals'), desc: t('Từ chối đề xuất hoặc huỷ thí nghiệm nền', 'Reject proposed changes or cancel runs') },
-    { cmd: '/model', label: t('Cấu hình Mô hình', 'Model Settings'), desc: t('Xem hoặc đổi nhà cung cấp mô hình AI', 'View or change AI model provider') },
-    { cmd: '/clear', label: t('Xoá màn hình', 'Clear Terminal'), desc: t('Dọn sạch màn hình làm việc terminal', 'Clean up terminal screen') },
-    { cmd: '/help', label: t('Trợ giúp Toàn diện', 'Full Help Manual'), desc: t('Xem danh mục đầy đủ các lệnh và hướng dẫn', 'View complete list of commands and guide') },
+    ...['workflow', 'new', 'accept', 'reject', 'clear'].map(name => ({cmd: `/${name}`, label: name, desc: ''})),
+    ...(commandCatalog?.skills || []).map(s => ({cmd: `/${s.name}`, label: s.title || s.name, desc: s.description || ''})),
   ];
 
   const filteredSuggestions = COMMAND_SUGGESTIONS.filter((s) =>
@@ -110,6 +123,11 @@ export const ClaudeCLIStudio: React.FC = () => {
   const handleExecute = async (overridePrompt?: string) => {
     const raw = (overridePrompt !== undefined ? overridePrompt : inputVal).trim();
     if (!raw) return;
+
+    if (raw.split(/\s+/)[0] === '/harness' || raw === '/model') {
+      openDrawer(raw === '/model' ? 'settings' : 'harness');
+      return;
+    }
 
     if (raw === '/clear') {
       setCliLogs([]);
@@ -140,19 +158,7 @@ export const ClaudeCLIStudio: React.FC = () => {
           id: Math.random().toString(),
           role: 'workflow',
           title: t('Danh mục Quy trình Nghiên cứu PhD Lab', 'PhD Lab Research Workflows'),
-          text: `
-| Mã Quy trình | Tên Quy trình | Lệnh thực thi | Mô tả |
-| :--- | :--- | :--- | :--- |
-| **lit** | Khảo sát Tài liệu & Research Gap | \`/lit <từ khoá>\` | Thu thập bài báo, trích xuất phương pháp & lập bản đồ khoảng trống |
-| **outline** | Đề cương Nghiên cứu 5 Cấp độ | \`/outline\` | Phát triển đề cương từng bước từ ý tưởng đến bài báo hoàn chỉnh |
-| **experiment** | Thực nghiệm & Mã nguồn Sandbox | \`/code\` | Sinh mã, chạy thử nghiệm cô lập và tích hợp VS Code |
-| **paper** | Soạn thảo Bài báo LaTeX | \`/paper\` | Viết từng mục bài báo, biên dịch LaTeX online & local |
-| **review** | Hội đồng Bình duyệt R1–R3 | \`/review\` | Đánh giá học thuật nghiêm ngặt, chấm điểm và gợi ý sửa đổi |
-| **deepresearch** | Nghiên cứu Toàn diện Đa Tác nhân | \`/deepresearch <chủ đề>\` | Tự động hóa hoàn toàn chu trình nghiên cứu đa bước |
-| **harness** | Harness Tự động hoá Tùy biến | \`/harness run <id>\` | Quy trình kiểm thử giả thuyết và chạy thí nghiệm tự hành |
-
-*Gõ \`/workflow run <mã>\` hoặc bấm vào các nút quy trình trên thanh công cụ để thực thi.*
-          `.trim(),
+          text: (commandCatalog?.skills || []).map(s => `/${s.name} - ${s.title || s.name}: ${s.description || ''}`).join('\n'),
         },
       ]);
       setInputVal('');
@@ -180,7 +186,7 @@ export const ClaudeCLIStudio: React.FC = () => {
       }
 
       // Check if command is /accept or /reject
-      if (raw.startsWith('/accept') || raw.startsWith('/reject')) {
+      if (/^\/(accept|reject)(?: all)?$/.test(raw)) {
         const isAccept = raw.startsWith('/accept');
         const sess = await api.get<any>(`/api/chat/sessions/${sid}`);
         const pendingApprovals = (sess.approvals || []).filter((a: any) => a.status === 'pending');
@@ -212,31 +218,24 @@ export const ClaudeCLIStudio: React.FC = () => {
       }
 
       // Post turn
+      const engine = modelsData?.agent_catalog?.assistant?.engine;
+      const provider = !engine ? undefined : /^(cli|app):/.test(engine) ? engine
+        : `${['codex', 'claude_code', 'gemini_cli', 'antigravity'].includes(engine) ? 'cli' : 'app'}:${engine}`;
       const turnRes = await api.post<any>(`/api/chat/sessions/${sid}/turns`, {
         text: raw,
-        overrides: {},
+        overrides: { ...(provider ? { provider } : {}), model: modelsData?.agent_catalog?.assistant?.selected || '' },
       });
 
-      // Poll until completed
+      // Wait for the actual turn; provider failures must be visible immediately.
       const tid = turnRes.id;
-      let finalContent = '';
-      let pendingDecisions: any[] = [];
-
-      for (let i = 0; i < 40; i++) {
-        await new Promise((r) => setTimeout(r, 700));
-        const updatedSess = await api.get<any>(`/api/chat/sessions/${sid}`);
-        const turnObj = (updatedSess.turns || []).find((x: any) => x.id === tid);
-        const status = turnObj?.status || 'running';
-
-        if (status === 'completed' || status === 'waiting_approval' || status === 'awaiting_launch') {
-          const msgs = updatedSess.messages || [];
-          const lastMsg = msgs[msgs.length - 1];
-          if (lastMsg && lastMsg.role === 'assistant') {
-            finalContent = lastMsg.content;
-          }
-          pendingDecisions = (updatedSess.approvals || []).filter((a: any) => a.status === 'pending');
-          break;
-        }
+      const { session: updatedSess, turn } = await waitForChatTurn(
+        () => api.get(`/api/chat/sessions/${sid}`), tid,
+        (config?.aiws?.max_turn_s || 900) * 1000
+      );
+      const finalContent = updatedSess.messages?.filter(m => m.role === 'assistant' && m.turn_id === tid).at(-1)?.content || '';
+      const pendingDecisions = (updatedSess.approvals || []).filter(a => a.status === 'pending');
+      if (turn.status === 'awaiting_launch') {
+        setCliLogs(prev => [...prev, { id: tid, role: 'system', text: t('Chế độ thủ công: chờ khởi chạy trong cuộc hội thoại.', 'Manual mode: waiting for launch in the conversation.') }]);
       }
 
       if (finalContent) {
@@ -379,6 +378,101 @@ export const ClaudeCLIStudio: React.FC = () => {
             {t('Đoạn chat mới', 'New Chat')}
           </button>
         </div>
+      </div>
+
+      {/* 1.5. Provider Switcher Strip & 1-Click Native Terminal Launcher */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '6px 12px',
+          background: '#13171f',
+          borderBottom: '1px solid #21262d',
+          flexShrink: 0,
+          gap: 8,
+          overflowX: 'auto',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, overflowX: 'auto', flex: 1 }}>
+          <span style={{ fontSize: 10, color: '#8b949e', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, flexShrink: 0 }}>
+            {t('Provider:', 'Provider:')}
+          </span>
+          {[
+            { id: 'claude_code', label: 'Claude Code', color: '#d97706' },
+            { id: 'codex', label: 'OpenAI Codex', color: '#10b981' },
+            { id: 'antigravity', label: 'Antigravity (agy)', color: '#3b82f6' },
+            { id: 'gemini_cli', label: 'Gemini CLI', color: '#8b5cf6' },
+            { id: 'feynman', label: 'Feynman Research', color: '#ec4899' },
+            { id: 'opencode', label: 'OpenCode Sandbox', color: '#06b6d4' },
+            { id: 'paperorchestra', label: 'PaperOrchestra', color: '#f59e0b' },
+            { id: 'openscience', label: 'OpenScience', color: '#6366f1' },
+            { id: 'python', label: 'Python venv', color: '#eab308' },
+          ].map((p) => {
+            const isCur = selectedCliProvider === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => setSelectedCliProvider(p.id)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  padding: '3px 8px',
+                  fontSize: 11,
+                  fontWeight: isCur ? 700 : 500,
+                  borderRadius: 6,
+                  background: isCur ? 'rgba(210, 96, 42, 0.18)' : '#161b22',
+                  border: isCur ? `1px solid ${p.color}` : '1px solid #30363d',
+                  color: isCur ? p.color : '#c9d1d9',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <span style={{ width: 5, height: 5, borderRadius: '50%', background: p.color }} />
+                <span>{p.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* 1-Click Launch External Terminal Button */}
+        <button
+          type="button"
+          onClick={() => handleLaunchExternalTerminal()}
+          disabled={launchingTerminal}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 5,
+            padding: '3px 10px',
+            fontSize: 11,
+            fontWeight: 600,
+            borderRadius: 6,
+            background: terminalLaunched ? '#238636' : '#21262d',
+            border: '1px solid #388bfd',
+            color: '#ffffff',
+            cursor: 'pointer',
+            flexShrink: 0,
+            whiteSpace: 'nowrap',
+          }}
+          title={t('Mở trực tiếp cửa sổ Terminal ngoài máy tính bằng 1 click', '1-Click launch native external terminal window')}
+        >
+          {launchingTerminal ? (
+            <RefreshCw size={11} className="spin" />
+          ) : terminalLaunched ? (
+            <CheckCircle2 size={11} />
+          ) : (
+            <Play size={10} fill="currentColor" />
+          )}
+          <span>
+            {terminalLaunched
+              ? t('Đã mở Terminal ngoài!', 'External Terminal Opened!')
+              : t('1-Click Mở Terminal Ngoài', '1-Click Open Native Terminal')}
+          </span>
+        </button>
       </div>
 
       {/* 2. Quick Workflows Strip */}

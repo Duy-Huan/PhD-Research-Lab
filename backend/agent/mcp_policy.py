@@ -30,6 +30,7 @@ RULES = (  # (tool, pattern, args builder) — first matching rules win, at most
     ("research_get_failures", r"(?i)\b(fail|failure|oom|crash|diverg|nan)\w*|lỗi|thất bại", "query"),
     ("research_get_decisions", r"(?i)\bdecision|decided|chose|quyết định", "none"),
     ("research_get_evidence", r"(?i)\bevidence|claim|support|refut|bằng chứng|chứng cứ", "query"),
+    ("research_analyze_image", r"(?i)\b(image|picture|figure|plot|chart|diagram|photo|screenshot|đồ thị|hình ảnh|ảnh|sơ đồ)\b", "image"),
     ("web_search", r"(?i)internet|\bweb\b|google|trên mạng|mới nhất|gần đây|latest|recent|news|tin tức", "query"),
 )
 
@@ -74,6 +75,8 @@ def allowed(settings_value: list) -> list:
 def propose(question: str, allow: list) -> list:
     """Deterministic auto-selection of READ tools for a question (filtered by the allowlist)."""
     q = question or ""
+    if re.search(r"(?i)\b(?:do not|don't|never)\s+use\s+(?:any\s+)?tools?\b|\bno tools\b|không\s+(?:dùng|sử dụng)\s+công cụ", q):
+        return []
     out = []
     for tool, pat, kind in RULES:
         if tool not in allow:
@@ -82,6 +85,11 @@ def propose(question: str, allow: list) -> list:
             m = re.search(ID_PAT[tool], q)
             if m:
                 out.append({"tool": tool, "args": {"id": m.group(0)}, "reason": f"the question names {m.group(0)}"})
+        elif kind == "image" and re.search(pat, q):
+            m = re.search(r"\batt:([a-f0-9]{12})\b|\b([a-f0-9]{12})\b", q)
+            att_id = (m.group(1) or m.group(2)) if m else ""
+            if att_id:
+                out.append({"tool": tool, "args": {"attachment_id": att_id, "focus": q[:200]}, "reason": f"the question refers to image {att_id}"})
         elif re.search(pat, q):
             args = {"query": q[:280 if tool == "web_search" else 500]} if kind == "query" else {}
             out.append({"tool": tool, "args": args, "reason": "keywords in the question"})
@@ -112,19 +120,22 @@ def grant_for_cli(key: str, ttl_s: int = 3600) -> dict:
 
 
 def issue(session_id: str, tools: list, ttl_s: int = 1800) -> str:
+    from backend.core.config import data_dir
     tok = "phg_" + secrets.token_urlsafe(24)
     with _lock:
         now = time.time()
         for k in [k for k, g in _grants.items() if g["expires"] < now]:
             _grants.pop(k)
-        _grants[tok] = {"session_id": session_id, "tools": sorted(set(tools)), "expires": now + ttl_s}
+        _grants[tok] = {"session_id": session_id, "tools": sorted(set(tools)), "expires": now + ttl_s,
+                        "project": str(data_dir().resolve())}
     return tok
 
 
 def lookup(token: str) -> dict | None:
+    from backend.core.config import data_dir
     with _lock:
         g = _grants.get(token or "")
-    if g and g["expires"] >= time.time():
+    if g and g["expires"] >= time.time() and g.get('project') == str(data_dir().resolve()):
         return g
     return None
 

@@ -24,8 +24,8 @@ class Task(Contract):
     capability: str = Field(max_length=80)
     args: dict = Field(default_factory=dict)
     depends_on: list[str] = Field(default_factory=list, max_length=24)
-    preferred_engine: Literal["deterministic", "feynman", "openscience", "opencode", "app", "phdlab"] = "deterministic"
-    fallback_engines: list[Literal["feynman", "openscience", "opencode", "app", "phdlab"]] = Field(default_factory=list, max_length=3)
+    preferred_engine: Literal["deterministic", "feynman", "openscience", "opencode", "app", "phdlab", "paperorchestra"] = "deterministic"
+    fallback_engines: list[Literal["feynman", "openscience", "opencode", "app", "phdlab", "paperorchestra"]] = Field(default_factory=list, max_length=4)
 
 
 class MissionControl(Contract):
@@ -34,7 +34,7 @@ class MissionControl(Contract):
     hypothesis_id: str = Field(default="",max_length=200)
     exclusions: list[str] = Field(default_factory=list,max_length=20)
     success_criteria: list[str] = Field(min_length=1,max_length=20)
-    allowed_engines: list[Literal["deterministic","feynman","openscience","opencode","app","phdlab"]] = Field(default_factory=lambda:["deterministic"],min_length=1,max_length=6)
+    allowed_engines: list[Literal["deterministic","feynman","openscience","opencode","app","phdlab","paperorchestra"]] = Field(default_factory=lambda:["deterministic"],min_length=1,max_length=7)
     app_backend: str = Field(default="ollama",max_length=80)
     app_model: str = Field(default="",max_length=200)
     allow_api_billing: bool = False
@@ -57,7 +57,7 @@ class AgentRole(Contract):
     purpose:str=Field(min_length=1,max_length=1000)
     capabilities:list[str]=Field(min_length=1,max_length=20)
     permissions:list[Literal["network","workspace_write","reasoning","compute"]]=Field(default_factory=list)
-    engines:list[Literal["deterministic","feynman","openscience","opencode","app","phdlab"]]=Field(min_length=1,max_length=6)
+    engines:list[Literal["deterministic","feynman","openscience","opencode","app","phdlab","paperorchestra"]]=Field(min_length=1,max_length=7)
     expected_value:str=Field(min_length=1,max_length=1000)
     termination:str=Field(default="Assigned bounded tasks complete or admission stops",max_length=1000)
 
@@ -107,7 +107,7 @@ class Workstream(Contract):
     task_ids:list[str]=Field(min_length=1,max_length=24)
     depends_on:list[str]=Field(default_factory=list,max_length=4)
     permissions:list[Literal["network","workspace_write","reasoning","compute"]]=Field(default_factory=list)
-    engines:list[Literal["deterministic","feynman","openscience","opencode","app","phdlab"]]=Field(default_factory=lambda:["deterministic"])
+    engines:list[Literal["deterministic","feynman","openscience","opencode","app","phdlab","paperorchestra"]]=Field(default_factory=lambda:["deterministic"])
     max_reasoning_calls:int=Field(default=0,ge=0,le=3)
     max_active_seconds:int=Field(ge=1,le=3600)
     max_artifact_mb:int=Field(ge=1,le=128)
@@ -147,6 +147,11 @@ class WorkOrder(Contract):
     expected_output:Literal["ExecutionResult/1.0"]="ExecutionResult/1.0"
 
 
+class AutonomyPolicy(Contract):
+    level: Literal["L1", "L2", "L3", "L4"]
+    max_output_tokens: int = Field(default=512, ge=64, le=3000)
+
+
 class MissionSpec(Contract):
     topic_id: str
     objective: str = Field(min_length=1, max_length=8000)
@@ -162,6 +167,7 @@ class MissionSpec(Contract):
     control: MissionControl|None = None
     team: TeamPlan|None = None
     collaboration: CollaborationPlan|None = None
+    autonomy: AutonomyPolicy|None = None
     tasks: list[Task] = Field(min_length=1, max_length=24)
 
     @model_validator(mode="after")

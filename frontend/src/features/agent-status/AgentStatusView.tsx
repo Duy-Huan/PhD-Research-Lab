@@ -78,7 +78,7 @@ export const AgentStatusView: React.FC = () => {
     activeChatProjectId,
     agentProfiles,
   } = useUIStore();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
 
   const [selectedAgent, setSelectedAgent] = useState<AgentOfficeViewModel | null>(null);
   const [editingProfileAgent, setEditingProfileAgent] = useState<AgentOfficeViewModel | null>(null);
@@ -132,7 +132,8 @@ export const AgentStatusView: React.FC = () => {
     liveAgents,
     project?.data_dir || '',
     activeTopicId || undefined,
-    config?.agent_modes
+    config?.agent_modes,
+    language
   );
   const agents = useMemo(() => applyAgentProfiles(baseAgents, agentProfiles), [baseAgents, agentProfiles]);
 
@@ -255,6 +256,7 @@ export const AgentStatusView: React.FC = () => {
               setOfficeFullscreen(false);
               setMainView('chat');
             }}
+            aria-label={t('Quay lại giao diện thường', 'Back to standard view')}
             title={t('Quay lại giao diện thường', 'Back to standard view')}
             style={{
               display: 'inline-flex',

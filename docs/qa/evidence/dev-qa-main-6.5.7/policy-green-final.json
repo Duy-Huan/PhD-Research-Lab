@@ -1,0 +1,576 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "status": "PASS",
+      "duration": 0.0002,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_declared_live_ids_are_exact_and_do_not_hide_new_software_tests",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_live_cases_remain_registered_and_never_execute_in_software_layer",
+      "status": "PASS",
+      "duration": 0.0002,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_pr_and_dev_workflow_target_the_three_branch_flow",
+      "status": "PASS",
+      "duration": 0.0128,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_frontend_command_collects_coverage_without_percentage_thresholds",
+      "status": "PASS",
+      "duration": 0.0071,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_old_minimum_argument_cannot_reintroduce_a_coverage_gate",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.DevelopmentGuard.test_complete_source_bound_regression_is_required_for_push",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.DevelopmentGuard.test_latest_failure_replaces_a_previous_green_receipt",
+      "status": "PASS",
+      "duration": 0.1572,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.DevelopmentGuard.test_push_cannot_target_another_repository_or_remote",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.LiveEvidencePolicy.test_deferred_live_ids_require_real_complete_non_skipped_evidence",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.PinnedSDK.test_reviewed_inventory_is_exact_and_unknown_output_is_preserved",
+      "status": "PASS",
+      "duration": 0.0043,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.PinnedSDK.test_wrong_digest_and_escaping_archive_never_write_files",
+      "status": "PASS",
+      "duration": 0.0009,
+      "details": null
+    },
+    {
+      "id": "test_quality_evidence.EvidenceTests.test_complete_regression_is_independent_of_coverage_percentages",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_quality_evidence.EvidenceTests.test_failures_skips_and_zero_collection_never_pass",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_legacy_workflows_are_replaced_and_3d_is_not_left_diff_optional",
+      "status": "PASS",
+      "duration": 0.011,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_policy_dependencies_precede_targeted_worker_execution",
+      "status": "PASS",
+      "duration": 0.0103,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_pr_quality_has_no_release_or_production_approval",
+      "status": "PASS",
+      "duration": 0.0102,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_release_runs_only_for_main_and_uses_exact_provenance",
+      "status": "PASS",
+      "duration": 0.0051,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_attempt_reservation_survives_restart_and_never_resets_on_new_sha",
+      "status": "PASS",
+      "duration": 0.008,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_cli_adapters_never_enable_permission_bypass_or_shell_interpolation",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_corrupt_counter_cannot_restart_a_repair_budget",
+      "status": "PASS",
+      "duration": 0.001,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_exclusive_lock_rejects_concurrent_owner_and_releases_after_close",
+      "status": "PASS",
+      "duration": 0.0013,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_external_authors_forks_closed_prs_and_protected_bases_are_rejected",
+      "status": "PASS",
+      "duration": 0.0002,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_log_content_is_quoted_data_not_task_instructions",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_matrix_duplicates_preserve_all_observations_and_one_root_cause",
+      "status": "PASS",
+      "duration": 0.0002,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_missing_state_for_a_registered_pr_cannot_reset_budget",
+      "status": "PASS",
+      "duration": 0.001,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_npm_cli_uses_pinned_script_with_native_node_not_a_shell_shim",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_only_explicit_matching_owner_branch_sha_and_worktree_can_execute",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_skipped_missing_and_failed_jobs_cannot_hide_behind_a_green_aggregate",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_skips_and_coverage_failures_never_become_repairable_assertions",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Contracts.test_branch_promotion_direction_and_human_release",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Contracts.test_invalid_risk_and_unreviewed_contract_block",
+      "status": "PASS",
+      "duration": 0.0387,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "status": "PASS",
+      "duration": 0.0099,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block",
+      "status": "PASS",
+      "duration": 0.0254,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Contracts.test_valid_contract_has_executable_traceability",
+      "status": "PASS",
+      "duration": 0.0093,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_corrupt_repair_state_fails_closed",
+      "status": "PASS",
+      "duration": 0.0011,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_distinct_assertion_causes_remain_distinct",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_fifty_database_errors_have_one_fingerprint",
+      "status": "PASS",
+      "duration": 0.0002,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_repair_budget_is_persistent_and_bounded",
+      "status": "PASS",
+      "duration": 0.0027,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_success_does_not_reset_prior_failed_repair_cycles",
+      "status": "PASS",
+      "duration": 0.002,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_frontend_changes_select_frontend_without_python",
+      "status": "PASS",
+      "duration": 0.0005,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_pr_and_full_never_use_incremental_selection",
+      "status": "PASS",
+      "duration": 0.0014,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope",
+      "status": "PASS",
+      "duration": 0.0015,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_transitive_python_dependency",
+      "status": "PASS",
+      "duration": 0.005,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens",
+      "status": "PASS",
+      "duration": 0.0035,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_unmapped_python_source_never_produces_empty_suite",
+      "status": "PASS",
+      "duration": 0.0023,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='main')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='qa')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='feature/new')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='fix/bug')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='HEAD')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'failures': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'errors': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'skipped': 1, 'passed': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'passed': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'unverified': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'total_run': 0, 'passed': 0})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage=None)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage={})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage={'num_statements': 10})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage={'num_statements': 10, 'covered_lines': 1, 'num_branches': 8, 'covered_branches': 0})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'total_run': -1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'total_run': True})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'passed': -1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'passed': 3})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'errors': -1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'skipped': '0'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing (field='requirements', value=17)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing (field='requirements', value=[17])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing (field='scenarios', value=17)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing (field='risk', value=[])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing (field='mode', value=[])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block",
+      "id": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block (mutate=<function Contracts.test_missing_requirements_traceability_and_security_block.<locals>.<lambda> at 0x0000024E7ADEAF20>)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block",
+      "id": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block (mutate=<function Contracts.test_missing_requirements_traceability_and_security_block.<locals>.<lambda> at 0x0000024E7ADEAE80>)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block",
+      "id": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block (mutate=<function Contracts.test_missing_requirements_traceability_and_security_block.<locals>.<lambda> at 0x0000024E7AF36840>)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block",
+      "id": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block (mutate=<function Contracts.test_missing_requirements_traceability_and_security_block.<locals>.<lambda> at 0x0000024E7AF37240>)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='MISSING')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='SKIP')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='NOT_RUN')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='CANCELLED')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='BLOCKED')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='FAIL')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope",
+      "id": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope (name='backend/api/chat.py')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope",
+      "id": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope (name='backend/agent/context.py')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope",
+      "id": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope (name='.github/workflows/ci.yml')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens",
+      "id": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens (path='requirements.txt')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens",
+      "id": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens (path='backend/deleted.py')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens",
+      "id": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens (path='new_source.rs')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 50,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-ucxnjle1",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

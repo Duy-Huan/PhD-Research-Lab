@@ -1,0 +1,14 @@
+VERIFY: FAIL
+Profile: full / backend
+Tests: {"PASS": 783, "FAIL": 36, "ERROR": 27, "SKIP": 8, "NOT_RUN": 0, "BLOCKED": 0, "UNVERIFIED": 0}
+Affected: 490 files; risk CRITICAL
+Root cause: AssertionError: True is not false (5 cases)
+Root cause: AttributeError: module 'backend.providers' has no attribute 'native' (3 cases)
+Root cause: AttributeError: <module 'backend.execution.harness' from 'D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\backend\\execution\\harness.py'> does not have the attribute '_is_tool_available' (2 cases)
+Root cause: FileNotFoundError: [Errno 2] No such file or directory: 'D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\.github\\workflows\\quality.yml' (2 cases)
+Root cause: AssertionError: Lists differ: ['IEEE Research Team', 'Deep Learning Lab'] != [] (1 cases)
+Gate: backend FAIL 
+Gate: live-qualification BLOCKED ['Real 2D, 3D, CLI, all-provider and experiment/paper evidence is not supplied']
+Gate: mandatory-cases BLOCKED Skipped cases cannot qualify a mandatory gate
+Evidence: D:\git-repo\PhD-Research-Lab-worktrees\main-shared-verification-656\output\playwright\same-suite\backend\report.json
+Next action: Read the first relevant raw log; repair at most three cycles

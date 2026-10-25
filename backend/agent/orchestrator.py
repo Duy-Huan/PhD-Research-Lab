@@ -53,8 +53,13 @@ def _set(sid: str, tid: str, **fields) -> dict:
 def instructions(module: str, skill: str = "") -> str:
     acts = adapters.get(module).actions()
     lines = [f"- {a['name']}: {a['description']} · args schema {json.dumps(a['schema']['properties'])}" for a in acts]
-    return ("You are the research assistant inside the researcher's PhD Research Lab. Answer from the compiled context, "
-            "cite source ids, and say clearly when something is a hypothesis or not supported by the sources.\n"
+    return ("You are the research assistant inside the researcher's PhD Research Lab. Use compiled context for claims about project records and experimental measurements. "
+            "You may calculate, reason, explain, and write code from the user's inputs and general knowledge without a stored result. "
+            "Distinguish mathematical deductions and general explanations from empirical measurements. "
+            "Cite source ids for source-based claims; state uncertainty when evidence is missing. Never invent experimental results or citations. "
+            "Answer the user's request directly; an empty memory search does not prevent basic reasoning.\n"
+            "References such as 'previous result' refer to this conversation's latest messages. "
+            "Retrieved memories and other conversations are background; do not substitute their values for the current conversation.\n"
             "To PROPOSE a change of research state, add a fenced block\n```phdlab-action\n{\"action\": \"<name>\", "
             "\"args\": {…}}\n```\nwith one of these actions (they run only after the researcher approves them):\n"
             + "\n".join(lines) + "\nTo propose a file, use a fenced block with its path, e.g. ```python path=src/train.py. "
@@ -215,6 +220,28 @@ def start(sid: str, text: str, overrides: dict | None = None, base_url: str = ""
     s = store.get(sid)
     if s["archived"]:
         raise AIWSError("Session is archived — restore it first")
+    # Reconcile any stale turns that are no longer actively executing in _running or whose gateway request is finished
+    for old_t in list(s["turns"]):
+        if old_t["status"] in ("running", "queued"):
+            with _lock:
+                active_r = _running.get(old_t["id"])
+            if active_r and active_r.get('worker') and active_r['worker'].is_alive():
+                continue  # Provider completion does not mean the turn's persistence work has finished.
+            if not active_r:
+                _set(sid, old_t["id"], status="completed" if old_t.get("answer_id") else "cancelled", ended=now())
+            elif old_t.get("gateway_request"):
+                try:
+                    from backend.providers import gateway as GS
+                    gw = GS.get(old_t["gateway_request"])
+                    if gw.get("status") not in ("ready", "starting", "running"):
+                        terminal = gw.get('status')
+                        recovered = 'cancelled' if terminal == 'cancelled' else 'completed' if terminal == 'completed' and (gw.get('answer') or old_t.get('answer_id')) else 'failed'
+                        _set(sid, old_t["id"], status=recovered, ended=now())
+                        with _lock:
+                            _running.pop(old_t["id"], None)
+                except Exception:
+                    pass
+    s = store.get(sid)
     if any(t["status"] in ("running", "queued") for t in s["turns"]):
         raise AIWSError("A turn is already running in this session — wait or cancel it")
     ov = clean_overrides(overrides or {})
@@ -265,7 +292,10 @@ def _spawn(sid: str, tid: str, stage: str) -> None:
                 run(sid, tid, stage)
             except Exception as e:  # never leave a turn running
                 _fail(sid, tid, f"{type(e).__name__}: {e}"[:500])
-    threading.Thread(target=work, daemon=True, name=f"aiws-{tid}").start()
+    worker = threading.Thread(target=work, daemon=True, name=f"aiws-{tid}")
+    with _lock:
+        _running[tid]['worker'] = worker
+    worker.start()
 
 
 def _fail(sid: str, tid: str, why: str, kind: str = "error") -> None:
@@ -326,13 +356,28 @@ def _tools(sid: str, tid: str, v: dict) -> bool:
     t = _turn(s, tid)
     allow = mcp_policy.allowed(v["mcp_tools"])
     wanted = mcp_policy.propose(t["question"], allow) if v["mcp_auto"] else []
+    if _history(s, tid):
+        wanted = [item for item in wanted if item.get('reason') != 'general research question']
     wanted += [{"tool": x["tool"], "args": x.get("args") or {}, "reason": "requested for this turn"}
                for x in (t["overrides"].get("run_tools") or [])]
+    # Auto-propose image analysis when images are attached to the turn
+    attached_sources = list((t.get('overrides') or {}).get('sources') or []) + list(s.get('selected_sources') or [])
+    for asrc in attached_sources:
+        if asrc.startswith("att:"):
+            aid = asrc[4:]
+            try:
+                from backend.knowledge import attachments as AT
+                ameta = AT.get_meta(aid)
+                if ameta.get("kind") == "image" and "research_analyze_image" in allow:
+                    wanted.append({"tool": "research_analyze_image", "args": {"attachment_id": aid, "focus": t["question"][:200]}, "reason": f"image {ameta.get('name', aid)} attached to turn"})
+            except Exception:
+                pass
     waiting = False
     for w in wanted:
         r = mcp_policy.risk(w["tool"])
+        needs_req = needs_approval(r, v["operating_mode"])
         ap = {"id": new_id("ap", 4), "turn_id": tid, "kind": "tool", "name": w["tool"], "args": w["args"], "risk": r,
-              "reason": w["reason"], "status": "pending", "created": now()}
+              "reason": w["reason"], "status": "pending" if needs_req else "running", "created": now()}
         if w["tool"] not in allow:
             ap.update(status="denied", result={"text": "not in the session's MCP allowlist"})
             store.update(sid, lambda x, ap=ap: x["approvals"].append(ap))
@@ -340,7 +385,7 @@ def _tools(sid: str, tid: str, v: dict) -> bool:
             continue
         store.update(sid, lambda x, ap=ap: x["approvals"].append(ap))
         store.emit(sid, "tool.proposed", tid, v["provider"], approval=ap["id"], tool=w["tool"], risk=r, reason=w["reason"])
-        if needs_approval(r, v["operating_mode"]):
+        if needs_req:
             waiting = True
             store.emit(sid, "tool.approval_required", tid, v["provider"], approval=ap["id"], tool=w["tool"], risk=r)
         else:
@@ -434,19 +479,23 @@ def cancel(sid: str, tid: str) -> dict:
         r = _running.get(tid)
     if r:
         r["cancel"].set()
-        if r["rid"]:
+        if r.get("rid"):
             from backend.providers import gateway as GS
             try:
                 GS.cancel(r["rid"])
             except GS.GatewayError:
                 pass
-    if t["status"] in ("waiting_approval", "awaiting_launch") or not r:
+    if r and t['status'] in ('running', 'queued'):
+        _set(sid, tid, cancel_requested=True)
+    else:
         _set(sid, tid, status="cancelled", ended=now())
+        with _lock:
+            _running.pop(tid, None)
         store.emit(sid, "turn.cancelled", tid)
 
     def drop(x):  # tool calls waiting for this turn can no longer run
         for a in x["approvals"]:
-            if a["turn_id"] == tid and a["kind"] == "tool" and a["status"] == "pending":
+            if a["turn_id"] == tid and a["status"] == "pending":
                 a.update(status="cancelled", decided_at=now())
     store.update(sid, drop)
     return _turn(store.get(sid), tid)
@@ -483,9 +532,39 @@ def launch_plan(sid: str, tid: str) -> dict:
 
 # ------------------------------------------------------------------ provider dispatch
 def _history(s: dict, tid: str) -> list:
-    msgs = [m for m in s["messages"] if m["role"] in ("user", "assistant") and m["turn_id"] != tid and
+    return _history_packet(s, tid)[0]
+
+
+def _history_packet(s: dict, tid: str) -> tuple[list, dict]:
+    from backend.core.config import load_config
+    msgs = [m for m in s.get('messages', []) if m["role"] in ("user", "assistant") and m.get('turn_id') != tid and
             not m.get("not_retained")]
-    return [{"role": m["role"], "content": m["content"]} for m in msgs[-20:]]
+    out = []
+    included, omitted, truncated = [], [], []
+    total_chars = 0
+    budget = max(400, min(32000, int(load_config()['aiws'].get('history_budget_tokens', 4000))))
+    max_chars = budget * 4
+    exhausted = False
+    for m in reversed(msgs):
+        content = m.get("content") or ""
+        if exhausted:
+            omitted.append(m.get('id', 'unknown'))
+            continue
+        if total_chars + len(content) > max_chars:
+            allowed = max(0, max_chars - total_chars - 60)
+            if allowed > 200 and not out:
+                content = content[:allowed // 2] + '\n...[history budget limit; middle omitted]...\n' + content[-allowed // 2:]
+                truncated.append(m.get('id', 'unknown'))
+            else:
+                omitted.append(m.get('id', 'unknown'))
+                exhausted = True
+                continue
+        out.append({"role": m["role"], "content": content})
+        included.append(m.get('id', 'unknown'))
+        total_chars += len(content)
+    return list(reversed(out)), {'budget_tokens': budget, 'estimated_tokens': (total_chars + 3) // 4,
+                                'included_messages': list(reversed(included)), 'omitted_messages': omitted,
+                                'truncated_messages': truncated, 'estimate_method': 'characters/4'}
 
 
 def _dispatch(sid: str, tid: str) -> None:
@@ -500,7 +579,7 @@ def _dispatch(sid: str, tid: str) -> None:
     else:
         text, err, cancelled = _app(sid, tid, s, t, v)
         ws = None
-    if cancelled:
+    if cancelled or _cancelled(tid):
         if text:
             store.add_message(sid, "assistant", text, tid, provider=pid, status="cancelled")
         _set(sid, tid, status="cancelled", ended=now())
@@ -527,7 +606,26 @@ def _app(sid, tid, s, t, v):
     if v["provider"] not in ENGINE and v["provider"] != "app:auto":
         from backend.providers.privacy import sanitize
         system = sanitize(system)[0]  # leaves the machine: credentials redacted, code under block_source_code
-    msgs = _history(s, tid) + [{"role": "user", "content": t["question"]}]
+    # Multimodal image attachment extraction for vision models
+    images = []
+    attached_sources = list((t.get('overrides') or {}).get('sources') or []) + list(s.get('selected_sources') or [])
+    for asrc in attached_sources:
+        if asrc.startswith("att:"):
+            aid = asrc[4:]
+            try:
+                from backend.knowledge import attachments as AT
+                ameta = AT.get_meta(aid)
+                if ameta.get("kind") == "image":
+                    img_dict = AT.get_base64_image(aid)
+                    images.append({"media_type": img_dict["media_type"], "data": img_dict["data"]})
+            except Exception:
+                pass
+    user_msg = {"role": "user", "content": t["question"]}
+    if images:
+        user_msg["images"] = images
+    history, history_manifest = _history_packet(s, tid)
+    _set(sid, tid, history_manifest=history_manifest)
+    msgs = history + [user_msg]
     out, err = [], ""
     limit = float(load_config()["aiws"].get("max_turn_s") or 900)
 
@@ -573,7 +671,8 @@ def _app(sid, tid, s, t, v):
             if not task.done():
                 task.cancel()
                 await asyncio.gather(task, return_exceptions=True)
-    asyncio.run(bounded())
+    from backend.providers.lifecycle import run_on_app_loop
+    run_on_app_loop(bounded())
     return "".join(out).strip(), err, _cancelled(tid)
 
 
@@ -590,7 +689,13 @@ async def _engine_stream(llm, cfg, eng, system, msgs, model):
 def _cli(sid, tid, s, t, v):
     from backend.providers import gateway as GS
     name = v["provider"][4:]
-    ctx_text = instructions(s["binding"]["module"], t.get("skill", "")) + "\n" + (t.get("context_text") or "")
+    hist, history_manifest = _history_packet(s, tid)
+    _set(sid, tid, history_manifest=history_manifest)
+    hist_text = ""
+    if hist:
+        hist_lines = [f"{('RESEARCHER' if h['role'] == 'user' else 'ASSISTANT')}: {h['content']}" for h in hist]
+        hist_text = "\n\n# RECENT CONVERSATION IN THIS SESSION\n" + "\n\n".join(hist_lines)
+    ctx_text = instructions(s["binding"]["module"], t.get("skill", "")) + "\n" + (t.get("context_text") or "") + hist_text
     try:
         r = GS.prepare(t["question"], name, session_id=s["gateway_session"], profile=v["security_profile"],
                        allow_weaker=bool(v.get("consent_weaker")), module_context=ctx_text,
@@ -626,6 +731,8 @@ def _cli(sid, tid, s, t, v):
                 elif ty == "error":
                     err = ev.get("message", "")
                     store.emit(sid, "error", tid, v["provider"], message=err)
+            if any(ev.get("type") in ("request_completed", "request_cancelled") for ev in e["events"]):
+                break
             if not e["events"] and e["status"] not in ("running", "ready", "starting"):
                 break
             if _cancelled(tid):  # cancelled before the CLI process existed: keep asking until it is stopped
@@ -649,7 +756,6 @@ def _complete(sid: str, tid: str, text: str, ws, t0: float, err: str) -> None:
     pid = v["provider"]
     m = store.add_message(sid, "assistant", text, tid, provider=pid, model=v["model"], manifest_id=(t["manifest"] or {}).get("id"),
                           status="partial" if err else "complete")
-    store.emit(sid, "message.completed", tid, pid, message_id=m["id"], text=text, chars=len(text), warning=err)
     s = store.get(sid)
     for blk in ACTION.findall(text):
         try:
@@ -664,10 +770,16 @@ def _complete(sid: str, tid: str, text: str, ws, t0: float, err: str) -> None:
         store.emit(sid, "action.proposed", tid, pid, approval=ap["id"], action=spec["name"])
         store.emit(sid, "action.approval_required", tid, pid, approval=ap["id"], action=spec["name"], risk=spec["risk"])
     if v["collect_artifacts"]:
-        artifacts.from_text(sid, tid, text, pid)
-        if ws is not None:
-            artifacts.from_workspace(sid, tid, ws, t0, pid)
-    memory_modes.after_turn(store.get(sid), m, v)
+        try:
+            artifacts.from_text(sid, tid, text, pid)
+            if ws is not None:
+                artifacts.from_workspace(sid, tid, ws, t0, pid)
+        except Exception:
+            pass
+    try:
+        memory_modes.after_turn(store.get(sid), m, v)
+    except Exception:
+        pass
     if v["summaries"]:
         def summ(x):
             qa = [f"Q: {y['content'].splitlines()[0][:140]}" if y["role"] == "user" else f"A: {y['content'][:160]}"
@@ -680,8 +792,19 @@ def _complete(sid: str, tid: str, text: str, ws, t0: float, err: str) -> None:
                 if y["turn_id"] == tid:
                     y.update(content="[not retained — keep_history is off]", not_retained=True)
         store.update(sid, drop)
-    _set(sid, tid, status="completed", answer_id=m["id"], ended=now(), error=err)
-    store.emit(sid, "turn.completed", tid, pid, message_id=m["id"], seconds=round(time.time() - t0, 2))
+
+    # Terminal status is published after proposals, artifacts, memory and retention
+    # have settled. Polling clients may immediately read the complete final snapshot.
+    cancelled = _cancelled(tid)
+    if cancelled:
+        store.update(sid, lambda x: next(y for y in x['messages'] if y['id'] == m['id']).update(status='cancelled'))
+    _set(sid, tid, status='cancelled' if cancelled else 'completed', answer_id=m['id'], ended=now(), error=err)
+    with _lock:
+        _running.pop(tid, None)
+    store.emit(sid, 'turn.cancelled' if cancelled else 'message.completed', tid, pid,
+               message_id=m['id'], text=text if v['keep_history'] else '', chars=len(text), warning=err)
+    if not cancelled:
+        store.emit(sid, 'turn.completed', tid, pid, message_id=m['id'], seconds=round(time.time() - t0, 2))
 
 
 def retry(sid: str, base_url: str = "", overrides: dict | None = None) -> dict:

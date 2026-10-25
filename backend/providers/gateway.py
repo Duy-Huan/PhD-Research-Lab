@@ -314,6 +314,10 @@ def _run_inner(r: dict, conn, ctx: dict) -> None:
                     r["errors"].append(e.get("message", ""))
                 elif e["type"] == "request_cancelled":
                     r["status"] = "cancelled"
+                elif e["type"] == "request_completed":
+                    if not r.get("answer"):
+                        r["answer"] = "".join(text)
+                    r["status"] = "failed" if r["errors"] else "completed"
             if not r["answer"]:
                 r["answer"] = "".join(text)
             if r["status"] == "running":

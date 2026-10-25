@@ -1,0 +1,530 @@
+{
+  "schema_version": 1,
+  "comparability": "SAME_RECORDED_SUITE_ENVIRONMENT_POLICY",
+  "manifest": {
+    "suite_sha256": "3d983cea375342c6de160373f0782a4a9a1bf0782fb31952d7afa342b425d3ac",
+    "policy_sha256": "466ce0fd7c06019283e4c0ba66348e9cd4421d2d85beac7f5ad26706974e7f15",
+    "environment_sha256": "64bbb7421694ee612e5aeabe8e3a2e51756b0dc512edc01d2c86eb8f7aac78c8"
+  },
+  "main": {
+    "source": {
+      "head": "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+      "production_sha256": "39c96f7cc0e115f9e1400cff8b3011ef9be313acfa0cba7fd2b972840532acc1",
+      "stable": true,
+      "instrumentation_scope": "Original application backend/frontend components/CLI preserved byte-for-byte (declared text LF normalization). Shared current development harness/test/dependency/build instrumentation; main package metadata recorded above. Branch workflow implementations are not replaced, so governance gaps remain observable."
+    },
+    "critical_software_checks": [
+      {
+        "id": "context-pdf-completeness",
+        "mode": "FIXTURED_SOFTWARE_REGRESSION",
+        "case_ids": [
+          "test_context_intelligence_audit.ContextIntelligenceAudit.test_expanded_selected_paper_includes_results_after_page_three"
+        ],
+        "status": "FAIL",
+        "case_states": {
+          "test_context_intelligence_audit.ContextIntelligenceAudit.test_expanded_selected_paper_includes_results_after_page_three": "FAIL"
+        }
+      },
+      {
+        "id": "explicit-chat-history-budget",
+        "mode": "FIXTURED_SOFTWARE_REGRESSION",
+        "case_ids": [
+          "test_context_intelligence_audit.ContextIntelligenceAudit.test_no_arbitrary_twenty_message_limit_and_large_history_is_declared"
+        ],
+        "status": "FAIL",
+        "case_states": {
+          "test_context_intelligence_audit.ContextIntelligenceAudit.test_no_arbitrary_twenty_message_limit_and_large_history_is_declared": "ERROR"
+        }
+      },
+      {
+        "id": "remote-record-integrity",
+        "mode": "FIXTURED_SOFTWARE_REGRESSION",
+        "case_ids": [
+          "test_latest_integration_regressions.LatestIntegration.test_remote_compute_context_preserves_record_identity_and_unverified_status"
+        ],
+        "status": "FAIL",
+        "case_states": {
+          "test_latest_integration_regressions.LatestIntegration.test_remote_compute_context_preserves_record_identity_and_unverified_status": "ERROR"
+        }
+      },
+      {
+        "id": "cloud-local-resource-separation",
+        "mode": "FIXTURED_SOFTWARE_REGRESSION",
+        "case_ids": [
+          "test_cloud_connections.Connections.test_cloud_is_never_a_local_unload_target"
+        ],
+        "status": "BLOCKED",
+        "case_states": {
+          "test_cloud_connections.Connections.test_cloud_is_never_a_local_unload_target": "NOT_RUN"
+        }
+      },
+      {
+        "id": "provider-isolation-fails-closed",
+        "mode": "FIXTURED_SOFTWARE_REGRESSION",
+        "case_ids": [
+          "test_firewall.Launch.test_missing_container_blocks_headless_cli_before_process_start",
+          "test_provider_project_security.ProjectSecurity.test_raw_host_launch_and_missing_isolation_fail_closed"
+        ],
+        "status": "FAIL",
+        "case_states": {
+          "test_firewall.Launch.test_missing_container_blocks_headless_cli_before_process_start": "ERROR",
+          "test_provider_project_security.ProjectSecurity.test_raw_host_launch_and_missing_isolation_fail_closed": "NOT_RUN"
+        }
+      },
+      {
+        "id": "research-evidence-never-fabricated",
+        "mode": "FIXTURED_SOFTWARE_REGRESSION",
+        "case_ids": [
+          "test_evidence_integrity_regressions.EvidenceIntegrity.test_export_has_no_invented_metrics_and_replay_never_copies_expected",
+          "test_evidence_integrity_regressions.EvidenceIntegrity.test_visual_nodes_never_invent_effects_and_approval_never_auto_passes"
+        ],
+        "status": "FAIL",
+        "case_states": {
+          "test_evidence_integrity_regressions.EvidenceIntegrity.test_export_has_no_invented_metrics_and_replay_never_copies_expected": "FAIL",
+          "test_evidence_integrity_regressions.EvidenceIntegrity.test_visual_nodes_never_invent_effects_and_approval_never_auto_passes": "ERROR"
+        }
+      },
+      {
+        "id": "cli-settings-locale-persistence",
+        "mode": "FIXTURED_SOFTWARE_REGRESSION",
+        "case_ids": [
+          "test_cli_settings_parity.CLISettingsParity.test_english_help_has_translated_command_descriptions",
+          "test_cli_settings_parity.CLISettingsParity.test_language_switch_persists_in_web_and_new_terminal_and_keeps_session",
+          "test_cli_settings_parity.CLISettingsParity.test_menu_matches_all_web_settings_categories_in_both_languages",
+          "test_cli_settings_parity.CLISettingsParity.test_settings_roundtrip_rejects_invalid_input_and_never_echoes_secret"
+        ],
+        "status": "FAIL",
+        "case_states": {
+          "test_cli_settings_parity.CLISettingsParity.test_english_help_has_translated_command_descriptions": "FAIL",
+          "test_cli_settings_parity.CLISettingsParity.test_language_switch_persists_in_web_and_new_terminal_and_keeps_session": "FAIL",
+          "test_cli_settings_parity.CLISettingsParity.test_menu_matches_all_web_settings_categories_in_both_languages": "FAIL",
+          "test_cli_settings_parity.CLISettingsParity.test_settings_roundtrip_rejects_invalid_input_and_never_echoes_secret": "FAIL"
+        }
+      },
+      {
+        "id": "mobile-settings-actionability",
+        "mode": "REAL_LOCAL_BROWSER",
+        "case_ids": [
+          "playwright.UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 375px",
+          "playwright.UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 768px"
+        ],
+        "status": "FAIL",
+        "case_states": {
+          "playwright.UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 375px": "FAIL",
+          "playwright.UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 768px": "FAIL"
+        }
+      },
+      {
+        "id": "model-rules-and-language-persist",
+        "mode": "REAL_LOCAL_BROWSER",
+        "case_ids": [
+          "playwright.UI-MODEL-RULES-001: cloud preconnection and context budgets persist through the real settings API",
+          "playwright.UAT harness: real language form reaches backend and persists after refresh without LLM"
+        ],
+        "status": "FAIL",
+        "case_states": {
+          "playwright.UI-MODEL-RULES-001: cloud preconnection and context budgets persist through the real settings API": "FAIL",
+          "playwright.UAT harness: real language form reaches backend and persists after refresh without LLM": "PASS"
+        }
+      },
+      {
+        "id": "actual-3d-webgl-and-navigation",
+        "mode": "REAL_LOCAL_BROWSER",
+        "case_ids": [
+          "playwright.3D real WebGL renders, camera and lighting change pixels, dock returns to chat"
+        ],
+        "status": "FAIL",
+        "case_states": {
+          "playwright.3D real WebGL renders, camera and lighting change pixels, dock returns to chat": "FAIL"
+        }
+      }
+    ],
+    "critical_pass_rate": {
+      "passed": 0,
+      "required": 10,
+      "percent": 0.0
+    },
+    "known_confirmed_unresolved_defects": {
+      "P0": 0,
+      "P1": 7,
+      "P2": 3,
+      "P3": 0
+    },
+    "defect_inventory_complete": false,
+    "coverage": {
+      "backend": {
+        "percent_covered": 87.73,
+        "covered_lines": 21808,
+        "num_statements": 24306,
+        "covered_branches": 6649,
+        "num_branches": 8132
+      }
+    },
+    "execution_counts": {
+      "PASS": 945,
+      "SKIP": 8,
+      "NOT_RUN": 0,
+      "BLOCKED": 1,
+      "UNVERIFIED": 0,
+      "FAIL": 62,
+      "ERROR": 27
+    },
+    "full_research_acceptance": "BLOCKED: live/provider/research qualification unavailable; exhausted AI-UAT budget is not reset"
+  },
+  "candidate": {
+    "source": {
+      "head": "97845ee2d79cba43ff5a483a3462a64eed10bc0d",
+      "production_sha256": "a3d38a0d58bf63d287ccadd8f58ae39fb9a119957c61884cb50344f345414fdf",
+      "stable": true,
+      "instrumentation_scope": "Original application backend/frontend components/CLI preserved byte-for-byte (declared text LF normalization). Shared current development harness/test/dependency/build instrumentation; main package metadata recorded above. Branch workflow implementations are not replaced, so governance gaps remain observable."
+    },
+    "critical_software_checks": [
+      {
+        "id": "context-pdf-completeness",
+        "mode": "FIXTURED_SOFTWARE_REGRESSION",
+        "case_ids": [
+          "test_context_intelligence_audit.ContextIntelligenceAudit.test_expanded_selected_paper_includes_results_after_page_three"
+        ],
+        "status": "PASS",
+        "case_states": {
+          "test_context_intelligence_audit.ContextIntelligenceAudit.test_expanded_selected_paper_includes_results_after_page_three": "PASS"
+        }
+      },
+      {
+        "id": "explicit-chat-history-budget",
+        "mode": "FIXTURED_SOFTWARE_REGRESSION",
+        "case_ids": [
+          "test_context_intelligence_audit.ContextIntelligenceAudit.test_no_arbitrary_twenty_message_limit_and_large_history_is_declared"
+        ],
+        "status": "PASS",
+        "case_states": {
+          "test_context_intelligence_audit.ContextIntelligenceAudit.test_no_arbitrary_twenty_message_limit_and_large_history_is_declared": "PASS"
+        }
+      },
+      {
+        "id": "remote-record-integrity",
+        "mode": "FIXTURED_SOFTWARE_REGRESSION",
+        "case_ids": [
+          "test_latest_integration_regressions.LatestIntegration.test_remote_compute_context_preserves_record_identity_and_unverified_status"
+        ],
+        "status": "PASS",
+        "case_states": {
+          "test_latest_integration_regressions.LatestIntegration.test_remote_compute_context_preserves_record_identity_and_unverified_status": "PASS"
+        }
+      },
+      {
+        "id": "cloud-local-resource-separation",
+        "mode": "FIXTURED_SOFTWARE_REGRESSION",
+        "case_ids": [
+          "test_cloud_connections.Connections.test_cloud_is_never_a_local_unload_target"
+        ],
+        "status": "PASS",
+        "case_states": {
+          "test_cloud_connections.Connections.test_cloud_is_never_a_local_unload_target": "PASS"
+        }
+      },
+      {
+        "id": "provider-isolation-fails-closed",
+        "mode": "FIXTURED_SOFTWARE_REGRESSION",
+        "case_ids": [
+          "test_firewall.Launch.test_missing_container_blocks_headless_cli_before_process_start",
+          "test_provider_project_security.ProjectSecurity.test_raw_host_launch_and_missing_isolation_fail_closed"
+        ],
+        "status": "PASS",
+        "case_states": {
+          "test_firewall.Launch.test_missing_container_blocks_headless_cli_before_process_start": "PASS",
+          "test_provider_project_security.ProjectSecurity.test_raw_host_launch_and_missing_isolation_fail_closed": "PASS"
+        }
+      },
+      {
+        "id": "research-evidence-never-fabricated",
+        "mode": "FIXTURED_SOFTWARE_REGRESSION",
+        "case_ids": [
+          "test_evidence_integrity_regressions.EvidenceIntegrity.test_export_has_no_invented_metrics_and_replay_never_copies_expected",
+          "test_evidence_integrity_regressions.EvidenceIntegrity.test_visual_nodes_never_invent_effects_and_approval_never_auto_passes"
+        ],
+        "status": "PASS",
+        "case_states": {
+          "test_evidence_integrity_regressions.EvidenceIntegrity.test_export_has_no_invented_metrics_and_replay_never_copies_expected": "PASS",
+          "test_evidence_integrity_regressions.EvidenceIntegrity.test_visual_nodes_never_invent_effects_and_approval_never_auto_passes": "PASS"
+        }
+      },
+      {
+        "id": "cli-settings-locale-persistence",
+        "mode": "FIXTURED_SOFTWARE_REGRESSION",
+        "case_ids": [
+          "test_cli_settings_parity.CLISettingsParity.test_english_help_has_translated_command_descriptions",
+          "test_cli_settings_parity.CLISettingsParity.test_language_switch_persists_in_web_and_new_terminal_and_keeps_session",
+          "test_cli_settings_parity.CLISettingsParity.test_menu_matches_all_web_settings_categories_in_both_languages",
+          "test_cli_settings_parity.CLISettingsParity.test_settings_roundtrip_rejects_invalid_input_and_never_echoes_secret"
+        ],
+        "status": "PASS",
+        "case_states": {
+          "test_cli_settings_parity.CLISettingsParity.test_english_help_has_translated_command_descriptions": "PASS",
+          "test_cli_settings_parity.CLISettingsParity.test_language_switch_persists_in_web_and_new_terminal_and_keeps_session": "PASS",
+          "test_cli_settings_parity.CLISettingsParity.test_menu_matches_all_web_settings_categories_in_both_languages": "PASS",
+          "test_cli_settings_parity.CLISettingsParity.test_settings_roundtrip_rejects_invalid_input_and_never_echoes_secret": "PASS"
+        }
+      },
+      {
+        "id": "mobile-settings-actionability",
+        "mode": "REAL_LOCAL_BROWSER",
+        "case_ids": [
+          "playwright.UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 375px",
+          "playwright.UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 768px"
+        ],
+        "status": "PASS",
+        "case_states": {
+          "playwright.UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 375px": "PASS",
+          "playwright.UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 768px": "PASS"
+        }
+      },
+      {
+        "id": "model-rules-and-language-persist",
+        "mode": "REAL_LOCAL_BROWSER",
+        "case_ids": [
+          "playwright.UI-MODEL-RULES-001: cloud preconnection and context budgets persist through the real settings API",
+          "playwright.UAT harness: real language form reaches backend and persists after refresh without LLM"
+        ],
+        "status": "PASS",
+        "case_states": {
+          "playwright.UI-MODEL-RULES-001: cloud preconnection and context budgets persist through the real settings API": "PASS",
+          "playwright.UAT harness: real language form reaches backend and persists after refresh without LLM": "PASS"
+        }
+      },
+      {
+        "id": "actual-3d-webgl-and-navigation",
+        "mode": "REAL_LOCAL_BROWSER",
+        "case_ids": [
+          "playwright.3D real WebGL renders, camera and lighting change pixels, dock returns to chat"
+        ],
+        "status": "PASS",
+        "case_states": {
+          "playwright.3D real WebGL renders, camera and lighting change pixels, dock returns to chat": "PASS"
+        }
+      }
+    ],
+    "critical_pass_rate": {
+      "passed": 10,
+      "required": 10,
+      "percent": 100.0
+    },
+    "known_confirmed_unresolved_defects": {
+      "P0": 0,
+      "P1": 0,
+      "P2": 1,
+      "P3": 0
+    },
+    "defect_inventory_complete": false,
+    "coverage": {
+      "backend": {
+        "percent_covered": 87.6,
+        "covered_lines": 23833,
+        "num_statements": 26528,
+        "covered_branches": 7120,
+        "num_branches": 8808
+      },
+      "frontend": {
+        "lines": {
+          "total": 3820,
+          "covered": 2445,
+          "skipped": 0,
+          "pct": 64
+        },
+        "statements": {
+          "total": 4117,
+          "covered": 2574,
+          "skipped": 0,
+          "pct": 62.52
+        },
+        "functions": {
+          "total": 1467,
+          "covered": 733,
+          "skipped": 0,
+          "pct": 49.96
+        },
+        "branches": {
+          "total": 4125,
+          "covered": 2611,
+          "skipped": 0,
+          "pct": 63.29
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      }
+    },
+    "execution_counts": {
+      "PASS": 1102,
+      "SKIP": 8,
+      "NOT_RUN": 0,
+      "BLOCKED": 1,
+      "UNVERIFIED": 0,
+      "FAIL": 0,
+      "ERROR": 0
+    },
+    "full_research_acceptance": "BLOCKED: live/provider/research qualification unavailable; exhausted AI-UAT budget is not reset"
+  },
+  "limitations": [
+    "Manifest equality establishes recorded inputs, not correctness of the tests",
+    "Critical software checks are not all-provider/scientific acceptance",
+    "Missing/skipped/failed cases never count as PASS",
+    "Raw PASS counts do not rank branches; coverage denominators may differ with implemented source",
+    "Unclassified test failures are not automatically confirmed product defects or assigned severity"
+  ],
+  "observed_transitions": {
+    "main_failure_candidate_pass": [
+      "test_api.Api.test_system",
+      "test_backend_faults_api.ApiFaults.test_portable_local_actions_and_nontext_file_response",
+      "test_ci_workflow_contract.WorkflowContract.test_legacy_workflows_are_replaced_and_3d_is_not_left_diff_optional",
+      "test_ci_workflow_contract.WorkflowContract.test_policy_dependencies_precede_targeted_worker_execution",
+      "test_ci_workflow_contract.WorkflowContract.test_pr_quality_has_no_release_or_production_approval",
+      "test_ci_workflow_contract.WorkflowContract.test_release_runs_only_for_main_and_uses_exact_provenance",
+      "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "test_cli_connectivity_regressions.ConnectivityRegressions.test_antigravity_print_flag_cannot_consume_output_format",
+      "test_cli_connectivity_regressions.ConnectivityRegressions.test_cli_connection_test_uses_real_connector_path_without_api_fallback",
+      "test_cli_connectivity_regressions.ConnectivityRegressions.test_cli_default_does_not_force_an_api_model",
+      "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval",
+      "test_cli_connectivity_regressions.ConnectivityRegressions.test_opencode_does_not_claim_manifest_creation_is_model_execution",
+      "test_cli_connectivity_regressions.ConnectivityRegressions.test_opencode_html_fallback_is_not_api_readiness",
+      "test_cli_connectivity_regressions.ConnectivityRegressions.test_opencode_v2_npm_shim_resolves_to_native_executable",
+      "test_cli_connectivity_regressions.ConnectivityRegressions.test_openscience_chat_endpoint_accepts_the_exact_ui_command",
+      "test_cli_connectivity_regressions.ConnectivityRegressions.test_real_cli_failures_are_classified",
+      "test_cli_connectivity_regressions.ConnectivityRegressions.test_refresh_auth_does_not_hide_a_weekly_limit",
+      "test_cli_connectivity_regressions.ConnectivityRegressions.test_result_only_stream_still_produces_an_answer_and_empty_exit_is_error",
+      "test_cli_settings_parity.CLISettingsParity.test_english_help_has_translated_command_descriptions",
+      "test_cli_settings_parity.CLISettingsParity.test_language_switch_persists_in_web_and_new_terminal_and_keeps_session",
+      "test_cli_settings_parity.CLISettingsParity.test_menu_matches_all_web_settings_categories_in_both_languages",
+      "test_cli_settings_parity.CLISettingsParity.test_settings_roundtrip_rejects_invalid_input_and_never_echoes_secret",
+      "test_cli_workspace.Sessions.test_custom_root",
+      "test_context_intelligence_audit.ContextIntelligenceAudit.test_budget_includes_source_framing_and_reports_original_hash",
+      "test_context_intelligence_audit.ContextIntelligenceAudit.test_expanded_selected_paper_includes_results_after_page_three",
+      "test_context_intelligence_audit.ContextIntelligenceAudit.test_no_arbitrary_twenty_message_limit_and_large_history_is_declared",
+      "test_entrypoints.Launcher.test_main_reuses_same_release_and_moves_away_from_other_servers",
+      "test_evidence_integrity_regressions.EvidenceIntegrity.test_binary_presence_does_not_execute_benchmarks",
+      "test_evidence_integrity_regressions.EvidenceIntegrity.test_empty_checksum_manifest_and_path_escape_fail_closed",
+      "test_evidence_integrity_regressions.EvidenceIntegrity.test_empty_graph_and_cycles_never_execute_or_pass",
+      "test_evidence_integrity_regressions.EvidenceIntegrity.test_export_has_no_invented_metrics_and_replay_never_copies_expected",
+      "test_evidence_integrity_regressions.EvidenceIntegrity.test_library_does_not_invent_authors_venue_year_or_ranking_from_hostname",
+      "test_evidence_integrity_regressions.EvidenceIntegrity.test_unknown_tool_cannot_pass_even_when_presence_probe_says_yes",
+      "test_evidence_integrity_regressions.EvidenceIntegrity.test_visual_nodes_never_invent_effects_and_approval_never_auto_passes",
+      "test_figure_export_integrity.FigureExportIntegrity.test_legacy_placeholder_versions_are_preserved_but_cannot_be_trusted_or_attached",
+      "test_figure_export_integrity.FigureExportIntegrity.test_no_data_cannot_become_an_invented_scientific_curve",
+      "test_figure_export_integrity.FigureExportIntegrity.test_png_depends_on_data_instead_of_a_placeholder_grid",
+      "test_firewall.Launch.test_missing_container_blocks_headless_cli_before_process_start",
+      "test_firewall.Launch.test_tool_call_on_app_source_stops_the_agent",
+      "test_harness_api.TestHarnessAPI.test_workflow_crud_and_execute",
+      "test_image_attachments_and_vision_tool.TestImageAttachmentsAndVisionTool.test_api_attachment_endpoints",
+      "test_image_attachments_and_vision_tool.TestImageAttachmentsAndVisionTool.test_image_analysis_tool",
+      "test_image_attachments_and_vision_tool.TestImageAttachmentsAndVisionTool.test_upload_image_and_metadata_extraction",
+      "test_latest_integration_regressions.LatestIntegration.test_remote_compute_context_preserves_record_identity_and_unverified_status",
+      "test_model_lifecycle.CliMcpCloud.test_http_client_pooling",
+      "test_plugins_optional.TestPluginsOptionalCatalog.test_ais_writeup_when_not_installed_returns_informative_400",
+      "test_plugins_optional.TestPluginsOptionalCatalog.test_plugins_catalog_endpoint",
+      "test_plugins_optional.TestPluginsOptionalCatalog.test_plugins_list_contains_optional_catalog",
+      "test_provider_connectivity.Connectivity.test_sign_in_launch_delegates_to_project_isolated_native_runtime",
+      "test_qwen_local.QwenLocalTests.test_nonstream_local_qwen35_uses_hard_thinking_switch",
+      "test_qwen_local.QwenLocalTests.test_reasoning_only_truncation_is_not_a_successful_answer",
+      "test_sandbox_completion_regressions.SandboxCompletion.test_terminal_status_is_published_only_after_metrics_are_persisted",
+      "test_v64_upgrades.V64UpgradesTestSuite.test_v641_opencode_workspace_sessions_dedup_approvals_quota_and_reconcile",
+      "test_v64_upgrades.V64UpgradesTestSuite.test_v642_urap_lineage_tampering_context_pack_router_repro_and_report",
+      "test_xml_search_security.XMLSearchSecurity.test_arxiv_rejects_external_entity_declarations",
+      "Sidebar renders all CLI providers in the Provider & CLI list and supports 1-click manual launch for any provider",
+      "ChatCenter renders saved provider failure instead of an empty chat",
+      "ChatCenter reads the production SSE data.text envelope and clears streaming on new chat",
+      "Composer renders input, reasoning effort selector, and model selector",
+      "Composer renders unauthenticated CLI warning and supports terminal login or web/app forward",
+      "Composer handles pasting screenshot images from clipboard with preview thumbnail",
+      "Composer handles pasting long prompts and renders collapsible .txt document cards with preview",
+      "Composer handles dragging and dropping image files into composer",
+      "MessageList keeps one live status and approval card for the same background run",
+      "ClaudeCLIStudio handles /workflow list command and renders workflow catalog table",
+      "ClaudeCLIStudio renders provider switcher tabs and triggers 1-click external terminal launch",
+      "OpenCodePanel renders OpenCode telemetry, handles workspace init, form submit, and approvals",
+      "MissionBuilder, TaskInspector & MissionDAG renders MissionBuilder form, adds/removes tasks, and submits draft",
+      "ProjectSwitcher renames a project and updates UI store when active",
+      "ProjectSwitcher deletes a project with confirmation and option to delete disk files",
+      "ProjectSwitcher reveals project folder in file explorer",
+      "SettingsModal renders optional plugins catalog and allows installing AI-Scientist-v2 via GitHub plugin mechanism",
+      "playwright.CI: real application shell and settings respond without provider inference",
+      "playwright.mobile chat controls and topic tabs fit the viewport",
+      "playwright.3D real WebGL renders, camera and lighting change pixels, dock returns to chat",
+      "playwright.UI-MODEL-RULES-001: cloud preconnection and context budgets persist through the real settings API",
+      "playwright.UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 375px",
+      "playwright.UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 768px",
+      "playwright.UI-DESKTOP-SETTINGS-001: Settings preserves desktop navigation",
+      "playwright.UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (en)",
+      "playwright.UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (vi)"
+    ],
+    "main_pass_candidate_failure": [],
+    "candidate_failures": [],
+    "candidate_skipped": [
+      "test_clearml.ClearMLOffline.test_real_offline_session",
+      "test_cli_workspace.Paths.test_inner_symlink_is_allowed",
+      "test_cli_workspace.Paths.test_symlink_escape_is_refused",
+      "test_live_integrations.ClearMLLive.test_create_log_read",
+      "test_live_integrations.CodexLive.test_read_only_run",
+      "test_research_engines.OfficialSDKSocket.test_real_sdk_through_adapter_with_bounded_socket_fixture",
+      "test_research_workspace.ResearchWorkspace.test_workspace_paths_symlinks_missing_cli_no_model",
+      "test_vram_gate.LMStudioLive.test_real_gate_and_manual_unload"
+    ],
+    "classification": "Transitions are observations, not one confirmed defect per test; loader/API incompatibilities stay distinct"
+  },
+  "additional_source_review": {
+    "id": "BUG-3D-LOCALE-001",
+    "severity": "P2",
+    "criterion": "The same hard-coded locale-sensitive labels exist unconditionally in both source revisions; EN must not render Vietnamese system labels",
+    "mode": "SOURCE_REVIEW_BOTH_AND_REAL_BROWSER_CANDIDATE",
+    "candidate_browser_evidence": "docs/qa/evidence/comparison-6.5.6/candidate/visual/3d-3d-real.png",
+    "main_browser_reproduction": "NOT_RUN: the common3D journey fails before reaching this assertion; no claim it reproduced the locale visually on main",
+    "sources": {
+      "main": [
+        {
+          "file": "frontend/src/features/agent-status/office3d/OfficeScene.tsx",
+          "sha256": "b64bde12abe8c7aae0d5a04f715c93ac64eb98715c0b679b5faffe42995c70d8",
+          "lines": [
+            {
+              "line": 479,
+              "text": "            \ud83d\udda5\ufe0f C\u1ee5m HPC & OpenCode Parallel \u00b7 Click m\u1edf Runtime"
+            }
+          ]
+        },
+        {
+          "file": "frontend/src/shared/events/eventAdapter.ts",
+          "sha256": "b3d189f09fbec810eb8c7c0b5b02dc7e519234914caa049e1bad389d95c32e71",
+          "lines": [
+            {
+              "line": 192,
+              "text": "      role: 'Principal Investigator \u00b7 \u0110i\u1ec1u ph\u1ed1i \u0110\u1ec1 c\u01b0\u01a1ng 5 C\u1ea5p & Mission DAG',"
+            }
+          ]
+        }
+      ],
+      "candidate": [
+        {
+          "file": "frontend/src/features/agent-status/office3d/OfficeScene.tsx",
+          "sha256": "583915889db8d232fcd1c9f458732f4c8c2d14149879cdc7b8d32f1739c3ec78",
+          "lines": [
+            {
+              "line": 480,
+              "text": "            \ud83d\udda5\ufe0f C\u1ee5m HPC & OpenCode Parallel \u00b7 Click m\u1edf Runtime"
+            }
+          ]
+        },
+        {
+          "file": "frontend/src/shared/events/eventAdapter.ts",
+          "sha256": "b3d189f09fbec810eb8c7c0b5b02dc7e519234914caa049e1bad389d95c32e71",
+          "lines": [
+            {
+              "line": 192,
+              "text": "      role: 'Principal Investigator \u00b7 \u0110i\u1ec1u ph\u1ed1i \u0110\u1ec1 c\u01b0\u01a1ng 5 C\u1ea5p & Mission DAG',"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

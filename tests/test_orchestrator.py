@@ -149,8 +149,10 @@ class Orchestrator(unittest.TestCase):
         with self.assertRaises(AIWSError):
             O.retry(self.sid)
         store.update(self.sid, lambda x: x["turns"].append({"id": "t-busy", "status": "running"}))
+        O._running['t-busy'] = {'cancel': mock.Mock(), 'rid': ''}
         with self.assertRaises(AIWSError):
             O.start(self.sid, "again")
+        O._running.pop('t-busy', None)
         store.update(self.sid, lambda x: x["turns"].pop())
         with self.assertRaises(AIWSError):
             O.start(self.sid, "x", replace_from="m-missing")
