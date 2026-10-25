@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "baseline_sha": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993",
+  "integration_base_sha": "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+  "captured_date": "2026-10-25",
+  "purpose": "Accounting only. No test/coverage/result is filtered or waived. All existing mandatory gates remain enforced.",
+  "exceptions": [],
+  "issues": [
+    {
+      "id": "LEGACY-PY311-001",
+      "classification": "EXISTING_APPLICATION_DEFECT",
+      "severity": "P1",
+      "status": "FIX_PRESENT_IN_DEPENDENCY_NOT_IN_DEV",
+      "module": "backend/paper/export.py",
+      "baseline_sha": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993",
+      "first_known_affected_commit": "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+      "first_known_note": "Earliest independently established occurrence; not a bisected introduction commit",
+      "expected": "Production source compiles on supported Python3.11",
+      "actual": "Clean dev checkout raises f-string backslash SyntaxError at export.py:379",
+      "reproduction_steps": [
+        "Checkout 6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+        "python3.11 -m compileall -q backend tools tests"
+      ],
+      "evidence": [
+        {
+          "path": "docs/qa/evidence/ci-recovery-2026-10-25/clean-base-compile311.log",
+          "sha256": "33736a65a9902d2cc96ae6350b17f97a50171a5b71113487d3c681f355f73d57"
+        }
+      ],
+      "test_ids": [],
+      "owner": "Repository maintainer / recovery SDET",
+      "remediation": "Retain published bd71705 syntax fix through protected dev PR; verify both supported Python versions",
+      "target_review_date": "2026-11-01",
+      "exception": false
+    },
+    {
+      "id": "CI-REPORT-001",
+      "classification": "NEWLY_INTRODUCED_REGRESSION",
+      "severity": "P2",
+      "status": "LOCAL_FIX_VERIFIED",
+      "module": "scripts/quality_gate.py",
+      "baseline_sha": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993",
+      "first_known_affected_commit": "bd7170514d9168e0600afd9f44be5546f5657a2a",
+      "first_known_note": "Earliest independently established occurrence; not a bisected introduction commit",
+      "expected": "Failed upstream job is reported FAIL; unavailable jobs remain BLOCKED",
+      "actual": "All upstream failure results were rewritten BLOCKED",
+      "reproduction_steps": [
+        "Set NEEDS_JSON backend.result=failure with other development dependencies success",
+        "python scripts/quality_gate.py aggregate --phase development"
+      ],
+      "evidence": [
+        {
+          "path": "docs/qa/evidence/ci-recovery-2026-10-25/aggregate-red.json",
+          "sha256": "29d74704f2da154ff3db177572bd74983f6579876cb059118c0bcbe8e93a610d"
+        },
+        {
+          "path": "docs/qa/evidence/ci-recovery-2026-10-25/final-targeted-green.json",
+          "sha256": "0ea243b6d1daac12c9785a5544a335b0a1138924e436006112203e93706d99b9"
+        },
+        {
+          "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/summary.json",
+          "sha256": "f2a7f4e51cf8442b237f1d83dae2e42c258aea5dabb33f274edb02c54941a703"
+        }
+      ],
+      "test_ids": [
+        "test_ci_recovery.GateAccounting.test_failed_dependency_remains_fail_instead_of_blocked"
+      ],
+      "owner": "Repository maintainer / recovery SDET",
+      "remediation": "Publish narrow reporting fix and require fresh independent CI; do not waive existing red gates",
+      "target_review_date": "2026-11-01",
+      "exception": false
+    },
+    {
+      "id": "CI-COVERAGE-BE-001",
+      "classification": "QUALIFICATION_GAP",
+      "severity": "P1",
+      "status": "OPEN",
+      "module": "backend/",
+      "baseline_sha": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993",
+      "first_known_affected_commit": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993",
+      "first_known_note": "Earliest independently established occurrence; not a bisected introduction commit",
+      "expected": "100% production coverage and no mandatory skipped cases",
+      "actual": "Four matrix jobs:849 PASS,5 SKIP/854; combined coverage87.32-87.72%",
+      "reproduction_steps": [
+        "Run canonical pr backend profile on c737d133a193d0737f9bf3c42bfc0bbfe9cca993"
+      ],
+      "evidence": [
+        {
+          "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/artifacts/backend-ubuntu-latest-3.11/report.json",
+          "sha256": "acc4e928949562a5ff8f2a8689647b6d5b0cee87a11472ba40f5f997eeb905da"
+        },
+        {
+          "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/artifacts/backend-windows-latest-3.12/report.json",
+          "sha256": "a19e02ef68aabe1774e2eea76048d6aa8fe5570b5019823bd2702cf2eb600005"
+        }
+      ],
+      "test_ids": [],
+      "owner": "Repository maintainer / recovery SDET",
+      "remediation": "Add meaningful tests by uncovered component and provision required integrations; preserve100% threshold",
+      "target_review_date": "2026-11-01",
+      "exception": false
+    },
+    {
+      "id": "CI-COVERAGE-FE-001",
+      "classification": "QUALIFICATION_GAP",
+      "severity": "P1",
+      "status": "OPEN",
+      "module": "frontend/src/",
+      "baseline_sha": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993",
+      "first_known_affected_commit": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993",
+      "first_known_note": "Earliest independently established occurrence; not a bisected introduction commit",
+      "expected": "100% lines/branches/functions/statements",
+      "actual": "174 assertions PASS; lines64.20%,branches63.36%,functions50.27%,statements62.72%",
+      "reproduction_steps": [
+        "Run canonical pr frontend profile on c737d133a193d0737f9bf3c42bfc0bbfe9cca993"
+      ],
+      "evidence": [
+        {
+          "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/artifacts/frontend/output/playwright/ci/frontend/report.json",
+          "sha256": "76603eada0772e18eaab20eadef9e66c8ae33129300d80622f074d6f02fbbbc5"
+        }
+      ],
+      "test_ids": [],
+      "owner": "Repository maintainer / recovery SDET",
+      "remediation": "Expand behavior-based component tests across all production modules; retain strict thresholds",
+      "target_review_date": "2026-11-01",
+      "exception": false
+    },
+    {
+      "id": "CI-UAT-001",
+      "classification": "UNAVAILABLE_INFRASTRUCTURE",
+      "severity": "P1",
+      "status": "BLOCKED",
+      "module": "devtools/verification/uat_gate.py",
+      "baseline_sha": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993",
+      "first_known_affected_commit": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993",
+      "first_known_note": "Earliest independently established occurrence; not a bisected introduction commit",
+      "expected": "Current-source actual AI-UAT and independent review",
+      "actual": "Required evidence missing; exploration selection NOT_RUN; several adapters NOT_IMPLEMENTED",
+      "reproduction_steps": [
+        "python scripts/uat_gate.py --base origin/dev on c737d133a193d0737f9bf3c42bfc0bbfe9cca993"
+      ],
+      "evidence": [
+        {
+          "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/artifacts/uat-policy/report.json",
+          "sha256": "a178721354af1ccf8a8f81c88f07ec14893681f02e1805d89d4469f6e93db3c0"
+        }
+      ],
+      "test_ids": [],
+      "owner": "Repository maintainer / recovery SDET",
+      "remediation": "Complete adapters and trusted local evidence producer through separate reviewed work; exhausted existing3-attempt model budget must not be reset",
+      "target_review_date": "2026-11-01",
+      "exception": false
+    },
+    {
+      "id": "CI-LIVE-001",
+      "classification": "UNAVAILABLE_INFRASTRUCTURE",
+      "severity": "P1",
+      "status": "BLOCKED",
+      "module": "tests/live integrations",
+      "baseline_sha": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993",
+      "first_known_affected_commit": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993",
+      "first_known_note": "Earliest independently established occurrence; not a bisected introduction commit",
+      "expected": "Required integrations actually execute",
+      "actual": "Five exact cases SKIP due to missing SDKs/live opt-ins/infrastructure",
+      "reproduction_steps": [
+        "Run canonical pr backend profile"
+      ],
+      "evidence": [
+        {
+          "path": "docs/qa/evidence/ci-recovery-2026-10-25/40150782744/artifacts/backend-ubuntu-latest-3.11/backend/report.json",
+          "sha256": "5bbb8babec9ad609495044dd7d5502843e1b5c366b3008fdad3bc5ab30207e65"
+        }
+      ],
+      "test_ids": [
+        "test_clearml.ClearMLOffline.test_real_offline_session",
+        "test_live_integrations.ClearMLLive.test_create_log_read",
+        "test_live_integrations.CodexLive.test_read_only_run",
+        "test_research_engines.OfficialSDKSocket.test_real_sdk_through_adapter_with_bounded_socket_fixture",
+        "test_vram_gate.LMStudioLive.test_real_gate_and_manual_unload"
+      ],
+      "owner": "Repository maintainer / recovery SDET",
+      "remediation": "Install audited optional SDKs and provision isolated authorized live services; no paid inference and no skip-to-PASS conversion",
+      "target_review_date": "2026-11-01",
+      "exception": false
+    },
+    {
+      "id": "CI-POLICY-IDENTITY-001",
+      "classification": "CI_INFRASTRUCTURE",
+      "severity": "P2",
+      "status": "LOCAL_FIX_VERIFIED",
+      "module": "devtools/verification/runner.py",
+      "baseline_sha": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993",
+      "first_known_affected_commit": null,
+      "first_known_note": "Earliest independently established occurrence; not a bisected introduction commit",
+      "expected": "New baseline policy is part of source identity",
+      "actual": "Initial baseline integration was not covered by the source identity path set",
+      "reproduction_steps": [
+        "Run test_baseline_accounting.BaselineAccounting.test_baseline_policy_changes_invalidate_source_evidence"
+      ],
+      "evidence": [
+        {
+          "path": "docs/qa/evidence/ci-recovery-2026-10-25/baseline-identity-red.json",
+          "sha256": "b0c522fee11464bccefe44b83ec9407dd7fb80bd1f13de4371997a148719c097"
+        },
+        {
+          "path": "docs/qa/evidence/ci-recovery-2026-10-25/final-targeted-green.json",
+          "sha256": "0ea243b6d1daac12c9785a5544a335b0a1138924e436006112203e93706d99b9"
+        }
+      ],
+      "test_ids": [
+        "test_baseline_accounting.BaselineAccounting.test_baseline_policy_changes_invalidate_source_evidence"
+      ],
+      "owner": "Repository maintainer / recovery SDET",
+      "remediation": "Keep explicit baseline input hashing and permanent regression in mandatory suites",
+      "target_review_date": "2026-11-01",
+      "exception": false
+    }
+  ],
+  "limitations": [
+    "Coverage gaps are not proof of application bugs",
+    "No new test-specification defect confirmed in inspected runs",
+    "No bisection establishes original introduction dates",
+    "UI defects remain tracked in docs/qa/defects.json; fixes present in published PR9 dependency"
+  ]
+}

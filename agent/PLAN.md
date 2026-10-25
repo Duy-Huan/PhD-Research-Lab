@@ -1,3 +1,9 @@
+# Emergency recovery active - 2026-10-25
+
+Worktree ci-recovery-baseline, branch fix/ci-recovery-baseline. Clean dev6725975 compatibility failure retained; explicit published dependency c737d13 merged. Candidate6.5.3, not a release. Read agent/CI_RECOVERY.md and docs/qa/CI_ROOT_CAUSE_REPORT.md. Original dirty app preserved. Repo auto-merge and queued PR8 main auto-merge disabled with readback. Existing protections unchanged (actual main review count0). Never automatically merge main. All100% thresholds/live requirements retained, exceptions empty.39 targeted tests PASS; functional RED proofs retained; full feature verification next. Stop model retries for exhausted TASK-UAT-LOCAL-ADAPTER. Parked71e5332 must not be pushed/activated.
+
+Earlier checkpoints below are historical.
+
 # Active: qualify UI stabilization6.5.1
 
 Governance checkpoint1a7e494 is pushed in draft PR7. UI branch fix/ui-source-baseline contains the explicit governance dependency, same-test functional RED/GREEN and local UI fixes. Run feature/all against staged stable sources, commit evidence, push draft fix PR ->dev and inspect actual CI. No automatic qa/main, no red-gate bypass. Full100% source coverage, independent required UAT/research/provider evidence and preserved original application integration remain unfinished.

@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from devtools.verification.contracts import validate_contract, validate_tdd, validate_promotion
 from devtools.verification.evidence import aggregate
+from devtools.verification.baseline import validate_baseline
 
 REQUIRED = {'development':['policy','backend','frontend','security','browser','uat-policy'],
             'qa':['development-gate','live-qualification'],
@@ -26,10 +27,14 @@ def main() -> int:
         if not args.phase: parser.error('aggregate requires --phase')
         try:
             needs=json.loads(os.environ.get('NEEDS_JSON','{}'))
-            states={name:'PASS' if isinstance(value,dict) and value.get('result')=='success' else 'BLOCKED' for name,value in needs.items()}
-        except (ValueError,AttributeError): states={}
-        decision=aggregate(states,REQUIRED[args.phase]); print(json.dumps({'phase':args.phase,'decision':decision,'states':states}))
+            upstream={name:value.get('result') if isinstance(value,dict) else None for name,value in needs.items()}
+            states={name:{'success':'PASS','failure':'FAIL'}.get(result,'BLOCKED')
+                    for name,result in upstream.items()}
+        except (ValueError,AttributeError): states={}; upstream={}
+        decision=aggregate(states,REQUIRED[args.phase]); print(json.dumps({
+            'phase':args.phase,'decision':decision,'states':states,'upstream_results':upstream}))
         return 0 if decision=='PASS' else 1
+    errors += validate_baseline(ROOT/'docs/qa/KNOWN_ISSUES_BASELINE.json', ROOT)
     contracts=sorted((ROOT/'docs/qa/contracts').glob('*.json'))
     if not contracts: errors.append('No feature quality contracts')
     for path in contracts:

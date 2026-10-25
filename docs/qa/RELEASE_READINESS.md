@@ -1,3 +1,7 @@
+# Emergency recovery decision: NO-GO
+
+See [CI_ROOT_CAUSE_REPORT.md](CI_ROOT_CAUSE_REPORT.md) and [KNOWN_ISSUES_BASELINE.json](KNOWN_ISSUES_BASELINE.json). Candidate6.5.3 is not released or merge-qualified. Auto-merge is disabled; never automatically merge main. Mandatory coverage/live gaps remain blocking; no exceptions approved. Earlier enabled-auto-merge/reviewer-count statements below are historical, not current remote state.
+
 # Release readiness — 2026-10-25
 
 **NO-GO. No release, tag or protected-branch merge is certified.**

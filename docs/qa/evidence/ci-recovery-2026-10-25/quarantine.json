@@ -1,0 +1,167 @@
+{
+  "reason": "Emergency owner request: restore feature auto-merge eligibility only after trustworthy CI; never automatically merge main",
+  "before_allow_auto_merge": true,
+  "verified_allow_auto_merge": false,
+  "protections": {
+    "dev": {
+      "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/dev/protection",
+      "required_status_checks": {
+        "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/dev/protection/required_status_checks",
+        "strict": true,
+        "contexts": [
+          "Development gate"
+        ],
+        "contexts_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/dev/protection/required_status_checks/contexts",
+        "checks": [
+          {
+            "context": "Development gate",
+            "app_id": 15368
+          }
+        ]
+      },
+      "required_pull_request_reviews": {
+        "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/dev/protection/required_pull_request_reviews",
+        "dismiss_stale_reviews": true,
+        "require_code_owner_reviews": false,
+        "require_last_push_approval": false,
+        "required_approving_review_count": 0
+      },
+      "required_signatures": {
+        "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/dev/protection/required_signatures",
+        "enabled": false
+      },
+      "enforce_admins": {
+        "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/dev/protection/enforce_admins",
+        "enabled": true
+      },
+      "required_linear_history": {
+        "enabled": false
+      },
+      "allow_force_pushes": {
+        "enabled": false
+      },
+      "allow_deletions": {
+        "enabled": false
+      },
+      "block_creations": {
+        "enabled": false
+      },
+      "required_conversation_resolution": {
+        "enabled": true
+      },
+      "lock_branch": {
+        "enabled": false
+      },
+      "allow_fork_syncing": {
+        "enabled": false
+      }
+    },
+    "qa": {
+      "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/qa/protection",
+      "required_status_checks": {
+        "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/qa/protection/required_status_checks",
+        "strict": true,
+        "contexts": [
+          "QA gate"
+        ],
+        "contexts_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/qa/protection/required_status_checks/contexts",
+        "checks": [
+          {
+            "context": "QA gate",
+            "app_id": 15368
+          }
+        ]
+      },
+      "required_pull_request_reviews": {
+        "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/qa/protection/required_pull_request_reviews",
+        "dismiss_stale_reviews": true,
+        "require_code_owner_reviews": false,
+        "require_last_push_approval": false,
+        "required_approving_review_count": 0
+      },
+      "required_signatures": {
+        "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/qa/protection/required_signatures",
+        "enabled": false
+      },
+      "enforce_admins": {
+        "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/qa/protection/enforce_admins",
+        "enabled": true
+      },
+      "required_linear_history": {
+        "enabled": false
+      },
+      "allow_force_pushes": {
+        "enabled": false
+      },
+      "allow_deletions": {
+        "enabled": false
+      },
+      "block_creations": {
+        "enabled": false
+      },
+      "required_conversation_resolution": {
+        "enabled": true
+      },
+      "lock_branch": {
+        "enabled": false
+      },
+      "allow_fork_syncing": {
+        "enabled": false
+      }
+    },
+    "main": {
+      "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/main/protection",
+      "required_status_checks": {
+        "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/main/protection/required_status_checks",
+        "strict": true,
+        "contexts": [
+          "Release gate"
+        ],
+        "contexts_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/main/protection/required_status_checks/contexts",
+        "checks": [
+          {
+            "context": "Release gate",
+            "app_id": 15368
+          }
+        ]
+      },
+      "required_pull_request_reviews": {
+        "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/main/protection/required_pull_request_reviews",
+        "dismiss_stale_reviews": true,
+        "require_code_owner_reviews": false,
+        "require_last_push_approval": false,
+        "required_approving_review_count": 0
+      },
+      "required_signatures": {
+        "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/main/protection/required_signatures",
+        "enabled": false
+      },
+      "enforce_admins": {
+        "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/main/protection/enforce_admins",
+        "enabled": true
+      },
+      "required_linear_history": {
+        "enabled": false
+      },
+      "allow_force_pushes": {
+        "enabled": false
+      },
+      "allow_deletions": {
+        "enabled": false
+      },
+      "block_creations": {
+        "enabled": false
+      },
+      "required_conversation_resolution": {
+        "enabled": true
+      },
+      "lock_branch": {
+        "enabled": false
+      },
+      "allow_fork_syncing": {
+        "enabled": false
+      }
+    }
+  },
+  "changed_protections": false
+}

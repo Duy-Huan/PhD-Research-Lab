@@ -1,3 +1,5 @@
+Current emergency override: read [agent/CI_RECOVERY.md](CI_RECOVERY.md) before older automation plans. Never automatically merge main; dev auto-merge remains quarantined until trustworthy independent CI.
+
 # PhD Research Lab — engineering and QA continuation
 
 For the active full-source stabilization campaign, also read `agent/STABILIZATION.md` and the five `docs/qa/` baseline/readiness reports. The owner's latest request authorizes testing protected promotion in order feature -> dev -> qa -> main after all required checks succeed. This does not authorize automatic qa/main merging, review impersonation, threshold relaxation, or bypassing a red gate. Keep incomplete qualification visible.

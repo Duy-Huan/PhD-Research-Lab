@@ -1,0 +1,139 @@
+{
+  "run": 40148986328,
+  "head": "1a7e494080e6d3509609770e08d6ce5706aa6e4d",
+  "branch": "feature/development-governance",
+  "conclusion": "failure",
+  "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328",
+  "jobs": [
+    {
+      "id": 121036312767,
+      "name": "Frontend types, whole-source coverage and build",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Frontend mandatory gate"
+      ],
+      "diagnostics": [
+        "2026-10-25T01:02:52.8181402Z Tests: {\"PASS\": 174, \"FAIL\": 0, \"ERROR\": 0, \"SKIP\": 0, \"NOT_RUN\": 0, \"BLOCKED\": 0, \"UNVERIFIED\": 0}",
+        "2026-10-25T01:02:52.8262999Z ##[error]Process completed with exit code 1."
+      ]
+    },
+    {
+      "id": 121036312842,
+      "name": "Risk-triggered verified AI-UAT evidence",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Run python scripts/uat_gate.py --base \"$VERIFY_BASE\""
+      ],
+      "diagnostics": [
+        "2026-10-25T01:01:38.3249952Z   \"decision\": \"BLOCKED\",",
+        "2026-10-25T01:01:38.3355476Z ##[error]Process completed with exit code 2."
+      ]
+    },
+    {
+      "id": 121036312894,
+      "name": "Real offline browser smoke",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "id": 121036312896,
+      "name": "Backend (ubuntu-latest, Python 3.12)",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Independent complete regression and 100 percent production coverage"
+      ],
+      "diagnostics": [
+        "2026-10-25T01:07:21.9657554Z Tests: {\"PASS\": 849, \"FAIL\": 0, \"ERROR\": 0, \"SKIP\": 5, \"NOT_RUN\": 0, \"BLOCKED\": 0, \"UNVERIFIED\": 0}",
+        "2026-10-25T01:07:21.9663076Z Gate: mandatory-cases BLOCKED Skipped cases cannot qualify a mandatory gate",
+        "2026-10-25T01:07:23.3833927Z ##[error]Process completed with exit code 1."
+      ]
+    },
+    {
+      "id": 121036312906,
+      "name": "Backend (windows-latest, Python 3.12)",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Independent complete regression and 100 percent production coverage"
+      ],
+      "diagnostics": [
+        "2026-10-25T01:16:06.8610347Z Tests: {\"PASS\": 849, \"FAIL\": 0, \"ERROR\": 0, \"SKIP\": 5, \"NOT_RUN\": 0, \"BLOCKED\": 0, \"UNVERIFIED\": 0}",
+        "2026-10-25T01:16:06.8617460Z Gate: mandatory-cases BLOCKED Skipped cases cannot qualify a mandatory gate",
+        "2026-10-25T01:16:06.9817473Z ##[error]Process completed with exit code 1."
+      ]
+    },
+    {
+      "id": 121036312913,
+      "name": "Contract and workflow policy",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "id": 121036312973,
+      "name": "Backend (ubuntu-latest, Python 3.11)",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Independent complete regression and 100 percent production coverage"
+      ],
+      "diagnostics": [
+        "2026-10-25T01:06:37.4946451Z Tests: {\"PASS\": 849, \"FAIL\": 0, \"ERROR\": 0, \"SKIP\": 5, \"NOT_RUN\": 0, \"BLOCKED\": 0, \"UNVERIFIED\": 0}",
+        "2026-10-25T01:06:37.4950367Z Gate: mandatory-cases BLOCKED Skipped cases cannot qualify a mandatory gate",
+        "2026-10-25T01:06:40.9744353Z ##[error]Process completed with exit code 1."
+      ]
+    },
+    {
+      "id": 121036312994,
+      "name": "Backend (windows-latest, Python 3.11)",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Independent complete regression and 100 percent production coverage"
+      ],
+      "diagnostics": [
+        "2026-10-25T01:19:01.9227877Z Tests: {\"PASS\": 849, \"FAIL\": 0, \"ERROR\": 0, \"SKIP\": 5, \"NOT_RUN\": 0, \"BLOCKED\": 0, \"UNVERIFIED\": 0}",
+        "2026-10-25T01:19:01.9235460Z Gate: mandatory-cases BLOCKED Skipped cases cannot qualify a mandatory gate",
+        "2026-10-25T01:19:02.0391149Z ##[error]Process completed with exit code 1."
+      ]
+    },
+    {
+      "id": 121036312997,
+      "name": "Dependency and high-confidence security checks",
+      "conclusion": "success",
+      "failed_steps": []
+    },
+    {
+      "id": 121036313537,
+      "name": "Matching-source live research qualification",
+      "conclusion": "skipped",
+      "failed_steps": []
+    },
+    {
+      "id": 121039824822,
+      "name": "Development gate",
+      "conclusion": "failure",
+      "failed_steps": [
+        "Run python scripts/quality_gate.py aggregate --phase development"
+      ],
+      "diagnostics": [
+        "2026-10-25T01:19:14.3561047Z {\"phase\": \"development\", \"decision\": \"BLOCKED\", \"states\": {\"policy\": \"PASS\", \"backend\": \"BLOCKED\", \"frontend\": \"BLOCKED\", \"security\": \"PASS\", \"browser\": \"PASS\", \"uat-policy\": \"BLOCKED\"}}",
+        "2026-10-25T01:19:14.3615729Z ##[error]Process completed with exit code 1."
+      ]
+    },
+    {
+      "id": 121039854346,
+      "name": "Human release authorization",
+      "conclusion": "skipped",
+      "failed_steps": []
+    },
+    {
+      "id": 121039854587,
+      "name": "Release gate",
+      "conclusion": "skipped",
+      "failed_steps": []
+    },
+    {
+      "id": 121039854615,
+      "name": "QA gate",
+      "conclusion": "skipped",
+      "failed_steps": []
+    }
+  ]
+}

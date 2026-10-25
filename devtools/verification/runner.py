@@ -28,7 +28,7 @@ def identity(root: Path) -> dict:
     exact = {'requirements.txt', 'requirements-dev.txt', 'requirements-ci.lock', 'requirements-uat.in', 'requirements-uat.lock', '.coveragerc', '.gitignore', '.gitattributes',
              'pyproject.toml','pytest.ini','tox.ini','ruff.toml','AGENTS.md',
              'agent/AGENT.md', 'agent/DEVELOPMENT_WORKFLOW.md', 'agent/UAT.md', 'agent/CLI_COMPATIBILITY.md',
-             'CLAUDE.md', 'GEMINI.md', 'skills/SOURCES.json',
+             'CLAUDE.md', 'GEMINI.md', 'skills/SOURCES.json', 'docs/qa/KNOWN_ISSUES_BASELINE.json',
              'frontend/package.json', 'frontend/package-lock.json', 'frontend/vite.config.ts',
              'frontend/playwright.config.ts', 'start.py'}
     files = {}

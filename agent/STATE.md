@@ -1,3 +1,9 @@
+# Emergency recovery active - 2026-10-25
+
+Worktree ci-recovery-baseline, branch fix/ci-recovery-baseline. Clean dev6725975 compatibility failure retained; explicit published dependency c737d13 merged. Candidate6.5.3, not a release. Read agent/CI_RECOVERY.md and docs/qa/CI_ROOT_CAUSE_REPORT.md. Original dirty app preserved. Repo auto-merge and queued PR8 main auto-merge disabled with readback. Existing protections unchanged (actual main review count0). Never automatically merge main. All100% thresholds/live requirements retained, exceptions empty.39 targeted tests PASS; functional RED proofs retained; full feature verification next. Stop model retries for exhausted TASK-UAT-LOCAL-ADAPTER. Parked71e5332 must not be pushed/activated.
+
+Earlier checkpoints below are historical.
+
 # Current UI checkpoint ready to publish ? 2026-10-25
 
 feature-final-selector PASS1048/8SKIP,stable source;25 actual browser +3 boundary +174 frontend +854 backend cases. Selector correction targeted GREEN retained; UI repair ledger2failures then PASS, no reset. Commit/push6.5.1 as draft PR ->dev, then use the current CI/CD automation worktree for the newest owner request. Worktree D:/git-repo/PhD-Research-Lab-worktrees/ci-cd-automation on feature/ci-cd-automation has6.5.2 in progress: PR-only CI, automatic protected forward merges and separate main CD with no manual release approval. That latest owner policy supersedes older dev-only/human-release text in this UI branch. No protected merge/release has occurred; coverage/UAT gaps remain.

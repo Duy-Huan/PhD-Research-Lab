@@ -1,3 +1,5 @@
+Current emergency override: read [agent/CI_RECOVERY.md](agent/CI_RECOVERY.md) before older automation plans. Never automatically merge main; dev auto-merge remains quarantined until trustworthy independent CI.
+
 # Repository agent instructions
 
 Before any code change, read [agent/AGENT.md](agent/AGENT.md), [agent/STATE.md](agent/STATE.md) and [agent/DEVELOPMENT_WORKFLOW.md](agent/DEVELOPMENT_WORKFLOW.md). Resume the first unfinished task; preserve all existing work.

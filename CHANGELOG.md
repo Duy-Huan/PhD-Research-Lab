@@ -1,3 +1,7 @@
+# Unreleased6.5.3 - CI recovery
+
+Preserve upstream failure classifications and raw results; validate evidence-backed known-issue accounting without waivers; include baseline policy in source identity; retain mandatory100% coverage and live gates. Recovery policy quarantines automatic merging; no main auto-merge or release certification.
+
 # 6.5.1 ? UI stabilization candidate (unreleased)
 
 - Dismiss mobile navigation when Settings opens; preserve desktop navigation.
