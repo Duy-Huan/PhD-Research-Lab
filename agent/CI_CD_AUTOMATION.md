@@ -1,4 +1,4 @@
-# Current CI/CD standard — candidate6.5.5
+# Current CI/CD standard — candidate6.5.6
 
 This replaces the parked71e5332 automatic qa/main promotion design. Never automatically modify qa/main, bypass protection, weaken100% gates or claim unexecuted acceptance.
 
@@ -9,6 +9,6 @@ This replaces the parked71e5332 automatic qa/main promotion design. Never automa
 - QA: owner-controlled dev→qa PR, full regression plus authorized live/AI-UAT evidence. Only qualified QA may open qa→main. Main promotion stays manual/protected.
 - `release.yml`: after qualified main push, verify native qa→main provenance and tested tree, build/package/checksum and publish GitHub Release. PC installation is user-controlled with data backup/rollback; no cloud deployment or automatic data migration.
 
-Legacy workflow files are removed in candidate history, duplicate old GitHub workflow registrations are disabled with readback, and run/evidence history is retained. Main required context migration (`Release gate`→`QA gate`) must be recorded as an actual settings change before declaring the split fully adopted. Protected history cannot be rewritten just to remove the old default-branch files early.
+Legacy workflow files are removed in candidate history, duplicate old GitHub workflow registrations are disabled with readback, and run/evidence history is retained. Main now requires `QA gate` before merge; strict checking, GitHub Actions app15368 and every other protection setting were preserved. API before/after receipt: docs/qa/evidence/ci-stabilization-6.5.6/github-cleanup.json. Protected adoption still requires passing qualification; protected history cannot be rewritten just to remove default-branch files early.
 
 Comparison methodology: docs/qa/COMPARISON_PROTOCOL.md. Same test bundle/environment/policy; fixed critical denominator; old/new/unclassified/unexecuted results separated. Absolute PASS totals from different suites do not rank branches. Current release remains NO-GO until all mandatory criteria really pass.

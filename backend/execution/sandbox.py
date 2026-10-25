@@ -603,15 +603,19 @@ def _waiter(job: Job, t1, t2, timeout_s: int):
     t1.join(5); t2.join(5)
     job.exit_code = job.proc.returncode
     job.ended = time.time()
-    job.status = "stopped" if job.stop_requested else ("done" if job.exit_code == 0 else "failed")
-    job.add("sys", f"[{job.status}] exit code {job.exit_code} · {round(job.ended - job.started, 1)} s")
+    final_status = "stopped" if job.stop_requested else ("done" if job.exit_code == 0 else "failed")
+    job.add("sys", f"[{final_status}] exit code {job.exit_code} · {round(job.ended - job.started, 1)} s")
     if job.run_dir:
         try:
             job.meta.update(collect_run(job))
         except Exception as e:
             job.add("sys", f"(metrics extraction failed: {e})")
-        _after_run(job)
-        _write_run_meta(job)
+        _after_run(job, final_status=final_status)
+        _write_run_meta(job, status=final_status)
+    # Consumers, including run_blocking, may read metrics as soon as status is
+    # terminal. Publish completion only after the run evidence has been written.
+    job.status = final_status
+    if job.run_dir:
         if job.kind == "run":
             threading.Thread(target=_auto_clearml, args=(job.id,), daemon=True).start()
 
@@ -625,7 +629,7 @@ def _auto_clearml(run_id: str) -> None:
         pass
 
 
-def _after_run(job: Job) -> None:
+def _after_run(job: Job, *, final_status: str | None = None) -> None:
     """v3.2: seal produced artifacts with provenance metadata; re-run once on CPU after a GPU fault."""
     try:
         from backend.core.config import load_config
@@ -635,7 +639,7 @@ def _after_run(job: Job) -> None:
             job.meta["provenance"] = seal_run(job.run_dir, job.id, job.meta, csv_header=cfg["provenance"].get("csv_header", True))
     except Exception as e:
         job.add("sys", f"(provenance sealing failed: {e})")
-    if job.status != "failed" or job.kind != "run":
+    if (final_status or job.status) != "failed" or job.kind != "run":
         return
     try:
         from backend.core.config import load_config
@@ -788,11 +792,13 @@ def collect_run(job: Job) -> dict:
             "series": sorted(parsed["series"].keys())}
 
 
-def _write_run_meta(job: Job):
+def _write_run_meta(job: Job, *, status: str | None = None):
     if not job.run_dir:
         return
     d = job.info()
     d.update(job.meta or {})
+    if status is not None:
+        d["status"] = status
     d["stdout_tail"] = job.tail(40, "out")
     d["stderr_tail"] = job.tail(40, "err")
     try:

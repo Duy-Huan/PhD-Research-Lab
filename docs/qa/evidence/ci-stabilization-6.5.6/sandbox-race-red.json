@@ -1,0 +1,21 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_sandbox_completion_regressions.SandboxCompletion.test_terminal_status_is_published_only_after_metrics_are_persisted",
+      "status": "FAIL",
+      "duration": 0.0283,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\tests\\test_sandbox_completion_regressions.py\", line 42, in test_terminal_status_is_published_only_after_metrics_are_persisted\n    self.assertEqual(job.status, 'running', 'Terminal status exposed incomplete evidence')\nAssertionError: 'done' != 'running'\n- done\n+ running\n : Terminal status exposed incomplete evidence\n"
+    }
+  ],
+  "subtests": [],
+  "total": 1,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-ujng4ezw",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

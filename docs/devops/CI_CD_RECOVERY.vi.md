@@ -1,5 +1,7 @@
 # CI/CD sau chuẩn hóa phục hồi
 
+Cập nhật 6.5.6: GitHub đã đổi required check của `main` sang `QA gate`, giữ strict và các bảo vệ khác; receipt trước/sau nằm trong `docs/qa/evidence/ci-stabilization-6.5.6/github-cleanup.json`. Hai workflow trùng cũ đã bị vô hiệu hóa, PR #7/#9 được đóng vì toàn bộ lịch sử đã nằm trong PR tích hợp #11. Branch/worktree và log cũ được giữ. Đây chưa phải promotion thành công: nguồn mới vẫn phải qua đầy đủ coverage, regression và AI-UAT; chưa có merge/tag/release.
+
 Preview6.3.0 trên main/dev/qa không được coi là baseline đáng tin cậy. Code hiện tại được tích hợp từ các worktree đã bảo toàn; evidence phải gắn đúng source/commit đang kiểm tra. Đây là thiết kế và candidate chưa release, không phải chứng nhận zero-bug/IEEE.
 
 ## CI — pull request

@@ -1,0 +1,53 @@
+{
+  "number": 8,
+  "head": "e6e945ae84b67a639d7566b6e40d1c80642e0e8e",
+  "state": "closed",
+  "merged": false,
+  "reason": "Single-file configuration intent fully represented by current integration; no ancestor claim",
+  "files": [
+    {
+      "sha": "9d866e3928a81142451447d87067c240cbe54ae6",
+      "filename": ".github/dependabot.yml",
+      "status": "added",
+      "additions": 11,
+      "deletions": 0,
+      "changes": 11,
+      "blob_url": "https://github.com/Duy-Huan/PhD-Research-Lab/blob/e6e945ae84b67a639d7566b6e40d1c80642e0e8e/.github%2Fdependabot.yml",
+      "raw_url": "https://github.com/Duy-Huan/PhD-Research-Lab/raw/e6e945ae84b67a639d7566b6e40d1c80642e0e8e/.github%2Fdependabot.yml",
+      "contents_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/contents/.github%2Fdependabot.yml?ref=e6e945ae84b67a639d7566b6e40d1c80642e0e8e",
+      "patch": "@@ -0,0 +1,11 @@\n+# To get started with Dependabot version updates, you'll need to specify which\n+# package ecosystems to update and where the package manifests are located.\n+# Please see the documentation for all configuration options:\n+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file\n+\n+version: 2\n+updates:\n+  - package-ecosystem: \"pip\" # See documentation for possible values\n+    directory: \"/\" # Location of package manifests\n+    schedule:\n+      interval: \"weekly\""
+    }
+  ],
+  "replacement_dependabot": {
+    "version": 2,
+    "updates": [
+      {
+        "package-ecosystem": "github-actions",
+        "directory": "/",
+        "target-branch": "dev",
+        "schedule": {
+          "interval": "weekly"
+        }
+      },
+      {
+        "package-ecosystem": "npm",
+        "directory": "/frontend",
+        "target-branch": "dev",
+        "schedule": {
+          "interval": "weekly"
+        },
+        "open-pull-requests-limit": 5
+      },
+      {
+        "package-ecosystem": "pip",
+        "directory": "/",
+        "target-branch": "dev",
+        "schedule": {
+          "interval": "weekly"
+        },
+        "open-pull-requests-limit": 5
+      }
+    ]
+  },
+  "successor": 11
+}

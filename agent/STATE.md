@@ -1,4 +1,16 @@
-# Current continuation - local CI repair and latest application integration
+# Current continuation - 6.5.6 stabilization and identical-suite comparison
+
+- Active normal integration PR11: https://github.com/Duy-Huan/PhD-Research-Lab/pull/11 , feature/local-ci-repair-supervisor. Published b1dcf4b33179317d735238662d71c366c30b3513 contains all earlier governance/UI/latest-app dependencies. PR7/9 were closed only after proving their exact heads are ancestors; branches/worktrees/history retained. Original dirty application workspace is untouched.
+- Actual current-source 6.5.5 local feature:1101PASS/8SKIP, stable source6dffa8a1d4c3fa581ac089035f7e60aa20de81fd8b73c23daad754553074e03b. Independent run40171931531 completedFAIL: policy/security/browserPASS; strict coverage, missing AI-UAT and two confirmed defects remain blocking. No protected promotion.
+- Actual PR10 repair: Codex invoked, reproduced3FAIL, fixed only authorized fixture; operator-assisted Windows environment recovery, then supervisor targeted/feature verification and actual commit/push87703f74963ff40527edde35f19567219eec22c2. Fresh run40155743019 completedFAIL for unrelated qualification/infrastructure. Counter1 persists; no successful native merge or mergeSHA. Detailed evidence: AUTONOMOUS_CI_REPAIR_REPORT.md. Never claim fully unattended acceptance.
+- 6.5.6 repairs: Linux executable fixture now chmods real file and Git index (6POSIX/6Windows packaging testsPASS); deterministic metrics-publication reproducer RED1FAIL then GREEN17PASS targeted. Sandbox terminal status now follows evidence persistence. Actual Windows3.11 CI observed missing metrics; preserve original failure. Full current-source feature and fresh CI still required before push.
+- Main protection context migrated Release gate to QA gate with strict Actionsapp15368 and all other protection settings unchanged. Before/after: docs/qa/evidence/ci-stabilization-6.5.6/github-cleanup.json. Duplicate legacy workflows remain disabled; old files on protected main await qualified adoption. Auto-merge remains quarantined. No qa/main merge/tag/release.
+- Same-suite comparison v1 is executing serially in main-shared-verification (6725975) and candidate-shared-verification (29dc75f/6.5.5). Frozen tests/tooling/policies overlay preserves production code; preparation and environment hashes recorded in output/playwright/ci-supervisor/comparison/. Source repairs6.5.6 require a fresh comparable checkpoint, never silently relabel old results.
+- Live/provider/scientific and AI-UAT qualification remainBLOCKED; TASK-UAT-LOCAL-ADAPTER exhausted3, no retry/key reset. No paid API credits authorized. Browser UI unavailable; authenticated GitHub API is actual remote evidence.
+
+Earlier checkpoints below are historical, not active instructions.
+
+# Previous local CI repair checkpoint
 
 - Active branch: feature/local-ci-repair-supervisor, worktree local-ci-repair-supervisor. Inherits latest application6.5.4 consolidation dbbeb60 and follow-up ea6343. Original dirty application work and every older worktree remain preserved.
 - Preview6.3.0 on main/dev/qa is UNTRUSTED. No release readiness inferred from it. Canonical latest-app feature checkpoint:1073PASS/8SKIP, stable source b015599c4113546ba22f2a57bf6ed4d0fc5b69e860e7ca9a41c33f2c5d9a56d8. This is scoped development verification, not100% strict/live acceptance.

@@ -8,6 +8,10 @@
     {
       "id": "REQ-LATEST",
       "description": "Consolidate latest application behavior and retain honest permanent acceptance tests"
+    },
+    {
+      "id": "REQ-COMPLETE",
+      "description": "Publish terminal experiment status only after metrics and run metadata persistence completes"
     }
   ],
   "nonfunctional": [
@@ -42,7 +46,9 @@
     "tests/test_cloud_connections.py",
     "tests/test_provider_project_security.py",
     "tools/cli_*.mjs",
-    "tools/*cli*.py"
+    "tools/*cli*.py",
+    "backend/execution/sandbox.py",
+    "tests/test_sandbox_completion_regressions.py"
   ],
   "acceptance_criteria": [
     "Full selected PDF includes final-page results",
@@ -50,7 +56,8 @@
     "Cloud never unloads local weights",
     "CLI refuses unrestricted host fallback",
     "Settings persists actual model rules and bounded budgets",
-    "No live-provider or OS isolation certification is inferred from fixtures"
+    "No live-provider or OS isolation certification is inferred from fixtures",
+    "An observer cannot see done while metrics collection is still pending"
   ],
   "scenarios": [
     {
@@ -101,6 +108,13 @@
       "kind": "failure",
       "expected": "Pending remote record identity and missing metrics remain explicit without NameError or invented measurements",
       "test": "tests/test_latest_integration_regressions.py::LatestIntegration.test_remote_compute_context_preserves_record_identity_and_unverified_status"
+    },
+    {
+      "id": "terminal-evidence-publication",
+      "requirement": "REQ-COMPLETE",
+      "kind": "boundary",
+      "expected": "Paused metrics collection retains running status; final metadata and metrics exist when done is published",
+      "test": "tests/test_sandbox_completion_regressions.py::SandboxCompletion.test_terminal_status_is_published_only_after_metrics_are_persisted"
     }
   ],
   "recovery": "Preserve raw failure. At most3 repair attempts per stable defect group. No waiver has been approved.",
@@ -146,6 +160,17 @@
       "green": {
         "path": "docs/qa/evidence/ci-supervisor-6.5.5/remote-context-and-cli-fixture-green.json",
         "sha256": "d785d617e62539334d6ba6362a8129badc119790204f978deefe8d2438c4091f"
+      }
+    },
+    {
+      "scope": "Actual deterministic delayed-collection regression, RED before changing sandbox completion publication; MOCKED software evidence only",
+      "red": {
+        "path": "docs/qa/evidence/ci-stabilization-6.5.6/sandbox-race-red.json",
+        "sha256": "ba3c8fe0139dd63db48cdbf541fb4a38fd59a0e7132115d9eedcb1a1982742c9"
+      },
+      "green": {
+        "path": "docs/qa/evidence/ci-stabilization-6.5.6/sandbox-race-green.json",
+        "sha256": "9e167739a9b48a80a16edb7b561ffdd8b5494440edf98bd3d4f819f40d8618a2"
       }
     }
   ]

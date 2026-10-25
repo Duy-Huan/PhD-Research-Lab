@@ -60,6 +60,9 @@ class ReleasePackaging(unittest.TestCase):
         with self.assertRaises(ValueError): package(self.root, self.root / 'output/release/dirty', self.sha)
 
     def test_source_archive_preserves_git_executable_permissions(self):
+        # Git's index bit alone leaves the Linux checkout dirty. Model a real
+        # executable file before committing; Windows still needs update-index.
+        (self.root / 'start.py').chmod(0o755)
         self.git('update-index', '--chmod=+x', 'start.py')
         self.git('-c', 'user.name=QA', '-c', 'user.email=qa@example.invalid', 'commit', '-qm', 'executable fixture')
         sha = self.git('rev-parse', 'HEAD').strip()

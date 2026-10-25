@@ -346,6 +346,64 @@
       "owner": "Repository maintainer / integration SDET",
       "target_review_date": "2026-11-01",
       "exception": false
+    },
+    {
+      "id": "CI-PACKAGE-MODE-001",
+      "severity": "P2",
+      "classification": "TEST_SPECIFICATION_DEFECT",
+      "status": "LOCAL_FIX_VERIFIED",
+      "module": "tests/test_release_packaging.py",
+      "baseline_sha": "b1dcf4b33179317d735238662d71c366c30b3513",
+      "first_known_affected_commit": "b1dcf4b33179317d735238662d71c366c30b3513",
+      "first_known_note": "Actual CI and local reproduction; not a bisected introduction commit",
+      "expected": "Executable fixture is executable in both index and Linux worktree",
+      "actual": "Index-only chmod leaves checkout dirty; packaging correctly refuses it",
+      "reproduction_steps": [
+        "Run the unchanged named regression on the recorded baseline",
+        "Inspect retained raw RED and GREEN evidence"
+      ],
+      "evidence": [
+        {
+          "path": "docs/qa/evidence/ci-stabilization-6.5.6/package-linux-red.log",
+          "sha256": "c1993531e02ee545dce1c52636c7c38c183b3b26dea936f0d405c467ef8dad68"
+        }
+      ],
+      "test_ids": [
+        "test_release_packaging.ReleasePackaging.test_source_archive_preserves_git_executable_permissions"
+      ],
+      "owner": "Repository maintainer / recovery SDET",
+      "remediation": "Retain reproducer and pass exact-head independent CI before protected promotion",
+      "target_review_date": "2026-11-01",
+      "exception": false
+    },
+    {
+      "id": "LEGACY-RUN-PUBLISH-001",
+      "severity": "P1",
+      "classification": "EXISTING_APPLICATION_DEFECT",
+      "status": "LOCAL_FIX_VERIFIED",
+      "module": "backend/execution/sandbox.py",
+      "baseline_sha": "b1dcf4b33179317d735238662d71c366c30b3513",
+      "first_known_affected_commit": "b1dcf4b33179317d735238662d71c366c30b3513",
+      "first_known_note": "Actual CI and local reproduction; not a bisected introduction commit",
+      "expected": "Terminal status exposes completed metrics persistence",
+      "actual": "Waiter sets done before collecting metrics; blocking caller reads missing metrics",
+      "reproduction_steps": [
+        "Run the unchanged named regression on the recorded baseline",
+        "Inspect retained raw RED and GREEN evidence"
+      ],
+      "evidence": [
+        {
+          "path": "docs/qa/evidence/ci-stabilization-6.5.6/sandbox-race-red.json",
+          "sha256": "ba3c8fe0139dd63db48cdbf541fb4a38fd59a0e7132115d9eedcb1a1982742c9"
+        }
+      ],
+      "test_ids": [
+        "test_sandbox_completion_regressions.SandboxCompletion.test_terminal_status_is_published_only_after_metrics_are_persisted"
+      ],
+      "owner": "Repository maintainer / recovery SDET",
+      "remediation": "Retain reproducer and pass exact-head independent CI before protected promotion",
+      "target_review_date": "2026-11-01",
+      "exception": false
     }
   ],
   "limitations": [

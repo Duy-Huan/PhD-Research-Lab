@@ -1,5 +1,7 @@
 # Active plan
 
+Current next actions (6.5.6): finish frozen v1 comparison; preserve actual reports; complete race/packaging repairs and current-source feature gate; commit scoped6.5.6; repeat identical-suite qualification against main and that exact candidate; publish evidence/repair to PR11 and inspect exact-head independent CI. Keep dev/qa/main unchanged while mandatory gates fail. Only after full/live/AI-UAT qualification passes may dev-to-qa promotion and then a qa-to-main PR proceed. Older pending statuses below must be checked against STATE.md and real evidence.
+
 1. Preserve worktrees/user changes and actual GitHub failure evidence. DONE for initial inventory; refresh before mutation.
 2. Integrate latest application, resolve conflicts, retain regression failures and repairs. App feature1073PASS/8SKIP; release stillNO-GO.
 3. Complete local-first repair supervisor using canonical verification; explicit owner registry, exact PR/head/worktree, immutable tests, max3 invocations, no external PR execution.
