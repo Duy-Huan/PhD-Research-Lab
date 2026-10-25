@@ -24,6 +24,10 @@
     {
       "id": "REQ-CONTRACT",
       "description": "Require reviewed feature contracts and executable requirement traceability"
+    },
+    {
+      "id": "REQ-ATTEST",
+      "description": "Bind evidence to frontend entry HTML/public assets and CLI/source inputs, independent of staging; generated evidence/build outputs are not source inputs"
     }
   ],
   "nonfunctional": [
@@ -153,6 +157,27 @@
       "kind": "failure",
       "expected": "Only intended promotion direction and human release pass",
       "test": "tests/test_verification_harness.py::Contracts.test_branch_promotion_direction_and_human_release"
+    },
+    {
+      "id": "source-inputs",
+      "requirement": "REQ-ATTEST",
+      "kind": "security",
+      "expected": "Runtime HTML, public assets and CLI edits invalidate prior evidence",
+      "test": "tests/test_verification_source_identity.py::SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence"
+    },
+    {
+      "id": "stage-deletion",
+      "requirement": "REQ-ATTEST",
+      "kind": "boundary",
+      "expected": "A real deletion invalidates source once, while staging alone does not alter identity",
+      "test": "tests/test_verification_source_identity.py::SourceIdentity.test_staging_a_real_deletion_does_not_change_worktree_identity"
+    },
+    {
+      "id": "output-boundary",
+      "requirement": "REQ-ATTEST",
+      "kind": "positive",
+      "expected": "Generated binaries/reports/replay evidence do not create self-referential source digests",
+      "test": "tests/test_verification_source_identity.py::SourceIdentity.test_build_outputs_are_not_source_inputs"
     }
   ],
   "recovery": "Inspect concise fingerprints; preserve failing evidence; target failed cases then affected suite; max three automatic repair cycles, then stop and report.",
@@ -185,5 +210,15 @@
       "sha256": "49ca4e26dac7908eca67857224cb343b3b61c8c82e28538a8c461ff517f366fb",
       "exit_code": 0
     }
-  }
+  },
+  "additional_tdd": [
+    {
+      "scope": "Functional source identity RED/GREEN for HTML/assets/CLI, staged deletions and generated output boundaries",
+      "records": [
+        "docs/qa/evidence/governance/source-identity-red.json",
+        "docs/qa/evidence/governance/source-identity-outputs-red.json",
+        "docs/qa/evidence/governance/source-identity-final-green.json"
+      ]
+    }
+  ]
 }

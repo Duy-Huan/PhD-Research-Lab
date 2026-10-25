@@ -25,17 +25,23 @@ def identity(root: Path) -> dict:
     paths = subprocess.check_output(['git', 'ls-files', '--cached', '--others', '--exclude-standard', '-z'], cwd=root)
     prefixes = ('backend/', 'frontend/src/', 'frontend/e2e/', 'devtools/', 'scripts/', 'tools/',
                 'tests/', '.github/', 'docs/qa/contracts/', '.codex/', '.agents/', '.claude/', '.gemini/', 'skills/')
-    exact = {'requirements.txt', 'requirements-dev.txt', 'requirements-ci.lock', 'requirements-uat.in', 'requirements-uat.lock', '.coveragerc', 'AGENTS.md',
+    exact = {'requirements.txt', 'requirements-dev.txt', 'requirements-ci.lock', 'requirements-uat.in', 'requirements-uat.lock', '.coveragerc', '.gitignore', '.gitattributes',
+             'pyproject.toml','pytest.ini','tox.ini','ruff.toml','AGENTS.md',
              'agent/AGENT.md', 'agent/DEVELOPMENT_WORKFLOW.md', 'agent/UAT.md', 'agent/CLI_COMPATIBILITY.md',
              'CLAUDE.md', 'GEMINI.md', 'skills/SOURCES.json',
              'frontend/package.json', 'frontend/package-lock.json', 'frontend/vite.config.ts',
              'frontend/playwright.config.ts', 'start.py'}
     files = {}
     for name in sorted(set(paths.decode('utf-8').split('\0'))):
-        if name and (name.startswith(prefixes) or name in exact):
-            path = root / name
-            raw = path.read_bytes() if path.is_file() else b'DELETED'
-            if path.suffix in ('.py','.ts','.tsx','.js','.mjs','.cjs','.json','.md','.yml','.yaml','.toml','.lock','.txt','.in','.css','.html','.svg') or path.name in ('.coveragerc','LICENSE','UPSTREAM_LICENSE','Dockerfile'):
+        path = root / name
+        generated=name.startswith(('frontend/dist/','frontend/coverage/','frontend/node_modules/',
+                                   'output/','artifacts/','qa/live_e2e/runs/','docs/qa/evidence/'))
+        if name and not generated and (name.startswith(prefixes) or name.startswith('frontend/') or name in exact
+                or path.suffix in ('.py','.sh','.cmd','.bat','.ps1')):
+            # Absence is represented by an absent key, regardless of whether deletion is staged.
+            if not path.is_file():continue
+            raw = path.read_bytes()
+            if path.suffix in ('.py','.ts','.tsx','.js','.mjs','.cjs','.json','.md','.yml','.yaml','.toml','.lock','.txt','.in','.ini','.cfg','.css','.html','.svg','.sh','.cmd','.bat','.ps1') or path.name in ('.coveragerc','.gitignore','.gitattributes','LICENSE','UPSTREAM_LICENSE','Dockerfile'):
                 raw = raw.replace(b'\r\n',b'\n')
             files[name] = hashlib.sha256(raw).hexdigest()
     digest = hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest()

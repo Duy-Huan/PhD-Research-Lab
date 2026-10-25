@@ -1,3 +1,13 @@
+# Current verified source-attestation checkpoint ? 2026-10-25
+
+Local feature-attestation-final PASS with source_stable=true; see docs/qa/evidence/governance/feature-attestation-final.json for exact counts. Actual GitHub run40137751583 completed FAILURE: Linux browser/policy/security PASS; strict backend/frontend coverage and required UAT evidence block Development gate. No merge performed. User explicitly requests protected promotion feature -> dev -> qa -> main after all required checks succeed; this does not authorize protection bypass or invented reviews. New full source stabilization attachment ec2c2982 read; prepare five baseline/readiness reports and reviewed verification/UI skills, then repair defects in separate groups before integrated final certification. TASK-UAT-LOCAL-ADAPTER remains exhausted; preserve original dirty application work.
+
+# Active finalization: complete source attestation inputs
+
+PR7 draft, latest pushed d244d2d. Actual GitHub run40137751583: Linux browser, policy and security PASS; frontend/required UAT still blocked by strict coverage/missing evidence; backend matrix running. New deterministic source-identity regressions found entry HTML/public assets/root CLI were omitted and staging a deletion changed identity despite identical worktree. Fixed: include runtime frontend and scripts; exclude generated outputs/proof artifacts; omit absent keys independent of index. Functional RED/GREEN retained and FQC-DEV-001 traceability updated.
+
+NEXT: stage these intended source/test/contract/docs changes BEFORE running feature-attestation-final with no source/index edits during verification; after PASS commit/push same unreleased6.5.0 phase and inspect final GitHub execution. No model retries for exhausted TASK-UAT-LOCAL-ADAPTER; no QA/main merge or protection bypass. Prior code/source validation and original application work remain preserved. Earlier details follow.
+
 # Current: local Chromium cache correction verified
 
 PR7 remains draft ->dev. The staged explicit PLAYWRIGHT_BROWSERS_PATH CI correction passed feature-ci-browser-cache (1040PASS/8skip, source stable; backend851,frontend174,Playwright20,boundary3). Commit/push this same unreleased6.5.0 correction now, then inspect the new actual Linux browser job. The initial947d993 GitHub run has policy/security success, frontend174 and Linux846+5skip but strict coverage/completeness blocks; initial Linux browser had a verified cache-path defect. No UAT model retries, fake green or qa/main merge. Original application changes preserved in the original worktree. Earlier state follows.
