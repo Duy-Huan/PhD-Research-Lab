@@ -1,0 +1,9 @@
+
+Running 5 tests using 1 worker
+
+[1/5] e2e\ui_quality.spec.ts:9:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 375px
+[2/5] e2e\ui_quality.spec.ts:9:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 768px
+[3/5] e2e\ui_quality.spec.ts:23:1 › UI-DESKTOP-SETTINGS-001: Settings preserves desktop navigation
+[4/5] e2e\ui_quality.spec.ts:34:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (en)
+[5/5] e2e\ui_quality.spec.ts:34:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (vi)
+  5 passed (19.9s)

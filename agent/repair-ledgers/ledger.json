@@ -35,7 +35,7 @@
       {
         "sha": "dc7d87daaacd806c6514f58eaf90cb257793e7ce43b02727bff899a783e0922d",
         "status": "FAIL",
-        "evidence": "output/playwright/ui-stabilization/green/source.json"
+        "evidence": "docs/qa/evidence/ui-stabilization-6.5.1/candidate-failed/source.json"
       },
       {
         "sha": "80ab50d561be0d58cf3c54732f725ebde85b408340eb91b159db29d58ed9905d",

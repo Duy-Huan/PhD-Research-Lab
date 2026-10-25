@@ -1,0 +1,1875 @@
+
+Running 5 tests using 1 worker
+
+[1/5] e2e\ui_quality.spec.ts:9:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 375px
+  1) e2e\ui_quality.spec.ts:9:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 375px 
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  getByRole('complementary', { name: 'Sidebar', exact: true })
+    Expected: hidden
+    Received: visible
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeHidden" getByRole('complementary', { name: 'Sidebar', exact: true }) with timeout 15000ms
+      - waiting for getByRole('complementary', { name: 'Sidebar', exact: true })
+        33 × locator resolved to <aside id="side" aria-label="Sidebar">…</aside>
+           - unexpected value "visible"
+
+
+      15 |     await page.getByRole('button', { name: 'System Settings', exact: true }).click();
+      16 |     await expect(page.locator('.settings-studio-content')).toBeVisible();
+    > 17 |     await expect(page.getByRole('complementary', { name: 'Sidebar', exact: true })).toBeHidden();
+         |                                                                                     ^
+      18 |     await page.getByRole('button', { name: 'Back to Workspace', exact: true }).click();
+      19 |     await expect(page.locator('#view textarea')).toBeVisible();
+      20 |   });
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:17:85
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-MOBILE-SETTI-6fe43-ses-mobile-sidebar-at-375px\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: rendered-ui.txt (text/plain) ────────────────────────────────────────────────────
+    PhD Research Lab
+    New chat
+    3D University Lab
+    Paper Library
+    Autonomous Missions
+    Harness Studio
+    Provider & CLI Hub
+    9
+    Claude CLI Terminal
+    1-Click
+    OpenAI Codex CLI
+    1-Click
+    Antigravity CLI (agy)
+    1-Click
+    Gemini CLI
+    1-Click
+    Feynman Research CLI
+    1-Click
+    OpenCode Sandbox CLI
+    1-Click
+    PaperOrchestra Engine
+    1-Cl...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-MOBILE-SETTI-6fe43-ses-mobile-sidebar-at-375px\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-MOBILE-SETTI-6fe43-ses-mobile-sidebar-at-375px\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-MOBILE-SETTI-6fe43-ses-mobile-sidebar-at-375px\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-MOBILE-SETTI-6fe43-ses-mobile-sidebar-at-375px\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[2/5] e2e\ui_quality.spec.ts:9:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 768px
+  2) e2e\ui_quality.spec.ts:9:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 768px 
+
+    Error: expect(locator).toBeHidden() failed
+
+    Locator:  getByRole('complementary', { name: 'Sidebar', exact: true })
+    Expected: hidden
+    Received: visible
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeHidden" getByRole('complementary', { name: 'Sidebar', exact: true }) with timeout 15000ms
+      - waiting for getByRole('complementary', { name: 'Sidebar', exact: true })
+        33 × locator resolved to <aside id="side" aria-label="Sidebar">…</aside>
+           - unexpected value "visible"
+
+
+      15 |     await page.getByRole('button', { name: 'System Settings', exact: true }).click();
+      16 |     await expect(page.locator('.settings-studio-content')).toBeVisible();
+    > 17 |     await expect(page.getByRole('complementary', { name: 'Sidebar', exact: true })).toBeHidden();
+         |                                                                                     ^
+      18 |     await page.getByRole('button', { name: 'Back to Workspace', exact: true }).click();
+      19 |     await expect(page.locator('#view textarea')).toBeVisible();
+      20 |   });
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:17:85
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-MOBILE-SETTI-2f02f-ses-mobile-sidebar-at-768px\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: rendered-ui.txt (text/plain) ────────────────────────────────────────────────────
+    PhD Research Lab
+    New chat
+    3D University Lab
+    Paper Library
+    Autonomous Missions
+    Harness Studio
+    Provider & CLI Hub
+    9
+    Claude CLI Terminal
+    1-Click
+    OpenAI Codex CLI
+    1-Click
+    Antigravity CLI (agy)
+    1-Click
+    Gemini CLI
+    1-Click
+    Feynman Research CLI
+    1-Click
+    OpenCode Sandbox CLI
+    1-Click
+    PaperOrchestra Engine
+    1-Cl...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-MOBILE-SETTI-2f02f-ses-mobile-sidebar-at-768px\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-MOBILE-SETTI-2f02f-ses-mobile-sidebar-at-768px\error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-MOBILE-SETTI-2f02f-ses-mobile-sidebar-at-768px\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-MOBILE-SETTI-2f02f-ses-mobile-sidebar-at-768px\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[3/5] e2e\ui_quality.spec.ts:23:1 › UI-DESKTOP-SETTINGS-001: Settings preserves desktop navigation
+[4/5] e2e\ui_quality.spec.ts:34:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (en)
+  3) e2e\ui_quality.spec.ts:34:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (en) 
+
+    Error: workspace en 375px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Switch language VI / ENG\" aria-label=\"Switch language VI / ENG\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 1px solid var(--line); flex-shrink: 0; min-height: 26px; min-width: 32px;\">EN</button>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"Switch language VI / ENG\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"UI Display Scale\" aria-label=\"UI Display Scale\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"UI Display Scale\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Open right tools pan...\" aria-label=\"Inspector Drawer\" style=\"display: flex; align...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#panel-btn",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      48 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      49 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 50 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      51 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      52 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      53 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:50:77
+
+    Error: settings en 375px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Switch language VI / ENG\" aria-label=\"Switch language VI / ENG\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 1px solid var(--line); flex-shrink: 0; min-height: 26px; min-width: 32px;\">EN</button>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"Switch language VI / ENG\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"UI Display Scale\" aria-label=\"UI Display Scale\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".ghost[title=\"UI Display Scale\"][aria-label=\"UI Display Scale\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Open right tools pan...\" aria-label=\"Inspector Drawer\" style=\"display: flex; align...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#panel-btn",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      48 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      49 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 50 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      51 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      52 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      53 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:50:77
+
+    Error: workspace en 768px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Switch language VI / ENG\" aria-label=\"Switch language VI / ENG\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 1px solid var(--line); flex-shrink: 0; min-height: 26px; min-width: 32px;\">EN</button>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"Switch language VI / ENG\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"UI Display Scale\" aria-label=\"UI Display Scale\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"UI Display Scale\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Open right tools pan...\" aria-label=\"Inspector Drawer\" style=\"display: flex; align...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#panel-btn",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      48 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      49 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 50 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      51 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      52 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      53 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:50:77
+
+    Error: settings en 768px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Switch language VI / ENG\" aria-label=\"Switch language VI / ENG\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 1px solid var(--line); flex-shrink: 0; min-height: 26px; min-width: 32px;\">EN</button>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"Switch language VI / ENG\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"UI Display Scale\" aria-label=\"UI Display Scale\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".ghost[title=\"UI Display Scale\"][aria-label=\"UI Display Scale\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Open right tools pan...\" aria-label=\"Inspector Drawer\" style=\"display: flex; align...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#panel-btn",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      48 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      49 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 50 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      51 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      52 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      53 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:50:77
+
+    Error: workspace en 1280px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Switch language VI / ENG\" aria-label=\"Switch language VI / ENG\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 1px solid var(--line); flex-shrink: 0; min-height: 26px; min-width: 32px;\">EN</button>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"Switch language VI / ENG\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"UI Display Scale\" aria-label=\"UI Display Scale\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"UI Display Scale\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Open right tools pan...\" aria-label=\"Inspector Drawer\" style=\"display: flex; align...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#panel-btn",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      48 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      49 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 50 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      51 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      52 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      53 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:50:77
+
+    Error: settings en 1280px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Switch language VI / ENG\" aria-label=\"Switch language VI / ENG\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 1px solid var(--line); flex-shrink: 0; min-height: 26px; min-width: 32px;\">EN</button>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"Switch language VI / ENG\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"UI Display Scale\" aria-label=\"UI Display Scale\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".ghost[title=\"UI Display Scale\"][aria-label=\"UI Display Scale\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Open right tools pan...\" aria-label=\"Inspector Drawer\" style=\"display: flex; align...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#panel-btn",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      48 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      49 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 50 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      51 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      52 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      53 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:50:77
+
+    Error: workspace en 1920px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Switch language VI / ENG\" aria-label=\"Switch language VI / ENG\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 1px solid var(--line); flex-shrink: 0; min-height: 26px; min-width: 32px;\">EN</button>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"Switch language VI / ENG\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"UI Display Scale\" aria-label=\"UI Display Scale\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"UI Display Scale\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Open right tools pan...\" aria-label=\"Inspector Drawer\" style=\"display: flex; align...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#panel-btn",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      48 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      49 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 50 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      51 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      52 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      53 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:50:77
+
+    Error: settings en 1920px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Switch language VI / ENG\" aria-label=\"Switch language VI / ENG\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 1px solid var(--line); flex-shrink: 0; min-height: 26px; min-width: 32px;\">EN</button>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"Switch language VI / ENG\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"UI Display Scale\" aria-label=\"UI Display Scale\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".ghost[title=\"UI Display Scale\"][aria-label=\"UI Display Scale\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Open right tools pan...\" aria-label=\"Inspector Drawer\" style=\"display: flex; align...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#panel-btn",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      48 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      49 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 50 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      51 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      52 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      53 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:50:77
+
+    attachment #10: screenshot (image/png) ─────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #12: rendered-ui.txt (text/plain) ───────────────────────────────────────────────────
+    PhD Research Lab
+    New chat
+    3D University Lab
+    Paper Library
+    Autonomous Missions
+    Harness Studio
+    Provider & CLI Hub
+    9
+    Claude CLI Terminal
+    1-Click
+    OpenAI Codex CLI
+    1-Click
+    Antigravity CLI (agy)
+    1-Click
+    Gemini CLI
+    1-Click
+    Feynman Research CLI
+    1-Click
+    OpenCode Sandbox CLI
+    1-Click
+    PaperOrchestra Engine
+    1-Cl...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #13: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\video-2.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #14: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #15: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\video-3.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #16: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #17: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\video-5.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #18: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\video-6.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #19: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\video-4.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #20: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\video-7.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #21: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\video-8.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\error-context.md
+
+    attachment #23: trace (application/zip) ────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-60d23--workspace-and-settings-en-\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[5/5] e2e\ui_quality.spec.ts:34:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (vi)
+  4) e2e\ui_quality.spec.ts:34:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (vi) 
+
+    Error: workspace vi 375px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Tỉ lệ hiển thị giao diện\" aria-label=\"Tỉ lệ hiển thị giao diện\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"Tỉ lệ hiển thị giao diện\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Mở bảng công cụ bên ...\" aria-label=\"Bảng kết quả & công ...\" style=\"display: flex; align...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#panel-btn",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"floating-drawer-togg...\" type=\"button\" title=\"Mở bảng công cụ bên ...\" aria-label=\"Mở menu bên phải\" style=\"position: absolute; ...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#floating-drawer-toggle",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      48 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      49 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 50 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      51 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      52 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      53 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:50:77
+
+    Error: settings vi 375px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Tỉ lệ hiển thị giao diện\" aria-label=\"Tỉ lệ hiển thị giao diện\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"Tỉ lệ hiển thị giao diện\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Mở bảng công cụ bên ...\" aria-label=\"Bảng kết quả & công ...\" style=\"display: flex; align...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#panel-btn",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"floating-drawer-togg...\" type=\"button\" title=\"Mở bảng công cụ bên ...\" aria-label=\"Mở menu bên phải\" style=\"position: absolute; ...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#floating-drawer-toggle",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      48 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      49 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 50 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      51 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      52 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      53 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:50:77
+
+    Error: workspace vi 768px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Tỉ lệ hiển thị giao diện\" aria-label=\"Tỉ lệ hiển thị giao diện\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"Tỉ lệ hiển thị giao diện\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Mở bảng công cụ bên ...\" aria-label=\"Bảng kết quả & công ...\" style=\"display: flex; align...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#panel-btn",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"floating-drawer-togg...\" type=\"button\" title=\"Mở bảng công cụ bên ...\" aria-label=\"Mở menu bên phải\" style=\"position: absolute; ...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#floating-drawer-toggle",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      48 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      49 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 50 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      51 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      52 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      53 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:50:77
+
+    Error: settings vi 768px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Tỉ lệ hiển thị giao diện\" aria-label=\"Tỉ lệ hiển thị giao diện\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"Tỉ lệ hiển thị giao diện\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Mở bảng công cụ bên ...\" aria-label=\"Bảng kết quả & công ...\" style=\"display: flex; align...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#panel-btn",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"floating-drawer-togg...\" type=\"button\" title=\"Mở bảng công cụ bên ...\" aria-label=\"Mở menu bên phải\" style=\"position: absolute; ...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#floating-drawer-toggle",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      48 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      49 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 50 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      51 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      52 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      53 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:50:77
+
+    Error: workspace vi 1280px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Tỉ lệ hiển thị giao diện\" aria-label=\"Tỉ lệ hiển thị giao diện\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"Tỉ lệ hiển thị giao diện\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Mở bảng công cụ bên ...\" aria-label=\"Bảng kết quả & công ...\" style=\"display: flex; align...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#panel-btn",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"floating-drawer-togg...\" type=\"button\" title=\"Mở bảng công cụ bên ...\" aria-label=\"Mở menu bên phải\" style=\"position: absolute; ...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#floating-drawer-toggle",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      48 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      49 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 50 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      51 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      52 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      53 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:50:77
+
+    Error: settings vi 1280px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Tỉ lệ hiển thị giao diện\" aria-label=\"Tỉ lệ hiển thị giao diện\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"Tỉ lệ hiển thị giao diện\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Mở bảng công cụ bên ...\" aria-label=\"Bảng kết quả & công ...\" style=\"display: flex; align...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#panel-btn",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"floating-drawer-togg...\" type=\"button\" title=\"Mở bảng công cụ bên ...\" aria-label=\"Mở menu bên phải\" style=\"position: absolute; ...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#floating-drawer-toggle",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      48 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      49 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 50 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      51 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      52 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      53 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:50:77
+
+    Error: workspace vi 1920px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Tỉ lệ hiển thị giao diện\" aria-label=\"Tỉ lệ hiển thị giao diện\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"Tỉ lệ hiển thị giao diện\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Mở bảng công cụ bên ...\" aria-label=\"Bảng kết quả & công ...\" style=\"display: flex; align...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#panel-btn",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"floating-drawer-togg...\" type=\"button\" title=\"Mở bảng công cụ bên ...\" aria-label=\"Mở menu bên phải\" style=\"position: absolute; ...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#floating-drawer-toggle",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      48 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      49 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 50 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      51 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      52 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      53 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:50:77
+
+    Error: settings vi 1920px
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 80
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+    +     "help": "Elements must have their visible text as part of their accessible name",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=playwright",
+    +     "id": "label-content-name-mismatch",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Tỉ lệ hiển thị giao diện\" aria-label=\"Tỉ lệ hiển thị giao diện\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "button[title=\"Tỉ lệ hiển thị giao diện\"]",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Mở bảng công cụ bên ...\" aria-label=\"Bảng kết quả & công ...\" style=\"display: flex; align...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#panel-btn",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "label-content-name-mismatch",
+    +             "impact": "serious",
+    +             "message": "Text inside the element is not included in the accessible name",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Text inside the element is not included in the accessible name",
+    +         "html": "<button id=\"floating-drawer-togg...\" type=\"button\" title=\"Mở bảng công cụ bên ...\" aria-label=\"Mở menu bên phải\" style=\"position: absolute; ...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "#floating-drawer-toggle",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.semantics",
+    +       "wcag21a",
+    +       "wcag253",
+    +       "EN-301-549",
+    +       "EN-9.2.5.3",
+    +       "RGAAv4",
+    +       "RGAA-6.1.5",
+    +     ],
+    +   },
+    + ]
+
+      48 |         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+      49 |         findings.push({ language, width, surface, violations: result.violations, incomplete: result.incomplete });
+    > 50 |         expect.soft(result.violations, `${surface} ${language} ${width}px`).toEqual([]);
+         |                                                                             ^
+      51 |         expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'No document overflow').toBeTruthy();
+      52 |         await info.attach(`${surface}-${language}-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+      53 |       }
+        at D:\git-repo\PhD-Research-Lab-worktrees\ui-source-baseline\frontend\e2e\ui_quality.spec.ts:50:77
+
+    attachment #10: screenshot (image/png) ─────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #12: rendered-ui.txt (text/plain) ───────────────────────────────────────────────────
+    PhD Research Lab
+    Cuộc trò chuyện mới
+    Phòng Lab 3D
+    Thư viện Bài báo
+    Nhiệm vụ Tự hành
+    Harness Studio
+    Danh sách Provider & CLI
+    9
+    Claude CLI Terminal
+    1-Click
+    OpenAI Codex CLI
+    1-Click
+    Antigravity CLI (agy)
+    1-Click
+    Gemini CLI
+    1-Click
+    Feynman Research CLI
+    1-Click
+    OpenCode Sandbox CLI
+    1-Click
+    PaperOrchestra...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #13: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\video-2.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #14: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #15: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\video-4.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #16: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #17: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\video-6.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #18: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\video-3.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #19: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\video-5.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #20: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\video-7.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #21: video (video/webm) ─────────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\video-8.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\error-context.md
+
+    attachment #23: trace (application/zip) ────────────────────────────────────────────────────────
+    ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\output\playwright\ui-stabilization\functional-red\results\ui_quality-UI-ACCESSIBLE-N-b98f8--workspace-and-settings-vi-\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  4 failed
+    e2e\ui_quality.spec.ts:9:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 375px 
+    e2e\ui_quality.spec.ts:9:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 768px 
+    e2e\ui_quality.spec.ts:34:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (en) 
+    e2e\ui_quality.spec.ts:34:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (vi) 
+  1 passed (1.0m)
