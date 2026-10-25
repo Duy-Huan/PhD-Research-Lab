@@ -35,9 +35,10 @@ def exploration_required(risk: str) -> bool:
     return risk in ('HIGH','CRITICAL')
 
 
-def bounded_options(steps: int,deadline: int) -> dict:
-    if type(steps) is not int or type(deadline) is not int or not 1<=steps<=12 or not 1<=deadline<=180:
-        raise ValueError('UAT requires 1..12 steps and a 1..180 second total deadline')
+def bounded_options(steps: int,deadline: int,owner_limit: bool = False) -> dict:
+    cap,step_cap=(600,6) if owner_limit is True else (180,12)
+    if type(steps) is not int or type(deadline) is not int or not 1<=steps<=step_cap or not 1<=deadline<=cap:
+        raise ValueError('UAT bounds exceeded; standard180seconds or explicit single-owner600second/six-step exception')
     return {'max_steps':steps,'timeout_s':deadline,'max_failures':3}
 
 
@@ -58,11 +59,11 @@ def allowed_settings_write(method: str, path: str, body: object) -> bool:
             and body['ui']['language'] in ('en','vi'))
 
 
-def execute(out: Path, model: str = 'spark-x2.5-4b', steps: int = 6, deadline: int = 180, source: str = 'UNATTESTED') -> dict:
+def execute(out: Path, model: str = 'spark-x2.5-4b', steps: int = 6, deadline: int = 180, source: str = 'UNATTESTED', owner_limit: bool = False) -> dict:
     """Own the app/browser lifecycle; optional adapter failures stay explicit."""
     from .browser import application
     root=Path(__file__).resolve().parents[2]
-    options=bounded_options(steps,deadline)
+    options=bounded_options(steps,deadline,owner_limit)
     python=root/'output/playwright/browser-uat-env'/('Scripts/python.exe' if os.name=='nt' else 'bin/python')
     record={'adapter_available':python.is_file(),'profile':'uat','mode':'REAL_LOCAL',
             'scope':'First-time persona: settings navigation and VI -> EN persistence','source_sha256':source,

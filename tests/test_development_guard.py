@@ -7,6 +7,7 @@ import subprocess
 import tarfile
 import tempfile
 import unittest
+import sys
 
 from devtools.verification.branch_policy import LOCAL_STEPS, record_report, report_errors
 from scripts.install_ci_sdk import unpack
@@ -14,6 +15,27 @@ from scripts.development_guard import remote_errors
 
 
 class DevelopmentGuard(unittest.TestCase):
+    def test_installed_reference_hook_rejects_new_development_branches(self):
+        script=Path(__file__).resolve().parents[1]/'scripts/development_guard.py'
+        with tempfile.TemporaryDirectory(prefix='phdlab-reference-policy-') as directory:
+            root=Path(directory)
+            def command(*args):
+                return subprocess.run(['git',*args],cwd=root,capture_output=True,text=True)
+            self.assertEqual(command('init','-q','--initial-branch=dev').returncode,0)
+            setup=subprocess.run([sys.executable,str(script),'install','--root',str(root)],capture_output=True,text=True)
+            self.assertEqual(setup.returncode,0,setup.stderr)
+            initial=command('-c','user.name=Policy Fixture','-c','user.email=fixture@example.invalid',
+                            'commit','--allow-empty','-m','Isolated actual Git fixture')
+            self.assertEqual(initial.returncode,0,initial.stderr)
+            before=command('rev-parse','HEAD').stdout.strip()
+            for branch in ['feature/forbidden','fix/forbidden','backup/forbidden','arbitrary','qa','main']:
+                with self.subTest(branch=branch):
+                    result=command('branch',branch)
+                    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)
+                    self.assertEqual(command('show-ref','--verify','refs/heads/'+branch).returncode,128)
+            self.assertEqual(command('rev-parse','HEAD').stdout.strip(),before)
+            self.assertEqual(command('branch','--show-current').stdout.strip(),'dev')
+
     def test_push_cannot_target_another_repository_or_remote(self):
         self.assertEqual(remote_errors('origin','https://github.com/Duy-Huan/PhD-Research-Lab.git'),[])
         self.assertEqual(remote_errors('origin','git@github.com:Duy-Huan/PhD-Research-Lab.git'),[])

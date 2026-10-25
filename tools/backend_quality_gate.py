@@ -237,16 +237,21 @@ def run_gate(
     tee_stream = TeeStream(sys.stderr, log_buffer)
 
     loader = unittest.defaultTestLoader
+    from devtools.verification.layers import load_modules,EmptyTestModule
     if profile == "smoke":
         modules = [m for m in SMOKE_MODULES if (ROOT / "tests" / f"{m}.py").exists()]
-        suite = loader.loadTestsFromNames(modules)
+        suite = load_modules(loader,modules)
     elif profile == "core":
         modules = [m for m in CORE_MODULES if (ROOT / "tests" / f"{m}.py").exists()]
-        suite = loader.loadTestsFromNames(modules)
+        suite = load_modules(loader,modules)
     elif profile == "full":
-        suite = loader.discover(str(ROOT / "tests"), pattern="test_*.py")
+        from devtools.verification.selection import select
+        discovered=select(ROOT,[],'pr')
+        suite=load_modules(loader,discovered['backend_tests'])
+        for name in discovered['blocked_tests']:
+            suite.addTest(EmptyTestModule(name+' (unpackaged test directory)'))
     else:
-        suite = loader.loadTestsFromNames([profile])
+        suite = load_modules(loader,[profile])
 
     from devtools.verification.layers import partition
     suite, deferred_tests = partition(suite, layer)

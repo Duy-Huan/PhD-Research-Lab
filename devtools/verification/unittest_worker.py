@@ -15,7 +15,8 @@ def _execute(output: str, data: str, modules: list[str], mode: str, layer: str) 
     sys.path[:0]=[str(root),str(root/'tests')]
     os.environ.update(PHDLAB_DATA_DIR=data,PHDLAB_QA_OFFLINE='1',JUPYTER_DATA_DIR=data+'/_jupyter')
     from tools.backend_quality_gate import QualityGateTestResult
-    suite=unittest.defaultTestLoader.loadTestsFromNames(modules)
+    from .layers import load_modules
+    suite=load_modules(unittest.defaultTestLoader,modules)
     from devtools.verification.layers import partition
     suite, deferred = partition(suite, layer)
     result=unittest.TextTestRunner(verbosity=2,resultclass=QualityGateTestResult).run(suite)

@@ -1,3 +1,5 @@
+ACTIVE OWNER POLICY (2026-10-25): All source edits, repairs and testcase additions ONLY on the existing dev branch; creating any other development/backup branch is forbidden. Native automatic dev -> qa -> main is explicitly authorized ONLY after every mandatory local/GitHub/software/live/research/AI-UAT gate actually passes. Desired production line/branch coverage100%; >95% was an estimate, coverage stays informational/nonblocking. Every mandatory regression must execute/PASS100%. Original UAT three-failure ledger stays intact; exactly ONE separately authorized Spark X2.5 4B local attempt may run, maximum600seconds/six steps. Do not bypass protection or invent evidence.
+
 # Active CI/CD standard: dev -> qa -> main
 
 Owner-authorized migration in 6.5.7 replaces feature-to-dev PR development. Only three principal remote branches are retained after verified retirement. Preserve local worktrees and unique history.
@@ -7,7 +9,7 @@ Owner-authorized migration in 6.5.7 replaces feature-to-dev PR development. Only
 | Local dev | Before normal push | Full software regression, static validation, frontend build and deterministic 2D/3D browser | Guarded normal push to dev |
 | GitHub dev | push dev | Policy, Python 3.11/3.12 Windows/Linux software regression, frontend types/tests/build, security, browser | Development gate |
 | QA | PR dev -> qa | Development gate + matching-source real live research/provider qualification + AI-UAT | QA gate; trusted native auto-merge may be enabled only after qualification |
-| Main acceptance | PR qa -> main | Same mandatory QA criteria | Owner-controlled protected merge, never auto-main |
+| Main acceptance | PR qa -> main | Same mandatory QA criteria | Owner-authorized native auto-merge only after all mandatory gates pass |
 | Delivery | push main | Qualified QA PR provenance, matching tested tree, build/package/checksum | GitHub Release; PC update remains controlled |
 
 Coverage has no percentage threshold at any stage. Every selected mandatory regression must execute/PASS; reported coverage scope/denominators cannot be hidden. The only deferred dev test IDs are the three declared live-provider tests in devtools/verification/layers.py, explicitly NOT_RUN and required at QA/main. Official SDK offline regressions remain mandatory software tests.

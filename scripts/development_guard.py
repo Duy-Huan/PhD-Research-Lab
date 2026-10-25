@@ -22,6 +22,18 @@ def remote_errors(name: str, url: str) -> list[str]:
         'Push is allowed only to the authorized origin repository']
 
 
+def reference_errors(updates: str) -> list[str]:
+    errors=[]
+    for line in updates.splitlines():
+        fields=line.split()
+        if len(fields)!=3:
+            errors.append('Malformed Git reference transaction');continue
+        _old,new,ref=fields
+        if ref.startswith('refs/heads/') and ref!='refs/heads/dev' and new!='0'*40:
+            errors.append('Only local dev may be created/updated; QA/main promotion belongs to protected GitHub PRs: '+ref)
+    return errors
+
+
 def git(root, *args):
     return subprocess.check_output(['git',*args],cwd=root,text=True).strip()
 
@@ -47,10 +59,11 @@ def push_errors(root: Path, updates: str) -> list[str]:
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action',choices=['install','pre-commit','pre-push','check'])
+    parser.add_argument('action',choices=['install','pre-commit','pre-push','reference-transaction','check'])
     parser.add_argument('--root',type=Path,default=ROOT)
     parser.add_argument('--remote-name',default='')
     parser.add_argument('--remote-url',default='')
+    parser.add_argument('--transaction-phase',choices=['preparing','prepared','committed','aborted'])
     args=parser.parse_args();root=args.root.resolve()
     errors=development_errors(git(root,'branch','--show-current'))
     if args.action=='install' and not errors:
@@ -58,6 +71,10 @@ def main():
         subprocess.run(['git','config','--local','phdlab.verifyPython',sys.executable],cwd=root,check=True)
     elif args.action=='pre-push':
         errors=remote_errors(args.remote_name,args.remote_url)+push_errors(root,sys.stdin.read())
+    elif args.action=='reference-transaction':
+        updates=sys.stdin.read()
+        errors=reference_errors(updates) if args.transaction_phase in ('preparing','prepared') else []
+        if not errors:return 0
     print(json.dumps({'decision':'BLOCKED' if errors else 'PASS','branch':git(root,'branch','--show-current'),'errors':errors}))
     return 1 if errors else 0
 

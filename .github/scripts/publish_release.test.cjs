@@ -10,7 +10,7 @@ function fixture(t){
   const name=`phdlab-1.2.3-${kind}.zip`,bytes=Buffer.from('MOCKED archive bytes '+kind);fs.writeFileSync(path.join(directory,name),bytes);
   return {name,size:bytes.length,sha256:crypto.createHash('sha256').update(bytes).digest('hex')};})};
  fs.writeFileSync(path.join(directory,'manifest.json'),JSON.stringify(manifest));
- const prsFn=()=>{},checksFn=()=>{},assetsFn=()=>{};const s={release:null,tag:null,writes:0,main:sha};
+ const prsFn=()=>{},checksFn=()=>{},assetsFn=()=>{},runsFn=()=>{};const s={release:null,tag:null,writes:0,main:sha};
  const notFound=()=>{const e=Error('Missing');e.status=404;throw e;};
  const github={rest:{repos:{getBranch:async()=>({data:{protected:true,commit:{sha:s.main}}}),listPullRequestsAssociatedWithCommit:prsFn,
   getCommit:async()=>({data:{commit:{tree:{sha:'same-tree'}}}}),
@@ -18,8 +18,9 @@ function fixture(t){
   createRelease:async()=>{s.writes++;s.release={id:1,draft:true,html_url:'https://example.invalid/release'};return {data:s.release};},listReleaseAssets:assetsFn,
   uploadReleaseAsset:async r=>{s.writes++;assets.push({name:r.name,digest:'sha256:'+crypto.createHash('sha256').update(r.data).digest('hex')});return {data:{}};},
   updateRelease:async()=>{s.writes++;s.release={...s.release,draft:false};return {data:s.release};}},
+  actions:{getWorkflow:async()=>({data:{id:5}}),listWorkflowRuns:runsFn},
   checks:{listForRef:checksFn},git:{getRef:async()=>s.tag?{data:{object:{type:'commit',sha:s.tag}}}:notFound()}},
-  paginate:async fn=>fn===prsFn?[{number:9,merged_at:'now',merge_commit_sha:sha,base:{ref:'main'},head:{ref:'qa',sha:head,repo:{full_name:'owner/repo'}}}]:fn===checksFn?['Development gate','QA gate'].map(name=>({name,head_sha:head,app:{id:15368},status:'completed',conclusion:'success'})):assets};
+  paginate:async fn=>fn===prsFn?[{number:9,merged_at:'now',merge_commit_sha:sha,base:{ref:'main'},head:{ref:'qa',sha:head,repo:{full_name:'owner/repo'}}}]:fn===runsFn?[{id:1,workflow_id:5,path:'.github/workflows/quality.yml',event:'pull_request',head_sha:head,head_branch:'qa',head_repository:{full_name:'owner/repo'},status:'completed',conclusion:'success',check_suite_id:7}]:fn===checksFn?['Development gate','QA gate'].map(name=>({name,head_sha:head,app:{id:15368},check_suite:{id:7},status:'completed',conclusion:'success'})):assets};
  return {directory,sha,s,assets,manifest,args:{github,context:{repo:{owner:'owner',repo:'repo'},ref:'refs/heads/main',sha}}};
 }
 test('qualified release uploads validated assets before publishing',async t=>{

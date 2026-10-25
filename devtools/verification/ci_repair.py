@@ -144,11 +144,13 @@ class GitHub:
         if isinstance(result, dict) and result.get('errors'): raise RuntimeError('GitHub GraphQL rejected operation')
         return result
 
-    def pages(self, path: str, field: str) -> list:
+    def pages(self, path: str, field: str | None) -> list:
         result = []
         for page in range(1, 11):
             data = self.request(path + ('&' if '?' in path else '?') + f'per_page=100&page={page}')
-            chunk = data[field]; result.extend(chunk)
+            chunk = data[field] if field is not None else data
+            if not isinstance(chunk,list):raise ValueError('Malformed paginated GitHub response')
+            result.extend(chunk)
             if len(chunk) < 100: return result
         raise ValueError('Pagination bound exceeded; cannot prove complete checks')
 

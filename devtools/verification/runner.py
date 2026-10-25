@@ -24,7 +24,7 @@ def identity(root: Path) -> dict:
     """Hash source, tests, contracts, policy, runner and dependency inputs, including dirty files."""
     paths = subprocess.check_output(['git', 'ls-files', '--cached', '--others', '--exclude-standard', '-z'], cwd=root)
     prefixes = ('backend/', 'frontend/src/', 'frontend/e2e/', 'devtools/', 'scripts/', 'tools/',
-                'tests/', '.github/', '.githooks/', 'docs/qa/contracts/', '.codex/', '.agents/', '.claude/', '.gemini/', 'skills/')
+                'tests/', '.github/', '.githooks/', 'docs/qa/contracts/', '.codex/', '.agents/', '.claude/', '.gemini/', 'skills/', 'agent/')
     exact = {'requirements.txt', 'requirements-dev.txt', 'requirements-ci.lock', 'requirements-uat.in', 'requirements-uat.lock', '.coveragerc', '.gitignore', '.gitattributes',
              'pyproject.toml','pytest.ini','tox.ini','ruff.toml','AGENTS.md',
              'agent/AGENT.md', 'agent/DEVELOPMENT_WORKFLOW.md', 'agent/UAT.md', 'agent/CLI_COMPATIBILITY.md',
@@ -38,7 +38,8 @@ def identity(root: Path) -> dict:
         path = root / name
         generated=name.startswith(('frontend/dist/','frontend/coverage/','frontend/node_modules/',
                                    'output/','artifacts/','qa/live_e2e/runs/','docs/qa/evidence/'))
-        if name and not generated and (name.startswith(prefixes) or name.startswith('frontend/') or name in exact
+        operational = name in ('agent/STATE.md', 'agent/PLAN.md') or name.startswith(('agent/history/', 'agent/repair-ledgers/'))
+        if name and not generated and not operational and (name.startswith(prefixes) or name.startswith('frontend/') or name in exact
                 or path.suffix in ('.py','.sh','.cmd','.bat','.ps1')):
             # Absence is represented by an absent key, regardless of whether deletion is staged.
             if not path.is_file():continue
@@ -118,6 +119,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument('--uat-model', default=uat_defaults['model'])
     parser.add_argument('--uat-steps', type=int, default=uat_defaults['max_steps'])
     parser.add_argument('--uat-deadline', type=int, default=uat_defaults['timeout_s'])
+    parser.add_argument('--uat-owner-authorization',type=Path,help='Explicit single-use owner exception in external trusted Git metadata; never resets prior failures')
     parser.add_argument('--uat-journey',action='append',help='Declared exploratory journey (currently settings-language only)')
     parser.add_argument('--repair-key', help='Stable PR/task identity, never a head SHA')
     parser.add_argument('--repair-status',action='store_true')
@@ -179,7 +181,7 @@ def main(argv: list[str] | None = None) -> int:
         budget=RepairBudget(ROOT/'agent/repair-ledgers/ledger.json',args.repair_key or 'TASK-UAT-LOCAL-ADAPTER')
         if any(j!='settings-language' for j in args.uat_journey or ['settings-language']):
             steps.append({'id':'uat-exploration','status':'BLOCKED','details':'Requested exploratory journey adapter is NOT_IMPLEMENTED; no model was called'})
-        elif not budget.can_repair():
+        elif not budget.can_repair() and not args.uat_owner_authorization:
             steps.append({'id':'uat-exploration','status':'BLOCKED','details':'Three failed repair cycles exhausted; preserve evidence and stop this loop'})
         else:
             npm=shutil.which('npm.cmd' if os.name=='nt' else 'npm') or 'npm'
@@ -189,18 +191,30 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 from .uat import execute as explore
                 folder=out/'uat';folder.mkdir(exist_ok=False)
+                authorized=False
                 try:
-                    uat=explore(folder,model=args.uat_model,steps=args.uat_steps,deadline=args.uat_deadline,source=before['sha256'])
+                    if args.uat_owner_authorization:
+                        adapter=ROOT/'output/playwright/browser-uat-env'/('Scripts/python.exe' if os.name=='nt' else 'bin/python')
+                        if not adapter.is_file():raise ValueError('Prepare the verified optional Browser Use environment before consuming the one owner execution')
+                        from .uat_authorization import consume
+                        permission=consume(ROOT,args.uat_owner_authorization,before['sha256'],head,args.uat_model,args.uat_steps,args.uat_deadline)
+                        authorized=True
+                        (folder/'owner-authorization-receipt.json').write_text(json.dumps(permission,indent=2)+'\n',encoding='utf-8')
+                    uat=explore(folder,model=args.uat_model,steps=args.uat_steps,deadline=args.uat_deadline,source=before['sha256'],owner_limit=authorized)
                 except (OSError,ValueError,RuntimeError,subprocess.SubprocessError) as exc:
                     uat={'decision':'BLOCKED','scope':'Exploratory startup did not complete',
                          'error':type(exc).__name__+': '+str(exc)[:1000]}
                     (folder/'uat-report.json').write_text(json.dumps(uat,indent=2)+'\n',encoding='utf-8')
+                if authorized:
+                    from .uat_authorization import finish
+                    finish(ROOT,uat['decision'])
                 steps.append({'id':'uat-exploration','status':uat['decision'] if uat['decision'] in ('PASS','FAIL') else 'BLOCKED',
                               'details':uat.get('error') or uat.get('reason') or uat['scope']})
         cases.append({'id':'uat.first-time.settings-language','status':steps[-1]['status'],'details':steps[-1]['details']})
     elif not contract_errors and not any(s['status'] == 'BLOCKED' for s in steps):
         execute('protected-files', [sys.executable, 'tools/protect_agent_resources.py', '--base', args.base])
         if args.component == 'all' and args.profile in ('feature', 'pr', 'full', 'release'):
+            execute('test-discovery',[sys.executable,'scripts/discover_tests.py','--out',str(out/'test-inventory.json')])
             execute('workflow-contract-policy', [sys.executable, 'scripts/quality_gate.py', 'policy'])
             execute('workflow-syntax', [sys.executable, 'scripts/check_workflows.py'], timeout=90)
             node = shutil.which('node.exe' if os.name == 'nt' else 'node') or 'node'
@@ -272,7 +286,14 @@ def main(argv: list[str] | None = None) -> int:
             errors = validate_live(args.live_evidence, before['sha256'], head)
             steps.append({'id':'live-qualification', 'status':'BLOCKED' if errors else 'PASS', 'details':errors})
         if args.profile == 'release':
-            steps.append({'id':'human-release-authorization','status':'BLOCKED','details':'Release authorization must be completed through protected GitHub main PR and production approval; a local command cannot grant it'})
+            from .promotion import home,policy_errors
+            try:
+                owner_policy=json.loads((home(ROOT)/'policy.json').read_text(encoding='utf-8'))
+                errors=policy_errors(ROOT,owner_policy)
+            except (OSError,ValueError,TypeError,AttributeError):
+                errors=['Explicit trusted owner policy for native main promotion is not registered']
+            steps.append({'id':'owner-release-policy','status':'BLOCKED' if errors else 'PASS',
+                          'details':errors or ['Owner-authorized automatic native promotion; GitHub required checks and provenance remain mandatory']})
     after = identity(ROOT)
     if before != after: steps.append({'id':'stable-source','status':'BLOCKED','details':'Source inputs changed during verification; rerun against a stable checkout'})
     if any(c.get('status') == 'NOT_RUN' for c in cases):

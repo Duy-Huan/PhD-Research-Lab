@@ -9,6 +9,22 @@ LIVE_TESTS = frozenset({
 })
 
 
+class EmptyTestModule(unittest.TestCase):
+    def __init__(self,module):
+        super().__init__();self.module=module
+    def id(self):return 'discovery.empty.'+self.module
+    def runTest(self):
+        self.fail('No executable unittest cases in '+self.module+'; use unittest.TestCase or explicitly register its runner')
+
+
+def load_modules(loader: unittest.TestLoader,modules: list[str]) -> unittest.TestSuite:
+    suites=[]
+    for module in modules:
+        suite=loader.loadTestsFromName(module)
+        suites.append(suite if suite.countTestCases() else EmptyTestModule(module))
+    return unittest.TestSuite(suites)
+
+
 def live_ids() -> set[str]:
     return set(LIVE_TESTS)
 

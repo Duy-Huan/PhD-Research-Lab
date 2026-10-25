@@ -24,8 +24,8 @@
   ],
   "nonfunctional": [
     "Preserve user work, history, all skills/ and agent/ files",
-    "Never auto-main or bypass protected QA",
-    "At most three persistent repair invocations; no retries for exhausted UAT",
+    "Only owner-authorized qualified native forward auto-merge; never bypass protected QA",
+    "At most three persistent repair invocations; only the separately owner-granted single600second/six-step Spark UAT exception may exceed the old exhausted UAT ledger",
     "Bound archive download/inventory; no arbitrary CLI/log instruction execution"
   ],
   "inputs": [

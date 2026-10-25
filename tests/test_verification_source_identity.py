@@ -37,5 +37,22 @@ class SourceIdentity(unittest.TestCase):
                 path=root/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b'generated')
             self.assertEqual(before,identity(root)['sha256'])
 
+    def test_new_agent_policies_invalidate_evidence_but_operational_records_do_not(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);self.make_repo(root)
+            policy=root/'agent/future-capability-policy.md'
+            policy.parent.mkdir(parents=True);policy.write_text('Require independent evidence\n',encoding='utf-8')
+            initial=identity(root)['sha256']
+            self.assertIn('agent/future-capability-policy.md',identity(root)['files'])
+            policy.write_text('Require independent evidence and rollback\n',encoding='utf-8')
+            changed=identity(root)['sha256'];self.assertNotEqual(initial,changed)
+            for name in ['agent/STATE.md','agent/PLAN.md','agent/history/prior-policy.md',
+                         'agent/repair-ledgers/ledger.json']:
+                path=root/name;path.parent.mkdir(parents=True,exist_ok=True)
+                path.write_text('Operational progress, not execution policy\n',encoding='utf-8')
+            self.assertEqual(changed,identity(root)['sha256'])
+            subprocess.run(['git','add','--','.'],cwd=root,check=True,capture_output=True)
+            self.assertEqual(changed,identity(root)['sha256'])
+
 
 if __name__=='__main__':unittest.main()

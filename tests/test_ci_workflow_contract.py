@@ -30,6 +30,10 @@ class WorkflowContract(unittest.TestCase):
         self.assertNotIn('release-approval',workflow['jobs'])
         self.assertEqual(workflow['jobs']['development-gate']['if'],'always()')
 
+    def test_dev_push_cannot_emit_a_skipped_required_qa_context(self):
+        job=self.load('quality.yml')['jobs']['qa-gate']
+        self.assertEqual(job['name'], "${{ github.event_name == 'pull_request' && 'QA gate' || 'QA not requested on dev push' }}")
+
     def test_release_runs_only_for_main_and_uses_exact_provenance(self):
         workflow=self.load('release.yml');triggers=workflow.get('on',workflow.get(True))
         self.assertEqual(triggers['push']['branches'],['main'])

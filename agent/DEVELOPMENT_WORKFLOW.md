@@ -1,3 +1,5 @@
+ACTIVE OWNER POLICY (2026-10-25): All source edits, repairs and testcase additions ONLY on the existing dev branch; creating any other development/backup branch is forbidden. Native automatic dev -> qa -> main is explicitly authorized ONLY after every mandatory local/GitHub/software/live/research/AI-UAT gate actually passes. Desired production line/branch coverage100%; >95% was an estimate, coverage stays informational/nonblocking. Every mandatory regression must execute/PASS100%. Original UAT three-failure ledger stays intact; exactly ONE separately authorized Spark X2.5 4B local attempt may run, maximum600seconds/six steps. Do not bypass protection or invent evidence.
+
 # Mandatory development workflow
 
 1. Read AGENTS.md, AGENT.md, current STATE/PLAN, ZERO_FAKE_TESTING_POLICY and DEV_QA_MAIN.md. Owner's latest three-branch policy takes precedence over historical handoffs.
@@ -8,5 +10,5 @@
 6. Install the development guard, commit scoped changes on dev and push normally to origin/dev. Hook requires clean tree and current hash-bound full software verification. Never use --no-verify, force push or borrow another source's PASS report.
 7. Observe GitHub's fresh exact-dev-SHA Quality Gates run. If failed, retrieve only relevant logs/artifacts, classify/deduplicate and fix on dev. The authorized supervisor can repair a registered dev-to-qa PR, but cannot waive a failed dev-push local gate.
 8. Open/update dev -> qa PR with contract and evidence. Independent CI repeats software regression and requires real provider/research/AI-UAT qualification. A missing service/evidence/unsupported journey blocks QA. Native auto-merge eligibility is limited to trusted current-head dev -> qa with all required checks passed; no admin bypass.
-9. After genuine QA acceptance, open qa -> main PR. Main merge is owner-controlled and never automatic. Separate main-push CD checks qualified QA provenance, packages/checksums and publishes. PC installation requires user-controlled backup/rollback.
+9. After genuine QA acceptance, open qa -> main PR. Native GitHub automatic main merge is explicitly owner-authorized only after every mandatory current-source gate passes. Separate main-push CD checks qualified QA provenance, packages/checksums and publishes. PC installation requires user-controlled backup/rollback.
 10. Update evidence, known defects, synchronized version and state. Same-suite comparisons require identical test bundle/environment/policy and fixed denominators; old-policy metrics stay historical. No zero-bug or unexecuted scientific claims.

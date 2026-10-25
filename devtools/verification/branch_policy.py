@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import subprocess
 
-LOCAL_STEPS = {'contract','protected-files','workflow-contract-policy','workflow-syntax',
+LOCAL_STEPS = {'contract','protected-files','test-discovery','workflow-contract-policy','workflow-syntax',
                'github-policy-tests','backend','frontend-types','frontend-tests','frontend-build','deterministic-browser'}
 
 
