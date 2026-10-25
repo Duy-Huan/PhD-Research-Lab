@@ -46,5 +46,21 @@
     "path": "skills/open-source",
     "url": "https://github.com/browser-use/browser-use/tree/3df5806a0d097a1546d92c49bcf1b28c9972c3bd/skills/open-source",
     "license_file": "browser-use-open-source/UPSTREAM_LICENSE"
+  },
+  {
+    "name": "test-gap-audit",
+    "repository": "github/awesome-copilot",
+    "path": "skills/test-gap-audit",
+    "revision": "d85f762d6e521abf5fe16703946e9b38adc42da7",
+    "license_file": "test-gap-audit/UPSTREAM_LICENSE",
+    "url": "https://github.com/github/awesome-copilot/tree/d85f762d6e521abf5fe16703946e9b38adc42da7/skills/test-gap-audit"
+  },
+  {
+    "name": "web-design-reviewer",
+    "repository": "github/awesome-copilot",
+    "path": "skills/web-design-reviewer",
+    "revision": "d85f762d6e521abf5fe16703946e9b38adc42da7",
+    "license_file": "web-design-reviewer/UPSTREAM_LICENSE",
+    "url": "https://github.com/github/awesome-copilot/tree/d85f762d6e521abf5fe16703946e9b38adc42da7/skills/web-design-reviewer"
   }
 ]

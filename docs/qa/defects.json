@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-25",
+  "baseline_head": "25d0a6478e517bcc252569b774d05925a67d8f8e",
+  "source_sha256": "d911501d99f67b32e66cd3cb9574e85edef2b9b4b7e767eac0a867aa77db807d",
+  "mode": "REAL_LOCAL",
+  "confirmed_defects": [
+    {
+      "id": "BUG-UI-001",
+      "module": "frontend/src/shell/AppShell.tsx",
+      "severity": "P1",
+      "status": "CONFIRMED",
+      "repair_status": "RED regression running on fix/ui-source-baseline; not merged",
+      "reproduction_steps": [
+        "375x900 viewport",
+        "Open sidebar",
+        "System Settings",
+        "Try Back to Workspace without dismissing sidebar"
+      ],
+      "expected": "Mobile navigation dismisses and Settings controls are actionable",
+      "actual": "Sidebar stays open and intercepts Back to Workspace pointer events",
+      "failure_evidence": "evidence/stabilization-2026-10-25/mobile-settings-repro/reproduction.json",
+      "suspected_root_cause": "Mobile AppShell effect closes navigation only when drawerKind is truthy, although Settings uses mainView",
+      "regression_test_id": "UI-MOBILE-SETTINGS-001",
+      "release_blocking": true
+    },
+    {
+      "id": "BUG-UI-002",
+      "module": "frontend/src/shell/Header.tsx",
+      "severity": "P2",
+      "status": "CONFIRMED",
+      "repair_status": "RED regression running on fix/ui-source-baseline; not merged",
+      "reproduction_steps": [
+        "Open Workspace or Settings",
+        "Run axe-core WCAG2.2 AA tags",
+        "Inspect language, scale and tools-panel controls"
+      ],
+      "expected": "Accessible name includes displayed text and state",
+      "actual": "EN, 100% and Tools panel do not match their aria-label values",
+      "failure_evidence": "evidence/stabilization-2026-10-25/ui-baseline-3/ui-baseline.json",
+      "suspected_root_cause": "Static aria-label overrides visible current-language/scale/panel text",
+      "regression_test_id": "UI-ACCESSIBLE-NAMES-001",
+      "release_blocking": true
+    }
+  ],
+  "qualification_gaps": [
+    "Production coverage below 100%",
+    "Mandatory skips",
+    "Exhausted required AI-UAT repair budget",
+    "Trusted matching-source live producer and all-provider/research qualification missing",
+    "Independent review and main approval pending"
+  ],
+  "limitations": [
+    "Not all inventoried components were deeply reviewed",
+    "No assertion that undiscovered P0/P1 defects do not exist",
+    "No mock fixture is counted as a product defect"
+  ],
+  "observations": [
+    {
+      "id": "OBS-PERF-001",
+      "status": "UNCONFIRMED",
+      "module": "backend/memory/compiler.py",
+      "test_id": "memory_eval.test_golden.GoldenTasks.test_latency_budget",
+      "actual_compile_ms": 318.167,
+      "budget_ms": 300,
+      "evidence": "evidence/stabilization-2026-10-25/full-backend-baseline.json",
+      "next_action": "Reproduce under controlled host load and unchanged assertions; classify instrumentation/environment versus product cause",
+      "isolated_plain_compile_ms": 139.256,
+      "isolated_instrumented_compile_ms": 288.633,
+      "reproduction_status": "NOT_REPRODUCED in two isolated four-case suites; original full failure retained",
+      "repair_status": "NO_CODE_CHANGE; cause not fully established"
+    }
+  ]
+}
