@@ -103,7 +103,28 @@ def prepare(provider: str, login: bool = False, *, session_id: str = '', profile
             'context_sha256': shared['sha256'], 'isolation': iso}
 
 
-def run(plan_path: Path, *, interactive: bool = True, command: list[str] | None = None) -> int:
+def cleanup_owned_runtime(owner: str) -> None:
+    """Idempotently release one invocation, including when its wrapper was killed."""
+    if not re.fullmatch(r'[a-f0-9]{32}', owner or ''):
+        raise ValueError('Invalid CLI runtime owner')
+    label = 'label=phdlab.cli=' + owner
+    volume = 'phdlab-cli-ipc-' + owner
+    containers = docker('ps', '-aq', '--filter', label, timeout=5).splitlines()
+    if len(containers) > 2:
+        raise W.WorkspaceError('Unexpected owned CLI runtime resource count')
+    for container in containers:
+        if not re.fullmatch('[a-f0-9]{12,64}', container):
+            raise W.WorkspaceError('Unexpected owned container identity')
+        subprocess.run(['docker', 'rm', '-f', container], capture_output=True, timeout=10, check=False)
+    subprocess.run(['docker', 'volume', 'rm', volume], capture_output=True, timeout=10, check=False)
+    remaining = docker('ps', '-aq', '--filter', label, timeout=5)
+    volumes = docker('volume', 'ls', '-q', '--filter', 'name=^' + volume + '$', timeout=5)
+    if remaining or volumes:
+        raise W.WorkspaceError('Owned CLI runtime cleanup did not complete')
+
+
+def run(plan_path: Path, *, interactive: bool = True, command: list[str] | None = None,
+        runtime_owner: str | None = None) -> int:
     """Execute a server-authored plan; cleanup only resources this invocation created."""
     plan = json.loads(plan_path.read_text('utf-8'))
     project = Path(plan['project_root']).resolve()
@@ -115,7 +136,9 @@ def run(plan_path: Path, *, interactive: bool = True, command: list[str] | None 
             raise W.WorkspaceError('Invalid container mount')
     if plan['provider'] not in RUNTIMES or plan['domains'] != RUNTIMES[plan['provider']][2]:
         raise W.WorkspaceError('Runtime/domain policy mismatch')
-    suffix = uuid.uuid4().hex
+    suffix = runtime_owner if runtime_owner is not None else uuid.uuid4().hex
+    if not re.fullmatch(r'[a-f0-9]{32}', suffix):
+        raise W.WorkspaceError('Invalid CLI runtime owner')
     volume = 'phdlab-cli-ipc-' + suffix
     proxy = ''
     docker('volume', 'create', '--label', 'phdlab.cli=' + suffix, volume)
@@ -158,8 +181,4 @@ def run(plan_path: Path, *, interactive: bool = True, command: list[str] | None 
                 (plan_path.parent / 'egress-proxy.log').write_text(logs.stdout + logs.stderr, 'utf-8')
             except (OSError, subprocess.SubprocessError):
                 pass
-        owned = docker('ps', '-aq', '--filter', 'label=phdlab.cli=' + suffix).splitlines()
-        for container in owned:
-            if re.fullmatch('[a-f0-9]{12,64}', container):
-                subprocess.run(['docker', 'rm', '-f', container], capture_output=True, timeout=20, check=False)
-        subprocess.run(['docker', 'volume', 'rm', volume], capture_output=True, timeout=20, check=False)
+        cleanup_owned_runtime(suffix)

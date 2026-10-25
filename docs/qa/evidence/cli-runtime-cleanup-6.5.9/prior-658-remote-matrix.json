@@ -1,0 +1,216 @@
+{
+  "head_sha": "b3080ab0f89715b207c7e2004d84968954eef5e5",
+  "run": {
+    "id": 40218073963,
+    "status": "completed",
+    "conclusion": "success",
+    "event": "push",
+    "html_url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40218073963"
+  },
+  "jobs": [
+    {
+      "id": 121243571955,
+      "name": "Real offline browser smoke",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121243572086,
+      "name": "Backend (ubuntu-latest, Python 3.12)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121243572105,
+      "name": "Frontend types, whole-source coverage and build",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121243572141,
+      "name": "Dependency and high-confidence security checks",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121243572178,
+      "name": "Backend (ubuntu-latest, Python 3.11)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121243572181,
+      "name": "Backend (windows-latest, Python 3.12)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121243572204,
+      "name": "Contract and workflow policy",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121243572222,
+      "name": "Backend (windows-latest, Python 3.11)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121243572751,
+      "name": "Risk-triggered verified AI-UAT evidence",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 121243605423,
+      "name": "Matching-source live research qualification",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 121247436665,
+      "name": "Development gate",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121247484508,
+      "name": "github.event_name == 'pull_request' && 'QA gate' || 'QA not requested on dev push'",
+      "status": "completed",
+      "conclusion": "skipped"
+    }
+  ],
+  "matrix_reports": [
+    {
+      "artifact": "backend-ubuntu-latest-3.11",
+      "summary": {
+        "total_run": 964,
+        "passed": 964,
+        "failures": 0,
+        "errors": 0,
+        "failure_events": 0,
+        "error_events": 0,
+        "skipped": 0,
+        "was_successful": true,
+        "overall_decision": "CONDITIONAL"
+      },
+      "coverage": {
+        "percent_covered": 87.3,
+        "covered_lines": 23771,
+        "num_statements": 26537,
+        "covered_branches": 7087,
+        "num_branches": 8810
+      },
+      "source_sha256": "6e6167c0204541d29d2f48b9529d860480a4fd4a0336ec08bdfe6875b9eae2f8",
+      "decision": "PASS",
+      "counts": {
+        "PASS": 964,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "NOT_RUN": 0,
+        "BLOCKED": 0,
+        "UNVERIFIED": 0
+      }
+    },
+    {
+      "artifact": "backend-ubuntu-latest-3.12",
+      "summary": {
+        "total_run": 964,
+        "passed": 964,
+        "failures": 0,
+        "errors": 0,
+        "failure_events": 0,
+        "error_events": 0,
+        "skipped": 0,
+        "was_successful": true,
+        "overall_decision": "CONDITIONAL"
+      },
+      "coverage": {
+        "percent_covered": 87.37,
+        "covered_lines": 23793,
+        "num_statements": 26537,
+        "covered_branches": 7089,
+        "num_branches": 8810
+      },
+      "source_sha256": "6e6167c0204541d29d2f48b9529d860480a4fd4a0336ec08bdfe6875b9eae2f8",
+      "decision": "PASS",
+      "counts": {
+        "PASS": 964,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "NOT_RUN": 0,
+        "BLOCKED": 0,
+        "UNVERIFIED": 0
+      }
+    },
+    {
+      "artifact": "backend-windows-latest-3.11",
+      "summary": {
+        "total_run": 964,
+        "passed": 964,
+        "failures": 0,
+        "errors": 0,
+        "failure_events": 0,
+        "error_events": 0,
+        "skipped": 0,
+        "was_successful": true,
+        "overall_decision": "CONDITIONAL"
+      },
+      "coverage": {
+        "percent_covered": 87.63,
+        "covered_lines": 23849,
+        "num_statements": 26537,
+        "covered_branches": 7125,
+        "num_branches": 8810
+      },
+      "source_sha256": "504a99fac7d3602d4d5bc054cf4a81d9dd3c7dbd0aae1a3634a47d46a09e1774",
+      "decision": "PASS",
+      "counts": {
+        "PASS": 964,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "NOT_RUN": 0,
+        "BLOCKED": 0,
+        "UNVERIFIED": 0
+      }
+    },
+    {
+      "artifact": "backend-windows-latest-3.12",
+      "summary": {
+        "total_run": 964,
+        "passed": 964,
+        "failures": 0,
+        "errors": 0,
+        "failure_events": 0,
+        "error_events": 0,
+        "skipped": 0,
+        "was_successful": true,
+        "overall_decision": "CONDITIONAL"
+      },
+      "coverage": {
+        "percent_covered": 87.71,
+        "covered_lines": 23873,
+        "num_statements": 26537,
+        "covered_branches": 7130,
+        "num_branches": 8810
+      },
+      "source_sha256": "504a99fac7d3602d4d5bc054cf4a81d9dd3c7dbd0aae1a3634a47d46a09e1774",
+      "decision": "PASS",
+      "counts": {
+        "PASS": 964,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "NOT_RUN": 0,
+        "BLOCKED": 0,
+        "UNVERIFIED": 0
+      }
+    }
+  ],
+  "exact_QA_gate_context_emitted": false,
+  "scope": "Published6.5.8 independent development regression; current6.5.9 dirty repair is NOT qualified by this run"
+}

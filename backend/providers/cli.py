@@ -235,7 +235,17 @@ class CLIConnector(ProviderConnector):
         plan['command'] = command
         plan_path.write_text(json.dumps(plan, indent=2), 'utf-8')
         from backend.core.config import ROOT
-        return [sys.executable, str(ROOT / 'tools/run_cli_container.py'), str(plan_path), '--headless']
+        owner = secrets.token_hex(16)
+        context['_runtime_owner'] = owner
+        return [sys.executable, str(ROOT / 'tools/run_cli_container.py'), str(plan_path), '--headless',
+                '--runtime-owner', owner]
+
+    def _release_runtime(self, context: dict) -> None:
+        owner = context.get('_runtime_owner')
+        if owner:
+            from backend.providers.isolated_cli import cleanup_owned_runtime
+            cleanup_owned_runtime(owner)
+            context.pop('_runtime_owner', None)
 
     def stream_message(self, message: str, context: dict):
         h = self.health()
@@ -349,6 +359,12 @@ class CLIConnector(ProviderConnector):
             except subprocess.TimeoutExpired:
                 if proc.poll() is None:
                     kill_tree(proc)
+            try:
+                self._release_runtime(context)
+            except (OSError, ValueError, subprocess.SubprocessError) as exc:
+                yield E.ev('error', message=f'{self.label} runtime cleanup failed: {type(exc).__name__}', state='ERROR')
+                yield E.ev('request_completed', provider=self.provider_id, request_id=rid, exit_code=-1)
+                return
             if getattr(proc, "_phd_timeout", False):
                 yield E.ev("error", message=f"{self.label} did not finish within {int(limit)} s — stopped (time limit)",
                            state="ERROR")
@@ -379,6 +395,12 @@ class CLIConnector(ProviderConnector):
                 pass
             with _lock:
                 _procs.pop(rid, None)
+            try:
+                self._release_runtime(context)
+            except (OSError, ValueError, subprocess.SubprocessError) as exc:
+                # Generator close/cancel cannot yield another event; retain the
+                # failure for connection diagnostics instead of claiming cleanup.
+                _last_error[self.provider_id] = ('ERROR', 'Runtime cleanup failed: ' + type(exc).__name__)
             for f in (proc.stdin, proc.stdout, proc.stderr):
                 try:
                     f.close()

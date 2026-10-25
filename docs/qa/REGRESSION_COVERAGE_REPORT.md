@@ -1,25 +1,16 @@
-> Current6.5.8 checkpoint: [agent-native core and actual verification](AGENT_NATIVE_CORE_CHECKPOINT_6.5.8.md). Local software1189/1189PASS,0selected skips/errors; coverage remains below target and informational. Learning/L3 and exact-current-source QA/main live/research/AI-UAT are not qualified. Figures and policies below are historical; the active owner rules are in agent/AGENT.md.
+# Regression and coverage ? 6.5.9
 
-> Current6.5.7 owner-policy follow-up: [dev/QA/main report](DEV_QA_MAIN_6.5.7.md). Full local software1127/1127PASS,0selected skips/errors; coverage informational. Current-source QA live/research/AI-UAT remains BLOCKED, no main promotion/release. Earlier6.5.6 figures and issues below are historical, not current release certification.
+Local snapshot before6.5.9 publication. Source `568d68f5c218f4ccdfa941de160621e79e5a6794309ffaaf14b68d179e76b3c3`, stable. Baseline HEADb3080ab0f89715b207c7e2004d84968954eef5e5. Actual publication and independent CI must be matched by exact latest GitHub HEAD; durable remote receipts are in shared.git/ci-observations/6.5.9-dev/. This local report does not presume a future GitHub result.
 
-# Regression and production coverage:6.5.6
+Mandatory selected software regression1198/1198PASS. Source coverage is informational; desired100% line/branch and intermediate>95% are not achieved.
 
-Same-suite policy, environment and source denominators: [measured comparison](MAIN_CANDIDATE_COMPARISON.md). No test/exclusion/threshold was weakened. Raw PASS counts from different source capabilities do not rank branches.
+| Production scope | Covered / total | Measured |
+|---|---|---|
+| Backend lines |23949/26570 |90.14% |
+| Backend branches |7151/8820 |81.08% |
+| Backend combined |Measured by coverage.py |87.88% |
+| Frontend lines |2521/3821 |65.97% |
+| Frontend branches |2679/4126 |64.92% |
+| Frontend functions |754/1467 |51.39% |
 
-| Production metric | Main | Candidate |
-|---|---:|---:|
-| Backend lines |21808/24306|23833/26528|
-| Backend branches |6649/8132|7120/8808|
-| Backend combined coverage |87.73%|87.60%|
-| Frontend lines |UNAVAILABLE: collection errors|2445/3820=64.00%|
-| Frontend branches |UNAVAILABLE|2611/4125=63.29%|
-| Frontend functions |UNAVAILABLE|733/1467=49.96%|
-| Frontend statements |UNAVAILABLE|2574/4117=62.52%|
-
-Backend and frontend measures are separate. Main's missing frontend measurement is not0% and cannot be numerically ranked. Changed production denominators explain why combined coverage is not a direct correctness ranking.
-
-Candidate gaps:2695backend lines/1688branches,1375frontend lines/1514branches,734frontend functions and1543statements remain uncovered. [Machine-readable gap priority](COVERAGE_GAPS_6.5.6.json) names current files, including API research/system, CLI repl, agent runs/missions. Add meaningful behavior/failure assertions; never execute unasserted paths simply to inflate a number.
-
-Permanent regression additions retain the delayed metrics-publication oracle, exact release executable permissions, CI install ordering/fail accounting, context completeness, CLI/provider isolation, source evidence identity and local repair trust/state. UI-3D-LOCALE-001 remains NOT_IMPLEMENTED; the actual screenshot exposes why27browser PASS does not cover every localization requirement. No controlled human-approved visual baseline or hardware GPU qualification is claimed.
-
-Eight selected mandatory skips and separate legacy/live inventories remain unqualified. PR/full gates preserve100%/complete-case enforcement; local feature checks are development feedback, not release acceptance. Full/live/AI-UAT gates must all pass before protected promotion.
+Missing lines/branches are coverage gaps, not automatically bugs, skipped cases or PASS. Raw per-file missing-line/branch data: output/playwright/hermes-core-audit/runtime-cleanup-659-final/backend/coverage.json and frontend/coverage/. Prioritize behavioral/failure cases in CLI, system APIs, missions/runs, research execution and other uncovered modules; never exclude active code simply to raise the number. Historical failed cases and infrastructure reasons are retained in the checkpoint/defect registry. [Measured execution](AGENT_NATIVE_CORE_CHECKPOINT_6.5.9.md).

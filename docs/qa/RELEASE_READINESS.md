@@ -1,23 +1,11 @@
-> Current6.5.8 checkpoint: [agent-native core and actual verification](AGENT_NATIVE_CORE_CHECKPOINT_6.5.8.md). Local software1189/1189PASS,0selected skips/errors; coverage remains below target and informational. Learning/L3 and exact-current-source QA/main live/research/AI-UAT are not qualified. Figures and policies below are historical; the active owner rules are in agent/AGENT.md.
+# Release readiness ? 6.5.9
 
-> Current6.5.7 owner-policy follow-up: [dev/QA/main report](DEV_QA_MAIN_6.5.7.md). Full local software1127/1127PASS,0selected skips/errors; coverage informational. Current-source QA live/research/AI-UAT remains BLOCKED, no main promotion/release. Earlier6.5.6 figures and issues below are historical, not current release certification.
+**NO-GO / QA and main BLOCKED.**
 
-# Release readiness:6.5.6
+Local snapshot before6.5.9 publication. Source `568d68f5c218f4ccdfa941de160621e79e5a6794309ffaaf14b68d179e76b3c3`, stable. Baseline HEADb3080ab0f89715b207c7e2004d84968954eef5e5. Actual publication and independent CI must be matched by exact latest GitHub HEAD; durable remote receipts are in shared.git/ci-observations/6.5.9-dev/. This local report does not presume a future GitHub result.
 
-**NO-GO. QA100%, dev promotion, qa-to-main PR, native auto-merge acceptance and release are not completed.**
+The complete mandatory local software gate passed1198/1198 with no skips/errors. Actual Docker resource isolation was exercised. Coverage remains below the100%target and informational. This does not complete actual research/provider/AI-UAT qualification or the new architecture scope.
 
-Candidate passes the final local feature scope (1102PASS/8SKIP) and10fixed critical software groups. It still has OPEN P2 BUG-3D-LOCALE-001, incomplete production coverage, mandatory skips, exhausted/incomplete AI-UAT and unavailable matching-source all-provider/research/experiment-to-paper evidence. No approved baseline exceptions exist. This is not a bug-free or IEEE certification.
+Required exploratory UAT adapters remain NOT_IMPLEMENTED, matching-source full live evidence is incomplete, skill revision/evaluation/activation/rollback and one-paper migration/provider retirement are pending. ScopedL3/L4 are not demonstrated. Exactly one unused bounded Spark UAT allowance remains; earlier failures are retained. Never convert absent qualification into PASS.
 
-main/dev/qa remain6725975261fe6a4d8a5cb3e10208e31c3e24f0e2; the owner explicitly rejects that preview as trusted production. [PR11](https://github.com/Duy-Huan/PhD-Research-Lab/pull/11) contains the integrated source and new standard. PR7/9 were closed after exact ancestry proof; duplicate Dependabot PR8 was closed after matching its full intent. Branches/worktrees/history remain preserved. Two old workflow registrations are disabled; protected-main files/CD activation await qualified adoption. Main's required pre-merge context is now strictQA gate, with other protections unchanged.
-
-Hosted run40171931531 completedFAIL before6.5.6 repairs. Post-push CI must be read against the exact latest commit; no future result is presumed. Repo auto-merge remains quarantined. The actual PR10 exercise proves real Codex invocation, fixture repair, supervisor push and fresh CI; required-PASS/native dev merge stages remain BLOCKED and have no mergeSHA.
-
-Next priorities:
-
-1. Reproduce EN/VI3D localization with a dedicated behavioral regression; repair and verify without redesign.
-2. Close measured backend/frontend coverage gaps using behavior and failure tests; keep all mandatory assertions/exclusions.
-3. Establish an authorized trusted live producer and service prerequisites. AI-UAT task budget exhausted3 must not be reset or evaded; resolve the explicit authorization/infrastructure blocker before another repair phase.
-4. Pass exact-head mandatory independent CI, then eligible native dev merge. Only qualified dev may promote to qa for full regression/AI-UAT.
-5. Only after QA qualifies, create qa-to-main PR. Never auto-merge qa/main or bypass protection. Main-push CD then verifies QA provenance, packages checksummed assets and publishes; PC update remains controlled with backup/rollback.
-
-See [comparison](MAIN_CANDIDATE_COMPARISON.md), [defects](BUG_INVENTORY.md), [coverage](REGRESSION_COVERAGE_REPORT.md) and [CI recovery](CI_ROOT_CAUSE_REPORT.md). No protected merge, tag, release or deployment has occurred.
+Only eligible protected native dev->qa->main promotion is owner-authorized after every genuine gate passes. No force/admin bypass, new branch, automatic unqualified main merge, tag or release. [Full local checkpoint and residual risks](AGENT_NATIVE_CORE_CHECKPOINT_6.5.9.md).

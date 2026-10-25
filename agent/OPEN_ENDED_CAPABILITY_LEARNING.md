@@ -19,6 +19,8 @@ Current status: DESIGN_RECORDED, runtime learning qualification NOT_RUN. Do not 
 
 Use stored events/artifacts for phase outcomes rather than creating six new services or workflow engines. The cycle may revisit/reject stages as evidence changes. It must not force a conversational answer into six headings or turn every ordinary question into a research job.
 
+Evaluate resource cleanup as well as task output. A successful model reply or passing smoke assertion does not prove that owned processes, proxy containers, model allocations or temporary execution resources were released. Retain ownership records and failures; cleanup must not affect another concurrent request or destroy research evidence.
+
 ## Trust, activation and source boundaries
 
 - Runtime skills belong to the scoped paper project and its existing data stores. Repository skills/ contains reviewed development guidance and must not be overwritten/deleted by learning agents. Keep source evidence and candidate instructions separate from trusted system instructions.
