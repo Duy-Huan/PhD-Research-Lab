@@ -1,34 +1,42 @@
-﻿[
-    {
-        "name":  "playwright",
-        "repository":  "openai/skills",
-        "path":  "skills/.curated/playwright",
-        "license_file":  "playwright/UPSTREAM_LICENSE",
-        "revision":  "49f948faa9258a0c61caceaf225e179651397431",
-        "url":  "https://github.com/openai/skills/tree/49f948faa9258a0c61caceaf225e179651397431/skills/.curated/playwright"
-    },
-    {
-        "name":  "gh-fix-ci",
-        "repository":  "openai/skills",
-        "path":  "skills/.curated/gh-fix-ci",
-        "license_file":  "gh-fix-ci/UPSTREAM_LICENSE",
-        "revision":  "49f948faa9258a0c61caceaf225e179651397431",
-        "url":  "https://github.com/openai/skills/tree/49f948faa9258a0c61caceaf225e179651397431/skills/.curated/gh-fix-ci"
-    },
-    {
-        "name":  "security-best-practices",
-        "repository":  "openai/skills",
-        "path":  "skills/.curated/security-best-practices",
-        "license_file":  "security-best-practices/UPSTREAM_LICENSE",
-        "revision":  "49f948faa9258a0c61caceaf225e179651397431",
-        "url":  "https://github.com/openai/skills/tree/49f948faa9258a0c61caceaf225e179651397431/skills/.curated/security-best-practices"
-    },
-    {
-        "name":  "webapp-testing",
-        "repository":  "anthropics/skills",
-        "path":  "skills/webapp-testing",
-        "license_file":  "webapp-testing/UPSTREAM_LICENSE",
-        "revision":  "dbd4588f9e1033efb41dad4bef2f7947c8993d44",
-        "url":  "https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/webapp-testing"
-    }
+[
+  {
+    "name": "playwright",
+    "repository": "openai/skills",
+    "path": "skills/.curated/playwright",
+    "license_file": "playwright/UPSTREAM_LICENSE",
+    "revision": "49f948faa9258a0c61caceaf225e179651397431",
+    "url": "https://github.com/openai/skills/tree/49f948faa9258a0c61caceaf225e179651397431/skills/.curated/playwright"
+  },
+  {
+    "name": "gh-fix-ci",
+    "repository": "openai/skills",
+    "path": "skills/.curated/gh-fix-ci",
+    "license_file": "gh-fix-ci/UPSTREAM_LICENSE",
+    "revision": "49f948faa9258a0c61caceaf225e179651397431",
+    "url": "https://github.com/openai/skills/tree/49f948faa9258a0c61caceaf225e179651397431/skills/.curated/gh-fix-ci"
+  },
+  {
+    "name": "security-best-practices",
+    "repository": "openai/skills",
+    "path": "skills/.curated/security-best-practices",
+    "license_file": "security-best-practices/UPSTREAM_LICENSE",
+    "revision": "49f948faa9258a0c61caceaf225e179651397431",
+    "url": "https://github.com/openai/skills/tree/49f948faa9258a0c61caceaf225e179651397431/skills/.curated/security-best-practices"
+  },
+  {
+    "name": "webapp-testing",
+    "repository": "anthropics/skills",
+    "path": "skills/webapp-testing",
+    "license_file": "webapp-testing/UPSTREAM_LICENSE",
+    "revision": "dbd4588f9e1033efb41dad4bef2f7947c8993d44",
+    "url": "https://github.com/anthropics/skills/tree/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/webapp-testing"
+  },
+  {
+    "name": "github-actions-hardening",
+    "repository": "github/awesome-copilot",
+    "revision": "d85f762d6e521abf5fe16703946e9b38adc42da7",
+    "path": "skills/github-actions-hardening",
+    "url": "https://github.com/github/awesome-copilot/tree/d85f762d6e521abf5fe16703946e9b38adc42da7/skills/github-actions-hardening",
+    "license_file": "github-actions-hardening/UPSTREAM_LICENSE"
+  }
 ]

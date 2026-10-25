@@ -1,0 +1,289 @@
+[
+  {
+    "provider": "codex",
+    "model": "vendor-default",
+    "real_cli": true,
+    "health": {
+      "provider": "codex",
+      "label": "ChatGPT (OpenAI Codex CLI)",
+      "path": "Codex CLI signed in with a ChatGPT plan (`codex login`)",
+      "billing": "subscription sign-in only (API keys removed)",
+      "api_fallback": false,
+      "state": "CONNECTED",
+      "detail": "signed in with ChatGPT",
+      "version": "codex-cli 0.163.0",
+      "setup": [
+        "npm install -g @openai/codex",
+        "codex login   (choose 'Sign in with ChatGPT')"
+      ]
+    },
+    "events": [
+      {
+        "type": "request_started",
+        "ts": 1792858140.728,
+        "provider": "codex",
+        "request_id": "req-8b96559f758f"
+      },
+      {
+        "type": "status",
+        "ts": 1792858141.798,
+        "state": "session",
+        "session_id": "01a16eac-3175-7112-9c9d-80b0e81196b6"
+      },
+      {
+        "type": "status",
+        "ts": 1792858147.087,
+        "state": "event",
+        "raw_type": "turn.started"
+      },
+      {
+        "type": "text_delta",
+        "ts": 1792858156.402,
+        "text": "OK",
+        "final": true
+      },
+      {
+        "type": "request_completed",
+        "ts": 1792858156.991,
+        "provider": "codex",
+        "request_id": "req-8b96559f758f",
+        "exit_code": 0
+      }
+    ],
+    "elapsed_s": 16.523,
+    "health_after": {
+      "provider": "codex",
+      "label": "ChatGPT (OpenAI Codex CLI)",
+      "path": "Codex CLI signed in with a ChatGPT plan (`codex login`)",
+      "billing": "subscription sign-in only (API keys removed)",
+      "api_fallback": false,
+      "state": "CONNECTED",
+      "detail": "signed in with ChatGPT",
+      "version": "codex-cli 0.163.0",
+      "setup": [
+        "npm install -g @openai/codex",
+        "codex login   (choose 'Sign in with ChatGPT')"
+      ]
+    },
+    "answer": "OK",
+    "passed": true
+  },
+  {
+    "provider": "claude_code",
+    "model": "vendor-default",
+    "real_cli": true,
+    "health": {
+      "provider": "claude_code",
+      "label": "Claude (Claude Code CLI)",
+      "path": "Claude Code CLI signed in with a Claude subscription (`claude`, then /login)",
+      "billing": "subscription sign-in only (API keys removed)",
+      "api_fallback": false,
+      "state": "CONNECTED",
+      "detail": "sign-in configured (model access is verified by the first request)",
+      "version": "2.1.304 (Claude Code)",
+      "setup": [
+        "Install Claude Code (https://code.claude.com/docs)",
+        "run `claude` once and sign in with your Claude account (/login)"
+      ]
+    },
+    "events": [
+      {
+        "type": "request_started",
+        "ts": 1792858140.83,
+        "provider": "claude_code",
+        "request_id": "req-6af22429b42d"
+      },
+      {
+        "type": "status",
+        "ts": 1792858142.945,
+        "state": "session",
+        "session_id": "6a503f3d-8028-4267-81b9-96ca29523bae",
+        "model": "claude-opus-5-5"
+      },
+      {
+        "type": "status",
+        "ts": 1792858142.949,
+        "state": "system",
+        "raw_type": "status"
+      },
+      {
+        "type": "status",
+        "ts": 1792858143.416,
+        "state": "event",
+        "raw_type": "rate_limit_event"
+      },
+      {
+        "type": "error",
+        "ts": 1792858143.423,
+        "message": "You've hit your weekly limit \u00b7 resets Oct 27, 4am (Asia/Ho_Chi_Minh)",
+        "state": "RATE_LIMITED"
+      },
+      {
+        "type": "request_completed",
+        "ts": 1792858144.02,
+        "provider": "claude_code",
+        "request_id": "req-6af22429b42d",
+        "exit_code": 1
+      }
+    ],
+    "elapsed_s": 3.553,
+    "health_after": {
+      "provider": "claude_code",
+      "label": "Claude (Claude Code CLI)",
+      "path": "Claude Code CLI signed in with a Claude subscription (`claude`, then /login)",
+      "billing": "subscription sign-in only (API keys removed)",
+      "api_fallback": false,
+      "state": "RATE_LIMITED",
+      "detail": "You've hit your weekly limit \u00b7 resets Oct 27, 4am (Asia/Ho_Chi_Minh)",
+      "version": "2.1.304 (Claude Code)",
+      "setup": [
+        "Install Claude Code (https://code.claude.com/docs)",
+        "run `claude` once and sign in with your Claude account (/login)"
+      ]
+    },
+    "answer": "",
+    "passed": false
+  },
+  {
+    "provider": "antigravity",
+    "model": "vendor-default",
+    "real_cli": true,
+    "health": {
+      "provider": "antigravity",
+      "label": "Google Antigravity (MCP + agy CLI)",
+      "path": "Antigravity IDE/app as MCP client (mcp_config.json) and the Antigravity CLI `agy -p` (Google sign-in)",
+      "billing": "subscription sign-in only (API keys removed)",
+      "api_fallback": false,
+      "state": "UNKNOWN",
+      "detail": "signed-in state is verified by the first request",
+      "version": "1.4.7",
+      "setup": [
+        "Install Google Antigravity (https://antigravity.google)",
+        "sign in with your Google account (run `agy` once)",
+        "register the PhD-Lab MCP server (Gateway \u2192 Antigravity \u2192 Register MCP)"
+      ],
+      "mcp_registered": false
+    },
+    "events": [
+      {
+        "type": "request_started",
+        "ts": 1792858140.702,
+        "provider": "antigravity",
+        "request_id": "req-93ec9f952179"
+      },
+      {
+        "type": "status",
+        "ts": 1792858144.892,
+        "state": "session",
+        "session_id": "7da039f9-5864-456e-9066-7e97786b0c0e"
+      },
+      {
+        "type": "text_delta",
+        "ts": 1792858148.06,
+        "text": "OK"
+      },
+      {
+        "type": "text_delta",
+        "ts": 1792858148.087,
+        "text": "\n"
+      },
+      {
+        "type": "status",
+        "ts": 1792858148.087,
+        "state": "result",
+        "final_text": "OK\n",
+        "usage": {
+          "input_tokens": 7952,
+          "output_tokens": 5,
+          "thinking_tokens": 0,
+          "cache_read_tokens": 0,
+          "total_tokens": 7957
+        },
+        "session_id": "7da039f9-5864-456e-9066-7e97786b0c0e"
+      },
+      {
+        "type": "request_completed",
+        "ts": 1792858148.695,
+        "provider": "antigravity",
+        "request_id": "req-93ec9f952179",
+        "exit_code": 0
+      }
+    ],
+    "elapsed_s": 8.227,
+    "health_after": {
+      "provider": "antigravity",
+      "label": "Google Antigravity (MCP + agy CLI)",
+      "path": "Antigravity IDE/app as MCP client (mcp_config.json) and the Antigravity CLI `agy -p` (Google sign-in)",
+      "billing": "subscription sign-in only (API keys removed)",
+      "api_fallback": false,
+      "state": "UNKNOWN",
+      "detail": "signed-in state is verified by the first request",
+      "version": "1.4.7",
+      "setup": [
+        "Install Google Antigravity (https://antigravity.google)",
+        "sign in with your Google account (run `agy` once)",
+        "register the PhD-Lab MCP server (Gateway \u2192 Antigravity \u2192 Register MCP)"
+      ],
+      "mcp_registered": false
+    },
+    "answer": "OK\n",
+    "passed": true
+  },
+  {
+    "provider": "gemini_cli",
+    "model": "vendor-default",
+    "real_cli": true,
+    "health": {
+      "provider": "gemini_cli",
+      "label": "Gemini CLI",
+      "path": "Gemini CLI signed in with a Google account (being replaced by the Antigravity CLI for some account types)",
+      "billing": "subscription sign-in only (API keys removed)",
+      "api_fallback": false,
+      "state": "AUTH_EXPIRED",
+      "detail": "Gemini CLI has no configured sign-in method. Run `gemini` and choose Login with Google.",
+      "version": "0.64.0",
+      "setup": [
+        "npm install -g @google/gemini-cli",
+        "run `gemini` once and choose 'Login with Google'"
+      ]
+    },
+    "events": [
+      {
+        "type": "request_started",
+        "ts": 1792858142.112,
+        "provider": "gemini_cli",
+        "request_id": "req-60e6ca97f986"
+      },
+      {
+        "type": "error",
+        "ts": 1792858143.632,
+        "message": "Please set an Auth method in your C:\\Users\\win\\.gemini\\settings.json or specify one of the following environment variables before running: GEMINI_API_KEY, GOOGLE_GENAI_USE_VERTEXAI, GOOGLE_GENAI_USE_GCA",
+        "state": "AUTH_EXPIRED"
+      },
+      {
+        "type": "request_completed",
+        "ts": 1792858143.633,
+        "provider": "gemini_cli",
+        "request_id": "req-60e6ca97f986",
+        "exit_code": 41
+      }
+    ],
+    "elapsed_s": 3.162,
+    "health_after": {
+      "provider": "gemini_cli",
+      "label": "Gemini CLI",
+      "path": "Gemini CLI signed in with a Google account (being replaced by the Antigravity CLI for some account types)",
+      "billing": "subscription sign-in only (API keys removed)",
+      "api_fallback": false,
+      "state": "AUTH_EXPIRED",
+      "detail": "Gemini CLI has no configured sign-in method. Run `gemini` and choose Login with Google.",
+      "version": "0.64.0",
+      "setup": [
+        "npm install -g @google/gemini-cli",
+        "run `gemini` once and choose 'Login with Google'"
+      ]
+    },
+    "answer": "",
+    "passed": false
+  }
+]

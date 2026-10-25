@@ -1,0 +1,7 @@
+{
+  "seed": 42,
+  "samples": 128,
+  "dataset": "synthetic sine with Gaussian noise sigma=0.25",
+  "mse_noisy": 0.05239628082235049,
+  "mse_filtered": 0.01861695929905821
+}

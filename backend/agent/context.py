@@ -38,7 +38,7 @@ def _sha(t: str) -> str:
     return hashlib.sha256(t.encode("utf-8", "replace")).hexdigest()
 
 
-def versions(session_id: str = "") -> dict:
+def versions(session_id: str = "", session: dict | None = None) -> dict:
     """Version concrete context inputs, never directory mtimes or this turn's cached manifest/event output.
 
     Reading an empty project creates the runs directory; that must not make the next identical compilation a miss.
@@ -65,12 +65,13 @@ def versions(session_id: str = "") -> dict:
     # session does not change it; reading raw session file mtimes would defeat caching on every turn.
     from backend.agent import sessions
     summaries = []
-    for item in sessions.list_sessions(limit=6):
-        if item["id"] == session_id:
+    group = (session or {}).get('chat_project')
+    selected_conversations = {s[5:] for s in (session or {}).get('selected_sources', []) if s.startswith('conv:')}
+    for item in sessions.list_sessions(limit=500):
+        if item['id'] == session_id or not ((group and item.get('chat_project') == group) or item['id'] in selected_conversations):
             continue
         record = sessions.get(item["id"])
-        if record.get("summary"):
-            summaries.append((record["id"], record["title"], record["summary"]))
+        summaries.append((record['id'], record['title'], record.get('summary'), record.get('messages', [])[-4:]))
     v["conversation_summaries"] = summaries
     return v
 
@@ -182,7 +183,8 @@ class ContextBuilder:
         chat_project = session.get("chat_project", "")
         budget = int(v["context_budget_tokens"])
         key = _sha(json.dumps([str(data_dir().resolve()), session["id"], module, ent_id, topic_id, chat_project, mode, selected, budget, v["use_memory"],
-                               versions(session["id"]), question if mode in ("relevant", "expanded") else ""], default=str))
+                               versions(session["id"], session), allowed_classes(load_config()),
+                               question if mode in ("relevant", "expanded") else ""], default=str))
         if not extra:
             with _lock:
                 hit = _cache.get(key)
@@ -229,25 +231,35 @@ class ContextBuilder:
                 items = [i for i in items if i["kind"] != "memory"]
                 omitted.append({"id": "memory", "reason": "long-term memory disabled for this turn"})
         items += extra or []
-        seen, kept, used = set(), [], _tokens(HEADER) + _tokens(question)
+        # Explicit selections and pinned constraints must not lose their budget to incidental state lists.
+        items.sort(key=lambda it: 0 if it['id'] == 'state:pins' or it['kind'] == 'folder_instructions' else 1 if it['id'] in selected else 2)
+        prefix = HEADER + f"Module: {ad.label}" + (f" · {entity['label']}" if entity else '') + '\n\n'
+        def block(item):
+            return (f"<<<SOURCE id={item['id']} kind={item['kind']} trust={item['trust']} title={json.dumps(item['title'], ensure_ascii=False)}>>>\n"
+                    f"{item['text']}\n<<<END SOURCE>>>")
+        seen, kept, used = set(), [], _tokens(prefix) + _tokens(question)
         for it in items:
             if it["id"] in seen:
                 continue
             seen.add(it["id"])
-            cost = _tokens(it["text"]) + 30
+            original = it['text']
+            it = {**it, 'full_sha256': _sha(original), 'full_chars': len(original)}
+            cost = _tokens(block(it) + '\n\n')
             if used + cost > budget:
-                room = (budget - used - 30) * 4
+                marker = ' …[truncated to fit the context budget]'
+                empty = {**it, 'text': marker}
+                room = (budget - used - _tokens(block(empty) + '\n\n')) * 4
                 if room > 400:
-                    it = {**it, "text": it["text"][:room] + " …[truncated to fit the context budget]", "truncated": True}
-                    cost = _tokens(it["text"]) + 30
+                    it = {**it, 'text': original[:room] + marker, 'truncated': True}
+                    cost = _tokens(block(it) + '\n\n')
                 else:
-                    omitted.append({"id": it["id"], "reason": "context budget exhausted"})
+                    omitted.append({'id': it['id'], 'reason': 'context budget exhausted',
+                                    'full_sha256': it['full_sha256'], 'full_chars': it['full_chars']})
                     continue
             used += cost
             kept.append(it)
-        blocks = [f"<<<SOURCE id={i['id']} kind={i['kind']} trust={i['trust']} title={json.dumps(i['title'], ensure_ascii=False)}>>>\n"
-                  f"{i['text']}\n<<<END SOURCE>>>" for i in kept]
-        text = (HEADER + f"Module: {ad.label}" + (f" · {entity['label']}" if entity else "") + "\n\n" + "\n\n".join(blocks)) \
+        blocks = [block(i) for i in kept]
+        text = (prefix + '\n\n'.join(blocks)) \
             if kept else ""
         manifest = {"id": new_id("cm", 4), "version": key[:16], "compiled_at": now(), "frozen": False, "cache": "miss",
                     "module": ad.identity(), "entity": {"id": ent_id, "label": (entity or {}).get("label", ""),
@@ -255,8 +267,11 @@ class ContextBuilder:
                     "mode": mode, "summary": ad.summary(entity),
                     "sources": [{"id": i["id"], "kind": i["kind"], "title": i["title"], "trust": i["trust"], "reason": i["reason"],
                                  "sha256": _sha(i["text"]), "chars": [0, len(i["text"])], "access": "read-only",
-                                 "truncated": bool(i.get("truncated"))} for i in kept],
-                    "omitted": omitted, "budget": {"limit_tokens": budget, "used_tokens": used},
+                                 'full_sha256': i['full_sha256'], 'full_chars': i['full_chars'],
+                                 'extraction': i.get('extraction'),
+                                 "truncated": bool(i.get("truncated")) or bool((i.get('extraction') or {}).get('limited'))} for i in kept],
+                    "omitted": omitted, "budget": {"limit_tokens": budget, "used_tokens": used,
+                                                  'estimated': True, 'method': 'characters/4 including source framing and question'},
                     "policy": {k: eff[k] for k in ("context_mode", "operating_mode", "memory_mode", "use_memory") if k in eff}}
         out = {"manifest": manifest, "text": text}
         if not extra:

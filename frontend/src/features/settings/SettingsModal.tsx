@@ -251,6 +251,7 @@ export const SettingsModal: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['config'] });
       queryClient.invalidateQueries({ queryKey: ['models'] });
+      queryClient.invalidateQueries({ queryKey: ['model-connections'] });
       notify(t('Đã lưu cấu hình thành công!', 'Configuration saved successfully!'));
     },
     onError: (err: Error) => {
@@ -267,6 +268,13 @@ export const SettingsModal: React.FC = () => {
     queryKey: ['models-local'],
     queryFn: () => api.get('/api/models/local'),
     enabled: activeTab === 'models',
+  });
+
+  const { data: connectionData } = useQuery<{ connections: Array<{ provider: string; model: string; state: string }> }>({
+    queryKey: ['model-connections'],
+    queryFn: () => api.get('/api/models/connections'),
+    enabled: activeTab === 'models',
+    refetchInterval: activeTab === 'models' ? 5000 : false,
   });
 
   const { data: researchProvidersData, refetch: refetchProviders } = useQuery<{ providers: any[] }>({
@@ -1133,6 +1141,50 @@ export const SettingsModal: React.FC = () => {
                     />
                   </div>
                 </div>
+              </section>
+
+              <section className="panelbox" style={{ padding: 20 }}>
+                <h3>{t('Quy tắc kết nối mô hình', 'Model connection rules')}</h3>
+                <label className="switch">
+                  <input type="checkbox" checked={config.lifecycle?.cloud_preconnect !== false}
+                    onChange={(e) => savePatch({ lifecycle: { cloud_preconnect: e.target.checked } })} />
+                  <span>{t('Kết nối sẵn Cloud khi lưu mô hình', 'Preconnect Cloud when saving a model')}</span>
+                </label>
+                <p className="muted">{t('Cloud tái sử dụng kết nối HTTPS, không load/unload trọng số và không tự sinh câu trả lời khi kiểm tra kết nối. Máy chủ có thể đóng kết nối khi rảnh.', 'Cloud reuses HTTPS connections, never loads/unloads weights, and does not generate answers during preconnection. Servers may close idle connections.')}</p>
+                <div role="status" aria-live="polite">
+                  {(connectionData?.connections || []).map((item) => (
+                    <p key={item.provider} style={{ fontSize: 12 }}>
+                      {item.provider} · {item.model}: {({
+                        connecting: t('Đang kết nối', 'Connecting'), connected: t('Đã kết nối; chưa kiểm chứng suy luận', 'Connected; inference not verified'),
+                        auth_required: t('Cần xác thực', 'Authentication required'), rate_limited: t('Đã chạm hạn mức', 'Rate limited'),
+                        model_unconfirmed: t('Đã kết nối; chưa xác nhận model', 'Connected; model unconfirmed'),
+                        reachable: t('Đã tới máy chủ; chưa xác nhận quyền/model', 'Reachable; auth/model unconfirmed'),
+                        error: t('Kết nối thất bại', 'Connection failed'),
+                      } as Record<string, string>)[item.state] || item.state}
+                    </p>
+                  ))}
+                </div>
+                <label className="field">
+                  <span>{t('Ngân sách lịch sử chat (token ước tính)', 'Chat history budget (estimated tokens)')}</span>
+                  <input className="input" type="number" min={400} max={32000}
+                    defaultValue={config.aiws?.history_budget_tokens || 4000}
+                    onBlur={(e) => savePatch({ aiws: { history_budget_tokens: Math.max(400, Math.min(32000, Number(e.target.value) || 4000)) } })} />
+                </label>
+                <label className="field">
+                  <span>{t('Ngân sách ngữ cảnh nguồn (token ước tính)', 'Source context budget (estimated tokens)')}</span>
+                  <input className="input" type="number" min={400} max={32000}
+                    defaultValue={config.aiws?.context_budget_tokens || 6000}
+                    onBlur={(e) => savePatch({ aiws: { context_budget_tokens: Math.max(400, Math.min(32000, Number(e.target.value) || 6000)) } })} />
+                </label>
+                <label className="field">
+                  <span>{t('Quy tắc model Local cho chat', 'Local model policy for chat')}</span>
+                  <select className="select" value={config.lifecycle?.local_interactive || 'idle_unload'}
+                    onChange={(e) => savePatch({ lifecycle: { local_interactive: e.target.value } })}>
+                    <option value="idle_unload">{t('Giải phóng khi rảnh', 'Unload when idle')}</option>
+                    <option value="unload_after_task">{t('Giải phóng sau mỗi tác vụ', 'Unload after each task')}</option>
+                    <option value="keep_loaded">{t('Giữ model trong bộ nhớ', 'Keep model loaded')}</option>
+                  </select>
+                </label>
               </section>
 
               {/* 1D. Capability-Aware Failover & Routing */}

@@ -227,3 +227,4 @@ The engine implements 7 quality gates prior to paper approval:
 
 ### C. Blocked Capabilities
 - **Direct Execution of Host `paper-orchestra` CLI Binary**: The official Google Cloud `paper-orchestra` CLI package is not pre-installed on this Windows host. **Status**: Non-blocking in practice, because the engine automatically detects missing binaries and gracefully routes execution to the capability-based skill backend using local harness models.
+

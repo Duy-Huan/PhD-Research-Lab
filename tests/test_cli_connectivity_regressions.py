@@ -112,6 +112,8 @@ class ConnectivityRegressions(unittest.TestCase):
 
     def test_result_only_stream_still_produces_an_answer_and_empty_exit_is_error(self):
         class ResultOnly(cli.AntigravityConnector):
+            def process_argv(self, args, context):
+                return args  # Controlled Python result-only fixture.
             def binary(self):
                 return sys.executable
 

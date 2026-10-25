@@ -1,0 +1,69 @@
+{
+  "baseline_operations": 274,
+  "current_operations": 318,
+  "removed": [],
+  "changed": [
+    "POST /api/projects/reveal",
+    "POST /api/providers/{pid}/connect"
+  ],
+  "added": [
+    "DELETE /api/harness/workflows/{wid}",
+    "DELETE /api/projects",
+    "GET /api/chat/attachments/{att_id}",
+    "GET /api/chat/attachments/{att_id}/file",
+    "GET /api/harness/agents",
+    "GET /api/harness/executions",
+    "GET /api/harness/executions/{eid}",
+    "GET /api/harness/nodes",
+    "GET /api/harness/templates",
+    "GET /api/harness/tools",
+    "GET /api/harness/workflows",
+    "GET /api/harness/workflows/{wid}",
+    "GET /api/library/{name}/citation",
+    "GET /api/paper/engines",
+    "GET /api/paper/tex",
+    "GET /api/paperorchestra/artifacts/{topic_id}",
+    "GET /api/paperorchestra/artifacts/{topic_id}/{artifact_id}",
+    "GET /api/paperorchestra/health",
+    "GET /api/plugins/catalog",
+    "GET /api/providers/{pid}/auth-status",
+    "GET /api/research/topics/{tid}/ledger",
+    "GET /api/system/fs-browse",
+    "POST /api/chat/attachments/{att_id}/analyze",
+    "POST /api/harness/agents",
+    "POST /api/harness/architect/generate",
+    "POST /api/harness/architect/team",
+    "POST /api/harness/execute",
+    "POST /api/harness/execute/action",
+    "POST /api/harness/validate",
+    "POST /api/harness/workflows",
+    "POST /api/opencode/server/launch",
+    "POST /api/paper/engines/online",
+    "POST /api/paperorchestra/independent-review",
+    "POST /api/paperorchestra/plan-mission",
+    "POST /api/paperorchestra/quality-gates",
+    "POST /api/paperorchestra/verify-citations",
+    "POST /api/paperorchestra/verify-figures",
+    "POST /api/paperorchestra/verify-provenance",
+    "POST /api/providers/{pid}/launch",
+    "POST /api/providers/{pid}/sync",
+    "POST /api/research/topics/{tid}/missions/{mid}/steps/{task_id}/review",
+    "POST /api/system/fs-mkdir",
+    "POST /api/system/pick-folder",
+    "PUT /api/harness/workflows/{wid}"
+  ],
+  "changed_or_removed_schemas": [
+    "AgentRole",
+    "MissionControl",
+    "MissionSpec",
+    "Task",
+    "Workstream"
+  ],
+  "documentation_only_changes": [
+    "POST /api/projects/forget"
+  ],
+  "compatible_snapshot": false,
+  "limitations": [
+    "Static OpenAPI comparison does not prove every runtime JSON/SSE response compatible"
+  ]
+}

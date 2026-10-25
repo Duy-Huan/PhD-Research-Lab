@@ -216,16 +216,11 @@ class Connectivity(unittest.TestCase):
                 mock.patch.object(Path, "is_file", return_value=True):
             self.assertIn(".local", connector.binary())
 
-    def test_sign_in_launch_uses_discovered_executable_and_literal_arguments(self):
-        import base64
+    def test_sign_in_launch_delegates_to_project_isolated_native_runtime(self):
         connector = C.ClaudeCodeConnector()
-        with mock.patch.object(C.sys, "platform", "win32"), \
-                mock.patch.object(connector, "binary", return_value="C:/Apps/O'Brien & Tools/claude.exe"), \
-                mock.patch.object(C.subprocess, "Popen") as popen:
+        with mock.patch('backend.providers.native.launch_provider', return_value={'launched': True, 'state': 'LAUNCHED'}) as launch:
             self.assertTrue(connector.connect(launch=True)["launched"])
-        argv = popen.call_args.args[0]
-        command = base64.b64decode(argv[-1]).decode("utf-16le")
-        self.assertEqual(command, "& 'C:/Apps/O''Brien & Tools/claude.exe'")
+        launch.assert_called_once_with('claude_code', True)
 
     def test_connection_endpoint_exercises_actual_stream_and_model_override(self):
         def handler(req):

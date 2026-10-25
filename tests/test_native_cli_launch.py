@@ -20,7 +20,7 @@ class NativeCLILaunch(unittest.TestCase):
     def test_installed_executable_is_quoted_and_launched_without_a_website(self):
         with patch.object(native.sys, 'platform', 'win32'), patch.object(native.shutil, 'which', return_value=sys.executable), \
              patch.object(native.subprocess, 'Popen', return_value=SimpleNamespace(pid=123)) as launch:
-            result = native.launch_terminal(sys.executable, ["a'b", '$(untrusted)'])
+            result = native._open_console(sys.executable, ["a'b", '$(untrusted)'], str(_env.config.data_dir()))
         argv = launch.call_args.args[0]
         command = base64.b64decode(argv[-1]).decode('utf-16le')
         self.assertIn("'a''b'", command)
@@ -35,7 +35,7 @@ class NativeCLILaunch(unittest.TestCase):
             launch.assert_not_called()
         with patch.object(native.sys, 'platform', 'win32'), patch.object(native.shutil, 'which', return_value=sys.executable), \
              patch.object(native.subprocess, 'Popen', side_effect=OSError):
-            self.assertEqual(native.launch_terminal('python')['state'], 'ERROR')
+            self.assertEqual(native._open_console('python', [], str(_env.config.data_dir()))['state'], 'ERROR')
 
     def test_forward_modes_and_launch_always_target_the_installed_app(self):
         client = TestClient(app)

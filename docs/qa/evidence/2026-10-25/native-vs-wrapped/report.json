@@ -1,0 +1,439 @@
+{
+  "model": "spark-x2.5-4b",
+  "rows": [
+    {
+      "id": "arithmetic-0-native",
+      "case": "arithmetic",
+      "repeat": 0,
+      "path": "native",
+      "model_requested": "spark-x2.5-4b",
+      "text": "42",
+      "model_returned": "spark-x2.5-4b",
+      "usage": {
+        "prompt_tokens": 47,
+        "completion_tokens": 67,
+        "total_tokens": 114,
+        "completion_tokens_details": {
+          "reasoning_tokens": 63
+        }
+      },
+      "cost": null,
+      "passed": true,
+      "status": "PASSED",
+      "elapsed_s": 1.2245067000039853
+    },
+    {
+      "id": "arithmetic-0-wrapped",
+      "case": "arithmetic",
+      "repeat": 0,
+      "path": "wrapped",
+      "model_requested": "spark-x2.5-4b",
+      "text": "42",
+      "model_returned": null,
+      "usage": null,
+      "cost": null,
+      "session_id": "as-95c6eb5ebc",
+      "manifest": {
+        "id": "cm-4dd6524e",
+        "version": "f6be71a27ea34bfa",
+        "compiled_at": 1792860672.749,
+        "frozen": false,
+        "cache": "miss",
+        "module": {
+          "module": "global",
+          "label": "D\u1ef1 \u00e1n",
+          "domain_specific": true
+        },
+        "entity": {
+          "id": "",
+          "label": "",
+          "found": true
+        },
+        "mode": "none",
+        "summary": "Default project \u00b7 0 t\u00e0i li\u1ec7u \u00b7 0 run",
+        "sources": [],
+        "omitted": [],
+        "budget": {
+          "limit_tokens": 6000,
+          "used_tokens": 110
+        },
+        "policy": {
+          "context_mode": {
+            "value": "none",
+            "source": "session"
+          },
+          "operating_mode": {
+            "value": "automation",
+            "source": "global"
+          },
+          "memory_mode": {
+            "value": "suggest",
+            "source": "global"
+          },
+          "use_memory": {
+            "value": true,
+            "source": "global"
+          }
+        }
+      },
+      "passed": true,
+      "status": "PASSED",
+      "elapsed_s": 2.064672699998482
+    },
+    {
+      "id": "supplied-value-0-native",
+      "case": "supplied-value",
+      "repeat": 0,
+      "path": "native",
+      "model_requested": "spark-x2.5-4b",
+      "passed": false,
+      "status": "ERROR",
+      "error": "HTTPStatusError: Client error '400 Bad Request' for url 'http://127.0.0.1:1234/v1/chat/completions'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400",
+      "elapsed_s": 1.3009787000046344
+    },
+    {
+      "id": "supplied-value-0-wrapped",
+      "case": "supplied-value",
+      "repeat": 0,
+      "path": "wrapped",
+      "model_requested": "spark-x2.5-4b",
+      "passed": false,
+      "status": "ERROR",
+      "error": "RuntimeError: {\"id\": \"t-dd6e21e7\", \"status\": \"failed\", \"created\": 1792860676.086, \"message_id\": \"m-b18071b0\", \"question\": \"Synthetic fixture input: power=0.125 mW. Repeat only the numeric value. No tools.\", \"overrides\": {}, \"effective\": {\"provider\": {\"value\": \"app:local\", \"source\": \"session\"}, \"model\": {\"value\": \"spark-x2.5-4b\", \"source\": \"session\"}, \"reasoning\": {\"value\": \"auto\", \"source\": \"session\"}, \"context_mode\": {\"value\": \"none\", \"source\": \"session\"}, \"memory_mode\": {\"value\": \"suggest\", \"source\": \"global\"}, \"operating_mode\": {\"value\": \"automation\", \"source\": \"global\"}, \"security_profile\": {\"value\": \"review\", \"source\": \"global\"}, \"mcp_auto\": {\"value\": false, \"source\": \"session\"}, \"mcp_tools\": {\"value\": [], \"source\": \"global\"}, \"auto_memory_types\": {\"value\": [\"open_question\"], \"source\": \"global\"}, \"keep_history\": {\"value\": true, \"source\": \"global\"}, \"summaries\": {\"value\": true, \"source\": \"global\"}, \"collect_artifacts\": {\"value\": true, \"source\": \"global\"}, \"context_budget_tokens\": {\"value\": 6000, \"source\": \"global\"}, \"use_memory\": {\"value\": true, \"source\": \"global\"}}, \"notes\": [], \"tools\": [], \"manifest\": {\"id\": \"cm-66c8a49c\", \"version\": \"bed1b7bcea6f88fd\", \"compiled_at\": 1792860676.113, \"frozen\": false, \"cache\": \"miss\", \"module\": {\"module\": \"global\", \"label\": \"D\\u1ef1 \\u00e1n\", \"domain_specific\": true}, \"entity\": {\"id\": \"\", \"label\": \"\", \"found\": true}, \"mode\": \"none\", \"summary\": \"Default project \\u00b7 0 t\\u00e0i li\\u1ec7u \\u00b7 0 run\", \"sources\": [], \"omitted\": [], \"budget\": {\"limit_tokens\": 6000, \"used_tokens\": 116}, \"policy\": {\"context_mode\": {\"value\": \"none\", \"source\": \"session\"}, \"operating_mode\": {\"value\": \"automation\", \"source\": \"global\"}, \"memory_mode\": {\"value\": \"suggest\", \"source\": \"global\"}, \"use_memory\": {\"value\": true, \"source\": \"global\"}}}, \"plan\": null, \"answer_id\": \"\", \"error\": \"LM Studio stream error: Model is unloaded.\", \"base_url\": \"http://127.0.0.1:8771/\", \"launched\": false, \"started\": 1792860676.095, \"ended\": 1792860677.092, \"context_text\": \"\", \"timings_ms\": {\"context\": 9.29}}",
+      "elapsed_s": 1.0920265000022482
+    },
+    {
+      "id": "missing-measurement-0-native",
+      "case": "missing-measurement",
+      "repeat": 0,
+      "path": "native",
+      "model_requested": "spark-x2.5-4b",
+      "text": "UNKNOWN",
+      "model_returned": "spark-x2.5-4b",
+      "usage": {
+        "prompt_tokens": 47,
+        "completion_tokens": 45,
+        "total_tokens": 92,
+        "completion_tokens_details": {
+          "reasoning_tokens": 41
+        }
+      },
+      "cost": null,
+      "passed": true,
+      "status": "PASSED",
+      "elapsed_s": 3.4548058999935165
+    },
+    {
+      "id": "missing-measurement-0-wrapped",
+      "case": "missing-measurement",
+      "repeat": 0,
+      "path": "wrapped",
+      "model_requested": "spark-x2.5-4b",
+      "text": "UNKNOWN\n\nNo experiment has been executed and no accuracy has been measured, so no measurable result or quantitative data is available to support any specific claim.",
+      "model_returned": null,
+      "usage": null,
+      "cost": null,
+      "session_id": "as-3930efaa66",
+      "manifest": {
+        "id": "cm-e799a549",
+        "version": "a2961240df71b7f2",
+        "compiled_at": 1792860680.656,
+        "frozen": false,
+        "cache": "miss",
+        "module": {
+          "module": "global",
+          "label": "D\u1ef1 \u00e1n",
+          "domain_specific": true
+        },
+        "entity": {
+          "id": "",
+          "label": "",
+          "found": true
+        },
+        "mode": "none",
+        "summary": "Default project \u00b7 0 t\u00e0i li\u1ec7u \u00b7 0 run",
+        "sources": [],
+        "omitted": [],
+        "budget": {
+          "limit_tokens": 6000,
+          "used_tokens": 118
+        },
+        "policy": {
+          "context_mode": {
+            "value": "none",
+            "source": "session"
+          },
+          "operating_mode": {
+            "value": "automation",
+            "source": "global"
+          },
+          "memory_mode": {
+            "value": "suggest",
+            "source": "global"
+          },
+          "use_memory": {
+            "value": true,
+            "source": "global"
+          }
+        }
+      },
+      "passed": true,
+      "status": "PASSED",
+      "elapsed_s": 4.088871200001449
+    },
+    {
+      "id": "arithmetic-1-native",
+      "case": "arithmetic",
+      "repeat": 1,
+      "path": "native",
+      "model_requested": "spark-x2.5-4b",
+      "text": "42",
+      "model_returned": "spark-x2.5-4b",
+      "usage": {
+        "prompt_tokens": 47,
+        "completion_tokens": 62,
+        "total_tokens": 109,
+        "completion_tokens_details": {
+          "reasoning_tokens": 58
+        }
+      },
+      "cost": null,
+      "passed": true,
+      "status": "PASSED",
+      "elapsed_s": 0.8710057999996934
+    },
+    {
+      "id": "arithmetic-1-wrapped",
+      "case": "arithmetic",
+      "repeat": 1,
+      "path": "wrapped",
+      "model_requested": "spark-x2.5-4b",
+      "text": "42",
+      "model_returned": null,
+      "usage": null,
+      "cost": null,
+      "session_id": "as-6e148f68a5",
+      "manifest": {
+        "id": "cm-6dc7a22b",
+        "version": "b26d9352a7805674",
+        "compiled_at": 1792860685.622,
+        "frozen": false,
+        "cache": "miss",
+        "module": {
+          "module": "global",
+          "label": "D\u1ef1 \u00e1n",
+          "domain_specific": true
+        },
+        "entity": {
+          "id": "",
+          "label": "",
+          "found": true
+        },
+        "mode": "none",
+        "summary": "Default project \u00b7 0 t\u00e0i li\u1ec7u \u00b7 0 run",
+        "sources": [],
+        "omitted": [],
+        "budget": {
+          "limit_tokens": 6000,
+          "used_tokens": 110
+        },
+        "policy": {
+          "context_mode": {
+            "value": "none",
+            "source": "session"
+          },
+          "operating_mode": {
+            "value": "automation",
+            "source": "global"
+          },
+          "memory_mode": {
+            "value": "suggest",
+            "source": "global"
+          },
+          "use_memory": {
+            "value": true,
+            "source": "global"
+          }
+        }
+      },
+      "passed": true,
+      "status": "PASSED",
+      "elapsed_s": 1.0074103999941144
+    },
+    {
+      "id": "supplied-value-1-native",
+      "case": "supplied-value",
+      "repeat": 1,
+      "path": "native",
+      "model_requested": "spark-x2.5-4b",
+      "text": "0.125",
+      "model_returned": "spark-x2.5-4b",
+      "usage": {
+        "prompt_tokens": 52,
+        "completion_tokens": 61,
+        "total_tokens": 113,
+        "completion_tokens_details": {
+          "reasoning_tokens": 54
+        }
+      },
+      "cost": null,
+      "passed": true,
+      "status": "PASSED",
+      "elapsed_s": 0.880465300011565
+    },
+    {
+      "id": "supplied-value-1-wrapped",
+      "case": "supplied-value",
+      "repeat": 1,
+      "path": "wrapped",
+      "model_requested": "spark-x2.5-4b",
+      "text": "0.125",
+      "model_returned": null,
+      "usage": null,
+      "cost": null,
+      "session_id": "as-26a18c29e2",
+      "manifest": {
+        "id": "cm-d42a89ab",
+        "version": "684a9196c8d5c6da",
+        "compiled_at": 1792860687.507,
+        "frozen": false,
+        "cache": "miss",
+        "module": {
+          "module": "global",
+          "label": "D\u1ef1 \u00e1n",
+          "domain_specific": true
+        },
+        "entity": {
+          "id": "",
+          "label": "",
+          "found": true
+        },
+        "mode": "none",
+        "summary": "Default project \u00b7 0 t\u00e0i li\u1ec7u \u00b7 0 run",
+        "sources": [],
+        "omitted": [],
+        "budget": {
+          "limit_tokens": 6000,
+          "used_tokens": 116
+        },
+        "policy": {
+          "context_mode": {
+            "value": "none",
+            "source": "session"
+          },
+          "operating_mode": {
+            "value": "automation",
+            "source": "global"
+          },
+          "memory_mode": {
+            "value": "suggest",
+            "source": "global"
+          },
+          "use_memory": {
+            "value": true,
+            "source": "global"
+          }
+        }
+      },
+      "passed": true,
+      "status": "PASSED",
+      "elapsed_s": 1.7286104000086198
+    },
+    {
+      "id": "missing-measurement-1-native",
+      "case": "missing-measurement",
+      "repeat": 1,
+      "path": "native",
+      "model_requested": "spark-x2.5-4b",
+      "text": "UNKNOWN",
+      "model_returned": "spark-x2.5-4b",
+      "usage": {
+        "prompt_tokens": 47,
+        "completion_tokens": 48,
+        "total_tokens": 95,
+        "completion_tokens_details": {
+          "reasoning_tokens": 44
+        }
+      },
+      "cost": null,
+      "passed": true,
+      "status": "PASSED",
+      "elapsed_s": 0.716144499994698
+    },
+    {
+      "id": "missing-measurement-1-wrapped",
+      "case": "missing-measurement",
+      "repeat": 1,
+      "path": "wrapped",
+      "model_requested": "spark-x2.5-4b",
+      "text": "UNKNOWN\n\nNo experiment has been executed and no accuracy has been measured in the current project records. Without empirical data or experimental measurements, any result cannot be determined, so the status remains UNKNOWN.",
+      "model_returned": null,
+      "usage": null,
+      "cost": null,
+      "session_id": "as-5955ffbe4f",
+      "manifest": {
+        "id": "cm-d0331a9e",
+        "version": "ed3022263b8317f7",
+        "compiled_at": 1792860689.954,
+        "frozen": false,
+        "cache": "miss",
+        "module": {
+          "module": "global",
+          "label": "D\u1ef1 \u00e1n",
+          "domain_specific": true
+        },
+        "entity": {
+          "id": "",
+          "label": "",
+          "found": true
+        },
+        "mode": "none",
+        "summary": "Default project \u00b7 0 t\u00e0i li\u1ec7u \u00b7 0 run",
+        "sources": [],
+        "omitted": [],
+        "budget": {
+          "limit_tokens": 6000,
+          "used_tokens": 118
+        },
+        "policy": {
+          "context_mode": {
+            "value": "none",
+            "source": "session"
+          },
+          "operating_mode": {
+            "value": "automation",
+            "source": "global"
+          },
+          "memory_mode": {
+            "value": "suggest",
+            "source": "global"
+          },
+          "use_memory": {
+            "value": true,
+            "source": "global"
+          }
+        }
+      },
+      "passed": true,
+      "status": "PASSED",
+      "elapsed_s": 2.2590165000001434
+    }
+  ],
+  "summary": {
+    "native": {
+      "passed": 5,
+      "executed": 6
+    },
+    "wrapped": {
+      "passed": 5,
+      "executed": 6
+    }
+  },
+  "status": "FAILED",
+  "limitations": [
+    "Three deterministic tasks; no general provider intelligence parity certification",
+    "Native minimal system prompt differs from application instructions by design",
+    "Wrapped API does not expose authoritative provider-returned model ID or token usage; those fields stay unknown",
+    "Small repeated sample is insufficient for sustained reliability or subjective scientific-quality conclusions"
+  ]
+}

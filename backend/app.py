@@ -40,9 +40,12 @@ async def lifespan(_app):
     except Exception:  # a damaged run file must never keep the app from starting
         pass
     asyncio.get_running_loop().run_in_executor(None, _warm)
+    from backend.providers import connections
+    await connections.selected()
     try:
         yield
     finally:
+        await connections.shutdown()
         stop.set()
         task.cancel()
         research_task.cancel()
