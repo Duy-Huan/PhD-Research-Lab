@@ -20,6 +20,10 @@
     {
       "id": "REQ-SDK",
       "description": "Mandatory offline official SDK tests run with pinned/hash-verified dependency; untrusted archive cannot escape or overwrite"
+    },
+    {
+      "id": "SOURCE_EOL",
+      "description": "Declared upstream license text uses LF normalization so identical Git source has the same canonical identity on Windows and Linux."
     }
   ],
   "nonfunctional": [
@@ -144,6 +148,13 @@
       "kind": "boundary",
       "expected": "Extract exactly reviewed files and preserve existing output",
       "test": "tests/test_development_guard.py::PinnedSDK.test_reviewed_inventory_is_exact_and_unknown_output_is_preserved"
+    },
+    {
+      "id": "source-eol-license",
+      "requirement": "SOURCE_EOL",
+      "kind": "boundary",
+      "expected": "LF/CRLF and staging preserve identity; real license content changes invalidate evidence.",
+      "test": "tests/test_verification_source_identity.py::SourceIdentity.test_declared_upstream_license_line_endings_do_not_change_identity"
     }
   ],
   "recovery": "Preserve raw failures and state. Repair only confirmed root cause on dev, maximum3 invocations; no ledger resets or fake evidence.",
@@ -172,5 +183,17 @@
       "sha256": "431b07a7e88ee6a163c5c47438c52fe8a82efc6c1c4079e92e93ef20af44ae8d",
       "exit_code": 0
     }
-  }
+  },
+  "additional_red_green": [
+    {
+      "red": {
+        "path": "docs/qa/evidence/cli-runtime-cleanup-6.5.9/license-eol-red.json",
+        "sha256": "4bb42ac1f704eec7ea0d9e3cc7347bca50ec0ed29be06fcf6ad968a3b65e78ae"
+      },
+      "green": {
+        "path": "docs/qa/evidence/cli-runtime-cleanup-6.5.9/license-eol-green.json",
+        "sha256": "440dd940b3dd8e64594da0343812b33b7077443ce51825b3232101d860b237f2"
+      }
+    }
+  ]
 }

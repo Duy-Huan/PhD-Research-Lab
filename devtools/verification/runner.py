@@ -44,7 +44,7 @@ def identity(root: Path) -> dict:
             # Absence is represented by an absent key, regardless of whether deletion is staged.
             if not path.is_file():continue
             raw = path.read_bytes()
-            if path.suffix in ('.py','.ts','.tsx','.js','.mjs','.cjs','.json','.md','.yml','.yaml','.toml','.lock','.txt','.in','.ini','.cfg','.css','.html','.svg','.sh','.cmd','.bat','.ps1') or path.name in ('.coveragerc','.gitignore','.gitattributes','LICENSE','UPSTREAM_LICENSE','Dockerfile'):
+            if path.suffix in ('.py','.ts','.tsx','.js','.mjs','.cjs','.json','.md','.yml','.yaml','.toml','.lock','.txt','.in','.ini','.cfg','.css','.html','.svg','.sh','.cmd','.bat','.ps1') or path.name in ('.coveragerc','.gitignore','.gitattributes','LICENSE','UPSTREAM_LICENSE','DECLARED_SOURCE_APACHE_LICENSE','Dockerfile'):
                 raw = raw.replace(b'\r\n',b'\n')
             files[name] = hashlib.sha256(raw).hexdigest()
     digest = hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest()

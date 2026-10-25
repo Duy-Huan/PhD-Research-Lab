@@ -54,5 +54,18 @@ class SourceIdentity(unittest.TestCase):
             subprocess.run(['git','add','--','.'],cwd=root,check=True,capture_output=True)
             self.assertEqual(changed,identity(root)['sha256'])
 
+    def test_declared_upstream_license_line_endings_do_not_change_identity(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);self.make_repo(root)
+            path=root/'skills/reference/DECLARED_SOURCE_APACHE_LICENSE'
+            path.parent.mkdir(parents=True);path.write_bytes(b'License terms\nRetain attribution\n')
+            original=identity(root)['sha256']
+            path.write_bytes(b'License terms\r\nRetain attribution\r\n')
+            self.assertEqual(original,identity(root)['sha256'])
+            subprocess.run(['git','add','--','.'],cwd=root,check=True,capture_output=True)
+            self.assertEqual(original,identity(root)['sha256'])
+            path.write_bytes(b'Changed license terms\nRetain attribution\n')
+            self.assertNotEqual(original,identity(root)['sha256'])
+
 
 if __name__=='__main__':unittest.main()
