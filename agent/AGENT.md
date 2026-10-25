@@ -1,5 +1,7 @@
 # PhD Research Lab — engineering and QA continuation
 
+For the active full-source stabilization campaign, also read `agent/STABILIZATION.md` and the five `docs/qa/` baseline/readiness reports. The owner's latest request authorizes testing protected promotion in order feature -> dev -> qa -> main after all required checks succeed. This does not authorize automatic qa/main merging, review impersonation, threshold relaxation, or bypassing a red gate. Keep incomplete qualification visible.
+
 ## Start and resume
 
 1. Read `agent/STATE.md`, `agent/PLAN.md` and `docs/quality/ZERO_FAKE_TESTING_POLICY.md`.

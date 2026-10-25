@@ -1,3 +1,7 @@
+# Active stabilization priority ? 2026-10-25
+
+Owner requests comprehensive baseline and later protected promotion feature -> dev -> qa -> main. Read agent/STABILIZATION.md. Five baseline reports and defects.json now record real gaps. Skills test-gap-audit and web-design-reviewer are pinned/installed. New fix/ui-source-baseline worktree created from origin/dev with explicit pending governance dependency; confirmed mobile Settings overlay and control accessible-name regressions are under controlled RED/GREEN repair. Full backend baseline found a latency assertion failure under coverage; do not relax its 300ms budget or label it repaired without diagnosis. Finish feature gate and push governance checkpoint; then integrate qualified UI/application fixes and obtain all critical live/coverage evidence before final verification/promotion.
+
 # Full harness execution plan — 2026-10-24
 
 User request: implement the supplied audit/consolidation requirements, install GitHub skills and Playwright MCP, validate 2D → 3D → CLI, real AI integrations, reproducible experiment → paper, permanent regression generation, CI and measured 100% coverage.

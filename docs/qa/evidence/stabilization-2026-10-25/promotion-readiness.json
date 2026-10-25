@@ -1,0 +1,143 @@
+{
+  "head": "25d0a6478e517bcc252569b774d05925a67d8f8e",
+  "pr": "https://github.com/Duy-Huan/PhD-Research-Lab/pull/7",
+  "draft": true,
+  "branches": {
+    "dev": {
+      "sha": "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+      "protected": true,
+      "required_contexts": [
+        "Development gate"
+      ],
+      "strict": true,
+      "enforce_admins": true,
+      "required_approvals": 0
+    },
+    "qa": {
+      "sha": "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+      "protected": true,
+      "required_contexts": [
+        "QA gate"
+      ],
+      "strict": true,
+      "enforce_admins": true,
+      "required_approvals": 0
+    },
+    "main": {
+      "sha": "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+      "protected": true,
+      "required_contexts": [
+        "Release gate"
+      ],
+      "strict": true,
+      "enforce_admins": true,
+      "required_approvals": 1
+    }
+  },
+  "checks": [
+    {
+      "name": "Release gate",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40147348883/job/121034739496"
+    },
+    {
+      "name": "Human release authorization",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40147348883/job/121034738934"
+    },
+    {
+      "name": "QA gate",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40147348883/job/121034738652"
+    },
+    {
+      "name": "Development gate",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40147348883/job/121034712969"
+    },
+    {
+      "name": "Matching-source live research qualification",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40147348883/job/121031416452"
+    },
+    {
+      "name": "Dependency and high-confidence security checks",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40147348883/job/121031415307"
+    },
+    {
+      "name": "Contract and workflow policy",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40147348883/job/121031415274"
+    },
+    {
+      "name": "Risk-triggered verified AI-UAT evidence",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40147348883/job/121031415244"
+    },
+    {
+      "name": "Backend (ubuntu-latest, Python 3.11)",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40147348883/job/121031415222"
+    },
+    {
+      "name": "Backend (ubuntu-latest, Python 3.12)",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40147348883/job/121031415193"
+    },
+    {
+      "name": "Backend (windows-latest, Python 3.11)",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40147348883/job/121031415179"
+    },
+    {
+      "name": "Backend (windows-latest, Python 3.12)",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40147348883/job/121031415143"
+    },
+    {
+      "name": "Frontend types, whole-source coverage and build",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40147348883/job/121031415140"
+    },
+    {
+      "name": "Real offline browser smoke",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40147348883/job/121031415007"
+    }
+  ],
+  "promotion": [
+    {
+      "step": "feature -> dev",
+      "status": "BLOCKED",
+      "reason": "Required Development gate did not pass; PR remains draft"
+    },
+    {
+      "step": "dev -> qa",
+      "status": "NOT_RUN",
+      "reason": "Blocked by unqualified dev candidate"
+    },
+    {
+      "step": "qa -> main",
+      "status": "NOT_RUN",
+      "reason": "Blocked upstream; eligible reviewer and production approval also mandatory"
+    }
+  ],
+  "mutations": false,
+  "decision": "NO-GO",
+  "limitation": "Read-only actual readiness audit; not a successful merge/deployment"
+}

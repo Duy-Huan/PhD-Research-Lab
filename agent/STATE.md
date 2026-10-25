@@ -1,8 +1,20 @@
+# Current: UI fix candidate after baseline integration
+
+Branch fix/ui-source-baseline, version6.5.1. Both governance baseline and UI repair history are retained below. Finish local feature gate against frozen sources/index, then push draft PR targeting dev; required CI remains mandatory. No protected merge/release yet.
+
 # UI stabilization candidate6.5.1 ? 2026-10-25
 
 Active branch fix/ui-source-baseline in D:/git-repo/PhD-Research-Lab-worktrees/ui-source-baseline. Created from origin/dev6725975, then explicitly merged pending governance25d0a64. Original user work remains preserved separately. Two confirmed UI bug groups repaired locally: mobile Settings overlay and visible/accessible-name mismatch. Same corrected browser regression source: functional RED1PASS/4FAIL, GREEN5PASS/0FAIL/0SKIP with stable source; sixteen EN/VI viewport/surface axe scans. First exploratory GREEN failed due shared mobile boot helper and additional VI floating-menu label; fixed without weakening assertions. Repair ledger BUG-UI-001-002 records1failure+success; no AI/model was called. Mandatory UAT key remains exhausted/unmodified.
 
 NEXT: finish governance baseline checkpoint push; merge its docs/skill dependency into this fix branch, update baseline defect status to local-fix-verified/pending-CI, stage compiled dist/version and intended source before final feature verification. Then push draft fix PR ->dev and inspect actual independent checks. No qa/main promotion until all required checks/reviews PASS; do not claim release/100% coverage.
+
+# Governance baseline checkpoint ready to push ? 2026-10-25
+
+feature-baseline-checkpoint PASS1043/8SKIP, source stable after pinned skills/agent rules. New UI fixes6.5.1 on separate fix/ui-source-baseline branch have functional RED1PASS/4FAIL -> GREEN5PASS and174 frontend component tests/typecheck PASS; not yet feature/CI qualified or merged. Governance five baseline reports truthfully retain original UI failures and full backend latency318.167ms failure; current release NO-GO. Actual GitHub run40147348883 completed FAILURE; no protected merge attempted. NEXT: commit/push this tested6.5.0 checkpoint, merge its docs dependency into fix branch while retaining UI state/ledger, run fix feature gate, push draft fix PR ->dev, inspect independent CI. Original dirty application code remains preserved, AI-UAT three-failure cap remains in force.
+
+# Active source baseline ? 2026-10-25
+
+Governance HEAD25d0a64 / PR7. Two new pinned skills and five baseline reports now prepared. Full backend baseline:845PASS,1FAIL(latency compile_ms318.167 >=300),8SKIP,87.68% combined coverage; source stable. Frontend174PASS but strict coverage FAIL. Eight actual UI scans complete with accessible-name failures; mobile Settings overlay separately REPRODUCED. Repair worktree D:/git-repo/PhD-Research-Lab-worktrees/ui-source-baseline branch fix/ui-source-baseline was created from origin/dev then merged pending governance dependency25d0a64; five browser regressions initially1PASS/4FAIL and fixes6.5.1 in progress. No merge or release. Exhausted AI-UAT ledger remains blocked. Next: staged current-source governance feature gate, push checkpoint; complete separate UI fix RED/GREEN and independent CI. Latest owner authorizes protected promotion only after all required gates PASS.
 
 # Current verified source-attestation checkpoint ? 2026-10-25
 
