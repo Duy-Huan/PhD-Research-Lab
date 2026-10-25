@@ -4,14 +4,14 @@ const assert = require('node:assert/strict');
 const {assess, run} = require('./automerge.cjs');
 function valid() {
   return {owner:'owner',repository:'owner/repo',allow_auto_merge:true,comparison:'ahead',
-    pr:{state:'open',draft:false,user:{login:'owner'},base:{ref:'dev',repo:{full_name:'owner/repo'}},head:{ref:'feature/test',sha:'abc',repo:{full_name:'owner/repo'}},mergeable:true,mergeable_state:'clean',body:'Contract: FQC-DEV-001'},
-    protection:{enforce_admins:{enabled:true},required_status_checks:{strict:true,checks:[{context:'Development gate',app_id:15368}]}},
-    checks:[{name:'Development gate',head_sha:'abc',app:{id:15368},status:'completed',conclusion:'success'}],reviews:[]};
+    pr:{state:'open',draft:false,user:{login:'owner'},base:{ref:'qa',repo:{full_name:'owner/repo'}},head:{ref:'dev',sha:'abc',repo:{full_name:'owner/repo'}},mergeable:true,mergeable_state:'clean',body:'Contract: FQC-DEV-001'},
+    protection:{enforce_admins:{enabled:true},required_status_checks:{strict:true,checks:[{context:'QA gate',app_id:15368}]}},
+    checks:[{name:'QA gate',head_sha:'abc',app:{id:15368},status:'completed',conclusion:'success'}],reviews:[]};
 }
-test('eligible same-repository dev PR requires every safeguard',()=>assert.deepEqual(assess(valid()),[]));
-test('trusted fix branch uses the same complete dev safeguards',()=>{const s=valid();s.pr.head.ref='fix/regression';assert.deepEqual(assess(s),[]);});
+test('eligible same-repository dev-to-qa PR requires every safeguard',()=>assert.deepEqual(assess(valid()),[]));
+test('feature/fix sources are rejected by the dev-only rule',()=>{for (const branch of ['feature/new','fix/regression']) {const s=valid();s.pr.head.ref=branch;assert.ok(assess(s).length);}});
 for (const [name,mutate] of [
-  ['main',s=>s.pr.base.ref='main'], ['qa',s=>s.pr.base.ref='qa'], ['fork',s=>s.pr.head.repo.full_name='fork/repo'],
+  ['main',s=>s.pr.base.ref='main'], ['dev',s=>s.pr.base.ref='dev'], ['fork',s=>s.pr.head.repo.full_name='fork/repo'],
   ['unknown author',s=>s.pr.user.login='outsider'], ['draft',s=>s.pr.draft=true],
   ['missing check',s=>s.checks=[]], ['pending',s=>s.checks[0].status='queued'],
   ['skipped',s=>s.checks[0].conclusion='skipped'], ['wrong SHA',s=>s.checks[0].head_sha='old'],

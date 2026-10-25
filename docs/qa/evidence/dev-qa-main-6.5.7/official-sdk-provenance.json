@@ -1,0 +1,12 @@
+{
+  "commit": "d720862157d146d52b6faae1e5aff9d3973ed918",
+  "archive_sha256": "3dd47393f571cf124fcc0d69d3c2f5fc514cbe56121fecc80f9b6fa3d2a45c72",
+  "url": "https://codeload.github.com/synthetic-sciences/openscience/tar.gz/d720862157d146d52b6faae1e5aff9d3973ed918",
+  "mode": "ACTUAL_OFFICIAL_SDK_SOURCE",
+  "files": {
+    "openscience/__init__.py": "f6e35f68fd986a1b723bcdbc2dc2877a36d6d9c21e29016dc12b78ad887b603b",
+    "openscience/client.py": "47a5c3d726b615b220809db814af322f4300ec43f85a0d85761550605d9b9984"
+  },
+  "license": "Apache-2.0; upstream license retained at pinned repository URL",
+  "scope": "SDK socket regression only; no runtime/model or scientific qualification"
+}

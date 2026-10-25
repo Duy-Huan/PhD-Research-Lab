@@ -8,6 +8,6 @@ Scientific verification requires `claim → evidence → experiment → executio
 
 Regression guards must reject unknown harness success, unavailable benchmark metrics, copied replay measurements, failed-agent workflow completion, skipped-live PASS, missing-citation verification, synthetic-provider real evidence and provenance-free fallback. Inject faults only in isolated tests and preserve the failing case.
 
-Report test counts and production source line/branch denominators separately from workflow, UI, platform, provider and scientific qualification. The requested 100% target is not achieved by focused-module coverage, excluding untested code, executing lines without assertions or auto-accepting visual snapshots.
+Report test counts and production source line/branch denominators separately from workflow, UI, platform, provider and scientific qualification. The owner requires 100% execution/PASS of mandatory regressions; coverage is informational without a percentage gate. Dev explicitly defers only declared live-provider cases as NOT_RUN, required at QA/main. Never exclude failing code, silently skip mandatory tests, execute lines without assertions or auto-accept visual snapshots as qualification.
 
 Any unresolved mandatory failure is NO-GO; missing mandatory evidence is BLOCKED. CI configuration alone does not prove a remote CI run passed. Preserve legitimate unit mocking and scientific simulation with accurate classification.

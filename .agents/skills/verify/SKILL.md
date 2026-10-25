@@ -3,7 +3,9 @@ name: verify
 description: Verify PhD Research Lab software changes using its deterministic development harness and quality gates.
 ---
 
-Read agent/CI_REPAIR_SUPERVISOR.md and docs/devops/CI_CD_RECOVERY.vi.md for current shared CI ownership, authorized local repair and native dev-only auto-merge. Never independently edit CI/gates in ordinary feature work; never automatically modify qa/main.
+Active owner rule: AI edits/commits only on dev; complete local pr/all software verification before dev push; dev -> qa -> main promotions. Coverage is informational. Required software regression must execute/PASS100%; real provider/research/AI-UAT is required at QA/main. Never auto-main or bypass hooks/protection. Read agent/DEV_QA_MAIN.md.
+
+Read agent/CI_REPAIR_SUPERVISOR.md and docs/devops/CI_CD_RECOVERY.vi.md for current shared CI ownership, authorized local repair and native dev-to-qa auto-merge. Never independently edit CI/gates in ordinary feature work; never bypass QA or automatically merge main.
 
 
 

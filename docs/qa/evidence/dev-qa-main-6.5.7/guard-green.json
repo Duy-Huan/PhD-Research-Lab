@@ -1,0 +1,47 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_development_guard.DevelopmentGuard.test_complete_source_bound_regression_is_required_for_push",
+      "status": "PASS",
+      "duration": 0.0002,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.DevelopmentGuard.test_latest_failure_replaces_a_previous_green_receipt",
+      "status": "PASS",
+      "duration": 0.1513,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.LiveEvidencePolicy.test_deferred_live_ids_require_real_complete_non_skipped_evidence",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.PinnedSDK.test_reviewed_inventory_is_exact_and_unknown_output_is_preserved",
+      "status": "PASS",
+      "duration": 0.0038,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.PinnedSDK.test_wrong_digest_and_escaping_archive_never_write_files",
+      "status": "PASS",
+      "duration": 0.0009,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 5,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-ms91beil",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

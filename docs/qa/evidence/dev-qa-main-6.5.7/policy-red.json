@@ -1,0 +1,166 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "status": "ERROR",
+      "duration": 0.0004,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 79, in test_ai_development_guard_only_accepts_dev_and_promotion_is_forward\n    from devtools.verification.branch_policy import development_errors, promotion_errors\nModuleNotFoundError: No module named 'devtools.verification.branch_policy'\n"
+    },
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_declared_live_ids_are_exact_and_do_not_hide_new_software_tests",
+      "status": "ERROR",
+      "duration": 0.0002,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 68, in test_declared_live_ids_are_exact_and_do_not_hide_new_software_tests\n    from devtools.verification.layers import live_ids\nModuleNotFoundError: No module named 'devtools.verification.layers'\n"
+    },
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_live_cases_remain_registered_and_never_execute_in_software_layer",
+      "status": "ERROR",
+      "duration": 0.0001,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 51, in test_live_cases_remain_registered_and_never_execute_in_software_layer\n    from devtools.verification.layers import partition\nModuleNotFoundError: No module named 'devtools.verification.layers'\n"
+    },
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_pr_and_dev_workflow_target_the_three_branch_flow",
+      "status": "FAIL",
+      "duration": 0.0383,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 92, in test_pr_and_dev_workflow_target_the_three_branch_flow\n    self.assertEqual(event['pull_request']['branches'], ['qa', 'main'])\nAssertionError: Lists differ: ['dev', 'qa', 'main'] != ['qa', 'main']\n\nFirst differing element 0:\n'dev'\n'qa'\n\nFirst list contains 1 additional elements.\nFirst extra element 2:\n'main'\n\n- ['dev', 'qa', 'main']\n?  -------\n\n+ ['qa', 'main']\n"
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_frontend_command_collects_coverage_without_percentage_thresholds",
+      "status": "FAIL",
+      "duration": 0.0059,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 46, in test_frontend_command_collects_coverage_without_percentage_thresholds\n    self.assertFalse(any('coverage.thresholds.' in value for value in values))\nAssertionError: True is not false\n"
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "status": "FAIL",
+      "duration": 0.0006,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 29, in test_full_coverage_never_masks_failed_or_incomplete_regression\n    self.assertEqual(assess(self.good() | patch, coverage), expected)\nAssertionError: 'CONDITIONAL' != 'BLOCKED'\n- CONDITIONAL\n+ BLOCKED\n\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 29, in test_full_coverage_never_masks_failed_or_incomplete_regression\n    self.assertEqual(assess(self.good() | patch, coverage), expected)\nAssertionError: 'CONDITIONAL' != 'BLOCKED'\n- CONDITIONAL\n+ BLOCKED\n\n"
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "status": "FAIL",
+      "duration": 0.001,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 20, in test_measured_low_or_missing_coverage_does_not_fail_complete_regression\n    self.assertEqual(assess(self.good(), coverage), 'CONDITIONAL')\nAssertionError: 'BLOCKED' != 'CONDITIONAL'\n- BLOCKED\n+ CONDITIONAL\n\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 20, in test_measured_low_or_missing_coverage_does_not_fail_complete_regression\n    self.assertEqual(assess(self.good(), coverage), 'CONDITIONAL')\nAssertionError: 'BLOCKED' != 'CONDITIONAL'\n- BLOCKED\n+ CONDITIONAL\n\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 20, in test_measured_low_or_missing_coverage_does_not_fail_complete_regression\n    self.assertEqual(assess(self.good(), coverage), 'CONDITIONAL')\nAssertionError: 'BLOCKED' != 'CONDITIONAL'\n- BLOCKED\n+ CONDITIONAL\n\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 20, in test_measured_low_or_missing_coverage_does_not_fail_complete_regression\n    self.assertEqual(assess(self.good(), coverage), 'CONDITIONAL')\nAssertionError: 'FAIL' != 'CONDITIONAL'\n- FAIL\n+ CONDITIONAL\n\n"
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "status": "FAIL",
+      "duration": 0.0006,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 35, in test_missing_or_invalid_execution_counts_fail_closed\n    self.assertEqual(assess(self.good() | patch), 'BLOCKED')\nAssertionError: 'FAIL' != 'BLOCKED'\n- FAIL\n+ BLOCKED\n\n"
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_old_minimum_argument_cannot_reintroduce_a_coverage_gate",
+      "status": "FAIL",
+      "duration": 0.0003,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 39, in test_old_minimum_argument_cannot_reintroduce_a_coverage_gate\n    self.assertEqual(assess(self.good(), {'num_statements': 100, 'covered_lines': 1}, minimum=100), 'CONDITIONAL')\nAssertionError: 'BLOCKED' != 'CONDITIONAL'\n- BLOCKED\n+ CONDITIONAL\n\n"
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'failures': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'errors': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'skipped': 1, 'passed': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'passed': 1})",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 29, in test_full_coverage_never_masks_failed_or_incomplete_regression\n    self.assertEqual(assess(self.good() | patch, coverage), expected)\nAssertionError: 'CONDITIONAL' != 'BLOCKED'\n- CONDITIONAL\n+ BLOCKED\n\n"
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'unverified': 1})",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 29, in test_full_coverage_never_masks_failed_or_incomplete_regression\n    self.assertEqual(assess(self.good() | patch, coverage), expected)\nAssertionError: 'CONDITIONAL' != 'BLOCKED'\n- CONDITIONAL\n+ BLOCKED\n\n"
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'total_run': 0, 'passed': 0})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage=None)",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 20, in test_measured_low_or_missing_coverage_does_not_fail_complete_regression\n    self.assertEqual(assess(self.good(), coverage), 'CONDITIONAL')\nAssertionError: 'BLOCKED' != 'CONDITIONAL'\n- BLOCKED\n+ CONDITIONAL\n\n"
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage={})",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 20, in test_measured_low_or_missing_coverage_does_not_fail_complete_regression\n    self.assertEqual(assess(self.good(), coverage), 'CONDITIONAL')\nAssertionError: 'BLOCKED' != 'CONDITIONAL'\n- BLOCKED\n+ CONDITIONAL\n\n"
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage={'num_statements': 10})",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 20, in test_measured_low_or_missing_coverage_does_not_fail_complete_regression\n    self.assertEqual(assess(self.good(), coverage), 'CONDITIONAL')\nAssertionError: 'BLOCKED' != 'CONDITIONAL'\n- BLOCKED\n+ CONDITIONAL\n\n"
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage={'num_statements': 10, 'covered_lines': 1, 'num_branches': 8, 'covered_branches': 0})",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 20, in test_measured_low_or_missing_coverage_does_not_fail_complete_regression\n    self.assertEqual(assess(self.good(), coverage), 'CONDITIONAL')\nAssertionError: 'FAIL' != 'CONDITIONAL'\n- FAIL\n+ CONDITIONAL\n\n"
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'total_run': -1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'total_run': True})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'passed': -1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'passed': 3})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'errors': -1})",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 35, in test_missing_or_invalid_execution_counts_fail_closed\n    self.assertEqual(assess(self.good() | patch), 'BLOCKED')\nAssertionError: 'FAIL' != 'BLOCKED'\n- FAIL\n+ BLOCKED\n\n"
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'skipped': '0'})",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "total": 9,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-tbc6r1jr",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

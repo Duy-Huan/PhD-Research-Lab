@@ -1,0 +1,10 @@
+{
+  "mode": "REAL_LOCAL",
+  "scope": "Actual3D repeated after all2D journeys; no model/scientific claim",
+  "files": {
+    "results.json": "586f6f6801efcd4c4def0b1ec9ebbb49b1edda88320e2fbbf2911a8588059c64",
+    "run.log": "b8a7e6e6566556723fd444faab3daafc0cb70e8aa23b915b603709d9c5608e29",
+    "test-finished-1.png": "2a716cfdaf91ff34a15c494c35739aac0e061060bd898f515a7ce49d9e976700",
+    "trace.zip": "d9ace54f2b693528638b114a8956e4aabdd6846da38313235c7ccd0e88b30fcb"
+  }
+}

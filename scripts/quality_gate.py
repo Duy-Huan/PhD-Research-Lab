@@ -13,8 +13,8 @@ from devtools.verification.contracts import validate_contract, validate_tdd, val
 from devtools.verification.evidence import aggregate
 from devtools.verification.baseline import validate_baseline
 
-REQUIRED = {'development':['policy','backend','frontend','security','browser','uat-policy'],
-            'qa':['development-gate','live-qualification'],
+REQUIRED = {'development':['policy','backend','frontend','security','browser'],
+            'qa':['development-gate','live-qualification','uat-policy'],
             'release':['qa-gate','release-approval']}
 
 

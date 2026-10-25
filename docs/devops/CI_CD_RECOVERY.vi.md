@@ -1,3 +1,5 @@
+> Active owner policy (2026-10-25): develop/commit only on dev; full local pr/all software regression before dev push; dev -> qa -> main promotions. Coverage is informational. Real provider/research/AI-UAT is mandatory at QA/main. Older feature-to-dev instructions/examples below are historical and must not be executed. Current operator guide: [agent/DEV_QA_MAIN.md](../../agent/DEV_QA_MAIN.md), repair policy: [agent/CI_REPAIR_SUPERVISOR.md](../../agent/CI_REPAIR_SUPERVISOR.md). Never automatically merge main.
+
 # CI/CD sau chuẩn hóa phục hồi
 
 Cập nhật 6.5.6: GitHub đã đổi required check của `main` sang `QA gate`, giữ strict và các bảo vệ khác; receipt trước/sau nằm trong `docs/qa/evidence/ci-stabilization-6.5.6/github-cleanup.json`. Hai workflow trùng cũ đã bị vô hiệu hóa, PR #7/#9 được đóng vì toàn bộ lịch sử đã nằm trong PR tích hợp #11. Branch/worktree và log cũ được giữ. Đây chưa phải promotion thành công: nguồn mới vẫn phải qua đầy đủ coverage, regression và AI-UAT; chưa có merge/tag/release.

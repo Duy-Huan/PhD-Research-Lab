@@ -23,7 +23,8 @@ class WorkflowContract(unittest.TestCase):
     def test_pr_quality_has_no_release_or_production_approval(self):
         workflow=self.load('quality.yml');triggers=workflow.get('on',workflow.get(True))
         self.assertIn('pull_request',triggers)
-        self.assertNotIn('push',triggers)
+        self.assertEqual(triggers['push']['branches'],['dev'])
+        self.assertEqual(triggers['pull_request']['branches'],['qa','main'])
         self.assertNotIn('workflow_dispatch',triggers,'Diagnostic dispatch must not overwrite required PR status contexts')
         self.assertNotIn('release-gate',workflow['jobs'])
         self.assertNotIn('release-approval',workflow['jobs'])

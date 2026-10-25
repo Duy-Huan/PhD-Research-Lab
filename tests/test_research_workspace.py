@@ -155,16 +155,19 @@ class ResearchWorkspace(unittest.TestCase):
         with patch.object(W, "IS_WIN", False), patch("backend.execution.tools.which", return_value="/usr/bin/feynman"), patch("subprocess.Popen", side_effect=AssertionError("No hidden interactive launch")):
             self.assertEqual(W.open_workspace(w["id"])["status"], "terminal_required")
         self.assertFalse(W.get(w["id"])["capabilities"]["external_session_enumeration"])
-        outside = config.data_dir() / "secret.md"
-        outside.write_text("private")
-        link = Path(w["path"]) / "leak.md"
-        try:
-            link.symlink_to(outside)
-        except OSError:
-            self.skipTest("Symlink creation needs Windows Developer Mode/admin; traversal and overlap checks executed")
-        report = W.sync(w["id"])
-        self.assertTrue(report["errors"])
-        self.assertFalse(W.artifacts(self.a))
+        # Execute the real reparse escape oracle on unprivileged Windows too.
+        with _env.tempfile.TemporaryDirectory(prefix='phdlab-private-link-') as private:
+            outside = Path(private) / 'secret.md'
+            outside.write_text('private')
+            link = Path(w['path']) / 'leak.md'
+            try:
+                link.symlink_to(outside)
+            except OSError:
+                if os.name != 'nt': raise
+                _env.directory_link(outside.parent, Path(w['path']) / 'leak-directory')
+            report = W.sync(w['id'])
+            self.assertTrue(report['errors'])
+            self.assertFalse(W.artifacts(self.a))
 
     def test_jobs_dry_run_cancel_retry_failures_and_quota(self):
         job = J.enqueue(self.a, "discover", {"dry_run": True})

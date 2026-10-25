@@ -132,7 +132,7 @@ def main():
                        'state': p['health_after']['state']} for p in providers],
         'benchmark': benchmark['summary'], 'golden_cases': len(golden['cases']),
         'scientific_verified': False,
-        'blockers': ['Backend and frontend production coverage below 100%', 'Mandatory backend skips remain',
+        'blockers': ['Mandatory backend skips remain',
                      'Cloud credentials absent, Gemini auth absent, Claude quota exhausted, Ollama unavailable',
                      'Every workflow/provider/viewport/control is not yet live-qualified',
                      'Full context/memory/router/policy consolidation remains incomplete',
@@ -156,7 +156,7 @@ def main():
     evidence_link = 'evidence/' + out.name
     write(ROOT / 'docs/qa/RELEASE_READINESS.md', f"""# Full harness release assessment — 2026-10-25
 
-**NO-GO. The requested 100% regression/coverage and all-provider qualification have not been achieved.**
+**NO-GO. The requested 100% mandatory regression and all-provider qualification have not been achieved.**
 The passing cases below certify only their assertions. Missing providers, skipped cases and unsupported benchmark executors are not successes.
 
 {table}
@@ -176,7 +176,7 @@ Raw traces, screenshots, request logs and console output remain in `{run.relativ
 
 ## Remaining work
 
-Backend coverage has {c['num_statements']-c['covered_lines']} uncovered executable lines and {c['num_branches']-c['covered_branches']} uncovered branches. Frontend has {f['lines']['total']-f['lines']['covered']} uncovered lines and {f['branches']['total']-f['branches']['covered']} uncovered branches. Add behavior oracles without reducing denominators, mocking live runs, changing assertions to success, or weakening the 100% gate.
+Backend coverage has {c['num_statements']-c['covered_lines']} uncovered executable lines and {c['num_branches']-c['covered_branches']} uncovered branches. Frontend has {f['lines']['total']-f['lines']['covered']} uncovered lines and {f['branches']['total']-f['branches']['covered']} uncovered branches. Add behavior oracles without reducing denominators, mocking live runs, changing assertions to success, or misreporting required regression success. Coverage is informational under the current owner policy.
 
 Complete native application window checks, full EN/VI labeling, all registered workflow execution adapters, every required viewport/control, full architectural consolidation, remaining providers, remote Windows/Linux CI, and independent scientific review. Auth/quota/services require actual external availability; subscription CLI access does not imply cloud API credentials.
 

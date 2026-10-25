@@ -30,19 +30,13 @@ class Paths(unittest.TestCase):
     def test_symlink_escape_is_refused(self):
         outside = Path(tempfile.mkdtemp())
         link = self.base / "link"
-        try:
-            os.symlink(outside, link, target_is_directory=True)
-        except OSError:
-            self.skipTest("symlinks need developer mode / admin on Windows")
+        _env.directory_link(outside, link)
         with self.assertRaises(W.WorkspaceError):
             W.safe_path(self.base, "link", "x.txt")
 
     def test_inner_symlink_is_allowed(self):
         (self.base / "real").mkdir()
-        try:
-            os.symlink(self.base / "real", self.base / "alias", target_is_directory=True)
-        except OSError:
-            self.skipTest("symlinks need developer mode / admin on Windows")
+        _env.directory_link(self.base / "real", self.base / "alias")
         self.assertTrue(str(W.safe_path(self.base, "alias", "f")).startswith(str(self.base.resolve())))
 
     def test_symlink_checks_without_os_symlinks(self):

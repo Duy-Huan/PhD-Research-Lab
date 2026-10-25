@@ -42,7 +42,7 @@ def main():
     for path in [ROOT / name for name in ("start.py", "run.bat", ".coveragerc", "requirements.txt", "requirements-dev.txt", "frontend/react.html", "frontend/vite.config.ts", "frontend/package.json", "frontend/package-lock.json", "frontend/assets/app.css")]:
         source_hashes[str(path.relative_to(ROOT)).replace('\\', '/')] = hashlib.sha256(path.read_bytes()).hexdigest()
     summary = {
-        "decision": "NO-GO", "reason": "Whole-project 100% coverage is not achieved; mandatory skipped and unqualified journeys remain; initial live suite had intermittent failures",
+        "decision": "NO-GO", "reason": "Mandatory skipped and unqualified journeys remain; initial live suite had intermittent failures; coverage is informational",
         "source_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
         "source_dirty": bool(subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT, text=True).strip()),
         "platform": platform.platform(),

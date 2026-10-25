@@ -10,15 +10,17 @@ import tempfile
 import unittest
 
 
-def _execute(output: str, data: str, modules: list[str], mode: str) -> None:
+def _execute(output: str, data: str, modules: list[str], mode: str, layer: str) -> None:
     root=Path(__file__).resolve().parents[2]
     sys.path[:0]=[str(root),str(root/'tests')]
     os.environ.update(PHDLAB_DATA_DIR=data,PHDLAB_QA_OFFLINE='1',JUPYTER_DATA_DIR=data+'/_jupyter')
     from tools.backend_quality_gate import QualityGateTestResult
     suite=unittest.defaultTestLoader.loadTestsFromNames(modules)
+    from devtools.verification.layers import partition
+    suite, deferred = partition(suite, layer)
     result=unittest.TextTestRunner(verbosity=2,resultclass=QualityGateTestResult).run(suite)
     Path(output).write_text(json.dumps({'mode':mode,'cases':result.test_cases_recorded,
-        'subtests':result.subtests,'total':result.testsRun,'passed':result.wasSuccessful(),
+        'subtests':result.subtests,'deferred_tests':deferred,'test_layer':layer,'total':result.testsRun,'passed':result.wasSuccessful(),
         'skipped':len(result.skipped),'cleanup_complete':False,'disposable_data':data,
         'limitations':['Offline fixtures do not qualify external providers; skips remain unqualified']},indent=2),encoding='utf-8')
     raise SystemExit(0 if result.testsRun and result.wasSuccessful() else 1)
@@ -29,6 +31,7 @@ def main() -> int:
     parser.add_argument('output',type=Path)
     parser.add_argument('modules',nargs='+')
     parser.add_argument('--mode',choices=['MOCKED','REAL_LOCAL'],default='MOCKED')
+    parser.add_argument('--layer',choices=['software','live','all'],default='software')
     args=parser.parse_args()
     output=args.output.resolve();output.parent.mkdir(parents=True,exist_ok=True)
     child=None;cleanup_error=None;data=None;code=1
@@ -39,7 +42,7 @@ def main() -> int:
     try:
         with allocation:
             child=multiprocessing.get_context('spawn').Process(target=_execute,
-                args=(str(output),str(data),args.modules,args.mode))
+                args=(str(output),str(data),args.modules,args.mode,args.layer))
             child.start();child.join(timeout=1100)
             if child.is_alive():
                 child.terminate();child.join(timeout=10)

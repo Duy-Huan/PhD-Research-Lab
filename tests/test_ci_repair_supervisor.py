@@ -7,11 +7,11 @@ import unittest
 
 class SupervisorPolicy(unittest.TestCase):
     def fixture(self):
-        policy={'repository':'owner/repo','owner':'owner','pr':17,'branch':'feature/repair',
+        policy={'repository':'owner/repo','owner':'owner','pr':17,'branch':'dev',
                 'authorized':True,'exclusive_worktree':True,'worktree':'/owned/worktree'}
-        pr={'number':17,'state':'open','body':'Contract: FQC-DEV-001','base':{'ref':'dev','repo':{'full_name':'owner/repo'}},
-            'head':{'ref':'feature/repair','sha':'a'*40,'repo':{'full_name':'owner/repo'}},'user':{'login':'owner'}}
-        local={'branch':'feature/repair','head':'a'*40,'worktree':'/owned/worktree'}
+        pr={'number':17,'state':'open','body':'Contract: FQC-DEV-001','base':{'ref':'qa','repo':{'full_name':'owner/repo'}},
+            'head':{'ref':'dev','sha':'a'*40,'repo':{'full_name':'owner/repo'}},'user':{'login':'owner'}}
+        local={'branch':'dev','head':'a'*40,'worktree':'/owned/worktree'}
         return policy,pr,local
 
     def test_only_explicit_matching_owner_branch_sha_and_worktree_can_execute(self):
@@ -103,7 +103,7 @@ class SupervisorPolicy(unittest.TestCase):
         from devtools.verification.ci_repair import mandatory_job_errors
         names=['Contract and workflow policy','Frontend types, whole-source coverage and build',
                'Dependency and high-confidence security checks','Real offline browser smoke',
-               'Risk-triggered verified AI-UAT evidence','Development gate']
+               'Risk-triggered verified AI-UAT evidence','Development gate','Matching-source live research qualification','QA gate']
         names += [f'Backend ({platform}, Python {version})' for platform in ['ubuntu-latest','windows-latest'] for version in ['3.11','3.12']]
         jobs=[{'name':name,'conclusion':'success'} for name in names]
         self.assertEqual(mandatory_job_errors(jobs),[])

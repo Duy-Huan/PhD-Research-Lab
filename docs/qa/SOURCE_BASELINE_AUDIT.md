@@ -1,3 +1,5 @@
+> Current6.5.7 owner-policy follow-up: [dev/QA/main report](DEV_QA_MAIN_6.5.7.md). Full local software1127/1127PASS,0selected skips/errors; coverage informational. Current-source QA live/research/AI-UAT remains BLOCKED, no main promotion/release. Earlier6.5.6 figures and issues below are historical, not current release certification.
+
 # Source baseline:6.5.6
 
 This is an evidence-driven baseline, not release certification. Original dirty application work, branches, worktrees and history are preserved. The integration branch includes the latest application snapshot and governance/UI dependencies. Main/dev/qa remain the untrusted6.3.0 preview at6725975261fe6a4d8a5cb3e10208e31c3e24f0e2.

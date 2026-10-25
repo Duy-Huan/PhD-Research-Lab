@@ -6,3 +6,5 @@ optuna>=4.0
 ruff>=0.17.2
 bandit>=1.9.4
 pip-audit>=2.10.1
+# Required software integration regression: actual offline ClearML SDK, no server/model calls.
+clearml==2.1.12

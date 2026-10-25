@@ -1,3 +1,5 @@
+> Current6.5.7 owner-policy follow-up: [dev/QA/main report](DEV_QA_MAIN_6.5.7.md). Full local software1127/1127PASS,0selected skips/errors; coverage informational. Current-source QA live/research/AI-UAT remains BLOCKED, no main promotion/release. Earlier6.5.6 figures and issues below are historical, not current release certification.
+
 # Regression and production coverage:6.5.6
 
 Same-suite policy, environment and source denominators: [measured comparison](MAIN_CANDIDATE_COMPARISON.md). No test/exclusion/threshold was weakened. Raw PASS counts from different source capabilities do not rank branches.

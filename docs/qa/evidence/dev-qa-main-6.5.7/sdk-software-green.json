@@ -1,0 +1,263 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_clearml.ClearMLOffline.test_auto_record_switches_and_error_pointer",
+      "status": "PASS",
+      "duration": 11.4018,
+      "details": null
+    },
+    {
+      "id": "test_clearml.ClearMLOffline.test_pointer_on_damaged_or_missing_record_and_without_provenance",
+      "status": "PASS",
+      "duration": 3.9068,
+      "details": null
+    },
+    {
+      "id": "test_clearml.ClearMLOffline.test_real_offline_session",
+      "status": "PASS",
+      "duration": 7.8049,
+      "details": null
+    },
+    {
+      "id": "test_clearml.ClearMLOffline.test_run_env",
+      "status": "PASS",
+      "duration": 0.0853,
+      "details": null
+    },
+    {
+      "id": "test_clearml.ClearMLOffline.test_session_written_by_the_training_script_is_linked",
+      "status": "PASS",
+      "duration": 3.7958,
+      "details": null
+    },
+    {
+      "id": "test_clearml.ClearMLOffline.test_worker_results_and_errors",
+      "status": "PASS",
+      "duration": 4.6834,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_admission_auth_errors_are_normalized_without_reprompt",
+      "status": "PASS",
+      "duration": 0.0999,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_ambiguous_admission_never_reprompts_automatically",
+      "status": "PASS",
+      "duration": 0.1303,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_cancellation_receipt_remains_unconfirmed",
+      "status": "PASS",
+      "duration": 0.3249,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_common_cancel_before_dispatch",
+      "status": "PASS",
+      "duration": 0.0667,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_common_result_contract",
+      "status": "PASS",
+      "duration": 0.3049,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_context_snapshot_and_project_scope",
+      "status": "PASS",
+      "duration": 0.352,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_deadline_requests_cancel_instead_of_restarting",
+      "status": "PASS",
+      "duration": 0.3285,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_deployment_credential_split_across_events_is_not_exposed",
+      "status": "PASS",
+      "duration": 0.3125,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_disabled_commands_refuse_approval",
+      "status": "PASS",
+      "duration": 0.3077,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_effective_metadata_response_has_a_byte_limit",
+      "status": "PASS",
+      "duration": 0.0569,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_engine_switch_requires_terminal_receipt",
+      "status": "PASS",
+      "duration": 0.3328,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_eof_is_not_completion_and_recovery_observes_without_reprompt",
+      "status": "PASS",
+      "duration": 0.3256,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_idle_socket_reconnects_observation_without_skipping_cursor",
+      "status": "PASS",
+      "duration": 0.5022,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_live_job_inspection_and_questions_do_not_reuse_historical_decisions",
+      "status": "PASS",
+      "duration": 0.1854,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_model_and_execution_preflight_and_duplicate_observers",
+      "status": "PASS",
+      "duration": 0.1016,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_native_pending_job_blocks_second_admission",
+      "status": "PASS",
+      "duration": 0.3291,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_pending_approval_is_fresh_and_denied_tools_cannot_be_granted",
+      "status": "PASS",
+      "duration": 0.1352,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_project_switch_does_not_redirect_old_journal_writes",
+      "status": "PASS",
+      "duration": 0.3678,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_quota_receipt_not_auto_retried_and_explicit_retry_is_new_attempt",
+      "status": "PASS",
+      "duration": 0.1491,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_runtime_health_protocol_and_missing_sdk_are_explicit",
+      "status": "PASS",
+      "duration": 0.0627,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_stream_dedup_authoritative_result_and_same_operation",
+      "status": "PASS",
+      "duration": 0.3286,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.AdapterTests.test_unapproved_outside_project_and_cancelled_preflight_submit_nothing",
+      "status": "PASS",
+      "duration": 0.0907,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.Artifacts.test_artifact_byte_budget_is_enforced_before_publish",
+      "status": "PASS",
+      "duration": 0.0655,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.Artifacts.test_checksum_and_filename_containment",
+      "status": "PASS",
+      "duration": 0.0682,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.Artifacts.test_corrupt_or_misreported_size_is_refused_and_partial_removed",
+      "status": "PASS",
+      "duration": 0.0804,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.Artifacts.test_effective_policy_rejects_native_worker_and_global_grants",
+      "status": "PASS",
+      "duration": 0.0545,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.Contracts.test_auto_needs_qualified_model_and_identity_changes_reset_qualification",
+      "status": "PASS",
+      "duration": 0.0255,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.Contracts.test_contract_versions_loopback_and_optional_registration",
+      "status": "PASS",
+      "duration": 0.1644,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.Contracts.test_feynman_uses_existing_dispatch_and_contract",
+      "status": "PASS",
+      "duration": 0.0058,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.EngineApi.test_inventory_separate_from_llm_and_invalid_decision_rejected",
+      "status": "PASS",
+      "duration": 3.3802,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.FeynmanConformance.test_common_cancel_before_dispatch",
+      "status": "PASS",
+      "duration": 0.0612,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.FeynmanConformance.test_common_result_contract",
+      "status": "PASS",
+      "duration": 0.0605,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.OfficialSDKSocket.test_real_sdk_through_adapter_with_bounded_socket_fixture",
+      "status": "PASS",
+      "duration": 0.939,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.RunIntegration.test_bounded_collaboration_approval_and_resume_preserve_primary",
+      "status": "PASS",
+      "duration": 0.8429,
+      "details": null
+    },
+    {
+      "id": "test_research_engines.RunIntegration.test_explicit_science_mode_needs_approval_even_when_disabled",
+      "status": "PASS",
+      "duration": 0.214,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 41,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-bvncrka8",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

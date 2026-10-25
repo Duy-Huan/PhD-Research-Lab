@@ -1,3 +1,5 @@
+> Current6.5.7 owner-policy follow-up: [dev/QA/main report](DEV_QA_MAIN_6.5.7.md). Full local software1127/1127PASS,0selected skips/errors; coverage informational. Current-source QA live/research/AI-UAT remains BLOCKED, no main promotion/release. Earlier6.5.6 figures and issues below are historical, not current release certification.
+
 # Actual verification:6.5.6
 
 Decision: **NO-GO; QA100% is not achieved.**

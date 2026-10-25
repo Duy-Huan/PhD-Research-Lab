@@ -1,3 +1,5 @@
+> Active owner policy (2026-10-25): develop/commit only on dev; full local pr/all software regression before dev push; dev -> qa -> main promotions. Coverage is informational. Real provider/research/AI-UAT is mandatory at QA/main. Older feature-to-dev instructions/examples below are historical and must not be executed. Current operator guide: [agent/DEV_QA_MAIN.md](../../agent/DEV_QA_MAIN.md), repair policy: [agent/CI_REPAIR_SUPERVISOR.md](../../agent/CI_REPAIR_SUPERVISOR.md). Never automatically merge main.
+
 # Vận hành local CI Repair Supervisor
 
 Supervisor là hạ tầng phát triển, tách khỏi Research Agent Harness. Nó polling GitHub bằng credential hiện có của Git Credential Manager, không cần webhook public hoặc cloud deployment. Nó không tự chạy khi import module hoặc khi nhận một PR bất kỳ.

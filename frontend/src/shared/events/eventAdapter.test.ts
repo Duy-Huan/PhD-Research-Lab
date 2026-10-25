@@ -6,6 +6,16 @@ import {
 import type { Mission, OpenCodeSession } from '../api/types';
 
 describe('eventAdapter', () => {
+  it('localizes permanent faculty while preserving supplied live-agent context', () => {
+    const live = { agentId: 'user-agent', displayName: 'Tên riêng của người dùng' } as any;
+    const english = buildUniversityLabRoster([live], 'p', undefined, undefined, 'en');
+    expect(english[0]).toBe(live);
+    for (const agent of english.slice(1)) {
+      expect([agent.role, agent.personality, agent.speechBubble].join(' ')).not.toMatch(/[À-ỹ]/);
+    }
+    const vietnamese = buildUniversityLabRoster([], 'p', undefined, undefined, 'vi');
+    expect(vietnamese.find(a => a.agentId === 'faculty_pi_orchestrator')?.personality).toContain('Điềm tĩnh');
+  });
   it('maps missions with various task statuses and capabilities to agent view models', () => {
     const mockMissions: Mission[] = [
       {

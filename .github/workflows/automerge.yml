@@ -1,4 +1,4 @@
-name: Trusted dev auto-merge
+name: Trusted QA promotion auto-merge
 on:
   workflow_run:
     workflows: [Quality Gates]

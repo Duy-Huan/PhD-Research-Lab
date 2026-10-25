@@ -142,7 +142,7 @@ class Contracts(unittest.TestCase):
                 self.assertTrue(validate_contract(c,Path(__file__).resolve().parents[1]))
 
     def test_branch_promotion_direction_and_human_release(self):
-        self.assertEqual(validate_promotion('feature/test','dev',False),[])
+        self.assertTrue(validate_promotion('feature/test','dev',False))
         self.assertEqual(validate_promotion('dev','qa',False),[])
         self.assertTrue(validate_promotion('feature/test','main',True))
         self.assertTrue(validate_promotion('qa','main',False))

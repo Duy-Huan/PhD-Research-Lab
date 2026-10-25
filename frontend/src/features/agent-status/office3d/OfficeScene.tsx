@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Html } from '@react-three/drei';
 import type { AgentOfficeViewModel } from '../../../shared/api/types';
 import type { InteractiveLabObjectKind } from '../../../shared/state/uiStore';
+import { useI18n } from '../../../shared/state/uiStore';
 import { AgentAvatar } from './AgentAvatar';
 import { APP_VERSION } from '../../../shared/version';
 
@@ -33,6 +34,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
   onSelectLabObject,
 }) => {
   const [hoveredObj, setHoveredObj] = useState<string | null>(null);
+  const { t } = useI18n();
 
   const isGreen = lightingMode === 'biophilic_green';
   const isNight = lightingMode === 'night_lab';
@@ -302,7 +304,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
                   PhD Research Lab
                 </div>
                 <div style={{ fontSize: 11.5, color: '#cbd5e1', marginTop: 2 }}>
-                  {topicTitle || 'Click để mở Đề cương 5 cấp độ (Outline) & Nhiệm vụ Tự hành'}
+                  {topicTitle || t('Click để mở Đề cương 5 cấp độ (Outline) & Nhiệm vụ Tự hành', 'Open the 5-level outline and autonomous missions')}
                 </div>
               </div>
             </div>
@@ -330,7 +332,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
                 🤖 Active Agents: <b style={{ color: '#fbbf24' }}>{runningCount}/{agents.length}</b>
               </span>
               <span style={{ fontSize: 10, color: '#a7f3d0', fontWeight: 700 }}>
-                [Click: Xem Đề cương & Missions]
+                {t('[Click: Xem Đề cương & Missions]', '[Open Outline & Missions]')}
               </span>
             </div>
           </div>
@@ -406,7 +408,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
               boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
             }}
           >
-            📚 Thư viện SKB ({paperCount} bài báo) · Click để tra cứu
+            {t(`📚 Thư viện SKB (${paperCount} bài báo) · Click để tra cứu`, `📚 SKB Library (${paperCount} papers) · Browse references`)}
           </div>
         </Html>
       </group>
@@ -477,7 +479,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
               boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
             }}
           >
-            🖥️ Cụm HPC & OpenCode Parallel · Click mở Runtime
+            {t('🖥️ Cụm HPC & OpenCode Parallel · Click mở Runtime', '🖥️ HPC & OpenCode Parallel · Open Runtime')}
           </div>
         </Html>
       </group>
@@ -548,7 +550,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
               boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
             }}
           >
-            🏆 Bàn Hội đồng Bình duyệt R1–R3 · Click mở Review
+            {t('🏆 Bàn Hội đồng Bình duyệt R1–R3 · Click mở Review', '🏆 R1–R3 Peer Review Table · Open Review')}
           </div>
         </Html>
       </group>
@@ -618,7 +620,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
               boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
             }}
           >
-            📊 Bàn Hologram Figure Studio · Click thiết kế Đồ thị
+            {t('📊 Bàn Hologram Figure Studio · Click thiết kế Đồ thị', '📊 Figure Studio Hologram · Design Figures')}
           </div>
         </Html>
       </group>

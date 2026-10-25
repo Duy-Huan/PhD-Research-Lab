@@ -214,7 +214,23 @@
       "suspected_root_cause": "English3D view retains Vietnamese HPC labels and agent role text",
       "regression_test_id": "UI-3D-LOCALE-001 (planned, NOT_IMPLEMENTED)",
       "remediation": "Add behavioral EN/VI3D assertions before localizing labels and agent descriptions; rerun affected/full gates",
-      "release_blocking": true
+      "release_blocking": true,
+      "follow_up_6_5_7": {
+        "status": "LOCAL_FIX_VERIFIED",
+        "source_sha256": "8cd61b8559a2abbfd87c7ac80ce2234b852d73bb47f92d8f59bcd3efc431dab5",
+        "evidence": [
+          "docs/qa/evidence/dev-qa-main-6.5.7/locale-red.json",
+          "docs/qa/evidence/dev-qa-main-6.5.7/locale-green.json",
+          "docs/qa/evidence/dev-qa-main-6.5.7/browser-results.json",
+          "docs/qa/evidence/dev-qa-main-6.5.7/3d-after-2d/manifest.json"
+        ],
+        "tests": [
+          "eventAdapter localizes permanent faculty while preserving supplied live-agent context",
+          "OfficeScene renders world labels in the selected EN/VI language",
+          "Playwright office3d real WebGL English label/role assertions"
+        ],
+        "limitation": "Original frozen6.5.6 comparison statuses remain unchanged; no exhaustive locale/UI or release certification"
+      }
     }
   ],
   "classification_corrections": [

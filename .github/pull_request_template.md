@@ -1,13 +1,12 @@
 Contract: FQC-<ID>
 
-Describe the concrete behavior before/after and the requirement IDs implemented.
+Promotion: dev -> qa or qa -> main. AI code development occurs only on dev.
 
-- Contract and reviewed test matrix: `docs/qa/contracts/<ID>.json`
-- Pinned GitHub skills selected or refreshed: `skills/SOURCES.json`
-- Functional RED/GREEN evidence (label legacy or non-testable exceptions explicitly):
-- Local feature verification report, source digest and command:
-- Real integration/provider evidence and remaining blockers:
-- Risk, recovery and compatibility:
+- Requirements and reviewed contract: docs/qa/contracts/<ID>.json
+- Before/after behavior, relevant pinned skills and actual RED/GREEN evidence:
+- Current complete local pr/all software report, source digest and case counts:
+- Informational coverage scope and denominators:
+- Actual current-source provider/research/AI-UAT evidence (mandatory at QA/main):
+- Remaining blockers, recovery and compatibility:
 
-Do not check a box or write PASS for a skipped, unavailable or unexecuted gate.
-Only trusted feature PRs into dev may auto-merge after independent CI. QA/main use promotion PRs; main requires human release authorization.
+Missing/skipped/unexecuted checks never count as PASS. All required software regressions must execute/PASS. Main promotion is owner-controlled and never automatic; native trusted QA auto-merge requires genuine current-head qualification and protection.

@@ -181,6 +181,7 @@ def run_gate(
     output_dir: Path | None = None,
     allow_full: bool = False,
     require_complete: bool = False,
+    layer: str = 'software',
 ) -> int:
     output_dir = (output_dir or DEFAULT_OUTPUT_DIR).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -247,6 +248,8 @@ def run_gate(
     else:
         suite = loader.loadTestsFromNames([profile])
 
+    from devtools.verification.layers import partition
+    suite, deferred_tests = partition(suite, layer)
     runner = unittest.TextTestRunner(
         stream=tee_stream,
         verbosity=2,
@@ -310,7 +313,7 @@ def run_gate(
         "G6_Security_ASVS": "PASS" if passed_all else "FAIL",
         "G7_Multi_Provider": "PASS" if passed_all else "FAIL",
         "G8_Resource_Guard": "PASS" if passed_all else "FAIL",
-        "G9_Coverage": "BLOCKED" if not coverage_summary else "PASS" if coverage_summary["covered_lines"] == coverage_summary["num_statements"] and coverage_summary["covered_branches"] == coverage_summary["num_branches"] else "FAIL",
+        "G9_Coverage": "INFORMATIONAL" if coverage_summary else "UNAVAILABLE",
         "G10_Performance": "PASS" if elapsed < 600 else "FAIL",
         "G11_Observability": "PASS" if passed_all else "FAIL",
         "G12_Cross_Platform": "BLOCKED",
@@ -323,7 +326,10 @@ def run_gate(
     if result.skipped:
         gates["G0_Test_Integrity"] = "BLOCKED"
     from tools.quality_evidence import assess
-    decision = assess({"total_run": result.testsRun, "failures": len(result.failures), "errors": len(result.errors), "skipped": len(result.skipped)}, coverage_summary)
+    decision = assess({'total_run': result.testsRun,
+                       'passed': sum(c['status']=='PASS' for c in result.test_cases_recorded),
+                       'unverified': sum(c['status']=='UNVERIFIED' for c in result.test_cases_recorded),
+                       'failures': len(result.failures), 'errors': len(result.errors), 'skipped': len(result.skipped)}, coverage_summary)
     if not source_stable and decision != 'FAIL':
         decision = 'BLOCKED'
 
@@ -340,6 +346,7 @@ def run_gate(
             "data_dir_isolated": temp_data_dir,
             "release_scope": 'v' + sys.modules['backend.core.config'].APP_VERSION,
             "source_stable": source_stable,
+            "test_layer": layer,
             "source_files_sha256": before_hashes,
         },
         "summary": {
@@ -354,10 +361,12 @@ def run_gate(
             "overall_decision": decision,
         },
         "coverage": coverage_summary,
+        "coverage_policy": {'mode':'INFORMATIONAL','percentage_gate':False},
+        "deferred_tests": deferred_tests,
         "quality_gates": gates,
         "cases": getattr(result, "test_cases_recorded", []),
         "subtests": result.subtests,
-        "limitations": ["Per-test success is scoped to executed cases; no blanket security or platform certification", "Skipped tests and missing coverage prevent release acceptance", "Live-provider and real-browser suites require separate opt-in runs"],
+        "limitations": ["Per-test success is scoped to executed cases; no blanket security or platform certification", "Required skipped/unexecuted regression cases block; coverage percentages are informational", "Declared live-provider cases are NOT_RUN in software and required at QA/main"],
     }
 
     with open(report_file_path, "w", encoding="utf-8") as rf:
@@ -387,7 +396,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="PhD Research Lab Backend Quality Gate Orchestrator")
     parser.add_argument("--profile", choices=["smoke", "core", "full"], default="smoke", help="Execution profile")
     parser.add_argument("--no-coverage", action="store_true", help="Disable coverage instrumentation")
-    parser.add_argument('--require-complete', action='store_true', help='Fail on any skip, missing evidence or production coverage below 100%%')
+    parser.add_argument('--require-complete', action='store_true', help='Require every selected regression to execute and pass; coverage is informational')
+    parser.add_argument('--layer', choices=['software','live','all'], default='software')
     parser.add_argument("--i-understand-full-suite", action="store_true", help="Confirm execution of the full test suite")
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR, help="Directory to save report and logs")
     args = parser.parse_args()
@@ -398,6 +408,7 @@ def main() -> int:
         output_dir=args.output_dir,
         allow_full=args.i_understand_full_suite,
         require_complete=args.require_complete,
+        layer=args.layer,
     )
 
 

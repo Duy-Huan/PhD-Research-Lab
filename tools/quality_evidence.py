@@ -1,15 +1,18 @@
-"""Conservative release assessment: execution success and certification are separate facts."""
+"""Owner policy:100% required regressions; coverage is an informational measurement."""
 
 
-def assess(tests, coverage=None, minimum=100):
-    if tests.get("failures", 0) or tests.get("errors", 0):
-        return "FAIL"
-    if not tests.get("total_run", 0) or tests.get("skipped", 0) or not coverage:
-        return "BLOCKED"
-    lines = coverage.get("num_statements", 0)
-    branches = coverage.get("num_branches", 0)
-    if not lines or not branches:
-        return "BLOCKED"
-    if coverage.get("covered_lines", 0) * 100 < lines * minimum or coverage.get("covered_branches", 0) * 100 < branches * minimum:
-        return "FAIL"
-    return "CONDITIONAL"  # security/platform/manual release signoff require their own evidence
+def assess(tests, coverage=None, minimum=None):
+    """Assess execution; legacy coverage arguments carry no threshold semantics.
+
+    CONDITIONAL means complete software regression, not scientific/release approval.
+    """
+    keys = ('total_run', 'passed', 'failures', 'errors', 'skipped', 'not_run', 'blocked', 'unverified')
+    counts = {key: tests.get(key, 0) for key in keys}
+    if any(type(value) is not int or value < 0 for value in counts.values()):
+        return 'BLOCKED'
+    if counts['failures'] or counts['errors']:
+        return 'FAIL'
+    if (not counts['total_run'] or counts['passed'] != counts['total_run']
+            or any(counts[key] for key in ('skipped', 'not_run', 'blocked', 'unverified'))):
+        return 'BLOCKED'
+    return 'CONDITIONAL'

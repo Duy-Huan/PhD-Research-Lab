@@ -96,13 +96,11 @@ def validate_contract(contract: dict, root: Path) -> list[str]:
 
 
 def validate_promotion(head: str, base: str, human_approved: bool = False) -> list[str]:
-    if base == 'dev' and head.startswith(('feature/', 'fix/', 'docs/', 'chore/')):
-        return []
-    if base == 'qa' and head == 'dev':
-        return []
-    if base == 'main' and head == 'qa' and human_approved:
-        return []
-    return ['Allowed flow: feature/* -> dev -> qa -> main; main requires human release approval']
+    from .branch_policy import promotion_errors
+    errors = promotion_errors(head, base)
+    if base == 'main' and not human_approved:
+        errors.append('Main requires owner-controlled release authorization')
+    return errors
 
 
 def validate_tdd(contract: dict, root: Path) -> list[str]:

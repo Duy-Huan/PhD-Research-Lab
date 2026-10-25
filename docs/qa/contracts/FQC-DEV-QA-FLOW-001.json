@@ -1,0 +1,176 @@
+{
+  "id": "FQC-DEV-QA-FLOW-001",
+  "title": "Dev-only development, complete software regression and protected QA/main live qualification",
+  "risk": "CRITICAL",
+  "mode": "MOCKED",
+  "user_story": "The owner develops with AI on dev, verifies locally, then promotes through qa to main using honest phase-specific evidence.",
+  "requirements": [
+    {
+      "id": "REQ-REG",
+      "description": "Coverage informational; every selected mandatory regression executes and passes, invalid/missing/skip never passes"
+    },
+    {
+      "id": "REQ-FLOW",
+      "description": "Source commits only dev; local complete source-bound report before authorized origin dev push; only forward promotion"
+    },
+    {
+      "id": "REQ-LIVE",
+      "description": "Only exact three declared live IDs deferred as NOT_RUN on dev; real complete evidence required at QA/main"
+    },
+    {
+      "id": "REQ-SDK",
+      "description": "Mandatory offline official SDK tests run with pinned/hash-verified dependency; untrusted archive cannot escape or overwrite"
+    }
+  ],
+  "nonfunctional": [
+    "Preserve user work, history, all skills/ and agent/ files",
+    "Never auto-main or bypass protected QA",
+    "At most three persistent repair invocations; no retries for exhausted UAT",
+    "Bound archive download/inventory; no arbitrary CLI/log instruction execution"
+  ],
+  "inputs": [
+    "Actual regression reports",
+    "Explicit owner branch policy",
+    "Pinned official SDK archive"
+  ],
+  "outputs": [
+    "Hash-bound local verification receipt",
+    "CI development and QA decisions",
+    "Measured informational coverage and explicit deferred test records"
+  ],
+  "preconditions": [
+    "Trusted dev worktree and reviewed owner policy"
+  ],
+  "postconditions": [
+    "No mandatory software skip/FAIL becomes PASS",
+    "QA/main missing live evidence remains blocked"
+  ],
+  "dependencies": [
+    "Existing verification harness",
+    "Git",
+    "Python3.11/3.12",
+    "Node24",
+    "Playwright Chromium"
+  ],
+  "affected_modules": [
+    "devtools/verification/*",
+    "scripts/development_guard.py",
+    "scripts/install_ci_sdk.py",
+    "tools/backend_quality_gate.py",
+    "tools/quality_evidence.py",
+    ".github/workflows/quality.yml",
+    ".githooks/*"
+  ],
+  "acceptance_criteria": [
+    "Required software regression executes/PASS100% without coverage percentage threshold",
+    "No feature-to-dev or dev-to-main promotion",
+    "QA/main require actual current-source qualification",
+    "SDK installation fails closed on changed/unsafe archive"
+  ],
+  "scenarios": [
+    {
+      "id": "1",
+      "requirement": "REQ-REG",
+      "kind": "positive",
+      "expected": "Complete regression passes regardless of measured/missing coverage",
+      "test": "tests/test_quality_policy.py::RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression"
+    },
+    {
+      "id": "2",
+      "requirement": "REQ-REG",
+      "kind": "negative",
+      "expected": "100% coverage never masks failed/skipped/empty tests",
+      "test": "tests/test_quality_policy.py::RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression"
+    },
+    {
+      "id": "3",
+      "requirement": "REQ-REG",
+      "kind": "boundary",
+      "expected": "Malformed counts fail closed",
+      "test": "tests/test_quality_policy.py::RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed"
+    },
+    {
+      "id": "4",
+      "requirement": "REQ-FLOW",
+      "kind": "security",
+      "expected": "Only dev mutation and forward promotion",
+      "test": "tests/test_quality_policy.py::LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward"
+    },
+    {
+      "id": "5",
+      "requirement": "REQ-FLOW",
+      "kind": "failure",
+      "expected": "Stale or incomplete software verification blocks push",
+      "test": "tests/test_development_guard.py::DevelopmentGuard.test_complete_source_bound_regression_is_required_for_push"
+    },
+    {
+      "id": "6",
+      "requirement": "REQ-FLOW",
+      "kind": "security",
+      "expected": "Only authorized origin repository may receive push",
+      "test": "tests/test_development_guard.py::DevelopmentGuard.test_push_cannot_target_another_repository_or_remote"
+    },
+    {
+      "id": "7",
+      "requirement": "REQ-FLOW",
+      "kind": "positive",
+      "expected": "Actual latest failing receipt invalidates previous green in isolated Git repository",
+      "test": "tests/test_development_guard.py::DevelopmentGuard.test_latest_failure_replaces_a_previous_green_receipt"
+    },
+    {
+      "id": "8",
+      "requirement": "REQ-LIVE",
+      "kind": "performance",
+      "expected": "Software layer never invokes the declared live cases",
+      "test": "tests/test_quality_policy.py::LayersAndFlow.test_live_cases_remain_registered_and_never_execute_in_software_layer"
+    },
+    {
+      "id": "9",
+      "requirement": "REQ-LIVE",
+      "kind": "failure",
+      "expected": "Missing/skipped/mocked live qualification blocks acceptance",
+      "test": "tests/test_development_guard.py::LiveEvidencePolicy.test_deferred_live_ids_require_real_complete_non_skipped_evidence"
+    },
+    {
+      "id": "10",
+      "requirement": "REQ-SDK",
+      "kind": "security",
+      "expected": "Wrong digest or escaping paths cannot write files",
+      "test": "tests/test_development_guard.py::PinnedSDK.test_wrong_digest_and_escaping_archive_never_write_files"
+    },
+    {
+      "id": "11",
+      "requirement": "REQ-SDK",
+      "kind": "boundary",
+      "expected": "Extract exactly reviewed files and preserve existing output",
+      "test": "tests/test_development_guard.py::PinnedSDK.test_reviewed_inventory_is_exact_and_unknown_output_is_preserved"
+    }
+  ],
+  "recovery": "Preserve raw failures and state. Repair only confirmed root cause on dev, maximum3 invocations; no ledger resets or fake evidence.",
+  "test_environment": "Explicit offline policy fixtures, isolated actual Git repositories and bounded archive fixtures. MOCKED aggregate does not certify remote GitHub/AI execution.",
+  "skill_sources": [
+    "skills/gh-fix-ci/SKILL.md",
+    "skills/github-actions-hardening/SKILL.md",
+    "skills/playwright/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent adversarial review; not independent certification"
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "test_sha256": "3089ffe2cd69ad4db9431e8b14704d27bce0824e72ed849ff420d458428b5ccd",
+    "scope": "Actual initial nine-case run: coverage behavior failed and missing new interfaces errored; missing interfaces are not called functional reproduction. Subsequent actual complete policy/guard suite passes. Locale unit RED/GREEN and actual SDK software results are separate raw records.",
+    "red": {
+      "path": "docs/qa/evidence/dev-qa-main-6.5.7/policy-red.json",
+      "sha256": "746a1f83c98061e800c21f18dacccf9ac413784389e1f2b5183a2bbbbc63c087",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/dev-qa-main-6.5.7/policy-green-final.json",
+      "sha256": "431b07a7e88ee6a163c5c47438c52fe8a82efc6c1c4079e92e93ef20af44ae8d",
+      "exit_code": 0
+    }
+  }
+}

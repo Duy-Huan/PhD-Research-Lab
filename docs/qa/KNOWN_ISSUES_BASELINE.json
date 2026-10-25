@@ -74,7 +74,7 @@
       "id": "CI-COVERAGE-BE-001",
       "classification": "QUALIFICATION_GAP",
       "severity": "P1",
-      "status": "OPEN",
+      "status": "INFORMATIONAL_BY_OWNER_POLICY_2026_10_25",
       "module": "backend/",
       "baseline_sha": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993",
       "first_known_affected_commit": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993",
@@ -96,15 +96,16 @@
       ],
       "test_ids": [],
       "owner": "Repository maintainer / recovery SDET",
-      "remediation": "Add meaningful tests by uncovered component and provision required integrations; preserve100% threshold",
+      "remediation": "Improve meaningful coverage without percentage release gate; preserve original measurements. Any selected skipped regression still blocks its phase.",
       "target_review_date": "2026-11-01",
-      "exception": false
+      "exception": false,
+      "current_policy": "Coverage reported without threshold; all mandatory software regressions execute/PASS; live/AI-UAT required at QA/main"
     },
     {
       "id": "CI-COVERAGE-FE-001",
       "classification": "QUALIFICATION_GAP",
       "severity": "P1",
-      "status": "OPEN",
+      "status": "INFORMATIONAL_BY_OWNER_POLICY_2026_10_25",
       "module": "frontend/src/",
       "baseline_sha": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993",
       "first_known_affected_commit": "c737d133a193d0737f9bf3c42bfc0bbfe9cca993",
@@ -122,9 +123,10 @@
       ],
       "test_ids": [],
       "owner": "Repository maintainer / recovery SDET",
-      "remediation": "Expand behavior-based component tests across all production modules; retain strict thresholds",
+      "remediation": "Improve meaningful coverage without percentage release gate; preserve original measurements. Any selected skipped regression still blocks its phase.",
       "target_review_date": "2026-11-01",
-      "exception": false
+      "exception": false,
+      "current_policy": "Coverage reported without threshold; all mandatory software regressions execute/PASS; live/AI-UAT required at QA/main"
     },
     {
       "id": "CI-UAT-001",

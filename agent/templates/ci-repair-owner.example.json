@@ -2,14 +2,20 @@
   "repository": "Duy-Huan/PhD-Research-Lab",
   "owner": "Duy-Huan",
   "pr": 123,
-  "branch": "feature/explicit-owner-task",
-  "worktree": "D:\\git-repo\\PhD-Research-Lab-worktrees\\explicit-owner-task",
+  "branch": "dev",
+  "worktree": "D:/git-repo/PhD-Research-Lab-worktrees/dev",
   "authorized": true,
   "exclusive_worktree": true,
   "allow_native_auto_merge": false,
-  "allowed_paths": ["backend/example.py"],
-  "repair_test_ids": ["test_example.Example.test_requirement"],
-  "targets": ["test_example"],
+  "allowed_paths": [
+    "backend/example.py"
+  ],
+  "repair_test_ids": [
+    "test_example.Example.test_requirement"
+  ],
+  "targets": [
+    "test_example"
+  ],
   "python": "C:/trusted-toolchain/Scripts/python.exe",
   "agent": {
     "kind": "codex",

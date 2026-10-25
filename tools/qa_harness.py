@@ -148,14 +148,13 @@ def release_decision(backend: dict, frontend: dict, evidence: list[dict]):
     summary = backend.get('summary', {})
     if not summary.get('total_run') or any(summary.get(k, 0) for k in ('failures', 'errors', 'skipped')):
         reasons.append('Backend cases missing, failing, erroneous or skipped')
-    cov = backend.get('coverage', {})
-    for covered, total in [('covered_lines', 'num_statements'), ('covered_branches', 'num_branches')]:
-        if not cov.get(total) or cov.get(covered) != cov.get(total):
-            reasons.append(f'Backend {covered}/{total} is below 100%')
-    for metric in ('lines', 'statements', 'branches', 'functions'):
-        measured = frontend.get('total', {}).get(metric, {})
-        if not measured.get('total') or measured.get('covered') != measured.get('total'):
-            reasons.append(f'Frontend {metric} is below 100%')
+    from tools.quality_evidence import assess
+    if assess(summary) != 'CONDITIONAL':
+        reasons.append('Backend regression is not fully executed/passing')
+    tests = frontend.get('tests', frontend)
+    if (not tests.get('numTotalTests') or tests.get('numPassedTests') != tests.get('numTotalTests')
+            or tests.get('numFailedTests', 0) or tests.get('numPendingTests', 0)):
+        reasons.append('Frontend regression is missing, failing or incomplete')
     records = [EvidenceRecord.model_validate(item) for item in evidence]
     for mode in ('REAL_E2E', 'LIVE_PROVIDER', 'SCIENTIFIC'):
         if not any(r.mode == mode and r.status == 'PASSED' for r in records):
@@ -163,6 +162,7 @@ def release_decision(backend: dict, frontend: dict, evidence: list[dict]):
     if any(r.status != 'PASSED' for r in records):
         reasons.append('Mandatory evidence includes non-passing results')
     return {'decision': 'NO-GO' if reasons else 'CONDITIONAL', 'reasons': reasons,
+            'coverage_policy': 'INFORMATIONAL',
             'limitations': ['Provider/platform/manual and scientific review qualification must also be satisfied']}
 
 

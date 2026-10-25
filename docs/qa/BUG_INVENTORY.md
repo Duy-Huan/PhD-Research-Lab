@@ -1,4 +1,8 @@
-# Current defect inventory:6.5.6
+Current follow-up: BUG-3D-LOCALE-001 has verified6.5.7 unit RED/GREEN and actual WebGL/browser locale assertions, repeated after all2D journeys. See MAIN_CANDIDATE_DEFECTS.json follow_up_6_5_7 and DEV_QA_MAIN_6.5.7.md. The original comparison below remains frozen. Inventory is incomplete; no global zero-bug claim.
+
+> Current6.5.7 owner-policy follow-up: [dev/QA/main report](DEV_QA_MAIN_6.5.7.md). Full local software1127/1127PASS,0selected skips/errors; coverage informational. Current-source QA live/research/AI-UAT remains BLOCKED, no main promotion/release. Earlier6.5.6 figures and issues below are historical, not current release certification.
+
+# Historical comparison inventory:6.5.6
 
 Authoritative paired triage: [MAIN_CANDIDATE_DEFECTS.json](MAIN_CANDIDATE_DEFECTS.json). Existing accounting: [KNOWN_ISSUES_BASELINE.json](KNOWN_ISSUES_BASELINE.json) and [historical UI findings](defects.json). No baseline exception is approved or applied.
 

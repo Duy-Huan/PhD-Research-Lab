@@ -39,7 +39,7 @@ def assignment_errors(policy: dict, pr: dict, local: dict) -> list[str]:
         errors.append('Explicit local authorization and exclusive worktree ownership are required')
     if pr.get('number') != policy.get('pr') or pr.get('state') != 'open':
         errors.append('PR identity/state mismatch')
-    if pr.get('base', {}).get('ref') != 'dev': errors.append('Only dev PRs may be repaired')
+    if pr.get('base', {}).get('ref') != 'qa': errors.append('Only dev -> qa PRs may be repaired')
     for side in ('head', 'base'):
         if ((pr.get(side) or {}).get('repo') or {}).get('full_name') != policy.get('repository'):
             errors.append('External repository or fork rejected')
@@ -47,8 +47,8 @@ def assignment_errors(policy: dict, pr: dict, local: dict) -> list[str]:
     if not re.search(r'Contract:\s*FQC-[A-Z0-9-]+', pr.get('body') or ''):
         errors.append('PR must identify its feature quality contract')
     branch = policy.get('branch', '')
-    if not re.fullmatch(r'(?:feature|fix)/[A-Za-z0-9][A-Za-z0-9._/-]*', branch):
-        errors.append('Registration must name a feature/fix branch')
+    if branch != 'dev':
+        errors.append('Repair source branch must be dev')
     if branch != pr.get('head', {}).get('ref') or branch != local.get('branch'):
         errors.append('Branch mismatch')
     if not re.fullmatch(r'[0-9a-f]{40}', str(local.get('head', ''))) or local.get('head') != pr.get('head', {}).get('sha'):
@@ -283,14 +283,14 @@ def dirty_digest(root: Path) -> str:
 
 
 def required_checks(api: GitHub, sha: str) -> tuple[list[str], dict]:
-    protection = api.request('/branches/dev/protection')
+    protection = api.request('/branches/qa/protection')
     if not protection.get('enforce_admins', {}).get('enabled') or not protection.get('required_status_checks', {}).get('strict'):
-        return ['Strict enforced dev protection is missing'], protection
+        return ['Strict enforced QA protection is missing'], protection
     if protection.get('allow_force_pushes',{}).get('enabled') or protection.get('allow_deletions',{}).get('enabled'):
         return ['Force-push/deletion protection is insufficient'], protection
     required = protection['required_status_checks'].get('checks', [])
-    if not any(c['context'] == 'Development gate' and c['app_id'] == 15368 for c in required):
-        return ['Required Actions Development gate is missing'], protection
+    if not any(c['context'] == 'QA gate' and c['app_id'] == 15368 for c in required):
+        return ['Required Actions QA gate is missing'], protection
     checks = api.pages('/commits/' + sha + '/check-runs?filter=latest', 'check_runs')
     errors = []
     for item in required:
@@ -305,7 +305,8 @@ def required_checks(api: GitHub, sha: str) -> tuple[list[str], dict]:
 def mandatory_job_errors(jobs: list[dict]) -> list[str]:
     names = ['Contract and workflow policy', 'Frontend types, whole-source coverage and build',
              'Dependency and high-confidence security checks', 'Real offline browser smoke',
-             'Risk-triggered verified AI-UAT evidence', 'Development gate']
+             'Risk-triggered verified AI-UAT evidence', 'Development gate',
+             'Matching-source live research qualification', 'QA gate']
     names += [f'Backend ({platform}, Python {version})' for platform in ('ubuntu-latest','windows-latest')
               for version in ('3.11','3.12')]
     errors = []
@@ -325,8 +326,8 @@ def step(policy: dict, state: PersistentState, folder: Path, apply: bool) -> dic
     if pr.get('merged'):
         merged = pr.get('merge_commit_sha')
         if not re.fullmatch(r'[0-9a-f]{40}', str(merged)): raise RuntimeError('Merged PR has no valid commit SHA')
-        comparison = api.request('/compare/' + merged + '...dev')
-        if comparison['status'] not in ('ahead', 'identical'): raise RuntimeError('Merge commit is not contained in dev')
+        comparison = api.request('/compare/' + merged + '...qa')
+        if comparison['status'] not in ('ahead', 'identical'): raise RuntimeError('Merge commit is not contained in QA')
         state.save(phase='MERGED', merge_sha=merged); return state.data
     remote = git(root, 'remote', 'get-url', 'origin').removesuffix('.git')
     if remote not in ('https://github.com/' + REPOSITORY, 'git@github.com:' + REPOSITORY):
@@ -349,7 +350,7 @@ def step(policy: dict, state: PersistentState, folder: Path, apply: bool) -> dic
         fresh = api.request('/pulls/' + str(policy['pr']))
         if fresh['head']['sha'] != pr['head']['sha']: raise RuntimeError('HEAD changed before native auto-merge')
         if fresh.get('auto_merge') is None:
-            api.request('/graphql', {'query':'mutation($id:ID!){enablePullRequestAutoMerge(input:{pullRequestId:$id,mergeMethod:SQUASH}){pullRequest{number}}}',
+            api.request('/graphql', {'query':'mutation($id:ID!){enablePullRequestAutoMerge(input:{pullRequestId:$id,mergeMethod:MERGE}){pullRequest{number}}}',
                                      'variables':{'id':pr['node_id']}})
         state.save(phase='NATIVE_AUTO_MERGE_REQUESTED', head=pr['head']['sha']); return state.data
     if not runs: state.save(phase='WAITING_CI', head=pr['head']['sha']); return state.data
@@ -403,12 +404,12 @@ def step(policy: dict, state: PersistentState, folder: Path, apply: bool) -> dic
     python = policy['python']; target_out = root/'output/playwright/ci-repair'/uuid.uuid4().hex
     target = [python, 'scripts/verify.py', '--profile', 'targeted', '--base', 'origin/dev', '--out', str(target_out)]
     for module in policy['targets']: target += ['--target', module]
-    commands = [target, [python,'scripts/verify.py','--profile','feature','--base','origin/dev','--out',str(target_out)+'-feature']]
+    commands = [target, [python,'scripts/verify.py','--profile','pr','--base','origin/qa','--out',str(target_out)+'-software']]
     for index, command in enumerate(commands):
         with (attempt/f'verify-{index}.log').open('wb') as log:
             result = subprocess.run(command, cwd=root, stdout=log, stderr=subprocess.STDOUT, timeout=1500)
         if result.returncode:
-            report_path = Path(str(target_out) + ('-feature' if index else ''))/'report.json'
+            report_path = Path(str(target_out) + ('-software' if index else ''))/'report.json'
             verification = json.loads(report_path.read_text(encoding='utf-8')) if report_path.is_file() else {}
             failed_ids = {c['id'] for c in verification.get('cases', []) if c.get('status') in ('FAIL','ERROR')}
             phase = 'LOCAL_FAILED' if failed_ids & set(policy['repair_test_ids']) else 'BLOCKED_LOCAL_VERIFICATION_UNASSIGNED'

@@ -1,14 +1,19 @@
-# Current CI/CD standard — candidate6.5.6
+# Active CI/CD standard: dev -> qa -> main
 
-This replaces the parked71e5332 automatic qa/main promotion design. Never automatically modify qa/main, bypass protection, weaken100% gates or claim unexecuted acceptance.
+Owner-authorized migration in 6.5.7 replaces feature-to-dev PR development. Only three principal remote branches are retained after verified retirement. Preserve local worktrees and unique history.
 
-- `quality.yml`: pull_request only, build/static/tests/coverage/security/browser/evidence; Development gate for dev and QA gate for qa/main. No release publishing or production approval job in PR CI. Rerun an existing PR run instead of a diagnostic dispatch overwriting required status contexts.
-- `scripts/verify.py`: canonical shared local/CI verification. `feature` is pre-push development verification; `pr/full` retains strict coverage/completeness. Real provider/research/AI-UAT qualification remains separate and mandatory where required.
-- `scripts/ci_repair_supervisor.py`: local owner-authorized failure polling/CLI assignment, exact PR/head/worktree, immutable tests/gates, three-invocation persistent budget. See CI_REPAIR_SUPERVISOR.md.
-- Native GitHub auto-merge: only eligible trusted feature/fix PRs into dev, only after genuine current required checks and mandatory jobs. Observe and record actual merge SHA. Repository quarantine is not automatically lifted by a passing unit fixture.
-- QA: owner-controlled dev→qa PR, full regression plus authorized live/AI-UAT evidence. Only qualified QA may open qa→main. Main promotion stays manual/protected.
-- `release.yml`: after qualified main push, verify native qa→main provenance and tested tree, build/package/checksum and publish GitHub Release. PC installation is user-controlled with data backup/rollback; no cloud deployment or automatic data migration.
+| Stage | Trigger | Mandatory checks | Promotion |
+|---|---|---|---|
+| Local dev | Before normal push | Full software regression, static validation, frontend build and deterministic 2D/3D browser | Guarded normal push to dev |
+| GitHub dev | push dev | Policy, Python 3.11/3.12 Windows/Linux software regression, frontend types/tests/build, security, browser | Development gate |
+| QA | PR dev -> qa | Development gate + matching-source real live research/provider qualification + AI-UAT | QA gate; trusted native auto-merge may be enabled only after qualification |
+| Main acceptance | PR qa -> main | Same mandatory QA criteria | Owner-controlled protected merge, never auto-main |
+| Delivery | push main | Qualified QA PR provenance, matching tested tree, build/package/checksum | GitHub Release; PC update remains controlled |
 
-Legacy workflow files are removed in candidate history, duplicate old GitHub workflow registrations are disabled with readback, and run/evidence history is retained. Main now requires `QA gate` before merge; strict checking, GitHub Actions app15368 and every other protection setting were preserved. API before/after receipt: docs/qa/evidence/ci-stabilization-6.5.6/github-cleanup.json. Protected adoption still requires passing qualification; protected history cannot be rewritten just to remove default-branch files early.
+Coverage has no percentage threshold at any stage. Every selected mandatory regression must execute/PASS; reported coverage scope/denominators cannot be hidden. The only deferred dev test IDs are the three declared live-provider tests in devtools/verification/layers.py, explicitly NOT_RUN and required at QA/main. Official SDK offline regressions remain mandatory software tests.
 
-Comparison methodology: docs/qa/COMPARISON_PROTOCOL.md. Same test bundle/environment/policy; fixed critical denominator; old/new/unclassified/unexecuted results separated. Absolute PASS totals from different suites do not rank branches. Current release remains NO-GO until all mandatory criteria really pass.
+quality.yml contains CI only. release.yml contains main-push CD. The old duplicate workflow registrations are disabled and historical runs retained. Privileged automerge controller loads protected main code only; new candidate controller code is not active on main before qualified adoption. Required QA/main protection is strict GitHub Actions QA gate (app15368), enforced for admins, with no force push/delete. Dev uses local-before-push guards plus independent push CI; its former required-PR rule must be migrated only after local proof, with API readback.
+
+The local supervisor is an explicit trusted tool, not built-in GitHub AI. See CI_REPAIR_SUPERVISOR.md for registration, exact-head checks, state and three-attempt bounds. No credentials or CI logs can grant themselves repair authority. Repo auto-merge, registration and actual successful merge are separate facts; report measured status in STATE.md.
+
+Existing 6.5.6 same-suite comparison and old-policy failures remain in docs/qa/evidence/. TASK-UAT-LOCAL-ADAPTER has exhausted its three-attempt budget; do not reset it. Missing current-source live/AI-UAT qualification blocks QA/main even if dev is green. No baseline exceptions are granted.

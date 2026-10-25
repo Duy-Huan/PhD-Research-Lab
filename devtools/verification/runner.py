@@ -24,12 +24,13 @@ def identity(root: Path) -> dict:
     """Hash source, tests, contracts, policy, runner and dependency inputs, including dirty files."""
     paths = subprocess.check_output(['git', 'ls-files', '--cached', '--others', '--exclude-standard', '-z'], cwd=root)
     prefixes = ('backend/', 'frontend/src/', 'frontend/e2e/', 'devtools/', 'scripts/', 'tools/',
-                'tests/', '.github/', 'docs/qa/contracts/', '.codex/', '.agents/', '.claude/', '.gemini/', 'skills/')
+                'tests/', '.github/', '.githooks/', 'docs/qa/contracts/', '.codex/', '.agents/', '.claude/', '.gemini/', 'skills/')
     exact = {'requirements.txt', 'requirements-dev.txt', 'requirements-ci.lock', 'requirements-uat.in', 'requirements-uat.lock', '.coveragerc', '.gitignore', '.gitattributes',
              'pyproject.toml','pytest.ini','tox.ini','ruff.toml','AGENTS.md',
              'agent/AGENT.md', 'agent/DEVELOPMENT_WORKFLOW.md', 'agent/UAT.md', 'agent/CLI_COMPATIBILITY.md',
              'CLAUDE.md', 'GEMINI.md', 'skills/SOURCES.json', 'docs/qa/KNOWN_ISSUES_BASELINE.json',
              'docs/qa/CRITICAL_SOFTWARE_CHECKS.json','agent/CI_REPAIR_SUPERVISOR.md','agent/CI_CD_AUTOMATION.md',
+             'agent/DEV_QA_MAIN.md','docs/quality/ZERO_FAKE_TESTING_POLICY.md','docs/quality/REGRESSION_PREVENTION.md',
              'frontend/package.json', 'frontend/package-lock.json', 'frontend/vite.config.ts',
              'frontend/playwright.config.ts', 'start.py'}
     files = {}
@@ -89,6 +90,14 @@ def validate_live(path: Path | None, source: str, head: str) -> list[str]:
             errors.append('Scientific review has not been approved')
         if not manifest.get('required_providers') or set(manifest['required_providers']) != set(manifest.get('verified_providers', [])):
             errors.append('Required provider inference matrix is incomplete')
+        from .layers import live_regression_errors
+        record=manifest.get('live_regression',{})
+        raw=(path.parent/record.get('path','')).resolve()
+        if (not raw.is_relative_to(path.parent.resolve()) or not raw.is_file()
+                or hashlib.sha256(raw.read_bytes()).hexdigest()!=record.get('sha256')):
+            errors.append('Hash-bound deferred live-provider regression report is missing')
+        else:
+            errors.extend(live_regression_errors(json.loads(raw.read_text(encoding='utf-8'))))
         return errors
     except (ValueError, OSError, TypeError, AttributeError):
         return ['Live evidence manifest is malformed']
@@ -133,7 +142,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({'attempts': budget.attempts, 'can_repair': budget.can_repair()}))
         return 0 if budget.can_repair() or args.repair_result else 2
     before = identity(ROOT)
-    steps, cases, coverage = [], [], {}
+    steps, cases, coverage, deferred_tests = [], [], {}, []
     def execute(name: str, command: list[str], cwd: Path = ROOT, timeout: int = 1200) -> dict:
         step = run_command(name, command, cwd, out, timeout); steps.append(step); return step
     try:
@@ -191,7 +200,7 @@ def main(argv: list[str] | None = None) -> int:
         cases.append({'id':'uat.first-time.settings-language','status':steps[-1]['status'],'details':steps[-1]['details']})
     elif not contract_errors and not any(s['status'] == 'BLOCKED' for s in steps):
         execute('protected-files', [sys.executable, 'tools/protect_agent_resources.py', '--base', args.base])
-        if args.component == 'all' and args.profile in ('feature', 'full', 'release'):
+        if args.component == 'all' and args.profile in ('feature', 'pr', 'full', 'release'):
             execute('workflow-contract-policy', [sys.executable, 'scripts/quality_gate.py', 'policy'])
             execute('workflow-syntax', [sys.executable, 'scripts/check_workflows.py'], timeout=90)
             node = shutil.which('node.exe' if os.name == 'nt' else 'node') or 'node'
@@ -206,15 +215,19 @@ def main(argv: list[str] | None = None) -> int:
         if args.component != 'frontend' and selection['backend_tests']:
             if args.profile in ('pr', 'full', 'release'):
                 execute('backend', [sys.executable, 'tools/backend_quality_gate.py', '--profile', 'full',
+                        '--layer', 'all' if args.profile in ('full','release') else 'software',
                         '--i-understand-full-suite', '--require-complete', '--output-dir', str(out/'backend')])
                 report_path = out/'backend/report.json'
                 if report_path.is_file():
                     backend_report=json.loads(report_path.read_text(encoding='utf-8'))
                     cases.extend(backend_report.get('cases', []))
                     coverage['backend']=backend_report.get('coverage',{})
+                    deferred_tests.extend(backend_report.get('deferred_tests',[]))
             else:
                 execute('backend', [sys.executable, '-m', 'devtools.verification.unittest_worker', str(out/'unittest.json'), *selection['backend_tests']])
-                if (out/'unittest.json').is_file(): cases.extend(json.loads((out/'unittest.json').read_text(encoding='utf-8')).get('cases', []))
+                if (out/'unittest.json').is_file():
+                    unit=json.loads((out/'unittest.json').read_text(encoding='utf-8'))
+                    cases.extend(unit.get('cases', []));deferred_tests.extend(unit.get('deferred_tests',[]))
         if args.component != 'backend' and selection['frontend']:
             npm = shutil.which('npm.cmd' if os.name == 'nt' else 'npm') or 'npm'
             if not (ROOT/'frontend/node_modules').is_dir():
@@ -222,8 +235,6 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 execute('frontend-types', [npm, 'run', 'typecheck'], ROOT/'frontend')
                 command = [npm, 'run', 'test:coverage', '--', '--maxWorkers=2', '--reporter=json', '--outputFile='+str(out/'frontend-tests.json')]
-                if args.profile in ('pr', 'full', 'release'):
-                    command += ['--coverage.thresholds.'+key+'=100' for key in ('lines', 'branches', 'functions', 'statements')]
                 execute('frontend-tests', command, ROOT/'frontend')
                 if (out/'frontend-tests.json').is_file():
                     for suite in json.loads((out/'frontend-tests.json').read_text(encoding='utf-8')).get('testResults', []):
@@ -237,7 +248,7 @@ def main(argv: list[str] | None = None) -> int:
                 if args.profile == 'feature' or (args.profile in ('pr','full','release') and args.component=='all'):
                     browser_command=[sys.executable,'-m','devtools.verification.browser',
                                      '--profile',args.profile,'--base',args.base,'--out',str(out/'browser')]
-                    if args.profile == 'feature': browser_command.append('--offline-all')
+                    if args.profile in ('feature','pr'): browser_command.append('--offline-all')
                     execute('deterministic-browser', browser_command, timeout=1900 if args.profile in ('full','release') else 700)
                     boundaries=out/'browser/boundaries.json'
                     if boundaries.is_file():
@@ -279,7 +290,8 @@ def main(argv: list[str] | None = None) -> int:
               'separate_live_inventory':{'status':'NOT_RUN','tests':selection.get('separate_live_tests',[]),
                                          'reason':'Legacy external/model tests require separate explicit authorization, model selection and isolated live execution; offline selection never starts them'},
               'counts':{state:sum(c.get('status')==state for c in cases) for state in ('PASS','FAIL','ERROR','SKIP','NOT_RUN','BLOCKED','UNVERIFIED')},
-              'cases':cases, 'coverage':coverage, 'root_failures':groups,
+              'cases':cases, 'coverage':coverage, 'coverage_policy':{'mode':'INFORMATIONAL','percentage_gate':False}, 'root_failures':groups,
+              'deferred_tests':deferred_tests,
               'limitations':['Quick/feature/targeted are scoped development checks, not release acceptance',
                             'No cached passing result is reused. Incremental selection saves work, never replaces PR/full gates',
                             'Live layers require separately executed, matching-source evidence; unavailable layers block full',
@@ -291,4 +303,7 @@ def main(argv: list[str] | None = None) -> int:
     lines += ['Gate: '+s['id']+' '+s['status']+' '+str(s.get('details') or '')[:240] for s in steps if s['status']!='PASS'][:8]
     lines += ['Evidence: '+str(out/'report.json'), 'Next action: '+('Read the first relevant raw log; repair at most three cycles' if decision!='PASS' else 'Use independent CI before merge; full qualification before promotion')]
     (out/'summary.txt').write_text('\n'.join(lines)+'\n',encoding='utf-8'); print('\n'.join(lines))
+    if args.profile=='pr' and args.component=='all':
+        from .branch_policy import record_report
+        record_report(ROOT,out/'report.json',report)
     return 0 if decision == 'PASS' else 2 if decision in ('BLOCKED','NOT_RUN') else 1
