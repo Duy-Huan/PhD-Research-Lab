@@ -14,6 +14,8 @@ def fake(pid: str, mode: str = "ok"):
     base = type(C.CONNECTORS[pid])
 
     class Fake(base):
+        def process_argv(self, args, context):
+            return args  # Explicit fixture subprocess, never an OS-containment/live-provider claim.
         def binary(self):
             return sys.executable
 

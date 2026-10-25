@@ -1,0 +1,712 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_context_intelligence_audit.ContextIntelligenceAudit.test_budget_includes_source_framing_and_reports_original_hash",
+      "status": "PASS",
+      "duration": 0.053,
+      "details": null
+    },
+    {
+      "id": "test_context_intelligence_audit.ContextIntelligenceAudit.test_expanded_selected_paper_includes_results_after_page_three",
+      "status": "PASS",
+      "duration": 7.2934,
+      "details": null
+    },
+    {
+      "id": "test_context_intelligence_audit.ContextIntelligenceAudit.test_explicit_folder_memory_updates_even_after_many_unrelated_chats",
+      "status": "PASS",
+      "duration": 0.7231,
+      "details": null
+    },
+    {
+      "id": "test_context_intelligence_audit.ContextIntelligenceAudit.test_no_arbitrary_twenty_message_limit_and_large_history_is_declared",
+      "status": "PASS",
+      "duration": 0.06,
+      "details": null
+    },
+    {
+      "id": "test_cloud_connections.Connections.test_actual_socket_is_reused_after_preconnect_and_worker_dispatch",
+      "status": "PASS",
+      "duration": 0.5608,
+      "details": null
+    },
+    {
+      "id": "test_cloud_connections.Connections.test_cloud_is_never_a_local_unload_target",
+      "status": "PASS",
+      "duration": 0.01,
+      "details": null
+    },
+    {
+      "id": "test_cloud_connections.Connections.test_preconnect_off_local_and_missing_auth_do_not_make_network_calls",
+      "status": "PASS",
+      "duration": 0.0212,
+      "details": null
+    },
+    {
+      "id": "test_cloud_connections.Connections.test_session_selection_resolves_effective_provider",
+      "status": "PASS",
+      "duration": 0.0222,
+      "details": null
+    },
+    {
+      "id": "test_provider_project_security.ProjectSecurity.test_expired_revoked_and_cross_project_grants_cannot_become_anonymous",
+      "status": "PASS",
+      "duration": 0.1343,
+      "details": null
+    },
+    {
+      "id": "test_provider_project_security.ProjectSecurity.test_provider_workspaces_are_inside_current_project_and_private_to_mcp",
+      "status": "PASS",
+      "duration": 0.2166,
+      "details": null
+    },
+    {
+      "id": "test_provider_project_security.ProjectSecurity.test_raw_host_launch_and_missing_isolation_fail_closed",
+      "status": "PASS",
+      "duration": 0.1807,
+      "details": null
+    },
+    {
+      "id": "test_provider_project_security.ProjectSecurity.test_same_project_shared_context_is_provider_independent_and_read_only",
+      "status": "PASS",
+      "duration": 0.4436,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.CliMcpCloud.test_cli_sessions_follow_the_policy",
+      "status": "PASS",
+      "duration": 0.0253,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.CliMcpCloud.test_close_pool_of_another_loop",
+      "status": "PASS",
+      "duration": 0.2412,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.CliMcpCloud.test_http_client_pooling",
+      "status": "PASS",
+      "duration": 0.0545,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.CliMcpCloud.test_lease_sync_inside_a_running_loop_and_errors",
+      "status": "PASS",
+      "duration": 0.0142,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.CliMcpCloud.test_mcp_container",
+      "status": "PASS",
+      "duration": 0.0175,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.CliMcpCloud.test_sandbox_lease_modes",
+      "status": "PASS",
+      "duration": 0.0139,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.LocalModels.test_background_task_unloads_after_grace",
+      "status": "PASS",
+      "duration": 0.0129,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.LocalModels.test_concurrent_leases_share_one_load",
+      "status": "PASS",
+      "duration": 0.0178,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.LocalModels.test_interactive_idle_and_pin",
+      "status": "PASS",
+      "duration": 0.0098,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.LocalModels.test_keep_loaded_never_released",
+      "status": "PASS",
+      "duration": 0.0171,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.LocalModels.test_lmstudio_explicit_load_and_unload",
+      "status": "PASS",
+      "duration": 0.0118,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.LocalModels.test_lmstudio_load_failure_falls_back_to_jit",
+      "status": "PASS",
+      "duration": 0.0103,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.LocalModels.test_manual_load_is_respected",
+      "status": "PASS",
+      "duration": 0.0109,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.LocalModels.test_manual_load_not_respected_when_switched_off",
+      "status": "PASS",
+      "duration": 0.0164,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.LocalModels.test_pin_failure_is_noted",
+      "status": "PASS",
+      "duration": 0.0119,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.LocalModels.test_prepare_failure_never_breaks_the_task",
+      "status": "PASS",
+      "duration": 0.0093,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.LocalModels.test_release_now_refuses_a_busy_resource_and_reports_errors",
+      "status": "PASS",
+      "duration": 0.0125,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.LocalModels.test_resident_probe_cache_and_errors",
+      "status": "PASS",
+      "duration": 0.0142,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.LocalModels.test_second_lease_waits_for_the_load",
+      "status": "PASS",
+      "duration": 0.2217,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.LocalModels.test_single_model_in_vram",
+      "status": "PASS",
+      "duration": 0.0215,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.Manual.test_free_vram_for_gpu",
+      "status": "PASS",
+      "duration": 0.0068,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.Manual.test_unload_resident_busy_force_and_errors",
+      "status": "PASS",
+      "duration": 0.0294,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.Policies.test_disabled_is_a_no_op",
+      "status": "PASS",
+      "duration": 0.0133,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.Policies.test_invalid_policy_values_fall_back_to_defaults",
+      "status": "PASS",
+      "duration": 0.0104,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.Policies.test_policy_and_deadlines",
+      "status": "PASS",
+      "duration": 0.0078,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.Policies.test_public_record",
+      "status": "PASS",
+      "duration": 0.0054,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.Policies.test_unknown_kind",
+      "status": "PASS",
+      "duration": 0.0072,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.StatusAndReaper.test_reaper_applies_deadlines_then_stops",
+      "status": "PASS",
+      "duration": 0.4743,
+      "details": null
+    },
+    {
+      "id": "test_model_lifecycle.StatusAndReaper.test_status_shows_residency_and_owners",
+      "status": "PASS",
+      "duration": 0.0243,
+      "details": null
+    },
+    {
+      "id": "test_native_cli_launch.NativeCLILaunch.test_forward_modes_and_launch_always_target_the_installed_app",
+      "status": "PASS",
+      "duration": 0.0957,
+      "details": null
+    },
+    {
+      "id": "test_native_cli_launch.NativeCLILaunch.test_installed_executable_is_quoted_and_launched_without_a_website",
+      "status": "PASS",
+      "duration": 0.0616,
+      "details": null
+    },
+    {
+      "id": "test_native_cli_launch.NativeCLILaunch.test_missing_binary_and_process_error_are_not_success",
+      "status": "PASS",
+      "duration": 0.0568,
+      "details": null
+    },
+    {
+      "id": "test_mcp_agent.MCPAgent.test_call_and_stream_agent_use_mcp_without_cloud_fallback",
+      "status": "PASS",
+      "duration": 0.0084,
+      "details": null
+    },
+    {
+      "id": "test_mcp_agent.MCPAgent.test_chat_stop_and_time_budget_interrupt_buffered_inference",
+      "status": "PASS",
+      "duration": 0.1255,
+      "details": null
+    },
+    {
+      "id": "test_mcp_agent.MCPAgent.test_default_cloud_change_preserves_explicit_anthropic_agent_model",
+      "status": "PASS",
+      "duration": 0.011,
+      "details": null
+    },
+    {
+      "id": "test_mcp_agent.MCPAgent.test_endpoint_policy_disabled_and_cancellation",
+      "status": "PASS",
+      "duration": 0.0075,
+      "details": null
+    },
+    {
+      "id": "test_mcp_agent.MCPAgent.test_invalid_mcp_configuration_is_rejected_without_writing_secrets",
+      "status": "PASS",
+      "duration": 0.0132,
+      "details": null
+    },
+    {
+      "id": "test_mcp_agent.MCPAgent.test_json_session_scoped_token_and_exact_model",
+      "status": "PASS",
+      "duration": 0.0059,
+      "details": null
+    },
+    {
+      "id": "test_mcp_agent.MCPAgent.test_model_binding_is_reset_atomically_and_tokens_are_masked",
+      "status": "PASS",
+      "duration": 0.0314,
+      "details": null
+    },
+    {
+      "id": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks",
+      "status": "PASS",
+      "duration": 0.0259,
+      "details": null
+    },
+    {
+      "id": "test_mcp_agent.MCPAgent.test_sse_split_unicode_and_paginated_catalog",
+      "status": "PASS",
+      "duration": 0.0132,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_always_on_thinking_is_reported_instead_of_an_invalid_request",
+      "status": "PASS",
+      "duration": 0.01,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_anthropic_current_models_use_adaptive_effort_in_both_transports",
+      "status": "PASS",
+      "duration": 0.012,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_claude_auth_probe_preserves_only_status_fields",
+      "status": "PASS",
+      "duration": 0.0185,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_claude_native_install_is_discovered_when_path_is_stale",
+      "status": "PASS",
+      "duration": 0.0104,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_connection_deadline_cancels_upstream_stream",
+      "status": "PASS",
+      "duration": 7.0074,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_connection_endpoint_exercises_actual_stream_and_model_override",
+      "status": "PASS",
+      "duration": 4.8383,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_connection_endpoint_rejects_empty_stream_and_errors",
+      "status": "PASS",
+      "duration": 9.7403,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_gateway_model_discovery_uses_extra_headers",
+      "status": "PASS",
+      "duration": 0.014,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_gateway_router_checks_model_and_authenticates_reachability",
+      "status": "PASS",
+      "duration": 0.0119,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_health_refresh_reprobes_login_and_configuration_changes",
+      "status": "PASS",
+      "duration": 0.0254,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_invalid_model_lists_are_actionable_errors",
+      "status": "PASS",
+      "duration": 0.0263,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_keyless_gateways_are_selectable_and_auth_is_unverified",
+      "status": "PASS",
+      "duration": 0.0091,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_local_model_status_survives_html_and_excludes_embeddings",
+      "status": "PASS",
+      "duration": 0.0129,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_local_root_and_v1_give_same_chat_target",
+      "status": "PASS",
+      "duration": 0.0121,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_malformed_success_messages_are_provider_errors",
+      "status": "PASS",
+      "duration": 0.0173,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_openai_stream_error_is_not_silent_success",
+      "status": "PASS",
+      "duration": 0.0143,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_provider_url_normalization_and_validation",
+      "status": "PASS",
+      "duration": 0.009,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_sign_in_launch_delegates_to_project_isolated_native_runtime",
+      "status": "PASS",
+      "duration": 0.0123,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_stream_target_validation_precedes_network",
+      "status": "PASS",
+      "duration": 0.0127,
+      "details": null
+    },
+    {
+      "id": "test_provider_connectivity.Connectivity.test_windows_cancel_falls_back_when_taskkill_fails",
+      "status": "PASS",
+      "duration": 0.0104,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_failed_dependency_remains_fail_instead_of_blocked",
+      "status": "PASS",
+      "duration": 0.0878,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_malformed_result_preserves_fail_closed_behavior",
+      "status": "PASS",
+      "duration": 0.0719,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_missing_dependency_cannot_be_masked_by_other_successes",
+      "status": "PASS",
+      "duration": 0.0732,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_only_complete_success_passes",
+      "status": "PASS",
+      "duration": 0.0683,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "status": "PASS",
+      "duration": 0.3666,
+      "details": null
+    },
+    {
+      "id": "test_baseline_accounting.BaselineAccounting.test_baseline_policy_changes_invalidate_source_evidence",
+      "status": "PASS",
+      "duration": 0.1113,
+      "details": null
+    },
+    {
+      "id": "test_baseline_accounting.BaselineAccounting.test_changed_missing_or_escaping_evidence_is_rejected",
+      "status": "PASS",
+      "duration": 0.007,
+      "details": null
+    },
+    {
+      "id": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception",
+      "status": "PASS",
+      "duration": 0.0085,
+      "details": null
+    },
+    {
+      "id": "test_baseline_accounting.BaselineAccounting.test_malformed_duplicate_and_unowned_records_are_rejected",
+      "status": "PASS",
+      "duration": 0.007,
+      "details": null
+    },
+    {
+      "id": "test_baseline_accounting.BaselineAccounting.test_verified_open_issue_is_accounted_without_becoming_a_waiver",
+      "status": "PASS",
+      "duration": 0.0045,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_mcp_agent.MCPAgent.test_chat_stop_and_time_budget_interrupt_buffered_inference",
+      "id": "test_mcp_agent.MCPAgent.test_chat_stop_and_time_budget_interrupt_buffered_inference (cancelled=True)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_agent.MCPAgent.test_chat_stop_and_time_budget_interrupt_buffered_inference",
+      "id": "test_mcp_agent.MCPAgent.test_chat_stop_and_time_budget_interrupt_buffered_inference (cancelled=False)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_agent.MCPAgent.test_invalid_mcp_configuration_is_rejected_without_writing_secrets",
+      "id": "test_mcp_agent.MCPAgent.test_invalid_mcp_configuration_is_rejected_without_writing_secrets (patch={'url': 'http://remote.invalid/mcp'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_agent.MCPAgent.test_invalid_mcp_configuration_is_rejected_without_writing_secrets",
+      "id": "test_mcp_agent.MCPAgent.test_invalid_mcp_configuration_is_rejected_without_writing_secrets (patch={'tool': 'bad tool'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_agent.MCPAgent.test_invalid_mcp_configuration_is_rejected_without_writing_secrets",
+      "id": "test_mcp_agent.MCPAgent.test_invalid_mcp_configuration_is_rejected_without_writing_secrets (patch={'models': [{}]})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks",
+      "id": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks (mode='general-tool')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks",
+      "id": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks (mode='unsupported-required')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks",
+      "id": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks (mode='no-model')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks",
+      "id": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks (mode='tool-error')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks",
+      "id": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks (mode='no-text')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks",
+      "id": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks (mode='wrong-id')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks",
+      "id": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks (mode='rpc-error')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks",
+      "id": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks (mode='bad-version')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks",
+      "id": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks (mode='redirect')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks",
+      "id": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks (mode='oversize')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks",
+      "id": "test_mcp_agent.MCPAgent.test_refuses_general_tools_errors_redirects_and_oversize_without_secret_leaks (mode='invalid-json')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_provider_connectivity.Connectivity.test_invalid_model_lists_are_actionable_errors",
+      "id": "test_provider_connectivity.Connectivity.test_invalid_model_lists_are_actionable_errors (response=<Response [200 OK]>)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_provider_connectivity.Connectivity.test_invalid_model_lists_are_actionable_errors",
+      "id": "test_provider_connectivity.Connectivity.test_invalid_model_lists_are_actionable_errors (response=<Response [200 OK]>)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_provider_connectivity.Connectivity.test_invalid_model_lists_are_actionable_errors",
+      "id": "test_provider_connectivity.Connectivity.test_invalid_model_lists_are_actionable_errors (response=<Response [200 OK]>)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_provider_connectivity.Connectivity.test_invalid_model_lists_are_actionable_errors",
+      "id": "test_provider_connectivity.Connectivity.test_invalid_model_lists_are_actionable_errors (response=<Response [200 OK]>)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_provider_connectivity.Connectivity.test_provider_url_normalization_and_validation",
+      "id": "test_provider_connectivity.Connectivity.test_provider_url_normalization_and_validation [ftp://example.org]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_provider_connectivity.Connectivity.test_provider_url_normalization_and_validation",
+      "id": "test_provider_connectivity.Connectivity.test_provider_url_normalization_and_validation [https://host:bad]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_provider_connectivity.Connectivity.test_provider_url_normalization_and_validation",
+      "id": "test_provider_connectivity.Connectivity.test_provider_url_normalization_and_validation [https://user:pass@host/v1]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_provider_connectivity.Connectivity.test_provider_url_normalization_and_validation",
+      "id": "test_provider_connectivity.Connectivity.test_provider_url_normalization_and_validation [https://host/v1?key=x]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='skipped')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='cancelled')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='queued')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='timed_out')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status=None)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception",
+      "id": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception (value=[{'test_id': 'test.exact', 'approved': True}])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception",
+      "id": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception (value=['*'])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception",
+      "id": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception (value=None)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception",
+      "id": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception (value={})",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "total": 83,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-jlmdv_h5",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

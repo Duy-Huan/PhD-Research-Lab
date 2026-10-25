@@ -120,19 +120,22 @@ def grant_for_cli(key: str, ttl_s: int = 3600) -> dict:
 
 
 def issue(session_id: str, tools: list, ttl_s: int = 1800) -> str:
+    from backend.core.config import data_dir
     tok = "phg_" + secrets.token_urlsafe(24)
     with _lock:
         now = time.time()
         for k in [k for k, g in _grants.items() if g["expires"] < now]:
             _grants.pop(k)
-        _grants[tok] = {"session_id": session_id, "tools": sorted(set(tools)), "expires": now + ttl_s}
+        _grants[tok] = {"session_id": session_id, "tools": sorted(set(tools)), "expires": now + ttl_s,
+                        "project": str(data_dir().resolve())}
     return tok
 
 
 def lookup(token: str) -> dict | None:
+    from backend.core.config import data_dir
     with _lock:
         g = _grants.get(token or "")
-    if g and g["expires"] >= time.time():
+    if g and g["expires"] >= time.time() and g.get('project') == str(data_dir().resolve()):
         return g
     return None
 

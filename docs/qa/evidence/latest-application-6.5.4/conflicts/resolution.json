@@ -1,0 +1,42 @@
+[
+  {
+    "path": "README.md",
+    "decision": "Keep merged application changes; choose current version metadata before synchronized bump"
+  },
+  {
+    "path": "agent/PLAN.md",
+    "decision": "Keep current emergency instructions; retain complete application handoff in agent/history/"
+  },
+  {
+    "path": "agent/STATE.md",
+    "decision": "Keep current emergency instructions; retain complete application handoff in agent/history/"
+  },
+  {
+    "path": "backend/core/config.py",
+    "decision": "Keep merged application changes; choose current version metadata before synchronized bump"
+  },
+  {
+    "path": "docs/qa/RELEASE_READINESS.md",
+    "decision": "Keep current NO-GO; archive complete historical assessment"
+  },
+  {
+    "path": "docs/qa/evidence/.gitattributes",
+    "decision": "Keep full current provenance superset and byte-preserving evidence policy"
+  },
+  {
+    "path": "frontend/package-lock.json",
+    "decision": "Keep merged application changes; choose current version metadata before synchronized bump"
+  },
+  {
+    "path": "frontend/package.json",
+    "decision": "Keep merged application changes; choose current version metadata before synchronized bump"
+  },
+  {
+    "path": "skills/SOURCES.json",
+    "decision": "Keep full current provenance superset and byte-preserving evidence policy"
+  },
+  {
+    "path": "start.py",
+    "decision": "Keep merged application changes; choose current version metadata before synchronized bump"
+  }
+]

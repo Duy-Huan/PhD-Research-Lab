@@ -53,8 +53,22 @@ def resolve_source(sid: str, expanded: bool = False) -> dict | None:
         text = f"{e.get('title', '')} — {e.get('authors', '')} ({e.get('year', '')}, {e.get('venue', '')})\n{e.get('abstract', '')}"
         if expanded and e.get("file") and not e.get("metadata_only"):
             from backend.core.config import refs_dir
-            from backend.knowledge.library import first_pages_text
-            text += "\n\n" + first_pages_text(refs_dir() / e["file"], 3, 12000)
+            from backend.knowledge.library import _read_pdf
+            try:
+                pdf_path = (refs_dir() / e['file']).resolve()
+                if not pdf_path.is_relative_to(refs_dir().resolve()):
+                    raise ValueError('PDF path is outside project references')
+                extracted = _read_pdf(pdf_path, 200, want_title=False)
+                full = extracted['text']
+                source = src(sid, 'reference', e.get('title') or key, text + '\n\n' + full[:2_000_000], 'untrusted', 'selected paper')
+                source['extraction'] = {'pages_total': extracted['pages'], 'pages_included': min(200, extracted['pages']),
+                                        'characters_extracted': len(full),
+                                        'limited': extracted['pages'] > 200 or len(full) > 2_000_000}
+                return source
+            except (OSError, ValueError, RuntimeError) as exc:
+                source = src(sid, 'reference', e.get('title') or key, text, 'untrusted', 'paper metadata; PDF extraction failed')
+                source['extraction'] = {'error': type(exc).__name__, 'limited': True}
+                return source
         return src(sid, "reference", e.get("title") or key, text, "untrusted", "selected paper")
     if kind == "mem":
         from backend.memory.engine import index
@@ -116,34 +130,34 @@ class Adapter:
         ds = _decisions()
         if ds:
             out.append(src("state:decisions", "module_state", f"Locked decisions ({len(ds)})",
-                           "\n".join(f"- [{d['id']} · {d.get('kind')}] {d['text'][:300]}" for d in ds[:30]), "state",
+                           "\n".join(f"- [{d['id']} · {d.get('kind')}] {d['text']}" for d in ds), "state",
                            "locked decisions bind every agent"))
         r = _research()
         if r["hypotheses"]:
             out.append(src("state:hypotheses", "module_state", f"Hypotheses ({len(r['hypotheses'])})",
-                           "\n".join(f"- {h['id']} [{h['status']}] {h['text'][:300]}" for h in r["hypotheses"][:20]), "state",
+                           "\n".join(f"- {h['id']} [{h['status']}] {h['text']}" for h in r["hypotheses"]), "state",
                            "research state"))
         if r["experiments"]:
-            exps = r["experiments"][-6:]
+            exps = r['experiments']
             out.append(src("state:experiments", "module_state", f"Experiments ({len(r['experiments'])})",
                            "\n".join(f"- {e['id']} {e.get('title', '')} verdict={e.get('verdict') or '—'}" for e in exps),
                            "state", "research state"))
         if r.get("failures"):
             out.append(src("state:failures", "module_state", f"Failed approaches ({len(r['failures'])})",
-                           "\n".join(f"- {f['id']} {f.get('text', '')[:200]}" for f in r["failures"][-10:]), "state",
+                           "\n".join(f"- {f['id']} {f.get('text', '')}" for f in r['failures']), "state",
                            "do not repeat these"))
         from backend.knowledge.library import included
         papers = included()
         if papers:
             out.append(src("state:papers", "module_state", f"Library ({len(papers)} papers)",
-                           "\n".join(f"- [{e.get('key')}] {e.get('title', '')} ({e.get('year', '')})" for e in papers[:60]),
+                           "\n".join(f"- [{e.get('key')}] {e.get('title', '')} ({e.get('year', '')})" for e in papers),
                            "user", "papers in the project library"))
         out += self._runs()
         from backend.agent import pins
         ps = [p for p in pins.list_pins() if p["status"] != "deprecated"]
         if ps:
             out.append(src("state:pins", "module_state", f"Pinned results ({len(ps)})",
-                           "\n".join(f"- [{p['id']} · {p['kind']} · {p['status']}] {p['title']}: {p['body'][:300]}" for p in ps[:40]),
+                           "\n".join(f"- [{p['id']} · {p['kind']} · {p['status']}] {p['title']}: {p['body']}" for p in ps),
                            "user", "pinned by the researcher (pinned ≠ verified unless the status says so)"))
         from backend.agent import sessions as store
         for c in store.list_sessions(limit=6):

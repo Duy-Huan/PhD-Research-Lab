@@ -77,9 +77,12 @@ class WorkspaceError(ValueError):
 
 
 def root(cfg: dict | None = None) -> Path:
-    from backend.core.config import GLOBAL_DIR, load_config
+    from backend.core.config import data_dir, load_config
+    project = data_dir().resolve()
     d = ((cfg or load_config())["gateway"].get("cli_space_dir") or "").strip()
-    r = Path(d).expanduser() if d else GLOBAL_DIR / "cli-space"
+    r = (Path(d).expanduser() if d else project / "cli-space").resolve()
+    if not r.is_relative_to(project) or r == project:
+        raise WorkspaceError('CLI workspace root must be a dedicated folder inside the active project data directory')
     r.mkdir(parents=True, exist_ok=True)
     return r.resolve()
 
@@ -148,7 +151,7 @@ def open_session(provider: str, session_id: str, profile: str = "review", iso: d
         if base == fr or base in fr.parents:  # a session folder may never BE (or contain) the app or project folder
             raise WorkspaceError("the CLI space must not be the app or project folder")
     for sub in SUBDIRS:
-        (base / sub).mkdir(parents=True, exist_ok=True)
+        safe_path(base, sub).mkdir(parents=True, exist_ok=True)
     meta_f = base / "session.json"
     meta = {}
     if meta_f.exists():

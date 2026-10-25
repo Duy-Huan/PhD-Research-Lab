@@ -532,21 +532,39 @@ def launch_plan(sid: str, tid: str) -> dict:
 
 # ------------------------------------------------------------------ provider dispatch
 def _history(s: dict, tid: str) -> list:
-    msgs = [m for m in s["messages"] if m["role"] in ("user", "assistant") and m["turn_id"] != tid and
+    return _history_packet(s, tid)[0]
+
+
+def _history_packet(s: dict, tid: str) -> tuple[list, dict]:
+    from backend.core.config import load_config
+    msgs = [m for m in s.get('messages', []) if m["role"] in ("user", "assistant") and m.get('turn_id') != tid and
             not m.get("not_retained")]
     out = []
+    included, omitted, truncated = [], [], []
     total_chars = 0
-    MAX_CHARS = 16000
-    for m in reversed(msgs[-20:]):
+    budget = max(400, min(32000, int(load_config()['aiws'].get('history_budget_tokens', 4000))))
+    max_chars = budget * 4
+    exhausted = False
+    for m in reversed(msgs):
         content = m.get("content") or ""
-        if total_chars + len(content) > MAX_CHARS and out:
-            allowed = max(0, MAX_CHARS - total_chars)
-            if allowed > 200:
-                out.append({"role": m["role"], "content": content[:allowed] + "\n...[truncated historical context]"})
-            break
+        if exhausted:
+            omitted.append(m.get('id', 'unknown'))
+            continue
+        if total_chars + len(content) > max_chars:
+            allowed = max(0, max_chars - total_chars - 60)
+            if allowed > 200 and not out:
+                content = content[:allowed // 2] + '\n...[history budget limit; middle omitted]...\n' + content[-allowed // 2:]
+                truncated.append(m.get('id', 'unknown'))
+            else:
+                omitted.append(m.get('id', 'unknown'))
+                exhausted = True
+                continue
         out.append({"role": m["role"], "content": content})
+        included.append(m.get('id', 'unknown'))
         total_chars += len(content)
-    return list(reversed(out))
+    return list(reversed(out)), {'budget_tokens': budget, 'estimated_tokens': (total_chars + 3) // 4,
+                                'included_messages': list(reversed(included)), 'omitted_messages': omitted,
+                                'truncated_messages': truncated, 'estimate_method': 'characters/4'}
 
 
 def _dispatch(sid: str, tid: str) -> None:
@@ -605,7 +623,9 @@ def _app(sid, tid, s, t, v):
     user_msg = {"role": "user", "content": t["question"]}
     if images:
         user_msg["images"] = images
-    msgs = _history(s, tid) + [user_msg]
+    history, history_manifest = _history_packet(s, tid)
+    _set(sid, tid, history_manifest=history_manifest)
+    msgs = history + [user_msg]
     out, err = [], ""
     limit = float(load_config()["aiws"].get("max_turn_s") or 900)
 
@@ -651,7 +671,8 @@ def _app(sid, tid, s, t, v):
             if not task.done():
                 task.cancel()
                 await asyncio.gather(task, return_exceptions=True)
-    asyncio.run(bounded())
+    from backend.providers.lifecycle import run_on_app_loop
+    run_on_app_loop(bounded())
     return "".join(out).strip(), err, _cancelled(tid)
 
 
@@ -668,10 +689,11 @@ async def _engine_stream(llm, cfg, eng, system, msgs, model):
 def _cli(sid, tid, s, t, v):
     from backend.providers import gateway as GS
     name = v["provider"][4:]
-    hist = _history(s, tid)
+    hist, history_manifest = _history_packet(s, tid)
+    _set(sid, tid, history_manifest=history_manifest)
     hist_text = ""
-    if hist and not s.get("gateway_session"):
-        hist_lines = [f"{('RESEARCHER' if h['role'] == 'user' else 'ASSISTANT')}: {h['content'][:1200]}" for h in hist[-6:]]
+    if hist:
+        hist_lines = [f"{('RESEARCHER' if h['role'] == 'user' else 'ASSISTANT')}: {h['content']}" for h in hist]
         hist_text = "\n\n# RECENT CONVERSATION IN THIS SESSION\n" + "\n\n".join(hist_lines)
     ctx_text = instructions(s["binding"]["module"], t.get("skill", "")) + "\n" + (t.get("context_text") or "") + hist_text
     try:

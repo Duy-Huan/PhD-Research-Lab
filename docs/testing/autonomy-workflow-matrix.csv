@@ -1,0 +1,27 @@
+requirement,scenario,oracle,evidence,scope,status
+WF-L1,L1 assistance stays bounded,Tool capabilities outside inspection/synthesis rejected,tests/test_autonomy.py::test_control_and_l1_l4_capability_boundaries,Offline actual services,PASS
+WF-L1-ACCEPT,L1 human acceptance after each answer,No next task before digest-bound acceptance,tests/test_autonomy.py::test_l1_and_l2_acceptance_binds_result_and_closes_after_last_review,Offline actual services and real browser,PASS
+WF-L2,L2 executes approved tools then waits,Task pending until previous result reviewed,tests/test_autonomy.py::test_l2_stops_at_human_gate,Offline actual services and live harness,PASS
+WF-REJECT,User rejects an intermediate result,Only that workflow becomes cancelled,tests/test_autonomy.py::test_invalid_reviews_do_not_admit_next_task,Offline actual services and React interaction,PASS
+WF-STALE,Stale plan or output review,Reject and preserve next task attempt count zero,tests/test_autonomy.py::test_invalid_reviews_do_not_admit_next_task,Offline actual services,PASS
+WF-PAUSE,Pause and approve without reviewing output,Still returns to result review gate,tests/test_autonomy.py::test_pause_resume_cannot_bypass_unreviewed_result,Offline actual services,PASS
+WF-L3,L3 ordinary approved DAG,Final human review required,tests/test_autonomy.py::test_l3_requires_final_human_review_and_legacy_policy_is_unchanged,Offline actual services and live harness,PASS
+WF-L4,L4 source-only technical closure,Actual artifact bytes checked and scientific review pending,tests/test_autonomy.py::test_l4_checks_actual_bytes_and_retains_pending_scientific_review,Offline actual services and live harness,PASS
+WF-L4-CPU,L4 experiment and separate reproduction,Raw metrics recomputed and distinct approved run required,artifacts/autonomy-qa/final-live/round-1-missions.json,Real CPU workers and Qwen dummy roles,PASS
+WF-L4-UNCERTAIN,No independent reproduction or failed/missing checks,Technical closure refused,tests/test_autonomy.py::test_l4_refuses_missing_failed_or_corrupted_verification,Offline corruption/fault injection,PASS
+WF-L4-TAMPER,Artifact changes after verifier execution,Final checksum recheck rejects closure,tests/test_autonomy.py::test_l4_checks_actual_bytes_and_retains_pending_scientific_review,Actual file tampering,PASS
+WF-L4-TRUNCATION,Empty or truncated reasoning record,Technical closure refused,tests/test_autonomy.py::test_l4_refuses_missing_failed_or_corrupted_verification,Offline persisted-output fault,PASS
+WF-FOUR,Four independent missions,Four dispatches overlap and each admission occurs once,tests/test_autonomy.py::test_four_missions_dispatch_concurrently_once,Scripted dispatch delay and actual SQLite,PASS
+WF-FAIRNESS,Six workflows with one blocked dispatch,Other five progress and peak ticks <=4,tests/test_workflow_worker.py::test_slow_mission_does_not_block_other_five_and_stop_reconciles_it,Scripted delay and actual services,PASS
+WF-PROJECT,Active project changes during work,In-flight task stays in originating project,tests/test_workflow_worker.py::test_project_switch_does_not_redirect_inflight_task,Actual project stores,PASS
+WF-CPU-BUSY,CPU held by another workflow,Wait before admission with attempts zero,tests/test_autonomy.py::test_cpu_contention_waits_before_experiment_admission,Actual resource guard,PASS
+WF-RECOVERY,Fresh process sees uncertain admitted work,Interrupted with no automatic replay,tests/test_autonomy.py::test_real_process_restart_keeps_uncertain_admission_interrupted,Actual process restart,PASS
+WF-WORKER-FAULT,Dispatch/database failure or cancellation,Failure observed and cleanup/cancellation preserved,tests/test_workflow_worker.py,Controlled fault injection,PASS
+WF-API,Strict input and scope contracts,422 malformed input and replay/scope refusal,tests/test_autonomy.py::test_review_api_contract_and_catalog,Actual ASGI requests,PASS
+WF-QWEN,Qwen 3.5 nonstream thinking switch,Hard switch sent and reasoning-only output rejected,tests/test_qwen_local.py,Offline protocol regression plus live verification,PASS
+WF-LIVE,Four levels coexist for three rounds,All tasks settle once with selected Qwen model and no production-byte changes,artifacts/autonomy-qa/final-live/report.json,Actual HTTP and normal lifespan and LM Studio,PASS
+WF-BROWSER,Real UI approval and reviews,Actual draft to completion and full-width mobile inspector,artifacts/autonomy-qa/final-live/browser-report.json,Actual Edge and real API/model,PASS
+WF-STRESS,16 worker stress over three rounds,No lost events and no HTTP errors or leaked owned subprocesses,artifacts/autonomy-qa/stress.json,Real I/O with scripted provider load,PASS
+WF-SCIENCE,Scientific L3/L4 autonomy,Novelty validity impact domain transfer independently established,docs/testing/autonomy-report.md,No scientific pilot or independent domain review,UNVERIFIED
+WF-ALL-API,Every existing production feature and branch,Every API/UI/CLI/external integration journey qualified,artifacts/autonomy-qa/api-journey-inventory.csv,Global inventory with gaps,BLOCKED
+WF-COVERAGE,100 percent whole-project code and branch coverage,No missing code or branches,artifacts/autonomy-qa/audit-summary.json,Complete source inventory,FAIL

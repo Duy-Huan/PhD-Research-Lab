@@ -1,0 +1,30 @@
+{
+  "algorithm": "sha256",
+  "files": {
+    "all-case-results.csv": "82532d562ebc83c607cec89e6a33b0954dfa160746937912e0e8858a1508b5a0",
+    "api-parity.json": "70a215e2a87f280cd4a53ff0ed69a18d1f63e35a22a7040b1c1247b0f5a46bc2",
+    "api-task-parity.json": "3e29258fe3f2511fadc8c53c07d4bfa4e245f7313e0c0f096ccf59fad0c01f15",
+    "attempts.json": "2f62a1d4acc7920c23a462090753d67086c9457fe2de072c694578647b8d1e47",
+    "backend-final/report.json": "1228c0ffb2b961be61f0081a84277554e900fdc8541a614ef8bbbe6bfc9c626a",
+    "cli-live/report.json": "2d8220612b904ecaaffaeb5b52306f5e7887500ff3e96b503dd77d0b7b566b20",
+    "frontend-coverage-summary.json": "600a18688a6eb8b245ff76f841b4cc8056e0a8c2c517cb5aee3b6bdc1725b60d",
+    "golden-verified/experiment/metrics.json": "cf2798771b5217172ff6ad79d21b7a23a77c7c06cbec40f5dde021cbab3bd0f9",
+    "golden-verified/experiment/raw.csv": "a349e0dd5122f8e042b58af02be0b8db2570c97404f192881e1b6e1a7ab130d0",
+    "golden-verified/figure.png": "0cac1ebfe639fc0d19b82f5f5f28b264ac2e710839bef130c6d3e0c2df0055eb",
+    "golden-verified/main.tex": "7c646393a0e8df81ec1ddf747595c70e9ee34b463b4a5d68da53f09a3cc4cc37",
+    "golden-verified/paper.md": "04b121467f8bd94d32c7a888e021d33400310477038006981f4139f0828fed21",
+    "golden-verified/paper.pdf": "4537e530e148834786d4eb2f813b3852ba28d3d2fea80c6945671620aa006dc3",
+    "golden-verified/references.bib": "54d9375502ca9266726ff537beb3ab02dd6c6e730be16f3089ba7c1f9d2d51cb",
+    "golden-verified/replay/metrics.json": "cf2798771b5217172ff6ad79d21b7a23a77c7c06cbec40f5dde021cbab3bd0f9",
+    "golden-verified/replay/raw.csv": "a349e0dd5122f8e042b58af02be0b8db2570c97404f192881e1b6e1a7ab130d0",
+    "golden-verified/report.json": "fcdf7a9aa5e4aac1ae826359edde07e4fa866efcf18b84c697eadd3a95a2d058",
+    "inventory-summary.json": "037dae52e0804975a1e495edb8e33606a5cdb446d80b5810660b62a87c9a0646",
+    "mcp-probe/report.json": "4c593dcd0b0bfd3ddec259d61365c676f54ee9c0dfe43058982723230cd230b6",
+    "native-vs-wrapped/report.json": "d3df5c88146a896921e2998b14032c7f716db9b33365202e7710ab7e2bb8502a",
+    "native-vs-wrapped-serial/report.json": "1d5ecb52a088be9d4c6fca83530fdd5db58e098e321d32080432d5f1a0136547",
+    "providers-cli/report.json": "1f1ea5019a2f3ff09e69e1c5405c0d96d1f2011c56e0c21cba2cc4aa9013dd25",
+    "static-integrity-final.json": "590fcad9a3098b4922a2d2ef388ea1461a60b61ff439d8bd88d6d4fd8e9c5edf",
+    "summary.json": "54c5547945c4396a0c0c4d6a728df2a79b6f8e94453458e43c30c01eb0507a90",
+    "workflow-inventory.csv": "dad72cefbb3a652ba0ef5f78a7d70b0d317c686a6a46649d41fa956d57379d80"
+  }
+}

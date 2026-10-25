@@ -1,0 +1,16 @@
+{
+  "baseline_operations": 318,
+  "current_operations": 318,
+  "removed": [],
+  "changed": [],
+  "added": [],
+  "changed_or_removed_schemas": [],
+  "documentation_only_changes": [
+    "POST /api/providers/{pid}/connect",
+    "POST /api/providers/{pid}/launch"
+  ],
+  "compatible_snapshot": true,
+  "limitations": [
+    "Static OpenAPI comparison does not prove every runtime JSON/SSE response compatible"
+  ]
+}

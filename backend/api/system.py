@@ -4,7 +4,7 @@ from __future__ import annotations
 import asyncio
 from asyncio import wait_for
 
-from fastapi import APIRouter, Body, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Body, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
 
 from backend.api.common import call, sse, stream
@@ -25,10 +25,19 @@ def get_config():
 
 
 @router.post("/api/config")
-def set_config(body: dict = Body(...)):
+def set_config(background_tasks: BackgroundTasks, body: dict = Body(...)):
     out = public_config(save_config(body))
     bus.publish("config.updated", keys=",".join(sorted(body))[:200])
+    if set(body) & {'providers', 'default_cloud', 'agent_modes', 'agent_models', 'lifecycle'}:
+        from backend.providers.connections import selected
+        background_tasks.add_task(selected, body)
     return out
+
+
+@router.get('/api/models/connections')
+def model_connections():
+    from backend.providers.connections import status
+    return {'connections': status()}
 
 
 # ------------------------------------------------------------------ models
@@ -175,7 +184,7 @@ async def provider_auth_status(pid: str):
 async def provider_connect(pid: str, body: dict | None = None):
     """Vendor login stays in its installed native CLI; legacy web/app means native app."""
     from backend.providers.cli import CONNECTORS
-    from backend.providers.native import launch_provider, launch_terminal
+    from backend.providers.native import launch_provider
     payload = body if isinstance(body, dict) else {}
     clean_pid = pid.removeprefix("cli:").removeprefix("app:")
     mode = str(payload.get("mode") or "terminal").lower()
@@ -187,9 +196,9 @@ async def provider_connect(pid: str, body: dict | None = None):
         result = await call(launch_provider, clean_pid)
     elif clean_pid in CONNECTORS:
         connector = CONNECTORS[clean_pid]
-        result = await call(launch_terminal, connector.binary(), connector.login_cmd.split()[1:])
+        result = await call(launch_provider, clean_pid, True)
     elif clean_pid == "feynman":
-        result = await call(launch_terminal, "feynman", ["model", "login"])
+        result = await call(launch_provider, clean_pid, True)
     else:
         result = await call(launch_provider, clean_pid)
     if not result.get("launched"):

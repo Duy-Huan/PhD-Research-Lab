@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "6.5.3"
+APP_VERSION = "6.5.4"
 
 ROOT = Path(__file__).resolve().parents[2]
 # PHDLAB_DATA_DIR (v3.2) moves ALL user data elsewhere — used by the test suite so it never touches the real data/.
@@ -169,7 +169,7 @@ DEFAULTS = {
     # process itself always exits after a request); mcp = the Docker sandbox container used by MCP tools and agent runs;
     # cloud = the pooled HTTPS connections to cloud APIs.
     "lifecycle": {"enabled": True, "unload_on_exit": True, "local_background": "unload_after_task", "local_interactive": "idle_unload",
-                  "cli": "idle_unload", "mcp": "idle_unload", "cloud": "idle_unload",
+                  "cli": "idle_unload", "mcp": "idle_unload", "cloud": "keep_loaded", "cloud_preconnect": True,
                   "local_idle_min": 10, "cli_idle_min": 30, "mcp_idle_min": 15, "cloud_idle_min": 5,
                   "unload_grace_s": 15, "respect_manual_loads": True, "single_model_vram": True},
     # ClearML offline recording (SDK only, no server): auto_record records every finished run as an offline session in
@@ -211,7 +211,7 @@ DEFAULTS = {
     "aiws": {"enabled": True, "operating_mode": "automation", "provider": "app:auto", "model": "", "reasoning": "auto",
              "context_mode": "relevant", "memory_mode": "suggest", "auto_memory_types": ["open_question"],
              "mcp_auto": True, "mcp_tools": [], "security_profile": "review", "keep_history": True, "summaries": True,
-             "collect_artifacts": True, "context_budget_tokens": 6000, "module_defaults": {}, "max_turn_s": 900},
+             "collect_artifacts": True, "context_budget_tokens": 6000, "history_budget_tokens": 4000, "module_defaults": {}, "max_turn_s": 900},
 }
 # v5 research runs (backend/agent/runs.py) and research providers (backend/providers/research.py)
 DEFAULTS["runs"] = {

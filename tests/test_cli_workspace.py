@@ -101,7 +101,11 @@ class Sessions(unittest.TestCase):
     def test_custom_root(self):
         d = tempfile.mkdtemp()
         config.save_config({"gateway": {"cli_space_dir": d}})
-        self.assertEqual(W.root(), Path(d).resolve())
+        with self.assertRaises(W.WorkspaceError):
+            W.root()
+        dedicated = config.data_dir() / 'approved-cli'
+        config.save_config({'gateway': {'cli_space_dir': str(dedicated)}})
+        self.assertEqual(W.root(), dedicated.resolve())
         config.save_config({"gateway": {"cli_space_dir": ""}})
 
     def test_context_is_staged_read_only_with_hashes(self):

@@ -63,7 +63,11 @@ async def create(body: dict = Body(default={})):
             store.update(s["id"], lambda x: x.update(topic_id=tid))
             return store.get(s["id"])
         return s
-    return await call(run)
+    result = await call(run)
+    if 'settings' in body or 'settings_reset' in body:
+        from backend.providers.connections import session_selected
+        session_selected(result)
+    return result
 
 
 @router.get("/api/chat/sessions/{sid}")
@@ -107,7 +111,11 @@ async def update(sid: str, body: dict = Body(...)):
             store.update(sid, fn)
             store.emit(sid, "session.updated", field="settings")
         return store.get(sid)
-    return await call(run)
+    result = await call(run)
+    if 'settings' in body or 'settings_reset' in body:
+        from backend.providers.connections import session_selected
+        session_selected(result)
+    return result
 
 
 @router.get("/api/chat/sessions/{sid}/effective")

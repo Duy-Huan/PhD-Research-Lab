@@ -382,12 +382,13 @@ class CliMcpCloud(Base):
             st = await LC.status()
             self.assertTrue(st["cloud"]["pool_open"])
             await LC.release_due(time.time() + 10 ** 6)
-            self.assertTrue(b.is_closed)
-            self.assertEqual(await LC._close_pool(), "no open connections")
+            self.assertFalse(b.is_closed)  # Cloud transport stays warm; only local weights are unloaded.
             config.save_config({"lifecycle": {"cloud": "unload_after_task"}})
             async with LC.http_client(5) as d:
                 pass
-            self.assertTrue(d.is_closed)
+            self.assertIs(d, b)  # Legacy cloud-unload setting cannot force a reconnect per turn.
+            self.assertEqual(await LC._close_pool(), "connection pool closed")
+            self.assertTrue(b.is_closed)
         with Fakes():
             run(go())
 

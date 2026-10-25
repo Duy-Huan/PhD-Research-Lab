@@ -158,6 +158,7 @@ export interface AppConfig {
     cli: string;
     mcp: string;
     cloud: string;
+    cloud_preconnect?: boolean;
     local_idle_min: number;
     cli_idle_min: number;
     mcp_idle_min: number;
@@ -219,6 +220,7 @@ export interface AppConfig {
     timeout_s: number;
   };
   aiws: {
+    history_budget_tokens?: number;
     enabled: boolean;
     operating_mode: string;
     provider: string;
@@ -315,6 +317,8 @@ export interface ChatNote {
 }
 
 export interface ChatTurn {
+  manifest?: { sources?: Array<{ id: string; truncated?: boolean }>; omitted?: Array<{ id: string; reason?: string }> };
+  history_manifest?: { omitted_messages?: string[]; truncated_messages?: string[]; budget_tokens?: number };
   error?: string;
   id: string;
   status: 'running' | 'queued' | 'waiting_approval' | 'awaiting_launch' | 'completed' | 'failed' | 'cancelled';

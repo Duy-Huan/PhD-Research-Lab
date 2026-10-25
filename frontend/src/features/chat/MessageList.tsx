@@ -331,6 +331,19 @@ export const MessageList: React.FC<MessageListProps> = ({
         </div>
       )}
 
+      {turns.slice(-1).filter(turn => (turn.manifest?.omitted?.length || turn.manifest?.sources?.some(source => source.truncated) ||
+        turn.history_manifest?.omitted_messages?.length || turn.history_manifest?.truncated_messages?.length)).map(turn => (
+        <details key={`context-${turn.id}`} className="muted" style={{ padding: '8px 12px', fontSize: 12 }}>
+          <summary>{t('Ngữ cảnh có giới hạn — xem nội dung bị lược bớt', 'Context is limited — review omitted content')}</summary>
+          <p>{t('Tăng ngân sách ngữ cảnh/lịch sử trong Cài đặt hoặc chọn nguồn cụ thể trước khi đặt câu hỏi phụ thuộc dữ liệu này.', 'Increase the context/history budget in Settings or select specific sources before asking questions that depend on this data.')}</p>
+          <ul>
+            {(turn.manifest?.omitted || []).map(source => <li key={source.id}>{source.id}: {source.reason}</li>)}
+            {(turn.manifest?.sources || []).filter(source => source.truncated).map(source => <li key={source.id}>{source.id}: {t('Nguồn đã được rút gọn', 'Source was shortened')}</li>)}
+          </ul>
+          {!!turn.history_manifest?.omitted_messages?.length && <p>{t('Tin nhắn lịch sử không được đưa vào:', 'History messages omitted:')} {turn.history_manifest.omitted_messages.length}</p>}
+          {!!turn.history_manifest?.truncated_messages?.length && <p>{t('Tin nhắn lịch sử đã rút gọn:', 'History messages shortened:')} {turn.history_manifest.truncated_messages.length}</p>}
+        </details>
+      ))}
       {turns.filter(turn => turn.status === 'failed').map(turn => (
         <div role="alert" key={turn.id} style={{ color: 'var(--danger, #b91c1c)' }}>
           {t('Không thể trả lời', 'Unable to answer')}: {turn.error || t('Lượt chat thất bại.', 'Chat turn failed.')}

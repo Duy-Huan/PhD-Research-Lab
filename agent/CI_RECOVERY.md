@@ -1,3 +1,5 @@
+Latest owner clarification: preview6.3.0 on main/dev/qa is UNTRUSTED. Use the consolidated current source and fresh execution; no old branch is a certified baseline. Application snapshot4774f55 + byte-preservation9147684 are now merged locally, with10 conflicts resolved and historical handoffs retained.
+
 # Emergency recovery protocol — current owner instruction, 2026-10-25
 
 Read this before the older release automation plans. Never automatically merge `main`. Keep `qa` and `main` protected. No force push, CI bypass, worktree deletion, threshold relaxation, fake live evidence or paid AI inference is authorized. Never delete files from `agent/` or `skills/`.

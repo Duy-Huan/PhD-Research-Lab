@@ -5,6 +5,40 @@ test.beforeEach(async ({ request }) => {
   expect((await request.post('/api/config', { data: { ui: { language: 'en' } } })).ok()).toBeTruthy();
 });
 
+test('UI-MODEL-RULES-001: cloud preconnection and context budgets persist through the real settings API', async ({ page, request }) => {
+  const original = await (await request.get('/api/config')).json();
+  try {
+    expect((await request.post('/api/config', { data: { lifecycle: { cloud_preconnect: false } } })).ok()).toBeTruthy();
+    await boot(page);
+    await page.getByRole('button', { name: 'System Settings', exact: true }).click();
+    await page.getByRole('button', { name: /Models & AI Agents/ }).click();
+    const preconnect = page.getByRole('checkbox', { name: 'Preconnect Cloud when saving a model', exact: true });
+    await expect(preconnect).not.toBeChecked();
+    await preconnect.check();
+    await expect.poll(async () => (await (await request.get('/api/config')).json()).lifecycle.cloud_preconnect).toBe(true);
+    await page.reload();
+    await page.getByRole('button', { name: 'System Settings', exact: true }).click();
+    await expect(preconnect).toBeChecked();
+    const history = page.getByRole('spinbutton', { name: 'Chat history budget (estimated tokens)', exact: true });
+    for (const [input, expected] of [['399', 400], ['40000', 32000]] as const) {
+      await history.fill(input);
+      await history.blur();
+      await expect.poll(async () => (await (await request.get('/api/config')).json()).aiws.history_budget_tokens).toBe(expected);
+      await expect(history).toHaveValue(String(expected));
+    }
+    await page.reload();
+    await page.getByRole('button', { name: 'System Settings', exact: true }).click();
+    await expect(history).toHaveValue('32000');
+    await preconnect.uncheck();
+    await expect.poll(async () => (await (await request.get('/api/config')).json()).lifecycle.cloud_preconnect).toBe(false);
+  } finally {
+    expect((await request.post('/api/config', { data: {
+      lifecycle: { cloud_preconnect: original.lifecycle?.cloud_preconnect ?? false },
+      aiws: { history_budget_tokens: original.aiws?.history_budget_tokens ?? 4000 },
+    } })).ok()).toBeTruthy();
+  }
+});
+
 for (const width of [375, 768]) {
   test(`UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });

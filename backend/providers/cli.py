@@ -201,17 +201,9 @@ class CLIConnector(ProviderConnector):
     def connect(self, launch: bool = False) -> dict:
         out = {"provider": self.provider_id, "action": "sign_in_with_vendor", "command": self.login_cmd,
                "detail": "Sign in through the vendor's own browser flow. PhD-Lab never sees your password or tokens."}
-        if launch and sys.platform.startswith("win"):
-            bin_path = self.binary()
-            if bin_path:
-                parts = [bin_path, *self.login_cmd.split()[1:]]
-                command = "& " + " ".join("'" + part.replace("'", "''") + "'" for part in parts)
-            else:
-                command = f"Write-Host '--- PhD Research Lab: {self.label} CLI ---' -ForegroundColor Cyan; {self.login_cmd}"
-            encoded = base64.b64encode(command.encode("utf-16le")).decode("ascii")
-            subprocess.Popen(["powershell.exe", "-NoLogo", "-NoExit", "-EncodedCommand", encoded],
-                             creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
-            out["launched"] = True
+        if launch:
+            from backend.providers.native import launch_provider
+            out.update(launch_provider(self.provider_id, True))
         _last_error.pop(self.provider_id, None)
         from backend.core.config import save_config
         save_config({"gateway": {f"{self.provider_id}_enabled": True}})
@@ -222,6 +214,28 @@ class CLIConnector(ProviderConnector):
 
     def stdin_payload(self, message: str, context: dict) -> str:
         return message
+
+    def process_argv(self, args: list, context: dict) -> list:
+        """The model-bearing process always runs behind the same OS boundary as interactive launch."""
+        from backend.providers import isolated_cli
+        mcp = {'url': context['mcp_url'], 'token': context.get('mcp_token', '')} if context.get('mcp_url') else None
+        prepared = isolated_cli.prepare(self.provider_id, session_id=Path(context['cwd']).parent.name,
+                                        profile=context.get('profile', 'review'), mcp=mcp)
+        if prepared['state'] != 'PREPARED':
+            raise ProviderError(prepared['detail'], 'UNAVAILABLE')
+        binary = isolated_cli.RUNTIMES[self.provider_id][0]
+        workspace = str(Path(context['cwd']).resolve())
+        command = [binary, *[('/workspace' + str(part)[len(workspace):].replace('\\', '/'))
+                            if str(part).startswith(workspace + os.sep) else part for part in args[1:]]]
+        if self.provider_id == 'codex' and mcp:
+            extra = ['-c', 'mcp_servers.phdlab.url="http://127.0.0.1:3128/mcp"']
+            command = command[:-1] + extra + command[-1:] if command[-1:] == ['-'] else command + extra
+        plan_path = Path(prepared['plan'])
+        plan = json.loads(plan_path.read_text('utf-8'))
+        plan['command'] = command
+        plan_path.write_text(json.dumps(plan, indent=2), 'utf-8')
+        from backend.core.config import ROOT
+        return [sys.executable, str(ROOT / 'tools/run_cli_container.py'), str(plan_path), '--headless']
 
     def stream_message(self, message: str, context: dict):
         h = self.health()
@@ -244,20 +258,12 @@ class CLIConnector(ProviderConnector):
         if not cwd.is_dir() or cwd.name != "workspace" or cwd.parent.parent.parent.parent != W.root():
             raise ProviderError("CLI working directory is not a PhD-Lab session workspace", "ERROR")
         from backend.providers import firewall
-        mcp = {"url": context["mcp_url"], "token": context.get("mcp_token", "")} if context.get("mcp_url") else None
-        extra = firewall.prepare_workspace(self.provider_id, cwd, mcp)["argv"]
-        if self.provider_id == "codex" and _gw().get("codex_app_server", False):
-            from backend.providers.app_server import stream, StartupFailure
-            try:
-                yield from stream(self, message, context, extra)
-                return
-            except StartupFailure:
-                # No turn was submitted. Once submitted, recovery must never replay the prompt automatically.
-                yield E.ev("status", state="transport_fallback", transport="codex-exec")
+        extra = firewall.prepare_workspace(self.provider_id, cwd, None)["argv"]
         context["_extra_argv"] = extra
         args = self.argv(context)
         if not context.get("_extra_argv_consumed") and self.provider_id != "codex":
             args = (args[:-1] + extra + ["-"]) if args and args[-1] == "-" else args + extra
+        args = self.process_argv(args, context)
         launch = time.perf_counter()
         try:
             proc = subprocess.Popen(args, cwd=str(cwd), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
