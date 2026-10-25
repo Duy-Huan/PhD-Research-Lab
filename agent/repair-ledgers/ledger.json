@@ -51,5 +51,14 @@
         "status": "PASS"
       }
     ]
+  },
+  "BUG-TEST-RUNTIME-CACHE-001": {
+    "attempts": 1,
+    "history": [
+      {
+        "sha": "2a5ee141a1d06291eb65589045f0c5a35b711526",
+        "status": "FAIL"
+      }
+    ]
   }
 }

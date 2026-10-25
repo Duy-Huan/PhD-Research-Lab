@@ -1,0 +1,8 @@
+{
+  "mode": "SOURCE_COMPARISON",
+  "previous_source": "568d68f5c218f4ccdfa941de160621e79e5a6794309ffaaf14b68d179e76b3c3",
+  "current_source": "b2b35a188e3eba19323c7c9eb51bf99b993c8f1018262787f974aff8baa47ac1",
+  "production_files_compared": 301,
+  "production_files_changed": [],
+  "scope": "Production code byte identity since actual runtime component probes; not a new live execution or full research qualification"
+}

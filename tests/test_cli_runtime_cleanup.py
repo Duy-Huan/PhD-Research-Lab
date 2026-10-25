@@ -19,6 +19,7 @@ class RuntimeCleanup(unittest.TestCase):
 
     def connector(self):
         class Fixture(cli.CodexConnector):
+            def binary(self):return sys.executable
             def process_argv(self,args,context):
                 context['_runtime_owner']=OWNER
                 return args
@@ -96,6 +97,21 @@ class RuntimeCleanup(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'resource count'):
                 isolated_cli.cleanup_owned_runtime(OWNER)
             run.assert_not_called()
+
+    def test_protocol_fixture_does_not_require_a_vendor_cli_on_path(self):
+        from backend.execution.tools import _cache
+        config.save_config({'codex':{'binary':''}})
+        key='gw:codex:None';previous=_cache.get(key)
+        with patch.object(cli,'which',return_value=None), \
+             patch.object(isolated_cli,'cleanup_owned_runtime') as cleanup:
+            try:
+                self.assertEqual(cli.CodexConnector().health(fresh=True)['state'],'UNAVAILABLE')
+                events=list(self.connector().stream_message('Python protocol fixture, no vendor CLI',{}))
+            finally:
+                if previous is None:_cache.pop(key,None)
+                else:_cache[key]=previous
+        self.assertTrue(any(e['type']=='request_completed' and e['exit_code']==0 for e in events))
+        cleanup.assert_called_once_with(OWNER)
 
 
 if __name__=='__main__':unittest.main()

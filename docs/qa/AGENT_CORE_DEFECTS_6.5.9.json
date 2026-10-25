@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "scope": "Two additional confirmed6.5.8 defects repaired in6.5.9; not a whole-application zero-defect certification",
-  "source_sha256": "568d68f5c218f4ccdfa941de160621e79e5a6794309ffaaf14b68d179e76b3c3",
+  "scope": "Two measured6.5.8 defects plus one newly introduced6.5.9 test-infrastructure defect; all locally repaired, fresh exact-head CI still required",
+  "source_sha256": "b2b35a188e3eba19323c7c9eb51bf99b993c8f1018262787f974aff8baa47ac1",
   "local_software_counts": {
-    "PASS": 1198,
+    "PASS": 1199,
     "FAIL": 0,
     "ERROR": 0,
     "SKIP": 0,
@@ -76,6 +76,38 @@
       ],
       "owner": "Development verification / SDET",
       "repair_status": "FIXED_LOCAL_VERIFIED; confirm identical corrected fingerprints in fresh four-platform CI artifacts"
+    },
+    {
+      "id": "BUG-TEST-RUNTIME-CACHE-001",
+      "module": "tests/test_cli_runtime_cleanup.py",
+      "severity": "P2",
+      "classification": "NEW_TEST_INFRASTRUCTURE_REGRESSION",
+      "first_known_affected_commit": "2a5ee141a1d06291eb65589045f0c5a35b711526",
+      "introduced_commit": "0c75cd30ca1cf80fd801a269e7ae2605bad547c0",
+      "release_blocking": true,
+      "reproduction": [
+        "Make real vendor CLI discovery unavailable",
+        "Seed real gw:codex:None health cache with UNAVAILABLE",
+        "Execute the controlled Python protocol fixture"
+      ],
+      "expected": "Independent fixture uses Python and executes cleanup assertions without installed/signed-in vendor CLI",
+      "actual": "Inherited discovery reused missing-vendor cached health, so3cases ERROR on each actual CI matrix job",
+      "root_cause": "Fixture transport identity was not isolated from production executable discovery/cache",
+      "regression_test_ids": [
+        "test_cli_runtime_cleanup.RuntimeCleanup.test_protocol_fixture_does_not_require_a_vendor_cli_on_path"
+      ],
+      "repair_status": "FIXED_LOCAL_VERIFIED; independent latest-head CI must be observed",
+      "repair_attempt": 1,
+      "max_attempts": 3,
+      "evidence": [
+        "evidence/cli-runtime-cleanup-6.5.9/ci-fixture-repair-r1/actual-ci-failure.json",
+        "evidence/cli-runtime-cleanup-6.5.9/ci-fixture-repair-r1/first-run-matrix.json",
+        "evidence/cli-runtime-cleanup-6.5.9/ci-fixture-repair-r1/red.json",
+        "evidence/cli-runtime-cleanup-6.5.9/ci-fixture-repair-r1/green.json"
+      ],
+      "owner": "Development verification/SDET",
+      "assertions_weakened": false,
+      "tests_skipped": false
     }
   ]
 }

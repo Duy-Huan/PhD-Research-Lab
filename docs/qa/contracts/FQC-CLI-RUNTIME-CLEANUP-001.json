@@ -16,6 +16,10 @@
     {
       "id": "TRUTH",
       "description": "Cleanup failure cannot become a successful request; resource count and command timeouts bound cleanup."
+    },
+    {
+      "id": "HERMETIC",
+      "description": "Controlled Python protocol fixtures identify their own executable and cannot reuse an unavailable vendor CLI health cache."
     }
   ],
   "nonfunctional": [
@@ -113,6 +117,13 @@
       "kind": "performance",
       "expected": "unexpected resource count is bounded and never bulk deleted",
       "test": "tests/test_cli_runtime_cleanup.py::RuntimeCleanup.test_unexpected_resource_count_is_bounded_and_never_bulk_deleted"
+    },
+    {
+      "id": "fixture-no-vendor",
+      "requirement": "HERMETIC",
+      "kind": "positive",
+      "expected": "Real absent-vendor health remains UNAVAILABLE while independent Python protocol fixture completes and releases owned resources.",
+      "test": "tests/test_cli_runtime_cleanup.py::RuntimeCleanup.test_protocol_fixture_does_not_require_a_vendor_cli_on_path"
     }
   ],
   "recovery": "Preserve original failures and all attempts. Bounded development repair, exact request cancellation, no retries that hide failures. Missing live/research/UAT remains BLOCKED.",
@@ -148,12 +159,24 @@
       "exit_code": 0
     }
   },
-  "additional_red_green": [],
+  "additional_red_green": [
+    {
+      "red": {
+        "path": "docs/qa/evidence/cli-runtime-cleanup-6.5.9/ci-fixture-repair-r1/red.json",
+        "sha256": "ec10db5cf8ffbad7f137e0b5a2b18ed7ce55b8fa5b0c5180e27b01489ba4ca25"
+      },
+      "green": {
+        "path": "docs/qa/evidence/cli-runtime-cleanup-6.5.9/ci-fixture-repair-r1/green.json",
+        "sha256": "ff91e53c3c2c1610dd1b7cb2cffe8582a4fb655809d67764a18cc306aa453d1e"
+      }
+    }
+  ],
   "limitations": [
     "Protocol-process assertions use mocked Docker transport; worker REAL_LOCAL on original RED describes local processes, not live Docker/provider qualification.",
     "Actual Docker inspection confirmed three proxy leaks after successful 6.5.8 native probes; initial smoke assertions did not cover cleanup.",
     "First targeted green attempt exposed fixture-owned connector error state leaking into other cases; cleanup added without weakening assertions; raw failed report retained.",
     "Actual corrected native probe proved no newly leaked container/volume relative to its captured baseline, not arbitrary host-crash recovery or all concurrent startup races.",
-    "Full capability learning and required exploratory AI-UAT adapters remain unqualified."
+    "Full capability learning and required exploratory AI-UAT adapters remain unqualified.",
+    "Actual first6.5.9 CI exposed an installed-vendor health cache dependency in the Python fixture. New absent-vendor cached-health RED then43affectedPASS retain all cleanup assertions. Initial incomplete repro did not seed the unavailable cache and is not RED evidence."
   ]
 }

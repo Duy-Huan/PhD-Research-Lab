@@ -1,49 +1,48 @@
-# Agent-native core and runtime reliability ? 6.5.9
+# Agent-native research environment checkpoint ? 6.5.9
 
-Local snapshot before6.5.9 publication. Source `568d68f5c218f4ccdfa941de160621e79e5a6794309ffaaf14b68d179e76b3c3`, stable. Baseline HEADb3080ab0f89715b207c7e2004d84968954eef5e5. Actual publication and independent CI must be matched by exact latest GitHub HEAD; durable remote receipts are in shared.git/ci-observations/6.5.9-dev/. This local report does not presume a future GitHub result.
+Local pre-publication snapshot for CI fixture repair1/3, source `b2b35a188e3eba19323c7c9eb51bf99b993c8f1018262787f974aff8baa47ac1`, stable. Baseline HEAD2a5ee141a1d06291eb65589045f0c5a35b711526. Actual latest publication/CI must be read from GitHub and shared.git/ci-observations/6.5.9-dev/receipt.json; no future remote result is presumed.
 
-**Local software PASS; release BLOCKED.** This extends the [6.5.8 core checkpoint](AGENT_NATIVE_CORE_CHECKPOINT_6.5.8.md), with two actual defects discovered beyond passing smoke assertions.
+**Local software1199/1199PASS; release BLOCKED.** The current candidate retains the model-led conversation, context fidelity and native streaming fixes from6.5.8, plus measured runtime cleanup/source-identity corrections. It does not complete every requested architecture change or establish L3/L4.
 
-## Measured corrections
+## Actual repairs and one failed CI cycle
 
-- BUG-CLI-RUNTIME-CLEANUP-001 / P2: native turn shutdown could kill the runtime wrapper before its Docker finally cleanup. Three actual successful probes left proxy containers running. Parent and wrapper now share a fresh invocation owner and reuse exact-label/container/IPC-volume cleanup. Resource count and operation timeouts bound work; cleanup failure produces an error/nonzero completion. Consumer-close fallback retains diagnostics. Other invocations are not cleanup targets.
-- BUG-VERIFY-EOL-001 / P2 infrastructure: actual6.5.8 Windows/Linux artifact fingerprints differed only in three Apache license files with CRLF versusLF. Declared license text now receives the existing LF normalization. Genuine content changes still invalidate proof, and staging does not change identity.
+- BUG-CLI-RUNTIME-CLEANUP-001: three actual native probes left proxy containers. Parent/wrapper now share a fresh invocation owner and reuse exact owned-container/IPC-volume cleanup. Work/count/timeouts are bounded; failed cleanup cannot be reported as successful completion. Cancellation/consumer-close fallback retains diagnostics.
+- BUG-VERIFY-EOL-001: three Apache license CRLF hashes produced different Windows/Linux fingerprints. Declared text now receives LF normalization; actual content changes still invalidate proof. Actual first6.5.9 CI artifacts all matched568d68f... across four environments. This validates that correction, not the failed run as a whole.
+- BUG-TEST-RUNTIME-CACHE-001: first6.5.9 [CI40221840300](https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40221840300) failed on all four backend jobs:970PASS/3ERROR each. The new Python protocol fixture inherited real executable discovery, colliding with cached missing-vendor health under gw:codex:None. This was a newly introduced test-infrastructure regression, not a reason to install/sign in Codex on hosted CI or skip tests. Fixture.binary now identifies sys.executable. A permanent absent-vendor/cached-health case reproduced the error before correction, then the affected suite43PASS. Real provider health still correctly reports UNAVAILABLE when its binary is absent.
 
-Preserved functional RED/GREEN: eight cleanup behavior cases plus affected connectivity/workspace suite42PASS; source identity5PASS after real RED. The initial targeted attempt failed from fixture-owned sticky error state; test cleanup was corrected without weakening assertions. All raw failed records remain. A first6.5.9 full run was deliberately ABORTED before the source-identity correction and is notPASS.
+The incomplete first local reproduction did not seed the unavailable cache and passed; it is retained but is not RED evidence. Correct RED9cases/1ERROR and GREEN43PASS are retained. Exactly one failed repair cycle is recorded under BUG-TEST-RUNTIME-CACHE-001, maximum3, without resetting the unrelated UAT ledger. No assertion/gate was weakened and no mandatory case was skipped.
 
-## Actual local execution
+## Complete current local execution
 
-`python scripts/verify.py --profile pr --component all --base origin/dev --out output/playwright/hermes-core-audit/runtime-cleanup-659-final` using the pinned Python3.12.15 CI environment.
+Command: `python scripts/verify.py --profile pr --component all --base origin/dev --out output/playwright/hermes-core-audit/runtime-cleanup-659-ci-repair-1`, pinned Python3.12.15 CI environment.
 
-| Scope | Executed result |
+| Scope | Actual result |
 |---|---|
-| Backend software |973/973PASS,0fail/error/skip,530.18seconds |
+| Backend software |974/974PASS,0FAIL/ERROR/SKIP;538.85seconds |
 | Frontend unit assertions |194/194PASS |
-| Actual Playwright2D then3D |27/27 then1/1PASS |
-| Owned browser/process boundaries |3/3PASS |
-| Total selected software cases |1198/1198PASS,0FAIL/ERROR/SKIP/NOT_RUN/BLOCKED/UNVERIFIED |
+| Real Playwright2D then3D |27/27 then1/1PASS |
+| Owned process/browser boundaries |3/3PASS |
+| Total selected software |1199/1199PASS;0FAIL/ERROR/SKIP/NOT_RUN/BLOCKED/UNVERIFIED |
 | Node GitHub policy fixtures |48/48PASS separately |
-| Types/build, contract policy, pinned workflow syntax, syntax lint, discovery, protected files |PASS |
-| Source-bound receipt validator |Observed exit0; no source change since full run |
+| Types/build, syntax lint, pinned workflow syntax, contracts, discovery, protected files |PASS |
+| Receipt validator / command wrapper |Observed exit0; source stable |
 
-Unlike the preceding redirected shell run, this full command's wrapper also returned0. Browser counts include controlled fault fixtures, not28 independent production features. This is software regression, not full live/scientific acceptance.
+Static inventory127Python modules,42frontend unit files,6offlinePlaywright files is NOT_RUN inventory, not execution. Actual selected assertions above ran. Separate model/browser/live inventories remain unqualified at dev and are mandatory for QA/main. Browser cases include controlled fault fixtures; their count is not a production feature coverage percentage.
 
-## Actual runtime and provider evidence
+## Runtime and real provider evidence, with scope
 
-The frozen-source Docker experiment ran two separate real runtimes with no model inference or mocked transport. Forced termination of wrapperA left real containers. Parent cleanup removed A's containers and volume while B still had its two running containers and volume. Both were then actually cleaned; source remained stable. [Raw frozen proof](evidence/cli-runtime-cleanup-6.5.9/actual-frozen-runtime.json).
+The earlier frozen-source Docker experiment actually killed wrapperA, observed remaining resources, removed exact ownerA containers/volume while ownerB stayed running, then cleaned both. No inference or mocked Docker transport was used. Actual native Codex corrected smoke created no additional runtime resources relative to its captured baseline. Three prior probe-owned proxies and one verified unused app IPC volume were cleaned by exact ID/label only. No research data or agent/skills file was deleted.
 
-The corrected real Codex smoke also passed and created no additional container/volume relative to its recorded baseline. Earlier actual subscription nonce/arithmetic probes and the exact CodexLive case used official ChatGPT sign-in with API keys excluded; they do not establish every native tool path or scientific quality. A separate actual Spark LM Studio test loaded/gated/unloaded the model and observed VRAM4947->1843MB; no inference or AI-UAT was used. Those development receipts are under output/playwright/hermes-core-audit/, with their own source identities; they cannot be relabeled as complete final-source QA evidence.
+The fixture correction changes no production code: a comparison of 301production/runtime source files against the previously tested source568d68f... found zero changed files. [Source comparison](evidence/cli-runtime-cleanup-6.5.9/ci-fixture-repair-r1/production-code-comparison.json) is a source comparison, not a new live run or final-source scientific qualification. [Actual Docker proof](evidence/cli-runtime-cleanup-6.5.9/actual-frozen-runtime.json) retains its own source identity. Host-crash recovery and every startup/cancel race are not qualified.
 
-Three known probe-owned proxy containers and a separately verified unused app IPC volume were cleaned only after exact ID/label/ownership checks. No research data or agent/skills file was deleted. Application-host crash recovery and every startup/cancellation race remain unqualified; this repair does not claim universal leak freedom.
+Actual official ChatGPT subscription inference through Codex0.163.0/gateway succeeded with API keys excluded; nonce/arithmetic responses and real usage events were retained. The exact CodexLive smoke and separate Spark LM Studio load/resource-gate/unload smoke also really passed in their recorded development scope. Exact model entitlements, all native MCP/tool paths and dashboard usage aggregation are not claimed. Spark resource verification used no inference or AI-UAT; its one-use UAT allowance is still unused.
 
-## Coverage and release limits
+## Coverage and release decision
 
-Backend lines 23949/26570 (90.14%); branches 7151/8820 (81.08%); combined 87.88%. Frontend lines65.97%, branches64.92%, functions51.39%. Desired100% production line/branch coverage is not achieved; coverage remains informational, not a waived failing test.
+Backend lines23949/26570 (90.14%); branches7156/8820 (81.13%); combined87.89%. Frontend lines65.97%, branches64.92%, functions51.39%. Desired100% production line/branch coverage is not achieved. Coverage is informational; every mandatory selected software regression must execute/PASS.
 
-Full open-ended capability learning is DESIGN_RECORDED/runtimeNOT_RUN. Reuse existing candidates/skills/memory/experiments, then qualify immutable revisions, evaluations, held-out transfer, scoped activation and rollback. No new Research Engine or compulsory six-stage scientific method was added. ScopedL3/L4 remain NOT_DEMONSTRATED.
+One environment, agent-selected research methods, evidence-backed learning: [persistent learning policy](../../agent/OPEN_ENDED_CAPABILITY_LEARNING.md), [implementation gap audit](../architecture/OPEN_ENDED_CAPABILITY_GAP_AUDIT.md). Full procedural learning (immutable skill revisions, evaluation/held-out transfer, activation and rollback) is DESIGN_RECORDED/runtimeNOT_RUN. ScopedL3/L4 remain NOT_DEMONSTRATED. No new Research Engine or compulsory six-step research script was built.
 
-Active Feynman/OpenScience retirement, one-project/one-paper migration and complete unified provider configuration/usage/tool workflow remain pending/partial. Preserve all research/harness/data functions. New required exploratory UAT adapters are NOT_IMPLEMENTED; complete matching-source provider/research/CLI/2D/3D/AI-UAT evidence is missing. QA/main therefore stay BLOCKED, not automatically merged. The original three UAT failures and exactly one unused600second/six-step Spark allowance are preserved.
+Feynman/OpenScience retirement with native replacements, one-paper-project migration and complete unified native/API/local provider configuration/usage/tool workflow remain pending/partial. Required exploratory UAT adapters are NOT_IMPLEMENTED and complete final-source live/provider/research/CLI/2D/3D/UAT evidence is missing. QA/main remain BLOCKED; no unqualified merge, tag or release. Original three UAT failures and exactly one unused600second/six-step Spark allowance remain intact.
 
-Published6.5.8 [GitHub run40218073963](https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40218073963) actually succeeded, with964/964 and0skip on all four Windows/Linux Python3.11/3.12 jobs. The dev push emitted no exact required `QA gate` context; out-of-phase skips are not QA success. That run does not qualify changed6.5.9 source. New independent CI must prove latestHEAD and identical corrected fingerprints on all matrix environments.
-
-Raw evidence: [current local report](evidence/local-verification/report.json), [preserved final software](evidence/cli-runtime-cleanup-6.5.9/final-software/report.json), [defect registry](AGENT_CORE_DEFECTS_6.5.9.json), [receipt validation](evidence/cli-runtime-cleanup-6.5.9/final-software/receipt-validation.json). Historical five-report snapshots are preserved under history/20261026-before-659/.
+[Current actual software report](evidence/local-verification/report.json), [preserved repair-cycle report](evidence/cli-runtime-cleanup-6.5.9/ci-fixture-repair-r1/final-software/report.json), [machine defect registry](AGENT_CORE_DEFECTS_6.5.9.json), [actual failed matrix](evidence/cli-runtime-cleanup-6.5.9/ci-fixture-repair-r1/first-run-matrix.json). Earlier local1198PASS and6.5.8/6.5.6 comparisons remain historical; they cannot substitute for this source's independent latest-HEAD CI or be compared by raw PASS totals.

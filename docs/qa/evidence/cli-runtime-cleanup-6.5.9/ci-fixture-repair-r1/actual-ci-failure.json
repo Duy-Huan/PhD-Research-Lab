@@ -1,0 +1,31 @@
+{
+  "run_id": 40221840300,
+  "head_sha": "2a5ee141a1d06291eb65589045f0c5a35b711526",
+  "classification": "New test-fixture/cache isolation regression, not a required vendor installation or application inference failure",
+  "root_cause": "Fixture inherited real binary discovery, so an absent CLI reused the real gw:codex:None cached UNAVAILABLE probe; fixture must identify its actual Python transport",
+  "unique_failing_cases": [
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_cleanup_failure_cannot_be_reported_as_a_successful_request",
+      "status": "ERROR",
+      "duration": 0.0215,
+      "details": "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_cli_runtime_cleanup.py\", line 56, in test_cleanup_failure_cannot_be_reported_as_a_successful_request\n    events=list(self.connector().stream_message('Controlled failure',{}))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/providers/cli.py\", line 253, in stream_message\n    raise ProviderError(f\"{self.label} is {h['state']}: {h['detail']}\", h[\"state\"])\nbackend.providers.cli.ProviderError: ChatGPT (OpenAI Codex CLI) is UNAVAILABLE: `codex` CLI not found on PATH\n"
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_completed_turn_releases_owned_runtime_before_reporting_completion",
+      "status": "ERROR",
+      "duration": 0.024,
+      "details": "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_cli_runtime_cleanup.py\", line 40, in test_completed_turn_releases_owned_runtime_before_reporting_completion\n    for event in events:\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/providers/cli.py\", line 253, in stream_message\n    raise ProviderError(f\"{self.label} is {h['state']}: {h['detail']}\", h[\"state\"])\nbackend.providers.cli.ProviderError: ChatGPT (OpenAI Codex CLI) is UNAVAILABLE: `codex` CLI not found on PATH\n"
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_consumer_close_releases_its_runtime_without_touching_other_requests",
+      "status": "ERROR",
+      "duration": 0.0209,
+      "details": "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_cli_runtime_cleanup.py\", line 50, in test_consumer_close_releases_its_runtime_without_touching_other_requests\n    self.assertEqual(next(stream)['type'],'request_started')\n                     ^^^^^^^^^^^^\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/providers/cli.py\", line 253, in stream_message\n    raise ProviderError(f\"{self.label} is {h['state']}: {h['detail']}\", h[\"state\"])\nbackend.providers.cli.ProviderError: ChatGPT (OpenAI Codex CLI) is UNAVAILABLE: `codex` CLI not found on PATH\n"
+    }
+  ],
+  "raw_evidence": "output/playwright/hermes-core-audit/ci-659-failure/",
+  "repair_attempt": 1,
+  "max_attempts": 3,
+  "assertions_weakened": false,
+  "tests_skipped": false
+}
