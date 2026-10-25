@@ -194,17 +194,29 @@ class P0_Recovery(Base):
 
 class P1_Prompt(Base):
     @criterion("prompt_workflow")
-    def test_plain_prompts_trigger_workflows(self):
-        s = sessions.create("t")
-        orchestrator.start(s["id"], "tìm tài liệu về token pruning cho ViT")
-        m = [x for x in sessions.get(s["id"])["messages"] if x.get("run_id")]
-        self.assertTrue(m)
-        self.assertEqual(runs.wait(m[-1]["run_id"], 30)["status"], "COMPLETED")
-        orchestrator.start(s["id"], "chạy thử ý tưởng MLP nhỏ trên dữ liệu tổng hợp")
-        ap = [a for a in sessions.get(s["id"])["approvals"] if a["name"] == "start_run"]
-        self.assertEqual(ap[0]["args"]["skill"], "idea")
-        self.assertEqual(launch.route("viết phần results theo văn phong IEEE")["skill"], "write")
-        return {"read_only": "auto-started /lit", "risky": "proposal /idea awaiting approval", "tool_chosen_by_user": False}
+    def test_plain_requests_use_agent_proposals_before_workflow_execution(self):
+        s=sessions.create('Agent-led fixture',settings={'mcp_auto':False,'mcp_tools':['-']})
+        question='Tìm tài liệu về token pruning cho ViT, rồi cân nhắc hướng tiếp theo.'
+        async def propose(agent,system,messages,**kwargs):
+            self.assertEqual(messages[-1]['content'],question)
+            yield ('delta','```phdlab-action\n'+json.dumps({'action':'start_run','args':{
+                'skill':'lit','input':'token pruning cho ViT'}})+'\n```')
+        with mock.patch.object(llm,'stream_agent',propose):
+            turn=orchestrator.start(s['id'],question)
+            deadline=time.monotonic()+15
+            while time.monotonic()<deadline:
+                current=next(t for t in sessions.get(s['id'])['turns'] if t['id']==turn['id'])
+                if current['status'] not in ('queued','running'):break
+                time.sleep(.03)
+        self.assertEqual(current['status'],'completed')
+        saved=sessions.get(s['id'])
+        self.assertFalse(any(m.get('run_id') for m in saved['messages']))
+        ap=next(a for a in saved['approvals'] if a['name']=='start_run')
+        self.assertEqual((ap['args']['skill'],ap['status']),('lit','pending'))
+        approved=orchestrator.decide(s['id'],ap['id'],'approve')
+        self.assertEqual(runs.wait(approved['result']['run'],30)['status'],'COMPLETED')
+        return {'mode':'MOCKED_MODEL_REAL_BACKEND','strategy_authority':'agent proposal',
+                'execution':'real research run after explicit approval','tool_chosen_by_user':False}
 
 
 class P1_Providers(Base):

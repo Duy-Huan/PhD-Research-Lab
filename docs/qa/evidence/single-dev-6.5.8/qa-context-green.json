@@ -1,0 +1,47 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_dev_push_cannot_emit_a_skipped_required_qa_context",
+      "status": "PASS",
+      "duration": 0.024,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_legacy_workflows_are_replaced_and_3d_is_not_left_diff_optional",
+      "status": "PASS",
+      "duration": 0.0115,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_policy_dependencies_precede_targeted_worker_execution",
+      "status": "PASS",
+      "duration": 0.0123,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_pr_quality_has_no_release_or_production_approval",
+      "status": "PASS",
+      "duration": 0.0123,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_release_runs_only_for_main_and_uses_exact_provenance",
+      "status": "PASS",
+      "duration": 0.0211,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 5,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-0m8gve05",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

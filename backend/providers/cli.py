@@ -313,7 +313,10 @@ class CLIConnector(ProviderConnector):
                 # Check for terminal events from normalizer or raw event payloads
                 if isinstance(raw, dict):
                     raw_type = raw.get("type") or raw.get("event") or ""
-                    if raw_type in ("turn.completed", "turn.failed", "result") or (raw_type == "item.completed" and raw.get("item", {}).get("type") == "agent_message" and self.provider_id == "codex"):
+                    # An assistant message can be an intermediate observation.
+                    # Only the terminal protocol event closes the turn; otherwise
+                    # later results, failures and actual usage would be discarded.
+                    if raw_type in ("turn.completed", "turn.failed", "result"):
                         # Terminal status signal received
                         turn_finished = True
                 for e in events_batch:

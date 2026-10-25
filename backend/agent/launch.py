@@ -4,9 +4,9 @@
     "chạy thử ý tưởng dùng …"       → intent idea           → proposal "start /idea" (the researcher accepts)
     "viết phần Results theo văn phong …" → intent write     → the chat answers with the write skill's instructions
 
-The intent router is deliberately simple and transparent (keyword rules in Vietnamese and English, no model call):
-it only SUGGESTS. A run that writes code or computes always waits for the researcher's acceptance; read-only research
-runs start on their own when runs.auto_approve_risk allows it.
+The keyword router is retained as an optional suggestion helper; the chat does not
+use it to intercept plain language or impose a strategy. Explicit slash commands
+and approved model proposals can invoke skills. Execution remains permission-bound.
 """
 from __future__ import annotations
 

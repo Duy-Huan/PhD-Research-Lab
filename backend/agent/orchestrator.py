@@ -1,6 +1,6 @@
 """The Primary Research Orchestrator: one turn of the research chat (UI and CLI).
 
-    start ─▶ skill: "/command args" → that skill; plain text → intent router (launch.route)
+    start ─▶ explicit "/command args" → that skill; plain text → model-led conversation
                · run skills become background research runs (agent/runs.py) — risky ones wait for "Chấp nhận"
                · chat skills add their instructions to the agent (research or reviewer) for this turn
                · /help and /status are answered by the app itself (no model call)
@@ -58,6 +58,11 @@ def instructions(module: str, skill: str = "") -> str:
             "Distinguish mathematical deductions and general explanations from empirical measurements. "
             "Cite source ids for source-based claims; state uncertainty when evidence is missing. Never invent experimental results or citations. "
             "Answer the user's request directly; an empty memory search does not prevent basic reasoning.\n"
+            "Adapt the depth and form of the answer to the actual question and its conversational context. "
+            "You may develop and revise the research strategy; an available workflow is an optional tool, not a required line of thought. "
+            "For explanations and hypothetical questions, reason about them without treating mentioned actions as instructions to execute. "
+            "Ask a focused clarification when a missing fact would materially change the investigation; otherwise state useful assumptions. "
+            "Distinguish proposing an action, executing it and verifying its scientific result.\n"
             "References such as 'previous result' refer to this conversation's latest messages. "
             "Retrieved memories and other conversations are background; do not substitute their values for the current conversation.\n"
             "To PROPOSE a change of research state, add a fenced block\n```phdlab-action\n{\"action\": \"<name>\", "
@@ -128,7 +133,7 @@ def _local(sid: str, tid: str, text: str, **meta) -> None:
 
 
 def _route(sid: str, tid: str, s: dict, text: str) -> bool:
-    """Skills and intents. True when the turn was handled here (no model call)."""
+    """Explicit commands only. Plain-language strategy belongs to the agent."""
     from backend.agent import launch, skills
     from backend.agent.ui_actions import QUICK
     command = text.split(maxsplit=1)[0].lstrip("/").lower() if text.startswith("/") else ""
@@ -167,36 +172,9 @@ def _route(sid: str, tid: str, s: dict, text: str) -> bool:
             return True
         _set(sid, tid, skill=skill["name"], question=arg or f"/{skill['name']}")
         return False
-    if s.get("topic_id"):
-        return False
-    route = launch.route(text)
-    if not route:
-        return False
-    store.emit(sid, "status.updated", tid, "phdlab", intent=route["skill"], why=route["why"])
-    if route["mode"] == "chat":
-        _set(sid, tid, skill=route["skill"], intent=route)
-        return False
-    if route["auto"]:
-        r = launch.from_skill(route["skill"], text, s, turn_id=tid)
-        from backend.core.i18n import L
-        _local(sid, tid, L(f"Mình hiểu đây là yêu cầu **/{route['skill']}** ({route['title']}).\n\n",
-                           f"This looks like a **/{route['skill']}** request ({route['title']}).\n\n") + _run_started(r),
-               kind="run", run_id=r["id"])
-        return True
-    ap = {"id": new_id("ap", 4), "turn_id": tid, "kind": "action", "name": "start_run",
-          "args": {"skill": route["skill"], "input": text[:8000]}, "risk": route["risk"], "status": "pending",
-          "created": now(), "reason": route["why"]}
-    store.update(sid, lambda x: x["approvals"].append(ap))
-    store.emit(sid, "action.proposed", tid, "phdlab", approval=ap["id"], action="start_run")
-    store.emit(sid, "action.approval_required", tid, "phdlab", approval=ap["id"], action="start_run", risk=route["risk"])
-    from backend.core.i18n import L
-    _local(sid, tid, L(f"Mình đề xuất chạy **/{route['skill']}** ({route['title']}) trong nền với yêu cầu của bạn. "
-                       "Việc này viết code / dùng tài nguyên máy nên cần bạn **Chấp nhận** trước — hoặc bỏ qua để "
-                       "mình chỉ trả lời trong chat.",
-                       f"I propose running **/{route['skill']}** ({route['title']}) in the background for your request. "
-                       "It writes code / uses this machine's resources, so it needs your **Accept** first — or dismiss it "
-                       "and I will only answer in the chat."), kind="proposal")
-    return True
+    # Keep the complete request and conversation for the model. It can propose
+    # existing research actions, which still pass schema/permission/approval gates.
+    return False
 
 
 def _run_started(r: dict) -> str:

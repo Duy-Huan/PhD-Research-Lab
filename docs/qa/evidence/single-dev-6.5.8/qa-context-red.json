@@ -1,0 +1,47 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_dev_push_cannot_emit_a_skipped_required_qa_context",
+      "status": "FAIL",
+      "duration": 0.0125,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_ci_workflow_contract.py\", line 35, in test_dev_push_cannot_emit_a_skipped_required_qa_context\n    self.assertEqual(job['name'], \"${{ github.event_name == 'pull_request' && 'QA gate' || 'QA not requested on dev push' }}\")\nAssertionError: 'QA gate' != \"${{ github.event_name == 'pull_request' [45 chars]' }}\"\n- QA gate\n+ ${{ github.event_name == 'pull_request' && 'QA gate' || 'QA not requested on dev push' }}\n\n"
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_legacy_workflows_are_replaced_and_3d_is_not_left_diff_optional",
+      "status": "PASS",
+      "duration": 0.0108,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_policy_dependencies_precede_targeted_worker_execution",
+      "status": "PASS",
+      "duration": 0.0116,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_pr_quality_has_no_release_or_production_approval",
+      "status": "PASS",
+      "duration": 0.0117,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_release_runs_only_for_main_and_uses_exact_provenance",
+      "status": "PASS",
+      "duration": 0.0058,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 5,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-b47eynn8",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

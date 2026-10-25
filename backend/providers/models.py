@@ -498,6 +498,8 @@ def agent_runtime(cfg: dict, agent: str) -> dict:
 
 async def _stream_cli(cfg: dict, engine: str, system: str, messages: list, model: str | None = None):
     import asyncio
+    import concurrent.futures
+    import threading
     from backend.providers import cli as C
     conn = C.CONNECTORS.get(engine)
     if not conn:
@@ -505,19 +507,49 @@ async def _stream_cli(cfg: dict, engine: str, system: str, messages: list, model
     prompt = (system + "\n\n" if system else "") + "\n\n".join(
         f"{m.get('role', 'user').upper()}: {m.get('content', '')}" for m in messages
     )
-    ctx = {"profile": cfg.get("gateway", {}).get("cli_profile", "review"), "model": model or "", "reasoning": _reasoning()}
+    stopped=threading.Event()
+    ctx = {"profile": cfg.get("gateway", {}).get("cli_profile", "review"), "model": model or "", "reasoning": _reasoning(),
+           "_cancel":stopped}
+    loop=asyncio.get_running_loop();events=asyncio.Queue(maxsize=32)
 
-    def _run_sync():
-        chunks = []
-        for ev in conn.stream_message(prompt, ctx):
-            if ev.get("type") == "text_delta" and ev.get("text"):
-                chunks.append(ev["text"])
-            elif ev.get("type") == "error":
-                raise LLMError(ev.get("message", f"{engine} CLI error"))
-        return chunks
+    def deliver(kind,value=None):
+        if stopped.is_set():return
+        future=asyncio.run_coroutine_threadsafe(events.put((kind,value)),loop)
+        while not stopped.is_set():
+            try:future.result(timeout=.1);return
+            except concurrent.futures.TimeoutError:continue
+        future.cancel()
 
-    for piece in await asyncio.to_thread(_run_sync):
-        yield piece
+    def produce():
+        stream=None
+        try:
+            stream=conn.stream_message(prompt,ctx)
+            for ev in stream:
+                if stopped.is_set():break
+                if ev.get('type')=='text_delta' and ev.get('text'):deliver('delta',ev['text'])
+                elif ev.get('type')=='error':
+                    deliver('error',LLMError(ev.get('message',f'{engine} CLI error')));break
+        except Exception as exc:deliver('error',exc)
+        finally:
+            close=getattr(stream,'close',None)
+            if close:
+                try:close()
+                except Exception as exc:deliver('error',exc)
+            deliver('done')
+
+    worker=asyncio.create_task(asyncio.to_thread(produce));finished=False
+    try:
+        while True:
+            kind,value=await events.get()
+            if kind=='delta':yield value
+            elif kind=='error':raise LLMError(str(value)) from value
+            else:finished=True;break
+    finally:
+        stopped.set()
+        if not finished and ctx.get('request_id'):
+            await asyncio.to_thread(conn.cancel,ctx['request_id'])
+        try:await asyncio.wait_for(asyncio.shield(worker),timeout=5)
+        except asyncio.TimeoutError:worker.cancel()
 
 
 async def call_agent(agent: str, system: str, user: str | None = None, messages: list | None = None,

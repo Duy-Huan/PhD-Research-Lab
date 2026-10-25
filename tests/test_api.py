@@ -49,7 +49,10 @@ class Api(unittest.TestCase):
     def setUp(self):
         _env.isolate_config(self)
         _env.fresh_project("api-" + self._testMethodName[:28])
-        config.save_config({"runs": {"web_search": False}})
+        # This API state-transition fixture requires an unavailable preferred
+        # provider. Never probe a developer's installed Feynman CLI/auth here.
+        config.save_config({"runs": {"web_search": False},
+                            "research_providers": {"feynman_enabled": False}})
         for p in (mock.patch.object(llm, "stream_agent", fake_stream),
                   mock.patch.object(RP, "app_complete", return_value="text (Doe, 2020)")):
             p.start()
@@ -202,7 +205,12 @@ class Api(unittest.TestCase):
     def test_approvals_and_artifacts(self):
         s = sessions.create("t")
         from backend.agent import artifacts, orchestrator
-        orchestrator.start(s["id"], "chạy thử ý tưởng MLP")
+        async def propose(agent,system,messages,**kwargs):
+            yield ('delta','```phdlab-action\n'+json.dumps({'action':'start_run','args':{
+                'skill':'idea','input':'MLP fixture'}})+'\n```')
+        with mock.patch.object(llm,'stream_agent',propose):
+            orchestrator.start(s["id"], "chạy thử ý tưởng MLP")
+            self.wait_chat(s['id'])
         ap = next(a for a in sessions.get(s["id"])["approvals"] if a["name"] == "start_run")
         self.bad("POST", f"/api/chat/sessions/{s['id']}/approvals/{ap['id']}", json={"decision": "maybe"})
         self.assertEqual(self.ok("POST", f"/api/chat/sessions/{s['id']}/approvals/{ap['id']}", json={"decision": "reject"})["status"],

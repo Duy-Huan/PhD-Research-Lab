@@ -62,5 +62,73 @@
     "revision": "d85f762d6e521abf5fe16703946e9b38adc42da7",
     "license_file": "web-design-reviewer/UPSTREAM_LICENSE",
     "url": "https://github.com/github/awesome-copilot/tree/d85f762d6e521abf5fe16703946e9b38adc42da7/skills/web-design-reviewer"
+  },
+  {
+    "name": "hermes-grounded-citations",
+    "repository": "NousResearch/hermes-agent",
+    "revision": "d05095663342556788cf2a198bfa7844cc7968ab",
+    "path": "skills/research/grounded-citations",
+    "license_file": "hermes-grounded-citations/UPSTREAM_LICENSE",
+    "url": "https://github.com/NousResearch/hermes-agent/tree/d05095663342556788cf2a198bfa7844cc7968ab/skills/research/grounded-citations",
+    "installed_files": {
+      "references/citation-formats.md": "209312a46dd9516e44e78f617589f789e07d54660e347b6b3882e8ac60097d04",
+      "references/grounding-rationale.md": "2835754857ea05a1c801e88a50d4c2b4cc6ebd52cc4cc1f5741dba05f5af73c1",
+      "scripts/_hermes_home.py": "e2fba7b30ee22afdb21e8411b6a18431da6efc9ec3ef55e2223481bf906f4376",
+      "scripts/sources.py": "0c216e29e092faedcaa1ebae129db15dfc100465169490704b3628446db96788",
+      "SKILL.md": "1e022ba6244fc68825127183d4632263f47d64dc857ea8d65c5e86d605b74f38",
+      "UPSTREAM_LICENSE": "821556e6336796450ab852d375117b48a4887e71d255794fd6318d99982a5ab6"
+    },
+    "scope": "Reviewed development guidance only; no dependency, paid service, parallel agent or branch creation is authorized by upstream examples",
+    "digest_normalization": "LF for text files; binary bytes unchanged"
+  },
+  {
+    "name": "agent-memory-systems",
+    "repository": "sickn33/antigravity-awesome-skills",
+    "revision": "e8d346bcb691225fb6ae51a49c353bcedb2ef61d",
+    "path": "skills/agent-memory-systems",
+    "license_file": "agent-memory-systems/UPSTREAM_LICENSE",
+    "url": "https://github.com/sickn33/antigravity-awesome-skills/tree/e8d346bcb691225fb6ae51a49c353bcedb2ef61d/skills/agent-memory-systems",
+    "installed_files": {
+      "DECLARED_SOURCE_APACHE_LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "PROVENANCE.md": "5880a6b25336787d03643912e222245833034a9874850bcfccdd33da092a8f78",
+      "references/detailed-guide.md": "b9ed216249bd70a93c12178b7afb6a4e269aeb98a1a8f0b9efede6ca8c780ec4",
+      "SKILL.md": "22f3841f3ad976551744589eec8da488bfd0be46fe15c78b1db59447e4532586",
+      "UPSTREAM_LICENSE": "af98370a7edc0f00ec46979d049517833c9a7fa2ba74e3cf8cc42f7db557299d"
+    },
+    "scope": "Reviewed development guidance only; no dependency, paid service, parallel agent or branch creation is authorized by upstream examples",
+    "digest_normalization": "LF for text files; binary bytes unchanged"
+  },
+  {
+    "name": "agent-evaluation",
+    "repository": "sickn33/antigravity-awesome-skills",
+    "revision": "e8d346bcb691225fb6ae51a49c353bcedb2ef61d",
+    "path": "skills/agent-evaluation",
+    "license_file": "agent-evaluation/UPSTREAM_LICENSE",
+    "url": "https://github.com/sickn33/antigravity-awesome-skills/tree/e8d346bcb691225fb6ae51a49c353bcedb2ef61d/skills/agent-evaluation",
+    "installed_files": {
+      "DECLARED_SOURCE_APACHE_LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "PROVENANCE.md": "5880a6b25336787d03643912e222245833034a9874850bcfccdd33da092a8f78",
+      "references/architecture-sketches.md": "4b9345d964e0563d69d6a77858e357fd3cbae3be4b61dc15da70ce9ca3ef3ae3",
+      "SKILL.md": "35a81463e739fbd8021e6e775c14440ed0b6d264f1ec83b6ea9ddd3909b86d3f",
+      "UPSTREAM_LICENSE": "af98370a7edc0f00ec46979d049517833c9a7fa2ba74e3cf8cc42f7db557299d"
+    },
+    "scope": "Reviewed development guidance only; no dependency, paid service, parallel agent or branch creation is authorized by upstream examples",
+    "digest_normalization": "LF for text files; binary bytes unchanged"
+  },
+  {
+    "name": "ai-agents-architect",
+    "repository": "sickn33/antigravity-awesome-skills",
+    "revision": "e8d346bcb691225fb6ae51a49c353bcedb2ef61d",
+    "path": "skills/ai-agents-architect",
+    "license_file": "ai-agents-architect/UPSTREAM_LICENSE",
+    "url": "https://github.com/sickn33/antigravity-awesome-skills/tree/e8d346bcb691225fb6ae51a49c353bcedb2ef61d/skills/ai-agents-architect",
+    "installed_files": {
+      "DECLARED_SOURCE_APACHE_LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "PROVENANCE.md": "5880a6b25336787d03643912e222245833034a9874850bcfccdd33da092a8f78",
+      "SKILL.md": "d6a608a6200d2bf26ecac05c10e8b4ef3c07879156ac4adf01523eae0b972a76",
+      "UPSTREAM_LICENSE": "af98370a7edc0f00ec46979d049517833c9a7fa2ba74e3cf8cc42f7db557299d"
+    },
+    "scope": "Reviewed development guidance only; no dependency, paid service, parallel agent or branch creation is authorized by upstream examples",
+    "digest_normalization": "LF for text files; binary bytes unchanged"
   }
 ]

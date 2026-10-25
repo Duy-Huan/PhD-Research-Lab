@@ -1,0 +1,32 @@
+[
+  {
+    "id": "2605.23204v1",
+    "format": "html",
+    "url": "https://arxiv.org/html/2605.23204v1",
+    "bytes": 1039111,
+    "sha256": "c95f9f9823f0619cce5d782cf40d03badc987bc546917b26a831cc8b51b37791",
+    "text_lines": 2582
+  },
+  {
+    "id": "2605.23204v1",
+    "format": "pdf",
+    "url": "https://arxiv.org/pdf/2605.23204v1",
+    "bytes": 7865405,
+    "sha256": "d9ebf9564299978d62b4757d077dd5287caf160bd3628ec7f8e94c7d468f2eec"
+  },
+  {
+    "id": "2505.18705v1",
+    "format": "html",
+    "url": "https://arxiv.org/html/2505.18705v1",
+    "bytes": 1334722,
+    "sha256": "19c8af0999310cf0709669ac0e46914b9d55e35774caf99465993279c8355d27",
+    "text_lines": 1366
+  },
+  {
+    "id": "2505.18705v1",
+    "format": "pdf",
+    "url": "https://arxiv.org/pdf/2505.18705v1",
+    "bytes": 8389424,
+    "sha256": "a3f3334cc67685b925c9523dc19149806ee996e331623f84912e0354b18c9bce"
+  }
+]

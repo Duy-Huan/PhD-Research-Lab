@@ -1,0 +1,230 @@
+{
+  "id": "FQC-AGENT-NATIVE-001",
+  "title": "Agent-native conversation authority, precise context and truthful native turn observation",
+  "risk": "CRITICAL",
+  "mode": "MOCKED",
+  "user_story": "A researcher asks natural questions while an agent chooses its strategy inside one evidence-based, permission-scoped research environment.",
+  "requirements": [
+    {
+      "id": "AUTHORITY",
+      "description": "Ordinary conversation reaches the model intact; only explicit commands select a backend workflow."
+    },
+    {
+      "id": "APPROVAL",
+      "description": "Model-proposed actions retain schema, permission and approval enforcement."
+    },
+    {
+      "id": "TERMINAL",
+      "description": "Intermediate assistant messages cannot close native turns or hide later failures and actual usage."
+    },
+    {
+      "id": "STREAM",
+      "description": "Incremental CLI observations and errors reach the caller with owned cancellation and bounded cleanup."
+    },
+    {
+      "id": "CONTEXT",
+      "description": "Custom scientific purpose/system prompt survives durable save without silent fixed-length clipping."
+    }
+  ],
+  "nonfunctional": [
+    "Preserve existing API/SSE contracts, raw scientific evidence, user data, worktrees and every skills/agent file.",
+    "No new Research Engine, autonomy-level workflow stack, paid API fallback or protection bypass.",
+    "Mandatory software regression100% executed/PASS; desired100%coverage informational.",
+    "Live subscription inference, software fixture execution and scientific qualification remain separate evidence modes."
+  ],
+  "inputs": [
+    "Complete user question and conversation",
+    "Explicit commands or model-proposed actions",
+    "Native CLI events and existing policy/context"
+  ],
+  "outputs": [
+    "Model-led conversation or intentional tool invocation",
+    "Truthful streaming/terminal/error observations",
+    "Durable complete scientific agent profile"
+  ],
+  "preconditions": [
+    "Single existing dev branch",
+    "Reviewed installed-before-plan skills and owner architecture definition"
+  ],
+  "postconditions": [
+    "No keyword-selected scientific strategy is silently executed",
+    "No partial message suppresses later result/failure/usage",
+    "No unsupported L3/L4 or full learning claim"
+  ],
+  "dependencies": [
+    "Existing orchestrator and Model Gateway",
+    "Existing mission/skill/action schemas",
+    "Existing context/memory/evidence stores",
+    "Authorized official native CLI and isolated runtime for actual provider checks"
+  ],
+  "affected_modules": [
+    "backend/agent/orchestrator.py",
+    "backend/agent/launch.py",
+    "backend/agent/workflow_architect.py",
+    "backend/providers/models.py",
+    "backend/providers/cli.py",
+    "tests/test_agent*.py",
+    "tests/test_model_cli_streaming.py",
+    "tests/test_cli_connectivity_regressions.py"
+  ],
+  "acceptance_criteria": [
+    "Behavioral RED/GREEN tests pass without weakening authorization",
+    "Affected regression and full independent software gate required",
+    "Actual Codex subscription request/response recorded separately; no key forwarding",
+    "Research autonomy and learning remain unqualified until their frozen evaluation completes"
+  ],
+  "scenarios": [
+    {
+      "id": "1",
+      "requirement": "AUTHORITY",
+      "kind": "positive",
+      "expected": "No keyword-selected run, role or truncated proposal replaces a plain request.",
+      "test": "tests/test_agent_native_reasoning.py::AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception"
+    },
+    {
+      "id": "2",
+      "requirement": "AUTHORITY",
+      "kind": "boundary",
+      "expected": "Long current request and its final constraints remain intact.",
+      "test": "tests/test_agent_native_reasoning.py::AgentDecisionAuthority.test_long_research_request_is_not_rewritten_or_cut_into_keyword_run_arguments"
+    },
+    {
+      "id": "3",
+      "requirement": "APPROVAL",
+      "kind": "security",
+      "expected": "Model proposal cannot execute a research action before approval.",
+      "test": "tests/test_agent_native_reasoning.py::AgentDecisionAuthority.test_model_proposed_research_action_waits_for_real_approval"
+    },
+    {
+      "id": "4",
+      "requirement": "APPROVAL",
+      "kind": "positive",
+      "expected": "Explicit slash command retains its direct execution contract.",
+      "test": "tests/test_agent_native_reasoning.py::AgentDecisionAuthority.test_explicit_slash_command_retains_its_existing_execution_contract"
+    },
+    {
+      "id": "5",
+      "requirement": "TERMINAL",
+      "kind": "failure",
+      "expected": "Provider failure after partial assistant text is surfaced.",
+      "test": "tests/test_cli_connectivity_regressions.py::ConnectivityRegressions.test_codex_failure_after_partial_assistant_text_is_not_hidden_as_success"
+    },
+    {
+      "id": "6",
+      "requirement": "TERMINAL",
+      "kind": "positive",
+      "expected": "Later actual result and usage survive intermediate assistant messages.",
+      "test": "tests/test_cli_connectivity_regressions.py::ConnectivityRegressions.test_codex_assistant_message_is_not_terminal_and_real_usage_event_is_retained"
+    },
+    {
+      "id": "7",
+      "requirement": "STREAM",
+      "kind": "performance",
+      "expected": "First observation is delivered before controlled completion, within the frozen2second test bound.",
+      "test": "tests/test_model_cli_streaming.py::StreamingAuthority.test_first_delta_arrives_before_cli_finishes"
+    },
+    {
+      "id": "8",
+      "requirement": "STREAM",
+      "kind": "negative",
+      "expected": "Closing a reader cancels only its owned request and releases the producer.",
+      "test": "tests/test_model_cli_streaming.py::StreamingAuthority.test_closing_reader_cancels_only_its_owned_cli_request"
+    },
+    {
+      "id": "9",
+      "requirement": "STREAM",
+      "kind": "failure",
+      "expected": "Startup failure becomes a prompt provider error rather than an indefinite wait.",
+      "test": "tests/test_model_cli_streaming.py::StreamingAuthority.test_connector_startup_failure_is_reported_without_waiting_for_a_delta"
+    },
+    {
+      "id": "10",
+      "requirement": "CONTEXT",
+      "kind": "boundary",
+      "expected": "Complete scientific purpose and system prompt survive disk reload.",
+      "test": "tests/test_agent_native_reasoning.py::AgentProfileFidelity.test_scientific_prompt_and_purpose_survive_save_and_reload_without_clipping"
+    }
+  ],
+  "recovery": "Preserve original failures and all attempts. Bounded development repair, exact request cancellation, no retries that hide failures. Missing live/research/UAT remains BLOCKED.",
+  "test_environment": "MOCKED model/transport with real disposable backend state, actual controlled Python protocol processes and async boundaries; not scientific or remote CI proof.",
+  "skill_sources": [
+    "skills/ai-agents-architect/SKILL.md",
+    "skills/agent-memory-systems/SKILL.md",
+    "skills/agent-evaluation/SKILL.md",
+    "skills/hermes-grounded-citations/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent source and adversarial behavior review; independent acceptance/scientific review remains pending."
+  },
+  "browser_acceptance": {
+    "required": true,
+    "journeys": [
+      "project-and-chat",
+      "workflow-operations",
+      "failure-recovery"
+    ],
+    "independent_review": true
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "red": {
+      "path": "docs/qa/evidence/research-core-audit/agent-authority-red.json",
+      "sha256": "a4c92c1dd2914446acc740c41f8dc477e54ca40abbf39f663726673a16befc60",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/research-core-audit/agent-authority-green.json",
+      "sha256": "a1d8519cd955068961b13c7268074efbe75fe4093009a9846b911c9e14c91f3f",
+      "exit_code": 0
+    }
+  },
+  "additional_red_green": [
+    {
+      "red": {
+        "path": "docs/qa/evidence/research-core-audit/profile-fidelity-red.json",
+        "sha256": "466858fc79a45f44961f0d30c009bebb87d9fa74a32b22d3b8f19ab862fab376"
+      },
+      "green": {
+        "path": "docs/qa/evidence/research-core-audit/profile-fidelity-green.json",
+        "sha256": "707de69108641568294dfbc9b3630e7a851441a06bd9b9316284467b10fe114e"
+      }
+    },
+    {
+      "red": {
+        "path": "docs/qa/evidence/research-core-audit/codex-terminal-red.json",
+        "sha256": "72dd118eeb50f617a3dc726161547aa5d58aaa164ff4986d08773347158b3bae"
+      },
+      "green": {
+        "path": "docs/qa/evidence/research-core-audit/codex-terminal-green.json",
+        "sha256": "d9a747c5de5f3e258d69e7f61f9bf6dc8a2f426cbe0f8ada04ef5595d980a683"
+      }
+    },
+    {
+      "red": {
+        "path": "docs/qa/evidence/research-core-audit/model-stream-red.json",
+        "sha256": "0d0a9306b044881eceb4f86dd4abf71b929de50ee917fe23d36f950f7fb9eb52"
+      },
+      "green": {
+        "path": "docs/qa/evidence/research-core-audit/model-stream-final-green.json",
+        "sha256": "391047df9cfa3b256401ad5b370c916d5fb8a4fd69989decf26b55f321f54fec"
+      }
+    },
+    {
+      "red": {
+        "path": "docs/qa/evidence/research-core-audit/model-stream-startup-red.json",
+        "sha256": "10b5e3202be7718875752bde31e594f8c8a08903e58f3fcb75eb023321bcf19c"
+      },
+      "green": {
+        "path": "docs/qa/evidence/research-core-audit/model-stream-final-green.json",
+        "sha256": "391047df9cfa3b256401ad5b370c916d5fb8a4fd69989decf26b55f321f54fec"
+      }
+    }
+  ],
+  "limitations": [
+    "Formal machine traceability consolidates the prior owner directive, source audit and actual RED/GREEN; it is not independent review.",
+    "Required new exploratory journey adapters remain NOT_IMPLEMENTED; the old one-use settings UAT cannot qualify all these journeys.",
+    "Actual provider receipts are synthetic connection checks, not full source release qualification or research validity."
+  ]
+}

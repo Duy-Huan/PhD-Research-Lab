@@ -1,3 +1,5 @@
+> Current6.5.8 checkpoint: [agent-native core and actual verification](AGENT_NATIVE_CORE_CHECKPOINT_6.5.8.md). Local software1189/1189PASS,0selected skips/errors; coverage remains below target and informational. Learning/L3 and exact-current-source QA/main live/research/AI-UAT are not qualified. Figures and policies below are historical; the active owner rules are in agent/AGENT.md.
+
 > Current6.5.7 owner-policy follow-up: [dev/QA/main report](DEV_QA_MAIN_6.5.7.md). Full local software1127/1127PASS,0selected skips/errors; coverage informational. Current-source QA live/research/AI-UAT remains BLOCKED, no main promotion/release. Earlier6.5.6 figures and issues below are historical, not current release certification.
 
 # Release readiness:6.5.6

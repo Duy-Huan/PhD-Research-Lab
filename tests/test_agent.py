@@ -141,19 +141,25 @@ class Intents(Base):
             launch.from_skill("gap", "x")
         self.assertIn("**Thí nghiệm**", launch.help_text())
 
-    def test_auto_started_read_only_run_and_proposed_risky_run(self):
-        O.start(self.s["id"], "tìm tài liệu về token pruning")
-        self.assertTrue(self.msgs()[-1]["run_id"])
-        O.start(self.s["id"], "chạy thử ý tưởng dùng MLP nhỏ")
+    def test_model_proposed_risky_run_requires_approval_and_retains_the_real_run(self):
+        async def propose(agent,system,messages,**kwargs):
+            yield ('delta','```phdlab-action\n'+json.dumps({'action':'start_run','args':{
+                'skill':'idea','input':'MLP nhỏ'}})+'\n```')
+        with mock.patch.object(llm,'stream_agent',propose):
+            O.start(self.s["id"], "chạy thử ý tưởng dùng MLP nhỏ")
+            wait_turn(self.s["id"])
+        self.assertFalse(any(m.get('run_id') for m in self.msgs()))
         ap = next(a for a in store.get(self.s["id"])["approvals"] if a["name"] == "start_run")
+        self.assertEqual(ap['status'],'pending')
         r = O.decide(self.s["id"], ap["id"], "approve")
         self.assertEqual(runs.get(r["result"]["run"])["approval"]["status"], "approved")
         runs.cancel(r["result"]["run"])
 
-    def test_chat_intent_uses_the_skill(self):
+    def test_plain_question_does_not_force_a_keyword_selected_role_or_skill(self):
         O.start(self.s["id"], "đề xuất giả thuyết cho hướng này")
         wait_turn(self.s["id"])
-        self.assertIn("# Skill /hypothesis", SEEN["system"])
+        self.assertNotIn("# Skill /hypothesis", SEEN["system"])
+        self.assertEqual(SEEN['agent'],'assistant')
 
 
 class Dashboard(Base):
@@ -166,6 +172,7 @@ class Dashboard(Base):
         outline.update({"topic": "Edge ViT"})
         r = runs.create("experiment", "e", inputs={"command": "python x.py"}, session_id=self.s["id"], risk=2)
         O.start(self.s["id"], "chạy thử ý tưởng MLP")
+        wait_turn(self.s['id'])  # Pending actions now come from the agent, not regex interception.
         from backend.memory import lifecycle
         lifecycle.propose("claim", {"text": "A finding"}, origin="provider")
         from backend.agent import pins

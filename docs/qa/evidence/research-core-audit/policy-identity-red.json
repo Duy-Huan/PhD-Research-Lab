@@ -1,0 +1,60 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_verification_source_identity.SourceIdentity.test_build_outputs_are_not_source_inputs",
+      "status": "PASS",
+      "duration": 0.1456,
+      "details": null
+    },
+    {
+      "id": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence",
+      "status": "PASS",
+      "duration": 0.2406,
+      "details": null
+    },
+    {
+      "id": "test_verification_source_identity.SourceIdentity.test_new_agent_policies_invalidate_evidence_but_operational_records_do_not",
+      "status": "FAIL",
+      "duration": 0.1231,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_verification_source_identity.py\", line 46, in test_new_agent_policies_invalidate_evidence_but_operational_records_do_not\n    self.assertIn('agent/future-capability-policy.md',identity(root)['files'])\nAssertionError: 'agent/future-capability-policy.md' not found in {'backend/app.py': '25718360e05d3c2d0963d1381e9dd4dae5fca789244ee4b9f861adcc0cc96218', 'cli.py': '25718360e05d3c2d0963d1381e9dd4dae5fca789244ee4b9f861adcc0cc96218', 'frontend/public/icon.svg': '25718360e05d3c2d0963d1381e9dd4dae5fca789244ee4b9f861adcc0cc96218', 'frontend/react.html': '25718360e05d3c2d0963d1381e9dd4dae5fca789244ee4b9f861adcc0cc96218'}\n"
+    },
+    {
+      "id": "test_verification_source_identity.SourceIdentity.test_staging_a_real_deletion_does_not_change_worktree_identity",
+      "status": "PASS",
+      "duration": 0.1713,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence",
+      "id": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence (path='frontend/react.html')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence",
+      "id": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence (path='frontend/public/icon.svg')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence",
+      "id": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence (path='cli.py')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 4,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-v1tbxil7",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

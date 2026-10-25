@@ -1,0 +1,38 @@
+{
+  "id": "gw-05007490ba",
+  "status": "completed",
+  "events": [
+    {
+      "type": "request_started",
+      "ts": 1792946457.516,
+      "provider": "codex",
+      "request_id": "gw-05007490ba"
+    },
+    {
+      "type": "status",
+      "ts": 1792946461.853,
+      "state": "session",
+      "session_id": "01a173ef-d883-7f02-b333-befd50406e15"
+    },
+    {
+      "type": "status",
+      "ts": 1792946462.979,
+      "state": "event",
+      "raw_type": "turn.started"
+    },
+    {
+      "type": "text_delta",
+      "ts": 1792946468.262,
+      "text": "{\"nonce\":\"21b8a677b3f6bc82\",\"sum\":121}",
+      "final": true
+    },
+    {
+      "type": "request_completed",
+      "ts": 1792946468.876,
+      "provider": "codex",
+      "request_id": "gw-05007490ba",
+      "exit_code": 0
+    }
+  ],
+  "next": 5
+}

@@ -131,6 +131,32 @@ class ConnectivityRegressions(unittest.TestCase):
         events = list(conn.stream_message('ping', {'script': 'pass'}))
         self.assertTrue([e for e in events if e['type'] == 'error' and 'no answer' in e['message']])
 
+    def codex_protocol_fixture(self,records):
+        class ControlledCodex(cli.CodexConnector):
+            def process_argv(self,args,context):return args
+            def binary(self):return sys.executable
+            def _probe(self):return {'bin':sys.executable,'ok':True,'login_code':0,'login':'Logged in using ChatGPT'}
+            def argv(self,context):
+                script='import sys,json; sys.stdin.read(); records='+repr(records)+'; [print(json.dumps(r),flush=True) for r in records]'
+                return [sys.executable,'-c',script]
+        return list(ControlledCodex().stream_message('Protocol fixture only; no provider inference',{}))
+
+    def test_codex_assistant_message_is_not_terminal_and_real_usage_event_is_retained(self):
+        records=[{'type':'item.completed','item':{'type':'agent_message','text':'I will check the result.'}},
+                 {'type':'item.completed','item':{'type':'agent_message','text':'The checked result is121.'}},
+                 {'type':'turn.completed','usage':{'input_tokens':31,'output_tokens':12}}]
+        events=self.codex_protocol_fixture(records)
+        self.assertEqual([e['text'] for e in events if e['type']=='text_delta'],
+                         ['I will check the result.','The checked result is121.'])
+        self.assertEqual([e['usage'] for e in events if e.get('state')=='usage'],[{'input_tokens':31,'output_tokens':12}])
+        self.assertFalse([e for e in events if e['type']=='error'])
+
+    def test_codex_failure_after_partial_assistant_text_is_not_hidden_as_success(self):
+        events=self.codex_protocol_fixture([
+            {'type':'item.completed','item':{'type':'agent_message','text':'A partial observation.'}},
+            {'type':'turn.failed','error':{'message':'Controlled provider failure after partial text'}}])
+        self.assertTrue(any(e['type']=='error' and 'Controlled provider failure' in e['message'] for e in events))
+
 
 if __name__ == '__main__':
     unittest.main()
