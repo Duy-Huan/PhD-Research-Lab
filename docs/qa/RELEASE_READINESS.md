@@ -2,7 +2,7 @@
 
 **NO-GO. No release, tag or protected-branch merge is certified.**
 
-Blocking findings: confirmed mobile Settings pointer interception; accessible-name mismatches; production coverage below100%; mandatory skips; incomplete/exhausted AI-UAT; missing current-source all-provider/research qualification and trusted live producer; independent critical review and protected main reviewer/production approval pending.
+Current fix candidate6.5.1 locally repairs the two confirmed UI defects; independent CI and integration are pending. Remaining blocking findings: production coverage below100%; mandatory skips; incomplete/exhausted AI-UAT; missing current-source all-provider/research qualification and trusted live producer; independent critical review and protected main reviewer/production approval pending.
 
 Infrastructure6.5.0 is an unreleased candidate. PR7 targets dev and remains draft while required checks fail. The user authorizes testing real promotion after completion: feature→dev→qa→main. Canonical remote branches/protections exist, auto-merge repository flag is enabled, and actual Quality Gates have run. The observed Development gate rejects incomplete qualification. QA/main promotion must wait; bypassing it would invalidate this campaign.
 

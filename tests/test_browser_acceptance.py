@@ -23,7 +23,7 @@ class BrowserAcceptance(unittest.TestCase):
     def test_docs_select_smoke_without_llm_and_unknown_ui_broadens_offline(self):
         low = browser_plan(ROOT, ['docs/readme.md'], [], 'feature')
         self.assertFalse(low['exploration']['required'])
-        self.assertEqual(low['tests'], ['ci_smoke.spec.ts', 'uat_harness.spec.ts'])
+        self.assertEqual(low['tests'], ['ci_smoke.spec.ts', 'uat_harness.spec.ts', 'ui_quality.spec.ts'])
         ui = browser_plan(ROOT, ['frontend/src/UnknownWidget.tsx'], [], 'feature')
         self.assertIn('navigation.spec.ts', ui['tests'])
         self.assertFalse(ui['calls_model'])

@@ -1,3 +1,11 @@
+# Current UI checkpoint ready to publish ? 2026-10-25
+
+feature-final-selector PASS1048/8SKIP,stable source;25 actual browser +3 boundary +174 frontend +854 backend cases. Selector correction targeted GREEN retained; UI repair ledger2failures then PASS, no reset. Commit/push6.5.1 as draft PR ->dev, then use the current CI/CD automation worktree for the newest owner request. Worktree D:/git-repo/PhD-Research-Lab-worktrees/ci-cd-automation on feature/ci-cd-automation has6.5.2 in progress: PR-only CI, automatic protected forward merges and separate main CD with no manual release approval. That latest owner policy supersedes older dev-only/human-release text in this UI branch. No protected merge/release has occurred; coverage/UAT gaps remain.
+
+# Current: update registered smoke expectation, then rerun final feature
+
+feature-final executed25 browser PASS but overall1047PASS/1FAIL/8SKIP: existing selector unit expectation omitted newly mandatory ui_quality.spec.ts. Expanded its exact expected list to include that suite; no assertions dropped. Repair ledger UI group now2failures, one final cycle remains. New owner steering explicitly removes human release job and requests PR-only CI / separate main CD and protected automatic promotion. That new CI phase is isolated in D:/git-repo/PhD-Research-Lab-worktrees/ci-cd-automation on feature/ci-cd-automation; do not lose either worktree. No UI feature push until final current-source gate PASS.
+
 # Current: UI fix candidate after baseline integration
 
 Branch fix/ui-source-baseline, version6.5.1. Both governance baseline and UI repair history are retained below. Finish local feature gate against frozen sources/index, then push draft PR targeting dev; required CI remains mandatory. No protected merge/release yet.

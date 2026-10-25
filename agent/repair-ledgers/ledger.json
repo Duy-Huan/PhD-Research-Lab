@@ -30,7 +30,7 @@
     ]
   },
   "BUG-UI-001-002": {
-    "attempts": 1,
+    "attempts": 2,
     "history": [
       {
         "sha": "dc7d87daaacd806c6514f58eaf90cb257793e7ce43b02727bff899a783e0922d",
@@ -41,6 +41,14 @@
         "sha": "80ab50d561be0d58cf3c54732f725ebde85b408340eb91b159db29d58ed9905d",
         "status": "PASS",
         "evidence": "docs/qa/evidence/ui-stabilization-6.5.1/functional-green/source.json"
+      },
+      {
+        "sha": "3d15080054bd04c191d5a21425baee8bd57d261381d2a577c6ea373154d3c10f",
+        "status": "FAIL"
+      },
+      {
+        "sha": "a4ea18120b9382061cb4eb3ee1e5487c28a3f7b8302f6c8e3faa9384a2006d5d",
+        "status": "PASS"
       }
     ]
   }

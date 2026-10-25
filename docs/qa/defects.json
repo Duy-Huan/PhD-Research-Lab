@@ -10,7 +10,7 @@
       "module": "frontend/src/shell/AppShell.tsx",
       "severity": "P1",
       "status": "CONFIRMED",
-      "repair_status": "RED regression running on fix/ui-source-baseline; not merged",
+      "repair_status": "LOCAL_FIX_VERIFIED in6.5.1; independent required CI and protected merge pending",
       "reproduction_steps": [
         "375x900 viewport",
         "Open sidebar",
@@ -22,14 +22,15 @@
       "failure_evidence": "evidence/stabilization-2026-10-25/mobile-settings-repro/reproduction.json",
       "suspected_root_cause": "Mobile AppShell effect closes navigation only when drawerKind is truthy, although Settings uses mainView",
       "regression_test_id": "UI-MOBILE-SETTINGS-001",
-      "release_blocking": true
+      "release_blocking": true,
+      "local_fix_evidence": "evidence/ui-stabilization-6.5.1/manifest.json"
     },
     {
       "id": "BUG-UI-002",
       "module": "frontend/src/shell/Header.tsx",
       "severity": "P2",
       "status": "CONFIRMED",
-      "repair_status": "RED regression running on fix/ui-source-baseline; not merged",
+      "repair_status": "LOCAL_FIX_VERIFIED in6.5.1; independent required CI and protected merge pending",
       "reproduction_steps": [
         "Open Workspace or Settings",
         "Run axe-core WCAG2.2 AA tags",
@@ -40,7 +41,8 @@
       "failure_evidence": "evidence/stabilization-2026-10-25/ui-baseline-3/ui-baseline.json",
       "suspected_root_cause": "Static aria-label overrides visible current-language/scale/panel text",
       "regression_test_id": "UI-ACCESSIBLE-NAMES-001",
-      "release_blocking": true
+      "release_blocking": true,
+      "local_fix_evidence": "evidence/ui-stabilization-6.5.1/manifest.json"
     }
   ],
   "qualification_gaps": [
@@ -70,5 +72,7 @@
       "reproduction_status": "NOT_REPRODUCED in two isolated four-case suites; original full failure retained",
       "repair_status": "NO_CODE_CHANGE; cause not fully established"
     }
-  ]
+  ],
+  "candidate_version": "6.5.1",
+  "candidate_note": "Original baseline evidence retained; defects are not closed before independent CI/merge"
 }

@@ -21,3 +21,7 @@ The new browser suite is part of the canonical deterministic smoke list, so futu
 This branch was created from actual origin/dev, then merged the pending governance dependency so the canonical verifier is available. It must not be merged around that dependency's failing quality gates. Version6.5.1 is a candidate, not a published release.
 
 Limitations: automated axe scans do not cover all WCAG criteria, screen-reader behavior, visual correctness or every application route. Captured screenshots are review evidence; no visual golden baseline has been automatically approved. Full coverage, live provider/research workflow proof, protected CI and release reviews remain required.
+
+## Integrated offline qualification
+
+Final current-source feature/all PASS:1048PASS,8SKIP,0FAIL/ERROR; source stable. Includes854 backend cases (846PASS/8SKIP),174 component tests,25 actual Playwright cases and3 owned boundary integration checks. The earlier feature run found the old selector expectation omitted the new mandatory UI suite; its exact expected list was expanded, targeted regression passed, and this entire feature suite reran. Original failure and final report are retained. These8 skips and strict whole-source coverage/live gaps still prevent release.

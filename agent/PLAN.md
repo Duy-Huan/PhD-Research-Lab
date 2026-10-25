@@ -1,3 +1,7 @@
+# Active: qualify UI stabilization6.5.1
+
+Governance checkpoint1a7e494 is pushed in draft PR7. UI branch fix/ui-source-baseline contains the explicit governance dependency, same-test functional RED/GREEN and local UI fixes. Run feature/all against staged stable sources, commit evidence, push draft fix PR ->dev and inspect actual CI. No automatic qa/main, no red-gate bypass. Full100% source coverage, independent required UAT/research/provider evidence and preserved original application integration remain unfinished.
+
 # Active stabilization priority ? 2026-10-25
 
 Owner requests comprehensive baseline and later protected promotion feature -> dev -> qa -> main. Read agent/STABILIZATION.md. Five baseline reports and defects.json now record real gaps. Skills test-gap-audit and web-design-reviewer are pinned/installed. New fix/ui-source-baseline worktree created from origin/dev with explicit pending governance dependency; confirmed mobile Settings overlay and control accessible-name regressions are under controlled RED/GREEN repair. Full backend baseline found a latency assertion failure under coverage; do not relax its 300ms budget or label it repaired without diagnosis. Finish feature gate and push governance checkpoint; then integrate qualified UI/application fixes and obtain all critical live/coverage evidence before final verification/promotion.
