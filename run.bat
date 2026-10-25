@@ -18,13 +18,17 @@ if not defined PY goto :nopython
 
 echo Using Python: %PY%
 %PY% start.py %*
+set "EXIT_CODE=%ERRORLEVEL%"
+if "%EXIT_CODE%"=="0" (
+  exit /b 0
+)
 echo.
 echo ------------------------------------------------------------
-echo Server stopped. If you saw an [ERROR] above, copy this whole
-echo window text and send it for help.
+echo Server stopped (code %EXIT_CODE%). If you saw an [ERROR] above,
+echo copy this whole window text and send it for help.
 echo ------------------------------------------------------------
 pause
-exit /b
+exit /b %EXIT_CODE%
 
 :notextracted
 echo [ERROR] backend\app.py not found.

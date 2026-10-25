@@ -101,13 +101,13 @@ def _opencode_cfg() -> dict:
 
 
 def probe_binary() -> dict:
-    from backend.execution.tools import which, NO_WINDOW
+    from backend.execution.tools import which, NO_WINDOW, node_argv
 
     binary = which("opencode")
     version = None
     if binary:
         try:
-            prefix = ["cmd", "/d", "/c", binary] if os.name == "nt" and Path(binary).suffix.lower() in (".cmd", ".bat") else [binary]
+            prefix = node_argv(binary, "opencode-ai/bin/opencode")
             res = subprocess.run(
                 [*prefix, "--version"],
                 capture_output=True,
@@ -143,11 +143,11 @@ def health() -> dict:
     server_detail = "Server not running (offline/standby mode ready)"
     try:
         r = httpx.get(
-            f"{url}/doc",
+            f"{url}/openapi.json",
             auth=("opencode", _server_password),
             timeout=1.2,
         )
-        server_reachable = r.status_code < 500
+        server_reachable = r.status_code == 200 and bool(r.json().get("openapi"))
         server_detail = f"Loopback HTTP server reachable ({r.status_code})"
     except Exception:
         server_reachable = False
@@ -187,22 +187,29 @@ def ensure_server_running(port: int = 4097) -> dict:
         }
     with _server_lock:
         if _server_proc and _server_proc.poll() is None:
-            return {"running": True, "state": "running", "pid": _server_proc.pid, "detail": "Loopback server process active"}
+            return {"running": False, "state": "starting", "pid": _server_proc.pid, "detail": "Process active but HTTP readiness is unverified"}
         try:
-            from backend.execution.tools import NO_WINDOW
-            env = os.environ.copy()
+            from backend.execution.tools import NO_WINDOW, node_argv
+            from backend.providers.cli_space import minimal_env, open_session
+            env = minimal_env()
             env["OPENCODE_SERVER_PASSWORD"] = _server_password
-            prefix = ["cmd", "/d", "/c", binary] if os.name == "nt" and Path(binary).suffix.lower() in (".cmd", ".bat") else [binary]
+            prefix = node_argv(binary, "opencode-ai/bin/opencode")
             _server_proc = subprocess.Popen(
-                [*prefix, "serve", "--port", str(port), "--host", "127.0.0.1"],
+                [*prefix, "serve", "--port", str(port), "--hostname", "127.0.0.1"],
                 env=env,
+                cwd=open_session("opencode", "native-server", "review")["cwd"],
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 creationflags=NO_WINDOW,
             )
-            time.sleep(0.4)
-            return {"running": True, "state": "launched", "pid": _server_proc.pid, "port": port}
+            for _ in range(50):
+                if _server_proc.poll() is not None:
+                    return {"running": False, "state": "error", "detail": f"OpenCode exited during startup ({_server_proc.returncode})"}
+                if health().get("server_reachable"):
+                    return {"running": True, "state": "running", "pid": _server_proc.pid, "port": port}
+                time.sleep(0.1)
+            return {"running": False, "state": "starting", "pid": _server_proc.pid, "detail": "Process started but HTTP readiness has not been verified"}
         except Exception as e:
             return {"running": False, "state": "error", "detail": f"Failed to launch background server: {e}"}
 
@@ -325,15 +332,11 @@ def start_session(spec: OpenCodeTaskSpec) -> dict:
 
     w = ensure_topic_workspace(spec.topic_id, spec.workspace_id, spec.enable_bridge_plugin)
     sid = f"oc-sess-{S.uid()[:8]}"
-    native_sid = f"native-{S.uid()[:10]}"
+    native_sid = ""  # no native session exists until a real runtime has created one
     at = S.now()
 
-    # Check if goal contains quota simulation or high-risk operation needing approval
-    status = "running"
-    blocking_reason = ""
-    if "quota_exhausted" in spec.goal.lower() or "429" in spec.goal.lower():
-        status = "blocked_by_quota"
-        blocking_reason = "Subscription quota limit reached; task paused without metered API fallback."
+    status = "paused"
+    blocking_reason = "Workspace prepared; no native inference request submitted. Open the native runtime and sync its saved artifacts."
 
     session_payload = {
         "spec": spec.model_dump(mode="json"),
@@ -414,7 +417,7 @@ def decide_approval(tid: str, sid: str, aid: str, decision: Literal["approve", "
         payload = json.loads(arow["payload"])
         payload.update(decision=decision, note=note[:2000], decided_at=S.now(), by="researcher")
         new_status = "approved" if decision == "approve" else "rejected"
-        sess_status = "running" if decision == "approve" else "paused"
+        sess_status = "paused"  # recording a local approval does not submit a native prompt
         c.execute(
             "UPDATE opencode_approvals SET status=?,payload=?,updated=? WHERE id=?",
             (new_status, S.dumps(payload), S.now(), aid),
@@ -453,7 +456,7 @@ def reconcile_session(tid: str, sid: str, simulate_gap: bool = False) -> dict:
         ]
         if simulate_gap:
             payload["sync_gap"] = True
-            payload["sync_gap_note"] = "Event stream interrupted while offline; only persisted workspace artifacts were reconciled."
+            payload["sync_gap_note"] = "Simulated reconciliation gap requested; only saved artifacts were reconciled. No native event replay is claimed."
         new_status = row["status"]
         if new_status == "running" and simulate_gap:
             new_status = "reconciled_with_gap"
@@ -510,14 +513,15 @@ class OpenCodeEngine:
 
     descriptor = EngineDescriptor(
         id="opencode",
-        capabilities=["literature", "analysis", "prototype", "review"],
+        capabilities=[],
         transport="http_loopback",
-        token_streaming=True,
-        native_sessions=True,
+        token_streaming=False,
+        native_sessions=False,
     )
 
     def health(self) -> dict:
-        return health()
+        return {**health(), "ready": False, "state": "NOT_CONFIGURED",
+                "detail": "OpenCode native prompt dispatch is not connected; open the native workspace and sync artifacts."}
 
     def execute(
         self,
@@ -527,30 +531,6 @@ class OpenCodeEngine:
     ) -> EngineResult:
         if cancelled():
             raise EngineFailure("Cancelled before dispatch", "cancelled")
-        h = self.health()
-        fallback_mode = False
-        if not h.get("ready"):
-            fallback_mode = True
-            emit(EngineEvent(engine="opencode", type="status", sequence=1, data={"state": "fallback_internal_sandbox", "detail": "OpenCode CLI not reachable, executing in PhD Lab internal sandbox"}))
-        else:
-            emit(EngineEvent(engine="opencode", type="status", sequence=1, data={"state": "running", "operation_id": task.operation_id}))
-        task.output_dir.mkdir(parents=True, exist_ok=True)
-        report_path = task.output_dir / "opencode-task-manifest.json"
-        manifest = {
-            "operation_id": task.operation_id,
-            "workflow_id": task.workflow_id,
-            "step_id": task.step_id,
-            "capability": task.capability,
-            "scientific_review": "pending",
-        }
-        raw = json.dumps(manifest, indent=2, sort_keys=True).encode("utf-8")
-        report_path.write_bytes(raw)
-        sha = hashlib.sha256(raw).hexdigest()
-        return EngineResult(
-            engine="opencode",
-            text=f"OpenCode completed bounded task {task.step_id} (scientific verification pending).",
-            artifact_refs=[{"path": str(report_path), "sha256": sha, "bytes": len(raw)}],
-            native_session_id=f"oc-{task.operation_id}",
-            native_run_id=f"run-{task.operation_id}",
-            provenance={"scientific_review": "pending", "operation_id": task.operation_id, "metered_api": False},
-        )
+        # This bridge observes workspaces; it has no native prompt dispatch yet.
+        # A generated manifest is not execution evidence and must never become a completed task.
+        raise EngineFailure("OpenCode native prompt dispatch is not connected. Open its native workspace to run the task; PhD Lab can sync persisted artifacts afterwards.", "capability")

@@ -1,0 +1,33 @@
+{
+  "mode": "MOCKED",
+  "scope": "Hashing retrieval/compile latency with unchanged golden assertions; no live AI",
+  "coverage_instrumented": false,
+  "tests_run": 4,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "dev": {
+    "recall@5": 0.935,
+    "recall@10": 0.972,
+    "precision@5": 0.378,
+    "mrr": 0.87,
+    "retrieve_ms": 98.422,
+    "compile_ms": 139.256,
+    "context_tokens": 1249.0,
+    "ids_in_context": 1.0,
+    "fact_fidelity": 1.0,
+    "efficiency": 1.667
+  },
+  "held_out": {
+    "recall@5": 0.917,
+    "recall@10": 1.0,
+    "precision@5": 0.25,
+    "mrr": 0.76,
+    "retrieve_ms": 71.9,
+    "compile_ms": 134.237,
+    "context_tokens": 1238.0,
+    "ids_in_context": 1.0,
+    "fact_fidelity": 1.0,
+    "efficiency": 1.695
+  }
+}

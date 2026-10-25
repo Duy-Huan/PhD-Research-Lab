@@ -173,4 +173,56 @@ describe('SettingsModal', () => {
     fireEvent.click(syncBtn);
     expect(postSpy).toHaveBeenCalledWith('/api/providers/opencode/sync', {});
   });
+
+  it('renders optional plugins catalog and allows installing AI-Scientist-v2 via GitHub plugin mechanism', async () => {
+    useUIStore.setState({ mainView: 'settings', settingsTab: 'skills' });
+    const postSpy = vi.spyOn(api, 'post').mockResolvedValue({ id: 'sakanaai-ai-scientist-v2', skills: [] });
+    vi.spyOn(api, 'get').mockImplementation(async (url: string) => {
+      if (url.includes('/api/plugins')) {
+        return {
+          plugins: [],
+          optional_plugins: [
+            {
+              id: 'sakanaai-ai-scientist-v2',
+              name: 'AI-Scientist-v2',
+              title: 'The AI Scientist v2 (Sakana AI)',
+              url: 'https://github.com/SakanaAI/AI-Scientist-v2',
+              category: 'writing',
+              description: 'Sinh ý tưởng nghiên cứu, viết nháp bài báo theo template ICML/NeurIPS',
+              skills: ['/ais-idea', '/ais-review', '/ais-write'],
+              installed: false,
+              enabled: false,
+            },
+          ],
+        };
+      }
+      if (url.includes('/api/skills')) {
+        return { skills: [] };
+      }
+      return mockConfig;
+    });
+
+    renderWithProviders(<SettingsModal />);
+
+    // 1. Verify Optional GitHub Plugins Catalog title is rendered
+    await waitFor(() => {
+      expect(screen.getByText(/Danh mục Plugin Tùy chọn|Optional GitHub Plugins/i)).toBeInTheDocument();
+      expect(screen.getByText(/The AI Scientist v2 \(Sakana AI\)/i)).toBeInTheDocument();
+      expect(screen.getByText(/\/ais-idea/i)).toBeInTheDocument();
+      expect(screen.getByText(/\/ais-review/i)).toBeInTheDocument();
+      expect(screen.getByText(/\/ais-write/i)).toBeInTheDocument();
+    });
+
+    // 2. Click "Cài qua GitHub" button on AI-Scientist-v2 card
+    const installBtn = screen.getByTitle(/Cài đặt The AI Scientist v2 \(Sakana AI\) qua cơ chế GitHub plugin/i);
+    expect(installBtn).toBeInTheDocument();
+    fireEvent.click(installBtn);
+
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalledWith('/api/plugins', {
+        url: 'https://github.com/SakanaAI/AI-Scientist-v2',
+        enable: true,
+      });
+    });
+  });
 });

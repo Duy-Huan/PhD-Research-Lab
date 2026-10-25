@@ -56,6 +56,10 @@ describe('MissionBuilder, TaskInspector & MissionDAG', () => {
       );
       expect(onSuccess).toHaveBeenCalled();
     });
+    // MissionSpec.Limits permits at most three calls; a successful mocked POST must
+    // not conceal a form payload that the real API rejects with 422.
+    const body = postSpy.mock.calls[0][1] as { limits: { max_reasoning_calls: number } };
+    expect(body.limits.max_reasoning_calls).toBeLessThanOrEqual(3);
 
     // Cancel button
     fireEvent.click(screen.getByText(/Huỷ/i));

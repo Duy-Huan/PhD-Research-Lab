@@ -1,0 +1,38 @@
+[
+  {
+    "id": 12577972145,
+    "name": "uat-policy",
+    "size_in_bytes": 740,
+    "expired": false
+  },
+  {
+    "id": 12577903935,
+    "name": "backend-windows-latest-3.12",
+    "size_in_bytes": 317855,
+    "expired": false
+  },
+  {
+    "id": 12577677695,
+    "name": "backend-ubuntu-latest-3.11",
+    "size_in_bytes": 316138,
+    "expired": false
+  },
+  {
+    "id": 12577272009,
+    "name": "browser",
+    "size_in_bytes": 68808515,
+    "expired": false
+  },
+  {
+    "id": 12577122529,
+    "name": "backend-ubuntu-latest-3.12",
+    "size_in_bytes": 316794,
+    "expired": false
+  },
+  {
+    "id": 12576977610,
+    "name": "frontend",
+    "size_in_bytes": 1784778,
+    "expired": false
+  }
+]

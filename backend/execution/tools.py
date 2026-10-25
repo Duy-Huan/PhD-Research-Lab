@@ -39,6 +39,10 @@ def node_argv(binary: str | None, package_js: str) -> list:
         return []
     p = Path(binary)
     if p.suffix.lower() in (".cmd", ".bat", ".ps1", "") and sys.platform.startswith("win"):
+        if p.stem.lower() == 'opencode' and package_js == 'opencode-ai/bin/opencode':
+            native = p.parent / 'node_modules' / '@opencode' / 'cli' / 'bin' / 'opencode.exe'
+            if native.is_file():
+                return [str(native)]
         js = p.parent / "node_modules" / Path(package_js)
         node = p.parent / "node.exe" if (p.parent / "node.exe").is_file() else which("node")
         if js.is_file() and node:

@@ -9,6 +9,17 @@ from backend.figures import renderers, verifier
 from backend.figures.contracts import FigureProvenance, FigureSpec, FigureStyle
 from backend.knowledge import research_store as S
 
+LEGACY_RASTER_WARNING = 'Legacy PNG/PDF exports used placeholder graphics. Regenerate this figure before validation, approval, paper use or raster/PDF export.'
+
+
+def _legacy_raster(provenance: dict) -> bool:
+    return provenance.get('renderer_used') != 'builtin-svg' and bool({'png', 'pdf'} & set(provenance.get('exports') or {}))
+
+
+def _require_real_raster(provenance: dict) -> None:
+    if _legacy_raster(provenance):
+        raise ValueError(LEGACY_RASTER_WARNING)
+
 
 def _figure_dir(tid: str, fid: str, version: int) -> Path:
     return S.safe_child(S.store_dir(), "topics", tid, "artifacts", "figures", fid, "versions", f"v{version:04d}")
@@ -147,7 +158,12 @@ def list_figures(tid: str) -> list[dict]:
         out = []
         for r in rows:
             p = json.loads(r["payload"])
-            out.append({**dict(r), "payload": p})
+            legacy = _legacy_raster(p.get('latest_provenance') or {})
+            if legacy:
+                p['latest_verification']['overall_status'] = 'needs_review'
+                p['latest_verification'].setdefault('warnings', []).append(LEGACY_RASTER_WARNING)
+                p['latest_provenance']['scientific_review'] = 'pending'
+            out.append({**dict(r), 'status': 'needs_review' if legacy else r['status'], "payload": p})
         return out
 
 
@@ -172,6 +188,11 @@ def get_figure(tid: str, fid: str, version: int = 0) -> dict:
             for r in c.execute("SELECT version,spec_sha256,script_sha256,data_sha256,created FROM figure_versions WHERE figure_id=? ORDER BY version DESC", (fid,))
         ]
         vp = json.loads(vrow["payload"])
+        legacy = _legacy_raster(vp['provenance'])
+        if legacy:
+            vp['verification']['overall_status'] = 'needs_review'
+            vp['verification'].setdefault('warnings', []).append(LEGACY_RASTER_WARNING)
+            vp['provenance']['scientific_review'] = 'pending'
         return {
             "id": fig["id"],
             "topic_id": fig["topic_id"],
@@ -180,7 +201,7 @@ def get_figure(tid: str, fid: str, version: int = 0) -> dict:
             "category": fig["category"],
             "current_version": fig["current_version"],
             "selected_version": ver_num,
-            "status": fig["status"],
+            "status": 'needs_review' if legacy else fig['status'],
             "created": fig["created"],
             "updated": fig["updated"],
             "spec": vp["spec"],
@@ -208,6 +229,7 @@ def update_style(tid: str, fid: str, style_patch: dict, title: str = "", caption
 def validate_figure_version(tid: str, fid: str, version: int = 0) -> dict:
     """Re-verify figure integrity against current source data and disk files."""
     cur = get_figure(tid, fid, version)
+    _require_real_raster(cur['provenance'])
     ver_num = cur["selected_version"]
     spec = FigureSpec.model_validate(cur["spec"])
     recorded_sha = cur["provenance"]["data_sha256"]
@@ -246,6 +268,7 @@ def attach_to_paper(tid: str, fid: str, section: str = "results", version: int =
     from backend.paper import writer as PW
 
     cur = get_figure(tid, fid, version)
+    _require_real_raster(cur['provenance'])
     ver_num = cur["selected_version"]
     spec = cur["spec"]
     prov = cur["provenance"]
@@ -270,6 +293,8 @@ def attach_to_paper(tid: str, fid: str, section: str = "results", version: int =
 
 def export_file_path(tid: str, fid: str, fmt: str, version: int = 0) -> Path:
     cur = get_figure(tid, fid, version)
+    if fmt in ('png', 'pdf'):
+        _require_real_raster(cur['provenance'])
     ver_num = cur["selected_version"]
     out_dir = _figure_dir(tid, fid, ver_num)
     if fmt == "script":

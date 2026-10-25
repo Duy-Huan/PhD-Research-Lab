@@ -61,6 +61,16 @@ class OpenCodeTaskArgs(Contract):
     from_task: str = ""
 
 
+class PaperWritingAction(Contract):
+    question: str = Field(default="", max_length=10000)
+    section: str = Field(default="", max_length=80)
+    from_task: str = ""
+    paper_ids: list[str] = Field(default_factory=list, max_length=50)
+    figure_id: str = ""
+    style: str = "IEEE"
+    venue: str = ""
+
+
 INPUTS = {"paper.discover": Discover, "paper.download": PaperIDs, "paper.inspect": PaperIDs,
           "paper.compare": Compare, "workspace.sync": Sync, "mission.report": Report,"experiment.run":ProtocolRef}
 INPUTS.update({"experiment.verify":Verify,"artifact.verify":Verify})
@@ -74,6 +84,12 @@ INPUTS.update({
     "figure.export": FigureAction,
     "figure.regenerate": FigureAction,
     "opencode.implement": OpenCodeTaskArgs,
+    "paperorchestra.outline": PaperWritingAction,
+    "paperorchestra.section_write": PaperWritingAction,
+    "paperorchestra.refine": PaperWritingAction,
+    "paperorchestra.cite_verify": PaperWritingAction,
+    "paperorchestra.figure_integrate": PaperWritingAction,
+    "paperorchestra.full_orchestration": PaperWritingAction,
 })
 META = {
     "experiment.verify": ("Independently check raw experiment artifacts",True,[],["deterministic"]),
@@ -94,6 +110,12 @@ META = {
     "figure.export": ("Export verified figure artifact in SVG/PNG/PDF formats", True, ["workspace_write"], ["deterministic"]),
     "figure.regenerate": ("Regenerate immutable figure version from FigureSpec and source data", True, ["workspace_write"], ["deterministic"]),
     "opencode.implement": ("Delegate scoped repository analysis, code edit, or test execution to OpenCode", False, ["reasoning", "workspace_write"], ["opencode", "app"]),
+    "paperorchestra.outline": ("Generate structured paper outline, bullet points and citation hints", False, ["reasoning", "workspace_write"], ["paperorchestra", "app"]),
+    "paperorchestra.section_write": ("Draft publication-ready LaTeX body section grounded in evidence", False, ["reasoning", "workspace_write"], ["paperorchestra", "app"]),
+    "paperorchestra.refine": ("Refine and format LaTeX manuscript for target venue", False, ["reasoning", "workspace_write"], ["paperorchestra", "app"]),
+    "paperorchestra.cite_verify": ("Verify in-text citations against project library and topic corpus", False, ["workspace_write"], ["paperorchestra", "app"]),
+    "paperorchestra.figure_integrate": ("Integrate verified scientific figure artifacts into LaTeX manuscript", False, ["workspace_write"], ["paperorchestra", "app"]),
+    "paperorchestra.full_orchestration": ("Multi-agent research-to-paper writing orchestration with quality gates", False, ["reasoning", "workspace_write"], ["paperorchestra", "app"]),
 }
 
 

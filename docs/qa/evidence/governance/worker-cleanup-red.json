@@ -1,0 +1,18 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_verification_worker_cleanup.WorkerCleanup.test_process_exit_releases_database_before_owned_directory_cleanup",
+      "status": "FAIL",
+      "duration": 0.1126,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_verification_worker_cleanup.py\", line 28, in test_process_exit_releases_database_before_owned_directory_cleanup\n    self.assertEqual(child.returncode,0,child.stderr)\nAssertionError: 1 != 0 : test_connection_stays_open_until_process_exit (held_connection_fixture.Database.test_connection_stays_open_until_process_exit) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.004s\n\nOK\nTraceback (most recent call last):\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.11-windows-x86_64-none\\Lib\\shutil.py\", line 632, in _rmtree_unsafe\n    os.unlink(fullname)\nPermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\win\\\\AppData\\\\Local\\\\Temp\\\\phdlab-verify-kxod7a6v\\\\held.sqlite3'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\devtools\\verification\\unittest_worker.py\", line 35, in <module>\n    raise SystemExit(main())\n                     ^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\devtools\\verification\\unittest_worker.py\", line 23, in main\n    with tempfile.TemporaryDirectory(prefix='phdlab-verify-') as data:\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.11-windows-x86_64-none\\Lib\\tempfile.py\", line 943, in __exit__\n    self.cleanup()\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.11-windows-x86_64-none\\Lib\\tempfile.py\", line 947, in cleanup\n    self._rmtree(self.name, ignore_errors=self._ignore_cleanup_errors)\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.11-windows-x86_64-none\\Lib\\tempfile.py\", line 929, in _rmtree\n    _shutil.rmtree(name, onerror=onerror)\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.11-windows-x86_64-none\\Lib\\shutil.py\", line 787, in rmtree\n    return _rmtree_unsafe(path, onerror)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.11-windows-x86_64-none\\Lib\\shutil.py\", line 634, in _rmtree_unsafe\n    onerror(os.unlink, fullname, sys.exc_info())\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.11-windows-x86_64-none\\Lib\\tempfile.py\", line 893, in onerror\n    _os.unlink(path)\nPermissionError: [WinError 32] The process cannot access the file because it is being used by another process: 'C:\\\\Users\\\\win\\\\AppData\\\\Local\\\\Temp\\\\phdlab-verify-kxod7a6v\\\\held.sqlite3'\n\n"
+    }
+  ],
+  "subtests": [],
+  "total": 1,
+  "passed": false,
+  "skipped": 0,
+  "limitations": [
+    "Hermetic offline scope; skips remain unqualified and block full release"
+  ]
+}

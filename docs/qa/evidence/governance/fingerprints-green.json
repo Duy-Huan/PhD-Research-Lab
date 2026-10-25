@@ -1,0 +1,24 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_verification_reporting.FailureReporting.test_skip_volume_does_not_hide_an_actual_failure",
+      "status": "PASS",
+      "duration": 0.0005,
+      "details": null
+    },
+    {
+      "id": "test_verification_reporting.FailureReporting.test_wrapped_database_failures_group_by_original_exception",
+      "status": "PASS",
+      "duration": 0.0003,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "total": 2,
+  "passed": true,
+  "skipped": 0,
+  "limitations": [
+    "Hermetic offline scope; skips remain unqualified and block full release"
+  ]
+}

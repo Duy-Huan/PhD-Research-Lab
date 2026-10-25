@@ -1,0 +1,109 @@
+[
+  {
+    "id": 40147348883,
+    "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40147348883",
+    "head_sha": "25d0a6478e517bcc252569b774d05925a67d8f8e",
+    "status": "completed",
+    "conclusion": "failure",
+    "jobs": [
+      {
+        "name": "Real offline browser smoke",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "name": "Frontend types, whole-source coverage and build",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Frontend mandatory gate"
+        ]
+      },
+      {
+        "name": "Backend (windows-latest, Python 3.12)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Independent complete regression and 100 percent production coverage"
+        ]
+      },
+      {
+        "name": "Backend (windows-latest, Python 3.11)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Independent complete regression and 100 percent production coverage"
+        ]
+      },
+      {
+        "name": "Backend (ubuntu-latest, Python 3.12)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Independent complete regression and 100 percent production coverage"
+        ]
+      },
+      {
+        "name": "Backend (ubuntu-latest, Python 3.11)",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Independent complete regression and 100 percent production coverage"
+        ]
+      },
+      {
+        "name": "Risk-triggered verified AI-UAT evidence",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run python scripts/uat_gate.py --base \"$VERIFY_BASE\""
+        ]
+      },
+      {
+        "name": "Contract and workflow policy",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "name": "Dependency and high-confidence security checks",
+        "status": "completed",
+        "conclusion": "success",
+        "failed_steps": []
+      },
+      {
+        "name": "Matching-source live research qualification",
+        "status": "completed",
+        "conclusion": "skipped",
+        "failed_steps": []
+      },
+      {
+        "name": "Development gate",
+        "status": "completed",
+        "conclusion": "failure",
+        "failed_steps": [
+          "Run python scripts/quality_gate.py aggregate --phase development"
+        ]
+      },
+      {
+        "name": "QA gate",
+        "status": "completed",
+        "conclusion": "skipped",
+        "failed_steps": []
+      },
+      {
+        "name": "Human release authorization",
+        "status": "completed",
+        "conclusion": "skipped",
+        "failed_steps": []
+      },
+      {
+        "name": "Release gate",
+        "status": "completed",
+        "conclusion": "skipped",
+        "failed_steps": []
+      }
+    ]
+  }
+]

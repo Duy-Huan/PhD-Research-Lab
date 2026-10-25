@@ -287,7 +287,7 @@ export const SettingsModal: React.FC = () => {
     enabled: activeTab === 'skills',
   });
 
-  const { data: pluginsData, refetch: refetchPlugins } = useQuery<{ plugins: any[]; root: string }>({
+  const { data: pluginsData, refetch: refetchPlugins } = useQuery<{ plugins: any[]; optional_plugins?: any[]; root: string }>({
     queryKey: ['plugins'],
     queryFn: () => api.get('/api/plugins'),
     enabled: activeTab === 'skills',
@@ -363,7 +363,7 @@ export const SettingsModal: React.FC = () => {
   // List models from provider API
   const handleFetchModels = async (pid: string) => {
     try {
-      const res = await api.post<{ models: string[] }>('/api/models/list', { provider: pid });
+      const res = await api.post<{ models: string[] }>(pid === 'codex' ? '/api/models/cli/codex' : '/api/models/list', { provider: pid });
       setFetchedProviderModels((prev) => ({ ...prev, [pid]: res.models || [] }));
       notify(t(`Đã tải ${(res.models || []).length} model từ ${pid}`, `Loaded ${(res.models || []).length} models from ${pid}`));
     } catch (err) {
@@ -440,8 +440,8 @@ export const SettingsModal: React.FC = () => {
   ];
 
   const CLI_DEFAULT_MODELS: Record<string, string[]> = {
-    codex: ['gpt-5', 'gpt-5-codex', 'gpt-5-mini', 'o3', 'o4-mini', 'gpt-4.1'],
-    chatgpt_sub: ['gpt-5', 'gpt-5-codex', 'gpt-5-mini', 'o3', 'o4-mini', 'gpt-4.1'],
+    codex: [],
+    chatgpt_sub: [],
     claude_code: ['sonnet', 'opus', 'haiku', 'claude-sonnet-4-6', 'claude-opus-4-6'],
     gemini_cli: ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.0-flash'],
     antigravity: ['gemini-2.5-pro', 'gemini-2.5-flash', 'claude-sonnet-4-6'],
@@ -475,7 +475,7 @@ export const SettingsModal: React.FC = () => {
     }
     if (CLI_DEFAULT_MODELS[targetPid]) {
       const cliSaved = config.gateway?.cli_models?.[targetPid] || [];
-      return Array.from(new Set([...cliSaved, ...CLI_DEFAULT_MODELS[targetPid]]));
+      return Array.from(new Set([...(fetchedProviderModels[targetPid] || []), ...cliSaved, ...CLI_DEFAULT_MODELS[targetPid]]));
     }
     if (providerSpecs[targetPid]) {
       const fetched = fetchedProviderModels[targetPid] || [];
@@ -488,6 +488,7 @@ export const SettingsModal: React.FC = () => {
 
   return (
     <div
+      className="settings-studio"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -499,11 +500,12 @@ export const SettingsModal: React.FC = () => {
     >
       {/* Top Studio Header Bar */}
       <div
+        className="settings-studio-header"
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '14px 24px',
+          padding: '14px 110px 14px 24px',
           background: 'var(--panel)',
           borderBottom: '1px solid var(--line)',
           flexShrink: 0,
@@ -557,6 +559,7 @@ export const SettingsModal: React.FC = () => {
           >
             <span className="muted">{t('Tỉ lệ:', 'Scale:')}</span>
             <select
+              aria-label={t('Tỉ lệ thu phóng giao diện', 'UI Display Scale')}
               value={String(uiScale)}
               onChange={(e) => setUiScale(Number(e.target.value))}
               style={{
@@ -580,17 +583,15 @@ export const SettingsModal: React.FC = () => {
           <div
             style={{
               display: 'inline-flex',
-              borderRadius: 8,
-              border: '1px solid var(--line-2)',
-              overflow: 'hidden',
-              background: 'var(--bg-2)',
+              alignItems: 'center',
+              gap: 6,
             }}
             title={t('Chuyển đổi ngôn ngữ Tiếng Việt / English', 'Switch Language Vietnamese / English')}
           >
             <button
               type="button"
               className={`btn sm ${(config.ui?.language || language) === 'vi' ? 'accent' : 'ghost'}`}
-              style={{ borderRadius: 0, padding: '4px 10px', fontWeight: 700 }}
+              style={{ borderRadius: 6, minWidth: 38, height: 28, fontWeight: 700 }}
               onClick={() => {
                 setLanguage('vi');
                 savePatch({ ui: { language: 'vi' } });
@@ -601,7 +602,7 @@ export const SettingsModal: React.FC = () => {
             <button
               type="button"
               className={`btn sm ${(config.ui?.language || language) === 'en' ? 'accent' : 'ghost'}`}
-              style={{ borderRadius: 0, padding: '4px 10px', fontWeight: 700 }}
+              style={{ borderRadius: 6, minWidth: 38, height: 28, fontWeight: 700 }}
               onClick={() => {
                 setLanguage('en');
                 savePatch({ ui: { language: 'en' } });
@@ -614,9 +615,10 @@ export const SettingsModal: React.FC = () => {
       </div>
 
       {/* Main Split View: Left Navigation Rail + Right Settings Content */}
-      <div style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+      <div className="settings-studio-body" style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
         {/* Left Navigation Rail */}
         <nav
+          aria-label={t('Mục cài đặt', 'Settings sections')}
           style={{
             width: 280,
             borderRight: '1px solid var(--line)',
@@ -696,6 +698,7 @@ export const SettingsModal: React.FC = () => {
 
         {/* Right Scrollable Settings Content */}
         <div
+          className="settings-studio-content"
           style={{
             flex: 1,
             overflowY: 'auto',
@@ -759,7 +762,7 @@ export const SettingsModal: React.FC = () => {
                             : cleanMode === 'claude'
                             ? 'anthropic'
                             : cleanMode;
-                        const canFetch = Boolean(providerSpecs[targetPid]);
+                        const canFetch = targetPid === 'codex' || Boolean(providerSpecs[targetPid]);
 
                         return (
                           <tr key={agentId}>
@@ -769,6 +772,7 @@ export const SettingsModal: React.FC = () => {
                             </td>
                             <td>
                               <select
+                                aria-label={`${agentId} ${t('Nhà cung cấp', 'provider')}`}
                                 className="input"
                                 value={mode}
                                 onChange={(e) => {
@@ -776,7 +780,7 @@ export const SettingsModal: React.FC = () => {
                                   const nextModels = getModelsForEngine(nextMode);
                                   savePatch({
                                     agent_modes: { [agentId]: nextMode },
-                                    agent_models: { [agentId]: nextModels[0] || '' },
+                                    agent_models: { [agentId]: CLI_DEFAULT_MODELS[nextMode.replace(/^cli:/, '')] ? '' : nextModels[0] || '' },
                                   });
                                 }}
                               >
@@ -795,14 +799,15 @@ export const SettingsModal: React.FC = () => {
                               ) : (
                                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                                   <select
+                                    aria-label={`${agentId} ${t('Mô hình', 'model')}`}
                                     className="input"
                                     style={{ flex: 1 }}
-                                    value={currentModel || supportedModels[0] || ''}
+                                    value={currentModel}
                                     onChange={(e) =>
                                       savePatch({ agent_models: { [agentId]: e.target.value } })
                                     }
                                   >
-                                    {supportedModels.length === 0 && (
+                                    {(
                                       <option value="">({t('Mặc định của', 'Default for')} {targetPid})</option>
                                     )}
                                     {supportedModels.map((m) => (
@@ -844,6 +849,7 @@ export const SettingsModal: React.FC = () => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span className="muted" style={{ fontSize: 12.5 }}>{t('Đám mây mặc định:', 'Default Cloud:')}</span>
                     <select
+                      aria-label={t('Đám mây mặc định', 'Default Cloud')}
                       className="input"
                       style={{ width: 210, padding: '4px 8px' }}
                       value={config.default_cloud}
@@ -1115,6 +1121,7 @@ export const SettingsModal: React.FC = () => {
                     <span style={{ fontSize: 13 }}>{t('Tự gỡ mô hình khỏi VRAM khi rảnh sau (phút):', 'Idle VRAM unload timeout (minutes):')}</span>
                     <input
                       type="number"
+                      aria-label={t('Tự gỡ mô hình khỏi VRAM khi rảnh sau (phút)', 'Idle VRAM unload timeout (minutes)')}
                       className="input"
                       style={{ width: 90 }}
                       min={1}
@@ -1480,6 +1487,12 @@ export const SettingsModal: React.FC = () => {
                           <RefreshCw size={12} className={syncingProvider === p.id ? 'spin' : ''} />
                           <span>{syncingProvider === p.id ? t('Đang đồng bộ...', 'Syncing...') : t('Đồng bộ về Lab', 'Sync to Lab')}</span>
                         </button>
+
+                        {['codex', 'claude_code', 'gemini_cli', 'antigravity'].includes(p.id) && <button
+                          className="btn sm" disabled={testingProvider === p.id}
+                          onClick={() => handleTestProvider(p.id)}>
+                          {testingProvider === p.id ? t('Đang thử...', 'Testing...') : t('Test chat CLI thật', 'Test real CLI chat')}
+                        </button>}
 
                         {!p.ready &&
                           ['feynman', 'claude_code', 'codex', 'gemini_cli', 'antigravity'].includes(p.id) && (
@@ -2099,23 +2112,180 @@ export const SettingsModal: React.FC = () => {
                   </button>
                 </div>
 
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', marginBottom: 14 }}>
-                  <span className="muted" style={{ fontSize: 12 }}>{t('Gợi ý cài nhanh:', 'Quick install suggestions:')}</span>
-                  {[
-                    ['SakanaAI/AI-Scientist-v2', 'https://github.com/SakanaAI/AI-Scientist-v2'],
-                    ['K-Dense Scientific Skills', 'https://github.com/K-Dense-AI/scientific-agent-skills'],
-                    ['Anthropic Skills', 'https://github.com/anthropics/skills'],
-                  ].map(([label, u]) => (
-                    <button
-                      key={u}
-                      type="button"
-                      className="chip"
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => setPluginUrl(u)}
-                    >
-                      + {label}
-                    </button>
-                  ))}
+                {/* Optional GitHub Plugins Catalog (Tùy chọn: AI-Scientist-v2, v.v.) */}
+                <div style={{ marginBottom: 18 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--fg)' }}>
+                      {t('Danh mục Plugin Tùy chọn (Optional GitHub Plugins)', 'Optional GitHub Plugins Catalog')}
+                    </span>
+                    <span className="badge" style={{ fontSize: 11, background: 'var(--bg-2)', color: 'var(--muted)' }}>
+                      {t('Động cơ chính: PaperOrchestra', 'Primary Engine: PaperOrchestra')}
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 10 }}>
+                    {(pluginsData?.optional_plugins || [
+                      {
+                        id: 'sakanaai-ai-scientist-v2',
+                        name: 'AI-Scientist-v2',
+                        title: 'The AI Scientist v2 (Sakana AI)',
+                        url: 'https://github.com/SakanaAI/AI-Scientist-v2',
+                        category: 'writing',
+                        description: 'Sinh ý tưởng nghiên cứu, viết nháp bài báo theo template ICML/NeurIPS và biểu mẫu phản biện từ Sakana AI. Tùy chọn độc lập sau PaperOrchestra.',
+                        skills: ['/ais-idea', '/ais-review', '/ais-write'],
+                        installed: false,
+                        enabled: false,
+                      },
+                      {
+                        id: 'k-dense-scientific-skills',
+                        name: 'K-Dense Scientific Skills',
+                        title: 'Scientific Agent Skills (K-Dense AI)',
+                        url: 'https://github.com/K-Dense-AI/scientific-agent-skills',
+                        category: 'research',
+                        description: 'Tập hợp các kỹ năng chuyên sâu cho tác nhân nghiên cứu khoa học, mô phỏng và phân tích dữ liệu.',
+                        skills: ['scientific-analysis'],
+                        installed: false,
+                        enabled: false,
+                      },
+                      {
+                        id: 'anthropics-skills',
+                        name: 'Anthropic Agent Skills',
+                        title: 'Official Agent Skills (Anthropic)',
+                        url: 'https://github.com/anthropics/skills',
+                        category: 'general',
+                        description: 'Bộ kỹ năng tác nhân chuẩn từ Anthropic dành cho Claude và hệ thống tác nhân đa năng.',
+                        skills: ['general-skills'],
+                        installed: false,
+                        enabled: false,
+                      },
+                    ]).map((opt: any) => {
+                      const isInstalled = !!opt.installed || (pluginsData?.plugins || []).some((p: any) => p.id === opt.id);
+                      const installedPlugin = (pluginsData?.plugins || []).find((p: any) => p.id === opt.id);
+                      const isEnabled = installedPlugin ? !!installedPlugin.enabled : false;
+
+                      return (
+                        <div
+                          key={opt.id}
+                          style={{
+                            border: opt.id === 'sakanaai-ai-scientist-v2' ? '1px solid var(--accent)' : '1px solid var(--line)',
+                            borderRadius: 10,
+                            padding: 12,
+                            background: 'var(--bg-2)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            gap: 10,
+                          }}
+                        >
+                          <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 6, marginBottom: 4 }}>
+                              <b style={{ fontSize: 13, color: 'var(--fg)' }}>{opt.title}</b>
+                              <span
+                                style={{
+                                  fontSize: 10,
+                                  padding: '1px 6px',
+                                  borderRadius: 4,
+                                  background: isInstalled ? '#10b98122' : 'var(--panel)',
+                                  color: isInstalled ? '#10b981' : 'var(--muted)',
+                                  fontWeight: 600,
+                                  border: '1px solid var(--line)',
+                                }}
+                              >
+                                {isInstalled ? t('Đã cài đặt', 'Installed') : t('Tùy chọn', 'Optional')}
+                              </span>
+                            </div>
+                            <p style={{ margin: '0 0 8px', fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.4 }}>
+                              {opt.description}
+                            </p>
+                            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                              {(opt.skills || []).map((sk: string) => (
+                                <span
+                                  key={sk}
+                                  style={{
+                                    fontSize: 10,
+                                    fontFamily: 'monospace',
+                                    padding: '1px 5px',
+                                    borderRadius: 4,
+                                    background: 'var(--panel)',
+                                    color: 'var(--accent)',
+                                    border: '1px solid var(--line)',
+                                  }}
+                                >
+                                  {sk}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 6, borderTop: '1px solid var(--line)' }}>
+                            <a
+                              href={opt.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{ fontSize: 11, color: 'var(--accent)', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                            >
+                              <span>GitHub</span>
+                              <ExternalLink size={11} />
+                            </a>
+
+                            {!isInstalled ? (
+                              <button
+                                type="button"
+                                className="btn xs accent"
+                                disabled={installingPlugin}
+                                onClick={async () => {
+                                  setInstallingPlugin(true);
+                                  try {
+                                    await api.post('/api/plugins', { url: opt.url, enable: true });
+                                    refetchPlugins();
+                                    refetchSkills();
+                                    notify(t('Đã cài đặt plugin thành công từ GitHub: ', 'Successfully installed plugin from GitHub: ') + opt.title);
+                                  } catch (err) {
+                                    notify(t('Lỗi cài plugin: ', 'Failed to install plugin: ') + (err as Error).message, 'err');
+                                  } finally {
+                                    setInstallingPlugin(false);
+                                  }
+                                }}
+                                style={{ gap: 4 }}
+                                title={t(`Cài đặt ${opt.title} qua cơ chế GitHub plugin`, `Install ${opt.title} via GitHub plugin mechanism`)}
+                              >
+                                <Plus size={11} />
+                                <span>{t('Cài qua GitHub', 'Get via GitHub')}</span>
+                              </button>
+                            ) : (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <label className="switch" style={{ fontSize: 11 }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={isEnabled}
+                                    onChange={async (e) => {
+                                      await api.put(`/api/plugins/${opt.id}`, { enabled: e.target.checked });
+                                      refetchPlugins();
+                                      refetchSkills();
+                                    }}
+                                  />
+                                  <span>{t('Bật', 'On')}</span>
+                                </label>
+                                <button
+                                  type="button"
+                                  className="btn xs ghost danger"
+                                  onClick={async () => {
+                                    await api.delete(`/api/plugins/${opt.id}`);
+                                    refetchPlugins();
+                                    refetchSkills();
+                                    notify(t('Đã gỡ plugin: ', 'Uninstalled plugin: ') + opt.title);
+                                  }}
+                                  title={t('Gỡ plugin', 'Uninstall plugin')}
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Installed plugins */}
@@ -2244,6 +2414,7 @@ export const SettingsModal: React.FC = () => {
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
                   <select
+                    aria-label={t('Phạm vi lưu kỹ năng', 'Skill save scope')}
                     className="input"
                     style={{ width: 220 }}
                     value={newSkillScope}

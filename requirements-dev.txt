@@ -3,3 +3,6 @@
 coverage>=7.6
 # Optional runtime HPO engine (the workflow orchestrator falls back to builtin random/grid sampling without it)
 optuna>=4.0
+ruff>=0.17.2
+bandit>=1.9.4
+pip-audit>=2.10.1

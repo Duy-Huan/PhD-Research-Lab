@@ -9,7 +9,7 @@ category: writing
 agent: research
 mode: chat
 risk: 1
-aliases: [draft, viet]
+aliases: [draft, viet, paper]
 ---
 Write the requested paper section in the style the researcher asks for (venue, tone, length, tense, terms to use or
 avoid). Use only results that are MEASURED or pinned in the context and cite only sources from the project library

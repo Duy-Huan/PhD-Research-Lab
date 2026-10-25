@@ -86,9 +86,9 @@ def main():
             'failed_tests':[test.id() for test,_ in result.failures + result.errors],
             'executed_tests':result.executed,'coverage':totals,'coverage_complete':complete,
             'source_stable':not changed,'changed_sources':changed,
-            'quality_gate_passed':result.wasSuccessful() and complete and not changed,
+            'quality_gate_passed':result.wasSuccessful() and complete and not changed and not result.skipped,
             'regression_passed':result.wasSuccessful(),'elapsed_seconds':round(time.monotonic()-started,2),
-            'scope':('all backend Python including clearml_worker' if args.include_workers else 'backend, using the existing .coveragerc (clearml_worker subprocess excluded)') +
+            'scope':('all backend Python including clearml_worker' if args.include_workers else 'all backend Python using the declared .coveragerc source/exclusions') +
                     ('; plus launcher and stdio bridge' if args.include_entrypoints else '')}
         (out / 'summary.json').write_text(json.dumps(summary,indent=2),encoding='utf-8')
         print(json.dumps({k:v for k,v in summary.items() if k != 'executed_tests'},indent=2))
@@ -97,7 +97,7 @@ def main():
             return 1
         if changed:
             return 3
-        return 0 if complete else 2
+        return 0 if complete and not result.skipped else 2
 
 if __name__ == '__main__':
     raise SystemExit(main())

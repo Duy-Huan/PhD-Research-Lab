@@ -21,7 +21,7 @@ from backend.agent import AIWSError
 REASONING = {"codex": ("low", "medium", "high")}
 APP_LOCAL = {"local": "Local AI (LM Studio / configured local engine)", "ollama": "Ollama (local)"}
 DEFAULT_CLI_MODELS = {
-    "codex": ["gpt-5", "gpt-5-codex", "gpt-5-mini", "o3", "o4-mini", "gpt-4.1"],
+    "codex": [],  # discover from the installed CLI; API models are not ChatGPT CLI entitlements
     "claude_code": ["sonnet", "opus", "haiku", "claude-sonnet-4-6", "claude-opus-4-6"],
     "gemini_cli": ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash"],
     "antigravity": ["gemini-2.5-pro", "gemini-2.5-flash", "claude-sonnet-4-6"],

@@ -232,6 +232,9 @@ def save_topic(body: TopicInput, tid: str = "") -> dict:
         tid = tid or uid()
         c.execute("INSERT INTO topics VALUES(?,?,?,?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload,updated=excluded.updated",
                   (tid, dumps(data), old["created"] if old else now(), now()))
+        if not old:
+            from backend.agent import decision_ledger as L
+            L.append(c, tid, tid, "topic_created", {"title": data["title"], "sources": data["sources"]})
         return topic(c, tid)
 
 

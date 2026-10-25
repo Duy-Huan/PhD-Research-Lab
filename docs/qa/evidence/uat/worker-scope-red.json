@@ -1,0 +1,18 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_browser_acceptance.OwnedServerCapability.test_python_worker_denies_file_mutation_and_processes_outside_lease",
+      "status": "FAIL",
+      "duration": 0.1372,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_browser_acceptance.py\", line 100, in test_python_worker_denies_file_mutation_and_processes_outside_lease\n    self.assertEqual(json.loads(result.stdout),['read','write','remove','spawn','socket'])\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Lists differ: ['read', 'write', 'spawn', 'socket'] != ['read', 'write', 'remove', 'spawn', 'socket']\n\nFirst differing element 2:\n'spawn'\n'remove'\n\nSecond list contains 1 additional elements.\nFirst extra element 4:\n'socket'\n\n- ['read', 'write', 'spawn', 'socket']\n+ ['read', 'write', 'remove', 'spawn', 'socket']\n?                   ++++++++++\n\n"
+    }
+  ],
+  "subtests": [],
+  "total": 1,
+  "passed": false,
+  "skipped": 0,
+  "limitations": [
+    "Hermetic offline scope; skips remain unqualified and block full release"
+  ]
+}

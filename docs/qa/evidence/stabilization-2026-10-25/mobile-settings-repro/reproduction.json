@@ -1,0 +1,16 @@
+{
+  "mode": "REAL_LOCAL",
+  "steps": [
+    "375x900 viewport",
+    "Open sidebar",
+    "System Settings",
+    "Try Back to Workspace without dismissing sidebar"
+  ],
+  "expected": "Selecting Settings closes mobile navigation overlay so settings controls are actionable",
+  "actual": {
+    "sidebarVisible": true,
+    "backActionable": false,
+    "failure": "TimeoutError: locator.click: Timeout 2000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Back to Workspace', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"btn sm ghost\" title=\"Back to Research & Chat Workspace\">…</button>\u001b[22m\n\u001b[2m  - attempting click action (trial run)\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <span>Provider & CLI Hub</span> from <div data-panel=\"true\" id=\"sidebar-panel\" data-testid=\"sidebar-panel\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action (trial run)\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <span>Provider & CLI Hub</span> from <div data-panel=\"true\" id=\"sidebar-panel\" data-testid=\"sidebar-panel\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action (trial run)\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    4 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <span>Provider & CLI Hub</span> from <div data-panel=\"true\" id=\"sidebar-panel\" data-testid=\"sidebar-panel\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action (trial run)\u001b[22m\n\u001b[2m      - waiting 500ms\u001b[22m\n"
+  },
+  "status": "REPRODUCED"
+}

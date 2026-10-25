@@ -131,7 +131,7 @@ def container_name() -> str:
     from backend.execution.code_projects import active, container_for
     rec = active()
     if not rec:  # nothing to address without a code project; the name of no real container
-        return "phdlab-" + hashlib.sha1(str(data_dir().resolve()).encode()).hexdigest()[:10]
+        return "phdlab-" + hashlib.sha1(str(data_dir().resolve()).encode(), usedforsecurity=False).hexdigest()[:10]
     return container_for(rec)
 
 
@@ -296,7 +296,7 @@ def ensure_container(recreate: bool = False) -> dict:
 
 def _code_label() -> str:
     """Which folder the container mounts (v4.2): a renamed or different code project gets a fresh container."""
-    return hashlib.sha1(str(code_dir().resolve()).encode()).hexdigest()[:12]
+    return hashlib.sha1(str(code_dir().resolve()).encode(), usedforsecurity=False).hexdigest()[:12]
 
 
 def container_action(action: str) -> dict:
@@ -398,7 +398,8 @@ def _venv_dir(s: dict) -> Path:
     base = _base_python(s)
     if base == sys.executable:
         return sb_dir() / "venv"  # v3.0-v3.3 location (kept: existing venvs and their packages stay in use)
-    return sb_dir() / ("venv-" + hashlib.sha1(str(Path(base).resolve()).lower().encode()).hexdigest()[:8])
+    # Existing environment folder identity; changing it would discard cached environments.
+    return sb_dir() / ("venv-" + hashlib.sha1(str(Path(base).resolve()).lower().encode(), usedforsecurity=False).hexdigest()[:8])
 
 
 def local_python_info() -> dict:

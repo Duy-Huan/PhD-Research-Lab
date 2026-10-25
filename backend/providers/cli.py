@@ -41,8 +41,8 @@ from backend.providers import events as E
 HEALTH = ("CONNECTED", "DISCONNECTED", "AUTH_EXPIRED", "RATE_LIMITED", "UNAVAILABLE", "ERROR", "UNKNOWN")
 NOT_SUPPORTED = "NOT_SUPPORTED"
 CAPS = ("connect", "disconnect", "health", "capabilities", "send", "stream", "cancel", "mcp_client")
-RATE_RE = re.compile(r"(?i)rate.?limit|429|quota|usage limit|too many requests")
-AUTH_RE = re.compile(r"(?i)authenticat|not logged in|login required|sign.?in|unauthori[sz]ed|401|expired")
+RATE_RE = re.compile(r"(?i)rate.?limit|429|quota|usage limit|weekly limit|daily limit|hit your .*limit|too many requests")
+AUTH_RE = re.compile(r"(?i)authenticat|auth method|not logged in|login required|sign.?in|unauthori[sz]ed|401|expired")
 READ_TOOLS = ("research_get_current_state", "research_search_memory", "research_get_hypothesis", "research_get_experiment",
               "research_get_evidence", "research_get_decisions", "research_get_failures", "research_get_context",
               "research_get_provenance")
@@ -184,7 +184,7 @@ class CLIConnector(ProviderConnector):
             return {**base, "state": "ERROR", "detail": f"`{self.binaries[0]} --version` failed", "setup": self.setup()}
         state, detail = self.auth_state(p)
         last = _last_error.get(self.provider_id)
-        if fresh and state == "CONNECTED":
+        if fresh and state == "CONNECTED" and last and last[0] == "AUTH_EXPIRED":
             _last_error.pop(self.provider_id, None)
             last = None
         if last and state in ("CONNECTED", "UNKNOWN"):
@@ -201,9 +201,13 @@ class CLIConnector(ProviderConnector):
     def connect(self, launch: bool = False) -> dict:
         out = {"provider": self.provider_id, "action": "sign_in_with_vendor", "command": self.login_cmd,
                "detail": "Sign in through the vendor's own browser flow. PhD-Lab never sees your password or tokens."}
-        if launch and sys.platform.startswith("win") and self.binary():
-            parts = [self.binary(), *self.login_cmd.split()[1:]]
-            command = "& " + " ".join("'" + part.replace("'", "''") + "'" for part in parts)
+        if launch and sys.platform.startswith("win"):
+            bin_path = self.binary()
+            if bin_path:
+                parts = [bin_path, *self.login_cmd.split()[1:]]
+                command = "& " + " ".join("'" + part.replace("'", "''") + "'" for part in parts)
+            else:
+                command = f"Write-Host '--- PhD Research Lab: {self.label} CLI ---' -ForegroundColor Cyan; {self.login_cmd}"
             encoded = base64.b64encode(command.encode("utf-16le")).decode("ascii")
             subprocess.Popen(["powershell.exe", "-NoLogo", "-NoExit", "-EncodedCommand", encoded],
                              creationflags=getattr(subprocess, "CREATE_NEW_CONSOLE", 0))
@@ -250,8 +254,10 @@ class CLIConnector(ProviderConnector):
             except StartupFailure:
                 # No turn was submitted. Once submitted, recovery must never replay the prompt automatically.
                 yield E.ev("status", state="transport_fallback", transport="codex-exec")
+        context["_extra_argv"] = extra
         args = self.argv(context)
-        args = (args[:-1] + extra + ["-"]) if args and args[-1] == "-" else args + extra
+        if not context.get("_extra_argv_consumed") and self.provider_id != "codex":
+            args = (args[:-1] + extra + ["-"]) if args and args[-1] == "-" else args + extra
         launch = time.perf_counter()
         try:
             proc = subprocess.Popen(args, cwd=str(cwd), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -285,6 +291,8 @@ class CLIConnector(ProviderConnector):
                 pass
             norm = E.NORMALIZERS[self.normalizer]
             errored = False
+            emitted_text = False
+            turn_finished = False
             for line in iter(proc.stdout.readline, ""):
                 line = line.strip()
                 if not line:
@@ -295,7 +303,21 @@ class CLIConnector(ProviderConnector):
                 except ValueError:
                     yield E.ev("text_delta", text=line + "\n")
                     continue
-                for e in norm(raw) if isinstance(raw, dict) else []:
+                events_batch = norm(raw) if isinstance(raw, dict) else []
+                # Check for terminal events from normalizer or raw event payloads
+                if isinstance(raw, dict):
+                    raw_type = raw.get("type") or raw.get("event") or ""
+                    if raw_type in ("turn.completed", "turn.failed", "result") or (raw_type == "item.completed" and raw.get("item", {}).get("type") == "agent_message" and self.provider_id == "codex"):
+                        # Terminal status signal received
+                        turn_finished = True
+                for e in events_batch:
+                    if e["type"] == "text_delta" and e.get("text"):
+                        emitted_text = True
+                    if e["type"] == "status" and e.get("state") == "result" and e.get("final_text") and not emitted_text:
+                        emitted_text = True
+                        yield E.ev("text_delta", text=e["final_text"], final=True)
+                    if e["type"] == "status" and e.get("state") in ("usage", "result"):
+                        turn_finished = True
                     bad = firewall.violation(f"{e.get('name', '')} {e.get('detail', '')}") if e["type"] == "tool_call" else ""
                     if bad:  # layer 5: the agent named the app's source / a secret → stop it now (fail closed)
                         kill_tree(proc)
@@ -305,10 +327,19 @@ class CLIConnector(ProviderConnector):
                     if e["type"] == "error":
                         errored = True
                         st = classify_error(e.get("message", ""))
+                        e["state"] = st
                         if st != "ERROR":
                             _last_error[self.provider_id] = (st, e.get("message", "")[:200])
                     yield e
-            proc.wait()
+                if turn_finished:
+                    # CLI has emitted the final answer and usage/turn-complete event. Break out immediately
+                    # so lingering child processes/handles on Windows do not block the turn for 15-35s.
+                    break
+            try:
+                proc.wait(timeout=0.3 if turn_finished else 5.0)
+            except subprocess.TimeoutExpired:
+                if proc.poll() is None:
+                    kill_tree(proc)
             if getattr(proc, "_phd_timeout", False):
                 yield E.ev("error", message=f"{self.label} did not finish within {int(limit)} s — stopped (time limit)",
                            state="ERROR")
@@ -318,20 +349,23 @@ class CLIConnector(ProviderConnector):
             if cancelled:
                 yield E.ev("request_cancelled", provider=self.provider_id, request_id=rid)
                 return
-            if proc.returncode != 0 and not errored:
+            if not turn_finished and proc.returncode != 0 and not errored:
                 msg = " | ".join(err_lines[-3:]) or f"exit code {proc.returncode}"
                 st = classify_error(msg)
                 if st != "ERROR":
                     _last_error[self.provider_id] = (st, msg[:200])
                 yield E.ev("error", message=msg[:500], state=st)
+            elif not errored and not emitted_text:
+                yield E.ev("error", message=f"{self.label} returned no answer. Check CLI sign-in, model access and logs.", state="ERROR")
             elif not errored:
                 _last_error.pop(self.provider_id, None)
-            yield E.ev("request_completed", provider=self.provider_id, request_id=rid, exit_code=proc.returncode)
+            yield E.ev("request_completed", provider=self.provider_id, request_id=rid, exit_code=0 if turn_finished and not errored else proc.returncode)
         finally:
             watchdog.cancel()
-            kill_tree(proc)  # consumer gone / exception: no orphaned CLI or child process stays behind
+            if proc.poll() is None:
+                kill_tree(proc)  # consumer gone / exception: no orphaned CLI or child process stays behind
             try:
-                proc.wait(timeout=5)
+                proc.wait(timeout=0.5)
             except subprocess.TimeoutExpired:
                 pass
             with _lock:
@@ -393,19 +427,27 @@ class CodexConnector(CLIConnector):
 
     def argv(self, context: dict) -> list:
         mode = "workspace-write" if context.get("profile") == "assisted" else "read-only"
-        args = self._prefix() + ["exec", "--json", "--sandbox", mode, "--skip-git-repo-check"]
+        resume_id = context.get("resume_session") if (context.get("resume_session") and re.fullmatch(r"[\w-]{6,80}", str(context["resume_session"]))) else ""
+        if resume_id:
+            args = self._prefix() + ["exec", "resume", "--json", "-c", f"sandbox_mode={mode}", "--skip-git-repo-check"]
+        else:
+            args = self._prefix() + ["exec", "--json", "--sandbox", mode, "--skip-git-repo-check"]
         if sys.platform.startswith("win"):
             from backend.core.config import load_config
             ws = load_config()["codex"].get("windows_sandbox") or "unelevated"
             if ws != "config":
                 args += ["-c", f"windows.sandbox={ws}"]
-        if context.get("resume_session") and re.fullmatch(r"[\w-]{6,80}", context["resume_session"]):
-            args = self._prefix() + ["exec", "resume", "--json", "-c", f"sandbox_mode={mode}", "--skip-git-repo-check",
-                                     context["resume_session"]]
-        if context.get("model"):
-            args += ["-m", str(context["model"])[:80]]
+        model = str(context.get("model") or "").strip()[:80]
+        # Filter out API-only model default 'gpt-5' when using ChatGPT sign-in to prevent 400 errors
+        if model and model.lower() not in ("gpt-5", "default", "auto", "none"):
+            args += ["-m", model]
         if context.get("reasoning") in ("low", "medium", "high"):  # v4.2: Codex config key model_reasoning_effort
             args += ["-c", f"model_reasoning_effort={context['reasoning']}"]
+        if context.get("_extra_argv"):
+            args += list(context["_extra_argv"])
+            context["_extra_argv_consumed"] = True
+        if resume_id:
+            args.append(resume_id)
         return args + ["-"]
 
 class ClaudeCodeConnector(CLIConnector):
@@ -512,7 +554,7 @@ class AntigravityConnector(CLIConnector):
                 "register the PhD-Lab MCP server (Gateway → Antigravity → Register MCP)"]
 
     def argv(self, context: dict) -> list:
-        args = [self.binary(), "-p", "--output-format", "stream-json", "--input-format", "stream-json", "--sandbox"]
+        args = [self.binary(), "--output-format", "stream-json", "--input-format", "stream-json", "--sandbox", "--print="]
         if context.get("model"):
             args += ["--model", str(context["model"])[:80]]
         if context.get("resume_session") and re.fullmatch(r"[\w-]{6,80}", context["resume_session"]):
@@ -528,6 +570,22 @@ class GeminiCliConnector(CLIConnector):
     binaries, binary_key, normalizer, login_cmd = ("gemini",), "gemini_binary", "gemini", "gemini"
     api_env = ("GEMINI_API_KEY", "GOOGLE_API_KEY", "GOOGLE_GENAI_USE_VERTEXAI", "GOOGLE_APPLICATION_CREDENTIALS")
     supports_resume = True
+
+    def _probe(self) -> dict:
+        probe = super()._probe()
+        home = Path(os.environ.get("GEMINI_CLI_HOME") or Path.home())
+        try:
+            settings = json.loads((home / ".gemini" / "settings.json").read_text("utf-8"))
+            method = settings.get("security", {}).get("auth", {}).get("selectedType")
+        except (OSError, ValueError, AttributeError):
+            method = None
+        probe['auth_configured'] = bool(method)
+        return probe
+
+    def auth_state(self, probe: dict) -> tuple[str, str]:
+        if probe.get('auth_configured') is False and not self.api_fallback():
+            return "AUTH_EXPIRED", "Gemini CLI has no configured sign-in method. Run `gemini` and choose Login with Google."
+        return super().auth_state(probe)
 
     def setup(self) -> list:
         return ["npm install -g @google/gemini-cli", "run `gemini` once and choose 'Login with Google'"]

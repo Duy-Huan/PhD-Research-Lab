@@ -96,7 +96,7 @@ export const MissionBuilder: React.FC<MissionBuilderProps> = ({ topicId, onSucce
           depends_on: t.depends_on.filter(Boolean),
           args: {},
         })),
-        limits: { max_seconds: 3600, max_reasoning_calls: 4 },
+        limits: { max_seconds: 3600, max_reasoning_calls: 3 },
       });
     }
   };

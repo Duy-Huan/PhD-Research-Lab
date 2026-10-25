@@ -149,7 +149,7 @@ async def _trial(tid,rid,protocol,alpha,split,remaining,cancelled):
             await asyncio.to_thread(proc.wait,5)
 
 
-async def execute(tid,pid,mission_id,expected_digest,expected_nonce):
+async def execute(tid,pid,mission_id,expected_digest,expected_nonce,resource_holder=""):
     from backend.agent import missions
     from backend.execution import guard
     m=missions.get(mission_id,tid);p=get(tid,pid)
@@ -159,7 +159,7 @@ async def execute(tid,pid,mission_id,expected_digest,expected_nonce):
     spec=ExperimentProtocol.model_validate(p["payload"]["spec"])
     sets=[set(v) for v in p["payload"]["splits"].values()]
     if any(a&b for i,a in enumerate(sets) for b in sets[i+1:]):raise ValueError("Dataset split leakage detected")
-    holder="protocol:"+mission_id
+    holder=resource_holder or "protocol:"+mission_id
     guard.try_acquire("cpu",holder)
     rid=S.uid();status="failed";payload={"protocol_digest":p["digest"],"dataset_fingerprint":p["payload"]["dataset_fingerprint"],"worker_sha256":worker_hash(),"seeds":spec.seeds,"hardware":{"platform":platform.platform(),"machine":platform.machine()},"python":sys.version,"engine":spec.engine,"started":S.now(),"scientific_review":"pending","raw_measurements_only":True}
     admitted=False;started=time.monotonic()

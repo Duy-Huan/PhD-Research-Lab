@@ -372,9 +372,10 @@ def to_docx(markdown: str, title: str = "", images: dict | None = None) -> bytes
             n = max((len(r) for r in table), default=1)
             xml = ['<w:tbl><w:tblPr><w:tblStyle w:val="TableGrid"/><w:tblW w:w="0" w:type="auto"/></w:tblPr><w:tblGrid>'
                    + "<w:gridCol/>" * n + "</w:tblGrid>"]
+            header_shading = '<w:shd w:val="clear" w:fill="F2F0EA"/>'
             for r in table:
                 xml.append("<w:tr>" + "".join(
-                    f'<w:tc><w:tcPr>{"<w:shd w:val=\"clear\" w:fill=\"F2F0EA\"/>" if head else ""}</w:tcPr><w:p>'
+                    f'<w:tc><w:tcPr>{header_shading if head else ""}</w:tcPr><w:p>'
                     f'{"<w:pPr><w:rPr><w:b/></w:rPr></w:pPr>" if head else ""}{runs.replace("<w:r>", "<w:r><w:rPr><w:b/></w:rPr>") if head else runs}</w:p></w:tc>'
                     for runs, head in r + [("", False)] * (n - len(r))) + "</w:tr>")
             d.body.append("".join(xml) + "</w:tbl>")
@@ -419,8 +420,9 @@ def _docx_zip(d: _Docx) -> bytes:
     rels = ['<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>',
             '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/>']
     for rid, kind, target, ext in d.rels:
+        target_mode = ' TargetMode="External"' if ext else ''
         rels.append(f'<Relationship Id="{rid}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/{kind}" '
-                    f'Target="{H.escape(target)}"{" TargetMode=\"External\"" if ext else ""}/>')
+                    f'Target="{H.escape(target)}"{target_mode}/>')
     doc = (f'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document {W_NS}><w:body>{"".join(d.body)}'
            '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1418" w:right="1418" w:bottom="1418" w:left="1418" '
            'w:header="709" w:footer="709" w:gutter="0"/></w:sectPr></w:body></w:document>')

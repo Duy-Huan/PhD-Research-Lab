@@ -1,6 +1,8 @@
 """Robust launcher for PhD Research Lab (Windows / macOS / Linux).
 
     python start.py            -> checks environment, installs missing packages, starts server, opens browser
+    python start.py --restart  -> restart existing running instance on port 8765
+    python start.py --stop     -> stop existing running instance on port 8765
     python start.py --port 9000
     python start.py --no-browser
     python start.py --check     -> only verify the installation (files, version, packages)
@@ -23,7 +25,7 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 HOST = "127.0.0.1"
-APP_VERSION = "6.4.2"   # must match backend/core/config.py - a mismatch means files from two versions were mixed
+APP_VERSION = "6.5.1"   # must match backend/core/config.py - a mismatch means files from two versions were mixed
 # Files that must exist for this version (an incomplete copy or a partial upgrade is the most common failure)
 REQUIRED_FILES = [
     "backend/__init__.py", "backend/app.py", "backend/core/config.py", "backend/core/bus.py", "backend/api/__init__.py",
@@ -42,6 +44,7 @@ REQUIRED_FILES = [
     "backend/knowledge/governance.py", "backend/knowledge/verification.py",
     "backend/agent/research_os.py", "backend/agent/teams.py",
     "backend/agent/collaboration.py",
+    "backend/agent/autonomy.py", "backend/agent/workflow_worker.py",
 ]
 UPGRADE_HELP = """How to fix (takes 1 minute):
   1. Extract the WHOLE new zip into a NEW, empty folder (do not copy single files over an old version).
@@ -56,6 +59,7 @@ REQUIRED = [
     (("uvicorn",), "uvicorn"),
     (("httpx",), "httpx"),
     (("pypdf",), "pypdf"),
+    (("defusedxml",), "defusedxml"),
     (("python_multipart", "multipart"), "python-multipart"),
 ]
 
@@ -177,6 +181,30 @@ def same_folder(a: str, b: str) -> bool:
         return False
 
 
+def kill_process_on_port(port: int) -> bool:
+    """Terminate the process listening on the given TCP port."""
+    try:
+        if os.name == "nt":
+            out = subprocess.check_output(f"netstat -ano | findstr :{port}", shell=True, text=True, stderr=subprocess.DEVNULL)
+            pids = set()
+            for line in out.strip().splitlines():
+                parts = line.strip().split()
+                if len(parts) >= 5 and "LISTENING" in parts:
+                    pid = parts[-1]
+                    if pid.isdigit() and int(pid) > 0 and int(pid) != os.getpid():
+                        pids.add(int(pid))
+            killed = False
+            for pid in pids:
+                if subprocess.call(f"taskkill /F /PID {pid}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0:
+                    killed = True
+            return killed
+        else:
+            ret = subprocess.call(f"fuser -k -n tcp {port} 2>/dev/null || (lsof -ti:{port} | xargs kill -9 2>/dev/null)", shell=True)
+            return ret == 0
+    except Exception:
+        return False
+
+
 def open_when_ready(url: str, port: int) -> None:
     for _ in range(120):
         try:
@@ -211,6 +239,8 @@ def main() -> None:
     args = sys.argv[1:]
     port = int(args[args.index("--port") + 1]) if "--port" in args else 8765
     browser = "--no-browser" not in args
+    do_restart = any(a in ("--restart", "-r", "restart") for a in args)
+    do_stop = any(a in ("--stop", "-s", "stop") for a in args)
 
     print("=" * 64)
     print(" PhD Research Lab — AI research operating system")
@@ -226,15 +256,48 @@ def main() -> None:
         print("\nInstallation OK.")
         return
 
+    if do_stop:
+        if port_free(port):
+            print(f"\n[INFO] No running lab detected on port {port}.")
+        else:
+            print(f"\n[INFO] Stopping PhD Research Lab on port {port}...")
+            kill_process_on_port(port)
+            time.sleep(1)
+            if port_free(port):
+                print(f"[OK] Server on port {port} stopped successfully.\n")
+            else:
+                print(f"[WARNING] Port {port} could not be released immediately.\n")
+        return
+
+    if do_restart:
+        if not port_free(port):
+            print(f"\n[INFO] Restart requested: stopping existing server instance on port {port}...")
+            kill_process_on_port(port)
+            for _ in range(10):
+                time.sleep(0.5)
+                if port_free(port):
+                    break
+            if not port_free(port):
+                fail(f"Could not free port {port} for restart.")
+            print(f"[OK] Port {port} freed. Starting fresh server instance...\n")
+        else:
+            print(f"\n[INFO] Port {port} is free. Starting server...\n")
+
     # port handling
     if not port_free(port):
         info = running_lab(port)
         if info and info["version"] == APP_VERSION and (not info.get("root") or same_folder(info["root"], ROOT)):
             url = f"http://{HOST}:{port}"
-            print(f"The lab (v{APP_VERSION}) is already running at {url} - opening it.")
+            print("\n" + "=" * 64)
+            print(f" [INFO] The lab (v{APP_VERSION}) is ALREADY running at {url}")
+            print(f" Opening the application in your web browser...")
+            print(f"")
+            print(f" * To restart with fresh code:  run.bat --restart  (or restart.bat)")
+            print(f" * To stop the background lab:  run.bat --stop     (or stop.bat)")
+            print("=" * 64 + "\n")
             if browser:
                 webbrowser.open(url)
-            return
+            sys.exit(0)
         old = port
         port = next((p for p in range(port + 1, port + 50) if port_free(p)), None)
         if port is None:

@@ -67,7 +67,7 @@ def hashing_sparse(text: str, dim: int = DIM) -> dict:
     """v3.3: the same feature-hashed vector as hashing_vector() but sparse ({index: value}, unit length). A typical memory
     node touches ~30-80 of the 512 buckets, so similarity costs O(nnz) instead of O(512) (profiling: ~10× faster)."""
     from backend.memory.cache import VECTORS
-    key = ("hash", dim, hashlib.sha1((text or "").encode("utf-8", "replace")).digest())
+    key = ("hash", dim, hashlib.sha1((text or "").encode("utf-8", "replace"), usedforsecurity=False).digest())
     hit = VECTORS.get(key)
     if hit is not None:
         return hit
@@ -162,7 +162,7 @@ class Embedder:
         if self.engine == "hashing":
             return [hashing_sparse(t) for t in texts]
         from backend.memory.cache import VECTORS  # in-process layer over the JSON cache (which is re-read from disk on every embed())
-        keys = [("dense", self.model, hashlib.sha1(t.encode("utf-8", "replace")).digest()) for t in texts]
+        keys = [("dense", self.model, hashlib.sha1(t.encode("utf-8", "replace"), usedforsecurity=False).digest()) for t in texts]
         out = [VECTORS.get(k) for k in keys]
         todo = [i for i, v in enumerate(out) if v is None]
         if todo:
@@ -173,7 +173,7 @@ class Embedder:
     def embed(self, texts: list, cache: bool = True, timeout: float = 20) -> list:
         if self.engine == "hashing":
             return [hashing_vector(t) for t in texts]
-        keys = [f"{self.model}:{hashlib.sha1(t.encode('utf-8', 'replace')).hexdigest()}" for t in texts]
+        keys = [f"{self.model}:{hashlib.sha1(t.encode('utf-8', 'replace'), usedforsecurity=False).hexdigest()}" for t in texts]
         store = _cache.load()["vectors"] if cache else {}
         out = [store.get(k) for k in keys]
         todo = [i for i, v in enumerate(out) if v is None]

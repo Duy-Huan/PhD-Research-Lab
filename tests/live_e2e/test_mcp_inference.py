@@ -80,6 +80,8 @@ class LiveMCPInferenceHandler(BaseHTTPRequestHandler):
                 "max_tokens": args.get("max_tokens", 80),
                 "temperature": args.get("temperature", 0.1)
             }
+            if "qwen3.5" in LOCAL_MODEL:
+                phi4_payload.update(chat_template_kwargs={"enable_thinking": False}, reasoning_effort="none")
             try:
                 lms_req = Request(
                     f"{LMSTUDIO_BASE_URL}/chat/completions",
