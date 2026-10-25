@@ -1,3 +1,10 @@
+# 6.5.1 ? UI stabilization candidate (unreleased)
+
+- Dismiss mobile navigation when Settings opens; preserve desktop navigation.
+- Include visible language, zoom and panel text in accessible control names, including the Vietnamese floating menu.
+- Add five real browser regressions and16 viewport/locale accessibility scans to canonical offline browser selection.
+- Preserve functional RED/GREEN of the same test source. Independent CI, global coverage and live acceptance remain required.
+
 # Changelog
 
 ## 6.4.3 — QA foundation — 2026-10-24

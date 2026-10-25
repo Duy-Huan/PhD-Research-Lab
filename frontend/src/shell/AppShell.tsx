@@ -47,7 +47,7 @@ export const AppShell: React.FC = () => {
   }, [toggleSidebar]);
 
   useEffect(() => {
-    if (drawerKind && window.matchMedia('(max-width: 820px)').matches && useUIStore.getState().sidebarOpen) toggleSidebar();
+    if ((drawerKind || mainView === 'settings') && window.matchMedia('(max-width: 820px)').matches && useUIStore.getState().sidebarOpen) toggleSidebar();
   }, [drawerKind, mainView, toggleSidebar]);
 
   // Load app config & projects on boot
@@ -243,7 +243,7 @@ export const AppShell: React.FC = () => {
                   type="button"
                   onClick={() => openDrawer(lastDrawerKind || 'outline')}
                   title={t('Mở bảng công cụ bên phải (Menu phải)', 'Open right inspector menu')}
-                  aria-label={t('Mở menu bên phải', 'Open right menu')}
+                  aria-label={`${t('Menu phải', 'Right Menu')} — ${t('Mở menu bên phải', 'Open right menu')}`}
                   style={{
                     position: 'absolute',
                     top: 14,

@@ -238,7 +238,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           className="btn sm ghost"
           onClick={() => setLanguage(language === 'vi' ? 'en' : 'vi')}
           title={t('Chuyển đổi ngôn ngữ VI / ENG', 'Switch language VI / ENG')}
-          aria-label={t('Chuyển đổi ngôn ngữ VI / ENG', 'Switch language VI / ENG')}
+          aria-label={`${language.toUpperCase()} — ${t('Chuyển đổi ngôn ngữ VI / ENG', 'Switch language VI / ENG')}`}
           style={{
             borderRadius: 999,
             padding: '4px 10px',
@@ -259,7 +259,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           className="btn sm ghost"
           onClick={cycleScale}
           title={t('Tỉ lệ hiển thị giao diện', 'UI Display Scale')}
-          aria-label={t('Tỉ lệ hiển thị giao diện', 'UI Display Scale')}
+          aria-label={`${Math.round(uiScale * 100)}% — ${t('Tỉ lệ hiển thị giao diện', 'UI Display Scale')}`}
           style={{
             borderRadius: 999,
             padding: '4px 8px',
@@ -315,7 +315,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
               ? t('Ẩn bảng công cụ bên phải', 'Hide right tools panel')
               : t('Mở bảng công cụ bên phải', 'Open right tools panel')
           }
-          aria-label={t('Bảng kết quả & công cụ', 'Inspector Drawer')}
+          aria-label={`${drawerKind ? t('Ẩn bảng công cụ', 'Hide panel') : t('Bảng công cụ', 'Tools panel')} — ${t('Bảng kết quả & công cụ', 'Inspector Drawer')}`}
           onClick={handlePanelToggle}
           style={{
             display: 'flex',
