@@ -1,5 +1,7 @@
 # Active execution plan ? one agent-native research environment
 
+Progress: steps1-3 complete for the initial reasoning/CI checkpoint, not all architecture objectives. Step4 is active: verified source commits d5d8f3c/ebd79ed pushed normally; observe exact latest GitHub HEAD after this operational handoff. Local1189/1189PASS, source6e6167c0204541d29d2f48b9529d860480a4fd4a0336ec08bdfe6875b9eae2f8. Steps5-10 remain pending or partial as stated in STATE; full learning and L3 are not qualified.
+
 1. Read mandatory architecture/learning objectives and preserve the single dev worktree. Skills were reviewed and installed before this plan. No new Research Engine or L2/L3/L4 workflow stacks.
 2. First audit unnecessary backend interference with reasoning. Initial plaintext, turn-terminal, incremental-stream and profile-clipping defects now repaired with genuine RED/GREEN. Review remaining context budgeting, memory fidelity and model/tool observation gaps in docs/architecture/BACKEND_REASONING_INTERFERENCE_AUDIT.md.
 3. Freeze current6.5.8 source and policies; execute canonical pr/all software gate, actual Playwright2D then3D, Node workflow contracts and static validation. Preserve every failure and coverage denominator. Fix confirmed failures without weakening expectations; maximum three repair attempts per defect group.
