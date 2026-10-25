@@ -353,7 +353,7 @@ def open_workspace(wid: str) -> dict:
         env = minimal_env()
         # Do not forward PhD Lab provider keys or runtime tokens. Native engine uses its own auth.
         env["OPENSCIENCE_DISABLE_AUTOUPDATE"] = "1"
-        args = argv + (["web", str(root)] if w["engine"] == "openscience" else ["--cwd", str(root)])
+        args = argv + (["web", str(root)] if w["engine"] == "openscience" else [str(root)] if w["engine"] == "opencode" else ["--cwd", str(root)])
         if IS_WIN:
             import base64
             command = "& " + " ".join("'" + a.replace("'", "''") + "'" for a in args)

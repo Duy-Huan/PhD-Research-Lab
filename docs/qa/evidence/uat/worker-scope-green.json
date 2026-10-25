@@ -1,0 +1,18 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_browser_acceptance.OwnedServerCapability.test_python_worker_denies_file_mutation_and_processes_outside_lease",
+      "status": "PASS",
+      "duration": 0.1713,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "total": 1,
+  "passed": true,
+  "skipped": 0,
+  "limitations": [
+    "Hermetic offline scope; skips remain unqualified and block full release"
+  ]
+}

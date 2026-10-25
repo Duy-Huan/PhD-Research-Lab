@@ -22,6 +22,9 @@ export const OpenCodePanel: React.FC = () => {
   const [goal, setGoal] = useState('');
   const [usagePolicy, setUsagePolicy] = useState<'subscription_limited' | 'local_only'>('subscription_limited');
   const [approvalNote, setApprovalNote] = useState('');
+  const launchRuntime = useMutation({mutationFn: () => api.post('/api/providers/opencode/launch', {}),
+    onSuccess: () => queryClient.invalidateQueries({queryKey: ['opencode-status']}),
+    onError: (e: Error) => alert(e.message)});
 
   // 1. OpenCode Runtime Health
   const { data: statusData } = useQuery<OpenCodeStatus>({
@@ -155,6 +158,8 @@ export const OpenCodePanel: React.FC = () => {
           <div className="muted" style={{ fontSize: 12 }}>
             Endpoint: <code>{statusData.base_url}</code> · {statusData.detail}
           </div>
+          <button className="btn sm" disabled={launchRuntime.isPending} onClick={() => launchRuntime.mutate()}>Mở runtime OpenCode</button>
+          <div>PhD Lab chuẩn bị workspace và đồng bộ artifacts. Tác vụ AI phải chạy trong runtime gốc.</div>
           <div className="muted" style={{ fontSize: 11.5 }}>
             Ưu tiên Provider: {statusData.provider_priority?.join(' → ')}
           </div>
@@ -195,7 +200,7 @@ export const OpenCodePanel: React.FC = () => {
             <option value="local_only">Local Models Only (Ollama / LM Studio)</option>
           </select>
           <button type="submit" className="btn sm accent" disabled={startSessionMutation.isPending}>
-            <Play size={13} style={{ marginRight: 4 }} /> Khởi chạy Phiên OpenCode
+            <Play size={13} style={{ marginRight: 4 }} /> Chuẩn bị phiên theo dõi OpenCode
           </button>
         </div>
       </form>

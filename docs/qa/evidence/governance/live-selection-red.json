@@ -1,0 +1,36 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_verification_reporting.FailureReporting.test_live_opt_in_inventory_stays_separate_and_unknown_tests_block",
+      "status": "FAIL",
+      "duration": 0.0055,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_verification_reporting.py\", line 25, in test_live_opt_in_inventory_stays_separate_and_unknown_tests_block\n    self.assertEqual(result['backend_tests'],['test_unit'])\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Lists differ: ['live_e2e.test_inference', 'test_unit', 'unclassified.test_unknown'] != ['test_unit']\n\nFirst differing element 0:\n'live_e2e.test_inference'\n'test_unit'\n\nFirst list contains 2 additional elements.\nFirst extra element 1:\n'test_unit'\n\n- ['live_e2e.test_inference', 'test_unit', 'unclassified.test_unknown']\n+ ['test_unit']\n"
+    },
+    {
+      "id": "test_verification_reporting.FailureReporting.test_nested_test_packages_are_included_in_broad_and_incremental_selection",
+      "status": "PASS",
+      "duration": 0.007,
+      "details": null
+    },
+    {
+      "id": "test_verification_reporting.FailureReporting.test_skip_volume_does_not_hide_an_actual_failure",
+      "status": "PASS",
+      "duration": 0.0006,
+      "details": null
+    },
+    {
+      "id": "test_verification_reporting.FailureReporting.test_wrapped_database_failures_group_by_original_exception",
+      "status": "PASS",
+      "duration": 0.0003,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "total": 4,
+  "passed": false,
+  "skipped": 0,
+  "limitations": [
+    "Hermetic offline scope; skips remain unqualified and block full release"
+  ]
+}

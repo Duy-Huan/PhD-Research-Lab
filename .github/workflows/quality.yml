@@ -1,0 +1,223 @@
+name: Quality Gates
+
+on:
+  pull_request:
+    branches: [dev, qa, main]
+  push:
+    branches: [dev, qa, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONIOENCODING: utf-8
+  PHDLAB_QA_OFFLINE: '1'
+  # Binaries are shared within this job; each test still owns its private profile/cache.
+  # Isolating XDG_CACHE_HOME must not change the install/runtime binary lookup.
+  PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/output/playwright/browser-binaries
+
+jobs:
+  policy:
+    name: Contract and workflow policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with: {python-version: '3.12'}
+      - run: python scripts/quality_gate.py policy
+      - run: python scripts/check_workflows.py
+      - run: python -m pip install --require-hashes -r requirements-ci.lock
+      - run: python tools/qa_harness.py audit --out output/playwright/ci/integrity.json
+      - run: python tools/qa_harness.py generate --seed 20261024 --count 100 --out output/playwright/ci/generated-graphs.json
+      - name: Preserve skills and agent files throughout the commit range
+        env:
+          DIFF_BASE: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+        run: python tools/protect_agent_resources.py --base "$DIFF_BASE"
+      - run: node --test .github/scripts/automerge.test.cjs
+
+  backend:
+    name: Backend (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: python -m pip install --require-hashes -r requirements-ci.lock
+      - run: python -m pip check
+      - run: python -m compileall -q backend devtools scripts tools tests
+      - name: Independent complete regression and 100 percent production coverage
+        env:
+          VERIFY_BASE: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+        run: python scripts/verify.py --profile pr --component backend --base "$env:VERIFY_BASE" --out output/playwright/ci/backend
+        shell: pwsh
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: backend-${{ matrix.os }}-${{ matrix.python }}
+          path: output/playwright/ci/backend/
+          retention-days: 14
+
+  frontend:
+    name: Frontend types, whole-source coverage and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with: {python-version: '3.12'}
+      - run: python -m pip install --require-hashes -r requirements-ci.lock
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: {node-version: '24', cache: npm, cache-dependency-path: frontend/package-lock.json}
+      - run: npm ci
+        working-directory: frontend
+      - run: npm audit --audit-level=high
+        working-directory: frontend
+      - name: Frontend mandatory gate
+        env:
+          VERIFY_BASE: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+        run: python scripts/verify.py --profile pr --component frontend --base "$VERIFY_BASE" --out output/playwright/ci/frontend
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: frontend
+          path: |
+            output/playwright/ci/frontend/
+            frontend/coverage/
+          retention-days: 14
+
+  security:
+    name: Dependency and high-confidence security checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with: {python-version: '3.12'}
+      - run: python -m pip install --require-hashes -r requirements-ci.lock
+      - run: python -m pip_audit -r requirements-ci.lock --strict --progress-spinner off
+      - run: python -m bandit -r backend devtools scripts -lll -iii
+
+  browser:
+    name: Real offline browser smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: {node-version: '24', cache: npm, cache-dependency-path: frontend/package-lock.json}
+      - run: python -m pip install --require-hashes -r requirements-ci.lock
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
+      - run: npx --no-install playwright install --with-deps chromium
+        working-directory: frontend
+      - env:
+          VERIFY_BASE: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+        run: python -m devtools.verification.browser --profile pr --base "$VERIFY_BASE"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: browser
+          path: |
+            output/playwright/ci/browser/
+            output/playwright/browser-lease-selftest/
+            output/playwright/capability-selftest/
+          retention-days: 14
+
+  uat-policy:
+    name: Risk-triggered verified AI-UAT evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with: {python-version: '3.12'}
+      - env:
+          VERIFY_BASE: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+        run: python scripts/uat_gate.py --base "$VERIFY_BASE"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with: {name: uat-policy, path: output/playwright/ci/uat-policy/, retention-days: 14}
+
+  development-gate:
+    name: Development gate
+    if: always()
+    needs: [policy, backend, frontend, security, browser, uat-policy]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {persist-credentials: false}
+      - env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: python scripts/quality_gate.py aggregate --phase development
+
+  live-qualification:
+    name: Matching-source live research qualification
+    if: github.base_ref == 'qa' || github.base_ref == 'main' || github.ref == 'refs/heads/qa'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with: {python-version: '3.12'}
+      - name: Require actual trusted live qualification, never a mock fallback
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/live_qualification.py --check
+
+  qa-gate:
+    name: QA gate
+    if: always() && (github.base_ref == 'qa' || github.base_ref == 'main' || github.ref == 'refs/heads/qa')
+    needs: [development-gate, live-qualification]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {persist-credentials: false}
+      - env: {NEEDS_JSON: '${{ toJSON(needs) }}'}
+        run: python scripts/quality_gate.py aggregate --phase qa
+
+  release-approval:
+    name: Human release authorization
+    if: github.base_ref == 'main'
+    needs: [qa-gate]
+    environment: production
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "The production environment approval authorizes this release candidate."
+
+  release-gate:
+    name: Release gate
+    if: always() && github.base_ref == 'main'
+    needs: [qa-gate, release-approval]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {persist-credentials: false}
+      - env: {NEEDS_JSON: '${{ toJSON(needs) }}'}
+        run: python scripts/quality_gate.py aggregate --phase release

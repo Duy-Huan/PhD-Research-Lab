@@ -74,8 +74,8 @@ export const TopicView: React.FC = () => {
   });
 
   return (
-    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="topic-view" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'space-between', alignItems: 'center' }}>
         <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Brain size={18} color="var(--accent)" />
           <span>Chủ đề nghiên cứu & SKB (Topics)</span>
@@ -92,7 +92,7 @@ export const TopicView: React.FC = () => {
 
       {/* Sub-tabs when a topic is active */}
       {activeTopicId && (
-        <div style={{ display: 'flex', gap: 6, borderBottom: '1px solid var(--line)', paddingBottom: 8 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, borderBottom: '1px solid var(--line)', paddingBottom: 8 }}>
           <button className={`btn sm ${subTab === 'list' ? 'accent' : 'ghost'}`} onClick={() => setSubTab('list')}>
             Danh sách Topics
           </button>
@@ -293,7 +293,7 @@ export const TopicView: React.FC = () => {
             </span>
           </div>
           <div style={{ maxHeight: 280, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {ledgerData?.entries?.map((en: any) => (
+            {((ledgerData as any)?.events || ledgerData?.entries)?.map((en: any) => (
               <div
                 key={en.seq}
                 style={{

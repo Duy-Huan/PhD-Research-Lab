@@ -140,7 +140,7 @@ def main():
                 item={k:event[k] for k in ("topic_id","entity_id","kind","at","previous_hash","payload")}
                 assert item["previous_hash"]==previous and L.digest(item)==event["hash"]
                 previous=event["hash"]
-        source_files=sorted([*ROOT.glob("backend/**/*.py"),*ROOT.glob("frontend/assets/*.js"),*ROOT.glob("frontend/assets/*.css"),*ROOT.glob("tools/*.py"),ROOT/"frontend/index.html",ROOT/"start.py",ROOT/"requirements.txt"])
+        source_files=sorted([*ROOT.glob("backend/**/*.py"),*ROOT.glob("frontend/src/**/*.ts"),*ROOT.glob("frontend/src/**/*.tsx"),*ROOT.glob("frontend/assets/*.js"),*ROOT.glob("frontend/assets/*.css"),*ROOT.glob("tools/*.py"),ROOT/"frontend/react.html",ROOT/"start.py",ROOT/"requirements.txt"])
         source_hashes={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in source_files}
         identity={"source_tree_sha256":L.digest(source_hashes),"files":source_hashes,"git_parent_commit":None,"git_dirty":None,"note":"Exact source bytes are fingerprinted; parent commit plus dirty flag honestly describes a pre-commit acceptance run"}
         try:

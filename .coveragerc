@@ -3,8 +3,6 @@
 branch = True
 source = backend
 data_file = .coverage
-omit =
-    backend/execution/clearml_worker.py
 
 [report]
 skip_empty = True

@@ -1,0 +1,2 @@
+description = "Run the repository development verification harness"
+prompt = "Read skills/verify/SKILL.md and agent/DEVELOPMENT_WORKFLOW.md and agent/UAT.md. Run python scripts/verify.py with the requested profile, default quick. Inspect compact evidence first; respect mandatory CI and the three-repair limit. Request: {{args}}"

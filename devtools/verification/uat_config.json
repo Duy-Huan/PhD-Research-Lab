@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "adapter": "browser-use-local",
+  "model": "spark-x2.5-4b",
+  "max_steps": 8,
+  "timeout_s": 180,
+  "max_failed_repairs": 3,
+  "smoke": ["ci_smoke.spec.ts", "uat_harness.spec.ts"],
+  "personas": {
+    "first-time": ["settings-language", "project-and-chat"],
+    "researcher": ["research-evidence"],
+    "operator": ["workflow-operations"],
+    "recovery": ["failure-recovery"],
+    "frontend-quality": ["navigation-layout", "three-dimensional-office"]
+  },
+  "journeys": {
+    "settings-language": {"routes": ["/dist/react.html"], "tests": ["uat_harness.spec.ts"], "adapter": "local-settings", "needs_model": false, "paths": ["frontend/src/features/settings/**", "frontend/src/i18n/**"]},
+    "project-and-chat": {"routes": ["/dist/react.html"], "tests": ["journeys.spec.ts", "multi_turn_chat.spec.ts"], "adapter": "NOT_IMPLEMENTED", "needs_model": true, "paths": ["frontend/src/features/chat/**", "backend/api/chat.py"]},
+    "research-evidence": {"routes": ["/dist/react.html"], "tests": ["workflows.spec.ts"], "adapter": "NOT_IMPLEMENTED", "needs_model": true, "paths": ["backend/memory/**", "backend/research_engines/**", "backend/paper/**"]},
+    "workflow-operations": {"routes": ["/dist/react.html"], "tests": ["harness_ide.spec.ts", "tools.spec.ts"], "adapter": "NOT_IMPLEMENTED", "needs_model": true, "paths": ["frontend/src/features/harness/**", "backend/agent/**", "backend/execution/**"]},
+    "failure-recovery": {"routes": ["/dist/react.html"], "tests": ["uat_harness.spec.ts"], "adapter": "NOT_IMPLEMENTED", "needs_model": false, "paths": ["backend/providers/**", "frontend/src/lib/**"]},
+    "navigation-layout": {"routes": ["/dist/react.html"], "tests": ["navigation.spec.ts"], "adapter": "NOT_IMPLEMENTED", "needs_model": false, "paths": ["frontend/src/**"]},
+    "three-dimensional-office": {"routes": ["/dist/react.html"], "tests": ["office3d.spec.ts"], "adapter": "NOT_IMPLEMENTED", "needs_model": false, "paths": ["frontend/src/features/office3d/**"]}
+  }
+}

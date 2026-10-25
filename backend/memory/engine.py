@@ -34,7 +34,7 @@ from backend.memory import cache
 from backend.memory import lod as LOD
 from backend.memory import policy as P
 from backend.memory.embeddings import get_embedder, similarity, stem, stem_tokens, tokenize
-from backend.memory.retrieval import BM25, _age_days, _rank, graph_scores, http_rerank, rrf
+from backend.memory.retrieval import BM25, _age_days, _rank, graph_scores, http_rerank, newest_first, rrf
 
 SOURCE_WEIGHTS = {"keyword": 1.0, "vector": 1.0, "metadata": 1.0, "intent": 1.0, "graph": 0.8, "state": 0.7, "temporal": 0.5}
 # what KIND of record the question asks for → node types (query construction from the question's intent, §13)
@@ -87,7 +87,8 @@ class RetrievalContext:
     def key(self) -> str:
         body = {"q": self.query, "r": self.role, "s": self.session_id, "f": self.filters, "t": self.temporal, "k": self.k,
                 "p": sorted(self.purged), "a": list(self.allowed), "v": self.state.get("context_version", "")}
-        return hashlib.sha1(json.dumps(body, sort_keys=True, default=str).encode()).hexdigest()
+        # Non-secret memoization identity; keep stored/vector cache keys compatible.
+        return hashlib.sha1(json.dumps(body, sort_keys=True, default=str).encode(), usedforsecurity=False).hexdigest()
 
     def to_dict(self) -> dict:
         return {"query": self.query, "role": self.role, "session_id": self.session_id, "filters": self.filters,
@@ -360,7 +361,7 @@ def _retrieve(ctx: RetrievalContext, cfg: dict, idx: Index, rerank_pool: int) ->
     if mode == "current":
         research_types = {"experiment", "evidence", "hypothesis", "decision", "metric", "claim", "failure"}
         rankings["temporal"] = [n.id for n in sorted((idx.by_id[i] for i in allowed_ids if idx.by_id[i].type in research_types),
-                                                     key=lambda n: (_age_days(n.ts), n.id))][:30]
+                                                     key=newest_first)][:30]
     fused: dict = {}
     for name, r in rankings.items():
         w = SOURCE_WEIGHTS[name]

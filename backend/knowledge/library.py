@@ -79,7 +79,8 @@ def included(lib: dict | None = None) -> list:
 
 # ------------------------------------------------------------------ extraction
 def sha1(path: Path) -> str:
-    h = hashlib.sha1()
+    # Legacy library deduplication field; scientific/authenticity evidence uses SHA-256.
+    h = hashlib.sha1(usedforsecurity=False)
     with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(1 << 20), b""):
             h.update(chunk)
@@ -268,7 +269,7 @@ def ingest_pdf(original_name: str, data: bytes) -> dict:
         raise ValueError("PDF exceeds the 30 MB upload limit")
     with _lock:
         lib = load_library()
-        digest = hashlib.sha1(data).hexdigest()
+        digest = hashlib.sha1(data, usedforsecurity=False).hexdigest()
         for entry in lib.values():
             if entry.get("sha1") == digest and (refs_dir() / entry["file"]).is_file():
                 return entry
@@ -348,7 +349,7 @@ def save_source(source: dict, pdf: bytes | None = None) -> dict:
         lib = load_library()
         if pdf:
             for e in lib.values():
-                if e.get("sha1") == hashlib.sha1(pdf).hexdigest() and (refs_dir() / e["file"]).is_file():
+                if e.get("sha1") == hashlib.sha1(pdf, usedforsecurity=False).hexdigest() and (refs_dir() / e["file"]).is_file():
                     return {"entry": e, "already_saved": True, "pdf_saved": True}
         for e in lib.values():
             if (doi and str(e.get("doi") or "").casefold() == doi.casefold()) or url == e.get("source_url"):
@@ -358,7 +359,7 @@ def save_source(source: dict, pdf: bytes | None = None) -> dict:
                         with (refs_dir() / name).open("xb") as dest:
                             dest.write(pdf)
                     lib.pop(e["file"])
-                    e.update(file=name, pdf_available=True, metadata_only=False, sha1=hashlib.sha1(pdf).hexdigest(),
+                    e.update(file=name, pdf_available=True, metadata_only=False, sha1=hashlib.sha1(pdf, usedforsecurity=False).hexdigest(),
                              pdf_url=str(source.get("pdf_url") or ""))
                     lib[name] = e
                     save_library(lib)
@@ -385,7 +386,7 @@ def save_source(source: dict, pdf: bytes | None = None) -> dict:
         if isinstance(source.get("journal_ranking"), dict):
             entry["journal_ranking"] = source["journal_ranking"]
         if pdf:
-            entry["sha1"] = hashlib.sha1(pdf).hexdigest()
+            entry["sha1"] = hashlib.sha1(pdf, usedforsecurity=False).hexdigest()
         lib[name] = entry
         save_library(lib)
         return {"entry": lib[name], "already_saved": False, "pdf_saved": bool(pdf)}

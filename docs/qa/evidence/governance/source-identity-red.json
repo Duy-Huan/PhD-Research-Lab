@@ -1,0 +1,52 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_verification_source_identity.SourceIdentity.test_build_outputs_are_not_source_inputs",
+      "status": "PASS",
+      "duration": 0.128,
+      "details": null
+    },
+    {
+      "id": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence",
+      "status": "FAIL",
+      "duration": 0.2046,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_verification_source_identity.py\", line 22, in test_html_public_assets_and_cli_changes_invalidate_evidence\n    with self.subTest(path=name):self.assertNotEqual(before,identity(root)['sha256'])\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'efec5e52f78a88d12d789734b5ab68ef3944d31642b90c37c2cb1339f9c92ff9' == 'efec5e52f78a88d12d789734b5ab68ef3944d31642b90c37c2cb1339f9c92ff9'\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_verification_source_identity.py\", line 22, in test_html_public_assets_and_cli_changes_invalidate_evidence\n    with self.subTest(path=name):self.assertNotEqual(before,identity(root)['sha256'])\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'efec5e52f78a88d12d789734b5ab68ef3944d31642b90c37c2cb1339f9c92ff9' == 'efec5e52f78a88d12d789734b5ab68ef3944d31642b90c37c2cb1339f9c92ff9'\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_verification_source_identity.py\", line 22, in test_html_public_assets_and_cli_changes_invalidate_evidence\n    with self.subTest(path=name):self.assertNotEqual(before,identity(root)['sha256'])\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'efec5e52f78a88d12d789734b5ab68ef3944d31642b90c37c2cb1339f9c92ff9' == 'efec5e52f78a88d12d789734b5ab68ef3944d31642b90c37c2cb1339f9c92ff9'\n"
+    },
+    {
+      "id": "test_verification_source_identity.SourceIdentity.test_staging_a_real_deletion_does_not_change_worktree_identity",
+      "status": "FAIL",
+      "duration": 0.1635,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_verification_source_identity.py\", line 30, in test_staging_a_real_deletion_does_not_change_worktree_identity\n    self.assertEqual(deleted,identity(root)['sha256'])\nAssertionError: '3c2c73077b548469b77906c484515bb469d928cbe81e05af67e580dc817ee5e1' != '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a'\n- 3c2c73077b548469b77906c484515bb469d928cbe81e05af67e580dc817ee5e1\n+ 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a\n\n"
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence",
+      "id": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence (path='frontend/react.html')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_verification_source_identity.py\", line 22, in test_html_public_assets_and_cli_changes_invalidate_evidence\n    with self.subTest(path=name):self.assertNotEqual(before,identity(root)['sha256'])\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'efec5e52f78a88d12d789734b5ab68ef3944d31642b90c37c2cb1339f9c92ff9' == 'efec5e52f78a88d12d789734b5ab68ef3944d31642b90c37c2cb1339f9c92ff9'\n"
+    },
+    {
+      "parent": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence",
+      "id": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence (path='frontend/public/icon.svg')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_verification_source_identity.py\", line 22, in test_html_public_assets_and_cli_changes_invalidate_evidence\n    with self.subTest(path=name):self.assertNotEqual(before,identity(root)['sha256'])\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'efec5e52f78a88d12d789734b5ab68ef3944d31642b90c37c2cb1339f9c92ff9' == 'efec5e52f78a88d12d789734b5ab68ef3944d31642b90c37c2cb1339f9c92ff9'\n"
+    },
+    {
+      "parent": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence",
+      "id": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence (path='cli.py')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_verification_source_identity.py\", line 22, in test_html_public_assets_and_cli_changes_invalidate_evidence\n    with self.subTest(path=name):self.assertNotEqual(before,identity(root)['sha256'])\n                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'efec5e52f78a88d12d789734b5ab68ef3944d31642b90c37c2cb1339f9c92ff9' == 'efec5e52f78a88d12d789734b5ab68ef3944d31642b90c37c2cb1339f9c92ff9'\n"
+    }
+  ],
+  "total": 3,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-83pyprfz",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

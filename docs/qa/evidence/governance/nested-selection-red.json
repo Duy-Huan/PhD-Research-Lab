@@ -1,0 +1,30 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_verification_reporting.FailureReporting.test_nested_test_packages_are_included_in_broad_and_incremental_selection",
+      "status": "FAIL",
+      "duration": 0.0066,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_verification_reporting.py\", line 16, in test_nested_test_packages_are_included_in_broad_and_incremental_selection\n    self.assertEqual(select(root,['backend/api/chat.py'],'feature')['backend_tests'],['nested.test_a'])\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Lists differ: [] != ['nested.test_a']\n\nSecond list contains 1 additional elements.\nFirst extra element 0:\n'nested.test_a'\n\n- []\n+ ['nested.test_a']\n"
+    },
+    {
+      "id": "test_verification_reporting.FailureReporting.test_skip_volume_does_not_hide_an_actual_failure",
+      "status": "PASS",
+      "duration": 0.001,
+      "details": null
+    },
+    {
+      "id": "test_verification_reporting.FailureReporting.test_wrapped_database_failures_group_by_original_exception",
+      "status": "PASS",
+      "duration": 0.0005,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "total": 3,
+  "passed": false,
+  "skipped": 0,
+  "limitations": [
+    "Hermetic offline scope; skips remain unqualified and block full release"
+  ]
+}

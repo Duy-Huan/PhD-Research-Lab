@@ -50,7 +50,7 @@ export type DrawerKind =
   | 'cli'
   | null;
 
-export type MainViewMode = 'chat' | 'library' | 'office3d' | 'settings' | 'dashboard' | 'review' | 'guide';
+export type MainViewMode = 'chat' | 'library' | 'office3d' | 'harness' | 'settings' | 'dashboard' | 'review' | 'guide';
 export type AgentStatusViewMode = 'office3d' | 'list' | 'timeline';
 
 export type LabInteractiveObject =
@@ -90,6 +90,7 @@ interface UIState {
   lastDrawerKind: DrawerKind;
   drawerTab: string;
   settingsTab: string;
+  selectedCliProvider: string;
 
   // 3D Agent Office selection & interactive states
   selectedAgentId: string | null;
@@ -124,6 +125,8 @@ interface UIState {
   toggleDrawer: (defaultKind?: DrawerKind) => void;
   openSettings: (tab?: string) => void;
   open3DOffice: (fullscreen?: boolean) => void;
+  openHarnessStudio: () => void;
+  setSelectedCliProvider: (id: string) => void;
   setSelectedAgentId: (id: string | null) => void;
   setSelectedMissionId: (id: string | null) => void;
   setSelectedLabObject: (obj: LabInteractiveObject) => void;
@@ -153,6 +156,7 @@ export const useUIStore = create<UIState>((set) => ({
   lastDrawerKind: 'outline',
   drawerTab: 'default',
   settingsTab: 'models',
+  selectedCliProvider: 'claude_code',
   selectedAgentId: null,
   selectedMissionId: null,
   selectedLabObject: null,
@@ -162,7 +166,12 @@ export const useUIStore = create<UIState>((set) => ({
   offline: false,
   agentProfiles: loadStoredAgentProfiles(),
 
-  setProject: (project) => set({ project }),
+  setProject: (project) =>
+    set((s) => ({
+      project,
+      activeTopic: s.project?.data_dir === project?.data_dir ? s.activeTopic : null,
+      activeTopicId: s.project?.data_dir === project?.data_dir ? s.activeTopicId : null,
+    })),
   setProjects: (projects) => set({ projects }),
   setActiveTopic: (activeTopic) =>
     set({ activeTopic, activeTopicId: activeTopic ? activeTopic.id : null }),
@@ -210,6 +219,17 @@ export const useUIStore = create<UIState>((set) => ({
       if (drawerKind === 'review') {
         return { mainView: 'review', drawerKind: null };
       }
+      if (drawerKind === 'harness') {
+        return { mainView: 'harness', drawerKind: null };
+      }
+      if (drawerKind === 'cli' && drawerTab !== 'default') {
+        return {
+          drawerKind,
+          drawerTab,
+          selectedCliProvider: drawerTab,
+          lastDrawerKind: 'cli',
+        };
+      }
       return {
         drawerKind,
         drawerTab,
@@ -229,6 +249,8 @@ export const useUIStore = create<UIState>((set) => ({
     set({ mainView: 'settings', settingsTab: tab, drawerKind: null }),
   open3DOffice: (fullscreen = true) =>
     set({ mainView: 'office3d', officeFullscreen: fullscreen, drawerKind: null }),
+  openHarnessStudio: () => set({ mainView: 'harness', drawerKind: null }),
+  setSelectedCliProvider: (selectedCliProvider) => set({ selectedCliProvider }),
   setSelectedAgentId: (selectedAgentId) => set({ selectedAgentId }),
   setSelectedMissionId: (selectedMissionId) => set({ selectedMissionId }),
   setSelectedLabObject: (selectedLabObject) => set({ selectedLabObject }),

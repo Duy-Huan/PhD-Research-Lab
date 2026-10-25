@@ -38,7 +38,7 @@ NAME_RE = re.compile(r"^[a-z][a-z0-9_-]{1,30}$")
 CATEGORIES = ("research", "experiment", "writing", "system")
 AGENTS = ("research", "reviewer")
 MODES = ("chat", "run")
-PROVIDERS = ("app", "feynman", "coding", "openscience", "phdlab")
+PROVIDERS = ("app", "feynman", "coding", "openscience", "opencode", "phdlab", "paperorchestra")
 CMD_RE = re.compile(r"^/([a-z][a-z0-9_-]{0,30})(?:\s+([\s\S]*))?$")
 _cache: dict = {}
 

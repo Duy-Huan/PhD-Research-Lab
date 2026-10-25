@@ -15,6 +15,8 @@ Covers:
 """
 from __future__ import annotations
 
+import _env  # isolate data before importing the application
+
 import json
 import unittest
 from pathlib import Path
@@ -241,7 +243,7 @@ class V64UpgradesTestSuite(unittest.TestCase):
         self.assertEqual(loop_res.status_code, 400)
         self.assertIn("cycle", loop_res.text.lower())
 
-        # 4. Quota exhaustion pauses cleanly without metered API fallback
+        # 4. Prompt text cannot fabricate an observed quota error or native execution.
         quota_res = self.client.post(
             f"/api/research/topics/{self.tid}/opencode/sessions",
             json={
@@ -250,7 +252,9 @@ class V64UpgradesTestSuite(unittest.TestCase):
             },
         )
         self.assertEqual(quota_res.status_code, 200, quota_res.text)
-        self.assertEqual(quota_res.json()["status"], "blocked_by_quota")
+        self.assertEqual(quota_res.json()["status"], "paused")
+        self.assertEqual(quota_res.json()["native_session_id"], '')
+        self.assertFalse(any(e['event_type'] == 'runtime.quota_limited' for e in quota_res.json()['events']))
         self.assertFalse(quota_res.json()["payload"]["spec"]["allow_metered_api"])
 
         # 5. Normal session + SHA-256 event deduplication across server stream & plugin
@@ -300,7 +304,7 @@ class V64UpgradesTestSuite(unittest.TestCase):
         )
         self.assertEqual(ap_dec.status_code, 200)
         self.assertEqual(ap_dec.json()["approvals"][0]["status"], "approved")
-        self.assertEqual(ap_dec.json()["status"], "running")
+        self.assertEqual(ap_dec.json()["status"], "paused")
 
         # 7. Crash / stream gap reconciliation
         rec_res = self.client.post(
@@ -308,7 +312,7 @@ class V64UpgradesTestSuite(unittest.TestCase):
             json={"simulate_gap": True},
         )
         self.assertEqual(rec_res.status_code, 200)
-        self.assertEqual(rec_res.json()["status"], "reconciled_with_gap")
+        self.assertEqual(rec_res.json()["status"], "paused")
         self.assertTrue(rec_res.json()["payload"]["sync_gap"])
 
     # ── v6.4.2: Unified Research Intelligence & Integration Layer ──────────
@@ -481,8 +485,9 @@ class V64UpgradesTestSuite(unittest.TestCase):
             json={"topic_id": self.tid, "tolerance": 1e-6},
         )
         self.assertEqual(rep_ok.status_code, 200, rep_ok.text)
-        self.assertTrue(rep_ok.json()["passed"])
-        self.assertEqual(rep_ok.json()["status"], "verified")
+        self.assertFalse(rep_ok.json()["passed"])
+        self.assertEqual(rep_ok.json()["status"], "unverified")
+        self.assertFalse(rep_ok.json()["execution"]["executed"])
 
         # 6. Module H: Unified Research Report Composer (flags stale/unverified artifacts & preprints)
         rep_man = self.client.post(

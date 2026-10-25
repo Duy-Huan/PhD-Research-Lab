@@ -9,6 +9,7 @@ research orchestrator → shared context memory + research state → providers �
     experiment    docker        Linux container — only for tasks that need Linux (needs_linux)
     experiment    clearml       offline experiment tracking of every run (no server)
     publication   latex         LaTeX → PDF (tectonic / latexmk / pdflatex)
+    publication   paperorchestra PaperOrchestra Multi-Agent Research Writing Engine
 
 PhD-Lab owns the research state; a provider only receives one task with its scope, inputs and limits, runs in its own
 session workspace (never the project folder) and returns text + files. Nothing a provider writes changes the project
@@ -45,6 +46,7 @@ CATALOG = {
     "docker": ("experiment", "Docker (Linux, chạy ngầm khi cần)"),
     "clearml": ("experiment", "ClearML (offline tracking)"),
     "latex": ("publication", "LaTeX → PDF"),
+    "paperorchestra": ("publication", "PaperOrchestra (Multi-Agent Research Writing Engine)"),
 }
 _health: dict = {}
 
@@ -157,6 +159,14 @@ def describe(pid: str, cfg: dict | None = None, fresh: bool = False) -> dict:
                     "state": "READY" if oc_h.get("ready") else "UNAVAILABLE",
                     "detail": oc_h.get("detail") or ("OpenCode runtime sẵn sàng" if oc_h.get("ready") else "Chưa cài đặt OpenCode CLI"),
                     "setup": ["npm install -g opencode-ai"] if not oc_h.get("installed") else [],
+                }
+            elif pid == "paperorchestra":
+                from backend.research_engines.registry import get
+                po_h = get(pid).health()
+                h = {
+                    "state": po_h["state"],
+                    "detail": po_h.get("detail", ""),
+                    "setup": po_h.get("setup", []),
                 }
             elif pid in ("app", "phdlab"):
                 h = {"state": "READY", "detail": "PhD Lab Native Multi-Agent OS (chạy toàn bộ hội đồng Agent nội bộ)"}

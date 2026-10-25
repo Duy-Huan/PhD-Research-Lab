@@ -8,6 +8,8 @@ import { api } from '../../shared/api/client';
 
 describe('AgentStatusView', () => {
   const mockConfig = {
+    projects: [{ name: 'Default', data_dir: '/path/data' }],
+    active_project: { name: 'Default', data_dir: '/path/data' },
     agent_modes: {
       assistant: 'cloud:google',
       research: 'claude_code',
@@ -21,6 +23,7 @@ describe('AgentStatusView', () => {
     const s = useUIStore.getState();
     s.setLanguage('vi');
     s.setProject({ name: 'Default', data_dir: '/path/data' });
+    s.setActiveTopic(null);
     s.setOfficeFullscreen(false);
     s.setOfficeChatOpen(true);
     s.setSelectedLabObject(null);

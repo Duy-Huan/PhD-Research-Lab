@@ -21,3 +21,13 @@ artifacts/backend-regression-v42/
 artifacts/full-validation/
 artifacts/ui-refinement/
 upgrade/
+
+# Generated evidence stays local; checked-in docs link to reproducible commands.
+artifacts/
+output/
+qa/live_e2e/runs/
+test-results/
+.vite/
+frontend/dist/
+*.lcov
+*.log

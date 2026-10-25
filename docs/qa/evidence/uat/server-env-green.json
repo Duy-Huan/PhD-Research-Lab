@@ -1,0 +1,18 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_actual_uat_server_allows_language_and_denies_other_writes",
+      "status": "PASS",
+      "duration": 1.5361,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "total": 1,
+  "passed": true,
+  "skipped": 0,
+  "limitations": [
+    "Hermetic offline scope; skips remain unqualified and block full release"
+  ]
+}

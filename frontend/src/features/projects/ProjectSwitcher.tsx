@@ -14,6 +14,7 @@ import {
   Edit2,
   Trash2,
   ExternalLink,
+  MoreHorizontal,
   Copy,
   Search,
   X,
@@ -43,6 +44,9 @@ export const ProjectSwitcher: React.FC = () => {
 
   // Delete modal states
   const [deletingProject, setDeletingProject] = useState<Project | null>(null);
+
+  // Dropdown menu state
+  const [projectMenuOpenId, setProjectMenuOpenId] = useState<string | null>(null);
   const [deleteFilesOnDisk, setDeleteFilesOnDisk] = useState(false);
 
   // Copied indicator
@@ -669,6 +673,8 @@ export const ProjectSwitcher: React.FC = () => {
           return (
             <div
               key={p.data_dir}
+              role="article"
+              aria-label={`Project ${p.name}`}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -752,60 +758,131 @@ export const ProjectSwitcher: React.FC = () => {
                     </button>
                   )}
 
-                  {/* Reveal in Explorer */}
-                  <button
-                    type="button"
-                    className="btn sm ghost"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      revealMutation.mutate(p.data_dir);
-                    }}
-                    title={t('Mở thư mục trong máy tính', 'Open folder in File Explorer')}
-                    style={{ padding: '4px 6px', borderRadius: 6 }}
-                  >
-                    <ExternalLink size={13} color="var(--muted)" />
-                  </button>
+                  {/* Dropdown Menu for Project Actions (Reveal, Rename, Delete) */}
+                  <div style={{ position: 'relative' }}>
+                    <button
+                      type="button"
+                      className="btn sm ghost"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setProjectMenuOpenId(projectMenuOpenId === p.data_dir ? null : p.data_dir);
+                      }}
+                      title={t('Tùy chọn dự án', 'Project options')}
+                      style={{
+                        padding: '4px 6px',
+                        borderRadius: 6,
+                        background: projectMenuOpenId === p.data_dir ? 'var(--line-2)' : 'transparent',
+                      }}
+                    >
+                      <MoreHorizontal size={14} color="var(--ink)" />
+                    </button>
 
-                  {/* Rename */}
-                  <button
-                    type="button"
-                    className="btn sm ghost"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setRenamingProject(p);
-                      setRenameInputValue(p.name);
-                    }}
-                    title={t('Đổi tên dự án', 'Rename project')}
-                    style={{ padding: '4px 6px', borderRadius: 6 }}
-                  >
-                    <Edit2 size={13} color="var(--muted)" />
-                  </button>
+                    {projectMenuOpenId === p.data_dir && (
+                      <>
+                        <div
+                          style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            zIndex: 90,
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setProjectMenuOpenId(null);
+                          }}
+                        />
+                        <div
+                          style={{
+                            position: 'absolute',
+                            top: '100%',
+                            right: 0,
+                            marginTop: 4,
+                            background: 'var(--panel)',
+                            border: '1px solid var(--line-2)',
+                            borderRadius: 8,
+                            boxShadow: 'var(--shadow)',
+                            padding: 4,
+                            zIndex: 95,
+                            minWidth: 175,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2,
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {/* 1. Reveal in Explorer */}
+                          <button
+                            type="button"
+                            className="btn sm ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              revealMutation.mutate(p.data_dir);
+                              setProjectMenuOpenId(null);
+                            }}
+                            title={t('Mở thư mục trong máy tính', 'Open folder in File Explorer')}
+                            style={{ justifyContent: 'flex-start', padding: '6px 10px', fontSize: 12, gap: 8, width: '100%' }}
+                          >
+                            <ExternalLink size={13} color="var(--muted)" />
+                            <span>{t('Mở thư mục', 'Open in Explorer')}</span>
+                          </button>
 
-                  {/* Delete / Remove (Disabled for default project) */}
-                  <button
-                    type="button"
-                    className="btn sm ghost"
-                    disabled={isDefault}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (isDefault) return;
-                      setDeletingProject(p);
-                      setDeleteFilesOnDisk(false);
-                    }}
-                    title={
-                      isDefault
-                        ? t('Dự án Mặc định không thể xóa', 'Default project cannot be deleted')
-                        : t('Xóa hoặc gỡ dự án', 'Delete or remove project')
-                    }
-                    style={{
-                      padding: '4px 6px',
-                      borderRadius: 6,
-                      opacity: isDefault ? 0.35 : 1,
-                      cursor: isDefault ? 'not-allowed' : 'pointer',
-                    }}
-                  >
-                    <Trash2 size={13} color={isDefault ? 'var(--muted)' : '#ef4444'} />
-                  </button>
+                          {/* 2. Rename */}
+                          <button
+                            type="button"
+                            className="btn sm ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setRenamingProject(p);
+                              setRenameInputValue(p.name);
+                              setProjectMenuOpenId(null);
+                            }}
+                            title={t('Đổi tên dự án', 'Rename project')}
+                            style={{ justifyContent: 'flex-start', padding: '6px 10px', fontSize: 12, gap: 8, width: '100%' }}
+                          >
+                            <Edit2 size={13} color="var(--muted)" />
+                            <span>{t('Đổi tên', 'Rename')}</span>
+                          </button>
+
+                          {/* Divider */}
+                          <div style={{ height: 1, background: 'var(--line)', margin: '2px 0' }} />
+
+                          {/* 3. Delete / Remove (Disabled for default project) */}
+                          <button
+                            type="button"
+                            className="btn sm ghost"
+                            disabled={isDefault}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (isDefault) return;
+                              setDeletingProject(p);
+                              setDeleteFilesOnDisk(false);
+                              setProjectMenuOpenId(null);
+                            }}
+                            title={
+                              isDefault
+                                ? t('Dự án Mặc định không thể xóa', 'Default project cannot be deleted')
+                                : t('Xóa hoặc gỡ dự án', 'Delete or remove project')
+                            }
+                            style={{
+                              justifyContent: 'flex-start',
+                              padding: '6px 10px',
+                              fontSize: 12,
+                              gap: 8,
+                              width: '100%',
+                              color: isDefault ? 'var(--muted)' : '#ef4444',
+                              opacity: isDefault ? 0.35 : 1,
+                              cursor: isDefault ? 'not-allowed' : 'pointer',
+                            }}
+                          >
+                            <Trash2 size={13} color={isDefault ? 'var(--muted)' : '#ef4444'} />
+                            <span>{t('Xóa hoặc gỡ dự án', 'Delete Project')}</span>
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
 

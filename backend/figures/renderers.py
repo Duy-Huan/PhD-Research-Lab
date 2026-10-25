@@ -17,8 +17,6 @@ import json
 import math
 import re
 import shutil
-import struct
-import zlib
 from pathlib import Path
 
 from backend.figures.contracts import PRESETS, FigureSpec
@@ -57,7 +55,7 @@ def probe_capabilities() -> dict:
             "spdx_license": "PSF-2.0 / Python-2.0",
             "formats": ["svg", "png", "pdf"],
             "deterministic": True,
-            "notes": "Uses Matplotlib when installed or built-in deterministic vector/raster engine.",
+            "notes": "Built-in SVG renderer; PNG/PDF rasterize that same vector with svglib and PDFium. Native Matplotlib is not invoked by this adapter.",
         },
         {
             "id": "comparison",
@@ -139,78 +137,34 @@ def sanitize_text(text: str) -> str:
     return html.escape(cleaned, quote=True)
 
 
-def _make_png(width: int, height: int, rgb_rows: list[bytes] | None = None, accent_rgb: tuple[int, int, int] = (0, 114, 178)) -> bytes:
-    """Create a valid, deterministic PNG image without external binary dependencies."""
-    w = max(64, min(1200, int(width)))
-    h = max(48, min(900, int(height)))
-    raw = bytearray()
-    ar, ag, ab = accent_rgb
-    for y in range(h):
-        raw.append(0)  # filter type 0 (None)
-        if rgb_rows and y < len(rgb_rows):
-            raw.extend(rgb_rows[y][: w * 3])
-        else:
-            border = y < 3 or y >= h - 3
-            grid_y = (y % 32 == 0)
-            for x in range(w):
-                if border or x < 3 or x >= w - 3:
-                    raw.extend((ar, ag, ab))
-                elif grid_y or (x % 32 == 0):
-                    raw.extend((232, 236, 242))
-                else:
-                    raw.extend((252, 253, 255))
+def _render_vector_exports(svg_bytes: bytes, spec: FigureSpec) -> tuple[bytes, bytes]:
+    """Raster and PDF exports render the same data-bearing SVG, never a preview grid."""
+    import io
 
-    def chunk(tag: bytes, data: bytes) -> bytes:
-        crc = zlib.crc32(tag + data) & 0xFFFFFFFF
-        return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", crc)
+    import pypdfium2
+    from reportlab.graphics import renderPDF
+    from svglib.svglib import svg2rlg
 
-    ihdr = struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0)
-    idat = zlib.compress(bytes(raw), level=6)
-    return b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", ihdr) + chunk(b"IDAT", idat) + chunk(b"IEND", b"")
-
-
-def _make_pdf(title: str, subtitle: str, width_pt: float, height_pt: float, lines_summary: list[str]) -> bytes:
-    """Create a valid single-page vector PDF with figure title, metadata, axes box, and data summary."""
-    w = max(200.0, min(1200.0, float(width_pt)))
-    h = max(150.0, min(900.0, float(height_pt)))
-
-    def esc_pdf(s: str) -> str:
-        return s.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
-
-    ops = [
-        "0.98 0.99 1.00 rg",
-        f"12 12 {w - 24:.1f} {h - 24:.1f} re f",
-        "0.12 0.31 0.47 RG 1.2 w",
-        f"12 12 {w - 24:.1f} {h - 24:.1f} re S",
-        "BT /F1 11 Tf 24 " + f"{h - 32:.1f} Td ({esc_pdf(title[:90])}) Tj ET",
-        "BT /F1 8 Tf 24 " + f"{h - 46:.1f} Td ({esc_pdf(subtitle[:110])}) Tj ET",
-    ]
-    y_cursor = h - 66.0
-    for line in lines_summary[:10]:
-        if y_cursor < 24:
-            break
-        ops.append(f"BT /F1 8 Tf 28 {y_cursor:.1f} Td ({esc_pdf(line[:110])}) Tj ET")
-        y_cursor -= 13.0
-
-    stream_bytes = "\n".join(ops).encode("latin-1", errors="replace")
-    objs = [
-        b"1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n",
-        b"2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n",
-        f"3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {w:.1f} {h:.1f}] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n".encode("ascii"),
-        b"4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n",
-        f"5 0 obj\n<< /Length {len(stream_bytes)} >>\nstream\n".encode("ascii") + stream_bytes + b"\nendstream\nendobj\n",
-    ]
-    out = bytearray(b"%PDF-1.4\n")
-    offsets = []
-    for o in objs:
-        offsets.append(len(out))
-        out.extend(o)
-    xref_pos = len(out)
-    out.extend(f"xref\n0 {len(objs) + 1}\n0000000000 65535 f \n".encode("ascii"))
-    for off in offsets:
-        out.extend(f"{off:010d} 00000 n \n".encode("ascii"))
-    out.extend(f"trailer\n<< /Size {len(objs) + 1} /Root 1 0 R >>\nstartxref\n{xref_pos}\n%%EOF\n".encode("ascii"))
-    return bytes(out)
+    drawing = svg2rlg(io.BytesIO(svg_bytes))
+    if drawing is None or not drawing.width or not drawing.height:
+        raise ValueError("SVG could not be converted to a real figure")
+    width, height = spec.style.width_in * 72, spec.style.height_in * 72
+    drawing.scale(width / drawing.width, height / drawing.height)
+    drawing.width, drawing.height = width, height
+    pdf_bytes = renderPDF.drawToString(drawing, invariant=1)
+    document = pypdfium2.PdfDocument(pdf_bytes)
+    try:
+        page = document[0]
+        bitmap = page.render(scale=spec.style.dpi / 72)
+        try:
+            buffer = io.BytesIO()
+            bitmap.to_pil().save(buffer, format="PNG")
+            return buffer.getvalue(), pdf_bytes
+        finally:
+            bitmap.close()
+            page.close()
+    finally:
+        document.close()
 
 
 def _render_2d_svg(spec: FigureSpec) -> tuple[str, list[str]]:
@@ -579,6 +533,13 @@ def generate_source_script(spec: FigureSpec) -> str:
 
 def render_all(spec: FigureSpec, out_dir: Path) -> dict:
     """Render all requested outputs deterministically into out_dir and return metadata + hashes."""
+    illustrative = spec.source.is_synthetic_fixture or spec.source.is_illustrative_only
+    required = ("comparison_panels" if spec.category == "comparison_plate" else "dot_source" if spec.category == "diagram"
+                else "waveform" if spec.category == "waveform" else "mesh_3d" if spec.category == "surface_3d" else "series")
+    if not getattr(spec.source, required) and not illustrative:
+        raise ValueError(f"Missing {required}: no scientific figure can be created from invented data")
+    if spec.source.series and any(not values or any(isinstance(v, bool) or not math.isfinite(float(v)) for v in values) for values in spec.source.series.values()):
+        raise ValueError("Every series must contain finite numeric data")
     out_dir.mkdir(parents=True, exist_ok=True)
     warnings: list[str] = []
     camera_state: dict = {}
@@ -613,7 +574,7 @@ def render_all(spec: FigureSpec, out_dir: Path) -> dict:
 
     exports: dict[str, dict] = {}
     svg_bytes = svg_text.encode("utf-8")
-    png_bytes = _make_png(int(spec.style.width_in * 96), int(spec.style.height_in * 96))
+    png_bytes, pdf_bytes = _render_vector_exports(svg_bytes, spec)
     (out_dir / "preview.png").write_bytes(png_bytes)
 
     for fmt in spec.outputs:
@@ -626,7 +587,6 @@ def render_all(spec: FigureSpec, out_dir: Path) -> dict:
             p.write_bytes(png_bytes)
             exports["png"] = {"path": str(p), "sha256": hashlib.sha256(png_bytes).hexdigest(), "bytes": len(png_bytes), "mime": "image/png"}
         elif fmt == "pdf":
-            pdf_bytes = _make_pdf(spec.title, f"Renderer: {renderer_used} | Preset: {spec.style.preset}", spec.style.width_in * 72, spec.style.height_in * 72, summary)
             p = out_dir / "figure.pdf"
             p.write_bytes(pdf_bytes)
             exports["pdf"] = {"path": str(p), "sha256": hashlib.sha256(pdf_bytes).hexdigest(), "bytes": len(pdf_bytes), "mime": "application/pdf"}
@@ -647,8 +607,9 @@ def render_all(spec: FigureSpec, out_dir: Path) -> dict:
             exports["dot"] = {"path": str(p), "sha256": hashlib.sha256(dot_bytes).hexdigest(), "bytes": len(dot_bytes), "mime": "text/vnd.graphviz"}
 
     return {
-        "renderer_used": renderer_used,
-        "renderer_version": _pkg_version(renderer_used) or "builtin-deterministic-1.0",
+        "renderer_used": "builtin-svg",
+        "renderer_version": "builtin-svg-1.1 / svglib-" + (_pkg_version("svglib") or "unknown") + " / pdfium-" + (_pkg_version("pypdfium2") or "unknown"),
+        "requested_renderer": renderer_used,
         "spec_sha256": hashlib.sha256(spec_bytes).hexdigest(),
         "script_sha256": hashlib.sha256(script_bytes).hexdigest(),
         "exports": exports,

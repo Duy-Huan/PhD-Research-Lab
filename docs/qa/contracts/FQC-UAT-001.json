@@ -1,0 +1,211 @@
+{
+  "id": "FQC-UAT-001",
+  "title": "Isolated Browser Use exploration integrated with Playwright and CI",
+  "risk": "CRITICAL",
+  "mode": "MOCKED",
+  "user_story": "As the repository owner I want AI-assisted user exploration with reproducible deterministic evidence and no personal browser or paid-cloud dependency.",
+  "requirements": [
+    {
+      "id": "UAT-ISOLATION",
+      "description": "Only an owned disposable browser, profile and test application origin are permitted"
+    },
+    {
+      "id": "UAT-TRUTH",
+      "description": "Unavailable exploration, unconfirmed findings and subjective AI success cannot become verified PASS"
+    },
+    {
+      "id": "UAT-PROFILES",
+      "description": "Existing canonical harness orchestrates risk-aware deterministic regression and optional/required exploration"
+    }
+  ],
+  "nonfunctional": [
+    "No LLM calls for selection, parsing, reporting or retry accounting",
+    "Source/environment provenance and bounded console logs",
+    "Never delete skills/ or agent/; never weaken 100% release coverage"
+  ],
+  "inputs": [
+    "Git base/diff",
+    "Versioned contract",
+    "Existing test runners"
+  ],
+  "outputs": [
+    "report.json",
+    "summary.txt",
+    "Raw logs",
+    "Required GitHub check conclusions"
+  ],
+  "preconditions": [
+    "Preserved dirty work and branch SHAs",
+    "Pinned GitHub skills selected before implementation",
+    "Dependencies installed from lock files"
+  ],
+  "postconditions": [
+    "CI alone never promotes missing live/scientific qualification",
+    "main and qa cannot auto-merge",
+    "No application Research Harness imports from development infrastructure"
+  ],
+  "dependencies": [
+    "Python 3.11/3.12",
+    "Node 24",
+    "Git",
+    "GitHub Actions hosted runners; real AI requires separately authorized trusted infrastructure"
+  ],
+  "affected_modules": [
+    "devtools/verification/**",
+    "scripts/**",
+    "frontend/e2e/**",
+    ".github/**",
+    "agent/**",
+    "skills/**",
+    "docs/**",
+    "requirements-uat.*"
+  ],
+  "acceptance_criteria": [
+    "Playwright smoke runs with no LLM",
+    "Network and console failure injection produces real artifacts",
+    "No personal profiles/cookies or external domains are used",
+    "High/critical missing required exploration blocks the applicable gate",
+    "Independent acceptance review remains pending until actually performed"
+  ],
+  "scenarios": [
+    {
+      "id": "origin",
+      "requirement": "UAT-ISOLATION",
+      "kind": "security",
+      "expected": "Remote, file and credentialed URLs are rejected",
+      "test": "tests/test_uat_harness.py::UATPolicy.test_reject_non_loopback_or_credentialed_urls"
+    },
+    {
+      "id": "profiles",
+      "requirement": "UAT-ISOLATION",
+      "kind": "boundary",
+      "expected": "Concurrent runs never share browser or application state",
+      "test": "tests/test_uat_harness.py::UATPolicy.test_profiles_are_unique_and_inside_disposable_root"
+    },
+    {
+      "id": "blocked",
+      "requirement": "UAT-TRUTH",
+      "kind": "negative",
+      "expected": "Missing adapter returns BLOCKED",
+      "test": "tests/test_uat_harness.py::UATPolicy.test_unavailable_adapter_never_passes"
+    },
+    {
+      "id": "claims",
+      "requirement": "UAT-TRUTH",
+      "kind": "failure",
+      "expected": "AI self-report alone cannot confirm acceptance",
+      "test": "tests/test_uat_harness.py::UATPolicy.test_ai_success_is_unverified_until_reproduced"
+    },
+    {
+      "id": "risk",
+      "requirement": "UAT-PROFILES",
+      "kind": "positive",
+      "expected": "Low risk needs no mandatory model; high risk does",
+      "test": "tests/test_uat_harness.py::UATPolicy.test_risk_policy_preserves_optional_low_risk_exploration"
+    },
+    {
+      "id": "budget",
+      "requirement": "UAT-PROFILES",
+      "kind": "performance",
+      "expected": "Step, time and repair limits cannot expand silently",
+      "test": "tests/test_uat_harness.py::UATPolicy.test_bounds_steps_and_deadlines"
+    },
+    {
+      "id": "gate",
+      "requirement": "UAT-TRUTH",
+      "kind": "negative",
+      "expected": "Malformed browser contracts cannot bypass required exploration",
+      "test": "tests/test_uat_gate.py::UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy"
+    },
+    {
+      "id": "capabilities",
+      "requirement": "UAT-ISOLATION",
+      "kind": "security",
+      "expected": "Actual disposable HTTP server denies native launches and configuration writes beyond language",
+      "test": "tests/browser_acceptance_integration.py::OwnedServerCapability.test_actual_uat_server_allows_language_and_denies_other_writes"
+    },
+    {
+      "id": "personas",
+      "requirement": "UAT-PROFILES",
+      "kind": "positive",
+      "expected": "Five reusable personas reference existing deterministic suites and disclose unsupported exploratory adapters",
+      "test": "tests/test_browser_acceptance.py::BrowserAcceptance.test_personas_have_existing_tests_and_explicit_exploration_capabilities"
+    },
+    {
+      "id": "defects",
+      "requirement": "UAT-TRUTH",
+      "kind": "failure",
+      "expected": "Unreproduced AI observations stay UNCONFIRMED",
+      "test": "tests/test_browser_acceptance.py::BrowserAcceptance.test_unreproduced_findings_remain_unconfirmed_with_compact_evidence"
+    }
+  ],
+  "recovery": "Inspect concise fingerprints; preserve failing evidence; target failed cases then affected suite; max three automatic repair cycles, then stop and report.",
+  "performance_budget": {
+    "max_console_failure_groups": 5,
+    "max_auto_repair_cycles": 3,
+    "benchmark_claim": "No measured token savings percentage"
+  },
+  "test_environment": "Disposable directories and local subprocess fixtures; no paid provider calls.",
+  "skill_sources": [
+    "skills/browser-use-open-source/SKILL.md",
+    "skills/playwright/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent pre-implementation design review; independent critical acceptance review still pending"
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "Functional RED rejected fractional/string execution bounds incorrectly; corrected type validation passes the same 6 tests. Browser/model integration remains separately unqualified.",
+    "test_sha256": "f7305628b70b67566f5ac6464c083af79fe6cf1ce559f4526d6a36b4f1d6cc05",
+    "red": {
+      "path": "docs/qa/evidence/uat/tdd-functional-red.json",
+      "sha256": "646bc80c8fd89a311420be51680754235f78a76816692837e3ed50af76dca82a",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/uat/tdd-functional-green.json",
+      "sha256": "feebbe954784767213a203709e81399aa8d521be5bfd42991b4207e7036b4869",
+      "exit_code": 0
+    }
+  },
+  "browser_acceptance": {
+    "required": true,
+    "journeys": [
+      "settings-language"
+    ],
+    "independent_review": true,
+    "applies_to": [
+      "devtools/verification/**",
+      "tools/playwright_server.py",
+      "frontend/e2e/**",
+      ".github/workflows/quality.yml"
+    ],
+    "scope": "Qualifies the implemented settings adapter only. Other personas remain NOT_IMPLEMENTED/NOT_RUN until separate reviewed journeys execute."
+  },
+  "additional_tdd": [
+    {
+      "scope": "Functional RED/GREEN: malformed browser acceptance fields previously bypassed validation.",
+      "red": {
+        "path": "docs/qa/evidence/uat/contract-browser-red.json",
+        "sha256": "31f5316ad7a5930f7f81375c262e20644ecce7c0253355f2a994c7b7c5d3c158"
+      },
+      "green": {
+        "path": "docs/qa/evidence/uat/contract-browser-green.json",
+        "sha256": "e71b553980b0a9528711bde3a0b3547cbfcd0fee7855f3e2cfd5baa6596d6fdd"
+      }
+    },
+    {
+      "scope": "Functional RED/GREEN before integration-file relocation: deleting the private canary was not blocked; mutation audit now denies it. Latest integration run is required for current source.",
+      "red": {
+        "path": "docs/qa/evidence/uat/worker-scope-red.json",
+        "sha256": "b8dfb0fcbd0b3aaca0ab21284593123463a6ba5c787f8ce1187160f743f1ad7e"
+      },
+      "green": {
+        "path": "docs/qa/evidence/uat/worker-scope-green.json",
+        "sha256": "49fa8dad2a97717b744cbd16221756399611b79f380aa8af918a111b5ea04378"
+      }
+    }
+  ]
+}

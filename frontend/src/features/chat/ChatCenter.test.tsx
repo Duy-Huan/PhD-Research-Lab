@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { screen, waitFor, fireEvent } from '@testing-library/react';
+import { screen, waitFor, fireEvent, act } from '@testing-library/react';
 import { renderWithProviders } from '../../test/test-utils';
 import { ChatCenter } from './ChatCenter';
 import { useUIStore } from '../../shared/state/uiStore';
@@ -40,6 +40,32 @@ describe('ChatCenter', () => {
     s.setLanguage('vi');
     s.setActiveSessionId('s-123');
     s.setActiveTopicId('topic-1');
+  });
+
+  it('renders saved provider failure instead of an empty chat', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue({...mockSession, messages: [], approvals: [], memory_items: [],
+      turns: [{id: 'failed-turn', status: 'failed', error: 'Model not supported for this ChatGPT account'}]});
+    renderWithProviders(<ChatCenter />);
+    expect(await screen.findByRole('alert')).toHaveTextContent('Model not supported');
+  });
+
+  it('reads the production SSE data.text envelope and clears streaming on new chat', async () => {
+    let source: any;
+    vi.stubGlobal('EventSource', class {
+      onmessage: any = null;
+      close() {}
+      constructor() { source = this; }
+    });
+    try {
+      vi.spyOn(api, 'get').mockResolvedValue({...mockSession, messages: [], approvals: [], memory_items: []});
+      renderWithProviders(<ChatCenter />);
+      await waitFor(() => expect(source?.onmessage).toBeTypeOf('function'));
+      await act(async () => source.onmessage({data: JSON.stringify({type: 'message.delta', turn_id: 'live', data: {text: 'Actual nested stream'}})}));
+      expect(await screen.findByText('Actual nested stream')).toBeInTheDocument();
+      await act(async () => useUIStore.getState().setActiveSessionId(null));
+      expect(screen.queryByText('Actual nested stream')).not.toBeInTheDocument();
+      expect(screen.getByTitle('Gửi')).toBeInTheDocument();
+    } finally { vi.unstubAllGlobals(); }
   });
 
   it('fetches session and renders conversation messages, approvals and memory', async () => {

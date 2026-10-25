@@ -262,4 +262,53 @@ describe('Sidebar', () => {
     fireEvent.click(opencodeSyncBtn);
     expect(postSpy).toHaveBeenCalledWith('/api/providers/opencode/sync', {});
   });
+
+  it('renders all CLI providers in the Provider & CLI list and supports 1-click manual launch for any provider', async () => {
+    vi.spyOn(api, 'get').mockImplementation(async (url: string) => {
+      if (url.includes('/api/providers')) {
+        return {
+          providers: [
+            { id: 'claude_code', label: 'Claude Code', state: 'READY', ready: true },
+            { id: 'codex', label: 'OpenAI Codex', state: 'READY', ready: true },
+            { id: 'paperorchestra', label: 'PaperOrchestra', state: 'READY', ready: true },
+          ],
+        };
+      }
+      return { sessions: [], projects: [] };
+    });
+
+    const postSpy = vi.spyOn(api, 'post').mockResolvedValue({ ok: true, terminal_launched: true });
+
+    renderWithProviders(<Sidebar collapsed={false} />);
+
+    // 1. Verify Provider & CLI group header is present
+    expect(screen.getByText(/Danh sách Provider & CLI|Provider & CLI Hub/i)).toBeInTheDocument();
+
+    // 2. Verify all providers are listed
+    expect(screen.getByText(/Claude CLI Terminal/i)).toBeInTheDocument();
+    expect(screen.getByText(/OpenAI Codex CLI/i)).toBeInTheDocument();
+    expect(screen.getByText(/Antigravity CLI \(agy\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Gemini CLI/i)).toBeInTheDocument();
+    expect(screen.getByText(/Feynman Research CLI/i)).toBeInTheDocument();
+    expect(screen.getByText(/OpenCode Sandbox CLI/i)).toBeInTheDocument();
+    expect(screen.getByText(/PaperOrchestra Engine/i)).toBeInTheDocument();
+    expect(screen.getByText(/OpenScience Runtime/i)).toBeInTheDocument();
+    expect(screen.getByText(/Python venv Terminal/i)).toBeInTheDocument();
+
+    // 3. Test 1-click manual launch button for PaperOrchestra
+    const poLaunchBtn = screen.getByTitle(/Mở thủ công 1-Click: khởi chạy PaperOrchestra Engine trong cửa sổ terminal ngoài/i);
+    expect(poLaunchBtn).toBeInTheDocument();
+    fireEvent.click(poLaunchBtn);
+
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalledWith('/api/providers/paperorchestra/launch', { terminal: true });
+    });
+
+    // 4. Test clicking Codex provider row opens CLI drawer and sets selected provider
+    const codexRow = screen.getByText(/OpenAI Codex CLI/i);
+    fireEvent.click(codexRow);
+
+    expect(useUIStore.getState().drawerKind).toBe('cli');
+    expect(useUIStore.getState().selectedCliProvider).toBe('codex');
+  });
 });
