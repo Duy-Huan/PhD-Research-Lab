@@ -1,0 +1,39 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_legacy_workflows_are_replaced_and_3d_is_not_left_diff_optional",
+      "status": "FAIL",
+      "duration": 0.0132,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\tests\\test_ci_workflow_contract.py\", line 46, in test_legacy_workflows_are_replaced_and_3d_is_not_left_diff_optional\n    self.assertTrue(any('devtools.verification.browser' in command and '--offline-all' in command for command in runs))\nAssertionError: False is not true\n"
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_policy_dependencies_precede_targeted_worker_execution",
+      "status": "FAIL",
+      "duration": 0.0118,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\tests\\test_ci_workflow_contract.py\", line 18, in test_policy_dependencies_precede_targeted_worker_execution\n    self.assertTrue(workers,'Critical tests must execute through the existing bounded worker')\nAssertionError: [] is not true : Critical tests must execute through the existing bounded worker\n"
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_pr_quality_has_no_release_or_production_approval",
+      "status": "FAIL",
+      "duration": 0.0129,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\tests\\test_ci_workflow_contract.py\", line 26, in test_pr_quality_has_no_release_or_production_approval\n    self.assertNotIn('push',triggers)\nAssertionError: 'push' unexpectedly found in {'pull_request': {'branches': ['dev', 'qa', 'main']}, 'push': {'branches': ['dev', 'qa', 'main']}, 'workflow_dispatch': None}\n"
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_release_runs_only_for_main_and_uses_exact_provenance",
+      "status": "PASS",
+      "duration": 0.0061,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "total": 4,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-ji0duprj",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

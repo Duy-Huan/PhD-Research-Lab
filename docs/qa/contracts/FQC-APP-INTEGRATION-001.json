@@ -94,6 +94,13 @@
       "kind": "performance",
       "expected": "History is explicitly budgeted without arbitrary20-message slicing",
       "test": "tests/test_context_intelligence_audit.py::ContextIntelligenceAudit.test_no_arbitrary_twenty_message_limit_and_large_history_is_declared"
+    },
+    {
+      "id": "remote-record-serialization",
+      "requirement": "REQ-LATEST",
+      "kind": "failure",
+      "expected": "Pending remote record identity and missing metrics remain explicit without NameError or invented measurements",
+      "test": "tests/test_latest_integration_regressions.py::LatestIntegration.test_remote_compute_context_preserves_record_identity_and_unverified_status"
     }
   ],
   "recovery": "Preserve raw failure. At most3 repair attempts per stable defect group. No waiver has been approved.",
@@ -128,5 +135,18 @@
       "settings-language"
     ],
     "independent_review": true
-  }
+  },
+  "additional_tdd": [
+    {
+      "scope": "Remote context missingjson import regression and corrected CLI mock boundaries; original assertions retained",
+      "red": {
+        "path": "docs/qa/evidence/ci-supervisor-6.5.5/remote-context-red.json",
+        "sha256": "75fe06563f06a5d16aabc0caea22e5637a2fa9d2890c5beb81d00fba1a00e071"
+      },
+      "green": {
+        "path": "docs/qa/evidence/ci-supervisor-6.5.5/remote-context-and-cli-fixture-green.json",
+        "sha256": "d785d617e62539334d6ba6362a8129badc119790204f978deefe8d2438c4091f"
+      }
+    }
+  ]
 }

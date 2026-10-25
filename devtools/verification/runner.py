@@ -29,6 +29,7 @@ def identity(root: Path) -> dict:
              'pyproject.toml','pytest.ini','tox.ini','ruff.toml','AGENTS.md',
              'agent/AGENT.md', 'agent/DEVELOPMENT_WORKFLOW.md', 'agent/UAT.md', 'agent/CLI_COMPATIBILITY.md',
              'CLAUDE.md', 'GEMINI.md', 'skills/SOURCES.json', 'docs/qa/KNOWN_ISSUES_BASELINE.json',
+             'docs/qa/CRITICAL_SOFTWARE_CHECKS.json','agent/CI_REPAIR_SUPERVISOR.md','agent/CI_CD_AUTOMATION.md',
              'frontend/package.json', 'frontend/package-lock.json', 'frontend/vite.config.ts',
              'frontend/playwright.config.ts', 'start.py'}
     files = {}
@@ -190,6 +191,15 @@ def main(argv: list[str] | None = None) -> int:
         cases.append({'id':'uat.first-time.settings-language','status':steps[-1]['status'],'details':steps[-1]['details']})
     elif not contract_errors and not any(s['status'] == 'BLOCKED' for s in steps):
         execute('protected-files', [sys.executable, 'tools/protect_agent_resources.py', '--base', args.base])
+        if args.component == 'all' and args.profile in ('feature', 'full', 'release'):
+            execute('workflow-contract-policy', [sys.executable, 'scripts/quality_gate.py', 'policy'])
+            execute('workflow-syntax', [sys.executable, 'scripts/check_workflows.py'], timeout=90)
+            node = shutil.which('node.exe' if os.name == 'nt' else 'node') or 'node'
+            policy_tests = sorted(str(path) for path in (ROOT/'.github/scripts').glob('*.test.cjs'))
+            if policy_tests:
+                execute('github-policy-tests', [node, '--test', *policy_tests], timeout=60)
+            else:
+                steps.append({'id':'github-policy-tests','status':'BLOCKED','details':'Explicit policy test files are missing; never invoke unbounded Node discovery'})
         python_files = [p for p in changed if p.endswith('.py') and (ROOT/p).is_file()]
         if python_files:
             execute('syntax-lint', [sys.executable, '-m', 'ruff', 'check', '--target-version', 'py311', '--select', 'E9,F63,F7,F82', *python_files])
@@ -225,8 +235,10 @@ def main(argv: list[str] | None = None) -> int:
                     coverage['frontend']=json.loads(cov.read_text(encoding='utf-8')).get('total',{})
                 if args.profile != 'quick': execute('frontend-build', [npm, 'run', 'build'], ROOT/'frontend')
                 if args.profile == 'feature' or (args.profile in ('pr','full','release') and args.component=='all'):
-                    execute('deterministic-browser', [sys.executable,'-m','devtools.verification.browser',
-                            '--profile',args.profile,'--base',args.base,'--out',str(out/'browser')],timeout=1900 if args.profile in ('full','release') else 700)
+                    browser_command=[sys.executable,'-m','devtools.verification.browser',
+                                     '--profile',args.profile,'--base',args.base,'--out',str(out/'browser')]
+                    if args.profile == 'feature': browser_command.append('--offline-all')
+                    execute('deterministic-browser', browser_command, timeout=1900 if args.profile in ('full','release') else 700)
                     boundaries=out/'browser/boundaries.json'
                     if boundaries.is_file():
                         cases.extend({**case,'mode':'REAL_LOCAL'} for case in json.loads(boundaries.read_text(encoding='utf-8')).get('cases',[]))

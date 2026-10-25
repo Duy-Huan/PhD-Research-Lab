@@ -1,3 +1,5 @@
+Read agent/CI_REPAIR_SUPERVISOR.md and docs/devops/CI_CD_RECOVERY.vi.md for current shared CI ownership, authorized local repair and native dev-only auto-merge. Never independently edit CI/gates in ordinary feature work; never automatically modify qa/main.
+
 Current emergency override: read [agent/CI_RECOVERY.md](agent/CI_RECOVERY.md) before older automation plans. Never automatically merge main; dev auto-merge remains quarantined until trustworthy independent CI.
 
 # Repository agent instructions

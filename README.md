@@ -1,5 +1,6 @@
-# PhD Research Lab - v6.5.4
+# PhD Research Lab - v6.5.5
 
+**Unreleased integration candidate.** Preview6.3.0 on main/dev/qa is untrusted. Strict coverage/live qualification remains NO-GO. See [CI/CD standard](agent/CI_CD_AUTOMATION.md), [local repair operations](docs/devops/CI_REPAIR_SUPERVISOR.vi.md) and [same-suite comparison](docs/qa/COMPARISON_PROTOCOL.md).
 **Independent L1–L4 workflows:** Missions → **Workflows L1–L4** lets users select bounded assistance, execution with per-result review, coordination with final review, or experimental technical closure. Up to four independent workflows share the existing resource limits. L3/L4 are execution policies, with scientific review explicitly pending. See [architecture and development record](docs/architecture/autonomy-workflows.md) and [executed audit / release assessment](docs/testing/autonomy-report.md). The current release does **not** meet the requested 100% whole-project coverage gate.
 
 **Upgrade reconciliation (v5.1–v6.3):** [feature audit and operating guide](docs/upgrade-reconciliation.md), [source-linked matrix](artifacts/upgrade-reconciliation/feature-matrix.md) and [executed validation](artifacts/upgrade-reconciliation/validation.md). Adds optional public scholarly source packs, paper tags/filters/citation graph, local hybrid evidence retrieval, read-only local Zotero sync, artifact navigation and fixes for scheduling, charter dependencies and complete Mission reports. The audit preserves explicit preview/external qualification gates.

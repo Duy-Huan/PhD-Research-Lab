@@ -215,6 +215,137 @@
       "remediation": "Keep explicit baseline input hashing and permanent regression in mandatory suites",
       "target_review_date": "2026-11-01",
       "exception": false
+    },
+    {
+      "id": "APP-REMOTE-CONTEXT-001",
+      "classification": "NEWLY_INTRODUCED_REGRESSION",
+      "severity": "P1",
+      "status": "LOCAL_FIX_VERIFIED_PENDING_INTEGRATION",
+      "module": "backend/agent/project_context.py",
+      "first_known_affected_commit": "4774f550071558a98f55efcd362dea0a7b5b0d8d",
+      "expected": "Nonempty remote compute records are serialized as unverified state without losing context",
+      "actual": "Missingjson import raisesNameError for nonempty remote record branch",
+      "reproduction_steps": [
+        "Run test_latest_integration_regressions on pre-fix latest application source"
+      ],
+      "evidence": [
+        {
+          "path": "docs/qa/evidence/ci-supervisor-6.5.5/remote-context-red.json",
+          "sha256": "75fe06563f06a5d16aabc0caea22e5637a2fa9d2890c5beb81d00fba1a00e071"
+        },
+        {
+          "path": "docs/qa/evidence/ci-supervisor-6.5.5/remote-context-and-cli-fixture-green.json",
+          "sha256": "d785d617e62539334d6ba6362a8129badc119790204f978deefe8d2438c4091f"
+        }
+      ],
+      "test_ids": [
+        "test_latest_integration_regressions.LatestIntegration.test_remote_compute_context_preserves_record_identity_and_unverified_status"
+      ],
+      "remediation": "Retain ea6343 fix and permanent regression; require current independent CI and protected integration",
+      "baseline_sha": "dbbeb603b0fe439670a68ce901d009fbd0aaafc3",
+      "owner": "Repository maintainer / integration SDET",
+      "target_review_date": "2026-11-01",
+      "exception": false
+    },
+    {
+      "id": "CI-INSTALL-ORDER-001",
+      "classification": "CI_INFRASTRUCTURE",
+      "severity": "P2",
+      "status": "LOCAL_FIX_VERIFIED_PENDING_INDEPENDENT_CI",
+      "module": ".github/workflows/quality.yml",
+      "first_known_affected_commit": "2c461fe633311f5a68bd115bbe9d884c6da00a5e",
+      "expected": "Install hash-locked dependencies before precise worker test execution",
+      "actual": "Filename-filtered unittest discovery imported unrelated package initializers beforehttpx was installed",
+      "reproduction_steps": [
+        "Read actual policy job failure in run40154407248",
+        "Run unchanged workflow contract against prior YAML"
+      ],
+      "evidence": [
+        {
+          "path": "docs/qa/evidence/ci-supervisor-6.5.5/pr10-policy-actual.log",
+          "sha256": "285b1a7d453f3d3e15072c0c345d2ee2d6863757279d23b1cbc2d66e4c0c8ace"
+        },
+        {
+          "path": "docs/qa/evidence/ci-supervisor-6.5.5/final-workflow-red.json",
+          "sha256": "42aef7ea534a35147ff644b1351bc9d8c05550445523e945eef75dfa31c410e0"
+        },
+        {
+          "path": "docs/qa/evidence/ci-supervisor-6.5.5/final-contract-green.json",
+          "sha256": "01abd318053b91c93eda8f2fc054be1cd6580091c8f4df994ab7698e2abd0a3f"
+        }
+      ],
+      "test_ids": [
+        "test_ci_workflow_contract.WorkflowContract.test_policy_dependencies_precede_targeted_worker_execution"
+      ],
+      "remediation": "Install lock first; use existing targeted worker; confirm fresh GitHub policy job",
+      "baseline_sha": "dbbeb603b0fe439670a68ce901d009fbd0aaafc3",
+      "owner": "Repository maintainer / integration SDET",
+      "target_review_date": "2026-11-01",
+      "exception": false
+    },
+    {
+      "id": "TEST-CLI-BOUNDARY-001",
+      "classification": "TEST_SPECIFICATION_DEFECT",
+      "severity": "P2",
+      "status": "LOCAL_FIX_VERIFIED",
+      "module": "tests/test_api.py,tests/test_firewall.py",
+      "first_known_affected_commit": "4774f550071558a98f55efcd362dea0a7b5b0d8d",
+      "expected": "Test modern project-contained native entrypoint and independently assert headless isolation denial",
+      "actual": "Old fixture patched launch_terminal while production uses launch_provider; firewall emitter was blocked by new OS boundary before reaching parser",
+      "reproduction_steps": [
+        "Run application-integrated-failed feature report test_api.Api.test_system and test_firewall.Launch.test_tool_call_on_app_source_stops_the_agent"
+      ],
+      "evidence": [
+        {
+          "path": "docs/qa/evidence/ci-supervisor-6.5.5/application-integrated-failed.json",
+          "sha256": "bd5f8f488a27313113be7061d6a4d850c249bef37299ef247fdb10b7342f609d"
+        },
+        {
+          "path": "docs/qa/evidence/ci-supervisor-6.5.5/remote-context-and-cli-fixture-green.json",
+          "sha256": "d785d617e62539334d6ba6362a8129badc119790204f978deefe8d2438c4091f"
+        }
+      ],
+      "test_ids": [
+        "test_api.Api.test_system",
+        "test_firewall.Launch.test_tool_call_on_app_source_stops_the_agent",
+        "test_firewall.Launch.test_missing_container_blocks_headless_cli_before_process_start"
+      ],
+      "remediation": "Keep original behavior assertions; mock correct native boundary only in unit fixture and retain separate no-container/no-process regression",
+      "baseline_sha": "dbbeb603b0fe439670a68ce901d009fbd0aaafc3",
+      "owner": "Repository maintainer / integration SDET",
+      "target_review_date": "2026-11-01",
+      "exception": false
+    },
+    {
+      "id": "CI-CLI-ENV-001",
+      "classification": "CI_INFRASTRUCTURE",
+      "severity": "P2",
+      "status": "HARDENED_AFTER_ASSISTED_REAL_EXERCISE",
+      "module": "devtools/verification/ci_repair.py",
+      "first_known_affected_commit": null,
+      "expected": "Native Windows CLI receives standard non-secret OS environment; scope guard rejects unexpected files",
+      "actual": "First real CLI turn generated literal%SystemDrive% cache path; scope guard stopped, supervising agent archived cache and adopted existing patch",
+      "reproduction_steps": [
+        "Inspect actual-cli-events-excerpt and repair-state for PR10 attempt1"
+      ],
+      "evidence": [
+        {
+          "path": "docs/qa/evidence/ci-supervisor-6.5.5/actual-cli-events-excerpt.json",
+          "sha256": "bdecf5d8babbd254a58756cd102907977698f946abfd2afa2162c3475a0bb44a"
+        },
+        {
+          "path": "docs/qa/evidence/ci-supervisor-6.5.5/actual-repair-state.json",
+          "sha256": "ff4c76d5a9c59770697d4727f3f2c6e448fc53bc36d8d5126660e115a2999236"
+        }
+      ],
+      "test_ids": [
+        "test_ci_repair_supervisor.SupervisorPolicy.test_cli_adapters_never_enable_permission_bypass_or_shell_interpolation"
+      ],
+      "remediation": "Keep Windows standard env; no budget reset/model re-invocation; first real cycle is assisted, not claimed fully unattended",
+      "baseline_sha": "dbbeb603b0fe439670a68ce901d009fbd0aaafc3",
+      "owner": "Repository maintainer / integration SDET",
+      "target_review_date": "2026-11-01",
+      "exception": false
     }
   ],
   "limitations": [

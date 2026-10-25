@@ -1,0 +1,58 @@
+{
+  "pr": 10,
+  "head": "ceff5055635baf71637cb88bd4686c096c12ae8a",
+  "mergeable_state": "blocked",
+  "auto_merge": null,
+  "jobs": [
+    {
+      "name": "Risk-triggered verified AI-UAT evidence",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Real offline browser smoke",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "name": "Backend (windows-latest, Python 3.12)",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "name": "Dependency and high-confidence security checks",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Frontend types, whole-source coverage and build",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Backend (ubuntu-latest, Python 3.11)",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "name": "Contract and workflow policy",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Backend (windows-latest, Python 3.11)",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "name": "Backend (ubuntu-latest, Python 3.12)",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "name": "Matching-source live research qualification",
+      "status": "completed",
+      "conclusion": "skipped"
+    }
+  ]
+}

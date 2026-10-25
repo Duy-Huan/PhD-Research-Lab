@@ -52,13 +52,16 @@ def main() -> int:
     parser.add_argument('--profile',choices=['feature','pr','full','release'],default='pr')
     parser.add_argument('--base',default='origin/dev')
     parser.add_argument('--out',type=Path)
+    parser.add_argument('--offline-all',action='store_true',help='Select every non-model journey, including actual3D; does not qualify live/scientific layers')
     args=parser.parse_args()
+    if args.offline_all and args.profile in ('full','release'):
+        parser.error('--offline-all uses feature/pr; full/release retains separately authorized live qualification')
     from .journeys import browser_plan,relevant_contracts
     from .selection import changed_files
     changed=changed_files(root,args.base)
     contracts=[json.loads(path.read_text(encoding='utf-8')) for path in (root/'docs/qa/contracts').glob('*.json')]
     selected=relevant_contracts(changed,contracts)
-    plan=browser_plan(root,changed,selected,args.profile)
+    plan=browser_plan(root,changed,selected,args.profile,all_offline=args.offline_all)
     if args.out:
         out=args.out.resolve()
         if not out.is_relative_to((root/'output/playwright').resolve()) or out.exists():

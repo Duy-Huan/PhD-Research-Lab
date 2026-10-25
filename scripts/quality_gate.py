@@ -53,7 +53,8 @@ def main() -> int:
     event_path=os.environ.get('GITHUB_EVENT_PATH')
     if event_path and os.environ.get('GITHUB_EVENT_NAME')=='pull_request':
         event=json.loads(Path(event_path).read_text(encoding='utf-8')); pr=event['pull_request']
-        # Human authorization is a separate protected release-approval job/environment.
+        # Direction is checked here; the owner approves qa/main promotion through
+        # native protected PR controls. CD is a separate main-push workflow.
         errors += validate_promotion(pr['head']['ref'],pr['base']['ref'],human_approved=pr['base']['ref']=='main')
     print(json.dumps({'decision':'FAIL' if errors else 'PASS','errors':errors},indent=2))
     return 1 if errors else 0

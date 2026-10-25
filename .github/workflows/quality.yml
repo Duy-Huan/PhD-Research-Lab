@@ -3,9 +3,6 @@ name: Quality Gates
 on:
   pull_request:
     branches: [dev, qa, main]
-  push:
-    branches: [dev, qa, main]
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -31,19 +28,20 @@ jobs:
         with: {fetch-depth: 0, persist-credentials: false}
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with: {python-version: '3.12'}
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: {node-version: '24'}
+      - run: python -m pip install --require-hashes -r requirements-ci.lock
       - run: python scripts/quality_gate.py policy
       - run: python scripts/check_workflows.py
       - name: Critical recovery accounting regressions (no live AI calls)
-        run: python -m unittest discover -s tests -p "test_ci_recovery.py"
-      - run: python -m unittest discover -s tests -p "test_baseline_accounting.py"
-      - run: python -m pip install --require-hashes -r requirements-ci.lock
+        run: python -m devtools.verification.unittest_worker output/playwright/ci/critical-recovery.json test_ci_recovery test_baseline_accounting test_ci_repair_supervisor test_ci_workflow_contract
       - run: python tools/qa_harness.py audit --out output/playwright/ci/integrity.json
       - run: python tools/qa_harness.py generate --seed 20261024 --count 100 --out output/playwright/ci/generated-graphs.json
       - name: Preserve skills and agent files throughout the commit range
         env:
           DIFF_BASE: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
         run: python tools/protect_agent_resources.py --base "$DIFF_BASE"
-      - run: node --test .github/scripts/automerge.test.cjs
+      - run: node --test .github/scripts/automerge.test.cjs .github/scripts/release_provenance.test.cjs .github/scripts/publish_release.test.cjs
 
   backend:
     name: Backend (${{ matrix.os }}, Python ${{ matrix.python }})
@@ -138,7 +136,7 @@ jobs:
         working-directory: frontend
       - env:
           VERIFY_BASE: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
-        run: python -m devtools.verification.browser --profile pr --base "$VERIFY_BASE"
+        run: python -m devtools.verification.browser --profile pr --offline-all --base "$VERIFY_BASE"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
@@ -204,23 +202,3 @@ jobs:
         with: {persist-credentials: false}
       - env: {NEEDS_JSON: '${{ toJSON(needs) }}'}
         run: python scripts/quality_gate.py aggregate --phase qa
-
-  release-approval:
-    name: Human release authorization
-    if: github.base_ref == 'main'
-    needs: [qa-gate]
-    environment: production
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "The production environment approval authorizes this release candidate."
-
-  release-gate:
-    name: Release gate
-    if: always() && github.base_ref == 'main'
-    needs: [qa-gate, release-approval]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with: {persist-credentials: false}
-      - env: {NEEDS_JSON: '${{ toJSON(needs) }}'}
-        run: python scripts/quality_gate.py aggregate --phase release

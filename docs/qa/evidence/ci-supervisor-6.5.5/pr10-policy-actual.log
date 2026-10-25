@@ -1,0 +1,448 @@
+﻿2026-10-25T02:26:21.0787015Z Current runner version: '2.338.0'
+2026-10-25T02:26:21.0813652Z ##[group]Runner Image Provisioner
+2026-10-25T02:26:21.0814594Z Hosted Compute Agent
+2026-10-25T02:26:21.0815217Z Version: 20261021.618
+2026-10-25T02:26:21.0816072Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-25T02:26:21.0816832Z Build Date: 2026-10-21T00:45:21Z
+2026-10-25T02:26:21.0817521Z Worker ID: {c14b1200-661e-4d9a-8648-4938e1555ec0}
+2026-10-25T02:26:21.0818307Z Region: eastus2
+2026-10-25T02:26:21.0818897Z Cloud: Azure
+2026-10-25T02:26:21.0819503Z ##[endgroup]
+2026-10-25T02:26:21.0821030Z ##[group]Operating System
+2026-10-25T02:26:21.0821664Z Ubuntu
+2026-10-25T02:26:21.0822257Z 24.04.5
+2026-10-25T02:26:21.0822800Z LTS
+2026-10-25T02:26:21.0823356Z ##[endgroup]
+2026-10-25T02:26:21.0823985Z ##[group]Runner Image
+2026-10-25T02:26:21.0824593Z Image: ubuntu-24.04
+2026-10-25T02:26:21.0825296Z Version: 20261012.334.1
+2026-10-25T02:26:21.0826944Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-25T02:26:21.0828571Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+2026-10-25T02:26:21.0829573Z ##[endgroup]
+2026-10-25T02:26:21.0830787Z ##[group]GITHUB_TOKEN Permissions
+2026-10-25T02:26:21.0833064Z Contents: read
+2026-10-25T02:26:21.0833766Z Metadata: read
+2026-10-25T02:26:21.0834381Z ##[endgroup]
+2026-10-25T02:26:21.0837024Z Secret source: Actions
+2026-10-25T02:26:21.0838156Z Cache mode: write
+2026-10-25T02:26:21.0839135Z Prepare workflow directory
+2026-10-25T02:26:21.1395425Z Prepare all required actions
+2026-10-25T02:26:21.1446223Z Getting action download info
+2026-10-25T02:26:21.3443348Z Download action repository 'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-10-25T02:26:21.4644006Z Download action repository 'actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1' (SHA:ece7cb06caefa5fff74198d8649806c4678c61a1)
+2026-10-25T02:26:21.6386617Z Complete job name: Contract and workflow policy
+2026-10-25T02:26:21.7300757Z ##[group]Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+2026-10-25T02:26:21.7301850Z with:
+2026-10-25T02:26:21.7302277Z   fetch-depth: 0
+2026-10-25T02:26:21.7302742Z   persist-credentials: false
+2026-10-25T02:26:21.7303289Z   repository: Duy-Huan/PhD-Research-Lab
+2026-10-25T02:26:21.7307384Z   token: ***
+2026-10-25T02:26:21.7307823Z   ssh-strict: true
+2026-10-25T02:26:21.7308258Z   ssh-user: git
+2026-10-25T02:26:21.7308674Z   clean: true
+2026-10-25T02:26:21.7309117Z   sparse-checkout-cone-mode: true
+2026-10-25T02:26:21.7309689Z   fetch-tags: false
+2026-10-25T02:26:21.7310137Z   show-progress: true
+2026-10-25T02:26:21.7310570Z   lfs: false
+2026-10-25T02:26:21.7310974Z   submodules: false
+2026-10-25T02:26:21.7311411Z   set-safe-directory: true
+2026-10-25T02:26:21.7311916Z   allow-unsafe-pr-checkout: false
+2026-10-25T02:26:21.7312712Z env:
+2026-10-25T02:26:21.7313134Z   PYTHONIOENCODING: utf-8
+2026-10-25T02:26:21.7313629Z   PHDLAB_QA_OFFLINE: 1
+2026-10-25T02:26:21.7314587Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/PhD-Research-Lab/PhD-Research-Lab/output/playwright/browser-binaries
+2026-10-25T02:26:21.7315549Z ##[endgroup]
+2026-10-25T02:26:21.8386577Z Syncing repository: Duy-Huan/PhD-Research-Lab
+2026-10-25T02:26:21.8390090Z ##[group]Getting Git version info
+2026-10-25T02:26:21.8391514Z Working directory is '/home/runner/work/PhD-Research-Lab/PhD-Research-Lab'
+2026-10-25T02:26:21.8393508Z [command]/usr/bin/git version
+2026-10-25T02:26:21.8501562Z git version 2.55.0
+2026-10-25T02:26:21.8527850Z ##[endgroup]
+2026-10-25T02:26:21.8546691Z Temporarily overriding HOME='/home/runner/work/_temp/7134f574-cf00-4e39-b4ef-5cb40628d931' before making global git config changes
+2026-10-25T02:26:21.8549103Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-25T02:26:21.8552885Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/PhD-Research-Lab/PhD-Research-Lab
+2026-10-25T02:26:21.8612629Z Deleting the contents of '/home/runner/work/PhD-Research-Lab/PhD-Research-Lab'
+2026-10-25T02:26:21.8618144Z ##[group]Determining repository object format
+2026-10-25T02:26:21.8620902Z ##[endgroup]
+2026-10-25T02:26:21.8622313Z ##[group]Initializing the repository
+2026-10-25T02:26:21.8627760Z [command]/usr/bin/git init /home/runner/work/PhD-Research-Lab/PhD-Research-Lab
+2026-10-25T02:26:21.8759754Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-25T02:26:21.8761541Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-25T02:26:21.8764090Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-25T02:26:21.8765880Z hint: call:
+2026-10-25T02:26:21.8766602Z hint:
+2026-10-25T02:26:21.8767529Z hint: 	git config --global init.defaultBranch <name>
+2026-10-25T02:26:21.8768502Z hint:
+2026-10-25T02:26:21.8769470Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-25T02:26:21.8771162Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-25T02:26:21.8772438Z hint:
+2026-10-25T02:26:21.8773107Z hint: 	git branch -m <name>
+2026-10-25T02:26:21.8773958Z hint:
+2026-10-25T02:26:21.8775023Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-25T02:26:21.8777069Z Initialized empty Git repository in /home/runner/work/PhD-Research-Lab/PhD-Research-Lab/.git/
+2026-10-25T02:26:21.8779620Z [command]/usr/bin/git remote add origin https://github.com/Duy-Huan/PhD-Research-Lab
+2026-10-25T02:26:21.8834229Z ##[endgroup]
+2026-10-25T02:26:21.8836068Z ##[group]Disabling automatic garbage collection
+2026-10-25T02:26:21.8839902Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-25T02:26:21.8875331Z ##[endgroup]
+2026-10-25T02:26:21.8877070Z ##[group]Setting up auth
+2026-10-25T02:26:21.8884647Z Removing SSH command configuration
+2026-10-25T02:26:21.8908732Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-25T02:26:21.8936954Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-25T02:26:21.9338927Z Removing HTTP extra header
+2026-10-25T02:26:21.9345409Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-25T02:26:21.9382531Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-25T02:26:21.9602575Z Removing includeIf entries pointing to credentials config files
+2026-10-25T02:26:21.9609395Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-25T02:26:21.9647853Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-25T02:26:21.9876865Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-229d488c-3754-49f1-8d8a-6bd15869792f.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-25T02:26:21.9919130Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/.git.path /home/runner/work/_temp/git-credentials-229d488c-3754-49f1-8d8a-6bd15869792f.config
+2026-10-25T02:26:21.9955282Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-229d488c-3754-49f1-8d8a-6bd15869792f.config
+2026-10-25T02:26:21.9993938Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-229d488c-3754-49f1-8d8a-6bd15869792f.config
+2026-10-25T02:26:22.0037508Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-229d488c-3754-49f1-8d8a-6bd15869792f.config
+2026-10-25T02:26:22.0067959Z ##[endgroup]
+2026-10-25T02:26:22.0068762Z ##[group]Fetching the repository
+2026-10-25T02:26:22.0077023Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +60e97fd9feac2b7e0e4c9ee378791cb12d2253d9:refs/remotes/pull/10/merge
+2026-10-25T02:26:24.0535444Z From https://github.com/Duy-Huan/PhD-Research-Lab
+2026-10-25T02:26:24.0538034Z  * [new branch]      Duy-Huan-patch-1                         -> origin/Duy-Huan-patch-1
+2026-10-25T02:26:24.0539693Z  * [new branch]      dev                                      -> origin/dev
+2026-10-25T02:26:24.0541114Z  * [new branch]      feature/ci-repair-controlled-exercise    -> origin/feature/ci-repair-controlled-exercise
+2026-10-25T02:26:24.0542732Z  * [new branch]      feature/development-governance           -> origin/feature/development-governance
+2026-10-25T02:26:24.0544355Z  * [new branch]      feature/full-harness-20261024            -> origin/feature/full-harness-20261024
+2026-10-25T02:26:24.0546907Z  * [new branch]      feature/v3.2-research-os                 -> origin/feature/v3.2-research-os
+2026-10-25T02:26:24.0548221Z  * [new branch]      fix/ui-source-baseline                   -> origin/fix/ui-source-baseline
+2026-10-25T02:26:24.0549246Z  * [new branch]      main                                     -> origin/main
+2026-10-25T02:26:24.0550366Z  * [new branch]      qa                                       -> origin/qa
+2026-10-25T02:26:24.0551822Z  * [new tag]         v3.1.0                                   -> v3.1.0
+2026-10-25T02:26:24.0552648Z  * [new tag]         v3.2.0                                   -> v3.2.0
+2026-10-25T02:26:24.0553717Z  * [new tag]         v4.0.0                                   -> v4.0.0
+2026-10-25T02:26:24.0554741Z  * [new tag]         v5.0.0                                   -> v5.0.0
+2026-10-25T02:26:24.0555623Z  * [new tag]         v5.3.0                                   -> v5.3.0
+2026-10-25T02:26:24.0557181Z  * [new tag]         v5.4.0                                   -> v5.4.0
+2026-10-25T02:26:24.0558025Z  * [new tag]         v5.5.0                                   -> v5.5.0
+2026-10-25T02:26:24.0558817Z  * [new tag]         v6.0.0                                   -> v6.0.0
+2026-10-25T02:26:24.0559994Z  * [new tag]         v6.2.0                                   -> v6.2.0
+2026-10-25T02:26:24.0560940Z  * [new tag]         v6.3.0                                   -> v6.3.0
+2026-10-25T02:26:24.0562369Z  * [new tag]         v6.3.1                                   -> v6.3.1
+2026-10-25T02:26:24.0563786Z  * [new tag]         v6.3.2                                   -> v6.3.2
+2026-10-25T02:26:24.0565133Z  * [new ref]         60e97fd9feac2b7e0e4c9ee378791cb12d2253d9 -> pull/10/merge
+2026-10-25T02:26:24.0569028Z ##[endgroup]
+2026-10-25T02:26:24.0570334Z ##[group]Determining the checkout info
+2026-10-25T02:26:24.0571901Z ##[endgroup]
+2026-10-25T02:26:24.0572890Z [command]/usr/bin/git sparse-checkout disable
+2026-10-25T02:26:24.0623881Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-25T02:26:24.0658550Z ##[group]Checking out the ref
+2026-10-25T02:26:24.0663176Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/10/merge
+2026-10-25T02:26:24.4916468Z Note: switching to 'refs/remotes/pull/10/merge'.
+2026-10-25T02:26:24.4917358Z 
+2026-10-25T02:26:24.4917979Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-25T02:26:24.4919542Z changes and commit them, and you can discard any commits you make in this
+2026-10-25T02:26:24.4920992Z state without impacting any branches by switching back to a branch.
+2026-10-25T02:26:24.4921812Z 
+2026-10-25T02:26:24.4922392Z If you want to create a new branch to retain commits you create, you may
+2026-10-25T02:26:24.4923826Z do so (now or later) by using -c with the switch command. Example:
+2026-10-25T02:26:24.4924687Z 
+2026-10-25T02:26:24.4925061Z   git switch -c <new-branch-name>
+2026-10-25T02:26:24.4926339Z 
+2026-10-25T02:26:24.4926871Z Or undo this operation with:
+2026-10-25T02:26:24.4927687Z 
+2026-10-25T02:26:24.4928086Z   git switch -
+2026-10-25T02:26:24.4928537Z 
+2026-10-25T02:26:24.4929370Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-25T02:26:24.4930446Z 
+2026-10-25T02:26:24.4931665Z HEAD is now at 60e97fd Merge ceff5055635baf71637cb88bd4686c096c12ae8a into 6725975261fe6a4d8a5cb3e10208e31c3e24f0e2
+2026-10-25T02:26:24.5041859Z ##[endgroup]
+2026-10-25T02:26:24.5044869Z [command]/usr/bin/git log -1 --format=%H
+2026-10-25T02:26:24.5065288Z 60e97fd9feac2b7e0e4c9ee378791cb12d2253d9
+2026-10-25T02:26:24.5070111Z ##[group]Removing auth
+2026-10-25T02:26:24.5071601Z Removing SSH command configuration
+2026-10-25T02:26:24.5073863Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-25T02:26:24.5108010Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-25T02:26:24.5338815Z Removing HTTP extra header
+2026-10-25T02:26:24.5343333Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-25T02:26:24.5380928Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-25T02:26:24.5614563Z Removing includeIf entries pointing to credentials config files
+2026-10-25T02:26:24.5618778Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-25T02:26:24.5649884Z includeif.gitdir:/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/.git.path
+2026-10-25T02:26:24.5653213Z includeif.gitdir:/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/.git/worktrees/*.path
+2026-10-25T02:26:24.5656435Z includeif.gitdir:/github/workspace/.git.path
+2026-10-25T02:26:24.5659132Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-25T02:26:24.5664367Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/.git.path
+2026-10-25T02:26:24.5688310Z /home/runner/work/_temp/git-credentials-229d488c-3754-49f1-8d8a-6bd15869792f.config
+2026-10-25T02:26:24.5705622Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/.git.path /home/runner/work/_temp/git-credentials-229d488c-3754-49f1-8d8a-6bd15869792f.config
+2026-10-25T02:26:24.5747839Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/.git/worktrees/*.path
+2026-10-25T02:26:24.5774508Z /home/runner/work/_temp/git-credentials-229d488c-3754-49f1-8d8a-6bd15869792f.config
+2026-10-25T02:26:24.5785762Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-229d488c-3754-49f1-8d8a-6bd15869792f.config
+2026-10-25T02:26:24.5823878Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-25T02:26:24.5852372Z /github/runner_temp/git-credentials-229d488c-3754-49f1-8d8a-6bd15869792f.config
+2026-10-25T02:26:24.5872006Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-229d488c-3754-49f1-8d8a-6bd15869792f.config
+2026-10-25T02:26:24.5914050Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-25T02:26:24.5940616Z /github/runner_temp/git-credentials-229d488c-3754-49f1-8d8a-6bd15869792f.config
+2026-10-25T02:26:24.5949976Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-229d488c-3754-49f1-8d8a-6bd15869792f.config
+2026-10-25T02:26:24.5987049Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-25T02:26:24.6227921Z Removing credentials config '/home/runner/work/_temp/git-credentials-229d488c-3754-49f1-8d8a-6bd15869792f.config'
+2026-10-25T02:26:24.6234314Z ##[endgroup]
+2026-10-25T02:26:24.6611289Z ##[group]Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+2026-10-25T02:26:24.6613015Z with:
+2026-10-25T02:26:24.6613875Z   python-version: 3.12
+2026-10-25T02:26:24.6614879Z   check-latest: false
+2026-10-25T02:26:24.6624546Z   token: ***
+2026-10-25T02:26:24.6625500Z   update-environment: true
+2026-10-25T02:26:24.6626717Z   allow-prereleases: false
+2026-10-25T02:26:24.6627774Z   freethreaded: false
+2026-10-25T02:26:24.6628713Z env:
+2026-10-25T02:26:24.6629564Z   PYTHONIOENCODING: utf-8
+2026-10-25T02:26:24.6630609Z   PHDLAB_QA_OFFLINE: 1
+2026-10-25T02:26:24.6632642Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/PhD-Research-Lab/PhD-Research-Lab/output/playwright/browser-binaries
+2026-10-25T02:26:24.6635331Z ##[endgroup]
+2026-10-25T02:26:24.7959255Z ##[group]Installed versions
+2026-10-25T02:26:24.8062415Z Successfully set up CPython (3.12.15)
+2026-10-25T02:26:24.8065484Z ##[endgroup]
+2026-10-25T02:26:24.8244995Z ##[group]Run python scripts/quality_gate.py policy
+2026-10-25T02:26:24.8246928Z [36;1mpython scripts/quality_gate.py policy[0m
+2026-10-25T02:26:24.8572871Z shell: /usr/bin/bash -e {0}
+2026-10-25T02:26:24.8574010Z env:
+2026-10-25T02:26:24.8574925Z   PYTHONIOENCODING: utf-8
+2026-10-25T02:26:24.8576213Z   PHDLAB_QA_OFFLINE: 1
+2026-10-25T02:26:24.8578331Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/PhD-Research-Lab/PhD-Research-Lab/output/playwright/browser-binaries
+2026-10-25T02:26:24.8580916Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-25T02:26:24.8582805Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-25T02:26:24.8584713Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-25T02:26:24.8586574Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-25T02:26:24.8588220Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-25T02:26:24.8589937Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-25T02:26:24.8591355Z ##[endgroup]
+2026-10-25T02:26:25.0506611Z {
+2026-10-25T02:26:25.0508119Z   "decision": "PASS",
+2026-10-25T02:26:25.0509779Z   "errors": []
+2026-10-25T02:26:25.0511161Z }
+2026-10-25T02:26:25.0653737Z ##[group]Run python scripts/check_workflows.py
+2026-10-25T02:26:25.0654789Z [36;1mpython scripts/check_workflows.py[0m
+2026-10-25T02:26:25.0720072Z shell: /usr/bin/bash -e {0}
+2026-10-25T02:26:25.0720927Z env:
+2026-10-25T02:26:25.0721709Z   PYTHONIOENCODING: utf-8
+2026-10-25T02:26:25.0722541Z   PHDLAB_QA_OFFLINE: 1
+2026-10-25T02:26:25.0723710Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/PhD-Research-Lab/PhD-Research-Lab/output/playwright/browser-binaries
+2026-10-25T02:26:25.0725024Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-25T02:26:25.0726353Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-25T02:26:25.0727468Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-25T02:26:25.0728510Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-25T02:26:25.0729557Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-25T02:26:25.0730656Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-25T02:26:25.0731605Z ##[endgroup]
+2026-10-25T02:26:25.4044102Z ##[group]Run python -m unittest discover -s tests -p "test_ci_recovery.py"
+2026-10-25T02:26:25.4045373Z [36;1mpython -m unittest discover -s tests -p "test_ci_recovery.py"[0m
+2026-10-25T02:26:25.4111483Z shell: /usr/bin/bash -e {0}
+2026-10-25T02:26:25.4112301Z env:
+2026-10-25T02:26:25.4113069Z   PYTHONIOENCODING: utf-8
+2026-10-25T02:26:25.4113882Z   PHDLAB_QA_OFFLINE: 1
+2026-10-25T02:26:25.4115053Z   PLAYWRIGHT_BROWSERS_PATH: /home/runner/work/PhD-Research-Lab/PhD-Research-Lab/output/playwright/browser-binaries
+2026-10-25T02:26:25.4116949Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-25T02:26:25.4118037Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-25T02:26:25.4119105Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-25T02:26:25.4120113Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-25T02:26:25.4121158Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-25T02:26:25.4122362Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-25T02:26:25.4123299Z ##[endgroup]
+2026-10-25T02:26:26.1126914Z EEEEEE.....
+2026-10-25T02:26:26.1127465Z ======================================================================
+2026-10-25T02:26:26.1128268Z ERROR: context_gateway (unittest.loader._FailedTest.context_gateway)
+2026-10-25T02:26:26.1129094Z ----------------------------------------------------------------------
+2026-10-25T02:26:26.1129802Z ImportError: Failed to import test module: context_gateway
+2026-10-25T02:26:26.1130482Z Traceback (most recent call last):
+2026-10-25T02:26:26.1136618Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/unittest/loader.py", line 429, in _find_test_path
+2026-10-25T02:26:26.1137287Z     package = self._get_module_from_name(name)
+2026-10-25T02:26:26.1137626Z               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-25T02:26:26.1138322Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/unittest/loader.py", line 339, in _get_module_from_name
+2026-10-25T02:26:26.1138875Z     __import__(name)
+2026-10-25T02:26:26.1139396Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/context_gateway/__init__.py", line 2, in <module>
+2026-10-25T02:26:26.1140012Z     import _env  # noqa: F401  (must be first: throw-away data folder)
+2026-10-25T02:26:26.1140365Z     ^^^^^^^^^^^
+2026-10-25T02:26:26.1140791Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/_env.py", line 36, in <module>
+2026-10-25T02:26:26.1141251Z     _code_project()
+2026-10-25T02:26:26.1141705Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/_env.py", line 32, in _code_project
+2026-10-25T02:26:26.1142199Z     if not code_projects.active():
+2026-10-25T02:26:26.1142455Z            ^^^^^^^^^^^^^^^^^^^^^^
+2026-10-25T02:26:26.1142974Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/execution/code_projects.py", line 144, in active
+2026-10-25T02:26:26.1143499Z     reg = _load()
+2026-10-25T02:26:26.1143705Z           ^^^^^^^
+2026-10-25T02:26:26.1144183Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/execution/code_projects.py", line 111, in _load
+2026-10-25T02:26:26.1144728Z     p = _reg_path()
+2026-10-25T02:26:26.1145131Z         ^^^^^^^^^^^
+2026-10-25T02:26:26.1145966Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/execution/code_projects.py", line 66, in _reg_path
+2026-10-25T02:26:26.1146664Z     return root() / REGISTRY
+2026-10-25T02:26:26.1146899Z            ^^^^^^
+2026-10-25T02:26:26.1147424Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/execution/code_projects.py", line 60, in root
+2026-10-25T02:26:26.1147981Z     d = data_dir() / "code"
+2026-10-25T02:26:26.1148212Z         ^^^^^^^^^^
+2026-10-25T02:26:26.1148677Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 671, in data_dir
+2026-10-25T02:26:26.1149196Z     return Path(active_project()["data_dir"])
+2026-10-25T02:26:26.1149896Z                 ^^^^^^^^^^^^^^^^
+2026-10-25T02:26:26.1150460Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 576, in active_project
+2026-10-25T02:26:26.1151019Z     cfg = cfg if cfg is not None else load_config()
+2026-10-25T02:26:26.1151326Z                                       ^^^^^^^^^^^^^
+2026-10-25T02:26:26.1151860Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 357, in load_config
+2026-10-25T02:26:26.1152427Z     _merge_section(sec, cfg[sec], saved[sec], masked_ok=False)
+2026-10-25T02:26:26.1153202Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 315, in _merge_section
+2026-10-25T02:26:26.1153760Z     from backend.providers.mcp_agent import endpoint
+2026-10-25T02:26:26.1154352Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/providers/mcp_agent.py", line 12, in <module>
+2026-10-25T02:26:26.1154859Z     import httpx
+2026-10-25T02:26:26.1155107Z ModuleNotFoundError: No module named 'httpx'
+2026-10-25T02:26:26.1155317Z 
+2026-10-25T02:26:26.1155326Z 
+2026-10-25T02:26:26.1155447Z ======================================================================
+2026-10-25T02:26:26.1156115Z ERROR: mcp (unittest.loader._FailedTest.mcp)
+2026-10-25T02:26:26.1156623Z ----------------------------------------------------------------------
+2026-10-25T02:26:26.1157005Z ImportError: Failed to import test module: mcp
+2026-10-25T02:26:26.1157313Z Traceback (most recent call last):
+2026-10-25T02:26:26.1157876Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/unittest/loader.py", line 429, in _find_test_path
+2026-10-25T02:26:26.1158444Z     package = self._get_module_from_name(name)
+2026-10-25T02:26:26.1158730Z               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-25T02:26:26.1159278Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/unittest/loader.py", line 339, in _get_module_from_name
+2026-10-25T02:26:26.1159799Z     __import__(name)
+2026-10-25T02:26:26.1160259Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/mcp/__init__.py", line 2, in <module>
+2026-10-25T02:26:26.1160827Z     import _env  # noqa: F401  (must be first: throw-away data folder)
+2026-10-25T02:26:26.1161164Z     ^^^^^^^^^^^
+2026-10-25T02:26:26.1161573Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/_env.py", line 25, in <module>
+2026-10-25T02:26:26.1162197Z     config.save_config({"clearml": {"auto_record": False}, "memory": {"embed_engine": "hashing"},
+2026-10-25T02:26:26.1162889Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 383, in save_config
+2026-10-25T02:26:26.1163407Z     cfg = load_config()
+2026-10-25T02:26:26.1163621Z           ^^^^^^^^^^^^^
+2026-10-25T02:26:26.1164093Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 357, in load_config
+2026-10-25T02:26:26.1164655Z     _merge_section(sec, cfg[sec], saved[sec], masked_ok=False)
+2026-10-25T02:26:26.1165252Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 315, in _merge_section
+2026-10-25T02:26:26.1166121Z     from backend.providers.mcp_agent import endpoint
+2026-10-25T02:26:26.1166798Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/providers/mcp_agent.py", line 12, in <module>
+2026-10-25T02:26:26.1167320Z     import httpx
+2026-10-25T02:26:26.1167564Z ModuleNotFoundError: No module named 'httpx'
+2026-10-25T02:26:26.1167781Z 
+2026-10-25T02:26:26.1167789Z 
+2026-10-25T02:26:26.1167907Z ======================================================================
+2026-10-25T02:26:26.1168329Z ERROR: memory_eval (unittest.loader._FailedTest.memory_eval)
+2026-10-25T02:26:26.1168719Z ----------------------------------------------------------------------
+2026-10-25T02:26:26.1169096Z ImportError: Failed to import test module: memory_eval
+2026-10-25T02:26:26.1169427Z Traceback (most recent call last):
+2026-10-25T02:26:26.1170135Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/unittest/loader.py", line 429, in _find_test_path
+2026-10-25T02:26:26.1170679Z     package = self._get_module_from_name(name)
+2026-10-25T02:26:26.1170975Z               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-25T02:26:26.1171526Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/unittest/loader.py", line 339, in _get_module_from_name
+2026-10-25T02:26:26.1172050Z     __import__(name)
+2026-10-25T02:26:26.1172536Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/memory_eval/__init__.py", line 2, in <module>
+2026-10-25T02:26:26.1173269Z     import _env  # noqa: F401  (must be first: throw-away data folder)
+2026-10-25T02:26:26.1173607Z     ^^^^^^^^^^^
+2026-10-25T02:26:26.1174012Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/_env.py", line 25, in <module>
+2026-10-25T02:26:26.1174630Z     config.save_config({"clearml": {"auto_record": False}, "memory": {"embed_engine": "hashing"},
+2026-10-25T02:26:26.1175343Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 383, in save_config
+2026-10-25T02:26:26.1176137Z     cfg = load_config()
+2026-10-25T02:26:26.1176358Z           ^^^^^^^^^^^^^
+2026-10-25T02:26:26.1176828Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 357, in load_config
+2026-10-25T02:26:26.1177399Z     _merge_section(sec, cfg[sec], saved[sec], masked_ok=False)
+2026-10-25T02:26:26.1177980Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 315, in _merge_section
+2026-10-25T02:26:26.1178546Z     from backend.providers.mcp_agent import endpoint
+2026-10-25T02:26:26.1179131Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/providers/mcp_agent.py", line 12, in <module>
+2026-10-25T02:26:26.1179638Z     import httpx
+2026-10-25T02:26:26.1179878Z ModuleNotFoundError: No module named 'httpx'
+2026-10-25T02:26:26.1180088Z 
+2026-10-25T02:26:26.1180097Z 
+2026-10-25T02:26:26.1180215Z ======================================================================
+2026-10-25T02:26:26.1180592Z ERROR: providers (unittest.loader._FailedTest.providers)
+2026-10-25T02:26:26.1180974Z ----------------------------------------------------------------------
+2026-10-25T02:26:26.1181348Z ImportError: Failed to import test module: providers
+2026-10-25T02:26:26.1181675Z Traceback (most recent call last):
+2026-10-25T02:26:26.1182187Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/unittest/loader.py", line 429, in _find_test_path
+2026-10-25T02:26:26.1182712Z     package = self._get_module_from_name(name)
+2026-10-25T02:26:26.1183010Z               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-25T02:26:26.1183553Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/unittest/loader.py", line 339, in _get_module_from_name
+2026-10-25T02:26:26.1184073Z     __import__(name)
+2026-10-25T02:26:26.1184559Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/providers/__init__.py", line 2, in <module>
+2026-10-25T02:26:26.1185143Z     import _env  # noqa: F401  (must be first: throw-away data folder)
+2026-10-25T02:26:26.1185482Z     ^^^^^^^^^^^
+2026-10-25T02:26:26.1186312Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/_env.py", line 25, in <module>
+2026-10-25T02:26:26.1186962Z     config.save_config({"clearml": {"auto_record": False}, "memory": {"embed_engine": "hashing"},
+2026-10-25T02:26:26.1187671Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 383, in save_config
+2026-10-25T02:26:26.1188178Z     cfg = load_config()
+2026-10-25T02:26:26.1188411Z           ^^^^^^^^^^^^^
+2026-10-25T02:26:26.1188867Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 357, in load_config
+2026-10-25T02:26:26.1189429Z     _merge_section(sec, cfg[sec], saved[sec], masked_ok=False)
+2026-10-25T02:26:26.1190016Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 315, in _merge_section
+2026-10-25T02:26:26.1190750Z     from backend.providers.mcp_agent import endpoint
+2026-10-25T02:26:26.1191337Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/providers/mcp_agent.py", line 12, in <module>
+2026-10-25T02:26:26.1191852Z     import httpx
+2026-10-25T02:26:26.1192094Z ModuleNotFoundError: No module named 'httpx'
+2026-10-25T02:26:26.1192302Z 
+2026-10-25T02:26:26.1192311Z 
+2026-10-25T02:26:26.1192429Z ======================================================================
+2026-10-25T02:26:26.1192781Z ERROR: security (unittest.loader._FailedTest.security)
+2026-10-25T02:26:26.1193289Z ----------------------------------------------------------------------
+2026-10-25T02:26:26.1193657Z ImportError: Failed to import test module: security
+2026-10-25T02:26:26.1193973Z Traceback (most recent call last):
+2026-10-25T02:26:26.1194489Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/unittest/loader.py", line 429, in _find_test_path
+2026-10-25T02:26:26.1195008Z     package = self._get_module_from_name(name)
+2026-10-25T02:26:26.1195303Z               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-25T02:26:26.1196147Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/unittest/loader.py", line 339, in _get_module_from_name
+2026-10-25T02:26:26.1196686Z     __import__(name)
+2026-10-25T02:26:26.1197176Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/security/__init__.py", line 2, in <module>
+2026-10-25T02:26:26.1197750Z     import _env  # noqa: F401  (must be first: throw-away data folder)
+2026-10-25T02:26:26.1198085Z     ^^^^^^^^^^^
+2026-10-25T02:26:26.1198504Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/_env.py", line 25, in <module>
+2026-10-25T02:26:26.1199118Z     config.save_config({"clearml": {"auto_record": False}, "memory": {"embed_engine": "hashing"},
+2026-10-25T02:26:26.1199805Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 383, in save_config
+2026-10-25T02:26:26.1200298Z     cfg = load_config()
+2026-10-25T02:26:26.1200510Z           ^^^^^^^^^^^^^
+2026-10-25T02:26:26.1200978Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 357, in load_config
+2026-10-25T02:26:26.1201535Z     _merge_section(sec, cfg[sec], saved[sec], masked_ok=False)
+2026-10-25T02:26:26.1202117Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 315, in _merge_section
+2026-10-25T02:26:26.1202672Z     from backend.providers.mcp_agent import endpoint
+2026-10-25T02:26:26.1203247Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/providers/mcp_agent.py", line 12, in <module>
+2026-10-25T02:26:26.1203760Z     import httpx
+2026-10-25T02:26:26.1203995Z ModuleNotFoundError: No module named 'httpx'
+2026-10-25T02:26:26.1204204Z 
+2026-10-25T02:26:26.1204212Z 
+2026-10-25T02:26:26.1204323Z ======================================================================
+2026-10-25T02:26:26.1204680Z ERROR: streaming (unittest.loader._FailedTest.streaming)
+2026-10-25T02:26:26.1205064Z ----------------------------------------------------------------------
+2026-10-25T02:26:26.1205436Z ImportError: Failed to import test module: streaming
+2026-10-25T02:26:26.1205988Z Traceback (most recent call last):
+2026-10-25T02:26:26.1206501Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/unittest/loader.py", line 429, in _find_test_path
+2026-10-25T02:26:26.1207020Z     package = self._get_module_from_name(name)
+2026-10-25T02:26:26.1207305Z               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-25T02:26:26.1228524Z   File "/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/unittest/loader.py", line 339, in _get_module_from_name
+2026-10-25T02:26:26.1229357Z     __import__(name)
+2026-10-25T02:26:26.1229909Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/streaming/__init__.py", line 2, in <module>
+2026-10-25T02:26:26.1230513Z     import _env  # noqa: F401  (must be first: throw-away data folder)
+2026-10-25T02:26:26.1230880Z     ^^^^^^^^^^^
+2026-10-25T02:26:26.1231656Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/_env.py", line 25, in <module>
+2026-10-25T02:26:26.1232309Z     config.save_config({"clearml": {"auto_record": False}, "memory": {"embed_engine": "hashing"},
+2026-10-25T02:26:26.1233014Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 383, in save_config
+2026-10-25T02:26:26.1233528Z     cfg = load_config()
+2026-10-25T02:26:26.1233756Z           ^^^^^^^^^^^^^
+2026-10-25T02:26:26.1234230Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 357, in load_config
+2026-10-25T02:26:26.1234936Z     _merge_section(sec, cfg[sec], saved[sec], masked_ok=False)
+2026-10-25T02:26:26.1235535Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/core/config.py", line 315, in _merge_section
+2026-10-25T02:26:26.1236420Z     from backend.providers.mcp_agent import endpoint
+2026-10-25T02:26:26.1237010Z   File "/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/backend/providers/mcp_agent.py", line 12, in <module>
+2026-10-25T02:26:26.1237538Z     import httpx
+2026-10-25T02:26:26.1237787Z ModuleNotFoundError: No module named 'httpx'
+2026-10-25T02:26:26.1237998Z 
+2026-10-25T02:26:26.1238006Z 
+2026-10-25T02:26:26.1238170Z ----------------------------------------------------------------------
+2026-10-25T02:26:26.1238523Z Ran 11 tests in 0.403s
+2026-10-25T02:26:26.1238670Z 
+2026-10-25T02:26:26.1238756Z FAILED (errors=6)
+2026-10-25T02:26:26.1306238Z ##[error]Process completed with exit code 1.
+2026-10-25T02:26:26.1499461Z Post job cleanup.
+2026-10-25T02:26:26.2388912Z [command]/usr/bin/git version
+2026-10-25T02:26:26.2436220Z git version 2.55.0
+2026-10-25T02:26:26.2478372Z Temporarily overriding HOME='/home/runner/work/_temp/4b6385da-6f1b-4277-8d85-9337c27555cc' before making global git config changes
+2026-10-25T02:26:26.2479868Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-25T02:26:26.2483788Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/PhD-Research-Lab/PhD-Research-Lab
+2026-10-25T02:26:26.2520798Z Removing SSH command configuration
+2026-10-25T02:26:26.2528617Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-25T02:26:26.2576666Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-25T02:26:26.2842944Z Removing HTTP extra header
+2026-10-25T02:26:26.2850625Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-25T02:26:26.2892921Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-25T02:26:26.3154582Z Removing includeIf entries pointing to credentials config files
+2026-10-25T02:26:26.3162524Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-25T02:26:26.3208026Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-25T02:26:26.3591623Z Cleaning up orphan processes

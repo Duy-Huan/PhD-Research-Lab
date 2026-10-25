@@ -1,3 +1,7 @@
+# Unreleased6.5.5 - local CI repair and qualified CD
+
+Owner-authorized persistent CLI repair, exact PR/SHA/worktree matching, native dev-only auto-merge requests, preserved three-invocation budget and actual assisted PR10 repair/push/rerun evidence. CI is PR-only with lock-first targeted policy tests and offline2D/3D; qualified main CD packages checksummed source/web assets. Same-suite/environment/policy comparison rejects incomparable or unstable observations. Legacy duplicate GitHub workflows disabled; no protected merge/release or100% qualification claimed.
+
 # Unreleased6.5.3 - CI recovery
 
 Preserve upstream failure classifications and raw results; validate evidence-backed known-issue accounting without waivers; include baseline policy in source identity; retain mandatory100% coverage and live gates. Recovery policy quarantines automatic merging; no main auto-merge or release certification.

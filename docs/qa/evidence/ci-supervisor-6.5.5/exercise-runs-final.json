@@ -1,0 +1,186 @@
+{
+  "40154407248": {
+    "head_sha": "ceff5055635baf71637cb88bd4686c096c12ae8a",
+    "status": "completed",
+    "conclusion": "cancelled",
+    "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40154407248",
+    "jobs": [
+      {
+        "id": 121052668960,
+        "name": "Risk-triggered verified AI-UAT evidence",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 121052669078,
+        "name": "Real offline browser smoke",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 121052669160,
+        "name": "Backend (windows-latest, Python 3.12)",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 121052669164,
+        "name": "Dependency and high-confidence security checks",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 121052669168,
+        "name": "Frontend types, whole-source coverage and build",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 121052669192,
+        "name": "Backend (ubuntu-latest, Python 3.11)",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 121052669202,
+        "name": "Contract and workflow policy",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 121052669222,
+        "name": "Backend (windows-latest, Python 3.11)",
+        "status": "completed",
+        "conclusion": "cancelled"
+      },
+      {
+        "id": 121052669238,
+        "name": "Backend (ubuntu-latest, Python 3.12)",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 121052669944,
+        "name": "Matching-source live research qualification",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "id": 121056695542,
+        "name": "Development gate",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 121056723909,
+        "name": "QA gate",
+        "status": "completed",
+        "conclusion": "cancelled"
+      },
+      {
+        "id": 121056724251,
+        "name": "Release gate",
+        "status": "completed",
+        "conclusion": "cancelled"
+      },
+      {
+        "id": 121056724306,
+        "name": "Human release authorization",
+        "status": "completed",
+        "conclusion": "cancelled"
+      }
+    ]
+  },
+  "40155743019": {
+    "head_sha": "87703f74963ff40527edde35f19567219eec22c2",
+    "status": "completed",
+    "conclusion": "failure",
+    "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40155743019",
+    "jobs": [
+      {
+        "id": 121056724954,
+        "name": "Risk-triggered verified AI-UAT evidence",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 121056725075,
+        "name": "Contract and workflow policy",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 121056725091,
+        "name": "Backend (ubuntu-latest, Python 3.12)",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 121056725137,
+        "name": "Real offline browser smoke",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 121056725181,
+        "name": "Frontend types, whole-source coverage and build",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 121056725197,
+        "name": "Dependency and high-confidence security checks",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 121056725214,
+        "name": "Backend (windows-latest, Python 3.11)",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 121056725239,
+        "name": "Backend (ubuntu-latest, Python 3.11)",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 121056725242,
+        "name": "Backend (windows-latest, Python 3.12)",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 121056725981,
+        "name": "Matching-source live research qualification",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "id": 121059867107,
+        "name": "Development gate",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 121059896777,
+        "name": "Human release authorization",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "id": 121059896926,
+        "name": "QA gate",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "id": 121059897418,
+        "name": "Release gate",
+        "status": "completed",
+        "conclusion": "skipped"
+      }
+    ]
+  }
+}

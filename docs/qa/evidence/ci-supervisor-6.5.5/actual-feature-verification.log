@@ -1,0 +1,11 @@
+VERIFY: PASS
+Profile: feature / all
+Tests: {"PASS": 1076, "FAIL": 0, "ERROR": 0, "SKIP": 8, "NOT_RUN": 0, "BLOCKED": 0, "UNVERIFIED": 0}
+Affected: 671 files; risk CRITICAL
+Root cause: symlinks need developer mode / admin on Windows (2 cases)
+Root cause: set PHDLAB_CODEX_LIVE=1 to run one real read-only Codex task (1 cases)
+Root cause: set PHDLAB_LMSTUDIO_LIVE=1 (+ optional PHDLAB_LMSTUDIO_MODEL) to load/unload a real LM Studio model (1 cases)
+Root cause: pip install clearml to record a real offline session (1 cases)
+Root cause: Optional official SDK not installed; run with audited SDK source on PYTHONPATH (1 cases)
+Evidence: D:\git-repo\PhD-Research-Lab-worktrees\ci-repair-controlled-exercise\output\playwright\ci-repair\397266236df94b14bdbcf85bf64015b4-feature\report.json
+Next action: Use independent CI before merge; full qualification before promotion

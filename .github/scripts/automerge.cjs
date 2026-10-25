@@ -11,7 +11,7 @@ function blockingReviews(reviews) {
 function assess(s) {
   const errors = [];
   const p = s.pr;
-  if (!p || p.state !== 'open' || p.draft || p.base?.ref !== 'dev' || !/^feature\/[a-z0-9][a-z0-9._/-]*$/i.test(p.head?.ref || '')) errors.push('Only open non-draft feature/* -> dev PRs are eligible');
+  if (!p || p.state !== 'open' || p.draft || p.base?.ref !== 'dev' || !/^(feature|fix)\/[a-z0-9][a-z0-9._/-]*$/i.test(p.head?.ref || '')) errors.push('Only open non-draft feature/fix -> dev PRs are eligible');
   if (p?.head?.repo?.full_name !== s.repository || p?.base?.repo?.full_name !== s.repository || p?.user?.login !== s.owner) errors.push('Untrusted repository or author');
   if (p?.mergeable !== true || p?.mergeable_state !== 'clean') errors.push('Conflicted, outdated or indeterminate merge state');
   if (!/Contract:\s*FQC-[A-Z0-9-]+/.test(p?.body || '')) errors.push('Missing feature contract reference');
@@ -56,13 +56,14 @@ async function run({github, context, core}, number, apply = true) {
   const fresh = (await github.rest.pulls.get({owner,repo,pull_number:number})).data;
   if (fresh.head.sha !== pr.head.sha || fresh.base.ref !== 'dev') return {decision:'BLOCKED',reasons:['PR changed during eligibility check']};
   // Native GitHub merge policy remains authoritative; never use admin overrides.
-  await github.graphql(`mutation($id: ID!, $sha: GitObjectID!) {
-    mergePullRequest(input:{pullRequestId:$id, expectedHeadOid:$sha, mergeMethod:SQUASH}) {
-      pullRequest { number merged mergeCommit { oid } }
+  if (!fresh.auto_merge) await github.graphql(`mutation($id: ID!) {
+    enablePullRequestAutoMerge(input:{pullRequestId:$id, mergeMethod:SQUASH}) {
+      pullRequest { number }
     }
-  }`,{id:pr.node_id,sha:pr.head.sha});
+  }`,{id:pr.node_id});
   const merged=(await github.rest.pulls.get({owner,repo,pull_number:number})).data;
-  if (!merged.merged || !merged.merge_commit_sha) return {decision:'UNVERIFIED',reasons:['Native merge was requested but completion is not confirmed']};
+  if (!merged.merged || !merged.merge_commit_sha) return {decision:merged.auto_merge?'AUTO_MERGE_ENABLED':'UNVERIFIED',
+    reasons:['Native auto-merge requested; actual merge completion must be observed separately'],head:pr.head.sha};
   core.info(`Native squash dev merge confirmed for PR ${number}: ${merged.merge_commit_sha}`);
   return {decision:'MERGED',head:pr.head.sha,merge_commit_sha:merged.merge_commit_sha};
 }

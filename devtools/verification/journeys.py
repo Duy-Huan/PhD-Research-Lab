@@ -20,7 +20,7 @@ def relevant_contracts(changed: list[str], contracts: list[dict]) -> list[dict]:
                 for pattern in c.get('affected_modules', []) if isinstance(pattern, str))]
 
 
-def browser_plan(root: Path, changed: list[str], contracts: list[dict], profile: str) -> dict:
+def browser_plan(root: Path, changed: list[str], contracts: list[dict], profile: str, all_offline: bool = False) -> dict:
     config = load_configuration(root)
     policy = requirements(changed, contracts)
     journeys = config['journeys']
@@ -29,6 +29,8 @@ def browser_plan(root: Path, changed: list[str], contracts: list[dict], profile:
                     if any(fnmatch.fnmatchcase(p, pattern) for p in changed for pattern in record['paths']))
     if profile in ('full', 'release'):
         selected.update(journeys)
+    if all_offline:
+        selected.update(name for name,record in journeys.items() if not record['needs_model'])
     tests = list(config['smoke'])
     errors, states = [], {}
     for name in sorted(selected):
@@ -49,4 +51,5 @@ def browser_plan(root: Path, changed: list[str], contracts: list[dict], profile:
     return {'schema_version': 1, 'tests': tests, 'journeys': states, 'exploration': policy,
             'errors': errors, 'calls_model': False, 'status': 'NOT_RUN',
             'scope': 'Selection only; deterministic execution and exploratory qualification are separate',
+            'selection_mode': 'ALL_NON_MODEL' if all_offline else 'DIFF_OR_PROFILE',
             'personas': {name: [j for j in ids if j in selected] for name, ids in config['personas'].items()}}

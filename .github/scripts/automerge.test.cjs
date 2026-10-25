@@ -9,6 +9,7 @@ function valid() {
     checks:[{name:'Development gate',head_sha:'abc',app:{id:15368},status:'completed',conclusion:'success'}],reviews:[]};
 }
 test('eligible same-repository dev PR requires every safeguard',()=>assert.deepEqual(assess(valid()),[]));
+test('trusted fix branch uses the same complete dev safeguards',()=>{const s=valid();s.pr.head.ref='fix/regression';assert.deepEqual(assess(s),[]);});
 for (const [name,mutate] of [
   ['main',s=>s.pr.base.ref='main'], ['qa',s=>s.pr.base.ref='qa'], ['fork',s=>s.pr.head.repo.full_name='fork/repo'],
   ['unknown author',s=>s.pr.user.login='outsider'], ['draft',s=>s.pr.draft=true],
@@ -40,4 +41,16 @@ test('unreadable branch protection blocks with an actionable decision and no wri
   const result=await run({github,context:{repo:{owner:'owner',repo:'repo'}},core:{info(){}}},7);
   assert.equal(result.decision,'BLOCKED');assert.equal(wrote,false);
   assert.match(result.reasons.join(' '),/Administration/);
+});
+
+test('successful policy requests native auto-merge rather than directly merging', async () => {
+  const s=valid();let enabled=false;
+  const checksFn=()=>{},reviewsFn=()=>{};
+  const github={rest:{pulls:{get:async()=>({data:{...s.pr,node_id:'fixture-node',auto_merge:enabled?{merge_method:'squash'}:null,merged:false}}),listReviews:reviewsFn},
+    checks:{listForRef:checksFn},repos:{getBranchProtection:async()=>({data:s.protection}),get:async()=>({data:{allow_auto_merge:true}}),
+      compareCommitsWithBasehead:async()=>({data:{status:'ahead'}})}},
+    paginate:async fn=>fn===checksFn?s.checks:[],
+    graphql:async query=>{assert.match(query,/enablePullRequestAutoMerge/);assert.doesNotMatch(query,/\bmergePullRequest\(/);enabled=true;return {};}};
+  const result=await run({github,context:{repo:{owner:'owner',repo:'repo'}},core:{info(){}}},7);
+  assert.equal(result.decision,'AUTO_MERGE_ENABLED');assert.equal(enabled,true);
 });

@@ -1,0 +1,82 @@
+{
+  "tdd-red.json": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/tdd-red.json",
+    "sha256": "fee0febfff8371ef8338c4e36e046805bd5b1f9ecd135f80c035098e5e8b06f1"
+  },
+  "final-workflow-red.json": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/final-workflow-red.json",
+    "sha256": "42aef7ea534a35147ff644b1351bc9d8c05550445523e945eef75dfa31c410e0"
+  },
+  "final-contract-green.json": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/final-contract-green.json",
+    "sha256": "01abd318053b91c93eda8f2fc054be1cd6580091c8f4df994ab7698e2abd0a3f"
+  },
+  "actual-push-rerun.json": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/actual-push-rerun.json",
+    "sha256": "1b0f450facaca2aa6b9b44680d2b11c4c112c65be2ac3d8263900eb9e6fe63ad"
+  },
+  "exercise-runs-final.json": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/exercise-runs-final.json",
+    "sha256": "bdbebde43d13e3e1f1b0730e34a5c2c1b0a0d49bdf820aa7d8d214bcd103d884"
+  },
+  "github-workflow-inventory.json": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/github-workflow-inventory.json",
+    "sha256": "2d554bd695f8b1d3c4fa6093cfceb1aca0b43ea9a86b81ba7e44682d2549e718"
+  },
+  "legacy-workflows-disabled.json": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/legacy-workflows-disabled.json",
+    "sha256": "d8473f101a975f25ae3298a94983a2143aed51e51c99466ae306ef1a40244931"
+  },
+  "pr10-policy-actual.log": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/pr10-policy-actual.log",
+    "sha256": "285b1a7d453f3d3e15072c0c345d2ee2d6863757279d23b1cbc2d66e4c0c8ace"
+  },
+  "pr10-live-checkpoint.json": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/pr10-live-checkpoint.json",
+    "sha256": "688f4033f8b0302f91696fc74c460dc5a1bd4f5fa82e064ad5d0ad657ef3bf1a"
+  },
+  "application-integrated-failed.json": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/application-integrated-failed.json",
+    "sha256": "bd5f8f488a27313113be7061d6a4d850c249bef37299ef247fdb10b7342f609d"
+  },
+  "application-repaired-feature.json": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/application-repaired-feature.json",
+    "sha256": "5c9802cbb93fdc88a48d9290c2aa25fa73a9d182cafdc2487a983518e2c45f9c"
+  },
+  "remote-context-red.json": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/remote-context-red.json",
+    "sha256": "75fe06563f06a5d16aabc0caea22e5637a2fa9d2890c5beb81d00fba1a00e071"
+  },
+  "remote-context-and-cli-fixture-green.json": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/remote-context-and-cli-fixture-green.json",
+    "sha256": "d785d617e62539334d6ba6362a8129badc119790204f978deefe8d2438c4091f"
+  },
+  "actual-repair-state.json": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/actual-repair-state.json",
+    "sha256": "ff4c76d5a9c59770697d4727f3f2c6e448fc53bc36d8d5126660e115a2999236"
+  },
+  "actual-cli-invocation.json": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/actual-cli-invocation.json",
+    "sha256": "d4223f4ce36f3b0bf9df4e9d72d9f683d55a47448d88e8f2bc5af71bca48327c"
+  },
+  "actual-cli-events-excerpt.json": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/actual-cli-events-excerpt.json",
+    "sha256": "bdecf5d8babbd254a58756cd102907977698f946abfd2afa2162c3475a0bb44a"
+  },
+  "actual-targeted-verification.log": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/actual-targeted-verification.log",
+    "sha256": "3edb7ab51f7ac2ef3597c892c55c4fa9e5ffdcdb5e0e256300b12a5040b38423"
+  },
+  "actual-feature-verification.log": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/actual-feature-verification.log",
+    "sha256": "d1500782d46a9dd777bfbcbd6ec56565e6cdd354ea5a28aa66c940f0067b77c4"
+  },
+  "actual-targeted-report.json": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/actual-targeted-report.json",
+    "sha256": "ae208ca0bc33988eeccf9cf06e172c2133666bb5d8eed508e437fcf55e722a39"
+  },
+  "actual-feature-report.json": {
+    "path": "docs/qa/evidence/ci-supervisor-6.5.5/actual-feature-report.json",
+    "sha256": "1cf1f09d90e475598590f0ea7fa4315dc772ab54c27193d1c5da9ecdee6b334b"
+  }
+}

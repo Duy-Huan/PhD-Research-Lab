@@ -1,3 +1,5 @@
+Current repair adapter evidence: Codex native6.1-sol/high executed actual PR10 repair (thread01a170e7-cb1c-7280-b971-d616b2c24a06); first trial needed supervising-agent environment recovery, then targeted/feature verification and push87703f7/new CI40155743019. Claude/Antigravity coding-repair execution remains NOT RUN; argv guards are unit tests, not live qualification. Read CI_REPAIR_SUPERVISOR.md. Historical client/browser notes follow.
+
 # Agent client compatibility
 
 All clients use `python scripts/verify.py` and the same AGENTS/SOP/contract policy. A shell command being portable is different from a native browser integration having been exercised inside each client.

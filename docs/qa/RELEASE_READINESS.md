@@ -1,3 +1,7 @@
+# Candidate6.5.5 current status: NO-GO
+
+Read AUTONOMOUS_CI_REPAIR_REPORT.md, COMPARISON_PROTOCOL.md and active agent/STATE.md. Actual controlled CLI repair/push/rerun succeeded only through the repair stages; required CI remainsFAIL, no native merge/release occurred. Legacy duplicate workflows disabled, current new CI/CD candidate and same-suite comparison are being verified. No baseline exceptions or threshold relaxation. Earlier assessments below describe older checkpoints.
+
 # Emergency recovery decision: NO-GO
 
 See [CI_ROOT_CAUSE_REPORT.md](CI_ROOT_CAUSE_REPORT.md) and [KNOWN_ISSUES_BASELINE.json](KNOWN_ISSUES_BASELINE.json). Candidate6.5.3 is not released or merge-qualified. Auto-merge is disabled; never automatically merge main. Mandatory coverage/live gaps remain blocking; no exceptions approved. Earlier enabled-auto-merge/reviewer-count statements below are historical, not current remote state.

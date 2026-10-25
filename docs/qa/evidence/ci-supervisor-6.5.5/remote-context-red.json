@@ -1,0 +1,21 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_latest_integration_regressions.LatestIntegration.test_remote_compute_context_preserves_record_identity_and_unverified_status",
+      "status": "ERROR",
+      "duration": 7.0592,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_latest_integration_regressions.py\", line 19, in test_remote_compute_context_preserves_record_identity_and_unverified_status\n    item=next(x for x in Adapter()._runs() if x['id']=='state:compute_runs')\n                         ^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\backend\\agent\\project_context.py\", line 206, in _runs\n    json.dumps([{k: r.get(k) for k in (\"run_id\", \"hypothesis_id\", \"experiment_id\", \"status\", \"metrics\", \"artifact_refs\", \"evaluation\")} for r in remote]),\n    ^^^^\nNameError: name 'json' is not defined\n"
+    }
+  ],
+  "subtests": [],
+  "total": 1,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-qonv3c6u",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "attempts": 1,
+  "history": [
+    {
+      "attempt": 1,
+      "head": "ceff5055635baf71637cb88bd4686c096c12ae8a",
+      "run": 40154407248,
+      "reserved_utc": "2026-10-25T02:33:20.742924+00:00"
+    }
+  ],
+  "phase": "BLOCKED_INFRASTRUCTURE_OR_UNASSIGNED",
+  "policy_sha256": "3cea1b595e9719a8defdc4da50fbe0b9895b15516e62667c20bc87da2c9c23cd",
+  "run": 40155743019,
+  "head": "87703f74963ff40527edde35f19567219eec22c2",
+  "agent_exit": 0,
+  "agent_evidence": "D:\\git-repo\\PhD-Research-Lab\\.git\\ci-repair\\pr-10\\attempt-1\\agent-events.jsonl",
+  "reasons": [
+    "No authorized reproducible assertion failure. Coverage, skips or missing evidence are not an automatic AI repair assignment."
+  ],
+  "owned_dirty": "53b621f74cca584b6efe806850447b2f95c770c377d7e77eee2dff140aeec9aa",
+  "owner_patch_review": {
+    "paths": [
+      "qa/fixtures/ci_repair/arithmetic.py"
+    ],
+    "utc": "2026-10-25T02:37:32.137151+00:00",
+    "reason": "Owner reviewed preserved CLI patch after resolving supervisor infrastructure artifact; no new model invocation or budget reset"
+  },
+  "fixed_sha": "87703f74963ff40527edde35f19567219eec22c2",
+  "pushed_sha": "87703f74963ff40527edde35f19567219eec22c2",
+  "previous_run": 40154407248,
+  "diagnostics": "D:\\git-repo\\PhD-Research-Lab\\.git\\ci-repair\\pr-10\\run-40155743019-1-79d233fb\\diagnostics.json"
+}
