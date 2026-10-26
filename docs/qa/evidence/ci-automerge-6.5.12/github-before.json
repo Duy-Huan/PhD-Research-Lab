@@ -1,0 +1,83 @@
+{
+  "branches": {
+    "dev": {
+      "sha": "536f09c6c102931023cd21d521ef74816fb7f2bf",
+      "protected": true
+    },
+    "qa": {
+      "sha": "a10bf8d8b38a6cc053b5d69fc257d6a1534049b4",
+      "protected": true,
+      "policy": {
+        "required_status_checks": {
+          "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/qa/protection/required_status_checks",
+          "strict": true,
+          "contexts": [
+            "QA gate"
+          ],
+          "contexts_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/qa/protection/required_status_checks/contexts",
+          "checks": [
+            {
+              "context": "QA gate",
+              "app_id": 15368
+            }
+          ]
+        },
+        "required_pull_request_reviews": {
+          "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/qa/protection/required_pull_request_reviews",
+          "dismiss_stale_reviews": true,
+          "require_code_owner_reviews": false,
+          "require_last_push_approval": false,
+          "required_approving_review_count": 0
+        },
+        "enforce_admins": {
+          "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/qa/protection/enforce_admins",
+          "enabled": true
+        },
+        "allow_force_pushes": {
+          "enabled": false
+        },
+        "allow_deletions": {
+          "enabled": false
+        }
+      }
+    },
+    "main": {
+      "sha": "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+      "protected": true,
+      "policy": {
+        "required_status_checks": {
+          "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/main/protection/required_status_checks",
+          "strict": true,
+          "contexts": [
+            "QA gate"
+          ],
+          "contexts_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/main/protection/required_status_checks/contexts",
+          "checks": [
+            {
+              "context": "QA gate",
+              "app_id": 15368
+            }
+          ]
+        },
+        "required_pull_request_reviews": {
+          "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/main/protection/required_pull_request_reviews",
+          "dismiss_stale_reviews": true,
+          "require_code_owner_reviews": false,
+          "require_last_push_approval": false,
+          "required_approving_review_count": 0
+        },
+        "enforce_admins": {
+          "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/main/protection/enforce_admins",
+          "enabled": true
+        },
+        "allow_force_pushes": {
+          "enabled": false
+        },
+        "allow_deletions": {
+          "enabled": false
+        }
+      }
+    }
+  },
+  "allow_auto_merge": false
+}

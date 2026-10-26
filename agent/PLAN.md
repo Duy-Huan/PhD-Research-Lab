@@ -1,3 +1,13 @@
+# Active owner order 2026-10-26: actual CI/CD first, native core6.6.xx second
+
+Owner follow-up 2026-10-27: the full checklist is now a binding design requirement in [NATIVE_AI_RESEARCH_ENVIRONMENT.md](NATIVE_AI_RESEARCH_ENVIRONMENT.md), linked from all agent entry points. The checklist clarification is resolved. Maintain every item with actual source/evidence/status; do not infer completed capabilities from the requirements file. New policy input requires fresh frozen verification before publication.
+
+1. Complete pending6.5.12 diagnostic correction against the actual Windows fatal CI evidence. Preserve prototype/user work and original unexecuted outcomes. TASK-CI-6510-RECOVERY records2failedcycles, one correction remains; no reset. Run quick, feature and completepr/all on frozen source.
+2. Normal guardeddevcommit/push, inspect exact fresh GitHub run in browser+API, all4backendmatrix plus frontend/browser/policy/security must PASS. Register trusted promotion controller, protected native dev->qa->main only; prove actual PR merge SHAs/main containment and release. Never call queued auto-merge completion.
+3. Audit source paths for prompts/routing/orchestration/context/memory/skills/nativeCLI/API/Hermes/collaboration. Each finding needs source/function/line/runtime/severity/reproduction/correction. No duplicate research engine; preserve resource/permission/data/evidence controls.
+4. Implement confirmedP0/P1 via reviewed contracts/behavioral and adversarial tests; reuse reviewed pinned GitHub skills. Version6.6.xx for core changes. Full mandatory software regression, separate real-provider agent-tool execution and scientific L3/L4 qualification. Keep every unavailable/unexecuted outcome visible.
+5. Deliver source-linked audit, actual before/after evidence, counts/coverage denominators, remaining blockers and nextsteps only after verified main containment; blocked budgets require explicit incomplete handoff. Checklist image absent; optional text clarification pending.
+
 # Active priority2026-10-26 ? recover CI, software-only promotion at ALL stages
 
 Owner confirmed all dev->qa->main require regression100%PASS; live-provider/AI-UAT separate, coverage informational. All earlier mandatorylive QA/main entries below are historical/superseded. Preserve full regression/security/API/data invariants, source identity and protected native forward merge.

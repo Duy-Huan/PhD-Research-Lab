@@ -15,3 +15,12 @@ Unresolved historical incident: Ubuntu/Python3.11 exited withSIGSEGV/-11 before 
 Policy change was explicitly authorized by the owner, independently of these backend repairs: mandatory Quality Gates retains complete backend/frontend/browser/static/security checks; QA aggregates Development gate; live/AI-UAT jobs are removed from that prerequisite graph and the evidence publisher is manual-dispatch only. Its evidence validators and UAT budgets remain intact. Policy RED2FAIL and GREEN37PASS are retained, along with current full local regression. Protected branch checks/admin enforcement are unchanged.
 
 Current autonomous correction cycle1; no blind rerun of the unchanged old source, no status forgery, assertion weakening, coverage cutoff, force push, administrative bypass or paid AI call.
+
+
+## Follow-up 6.5.12: fatal Windows CI diagnostics
+
+[Exact run 40344069655](https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40344069655) on `536f09c6c102931023cd21d521ef74816fb7f2bf`: both Windows backend processes aborted with access violations; both Linux backend reports are 1017/1017 PASS; frontend/browser/policy/security PASS. The aborted Windows reports contain no complete denominator and remain FAIL. Source read and crash traces were inspected on GitHub web plus authenticated API artifacts.
+
+The pre-existing uncommitted candidate replaces `faulthandler.dump_traceback_later` in `tools/backend_quality_gate.py::run_gate` with `devtools/verification/diagnostics.py::periodic_stacks`: bounded GIL-held snapshots, no frame locals, owned thread joined in finally, original assertion errors propagate. Parent process deadlines and fatal-signal diagnostics remain. CPython reports [158200](https://github.com/python/cpython/issues/158200) and [140815](https://github.com/python/cpython/issues/140815) document crashes during no-GIL native traceback traversal. This is a plausible mechanism, not a deterministic reproduction/proven root for this exact hosted crash. Targeted real-local regression: 3/3 PASS, zero skips; fresh complete local software regression and independent hosted Windows matrix are still required.
+
+Original raw logs/artifacts remain under shared `.git/ci-observations/6.5.11-dev/failure-40344069655/`. No tests/gates/coverage policy were weakened. User requests CI/CD first, then core audit/version6.6.xx; this CI-only patch is6.5.12. Every coding task now requires actual browser inspection and verified containment in main before completion.

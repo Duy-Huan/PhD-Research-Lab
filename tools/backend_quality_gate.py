@@ -270,11 +270,9 @@ def run_gate(
     )
 
     t0 = time.perf_counter()
-    import faulthandler
-    with (output_dir / 'stall-stacks.log').open('w', encoding='utf-8') as stacks:
-        faulthandler.dump_traceback_later(300, repeat=True, file=stacks)
-        try: result = runner.run(suite)
-        finally: faulthandler.cancel_dump_traceback_later()
+    from devtools.verification.diagnostics import periodic_stacks
+    with periodic_stacks(output_dir / 'stall-stacks.log'):
+        result = runner.run(suite)
     after_hashes = {k: v for k, v in source_hashes().items() if k.startswith('backend/')}
     source_stable = before_hashes == after_hashes
     elapsed = time.perf_counter() - t0

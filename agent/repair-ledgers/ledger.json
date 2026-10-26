@@ -60,5 +60,21 @@
         "status": "FAIL"
       }
     ]
+  },
+  "TASK-CI-6510-RECOVERY": {
+    "attempts": 2,
+    "history": [
+      {
+        "sha": "3f60a77c54ada9f1197c901019a119ad5d4ddebf",
+        "status": "FAIL",
+        "evidence": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40331308169"
+      },
+      {
+        "sha": "536f09c6c102931023cd21d521ef74816fb7f2bf",
+        "status": "FAIL",
+        "evidence": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40344069655"
+      }
+    ],
+    "note": "Historical cycle1 missing dependency/protocol fixture, cycle2 native Windows process abort. Preserve same stable group; third correction is pending genuine local+remote verification. No further automatic repair after three failed cycles."
   }
 }

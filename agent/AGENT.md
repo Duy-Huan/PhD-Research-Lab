@@ -31,3 +31,9 @@ Commands and user-facing instructions: [DEV_QA_MAIN.md](DEV_QA_MAIN.md). Current
 
 
 HERMES NETWORK OWNER OVERRIDE2026-10-26: Hermes container must have unrestricted direct Internet, no outbound domain allowlist/forced proxy/network=none. Retain Docker runtime independence, project-contained filesystem mounts, scoped native tools and no PhD credentials/source/Docker socket. This applies to Hermes; keep other provider policies unchanged.
+
+## Owner completion rule (2026-10-26)
+
+Owner design constraints (2026-10-27): read the complete [Native AI Research Environment checklist](NATIVE_AI_RESEARCH_ENVIRONMENT.md) before core, prompt, orchestration, context, memory, tool, provider or runtime design/changes. Maintain item-level status, source and actual evidence, including the seven required reports. CI/CD is first; the native core campaign targets 6.6.xx. Requirements or software PASS do not certify real scientific execution or L3/L4.
+
+For every coding task, the AI agent must inspect the actual repository on GitHub **in a browser**: the exact commit, relevant Actions run and forward promotion PRs. A CLI/API receipt supplements this browser inspection. Local PASS, a push, an open PR or an auto-merge request is not completion. Continue the authorized protected automatic `dev -> qa -> main` flow; verify both PRs are actually merged, record their URLs and merge SHAs, and prove the task commit is contained in current `main`. Where delivery is in scope, also verify the exact main release SHA. Never report the coding task complete before this evidence exists. If mandatory gates fail or a repair budget is exhausted, retain an explicit incomplete/blocker handoff with actual evidence; do not bypass protection or manufacture success. This rule does not turn software CI into live-provider or scientific L3/L4 qualification.
