@@ -1551,12 +1551,9 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                           <span style={{ fontSize: 11, fontWeight: 600 }}>Động cơ Nghiên cứu:</span>
                           <select
                             className="input sm"
-                            value={String(nodeConfig.engine || 'feynman')}
+                            value={String(nodeConfig.engine || 'phdlab')}
                             onChange={(e) => updateSelectedNodeConfig('engine', e.target.value)}
                           >
-                            <option value="feynman">Feynman (Khám phá & Tổng hợp)</option>
-                            <option value="openscience">OpenScience (Thực nghiệm)</option>
-                            <option value="opencode">OpenCode (Mã nguồn & Sandbox)</option>
                             <option value="paperorchestra">PaperOrchestra (Biên soạn Bài báo)</option>
                           </select>
                         </label>

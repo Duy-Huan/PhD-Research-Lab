@@ -109,8 +109,10 @@ describe('Composer', () => {
 
     fireEvent.click(toolsBtn);
     expect(screen.getByText('Outline')).toBeInTheDocument();
-    expect(screen.getByText('Feynman')).toBeInTheDocument();
-    expect(screen.getByText('OpenScience')).toBeInTheDocument();
+    expect(screen.getByText(/Khảo sát tài liệu|Literature/)).toBeInTheDocument();
+    expect(screen.queryByText('Feynman')).not.toBeInTheDocument();
+    expect(screen.getByText(/Phân tích khoa học|Scientific analysis/)).toBeInTheDocument();
+    expect(screen.queryByText('OpenScience')).not.toBeInTheDocument();
   });
 
   it('renders unauthenticated CLI warning and supports terminal login or web/app forward', async () => {

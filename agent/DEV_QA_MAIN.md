@@ -10,8 +10,6 @@ Use Python3.11/3.12 and Node24. Read AGENTS.md, AGENT.md, STATE.md, PLAN.md and 
 git status --short
 git branch --show-current
 python -m pip install --require-hashes -r requirements-ci.lock
-python scripts/install_ci_sdk.py --out output/playwright/ci-sdk
-$env:PYTHONPATH = (Resolve-Path output/playwright/ci-sdk).Path
 $env:NO_PROXY = 'localhost,127.0.0.1,::1'
 python scripts/development_guard.py install
 Push-Location frontend

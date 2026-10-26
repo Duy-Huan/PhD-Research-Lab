@@ -9,8 +9,7 @@ category: research
 agent: research
 mode: run
 pipeline: research
-provider: feynman
-feynman: lit
+provider: phdlab
 risk: 0
 aliases: [literature]
 ---

@@ -55,9 +55,9 @@ class FigureAction(Contract):
     waveform: dict = Field(default_factory=dict)
 
 
-class OpenCodeTaskArgs(Contract):
-    goal: str = Field(default="Implement and verify baseline module", max_length=8000)
-    workspace_id: str = ""
+class NativeCodeTaskArgs(Contract):
+    goal: str = Field(default="", max_length=8000)
+    run_id: str = ""
     from_task: str = ""
 
 
@@ -83,7 +83,7 @@ INPUTS.update({
     "figure.validate": FigureAction,
     "figure.export": FigureAction,
     "figure.regenerate": FigureAction,
-    "opencode.implement": OpenCodeTaskArgs,
+    "code.implement": NativeCodeTaskArgs,
     "paperorchestra.outline": PaperWritingAction,
     "paperorchestra.section_write": PaperWritingAction,
     "paperorchestra.refine": PaperWritingAction,
@@ -98,7 +98,7 @@ META = {
     "paper.discover": ("Discover topic metadata", True, ["network", "workspace_write"], ["deterministic"]),
     "paper.download": ("Resolve/download bounded OA PDFs", True, ["network", "workspace_write"], ["deterministic"]),
     "paper.inspect": ("Inspect scoped metadata and source versions", True, [], ["deterministic"]),
-    "paper.compare": ("Synthesize selected source evidence", False, ["reasoning", "network", "workspace_write"], ["feynman", "openscience", "opencode", "app"]),
+    "paper.compare": ("Synthesize selected source evidence", False, ["reasoning", "network", "workspace_write"], ["phdlab", "app"]),
     "workspace.sync": ("Reconcile native workspace files", True, ["workspace_write"], ["deterministic"]),
     "mission.report": ("Write evidence manifest and pending-review report", True, ["workspace_write"], ["deterministic"]),
     "figure.create_2d": ("Create deterministic 2D publication plot from verified source data", True, ["workspace_write"], ["deterministic"]),
@@ -109,7 +109,7 @@ META = {
     "figure.validate": ("Verify figure numerical integrity and data hash against source", True, [], ["deterministic"]),
     "figure.export": ("Export verified figure artifact in SVG/PNG/PDF formats", True, ["workspace_write"], ["deterministic"]),
     "figure.regenerate": ("Regenerate immutable figure version from FigureSpec and source data", True, ["workspace_write"], ["deterministic"]),
-    "opencode.implement": ("Delegate scoped repository analysis, code edit, or test execution to OpenCode", False, ["reasoning", "workspace_write"], ["opencode", "app"]),
+    "code.implement": ("Create or inspect a native coding run; writes require its existing approval and completion requires actual files", True, ["workspace_write"], ["deterministic"]),
     "paperorchestra.outline": ("Generate structured paper outline, bullet points and citation hints", False, ["reasoning", "workspace_write"], ["paperorchestra", "app"]),
     "paperorchestra.section_write": ("Draft publication-ready LaTeX body section grounded in evidence", False, ["reasoning", "workspace_write"], ["paperorchestra", "app"]),
     "paperorchestra.refine": ("Refine and format LaTeX manuscript for target venue", False, ["reasoning", "workspace_write"], ["paperorchestra", "app"]),

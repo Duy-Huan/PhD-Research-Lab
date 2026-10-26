@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { MissionTask } from '../../shared/api/types';
 import { X, AlertTriangle, FileCheck } from 'lucide-react';
+import { ChatRunCard } from '../chat/ChatRunCard';
 
 interface TaskInspectorProps {
   task: MissionTask | null;
@@ -15,6 +16,8 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ task, onClose }) =
   const spec = task.payload.spec;
   const result = task.payload.result;
   const execRecord = task.payload.execution_record;
+  const nativeRun = result?.output && typeof result.output === 'object' && 'run_id' in result.output
+    ? String(result.output.run_id || '') : '';
 
   return (
     <div
@@ -63,6 +66,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ task, onClose }) =
       </div>
 
       {/* Tab Content */}
+      {spec.capability === 'code.implement' && /^RR-[A-Za-z0-9-]+$/.test(nativeRun) && <ChatRunCard id={nativeRun} />}
       {tab === 'overview' && (
         <div style={{ display: 'grid', gap: 6, fontSize: 13 }}>
           <div>Trạng thái: <b>{task.status.toUpperCase()}</b></div>

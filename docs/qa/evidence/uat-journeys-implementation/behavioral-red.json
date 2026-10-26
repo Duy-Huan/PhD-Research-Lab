@@ -1,0 +1,35 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_uat_journeys.JourneyEvidence.test_false_deterministic_assertion_cannot_be_overridden_by_ai_success",
+      "status": "FAIL",
+      "duration": 0.0625,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_uat_journeys.py\", line 60, in test_false_deterministic_assertion_cannot_be_overridden_by_ai_success\n    self.assertTrue(validate_manifest(path,'source',{'required':True,'journeys':['settings-language'],'independent_review':True}))\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: [] is not true\n"
+    },
+    {
+      "id": "test_uat_journeys.JourneyEvidence.test_one_settings_run_cannot_qualify_three_unexecuted_journeys",
+      "status": "FAIL",
+      "duration": 0.0247,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_uat_journeys.py\", line 40, in test_one_settings_run_cannot_qualify_three_unexecuted_journeys\n    self.assertTrue(validate_manifest(path,'source',{'required':True,'journeys':data['verified_journeys'],'independent_review':True}),\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                    'A settings action history must not qualify copied journey names')\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: [] is not true : A settings action history must not qualify copied journey names\n"
+    },
+    {
+      "id": "test_uat_journeys.JourneyEvidence.test_raw_journey_identity_must_match_declaration",
+      "status": "FAIL",
+      "duration": 0.0296,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_uat_journeys.py\", line 49, in test_raw_journey_identity_must_match_declaration\n    self.assertTrue(validate_manifest(path,'source',{'required':True,'journeys':['settings-language'],'independent_review':True}))\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: [] is not true\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 3,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-ff6nr1_n",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

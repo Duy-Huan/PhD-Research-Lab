@@ -19,14 +19,16 @@ class Workstreams(unittest.TestCase):
     def setUp(self):
         _env.isolate_config(self);_env.fresh_project("Collaboration tests",code_project=None)
         config.save_config({"research_os":{"enabled":True,"team_enabled":True,"multi_team_enabled":True}})
-        self.tid=S.save_topic(S.TopicInput(title="Workstream topic"))["id"]
+        self.tid=_env.legacy_topic(S.TopicInput(title="Workstream topic"))["id"]
 
     def spec(self,tasks,**kw):
         data={"topic_id":self.tid,"objective":"Bounded multi-domain work","permissions":["workspace_write"],"control":{"success_criteria":["Evidence and receipts preserved"],"end_date":(datetime.now(timezone.utc)+timedelta(hours=1)).isoformat()},"tasks":tasks};data.update(kw)
         return MissionSpec.model_validate(data)
 
     def multi(self):
-        a=W.link(self.tid,W.WorkspaceInput(engine="openscience"));b=W.link(self.tid,W.WorkspaceInput(engine="feynman"))
+        locations=[config.data_dir()/'topics'/self.tid/name for name in ('experiment-context','coding-context')]
+        for location in locations:location.mkdir(parents=True,exist_ok=True)
+        a,b=[W.link(self.tid,W.WorkspaceInput(engine='phdlab',path=str(location))) for location in locations]
         return C.partition(self.spec([{"id":"science","capability":"workspace.sync","args":{"workspace_id":a["id"]}},{"id":"feynman","capability":"workspace.sync","args":{"workspace_id":b["id"]}},{"id":"report","capability":"mission.report","depends_on":["science","feynman"]}]))
 
     def approve(self,spec):
@@ -90,7 +92,7 @@ class Workstreams(unittest.TestCase):
 
     def test_topic_and_project_isolation_and_escalation_audit(self):
         spec=self.multi();m=self.approve(spec)
-        other=S.save_topic(S.TopicInput(title="Private other Topic"))["id"]
+        other=_env.legacy_topic(S.TopicInput(title="Private other Topic"))["id"]
         with self.assertRaises(ValueError):C.monitor(other,m["id"])
         spec.collaboration.workstreams[0].topic_id=other
         with self.assertRaises(ValueError):M.create(spec)
@@ -110,8 +112,9 @@ class Workstreams(unittest.TestCase):
 
     def test_failed_native_domain_does_not_fake_other_domain_completion(self):
         m=self.approve(self.multi());original=W.sync
+        failed_workspace=m['payload']['spec']['tasks'][0]['args']['workspace_id']
         def failed(wid,*args,**kwargs):
-            if W.get(wid)["engine"]=="openscience":raise ValueError("Native workspace unavailable")
+            if wid==failed_workspace:raise ValueError("Native workspace unavailable")
             return original(wid,*args,**kwargs)
         with patch.object(W,"sync",side_effect=failed):self.drive(1)
         tasks=M.get(m["id"])["tasks"]

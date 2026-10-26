@@ -16,7 +16,7 @@ class Teams(unittest.TestCase):
     def setUp(self):
         _env.isolate_config(self);_env.fresh_project("Team tests",code_project=None)
         config.save_config({"research_os":{"enabled":True,"team_enabled":True}})
-        self.tid=S.save_topic(S.TopicInput(title="Team topic"))["id"]
+        self.tid=_env.legacy_topic(S.TopicInput(title="Team topic"))["id"]
 
     def spec(self,**kw):
         data={"topic_id":self.tid,"objective":"Scoped work","permissions":["workspace_write"],"control":{"success_criteria":["Bounded evidence"],"end_date":(datetime.now(timezone.utc)+timedelta(hours=1)).isoformat()},"tasks":[{"id":"inspect","capability":"paper.inspect"},{"id":"report","capability":"mission.report","depends_on":["inspect"]}]};data.update(kw)
@@ -70,7 +70,7 @@ class Teams(unittest.TestCase):
         with self.assertRaises(ValueError):M.create(child)
 
     def test_unavailable_native_pauses_without_paid_admission(self):
-        spec=self.comparison("openscience");m=self.approve(spec)
+        spec=self.comparison("phdlab");m=self.approve(spec)
         fake=SimpleNamespace(descriptor=SimpleNamespace(capabilities=["literature"]),health=lambda:{"ready":False})
         with patch("backend.research_engines.registry.get",return_value=fake):self.drive(1)
         self.assertEqual(M.get(m["id"])["status"],"paused")
@@ -103,7 +103,7 @@ class Teams(unittest.TestCase):
 
     def test_topic_isolation_and_team_flag(self):
         spec=T.propose(self.spec());m=self.approve(spec)
-        other=S.save_topic(S.TopicInput(title="Other private"))["id"]
+        other=_env.legacy_topic(S.TopicInput(title="Other private"))["id"]
         with self.assertRaises(ValueError):T.monitor(other,m["id"])
         config.save_config({"research_os":{"team_enabled":False}});self.drive(1)
         self.assertEqual(M.get(m["id"])["status"],"paused")

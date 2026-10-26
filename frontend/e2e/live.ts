@@ -36,11 +36,15 @@ export async function json(request: APIRequestContext, method: 'get'|'post'|'put
 }
 
 export async function topic(page: Page, request: APIRequestContext, suffix: string) {
+  // A browser case owns a paper project. Never create multiple new topics in one project.
+  await json(request, 'post', '/api/projects', {name: `pw-paper-${Date.now()}-${Math.random().toString(16).slice(2,8)}`});
   const created = await json(request, 'post', '/api/research/topics', {
     title: `PW ${suffix} ${Date.now()}`, description: 'Disposable synthetic browser QA data', keywords: ['synthetic'], sources: ['arxiv'],
   });
+  await page.reload();
+  await expect(page.locator('#live')).toHaveAttribute('title', 'Connected to PhD Lab server');
   await page.locator('#topic-btn').click();
-  await page.getByText(created.title, { exact: true }).click();
+  await page.locator('#panel').getByText(created.title, { exact: true }).click();
   await expect(page.locator('#topic-btn')).toContainText(created.title);
   await page.locator('#drawer-close-btn').click();
   return created;

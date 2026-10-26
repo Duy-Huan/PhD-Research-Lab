@@ -68,7 +68,6 @@ class LayersAndFlow(unittest.TestCase):
         from devtools.verification.layers import live_ids
         ids = live_ids()
         self.assertEqual(ids, {
-            'test_live_integrations.ClearMLLive.test_create_log_read',
             'test_live_integrations.CodexLive.test_read_only_run',
             'test_vram_gate.LMStudioLive.test_real_gate_and_manual_unload'})
         self.assertFalse(any('*' in name for name in ids))

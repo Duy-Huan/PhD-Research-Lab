@@ -294,10 +294,10 @@ def run(sid: str, tid: str, stage: str) -> None:
         prov = providers.describe(pid)
         if not prov["available"]:
             return _fail(sid, tid, f"{prov['label']} is not available ({prov['state']}): {prov['detail']}")
-        if pid.startswith("cli:"):
+        if pid.startswith(('cli:', 'runtime:')):
             from backend.providers import cli_space as W
             try:
-                iso = W.check_profile(pid[4:], v["security_profile"], bool(v.get("consent_weaker")))
+                iso = W.check_profile(pid.split(':', 1)[1], v["security_profile"], bool(v.get("consent_weaker")))
             except W.WorkspaceError as e:
                 return _fail(sid, tid, str(e), "denied")
             _set(sid, tid, isolation=iso)
@@ -488,7 +488,14 @@ def launch_plan(sid: str, tid: str) -> dict:
     plan = {"provider": pid, "model": v["model"] or "(provider default)", "reasoning": v["reasoning"],
             "context_manifest": t["manifest"], "context_chars": len(t.get("context_text") or ""),
             "mcp_tools": mcp_policy.allowed(v["mcp_tools"]), "memory_mode": v["memory_mode"], "notes": t["notes"]}
-    if pid.startswith("cli:"):
+    if pid == 'runtime:hermes':
+        from backend.providers.hermes import folder
+        workspace = folder(v['security_profile']) / 'workspace'
+        plan.update(transport='runtime', command=[], endpoint='Authenticated loopback HTTP/RPC to pinned Hermes container',
+                    cwd=str(workspace), security_profile=v['security_profile'], isolation=t.get('isolation'),
+                    mounts=[{'path': str(workspace), 'access': 'read-only' if v['security_profile'] == 'review' else 'read-write',
+                             'what': 'authorized Hermes research workspace'}])
+    elif pid.startswith("cli:"):
         from backend.providers import cli as C
         from backend.providers import cli_space as W
         name = pid[4:]
@@ -552,7 +559,7 @@ def _dispatch(sid: str, tid: str) -> None:
     pid = v["provider"]
     t0 = time.time()
     store.emit(sid, "message.started", tid, pid)
-    if pid.startswith("cli:"):
+    if pid.startswith(('cli:', 'runtime:')):
         text, ws, err, cancelled = _cli(sid, tid, s, t, v)
     else:
         text, err, cancelled = _app(sid, tid, s, t, v)
@@ -666,7 +673,7 @@ async def _engine_stream(llm, cfg, eng, system, msgs, model):
 
 def _cli(sid, tid, s, t, v):
     from backend.providers import gateway as GS
-    name = v["provider"][4:]
+    name = v["provider"].split(':', 1)[1]
     hist, history_manifest = _history_packet(s, tid)
     _set(sid, tid, history_manifest=history_manifest)
     hist_text = ""

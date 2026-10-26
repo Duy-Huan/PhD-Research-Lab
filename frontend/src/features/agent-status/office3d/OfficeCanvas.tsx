@@ -51,7 +51,7 @@ const CAMERA_PRESETS: Array<{
   },
   {
     id: 'hpc',
-    labelVi: 'HPC & OpenCode',
+    labelVi: 'Code native & GPU',
     labelEn: 'HPC Rack',
     pos: [-4.5, 4.2, -1.2],
     target: [-9.5, 1.6, -7.8],

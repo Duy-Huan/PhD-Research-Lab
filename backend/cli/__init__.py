@@ -230,7 +230,7 @@ def _acceptance(x, a):
             for c in d["criteria"]], ["prio", "criterion", "verdict", "evidence"])
 
 
-@cmd("", "providers", "Research providers (Feynman, Claude Code, Codex, Gemini, Antigravity, Python, Docker, LaTeX)")
+@cmd("", "providers", "Model gateway, native research tools and installed CLI runtimes")
 def _providers(x, a):
     x.show(x.c.get("/api/providers", fresh=1)["providers"], ["id", "category", "state", "detail"])
 

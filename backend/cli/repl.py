@@ -271,7 +271,7 @@ class Repl:
             "code": (self.c_code, self.t('[list|new <tên>|open <tên>|vscode|sync|jobs]', '[list|new <name>|open <name>|vscode|sync|jobs]'), self.t('thí nghiệm trong VS Code', 'experiments in VS Code')),
             "review": (self.c_review, "[list|new <file>|run <id>]", self.t('phản biện bài báo', 'paper review')),
             "pins": (self.c_pins, "", self.t('kết quả đã ghim', 'pinned results')),
-            "providers": (self.c_providers, "", "research providers (Feynman, Claude Code, Codex…)"),
+            "providers": (self.c_providers, "", "model gateway, Hermes and native CLI providers"),
             "models": (self.c_models, "", self.t('agent và mô hình đang dùng', 'active agents and models')),
             "unload": (self.c_unload, "", self.t('gỡ mô hình local khỏi VRAM', 'unload local models from VRAM')),
             "config": (self.c_config, self.t('[khoá [giá trị JSON]]', '[key [JSON value]]'), self.t('xem / đổi cài đặt (vd /config runs.max_minutes 60)', 'view or change settings (e.g. /config runs.max_minutes 60)')),
@@ -636,10 +636,10 @@ class Repl:
         import json
         cfg = self.refresh_language()
         sections = {
-            'models': (self.t('Mô hình & Tác nhân AI', 'Models & AI Agents'), ('providers', 'default_cloud', 'agent_modes', 'agent_models', 'local_model', 'lmstudio_base_url', 'ollama_model', 'ollama_base_url', 'gateway', 'fallback_to_cloud', 'lifecycle')),
+            'models': (self.t('Mô hình & Tác nhân AI', 'Models & AI Agents'), ('providers', 'default_cloud', 'agent_modes', 'agent_models', 'local_model', 'lmstudio_base_url', 'ollama_model', 'ollama_base_url', 'gateway', 'hermes', 'fallback_to_cloud', 'lifecycle')),
             'research': (self.t('Công cụ Nghiên cứu', 'Research Engines'), ('research_providers', 'research_engines', 'research_os', 'runs')),
             'search': (self.t('Tìm kiếm & Xếp hạng', 'Search & Ranking'), ('search', 'ranking')),
-            'experiments': (self.t('Thí nghiệm & Phần cứng', 'Experiments & Hardware'), ('sandbox', 'clearml', 'resources', 'compute')),
+            'experiments': (self.t('Thí nghiệm & Phần cứng', 'Experiments & Hardware'), ('sandbox', 'resources', 'compute')),
             'memory': (self.t('Bộ nhớ & Ngữ cảnh', 'Memory & Context'), ('memory', 'aiws')),
             'security': (self.t('MCP & Tường lửa Bảo mật', 'MCP & Security Firewall'), ('mcp', 'firewall', 'mcp_agent', 'privacy')),
             'skills': (self.t('Kỹ năng & Tiện ích mở rộng', 'Skills & Plugins'), ('skills', 'plugins')),

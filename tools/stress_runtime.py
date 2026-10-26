@@ -246,7 +246,7 @@ def main():
         os.environ["JUPYTER_DATA_DIR"] = str(Path(data) / "_jupyter")
         import _env
         from backend.core import config
-        config.save_config({"clearml": {"auto_record": False}, "gateway": {"codex_app_server": False}, "memory": {"embed_engine": "hashing"}})
+        config.save_config({"gateway": {"codex_app_server": False}, "memory": {"embed_engine": "hashing"}})
         for iteration in range(args.rounds):
             _env.fresh_project(f"stress-{iteration}")
             for name, run in (("gateway-streaming", lambda: gateway_stress(args.workers, 200)),

@@ -1,0 +1,141 @@
+{
+  "id": "FQC-RESEARCH-INTEGRITY-002",
+  "title": "Publication figures derive from raw results and exact approved immutable versions",
+  "risk": "HIGH",
+  "mode": "MOCKED",
+  "user_story": "The researcher can use the existing native environment with honest state, durable evidence and retained integrated engines.",
+  "requirements": [
+    {
+      "id": "POSITIVE",
+      "description": "Paper exports contain the actual approved PDF with escaped caption."
+    },
+    {
+      "id": "NEGATIVE",
+      "description": "Aliases/unknown series cannot disguise invented or incorrect metrics."
+    },
+    {
+      "id": "BOUNDARY",
+      "description": "Approval of one version does not approve another."
+    },
+    {
+      "id": "FAILURE",
+      "description": "Raw artifact tampering invalidates derived figures and their paper use."
+    },
+    {
+      "id": "SECURITY",
+      "description": "Modified approved PDF bytes cannot enter a publication."
+    },
+    {
+      "id": "PERFORMANCE",
+      "description": "Bounded synthetic CPU observation needs no model calls; scientific validity remains separate."
+    }
+  ],
+  "nonfunctional": [
+    "Preserve native L1-L4/memory/workflow/data and PaperOrchestra; no duplicate research engine.",
+    "Software fixtures never qualify live providers or scientific conclusions.",
+    "Coverage target100% is informational; every mandatory regression must execute and PASS."
+  ],
+  "inputs": [
+    "Scoped project/workspace",
+    "Explicit model/authority and reviewed content"
+  ],
+  "outputs": [
+    "Durable results and exact lineage",
+    "Explicit failure/blocker/unknown status"
+  ],
+  "preconditions": [
+    "Existing dev branch only",
+    "Owned disposable PHDLAB_DATA_DIR for verification"
+  ],
+  "postconditions": [
+    "No silent fallback or fabricated completion",
+    "All historical producers and retained files remain identifiable"
+  ],
+  "dependencies": [
+    "Existing native gateway, workspace, mission and evidence infrastructure"
+  ],
+  "affected_modules": [
+    "backend/figures/*",
+    "backend/paper/results.py",
+    "tests/test_figure_integrity_regressions.py",
+    "tests/test_figure_export_integrity.py"
+  ],
+  "acceptance_criteria": [
+    "Paper exports contain the actual approved PDF with escaped caption.",
+    "Aliases/unknown series cannot disguise invented or incorrect metrics.",
+    "Approval of one version does not approve another.",
+    "Raw artifact tampering invalidates derived figures and their paper use.",
+    "Modified approved PDF bytes cannot enter a publication.",
+    "Bounded synthetic CPU observation needs no model calls; scientific validity remains separate."
+  ],
+  "scenarios": [
+    {
+      "id": "1",
+      "requirement": "POSITIVE",
+      "kind": "positive",
+      "expected": "Paper exports contain the actual approved PDF with escaped caption.",
+      "test": "tests/test_figure_integrity_regressions.py::FigureIntegrity.test_paper_exports_include_real_approved_pdf_and_escape_caption"
+    },
+    {
+      "id": "2",
+      "requirement": "NEGATIVE",
+      "kind": "negative",
+      "expected": "Aliases/unknown series cannot disguise invented or incorrect metrics.",
+      "test": "tests/test_figure_integrity_regressions.py::FigureIntegrity.test_alias_and_unknown_series_cannot_hide_wrong_metrics"
+    },
+    {
+      "id": "3",
+      "requirement": "BOUNDARY",
+      "kind": "boundary",
+      "expected": "Approval of one version does not approve another.",
+      "test": "tests/test_figure_integrity_regressions.py::FigureIntegrity.test_approval_is_bound_to_exact_version_and_does_not_approve_another"
+    },
+    {
+      "id": "4",
+      "requirement": "FAILURE",
+      "kind": "failure",
+      "expected": "Raw artifact tampering invalidates derived figures and their paper use.",
+      "test": "tests/test_figure_integrity_regressions.py::FigureIntegrity.test_raw_artifact_tamper_invalidates_existing_figure_and_paper_use"
+    },
+    {
+      "id": "5",
+      "requirement": "SECURITY",
+      "kind": "security",
+      "expected": "Modified approved PDF bytes cannot enter a publication.",
+      "test": "tests/test_figure_integrity_regressions.py::FigureIntegrity.test_tampered_approved_pdf_cannot_be_attached_or_exported"
+    },
+    {
+      "id": "6",
+      "requirement": "PERFORMANCE",
+      "kind": "performance",
+      "expected": "Bounded synthetic CPU observation needs no model calls; scientific validity remains separate.",
+      "test": "tests/test_figure_integrity_regressions.py::FigureIntegrity.test_bounded_cpu_fixture_finishes_without_research_reasoning_calls"
+    }
+  ],
+  "recovery": "Retain failed output/checkpoints, never replay an uncertain external operation; require explicit bounded recovery.",
+  "test_environment": "Actual Windows Python3.12 disposable files/SQLite/CPU and controlled Docker/vendor RPC boundaries; no current-source live provider or scientific qualification in this receipt.",
+  "skill_sources": [
+    "skills/SOURCES.json",
+    "skills/codebase-design/SKILL.md",
+    "skills/frontend-design/SKILL.md"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Implementation-agent source, authority and oracle review; no independent human/scientific certification claimed."
+  },
+  "tdd": {
+    "status": "IMPLEMENTATION_FIRST_OWNER_AUTHORIZED",
+    "authorization": "OWNER-20261026-HERMES-FEATURE-FIRST",
+    "red": null,
+    "green": {
+      "path": "docs/qa/evidence/native-consolidation/feature-contract-green.json",
+      "sha256": "e7de9adba0f9ff01c37537ccdd78e07a72fda1f0a273a9527a68d4ae30e84b65",
+      "exit_code": 0
+    },
+    "scope": "Owner explicitly requested features before testcase standardization. Actual73/73 software assertions passed; source-scoped receipt retained separately. No RED fabricated."
+  },
+  "limitations": [
+    "Receipt predates these contract files; fresh full stable-source verification is still mandatory.",
+    "Separate live/research/CLI/browser/AI-UAT qualification and independent CI remain required at QA/main."
+  ]
+}

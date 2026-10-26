@@ -17,14 +17,14 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "6.5.9"
+APP_VERSION = "6.5.10"
 
 ROOT = Path(__file__).resolve().parents[2]
 # PHDLAB_DATA_DIR (v3.2) moves ALL user data elsewhere — used by the test suite so it never touches the real data/.
 _DATA_OVERRIDE = os.environ.get("PHDLAB_DATA_DIR", "").strip()
 GLOBAL_DIR = Path(_DATA_OVERRIDE).resolve() if _DATA_OVERRIDE else ROOT / "data"   # global config + the "Default project"
 CONFIG_PATH = GLOBAL_DIR / "config.json"
-PROJECTS_ROOT = GLOBAL_DIR / "projects" if _DATA_OVERRIDE else ROOT / "projects"    # default parent folder for new projects
+PROJECTS_ROOT = GLOBAL_DIR / 'projects'  # New paper projects are data, never application source.
 DEFAULT_REFS = GLOBAL_DIR / "references"
 META_NAME = "project_meta.json"
 GLOBAL_DIR.mkdir(parents=True, exist_ok=True)
@@ -172,10 +172,6 @@ DEFAULTS = {
                   "cli": "idle_unload", "mcp": "idle_unload", "cloud": "keep_loaded", "cloud_preconnect": True,
                   "local_idle_min": 10, "cli_idle_min": 30, "mcp_idle_min": 15, "cloud_idle_min": 5,
                   "unload_grace_s": 15, "respect_manual_loads": True, "single_model_vram": True},
-    # ClearML offline recording (SDK only, no server): auto_record records every finished run as an offline session in
-    # <project>/clearml that can be imported into a ClearML Server later.
-    "clearml": {"enabled": True, "auto_record": True, "project": "PhD Research Lab", "server_enabled": False,
-                "web_url": "http://localhost:8080"},
     # windows_sandbox: Codex needs a Windows sandbox backend to run shell commands; "unelevated" (restricted token, no
     # admin rights), "elevated" (stronger, needs a one-time admin setup) or "config" (use ~/.codex/config.toml as is)
     "codex": {"enabled": True, "binary": "", "sandbox": "read-only", "model": "", "timeout_s": 1800, "windows_sandbox": "unelevated"},
@@ -189,7 +185,7 @@ DEFAULTS = {
     # *_api_fallback False = the CLI connectors run with API-key variables removed, so a subscription sign-in is used
     # and no API billing is ever created implicitly (cost guard).
     "gateway": {"enabled": True, "allow_internal": True, "allow_sensitive": False, "block_source_code": True,
-                "context_budget_tokens": 6000, "provider_timeout_s": 600, "codex_app_server": False, "cli_models": {},
+                "context_budget_tokens": 6000, "provider_timeout_s": 600, "codex_app_server": False, "cli_models": {}, "cli_catalogs": {},
                 "codex_enabled": True, "claude_code_enabled": True, "gemini_cli_enabled": True, "antigravity_enabled": True,
                 "codex_api_fallback": False, "claude_code_api_fallback": False, "antigravity_api_fallback": False,
                 "gemini_cli_api_fallback": False,
@@ -225,20 +221,8 @@ DEFAULTS["runs"] = {
     "slot_gpu": 1, "slot_cpu": 1, "slot_local_llm": 1, "slot_cli": 2, "slot_cloud": 3,
 }
 DEFAULTS["research_providers"] = {
-    "feynman_enabled": True,
-    "feynman_share_app_key": False,   # let Feynman use the app's Anthropic / OpenAI key (billed to that API account)
-    "feynman_timeout_s": 1800,
     "coding_default": "claude_code",  # claude_code | codex | gemini_cli | antigravity | app
-    "engine_mode": "auto", "engine_priority": ["feynman", "openscience", "opencode"],
-}
-DEFAULTS["openscience"] = {
-    "enabled": False, "base_url": "http://127.0.0.1:4096", "token": "", "timeout_s": 600,
-    "request_timeout_s": 3.0, "max_artifact_mb": 64, "max_artifacts": 32, "allow_execution": False,
-    "policy_confirmed": False, "qualified_tasks": [], "model_provider": "", "model_id": "",
-}
-DEFAULTS["opencode"] = {
-    "enabled": True, "base_url": "http://127.0.0.1:4097", "allow_metered_api": False,
-    "timeout_s": 600, "workspace_mode": "topic_isolated",
+    "engine_mode": "phdlab", "engine_priority": ["phdlab"],
 }
 # v5.1 interface language (UI strings) and AI response language
 DEFAULTS["ui"] = {"language": "vi", "ai_language": "auto", "prose_font": "sans", "paper_explorer_v2": True, "discovery_inbox": True,
@@ -246,15 +230,17 @@ DEFAULTS["ui"] = {"language": "vi", "ai_language": "auto", "prose_font": "sans",
 DEFAULTS["mcp_agent"] = {"enabled": False, "url": "http://127.0.0.1:8766/mcp", "token": "",
                          "tool": "research", "models": [], "timeout_s": 120}
 DEFAULTS["research_os"] = {"enabled":False,"team_enabled":False,"multi_team_enabled":False}
+DEFAULTS['hermes'] = {'enabled': False, 'model': '', 'deadline_s': 600, 'max_iterations': 16,
+                      'max_tokens': 4096, 'free_only': True}
 # v5.1 automatic venue ranking: CORE conference ranks are downloaded (refreshed after refresh_days); SCImago journal
 # exports cannot be fetched automatically (bot protection), so a scimagojr*.csv saved in Downloads is imported by itself.
 DEFAULTS["ranking"] = {"auto": True, "core_source": "ICORE2026", "watch_downloads": True, "refresh_days": 30}
-SECTIONS_V32 = ("runs", "research_providers", "memory", "resources", "clearml", "codex", "workspace", "routing", "provenance",
-                "gateway", "mcp", "lifecycle", "aiws", "ui", "ranking", "openscience", "opencode", "research_os", "mcp_agent")
+SECTIONS_V32 = ("runs", "research_providers", "memory", "resources", "codex", "workspace", "routing", "provenance",
+                "gateway", "mcp", "lifecycle", "aiws", "ui", "ranking", "research_os", "mcp_agent", 'hermes')
 LIFECYCLE_POLICIES = ("unload_after_task", "keep_loaded", "idle_unload")
-SECRET_FIELDS = {"mcp": ("token",), "openscience": ("token",), "mcp_agent": ("token",)}
+SECRET_FIELDS = {"mcp": ("token",), "mcp_agent": ("token",)}
 CHOICES = {("research_providers", "coding_default"): ("claude_code", "codex", "gemini_cli", "antigravity", "app"),
-           ("research_providers", "engine_mode"): ("auto", "feynman", "openscience", "opencode", "collaborative", "phdlab"),
+           ("research_providers", "engine_mode"): ("auto", "phdlab", "paperorchestra"),
            ("codex", "sandbox"): ("read-only", "workspace-write"),
            ("codex", "windows_sandbox"): ("unelevated", "elevated", "config"),
            ("memory", "embed_engine"): ("auto", "ollama", "hashing"), ("gateway", "cli_profile"): ("review", "assisted"),
@@ -277,8 +263,8 @@ CLI_PROVIDERS = ("codex", "claude_code", "gemini_cli", "antigravity", "chatgpt_s
 def _valid_mode(m: str) -> bool:
     if not isinstance(m, str):
         return False
-    clean = m.removeprefix("cli:").removeprefix("app:")
-    return clean in ("cloud", "local", "claude", "ollama", "auto", "mcp", *CLI_PROVIDERS) or clean in PROVIDERS
+    clean = m.removeprefix("cli:").removeprefix("app:").removeprefix('runtime:')
+    return clean in ("cloud", "local", "claude", "ollama", "auto", "mcp", 'hermes', *CLI_PROVIDERS) or clean in PROVIDERS
 
 
 def _coerce(default, val):
@@ -311,6 +297,12 @@ def _merge_section(sec: str, target: dict, patch: dict, masked_ok: bool) -> None
         if allowed and v not in allowed:
             v = DEFAULTS[sec][f]
         target[f] = v
+    if sec == 'hermes':
+        target['free_only'] = True  # No paid model authorization exists in this campaign.
+        for key, low, high in (('deadline_s', 5, 1800), ('max_iterations', 1, 50), ('max_tokens', 128, 16384)):
+            target[key] = max(low, min(high, target[key]))
+        if target['model'] and not re.fullmatch(r'[\w.:/@+-]{1,160}', target['model']):
+            raise ValueError('Invalid Hermes model')
     if sec == "mcp_agent":
         from backend.providers.mcp_agent import endpoint
         if target["url"] or target["enabled"]:
@@ -351,6 +343,13 @@ def load_config() -> dict:
         cfg["providers"]["anthropic"]["model"] = saved["claude_model"]
     cfg["agent_modes"].update({a: m for a, m in (saved.get("agent_modes") or {}).items()
                                if a in AGENTS and _valid_mode(m)})
+    # Explicit read-only migration of retired routing. Original settings remain on disk.
+    saved = deepcopy(saved)
+    retired_routing = saved.get("research_providers") or {}
+    if retired_routing.get("engine_mode") in ("feynman", "openscience", "opencode", "collaborative"):
+        retired_routing["engine_mode"] = "phdlab"
+    if "engine_priority" in retired_routing:
+        retired_routing["engine_priority"] = [p for p in retired_routing["engine_priority"] if p in ("phdlab", "paperorchestra")] or ["phdlab"]
     for sec in SECTIONS_V32:
         if isinstance(saved.get(sec), dict):
             try:
@@ -373,12 +372,22 @@ def load_config() -> dict:
 def _write_config(cfg: dict) -> None:
     """Replace settings atomically so interrupted writes cannot truncate credentials or project settings."""
     from backend.memory.store import replace_retry
+    # Preserve retired credentials/settings as opaque historical bytes in their old keys;
+    # load_config never activates or returns them and the API never exports them.
+    try:
+        previous = json.loads(CONFIG_PATH.read_text("utf-8"))
+    except (OSError, ValueError): previous = {}
+    cfg = deepcopy(cfg)
+    for retired in ("openscience", "opencode", "clearml"):
+        if retired in previous: cfg[retired] = previous[retired]
     tmp = CONFIG_PATH.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(cfg, indent=2), "utf-8")
     replace_retry(tmp, CONFIG_PATH)
 
 
 def save_config(patch: dict) -> dict:
+    if any(key in patch for key in ("openscience", "opencode", "clearml")) or any(k.startswith("feynman_") for k in (patch.get("research_providers") or {})):
+        raise ValueError("Retired provider settings are read-only historical data")
     with _lock:
         cfg = load_config()
         def source(a):
@@ -420,13 +429,7 @@ def save_config(patch: dict) -> dict:
             elif k == "latex_online":
                 cfg[k] = bool(v)
             elif k in SECTIONS_V32 and isinstance(v, dict):
-                previous_identity = tuple(cfg[k].get(f) for f in ("base_url", "model_provider", "model_id")) if k == "openscience" else None
                 _merge_section(k, cfg[k], v, masked_ok=True)
-                if k == "openscience":
-                    from backend.research_engines.openscience import Settings
-                    if previous_identity != tuple(cfg[k].get(f) for f in ("base_url", "model_provider", "model_id")):
-                        cfg[k]["qualified_tasks"] = []
-                    cfg[k] = Settings.model_validate(cfg[k]).model_dump()
                 if k == "memory":
                     for f in ("keep_recent_turns", "interval_s", "high_watermark_tokens", "chunk_tokens"):
                         cfg["memory"][f] = max(1, cfg["memory"][f])

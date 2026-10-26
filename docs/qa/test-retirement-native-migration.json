@@ -1,0 +1,495 @@
+{
+  "schema_version": 1,
+  "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+  "old_source_sha256": "9949118db007bed337f8a1400d34c8569c82b56b6027f303494a6db4881cbc5c",
+  "policy": "Owner-authorized feature retirement only; no skips, empty suites, weakened assertions, security waiver or live-provider PASS. Portable scientific/memory/workspace tests remain mandatory.",
+  "retired_file": "tests/test_research_engines.py",
+  "records": [
+    {
+      "old_test_id": "test_research_engines.EngineConformance.test_common_result_contract",
+      "disposition": "PORTABLE_CONTRACT_REPLACED",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.EngineConformance.test_common_cancel_before_dispatch",
+      "disposition": "PORTABLE_CONTRACT_REPLACED",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_stream_dedup_authoritative_result_and_same_operation",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_ambiguous_admission_never_reprompts_automatically",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_pending_approval_is_fresh_and_denied_tools_cannot_be_granted",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_eof_is_not_completion_and_recovery_observes_without_reprompt",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_cancellation_receipt_remains_unconfirmed",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_unapproved_outside_project_and_cancelled_preflight_submit_nothing",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_native_pending_job_blocks_second_admission",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_quota_receipt_not_auto_retried_and_explicit_retry_is_new_attempt",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_context_snapshot_and_project_scope",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_disabled_commands_refuse_approval",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_engine_switch_requires_terminal_receipt",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_project_switch_does_not_redirect_old_journal_writes",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_idle_socket_reconnects_observation_without_skipping_cursor",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_deployment_credential_split_across_events_is_not_exposed",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_deadline_requests_cancel_instead_of_restarting",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_model_and_execution_preflight_and_duplicate_observers",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_runtime_health_protocol_and_missing_sdk_are_explicit",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_admission_auth_errors_are_normalized_without_reprompt",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_live_job_inspection_and_questions_do_not_reuse_historical_decisions",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.AdapterTests.test_effective_metadata_response_has_a_byte_limit",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.Contracts.test_contract_versions_loopback_and_optional_registration",
+      "disposition": "PORTABLE_CONTRACT_REPLACED",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.Contracts.test_auto_needs_qualified_model_and_identity_changes_reset_qualification",
+      "disposition": "PORTABLE_CONTRACT_REPLACED",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.Contracts.test_feynman_uses_existing_dispatch_and_contract",
+      "disposition": "PORTABLE_CONTRACT_REPLACED",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.Artifacts.test_checksum_and_filename_containment",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.Artifacts.test_corrupt_or_misreported_size_is_refused_and_partial_removed",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.Artifacts.test_effective_policy_rejects_native_worker_and_global_grants",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.Artifacts.test_artifact_byte_budget_is_enforced_before_publish",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.OfficialSDKSocket.test_real_sdk_through_adapter_with_bounded_socket_fixture",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.RunIntegration.test_bounded_collaboration_approval_and_resume_preserve_primary",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.RunIntegration.test_explicit_science_mode_needs_approval_even_when_disabled",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_research_engines.EngineApi.test_inventory_separate_from_llm_and_invalid_decision_rejected",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner explicitly retired active Feynman/OpenScience integrations and their SDK. Vendor-specific expectations no longer describe a supported application feature. Existing Git history retains the source.",
+      "replacement_scope": "Native adapter contract tests in test_research_engines; Hermes RPC admission/free-only/history/cancellation in test_hermes_runtime; existing native workspace artifact and figure-integrity suites. These are different transports, not a claim the retired SDK still runs."
+    },
+    {
+      "old_test_id": "test_clearml.ClearMLOffline.test_real_offline_session",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "old_file_sha256": "e1db9ebc78dfe4953cd54642e7d4644d72d49f5db4d54be37a11783aef707aa7",
+      "reason": "Owner2026-10-26 explicitly retired the standalone ClearML software service/SDK. Historical execution is preserved, never counted as native PASS.",
+      "replacement_scope": "test_native_tracking actual local CPU/journal/failure/legacy-pointer contracts; test_native_provider_consolidation portable results/lineage/tamper/approval/timeout/HTTP contracts. Remote GPU/scientific validation remains separate and NOT_RUN."
+    },
+    {
+      "old_test_id": "test_clearml.ClearMLOffline.test_session_written_by_the_training_script_is_linked",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "old_file_sha256": "e1db9ebc78dfe4953cd54642e7d4644d72d49f5db4d54be37a11783aef707aa7",
+      "reason": "Owner2026-10-26 explicitly retired the standalone ClearML software service/SDK. Historical execution is preserved, never counted as native PASS.",
+      "replacement_scope": "test_native_tracking actual local CPU/journal/failure/legacy-pointer contracts; test_native_provider_consolidation portable results/lineage/tamper/approval/timeout/HTTP contracts. Remote GPU/scientific validation remains separate and NOT_RUN."
+    },
+    {
+      "old_test_id": "test_clearml.ClearMLOffline.test_worker_results_and_errors",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "old_file_sha256": "e1db9ebc78dfe4953cd54642e7d4644d72d49f5db4d54be37a11783aef707aa7",
+      "reason": "Owner2026-10-26 explicitly retired the standalone ClearML software service/SDK. Historical execution is preserved, never counted as native PASS.",
+      "replacement_scope": "test_native_tracking actual local CPU/journal/failure/legacy-pointer contracts; test_native_provider_consolidation portable results/lineage/tamper/approval/timeout/HTTP contracts. Remote GPU/scientific validation remains separate and NOT_RUN."
+    },
+    {
+      "old_test_id": "test_clearml.ClearMLOffline.test_auto_record_switches_and_error_pointer",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "old_file_sha256": "e1db9ebc78dfe4953cd54642e7d4644d72d49f5db4d54be37a11783aef707aa7",
+      "reason": "Owner2026-10-26 explicitly retired the standalone ClearML software service/SDK. Historical execution is preserved, never counted as native PASS.",
+      "replacement_scope": "test_native_tracking actual local CPU/journal/failure/legacy-pointer contracts; test_native_provider_consolidation portable results/lineage/tamper/approval/timeout/HTTP contracts. Remote GPU/scientific validation remains separate and NOT_RUN."
+    },
+    {
+      "old_test_id": "test_clearml.ClearMLOffline.test_pointer_on_damaged_or_missing_record_and_without_provenance",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "old_file_sha256": "e1db9ebc78dfe4953cd54642e7d4644d72d49f5db4d54be37a11783aef707aa7",
+      "reason": "Owner2026-10-26 explicitly retired the standalone ClearML software service/SDK. Historical execution is preserved, never counted as native PASS.",
+      "replacement_scope": "test_native_tracking actual local CPU/journal/failure/legacy-pointer contracts; test_native_provider_consolidation portable results/lineage/tamper/approval/timeout/HTTP contracts. Remote GPU/scientific validation remains separate and NOT_RUN."
+    },
+    {
+      "old_test_id": "test_clearml.ClearMLOffline.test_run_env",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "old_file_sha256": "e1db9ebc78dfe4953cd54642e7d4644d72d49f5db4d54be37a11783aef707aa7",
+      "reason": "Owner2026-10-26 explicitly retired the standalone ClearML software service/SDK. Historical execution is preserved, never counted as native PASS.",
+      "replacement_scope": "test_native_tracking actual local CPU/journal/failure/legacy-pointer contracts; test_native_provider_consolidation portable results/lineage/tamper/approval/timeout/HTTP contracts. Remote GPU/scientific validation remains separate and NOT_RUN."
+    },
+    {
+      "old_test_id": "test_live_integrations.ClearMLLive.test_create_log_read",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "old_file_sha256": "2d8266a31e2cb30232c0d161aa2b8665414e908e1cbedbb01565c501d509b893",
+      "reason": "Owner2026-10-26 explicitly retired the standalone ClearML software service/SDK. Historical execution is preserved, never counted as native PASS.",
+      "replacement_scope": "test_native_tracking actual local CPU/journal/failure/legacy-pointer contracts; test_native_provider_consolidation portable results/lineage/tamper/approval/timeout/HTTP contracts. Remote GPU/scientific validation remains separate and NOT_RUN."
+    },
+    {
+      "old_test_id": "test_worker_contract.Worker.test_probe_and_unknown_command_protocol",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "old_file_sha256": "8da48cd02ed09e6cb166f7c2a4c1cffbde121936e0a8a25cded7e3ee3f293c18",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "reason": "Owner retired ClearML worker and OpenScience-only pinned SDK installer. No remaining production caller executes these modules.",
+      "replacement_scope": "Native approved-bundle/hash/path/corruption contracts in test_native_provider_consolidation; Git push/branch safety cases in test_development_guard remain mandatory. Native ZIP evidence is not validation of the retired TAR/SDK."
+    },
+    {
+      "old_test_id": "test_worker_contract.Worker.test_offline_record_keeps_measured_metrics_and_code_identity",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "old_file_sha256": "8da48cd02ed09e6cb166f7c2a4c1cffbde121936e0a8a25cded7e3ee3f293c18",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "reason": "Owner retired ClearML worker and OpenScience-only pinned SDK installer. No remaining production caller executes these modules.",
+      "replacement_scope": "Native approved-bundle/hash/path/corruption contracts in test_native_provider_consolidation; Git push/branch safety cases in test_development_guard remain mandatory. Native ZIP evidence is not validation of the retired TAR/SDK."
+    },
+    {
+      "old_test_id": "test_worker_contract.Worker.test_record_tolerates_sdk_script_metadata_unavailable",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "old_file_sha256": "8da48cd02ed09e6cb166f7c2a4c1cffbde121936e0a8a25cded7e3ee3f293c18",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "reason": "Owner retired ClearML worker and OpenScience-only pinned SDK installer. No remaining production caller executes these modules.",
+      "replacement_scope": "Native approved-bundle/hash/path/corruption contracts in test_native_provider_consolidation; Git push/branch safety cases in test_development_guard remain mandatory. Native ZIP evidence is not validation of the retired TAR/SDK."
+    },
+    {
+      "old_test_id": "test_worker_contract.Worker.test_remote_snapshot_requires_online_and_matching_run_identity",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "old_file_sha256": "8da48cd02ed09e6cb166f7c2a4c1cffbde121936e0a8a25cded7e3ee3f293c18",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "reason": "Owner retired ClearML worker and OpenScience-only pinned SDK installer. No remaining production caller executes these modules.",
+      "replacement_scope": "Native approved-bundle/hash/path/corruption contracts in test_native_provider_consolidation; Git push/branch safety cases in test_development_guard remain mandatory. Native ZIP evidence is not validation of the retired TAR/SDK."
+    },
+    {
+      "old_test_id": "test_worker_contract.Worker.test_snapshot_without_collection_never_downloads",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "old_file_sha256": "8da48cd02ed09e6cb166f7c2a4c1cffbde121936e0a8a25cded7e3ee3f293c18",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "reason": "Owner retired ClearML worker and OpenScience-only pinned SDK installer. No remaining production caller executes these modules.",
+      "replacement_scope": "Native approved-bundle/hash/path/corruption contracts in test_native_provider_consolidation; Git push/branch safety cases in test_development_guard remain mandatory. Native ZIP evidence is not validation of the retired TAR/SDK."
+    },
+    {
+      "old_test_id": "test_worker_contract.Worker.test_collection_accepts_sha256_md5_and_missing_legacy_hash",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "old_file_sha256": "8da48cd02ed09e6cb166f7c2a4c1cffbde121936e0a8a25cded7e3ee3f293c18",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "reason": "Owner retired ClearML worker and OpenScience-only pinned SDK installer. No remaining production caller executes these modules.",
+      "replacement_scope": "Native approved-bundle/hash/path/corruption contracts in test_native_provider_consolidation; Git push/branch safety cases in test_development_guard remain mandatory. Native ZIP evidence is not validation of the retired TAR/SDK."
+    },
+    {
+      "old_test_id": "test_worker_contract.Worker.test_corruption_never_publishes_or_leaves_partial_bytes",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "old_file_sha256": "8da48cd02ed09e6cb166f7c2a4c1cffbde121936e0a8a25cded7e3ee3f293c18",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "reason": "Owner retired ClearML worker and OpenScience-only pinned SDK installer. No remaining production caller executes these modules.",
+      "replacement_scope": "Native approved-bundle/hash/path/corruption contracts in test_native_provider_consolidation; Git push/branch safety cases in test_development_guard remain mandatory. Native ZIP evidence is not validation of the retired TAR/SDK."
+    },
+    {
+      "old_test_id": "test_worker_contract.Worker.test_missing_artifacts_and_nonfiles_are_refused",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "old_file_sha256": "8da48cd02ed09e6cb166f7c2a4c1cffbde121936e0a8a25cded7e3ee3f293c18",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "reason": "Owner retired ClearML worker and OpenScience-only pinned SDK installer. No remaining production caller executes these modules.",
+      "replacement_scope": "Native approved-bundle/hash/path/corruption contracts in test_native_provider_consolidation; Git push/branch safety cases in test_development_guard remain mandatory. Native ZIP evidence is not validation of the retired TAR/SDK."
+    },
+    {
+      "old_test_id": "test_worker_contract.Worker.test_malformed_input_remains_a_structured_worker_error",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "old_file_sha256": "8da48cd02ed09e6cb166f7c2a4c1cffbde121936e0a8a25cded7e3ee3f293c18",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "reason": "Owner retired ClearML worker and OpenScience-only pinned SDK installer. No remaining production caller executes these modules.",
+      "replacement_scope": "Native approved-bundle/hash/path/corruption contracts in test_native_provider_consolidation; Git push/branch safety cases in test_development_guard remain mandatory. Native ZIP evidence is not validation of the retired TAR/SDK."
+    },
+    {
+      "old_test_id": "test_development_guard.PinnedSDK.test_wrong_digest_and_escaping_archive_never_write_files",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "old_file_sha256": "1bd8f9fd4f879d9412ef20f637b2f24e7b6646da9c9c3a7cdb79640c81e43ced",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "reason": "Owner retired ClearML worker and OpenScience-only pinned SDK installer. No remaining production caller executes these modules.",
+      "replacement_scope": "Native approved-bundle/hash/path/corruption contracts in test_native_provider_consolidation; Git push/branch safety cases in test_development_guard remain mandatory. Native ZIP evidence is not validation of the retired TAR/SDK."
+    },
+    {
+      "old_test_id": "test_development_guard.PinnedSDK.test_reviewed_inventory_is_exact_and_unknown_output_is_preserved",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "old_file_sha256": "1bd8f9fd4f879d9412ef20f637b2f24e7b6646da9c9c3a7cdb79640c81e43ced",
+      "baseline_sha": "10c3d018134204fb778206c825b28f1846998304",
+      "reason": "Owner retired ClearML worker and OpenScience-only pinned SDK installer. No remaining production caller executes these modules.",
+      "replacement_scope": "Native approved-bundle/hash/path/corruption contracts in test_native_provider_consolidation; Git push/branch safety cases in test_development_guard remain mandatory. Native ZIP evidence is not validation of the retired TAR/SDK."
+    },
+    {
+      "old_test_id": "test_agent.Providers.test_describe_and_pick",
+      "old_source_sha256": "c792e603c048cb117676c7a99927b1bece472bf2a101eae966a25179dfa16a8e",
+      "disposition": "PORTABLE_CONTRACT_REPLACED",
+      "reason": "Owner retired standalone software providers; native engines, model transports and safety/evidence contracts remain mandatory.",
+      "replacement_scope": "test_agent.Providers.test_describe_native_tools_and_model_routing; retained engine/gateway registry contracts",
+      "baseline_evidence": "output/playwright/native-consolidation/backend-full/backend/report.json",
+      "verification": "NOT_RUN after this migration; read subsequent actual scoped receipts, never count retired execution as PASS"
+    },
+    {
+      "old_test_id": "test_agent.Providers.test_run_feynman_with_a_fake_cli",
+      "old_source_sha256": "90e1aa5a5ead2d83f8c607a1438e6c72525290a21f0a46a7802fceefdcc3a800",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner retired standalone software providers; native engines, model transports and safety/evidence contracts remain mandatory.",
+      "replacement_scope": "Vendor executable dispatch removed. Native gateway subprocess/error/cancellation tests remain in providers/test_contract, test_model_cli_streaming, test_native_provider_consolidation; no retired CLI execution claimed.",
+      "baseline_evidence": "output/playwright/native-consolidation/backend-full/backend/report.json",
+      "verification": "NOT_RUN after this migration; read subsequent actual scoped receipts, never count retired execution as PASS"
+    },
+    {
+      "old_test_id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval",
+      "old_source_sha256": "f88caaa2967827b5ebcb210c320112af72f287ddd6c59cd9217d60d0c2eea7a7",
+      "disposition": "PORTABLE_CONTRACT_REPLACED",
+      "reason": "Owner retired standalone software providers; native engines, model transports and safety/evidence contracts remain mandatory.",
+      "replacement_scope": "Native approval plus explicit retired-command rejection; tests/test_native_provider_consolidation code approval/no-inference contracts.",
+      "baseline_evidence": "output/playwright/native-consolidation/backend-full/backend/report.json",
+      "verification": "NOT_RUN after this migration; read subsequent actual scoped receipts, never count retired execution as PASS"
+    },
+    {
+      "old_test_id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_openscience_chat_endpoint_accepts_the_exact_ui_command",
+      "old_source_sha256": "d3e66c2864430a7b4f18019a4c079f1898c84c68c0a9abfd7c3b6acb438e2273",
+      "disposition": "PORTABLE_CONTRACT_REPLACED",
+      "reason": "Owner retired standalone software providers; native engines, model transports and safety/evidence contracts remain mandatory.",
+      "replacement_scope": "Exact current frontend /science command over actual FastAPI app, no model invocation before approval.",
+      "baseline_evidence": "output/playwright/native-consolidation/backend-full/backend/report.json",
+      "verification": "NOT_RUN after this migration; read subsequent actual scoped receipts, never count retired execution as PASS"
+    },
+    {
+      "old_test_id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_opencode_does_not_claim_manifest_creation_is_model_execution",
+      "old_source_sha256": "7b695e73d85e30d3aa5f4437bd558a7cf434a55cfe58daabdec236379d25d610",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner retired standalone software providers; native engines, model transports and safety/evidence contracts remain mandatory.",
+      "replacement_scope": "Standalone OpenCode engine/npm launcher removed. Native coding completed only after terminal run and materialized hash-checked source; retained read-only history/retirement tests in test_native_provider_consolidation and test_provider_retirement.",
+      "baseline_evidence": "output/playwright/native-consolidation/backend-full/backend/report.json",
+      "verification": "NOT_RUN after this migration; read subsequent actual scoped receipts, never count retired execution as PASS"
+    },
+    {
+      "old_test_id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_opencode_html_fallback_is_not_api_readiness",
+      "old_source_sha256": "f7133b1f8e302023fd9d64b24eea0cdf04232f46d272217da0bacba2e8077e80",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner retired standalone software providers; native engines, model transports and safety/evidence contracts remain mandatory.",
+      "replacement_scope": "Standalone OpenCode engine/npm launcher removed. Native coding completed only after terminal run and materialized hash-checked source; retained read-only history/retirement tests in test_native_provider_consolidation and test_provider_retirement.",
+      "baseline_evidence": "output/playwright/native-consolidation/backend-full/backend/report.json",
+      "verification": "NOT_RUN after this migration; read subsequent actual scoped receipts, never count retired execution as PASS"
+    },
+    {
+      "old_test_id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_opencode_v2_npm_shim_resolves_to_native_executable",
+      "old_source_sha256": "cf3b3fad16f519b7f1e8366c942544a5639abed988e7da4c4de48805ffa667b9",
+      "disposition": "RETIRED_WITH_VENDOR_INTEGRATION",
+      "reason": "Owner retired standalone software providers; native engines, model transports and safety/evidence contracts remain mandatory.",
+      "replacement_scope": "Standalone OpenCode engine/npm launcher removed. Native coding completed only after terminal run and materialized hash-checked source; retained read-only history/retirement tests in test_native_provider_consolidation and test_provider_retirement.",
+      "baseline_evidence": "output/playwright/native-consolidation/backend-full/backend/report.json",
+      "verification": "NOT_RUN after this migration; read subsequent actual scoped receipts, never count retired execution as PASS"
+    },
+    {
+      "old_test_id": "test_runs.Providers.test_an_unconfigured_provider_falls_back_visibly",
+      "old_source_sha256": "1778de82cbabac9a83a8791696b68b0dd3d54ef8b064543bdccbb5c6d68b7ea3",
+      "disposition": "PORTABLE_CONTRACT_REPLACED",
+      "reason": "Owner retired standalone software providers; native engines, model transports and safety/evidence contracts remain mandatory.",
+      "replacement_scope": "Historical provider checkpoints preserved with no inference, provider relabeling or automatic fallback.",
+      "baseline_evidence": "output/playwright/native-consolidation/backend-full/backend/report.json",
+      "verification": "NOT_RUN after this migration; read subsequent actual scoped receipts, never count retired execution as PASS"
+    },
+    {
+      "old_test_id": "test_runs.Providers.test_quota_does_not_consume_automatic_retries",
+      "old_source_sha256": "fde1c2d5215ef7314dab34dbd7e0266e7c16455a93c55278413038f03963ff5b",
+      "disposition": "PORTABLE_CONTRACT_REPLACED",
+      "reason": "Owner retired standalone software providers; native engines, model transports and safety/evidence contracts remain mandatory.",
+      "replacement_scope": "Same quota/retry invariant exercised at native configured model boundary; no live inference claim.",
+      "baseline_evidence": "output/playwright/native-consolidation/backend-full/backend/report.json",
+      "verification": "NOT_RUN after this migration; read subsequent actual scoped receipts, never count retired execution as PASS"
+    },
+    {
+      "old_test_id": "test_runs.Providers.test_feynman_runs_the_workflow",
+      "old_source_sha256": "a87956692e2f814130a3aa409ca719c3055912518c9a085b863efe9aedb743c9",
+      "disposition": "PORTABLE_CONTRACT_REPLACED",
+      "reason": "Owner retired standalone software providers; native engines, model transports and safety/evidence contracts remain mandatory.",
+      "replacement_scope": "Retained explicit model transport/scoped context/research artifacts software contract; not retired Feynman or live inference.",
+      "baseline_evidence": "output/playwright/native-consolidation/backend-full/backend/report.json",
+      "verification": "NOT_RUN after this migration; read subsequent actual scoped receipts, never count retired execution as PASS"
+    },
+    {
+      "old_test_id": "test_runs.Pipelines.test_review_on_feynman",
+      "old_source_sha256": "a6e42d61d25f39d67552a416f65c77393fc897b4013870314dbb1d930d84f9f5",
+      "disposition": "PORTABLE_CONTRACT_REPLACED",
+      "reason": "Owner retired standalone software providers; native engines, model transports and safety/evidence contracts remain mandatory.",
+      "replacement_scope": "Native selected reviewer model plus actual persisted review output; generic reviewer workflow preserved.",
+      "baseline_evidence": "output/playwright/native-consolidation/backend-full/backend/report.json",
+      "verification": "NOT_RUN after this migration; read subsequent actual scoped receipts, never count retired execution as PASS"
+    },
+    {
+      "old_test_id": "test_cloud_runtime.Remote.test_bundle_approval_and_verified_completion",
+      "old_source_sha256": "020be8e5d65eb5a9e063bd332632d17e70b87b902dbe0796d77099b013aad059",
+      "disposition": "PORTABLE_CONTRACT_REPLACED",
+      "reason": "Owner retired standalone software providers; native engines, model transports and safety/evidence contracts remain mandatory.",
+      "replacement_scope": "Approval/download/retired-service fail-closed; real local portable launcher/results ZIP coverage in test_native_provider_consolidation.NativeCompute, not mock ClearML synchronization.",
+      "baseline_evidence": "output/playwright/native-consolidation/backend-full/backend/report.json",
+      "verification": "NOT_RUN after this migration; read subsequent actual scoped receipts, never count retired execution as PASS"
+    },
+    {
+      "old_test_id": "test_cloud_runtime.Remote.test_generated_launcher_executes_and_checks_code_before_training",
+      "old_source_sha256": "bf029031a52f1d67256c6952ccb799be510dbdc02706911fc70c2be3299da2d7",
+      "disposition": "PORTABLE_CONTRACT_REPLACED",
+      "reason": "Owner retired standalone software providers; native engines, model transports and safety/evidence contracts remain mandatory.",
+      "replacement_scope": "Actual native local CPU subprocess, metrics/archive import, checksum tamper guard under Python -O; remote GPU/scientific reproduction remain unverified.",
+      "baseline_evidence": "output/playwright/native-consolidation/backend-full/backend/report.json",
+      "verification": "NOT_RUN after this migration; read subsequent actual scoped receipts, never count retired execution as PASS"
+    },
+    {
+      "old_test_id": "test_runtime_boundaries.ComputeAPI.test_approval_download_and_verified_collection_end_to_end",
+      "old_source_sha256": "8bfa935408262405328704fb682bceed4cd4fba6429dca791df2870a610d4781",
+      "disposition": "PORTABLE_CONTRACT_REPLACED",
+      "reason": "Owner retired standalone software providers; native engines, model transports and safety/evidence contracts remain mandatory.",
+      "replacement_scope": "Actual FastAPI approval/download, no retired worker launch, malformed archive rejection, executed local CPU worker and exact ZIP/metric download. No remote execution or scientific validity claim.",
+      "baseline_evidence": "output/playwright/native-consolidation/backend-full/backend/report.json",
+      "verification": "NOT_RUN after this migration; read subsequent actual scoped receipts, never count retired execution as PASS"
+    },
+    {
+      "old_test_id": "test_v64_upgrades.V64UpgradesTestSuite.test_v641_opencode_workspace_sessions_dedup_approvals_quota_and_reconcile",
+      "old_source_sha256": "7499496e6cd0af5cbd01b35b19a5f3cc0d9a5390b78ac860c2527baf035ad22d",
+      "disposition": "PORTABLE_CONTRACT_REPLACED",
+      "reason": "Owner retired standalone software providers; native engines, model transports and safety/evidence contracts remain mandatory.",
+      "replacement_scope": "Retirement HTTP410 and read-only empty history. New native coding approval/durable reconciliation/terminal hashes and legacy session scope tested in test_native_provider_consolidation; gateway dedup/quota/cancel/session grants remain mandatory elsewhere.",
+      "baseline_evidence": "output/playwright/native-consolidation/backend-full/backend/report.json",
+      "verification": "NOT_RUN after this migration; read subsequent actual scoped receipts, never count retired execution as PASS"
+    }
+  ],
+  "new_test_modules": [
+    "tests/test_research_engines.py",
+    "tests/test_provider_retirement.py",
+    "tests/test_hermes_runtime.py",
+    "tests/test_paper_project.py",
+    "tests/test_figure_integrity_regressions.py",
+    "test_native_tracking",
+    "test_native_provider_consolidation"
+  ]
+}

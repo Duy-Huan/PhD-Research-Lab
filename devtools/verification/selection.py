@@ -10,9 +10,9 @@ import subprocess
 def changed_files(root: Path, base: str) -> list[str]:
     """Include committed, staged, unstaged, renamed and untracked paths, NUL safely."""
     def git(*args: str) -> list[str]:
-        return subprocess.check_output(['git', *args], cwd=root).decode('utf-8').split('\0')
+        return subprocess.check_output(['git', *args], cwd=root, timeout=30).decode('utf-8').split('\0')
     subprocess.run(['git', 'rev-parse', '--verify', base + '^{commit}'], cwd=root,
-                   check=True, capture_output=True)
+                   check=True, capture_output=True, timeout=30)
     paths = git('diff', '--no-renames', '--name-only', '-z', base, '--')
     paths += git('ls-files', '--others', '--exclude-standard', '-z')
     return sorted({p for p in paths if p and not p.startswith(('output/', 'artifacts/'))})

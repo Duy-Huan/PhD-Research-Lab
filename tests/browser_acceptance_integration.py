@@ -14,6 +14,92 @@ ROOT=Path(__file__).resolve().parents[1]
 
 
 class OwnedServerCapability(unittest.TestCase):
+    def test_project_journey_has_owned_creation_but_cannot_switch_provider_or_launch_tools(self):
+        """Actual HTTP/preflight only: no turn is submitted and no model qualification is implied."""
+        from devtools.verification.browser import application
+        from devtools.verification.uat import run_space
+        from devtools.verification.uat_journeys import CHAT_PROMPT
+        out=run_space(ROOT/'output/playwright/uat-journey-selftest')
+        with application(out,browser_uat=True,uat_journey='project-and-chat') as env:
+            def call(path,body=None):
+                request=urllib.request.Request(env['PHDLAB_E2E_URL']+path,
+                    data=json.dumps(body).encode() if body is not None else None,headers={'Content-Type':'application/json'})
+                try:
+                    with urllib.request.urlopen(request,timeout=10) as response:return response.status,json.load(response)
+                except urllib.error.HTTPError as exc:return exc.code,json.load(exc)
+            state=call('/api/qa/uat-state')[1];name=state['lease']['project_name']
+            self.assertFalse(state['in_owned_project'])
+            self.assertEqual(call('/api/projects',{'name':name,'data_dir':str(out.parent/'escape')})[0],403)
+            self.assertEqual(call('/api/projects',{'name':name})[0],200)
+            self.assertTrue(call('/api/qa/uat-state')[1]['in_owned_project'])
+            self.assertEqual(call('/api/projects',{'name':name})[0],403)
+            status,session=call('/api/chat/sessions',{'title':CHAT_PROMPT[:48],'topic_id':'','chat_project':'','settings':{}})
+            self.assertEqual(status,200)
+            self.assertEqual(call('/api/chat/sessions/'+session['id']+'/turns',{'text':CHAT_PROMPT,'overrides':{'provider':'app:openai'}})[0],403)
+            self.assertEqual(call('/api/terminal/execute',{'command':'echo forbidden'})[0],403)
+            self.assertEqual(call('/api/chat/sessions/'+session['id'])[1]['turns'],[])
+            cfg=call('/api/config')[1]
+            self.assertFalse(cfg['aiws']['mcp_auto']);self.assertEqual(cfg['aiws']['mcp_tools'],['-'])
+            self.assertEqual(cfg['aiws']['memory_mode'],'off');self.assertFalse(cfg['fallback_to_cloud'])
+
+    def _browser_journey_without_model(self,journey,actions):
+        """Deterministic Playwright validates the oracle only, never an AI action history."""
+        from devtools.verification.browser import application
+        from devtools.verification.uat import run_space
+        from devtools.verification.uat_gate import unexpected_events,validate_run
+        out=run_space(ROOT/'output/playwright/uat-journey-selftest')
+        with application(out,browser_uat=True,uat_journey=journey) as env:
+            options=out/'options.json';options.write_text(json.dumps({'url':env['PHDLAB_E2E_URL'],'out':str(out),
+                'journey':journey,'source_sha256':'SELFTEST-NO-MODEL'}),encoding='utf-8')
+            with (out/'browser.log').open('wb') as log:
+                browser=subprocess.Popen([shutil.which('node') or 'node','devtools/verification/uat_browser.mjs',str(options)],
+                    cwd=ROOT,stdin=subprocess.PIPE,stdout=log,stderr=subprocess.STDOUT,text=True,env=env)
+                try:
+                    for _ in range(120):
+                        if (out/'browser-lease.json').is_file():break
+                        if browser.poll() is not None:self.fail('Owned browser exited; see '+str(out/'browser.log'))
+                        time.sleep(.25)
+                    self.assertTrue((out/'browser-lease.json').is_file())
+                    script="""const fs=require('node:fs');const {chromium,expect}=require('@playwright/test');
+(async()=>{const lease=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));const browser=await chromium.connectOverCDP(lease.cdp_url);
+const page=browser.contexts()[0].pages()[0];"""+actions+"\nprocess.exit(0);})().catch(e=>{console.error(e);process.exit(1)});"
+                    actor=subprocess.run([shutil.which('node') or 'node','-e',script,str(out/'browser-lease.json')],
+                        cwd=ROOT/'frontend',env=env,capture_output=True,text=True,timeout=100)
+                    (out/'deterministic-actor.log').write_text(actor.stdout+actor.stderr,encoding='utf-8')
+                    self.assertEqual(actor.returncode,0,'Deterministic browser actor failed; see '+str(out))
+                    browser.communicate('{"action":"finish"}\n',timeout=30)
+                    self.assertEqual(browser.returncode,0,'See '+str(out/'browser.log'))
+                finally:
+                    if browser.poll() is None:browser.terminate();browser.wait(timeout=15)
+            evidence=json.loads((out/'browser-evidence.json').read_text(encoding='utf-8'))
+            self.assertEqual(evidence['confirmation'],'PASS',str(out))
+            self.assertEqual(unexpected_events(evidence),[],str(out))
+            self.assertTrue(validate_run(out,'SELFTEST-NO-MODEL',journey),
+                'Deterministic browser oracle PASS without a model action history must not become AI-UAT')
+
+    def test_failure_recovery_browser_oracle_requires_observed_fault_and_real_reload(self):
+        self._browser_journey_without_model('failure-recovery',"""
+await Promise.all([page.waitForResponse(r=>r.url().endsWith('/api/config')&&r.status()===503),page.reload()]);
+await Promise.all([page.waitForResponse(r=>r.url().endsWith('/api/config')&&r.status()===200),page.reload()]);
+await page.getByRole('button',{name:'System Settings',exact:true}).click();
+await expect(page.locator('.settings-studio-content')).toBeVisible();
+""")
+
+    def test_native_workflow_browser_oracle_retains_actual_cpu_artifacts_without_model(self):
+        self._browser_journey_without_model('workflow-operations',"""
+await page.locator('#topic-btn').click();await page.locator('#panel').getByText(lease.setup.topic_title,{exact:true}).click();
+await page.locator('#drawer-close-btn').click();
+await page.getByRole('button',{name:'Autonomous Missions',exact:true}).click();
+await page.getByRole('button',{name:'Workflows L1–L4',exact:true}).click();
+const card=page.locator('article').filter({has:page.getByRole('heading',{name:/L3.*Synthetic CPU UAT mission/})});
+await card.getByText('Plan and results',{exact:true}).click();
+await card.getByRole('textbox',{name:'Review note',exact:true}).fill('Disposable synthetic UAT technical fixture only; no scientific approval.');
+await card.getByRole('button',{name:'Approve plan and run',exact:true}).click();
+await expect(card.getByRole('status')).toContainText('awaiting_review',{timeout:45000});
+await card.getByRole('button',{name:'Complete review',exact:true}).click();
+await expect(card.getByRole('status')).toContainText('completed');
+""")
+
     def test_python_worker_denies_file_mutation_and_processes_outside_lease(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);out=root/'lease';out.mkdir();secret=root/'private.txt';secret.write_text('canary',encoding='utf-8')

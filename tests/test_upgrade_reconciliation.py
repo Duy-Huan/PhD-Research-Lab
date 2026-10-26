@@ -18,8 +18,8 @@ class UpgradeReconciliation(unittest.TestCase):
         _env.isolate_config(self)
         _env.fresh_project("Upgrade reconciliation", code_project=None)
         config.save_config({"memory": {"embed_engine": "hashing"}, "research_os": {"enabled": True}})
-        self.a = S.save_topic(S.TopicInput(title="MRI"))["id"]
-        self.b = S.save_topic(S.TopicInput(title="CT"))["id"]
+        self.a = _env.legacy_topic(S.TopicInput(title="MRI"))["id"]
+        self.b = _env.legacy_topic(S.TopicInput(title="CT"))["id"]
 
     def ingest(self, **changes):
         return K.ingest(self.a, [{"title": "MRI restoration", "doi": "10.1234/mri", "year": 2025,
@@ -51,9 +51,9 @@ class UpgradeReconciliation(unittest.TestCase):
         self.assertEqual(p["citations"], 7)
         self.assertEqual(p["peer_review_status"], "peer_reviewed")
         self.assertEqual(p["publication_type"], "article")
-        with self.assertRaises(ValueError): S.save_topic(S.TopicInput(title="Unknown", sources=["invented"]))
+        with self.assertRaises(ValueError): _env.legacy_topic(S.TopicInput(title="Unknown", sources=["invented"]))
         for name in P.IDS:
-            self.assertIn(name, S.save_topic(S.TopicInput(title=name, sources=[name]))["sources"])
+            self.assertIn(name, _env.legacy_topic(S.TopicInput(title=name, sources=[name]))["sources"])
 
     def test_reingesting_legacy_version_without_references_preserves_l4(self):
         import hashlib
@@ -187,7 +187,7 @@ class UpgradeReconciliation(unittest.TestCase):
     def test_schedules_ignore_dry_runs_and_global_job_window(self):
         from backend.knowledge import research_jobs as J
         profile = S.get_topic(self.a)
-        S.save_topic(S.TopicInput.model_validate({k:v for k,v in {**profile,"cadence":"weekly","enabled":True}.items() if k not in ("id","created","updated")}), self.a)
+        _env.legacy_topic(S.TopicInput.model_validate({k:v for k,v in {**profile,"cadence":"weekly","enabled":True}.items() if k not in ("id","created","updated")}), self.a)
         job = J.enqueue(self.a, "discover", {"dry_run": True})
         J._update(job["id"], "completed", job["payload"])
         self.assertIsNone(J.schedule_status(S.get_topic(self.a))["last_run"])
@@ -223,7 +223,7 @@ class UpgradeReconciliation(unittest.TestCase):
             response=client.get(base+"/papers",params={"tag":"MRI","max_year":2025,"pdf":False,"sort":"citations"})
             self.assertEqual(response.json()["total"],1)
             self.assertEqual(client.get("/api/research/sources").json()["providers"],list(sources.PROVIDER_IDS))
-            w=W.link(self.a,W.WorkspaceInput(engine="feynman"))
+            w=W.link(self.a,W.WorkspaceInput(engine="phdlab"))
             from pathlib import Path
             import os,time
             path=Path(w["path"])/"result.md";path.write_text("Actual result",encoding="utf-8")

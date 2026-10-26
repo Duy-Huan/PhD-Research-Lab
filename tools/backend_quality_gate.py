@@ -83,7 +83,7 @@ CORE_MODULES += AUTONOMY_MODULES
 
 def get_git_commit() -> str:
     try:
-        out = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, stderr=subprocess.DEVNULL)
+        out = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, stderr=subprocess.DEVNULL, timeout=30)
         return out.strip()
     except Exception:
         return "unknown"
@@ -91,7 +91,7 @@ def get_git_commit() -> str:
 
 def get_git_dirty() -> bool:
     try:
-        out = subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT, text=True, stderr=subprocess.DEVNULL)
+        out = subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT, text=True, stderr=subprocess.DEVNULL, timeout=30)
         return bool(out.strip())
     except Exception:
         return False
@@ -106,6 +106,14 @@ class QualityGateTestResult(unittest.TextTestResult):
     def startTest(self, test):
         super().startTest(test)
         self._test_start_time = time.perf_counter()
+        target = os.environ.get('PHDLAB_VERIFY_PROGRESS')
+        if target:
+            path = Path(target)
+            temporary = path.with_suffix('.partial-' + str(os.getpid()) + '-' + str(time.time_ns()))
+            temporary.write_text(json.dumps({'test': test.id(), 'status': 'RUNNING',
+                'completed_cases': len(self.test_cases_recorded), 'timestamp': datetime.datetime.now(datetime.timezone.utc).isoformat()}), 'utf-8')
+            from backend.memory.store import replace_retry
+            replace_retry(temporary, path)
 
     def addSuccess(self, test):
         super().addSuccess(test)
@@ -222,7 +230,7 @@ def run_gate(
             cov = coverage.Coverage(
                 config_file=str(ROOT / ".coveragerc") if (ROOT / ".coveragerc").exists() else True,
                 branch=True,
-                source=["backend"],
+                source=["backend", str(ROOT / 'tools' / 'hermes_runtime')],
                 data_file=str(output_dir / ".coverage"),
             )
             cov.start()
@@ -262,7 +270,11 @@ def run_gate(
     )
 
     t0 = time.perf_counter()
-    result = runner.run(suite)
+    import faulthandler
+    with (output_dir / 'stall-stacks.log').open('w', encoding='utf-8') as stacks:
+        faulthandler.dump_traceback_later(300, repeat=True, file=stacks)
+        try: result = runner.run(suite)
+        finally: faulthandler.cancel_dump_traceback_later()
     after_hashes = {k: v for k, v in source_hashes().items() if k.startswith('backend/')}
     source_stable = before_hashes == after_hashes
     elapsed = time.perf_counter() - t0

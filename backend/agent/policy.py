@@ -65,6 +65,8 @@ def _check(key: str, v):
             }
             if v in alias_map and alias_map[v] in known_ids:
                 v = alias_map[v]
+            elif f"runtime:{v}" in known_ids:
+                v = f"runtime:{v}"
             elif f"cli:{v}" in known_ids:
                 v = f"cli:{v}"
             elif f"app:{v}" in known_ids:

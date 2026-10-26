@@ -1,0 +1,71 @@
+{
+  "head_sha": "10c3d018134204fb778206c825b28f1846998304",
+  "source_sha256": "70dd22a91320b49ce133d171cdc6f8c7b9107738fb6b3416a7795b59f07d63b4",
+  "scope": "Sole-writer development handoff, no full regression/AI/provider/scientific qualification",
+  "model_calls": 0,
+  "uat_grants_consumed_or_rebound": false,
+  "global_ledgers_changed": false,
+  "committed_or_pushed": false,
+  "results": {
+    "canonical_targeted": {
+      "PASS": 10,
+      "source_stable": true
+    },
+    "uat_policy_packaging_security": {
+      "PASS": 37
+    },
+    "runner_discovery_workflow_contract": {
+      "PASS": 26
+    },
+    "owned_http_browser_worker": {
+      "PASS": 6
+    },
+    "frontend_review_component": {
+      "PASS": 2
+    },
+    "frontend_typecheck": "PASS",
+    "ruff": "PASS",
+    "node_syntax": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "overlap_note": "Canonical targeted10 are included in37; do not sum overlapping runs into one release denominator.",
+  "raw_root": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\uat-journeys-implementation",
+  "changed_paths": [
+    "devtools/verification/browser.py",
+    "devtools/verification/browser_use_worker.py",
+    "devtools/verification/runner.py",
+    "devtools/verification/uat.py",
+    "devtools/verification/uat_browser.mjs",
+    "devtools/verification/uat_config.json",
+    "devtools/verification/uat_gate.py",
+    "devtools/verification/uat_journeys.py",
+    "docs/qa/contracts/FQC-UAT-JOURNEYS-001.json",
+    "docs/qa/evidence/uat-journeys-implementation/README.md",
+    "docs/qa/evidence/uat-journeys-implementation/behavioral-red.json",
+    "docs/qa/evidence/uat-journeys-implementation/browser-final-green.json",
+    "docs/qa/evidence/uat-journeys-implementation/browser-first-failures.json",
+    "docs/qa/evidence/uat-journeys-implementation/browser-green-before-final-hardening.json",
+    "docs/qa/evidence/uat-journeys-implementation/canonical-targeted-report.json",
+    "docs/qa/evidence/uat-journeys-implementation/defects.json",
+    "docs/qa/evidence/uat-journeys-implementation/frontend-behavioral-green.json",
+    "docs/qa/evidence/uat-journeys-implementation/frontend-behavioral-red.json",
+    "docs/qa/evidence/uat-journeys-implementation/frontend-initial-selector-error.json",
+    "docs/qa/evidence/uat-journeys-implementation/runner-regression.json",
+    "docs/qa/evidence/uat-journeys-implementation/targeted-green.json",
+    "frontend/src/features/missions/MissionLiveWorkspace.test.tsx",
+    "frontend/src/features/missions/MissionLiveWorkspace.tsx",
+    "scripts/package_uat_evidence.py",
+    "tests/browser_acceptance_integration.py",
+    "tests/test_uat_journeys.py",
+    "tools/playwright_server.py"
+  ],
+  "p2": "BUG-MISSION-REVIEW-BODY-001 source repair; realHTTP422 and frontend RED/GREEN retained; legacy current-build button browser acceptance pending",
+  "remaining": [
+    "All actual Browser Use/model journeys NOT_RUN",
+    "Independent acceptance/scientific review PENDING",
+    "Complete pr/all and exact-head remote qualification NOT_RUN for changed source",
+    "Controlled config503 recovery is not real provider outage qualification",
+    "Project/chat actual local provider inference/SSE/after-answer-reload path NOT_RUN",
+    "Research-evidence/navigation-layout/three-dimensional-office exploratory adapters remain NOT_IMPLEMENTED"
+  ]
+}

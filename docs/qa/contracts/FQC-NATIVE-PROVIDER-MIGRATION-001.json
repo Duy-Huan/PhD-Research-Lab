@@ -1,0 +1,145 @@
+{
+  "id": "FQC-NATIVE-PROVIDER-MIGRATION-001",
+  "title": "Native coding and experiment records replace standalone software while embedded engines remain",
+  "risk": "HIGH",
+  "mode": "MOCKED",
+  "user_story": "The researcher can use the existing native environment with honest state, durable evidence and retained integrated engines.",
+  "requirements": [
+    {
+      "id": "POSITIVE",
+      "description": "Retired adapters cannot dispatch; native and PaperOrchestra engine factories remain."
+    },
+    {
+      "id": "NEGATIVE",
+      "description": "A code task cannot complete with modified or missing output files."
+    },
+    {
+      "id": "BOUNDARY",
+      "description": "Old workspace identity/bytes can be relocated without relabeling or activation."
+    },
+    {
+      "id": "FAILURE",
+      "description": "Native imported process failure remains failure, not a successful experiment."
+    },
+    {
+      "id": "SECURITY",
+      "description": "Uploaded ZIP path traversal/unlisted files cannot enter native results."
+    },
+    {
+      "id": "PERFORMANCE",
+      "description": "The actual portable CPU worker enforces reviewed path/approval/time bounds; no remote GPU claim."
+    }
+  ],
+  "nonfunctional": [
+    "Preserve native L1-L4/memory/workflow/data and PaperOrchestra; no duplicate research engine.",
+    "Software fixtures never qualify live providers or scientific conclusions.",
+    "Coverage target100% is informational; every mandatory regression must execute and PASS."
+  ],
+  "inputs": [
+    "Scoped project/workspace",
+    "Explicit model/authority and reviewed content"
+  ],
+  "outputs": [
+    "Durable results and exact lineage",
+    "Explicit failure/blocker/unknown status"
+  ],
+  "preconditions": [
+    "Existing dev branch only",
+    "Owned disposable PHDLAB_DATA_DIR for verification"
+  ],
+  "postconditions": [
+    "No silent fallback or fabricated completion",
+    "All historical producers and retained files remain identifiable"
+  ],
+  "dependencies": [
+    "Existing native gateway, workspace, mission and evidence infrastructure"
+  ],
+  "affected_modules": [
+    "backend/providers/research.py",
+    "backend/research_engines/*",
+    "backend/execution/remote*",
+    "backend/execution/tracker.py",
+    "backend/api/opencode.py",
+    "frontend/src/features/workspace-tools/*",
+    "tests/test_native*",
+    "tests/test_provider_retirement.py"
+  ],
+  "acceptance_criteria": [
+    "Retired adapters cannot dispatch; native and PaperOrchestra engine factories remain.",
+    "A code task cannot complete with modified or missing output files.",
+    "Old workspace identity/bytes can be relocated without relabeling or activation.",
+    "Native imported process failure remains failure, not a successful experiment.",
+    "Uploaded ZIP path traversal/unlisted files cannot enter native results.",
+    "The actual portable CPU worker enforces reviewed path/approval/time bounds; no remote GPU claim."
+  ],
+  "scenarios": [
+    {
+      "id": "1",
+      "requirement": "POSITIVE",
+      "kind": "positive",
+      "expected": "Retired adapters cannot dispatch; native and PaperOrchestra engine factories remain.",
+      "test": "tests/test_provider_retirement.py::NativeRetirement.test_retired_dispatch_is_absent_and_default_is_native"
+    },
+    {
+      "id": "2",
+      "requirement": "NEGATIVE",
+      "kind": "negative",
+      "expected": "A code task cannot complete with modified or missing output files.",
+      "test": "tests/test_native_provider_consolidation.py::NativeCodingDelegation.test_completion_requires_exact_bound_files_and_their_hashes"
+    },
+    {
+      "id": "3",
+      "requirement": "BOUNDARY",
+      "kind": "boundary",
+      "expected": "Old workspace identity/bytes can be relocated without relabeling or activation.",
+      "test": "tests/test_provider_retirement.py::NativeRetirement.test_legacy_workspace_relink_preserves_producer_without_reactivation"
+    },
+    {
+      "id": "4",
+      "requirement": "FAILURE",
+      "kind": "failure",
+      "expected": "Native imported process failure remains failure, not a successful experiment.",
+      "test": "tests/test_native_provider_consolidation.py::NativeCompute.test_failed_process_is_preserved_as_failed"
+    },
+    {
+      "id": "5",
+      "requirement": "SECURITY",
+      "kind": "security",
+      "expected": "Uploaded ZIP path traversal/unlisted files cannot enter native results.",
+      "test": "tests/test_native_provider_consolidation.py::NativeCompute.test_traversal_or_unlisted_zip_entries_are_refused"
+    },
+    {
+      "id": "6",
+      "requirement": "PERFORMANCE",
+      "kind": "performance",
+      "expected": "The actual portable CPU worker enforces reviewed path/approval/time bounds; no remote GPU claim.",
+      "test": "tests/test_native_provider_consolidation.py::NativeCompute.test_paths_approval_and_timeout_are_explicit"
+    }
+  ],
+  "recovery": "Retain failed output/checkpoints, never replay an uncertain external operation; require explicit bounded recovery.",
+  "test_environment": "Actual Windows Python3.12 disposable files/SQLite/CPU and controlled Docker/vendor RPC boundaries; no current-source live provider or scientific qualification in this receipt.",
+  "skill_sources": [
+    "skills/SOURCES.json",
+    "skills/codebase-design/SKILL.md",
+    "skills/frontend-design/SKILL.md"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Implementation-agent source, authority and oracle review; no independent human/scientific certification claimed."
+  },
+  "tdd": {
+    "status": "IMPLEMENTATION_FIRST_OWNER_AUTHORIZED",
+    "authorization": "OWNER-20261026-HERMES-FEATURE-FIRST",
+    "red": null,
+    "green": {
+      "path": "docs/qa/evidence/native-consolidation/feature-contract-green.json",
+      "sha256": "e7de9adba0f9ff01c37537ccdd78e07a72fda1f0a273a9527a68d4ae30e84b65",
+      "exit_code": 0
+    },
+    "scope": "Owner explicitly requested features before testcase standardization. Actual73/73 software assertions passed; source-scoped receipt retained separately. No RED fabricated."
+  },
+  "limitations": [
+    "Receipt predates these contract files; fresh full stable-source verification is still mandatory.",
+    "Separate live/research/CLI/browser/AI-UAT qualification and independent CI remain required at QA/main."
+  ]
+}

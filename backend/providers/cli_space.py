@@ -40,18 +40,16 @@ PROFILES = {
 #   level: os-sandbox (the vendor's OS-level sandbox) · provider-permission (the CLI's own permission rules in headless
 #   mode, no OS isolation) · none
 ISOLATION = {
+    ('hermes', 'review'): (True, 'os-container', True, 'Independent Hermes container; read-only authorized workspace, persistent project memory/skills, unrestricted Internet and scoped PhD tools'),
+    ('hermes', 'assisted'): (True, 'os-container', True, 'Independent Hermes container; own authorized workspace/home only, unrestricted Internet and scoped PhD tools'),
     ("codex", "review"): (True, "os-sandbox", True, "codex exec --sandbox read-only (Codex OS sandbox)"),
     ("codex", "assisted"): (True, "os-sandbox", True, "codex exec --sandbox workspace-write, cwd = session workspace"),
-    ("claude_code", "review"): (True, "provider-permission", True,
-                                "claude -p: only the read-only PhD-Lab MCP tools allowed; Bash/Edit/Write disallowed"),
-    ("claude_code", "assisted"): (True, "provider-permission", False,
-                                  "claude -p --permission-mode acceptEdits: edits limited to the working directory by "
-                                  "Claude Code's permission rules (no OS sandbox on Windows) — needs your consent"),
+    ('claude_code', 'review'): (True, 'os-container', True,
+                                'Pinned official Claude Code in a container; read-only workspace, own vendor home, filtered network and scoped tools'),
+    ('claude_code', 'assisted'): (True, 'os-container', True,
+                                  'Pinned official Claude Code in a container; only own workspace/home writable; host source unmounted'),
     ("antigravity", "review"): (True, "provider-permission", True, "agy -p --sandbox (headless: approvals are soft-denied)"),
     ("gemini_cli", "review"): (True, "provider-permission", True, "gemini -p (headless: tool approvals are denied)"),
-    ("feynman", "assisted"): (True, "provider-permission", False,
-                              "feynman runs one research workflow with cwd = its session workspace; the files it writes stay "
-                              "there until you accept them (no OS sandbox on Windows)"),
 }
 ENV_ALLOW = {
     # Windows system

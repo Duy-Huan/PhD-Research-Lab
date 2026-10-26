@@ -37,3 +37,22 @@ The old three-failure UAT ledger remains unchanged. Exactly ONE separately owner
 ## Historical baseline before this scope
 
 6.5.7 local1127PASS and GitHub dev40185961365 succeeded. QA/main live evidence did not pass. Uncommitted6.5.8 first pr/all ran1175cases:1171PASS/4FAIL, plus frontend type/build failures; backend951:948PASS/3FAIL. Two legacy modules contained zero cases; restored actual sandbox/provenance and shared HTTP/CLI tests later passed2/2. API fixture depended on an installed Feynman health probe; declaring its unavailable-provider precondition made the original API assertions pass. New frontend test selectors used unsupported TypeScript options; corrected typecheck,18targetedUItests and production build passed. Browser paper case ran against the stale build in the failed full run. These partial fixes do not certify current source; source changed again for this owner task. Preserve all raw records under output/playwright/three-branch-658/.
+
+## Frontend/backend synchronization ? owner follow-up
+
+Before frontend implementation, installed/reviewed skills/frontend-design/SKILL.md (Apache-2.0, pinned Anthropic source) plus pinned MIT Web Interface Guidelines reference, and reused skills/web-design-reviewer/SKILL.md and skills/playwright/SKILL.md. Sources/digests/licenses are in skills/SOURCES.json. Preserve existing UI tokens and native research navigation; no unrelated visual redesign.
+
+Backend provider inventory is the source of truth for connection stages, capabilities, discovered versus suggested models, official sign-in, per-agent routing/fallback and measured usage. UI must distinguish installation, authentication, isolated runtime preparation and verified inference. Subscription sign-in must never request an OpenAI API key or claim a plan/model entitlement that was not observed. Unknown usage stays unknown. Runtime unavailable remains explicit even when the host CLI exists. Remove active retired research-provider choices; preserve historical producer identities and saved-setting migration. Verify keyboard, labels, locale, loading/error states and responsive views at375/768/1280/1920pixels against actual backend responses.
+
+## Owner extension2026-10-26: Hermes runtime and deep-learning focus
+
+Complete feature implementation first; then align/add behavior tests, execute full regression and report coverage; only then run/publish CI/CD. This latest owner order supersedes earlier test-before-implementation ordering for this campaign. It does NOT waive assertions, security, evidence integrity or full verification before push/merge.
+
+Integrate official Hermes Python AIAgent ONLY inside a separately version-pinned Docker runtime, reached through the existing Agent/Model Gateway over versioned HTTP/RPC. Never import Hermes into the FastAPI backend. Native PhD agents remain supported. Preserve independent lifecycle, recoverable durable sessions, project-scoped memory/skills volumes, explicit model selection and free-only inference without silent paid fallback. A mounted folder is not sufficient isolation: mount only the authorized paper workspace/runtime home, no host source/system folders/Docker socket/PhD credentials; enforce controlled network and scoped PhD-Lab tools.
+
+Hermes upgrades require compatibility handshake and integration evidence. Service/process completion is not proof of scientific correctness or autonomous L3/L4. Prioritize deep-learning literature, datasets/splits, architectures/training recipes, compute budgets, experiment/replay/ablation/statistical evidence and paper lineage in existing tools. Do not replace current research harness or add a mandatory domain workflow.
+
+Free Nous availability is account/time dependent; the public Nemotron3Ultra:free guide describes a June4-18 promotion, not a standing October entitlement. Query actual account catalog and retain unavailable/auth/rate-limit outcomes; never invent access or spend paid credits.
+
+
+HERMES NETWORK OWNER OVERRIDE2026-10-26: Hermes container must have unrestricted direct Internet, no outbound domain allowlist/forced proxy/network=none. Retain Docker runtime independence, project-contained filesystem mounts, scoped native tools and no PhD credentials/source/Docker socket. This applies to Hermes; keep other provider policies unchanged.

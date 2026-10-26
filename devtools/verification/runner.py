@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def identity(root: Path) -> dict:
     """Hash source, tests, contracts, policy, runner and dependency inputs, including dirty files."""
-    paths = subprocess.check_output(['git', 'ls-files', '--cached', '--others', '--exclude-standard', '-z'], cwd=root)
+    paths = subprocess.check_output(['git', 'ls-files', '--cached', '--others', '--exclude-standard', '-z'], cwd=root, timeout=30)
     prefixes = ('backend/', 'frontend/src/', 'frontend/e2e/', 'devtools/', 'scripts/', 'tools/',
                 'tests/', '.github/', '.githooks/', 'docs/qa/contracts/', '.codex/', '.agents/', '.claude/', '.gemini/', 'skills/', 'agent/')
     exact = {'requirements.txt', 'requirements-dev.txt', 'requirements-ci.lock', 'requirements-uat.in', 'requirements-uat.lock', '.coveragerc', '.gitignore', '.gitattributes',
@@ -53,19 +53,50 @@ def identity(root: Path) -> dict:
 
 def run_command(name: str, argv: list[str], cwd: Path, out: Path, timeout: int = 1200) -> dict:
     started = time.monotonic(); logfile = out / (name + '.log')
-    env = dict(os.environ, PYTHONIOENCODING='utf-8', PHDLAB_QA_OFFLINE='1', CI='1')
+    env = dict(os.environ, PYTHONIOENCODING='utf-8', PHDLAB_QA_OFFLINE='1', CI='1',
+               PHDLAB_VERIFY_PROGRESS=str(out / (name + '-current-test.json')))
+    stage = out / (name + '-stage.json')
+    stage.write_text(json.dumps({'stage': name, 'status': 'RUNNING', 'started_utc': datetime.now(timezone.utc).isoformat(),
+                                'command': argv}), encoding='utf-8')
+    cleanup = None
     with logfile.open('wb') as log:
         try:
-            result = subprocess.run(argv, cwd=cwd, stdout=log, stderr=subprocess.STDOUT,
-                                    timeout=timeout, env=env, shell=False)
-            code, reason = result.returncode, None
+            process = subprocess.Popen(argv, cwd=cwd, stdout=log, stderr=subprocess.STDOUT,
+                                       env=env, shell=False, start_new_session=os.name != 'nt',
+                                       creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+            try:
+                code, reason = process.wait(timeout=timeout), None
+            except subprocess.TimeoutExpired:
+                # Capture descendants while the owned parent is live; never kill by executable name.
+                import psutil
+                children, alive, cleanup_errors = [], [], []
+                try:
+                    if process.poll() is None:
+                        owned = psutil.Process(process.pid)
+                        children = owned.children(recursive=True)
+                        for child in reversed(children):
+                            try: child.kill()
+                            except psutil.NoSuchProcess: pass
+                            except psutil.AccessDenied: cleanup_errors.append('Owned descendant access denied: ' + str(child.pid))
+                        _, alive = psutil.wait_procs(children, timeout=5)
+                except psutil.NoSuchProcess: pass
+                except psutil.AccessDenied: cleanup_errors.append('Owned parent descendant inventory access denied')
+                finally:
+                    if process.poll() is None: process.kill()
+                    process.wait(timeout=10)
+                cleanup = {'owned_parent': process.pid, 'descendants_observed': len(children),
+                           'surviving_descendants': [child.pid for child in alive if child.is_running()],
+                           'errors': cleanup_errors}
+                code, reason = 124, 'Verification timeout; owned process tree stopped. Inspect raw log and current-test/stack diagnostics.'
         except subprocess.TimeoutExpired:
-            code, reason = 124, 'Verification process timeout; inspect raw log'
+            code, reason = 124, 'Verification process cleanup timeout; inspect owned-process diagnostics'
         except OSError as exc:
             code, reason = 127, type(exc).__name__ + ': ' + str(exc)
-    return {'id': name, 'status': 'PASS' if code == 0 else 'FAIL', 'exit_code': code,
+    result = {'id': name, 'status': 'PASS' if code == 0 else 'FAIL', 'exit_code': code,
             'command': argv, 'cwd': str(cwd), 'seconds': round(time.monotonic() - started, 3),
-            'log': str(logfile), 'details': reason}
+            'log': str(logfile), 'details': reason, 'process_cleanup': cleanup}
+    stage.write_text(json.dumps(result, indent=2), encoding='utf-8')
+    return result
 
 
 def validate_live(path: Path | None, source: str, head: str) -> list[str]:
@@ -105,6 +136,9 @@ def validate_live(path: Path | None, source: str, head: str) -> list[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, 'reconfigure'):
+            stream.reconfigure(encoding='utf-8')
     from .journeys import load_configuration
     uat_defaults=load_configuration(ROOT)
     parser = argparse.ArgumentParser(description=__doc__)
@@ -120,7 +154,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument('--uat-steps', type=int, default=uat_defaults['max_steps'])
     parser.add_argument('--uat-deadline', type=int, default=uat_defaults['timeout_s'])
     parser.add_argument('--uat-owner-authorization',type=Path,help='Explicit single-use owner exception in external trusted Git metadata; never resets prior failures')
-    parser.add_argument('--uat-journey',action='append',help='Declared exploratory journey (currently settings-language only)')
+    parser.add_argument('--uat-journey',action='append',help='One reviewed exploratory journey per owned run; package separate passing runs together')
     parser.add_argument('--repair-key', help='Stable PR/task identity, never a head SHA')
     parser.add_argument('--repair-status',action='store_true')
     parser.add_argument('--repair-result', choices=['failure', 'success'], help='Record a completed automatic repair cycle; does not run tests')
@@ -134,7 +168,9 @@ def main(argv: list[str] | None = None) -> int:
     if out.exists() and any(out.iterdir()):
         parser.error('Run evidence already exists; choose a fresh --out directory')
     out.mkdir(parents=True, exist_ok=True)
-    head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+    (out / 'initialization.json').write_text(json.dumps({'stage': 'git-and-source-identity', 'status': 'RUNNING',
+        'started_utc': datetime.now(timezone.utc).isoformat()}), encoding='utf-8')
+    head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True, timeout=30).strip()
     if args.repair_result or args.repair_status:
         if not args.repair_key:
             parser.error('--repair-result requires a stable --repair-key')
@@ -178,9 +214,18 @@ def main(argv: list[str] | None = None) -> int:
     if args.plan:
         steps.append({'id': 'execution', 'status': 'NOT_RUN'})
     elif args.profile == 'uat' and not contract_errors:
-        budget=RepairBudget(ROOT/'agent/repair-ledgers/ledger.json',args.repair_key or 'TASK-UAT-LOCAL-ADAPTER')
-        if any(j!='settings-language' for j in args.uat_journey or ['settings-language']):
+        from .uat_journeys import JOURNEYS, execution_key
+        requested=args.uat_journey or ['settings-language']
+        journey=requested[0]
+        try:key=execution_key(journey,args.repair_key);key_error=None
+        except ValueError as exc:key='TASK-UAT-LOCAL-ADAPTER';key_error=str(exc)
+        budget=RepairBudget(ROOT/'agent/repair-ledgers/ledger.json',key)
+        if len(requested)!=1 or journey not in JOURNEYS:
             steps.append({'id':'uat-exploration','status':'BLOCKED','details':'Requested exploratory journey adapter is NOT_IMPLEMENTED; no model was called'})
+        elif args.uat_owner_authorization and journey!='settings-language':
+            steps.append({'id':'uat-exploration','status':'BLOCKED','details':'The single owner exception authorizes settings-language only; no model was called'})
+        elif key_error:
+            steps.append({'id':'uat-exploration','status':'BLOCKED','details':key_error+'; no model was called'})
         elif not budget.can_repair() and not args.uat_owner_authorization:
             steps.append({'id':'uat-exploration','status':'BLOCKED','details':'Three failed repair cycles exhausted; preserve evidence and stop this loop'})
         else:
@@ -200,7 +245,7 @@ def main(argv: list[str] | None = None) -> int:
                         permission=consume(ROOT,args.uat_owner_authorization,before['sha256'],head,args.uat_model,args.uat_steps,args.uat_deadline)
                         authorized=True
                         (folder/'owner-authorization-receipt.json').write_text(json.dumps(permission,indent=2)+'\n',encoding='utf-8')
-                    uat=explore(folder,model=args.uat_model,steps=args.uat_steps,deadline=args.uat_deadline,source=before['sha256'],owner_limit=authorized)
+                    uat=explore(folder,model=args.uat_model,steps=args.uat_steps,deadline=args.uat_deadline,source=before['sha256'],owner_limit=authorized,journey=journey)
                 except (OSError,ValueError,RuntimeError,subprocess.SubprocessError) as exc:
                     uat={'decision':'BLOCKED','scope':'Exploratory startup did not complete',
                          'error':type(exc).__name__+': '+str(exc)[:1000]}
@@ -210,7 +255,7 @@ def main(argv: list[str] | None = None) -> int:
                     finish(ROOT,uat['decision'])
                 steps.append({'id':'uat-exploration','status':uat['decision'] if uat['decision'] in ('PASS','FAIL') else 'BLOCKED',
                               'details':uat.get('error') or uat.get('reason') or uat['scope']})
-        cases.append({'id':'uat.first-time.settings-language','status':steps[-1]['status'],'details':steps[-1]['details']})
+        cases.append({'id':'uat.'+journey,'status':steps[-1]['status'],'details':steps[-1]['details']})
     elif not contract_errors and not any(s['status'] == 'BLOCKED' for s in steps):
         execute('protected-files', [sys.executable, 'tools/protect_agent_resources.py', '--base', args.base])
         if args.component == 'all' and args.profile in ('feature', 'pr', 'full', 'release'):

@@ -10,6 +10,7 @@ describe('Workspace Tool Panels', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     useUIStore.getState().setActiveTopicId('topic-1');
+    useUIStore.getState().setLanguage('vi');
   });
 
   it('renders OutlinePanel with 5 levels and saves fields', async () => {
@@ -149,9 +150,11 @@ describe('Workspace Tool Panels', () => {
   });
 
   it('renders CodePanel, creates repo and launches VS Code', async () => {
-    vi.spyOn(api, 'get').mockResolvedValue({
-      projects: [{ name: 'wavelet-bench', path: '/src/wavelet', description: 'Bench repo' }],
-      active: 'wavelet-bench',
+    vi.spyOn(api,'get').mockImplementation(async url => {
+      if(url==='/api/code') return {projects:[{name:'wavelet-bench',path:'/src/wavelet',description:'Bench repo'}],active:'wavelet-bench'};
+      if(url==='/api/tracking/runs') return {process_runs:[],protocol_runs:[]};
+      if(url.includes('opencode/sessions')) return {sessions:[]};
+      return {runs:[]};
     });
     const postSpy = vi.spyOn(api, 'post').mockResolvedValue({ launched: true });
 

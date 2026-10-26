@@ -1,9 +1,11 @@
-# Release readiness ? 6.5.9 CI repair1
+# Release readiness6.5.10
 
-**NO-GO / QA and main BLOCKED.**
+**DEV SOFTWARE PASS; QA/main NO-GO / BLOCKED.**
 
-Local pre-publication snapshot for CI fixture repair1/3, source `b2b35a188e3eba19323c7c9eb51bf99b993c8f1018262787f974aff8baa47ac1`, stable. Baseline HEAD2a5ee141a1d06291eb65589045f0c5a35b711526. Actual latest publication/CI must be read from GitHub and shared.git/ci-observations/6.5.9-dev/receipt.json; no future remote result is presumed.
+Candidate6.5.10, branch `dev`, parent HEAD `10c3d018134204fb778206c825b28f1846998304`, measured source `d1caebdc1c8f6156ea8aedb905ccd9608c5cb5480fd3f3ddc9156bd0f74c1930`. Local source was stable. GitHub result for a future commit is not presumed.
 
-Complete current local software1199/1199PASS, zero skips/errors. Previous real CI failed from three fixture errors on each matrix job; repaired local evidence does not presume a fresh remote PASS. Actual runtime resource isolation was measured with its source provenance. Coverage remains below the100%target and informational.
+Local full software gate passed1266/1266 plus48Node policy assertions. Protected dev publication is authorized after source/receipt review; no remote result or merge is presumed.
 
-Complete final-source provider/research/AI-UAT evidence and new exploratory adapters are missing. Skill revision/evaluation/activation/rollback, one-paper migration and provider retirement remain pending/partial; scopedL3/L4 not demonstrated. Original3UAT failures plus exactly one unused bounded Spark allowance retained. Native protected dev->qa->main automatic promotion is authorized only after every genuine mandatory gate passes. No force/admin bypass, new branch or unqualified main merge/tag/release. [Current checkpoint and residual risks](AGENT_NATIVE_CORE_CHECKPOINT_6.5.9.md).
+Release remains blocked by missing current-source full provider/CLI/research/paper/replay and independently reviewed AI-UAT qualification, the retained Hermes tool-discovery failure, and exact-head GitHub CI. Same-suite main comparison is NOT_RUN. Coverage is below the100%target and remains informational, not an exception for mandatory failures.
+
+Original three failed AI-UAT attempts remain intact. Exactly one additional Spark X2.5 4B allowance,600seconds/sixsteps, remains unused. No budget was reset. No paid provider calls, new branches, protected-history edits or automatic qa/main merge were performed. L3/L4 autonomy, scientific correctness and a zero-bug release are not demonstrated.

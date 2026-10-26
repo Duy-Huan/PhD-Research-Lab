@@ -162,6 +162,8 @@ def tick(api: GitHub,root: Path,policy: dict,state: dict,apply: bool) -> dict:
     if errors:return {'phase':'BLOCKED','reasons':errors}
     head=git(root,'rev-parse','HEAD');tree=git(root,'rev-parse','HEAD^{tree}')
     if state.get('sync_pending'):
+        if not apply:
+            return {'phase': 'OBSERVE_SYNC_PENDING', 'synchronization': state['sync_pending']}
         task=state['sync_pending'];synchronized=sync_dev(root,task['target'],task['sha']);state.pop('sync_pending')
         return {'phase':'DEV_HISTORY_SYNCHRONIZED','synchronization':synchronized}
     remote=api.request('/branches/dev')['commit']['sha']
@@ -178,6 +180,8 @@ def tick(api: GitHub,root: Path,policy: dict,state: dict,apply: bool) -> dict:
             if not any(x.get('merge_sha')==merge for x in state.setdefault('merges',[])):state['merges'].append(record)
             state.pop('pending',None)
             state['sync_pending']={'target':pending['target'],'sha':merge}
+            if not apply:
+                return record | {'phase': 'MERGE_OBSERVED_SYNC_PENDING', 'synchronization': state['sync_pending']}
             synchronized=sync_dev(root,pending['target'],merge);state.pop('sync_pending')
             if pending['target']=='main':return record | {'phase':'RELEASE_PROMOTION_VERIFIED','synchronization':synchronized}
             return record | {'phase':'QA_MERGE_VERIFIED','synchronization':synchronized}

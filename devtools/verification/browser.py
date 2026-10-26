@@ -16,7 +16,7 @@ from .uat import run_space
 
 
 @contextmanager
-def application(out: Path, model: str = 'spark-x2.5-4b', browser_uat: bool = False):
+def application(out: Path, model: str = 'spark-x2.5-4b', browser_uat: bool = False, uat_journey: str = 'settings-language'):
     root=Path(__file__).resolve().parents[2]
     nonce=uuid.uuid4().hex
     with socket.socket() as probe:
@@ -28,7 +28,7 @@ def application(out: Path, model: str = 'spark-x2.5-4b', browser_uat: bool = Fal
                XDG_CONFIG_HOME=str(out/'server-config'),XDG_CACHE_HOME=str(out/'server-cache'))
     with (out/'server.log').open('wb') as log:
         command=[sys.executable,'tools/playwright_server.py','--data',str(out/'data'),'--port',str(port),'--model',model,'--lease-token',nonce]
-        if browser_uat:command.append('--browser-uat')
+        if browser_uat:command.extend(['--browser-uat','--uat-journey',uat_journey])
         server=subprocess.Popen(command,cwd=root,stdout=log,stderr=subprocess.STDOUT,env=env)
         try:
             for _ in range(120):

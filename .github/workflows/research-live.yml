@@ -61,7 +61,7 @@ jobs:
           python scripts/publish_live_evidence.py --out output/playwright/live-publisher/${{ github.run_id }}-${{ github.run_attempt }}/evidence
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: live-qualification
+          name: live-qualification-${{ github.run_id }}-${{ github.run_attempt }}
           path: verified-source/output/playwright/live-publisher/${{ github.run_id }}-${{ github.run_attempt }}/evidence/
           if-no-files-found: error
           retention-days: 14

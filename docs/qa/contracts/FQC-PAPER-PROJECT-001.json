@@ -1,0 +1,140 @@
+{
+  "id": "FQC-PAPER-PROJECT-001",
+  "title": "One project owns one paper with non-destructive adoption and multiple experiments",
+  "risk": "HIGH",
+  "mode": "MOCKED",
+  "user_story": "The researcher can use the existing native environment with honest state, durable evidence and retained integrated engines.",
+  "requirements": [
+    {
+      "id": "POSITIVE",
+      "description": "Adoption is idempotent, keeps experiments, and moves/deletes no files."
+    },
+    {
+      "id": "NEGATIVE",
+      "description": "A changed inventory invalidates the reviewed adoption digest."
+    },
+    {
+      "id": "BOUNDARY",
+      "description": "Missing legacy tables are unknown, not zero, without mutating schema."
+    },
+    {
+      "id": "FAILURE",
+      "description": "Ambiguous historical ownership blocks adoption without guessing or data loss."
+    },
+    {
+      "id": "SECURITY",
+      "description": "Schema migration retains old producer IDs, logical backup and foreign-key integrity."
+    },
+    {
+      "id": "PERFORMANCE",
+      "description": "Empty inventory avoids DB allocation and repeat inventory is stable; no latency/scale claim."
+    }
+  ],
+  "nonfunctional": [
+    "Preserve native L1-L4/memory/workflow/data and PaperOrchestra; no duplicate research engine.",
+    "Software fixtures never qualify live providers or scientific conclusions.",
+    "Coverage target100% is informational; every mandatory regression must execute and PASS."
+  ],
+  "inputs": [
+    "Scoped project/workspace",
+    "Explicit model/authority and reviewed content"
+  ],
+  "outputs": [
+    "Durable results and exact lineage",
+    "Explicit failure/blocker/unknown status"
+  ],
+  "preconditions": [
+    "Existing dev branch only",
+    "Owned disposable PHDLAB_DATA_DIR for verification"
+  ],
+  "postconditions": [
+    "No silent fallback or fabricated completion",
+    "All historical producers and retained files remain identifiable"
+  ],
+  "dependencies": [
+    "Existing native gateway, workspace, mission and evidence infrastructure"
+  ],
+  "affected_modules": [
+    "backend/knowledge/research_store.py",
+    "tests/test_paper_project.py",
+    "frontend/src/features/research-topics/*"
+  ],
+  "acceptance_criteria": [
+    "Adoption is idempotent, keeps experiments, and moves/deletes no files.",
+    "A changed inventory invalidates the reviewed adoption digest.",
+    "Missing legacy tables are unknown, not zero, without mutating schema.",
+    "Ambiguous historical ownership blocks adoption without guessing or data loss.",
+    "Schema migration retains old producer IDs, logical backup and foreign-key integrity.",
+    "Empty inventory avoids DB allocation and repeat inventory is stable; no latency/scale claim."
+  ],
+  "scenarios": [
+    {
+      "id": "1",
+      "requirement": "POSITIVE",
+      "kind": "positive",
+      "expected": "Adoption is idempotent, keeps experiments, and moves/deletes no files.",
+      "test": "tests/test_paper_project.py::PaperProject.test_adoption_is_idempotent_and_preserves_experiments_and_ids"
+    },
+    {
+      "id": "2",
+      "requirement": "NEGATIVE",
+      "kind": "negative",
+      "expected": "A changed inventory invalidates the reviewed adoption digest.",
+      "test": "tests/test_paper_project.py::PaperProject.test_changed_inventory_is_refused_without_adopting_stale_plan"
+    },
+    {
+      "id": "3",
+      "requirement": "BOUNDARY",
+      "kind": "boundary",
+      "expected": "Missing legacy tables are unknown, not zero, without mutating schema.",
+      "test": "tests/test_paper_project.py::PaperProject.test_legacy_missing_tables_report_unknown_counts_without_schema_mutation"
+    },
+    {
+      "id": "4",
+      "requirement": "FAILURE",
+      "kind": "failure",
+      "expected": "Ambiguous historical ownership blocks adoption without guessing or data loss.",
+      "test": "tests/test_paper_project.py::PaperProject.test_legacy_multiple_topics_are_preserved_and_never_guessed"
+    },
+    {
+      "id": "5",
+      "requirement": "SECURITY",
+      "kind": "security",
+      "expected": "Schema migration retains old producer IDs, logical backup and foreign-key integrity.",
+      "test": "tests/test_paper_project.py::PaperProject.test_schema_migration_backs_up_history_and_accepts_native_workspace"
+    },
+    {
+      "id": "6",
+      "requirement": "PERFORMANCE",
+      "kind": "performance",
+      "expected": "Empty inventory avoids DB allocation and repeat inventory is stable; no latency/scale claim.",
+      "test": "tests/test_paper_project.py::PaperProject.test_empty_inventory_is_read_only_and_does_not_create_a_database"
+    }
+  ],
+  "recovery": "Retain failed output/checkpoints, never replay an uncertain external operation; require explicit bounded recovery.",
+  "test_environment": "Actual Windows Python3.12 disposable files/SQLite/CPU and controlled Docker/vendor RPC boundaries; no current-source live provider or scientific qualification in this receipt.",
+  "skill_sources": [
+    "skills/SOURCES.json",
+    "skills/codebase-design/SKILL.md",
+    "skills/frontend-design/SKILL.md"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Implementation-agent source, authority and oracle review; no independent human/scientific certification claimed."
+  },
+  "tdd": {
+    "status": "IMPLEMENTATION_FIRST_OWNER_AUTHORIZED",
+    "authorization": "OWNER-20261026-HERMES-FEATURE-FIRST",
+    "red": null,
+    "green": {
+      "path": "docs/qa/evidence/native-consolidation/feature-contract-green.json",
+      "sha256": "e7de9adba0f9ff01c37537ccdd78e07a72fda1f0a273a9527a68d4ae30e84b65",
+      "exit_code": 0
+    },
+    "scope": "Owner explicitly requested features before testcase standardization. Actual73/73 software assertions passed; source-scoped receipt retained separately. No RED fabricated."
+  },
+  "limitations": [
+    "Receipt predates these contract files; fresh full stable-source verification is still mandatory.",
+    "Separate live/research/CLI/browser/AI-UAT qualification and independent CI remain required at QA/main."
+  ]
+}

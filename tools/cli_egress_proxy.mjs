@@ -6,6 +6,22 @@ import fs from 'node:fs';
 
 const domains = new Set((process.env.PHDLAB_ALLOWED_DOMAINS || '').split(',').filter(Boolean));
 const socket = '/ipc/egress.sock';
+// Hermes RPC ingress can install short-lived, exact-job tool grants. CLI behavior is unchanged.
+const scopedBridges = new Map();
+export function registerScopedBridge(job, port, token, seconds) {
+  if (!/^[a-f0-9]{32}$/.test(job || '') || !Number.isInteger(port) || port < 1 || port > 65535 ||
+      typeof token !== 'string' || !/^[A-Za-z0-9_.:-]{16,512}$/.test(token) ||
+      !Number.isInteger(seconds) || seconds < 5 || seconds > 1800) throw new Error('Invalid scoped bridge');
+  for (const [key, value] of scopedBridges) if (value.until < Date.now()) scopedBridges.delete(key);
+  const existing = scopedBridges.get(job);
+  if (existing) {
+    if (existing.port !== port || existing.token !== token) throw new Error('Cannot replace an active job grant');
+    return; // An idempotent request cannot extend its original authority deadline.
+  }
+  if (scopedBridges.size >= 64 && !scopedBridges.has(job)) throw new Error('Scoped bridge capacity reached');
+  scopedBridges.set(job, { port, token, until: Date.now() + seconds * 1000 });
+}
+export function removeScopedBridge(job) { scopedBridges.delete(job); }
 function publicAddress(address) {
   if (net.isIP(address) === 4) {
     const [a, b] = address.split('.').map(Number);
@@ -17,13 +33,17 @@ function publicAddress(address) {
 }
 const server = http.createServer((request, response) => {
   // The only host service exposed is the project-scoped MCP endpoint, with a read/tool grant.
-  if (request.method !== 'POST' || request.url !== '/mcp' || !process.env.PHDLAB_MCP_PORT || !process.env.PHDLAB_MCP_TOKEN) {
+  const scoped = scopedBridges.get(request.headers['x-phdlab-job']);
+  const grant = scoped && scoped.until > Date.now() ? scoped : null;
+  const port = grant?.port || process.env.PHDLAB_MCP_PORT;
+  const token = grant?.token || process.env.PHDLAB_MCP_TOKEN;
+  if (request.method !== 'POST' || request.url !== '/mcp' || !port || !token) {
     response.writeHead(403); response.end('Endpoint denied'); return;
   }
   let bytes = 0;
-  const upstream = http.request({ hostname: 'host.docker.internal', port: Number(process.env.PHDLAB_MCP_PORT), path: '/mcp', method: 'POST',
-    headers: { 'Content-Type': 'application/json', Host: `127.0.0.1:${process.env.PHDLAB_MCP_PORT}`,
-      Authorization: `Bearer ${process.env.PHDLAB_MCP_TOKEN}`,
+  const upstream = http.request({ hostname: 'host.docker.internal', port: Number(port), path: '/mcp', method: 'POST',
+    headers: { 'Content-Type': 'application/json', Host: `127.0.0.1:${port}`,
+      Authorization: `Bearer ${token}`,
       ...(request.headers['mcp-session-id'] ? { 'Mcp-Session-Id': request.headers['mcp-session-id'] } : {}) } }, result => {
     response.writeHead(result.statusCode, { 'Content-Type': 'application/json',
       ...(result.headers['mcp-session-id'] ? { 'Mcp-Session-Id': result.headers['mcp-session-id'] } : {}) });

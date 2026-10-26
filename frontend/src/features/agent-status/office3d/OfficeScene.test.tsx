@@ -12,12 +12,12 @@ describe('OfficeScene', () => {
     try {
       useUIStore.getState().setLanguage('en');
       const first = renderWithProviders(<OfficeScene agents={[]} />);
-      expect(screen.getByText(/HPC & OpenCode Parallel · Open Runtime/)).toBeInTheDocument();
+      expect(screen.getByText(/Native code & GPU · Open workspace/)).toBeInTheDocument();
       expect(screen.queryByText(/Click mở Runtime/)).not.toBeInTheDocument();
       first.unmount();
       useUIStore.getState().setLanguage('vi');
       const second = renderWithProviders(<OfficeScene agents={[]} />);
-      expect(screen.getByText(/Cụm HPC & OpenCode Parallel · Click mở Runtime/)).toBeInTheDocument();
+      expect(screen.getByText(/Code native & GPU · Mở workspace/)).toBeInTheDocument();
       second.unmount();
     } finally { useUIStore.getState().setLanguage(original); }
   });
@@ -72,7 +72,7 @@ describe('OfficeScene', () => {
       projectId: 'p-1',
       displayName: 'Agent 4',
       role: 'Lit',
-      engine: 'feynman',
+      engine: 'phdlab',
       presence: 'idle',
       activity: 'reading',
       lastObservedAt: '2026-10-24T00:00:00Z',
@@ -80,7 +80,7 @@ describe('OfficeScene', () => {
       canPause: false,
       canResume: false,
       hasApprovalRequest: false,
-      archetype: 'feynman',
+      archetype: 'literature',
     },
     {
       agentId: 'a-5',
@@ -102,7 +102,7 @@ describe('OfficeScene', () => {
       projectId: 'p-1',
       displayName: 'Agent 6',
       role: 'Science',
-      engine: 'openscience',
+      engine: 'phdlab',
       presence: 'idle',
       activity: 'executing',
       lastObservedAt: '2026-10-24T00:00:00Z',
@@ -110,7 +110,7 @@ describe('OfficeScene', () => {
       canPause: false,
       canResume: false,
       hasApprovalRequest: false,
-      archetype: 'openscience',
+      archetype: 'experiment',
     },
     // Extra agents for station grid wrapping
     {

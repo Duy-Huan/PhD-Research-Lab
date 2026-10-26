@@ -22,8 +22,8 @@ from backend.core import config  # noqa: E402
 
 if config.GLOBAL_DIR.resolve() == (ROOT / "data").resolve():
     raise SystemExit("tests must not run on the real data folder")
-# no background ClearML subprocess after every sandbox run in the suite (test_clearml_offline turns it on itself)
-config.save_config({"clearml": {"auto_record": False}, "memory": {"embed_engine": "hashing"},
+# Native tracking has no background SDK service; model and embedding fixtures remain hermetic.
+config.save_config({"memory": {"embed_engine": "hashing"},
                     "lifecycle": {"cloud_preconnect": False}})  # hermetic: connection tests opt into their local fixture
 
 
@@ -71,6 +71,30 @@ def fresh_project(name: str, code_project: str | None = "main"):
 def run_async(coro):
     import asyncio
     return asyncio.run(coro)
+
+
+def legacy_topic(body, tid=''):
+    """Seed retained pre-migration multi-topic data for isolation/recovery tests only.
+
+    New-project tests must call production save_topic (which rejects a second topic).
+    This writes real old-layout rows in disposable storage; it never relaxes the app.
+    """
+    from backend.knowledge import research_store as store
+    if config.GLOBAL_DIR.resolve() == (ROOT/'data').resolve():
+        raise RuntimeError('Legacy fixture cannot target researcher data')
+    if tid:
+        return store.save_topic(body, tid)
+    from backend.knowledge.sources import PROVIDER_IDS
+    if not body.title.strip() or not body.sources or any(source not in PROVIDER_IDS for source in body.sources):
+        raise ValueError('Legacy fixture requires a valid topic title and supported sources')
+    with store.db() as connection:
+        empty=not connection.execute('SELECT 1 FROM topics LIMIT 1').fetchone()
+    if empty:return store.save_topic(body)
+    payload=body.model_dump()
+    identifier=store.uid();stamp=store.now()
+    with store.db() as connection:
+        connection.execute('INSERT INTO topics VALUES(?,?,?,?)',(identifier,store.dumps(payload),stamp,stamp))
+    return store.get_topic(identifier)
 
 
 def isolate_config(tc) -> None:

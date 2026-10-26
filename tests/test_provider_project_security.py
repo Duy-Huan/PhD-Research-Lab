@@ -47,7 +47,7 @@ class ProjectSecurity(unittest.TestCase):
             self.assertFalse(native.launch_terminal('codex')['launched'])
             with patch.object(isolated_cli, 'docker', side_effect=OSError('unavailable')):
                 self.assertEqual(native.launch_provider('codex')['state'], 'BLOCKED')
-            self.assertEqual(native.launch_provider('antigravity')['state'], 'BLOCKED')
+            self.assertEqual(native.launch_provider('antigravity')['state'], 'UNSUPPORTED')
             spawn.assert_not_called()
 
     def test_same_project_shared_context_is_provider_independent_and_read_only(self):

@@ -107,9 +107,9 @@ export const Composer: React.FC<ComposerProps> = ({
   const assistantDefaultModel = assistantCatalog?.selected || '';
 
   // Also check providers list for matching engine if agent_catalog models is empty
-  const providerCode = assistantEngine.replace(/^(cloud|cli|app):/, '');
+  const providerCode = assistantEngine.replace(/^(cloud|cli|app|runtime):/, '');
   const matchingProvider = (modelsData?.providers || []).find(
-    (p) => p.id === providerCode || p.id === assistantEngine || p.id === `cli:${providerCode}` || p.id === `app:${providerCode}`
+    (p) => p.id === assistantCatalog?.provider_id || p.id === providerCode || p.id === assistantEngine || p.id === `cli:${providerCode}` || p.id === `app:${providerCode}` || p.id === `runtime:${providerCode}`
   );
   const rawAssistantModels =
     assistantCatalog?.models && assistantCatalog.models.length > 0
@@ -123,7 +123,7 @@ export const Composer: React.FC<ComposerProps> = ({
   ).filter(Boolean);
 
   const isCliOrSub =
-    ['codex', 'claude_code', 'claude', 'antigravity', 'gemini_cli'].includes(providerCode) ||
+    ['codex', 'claude_code', 'antigravity', 'gemini_cli'].includes(providerCode) ||
     assistantEngine.startsWith('cli:');
   const isAuthExpired =
     matchingProvider?.state === 'AUTH_EXPIRED' ||
@@ -409,7 +409,7 @@ export const Composer: React.FC<ComposerProps> = ({
 
     // Normalize CLI shorthands properly so backend accepts it seamlessly
     const mappedProvider = /^(app|cli):/.test(assistantEngine) ? assistantEngine
-      : assistantEngine ? `${isCliOrSub ? 'cli' : 'app'}:${providerCode === 'claude' ? 'claude_code' : providerCode === 'google' ? 'gemini' : providerCode}` : '';
+      : assistantCatalog?.provider_id || (assistantEngine ? `${isCliOrSub ? 'cli' : providerCode === 'hermes' ? 'runtime' : 'app'}:${providerCode === 'claude' ? 'claude_code' : providerCode === 'google' ? 'gemini' : providerCode}` : '');
 
     if (mappedProvider) {
       overrides.provider = mappedProvider;
@@ -450,10 +450,10 @@ export const Composer: React.FC<ComposerProps> = ({
     { cmd: '/paperorchestra ', label: 'PaperOrchestra', icon: FileText },
     { cmd: '/outline', label: 'Outline', icon: Compass },
     { cmd: '/search ', label: 'Search', icon: BookOpen },
+    { cmd: '/lit ', label: t('Khảo sát tài liệu', 'Literature'), icon: BookOpen },
+    { cmd: '/science ', label: t('Phân tích khoa học', 'Scientific analysis'), icon: Bot },
     { cmd: '/phdlab ', label: 'PhD Lab Native', icon: Bot },
-    { cmd: '/feynman ', label: 'Feynman', icon: Sparkles },
-    { cmd: '/openscience ', label: 'OpenScience', icon: FlaskConical },
-    { cmd: '/opencode ', label: 'OpenCode', icon: Terminal },
+    { cmd: '/code ', label: t('Lập trình native', 'Native coding'), icon: Terminal },
     { cmd: '/status', label: 'Status', icon: Cpu },
   ];
 

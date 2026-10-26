@@ -46,6 +46,8 @@ async def execute(options: dict) -> dict:
     cdp=urlsplit(lease['cdp_url'])
     if cdp.scheme!='http' or cdp.hostname!='127.0.0.1' or not cdp.port or lease.get('personal_profile') is not False:
         raise ValueError('Browser Use requires an owned loopback CDP lease')
+    sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+    from devtools.verification.uat_journeys import task as journey_task
     denied=restrict_worker(out,{cdp.port,urlsplit(lease['app_origin']).port,1234})
     from browser_use import Agent, Browser, ChatOpenAI, Tools
     from importlib.metadata import version
@@ -57,11 +59,11 @@ async def execute(options: dict) -> dict:
                     keep_alive=True,enable_default_extensions=False,permissions=[],accept_downloads=False)
     llm=ChatOpenAI(model=options['model'],base_url='http://127.0.0.1:1234/v1',api_key='local-uat-only',
                    max_retries=0,timeout=45,max_completion_tokens=6000,frequency_penalty=None,reasoning_effort=None)
-    task=(f"Test the disposable app at {lease['app_origin']}/dist/react.html. "
-          "Open System Settings. Use its VI button to switch to Vietnamese, then its ENG button to switch back to English. "
-          "Finish while still on the Settings page. Observe loading, layout and errors. "
-          "Only interact with this local test app. Do not open providers, terminals, file pickers or external sites. "
-          "Report actual observations and exact actions. Do not invent a UX score, a pass, or measurements.")
+    journey=options.get('journey','settings-language')
+    task=(f"Test the disposable app at {lease['app_origin']}/dist/react.html. "+journey_task(journey,lease.get('setup',{}))+
+          ' Observe loading, layout and errors. Only interact with this local test app. '
+          'Do not open terminals, file pickers or external sites. Report actual observations and exact actions. '
+          'Do not invent a UX score, a pass, or measurements.')
     async def stop_after_three_errors():
         return sum(bool(error) for error in agent.history.errors()) >= 3
     agent=Agent(task=task,llm=llm,browser=browser,tools=tools,use_vision=False,use_judge=False,
@@ -74,7 +76,7 @@ async def execute(options: dict) -> dict:
         history=await asyncio.wait_for(agent.run(max_steps=options['max_steps']),timeout=options['timeout_s'])
         history.save_to_file(str(out/'agent-history.json'))
         return {'adapter_available':True,'adapter':'browser-use','version':version('browser-use'),
-                'model_requested':options['model'],'model_returned':'UNKNOWN',
+                'model_requested':options['model'],'model_returned':'UNKNOWN','journey':journey,'source_sha256':options.get('source_sha256'),
                 'max_completion_tokens':6000,
                 'mode':'REAL_LOCAL','ai_success':history.is_successful() is True,'steps':len(history.history),
                 'urls':history.urls(),'actions':history.model_actions(),'errors':history.errors(),

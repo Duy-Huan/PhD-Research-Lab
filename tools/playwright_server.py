@@ -17,6 +17,7 @@ def main():
     parser.add_argument("--model", default="spark-x2.5-4b", help="Explicit installed LM Studio model; no fallback")
     parser.add_argument('--lease-token', default='', help='Owned disposable-server readiness nonce')
     parser.add_argument('--browser-uat',action='store_true',help='First-time persona: deny all writes except UI language; no CLI launches')
+    parser.add_argument('--uat-journey',default='settings-language',choices=['settings-language','project-and-chat','workflow-operations','failure-recovery'])
     args = parser.parse_args()
     data = args.data.resolve()
     artifact_root = (ROOT / "output" / "playwright").resolve()
@@ -38,7 +39,7 @@ def main():
             "research_os": {"enabled": True},
             "memory": {"embed_engine": "hashing", "auto_summarize": False},
             "lifecycle": {"unload_on_exit": False, "local_interactive": "keep_loaded"},
-            "clearml": {"auto_record": False}, "ranking": {"auto": False},
+            "ranking": {"auto": False},
             "ui": {"language": "en"},
         })
     import uvicorn
@@ -47,14 +48,30 @@ def main():
 
     if args.browser_uat:
         from fastapi.responses import JSONResponse
-        from devtools.verification.uat import allowed_settings_write
+        from devtools.verification.uat_journeys import allowed_write, prepare, snapshot
+        lease = prepare(args.uat_journey, data, args.model)
+        reserved = set()
+        @app.get('/api/qa/uat-state', include_in_schema=False)
+        def uat_state():
+            return snapshot(lease)
         @app.middleware('http')
         async def scoped_browser_lease(request,call_next):
             if request.method not in ('GET','HEAD','OPTIONS'):
                 try:body=await request.json()
                 except ValueError:body=None
-                if not allowed_settings_write(request.method,request.url.path,body):
-                    return JSONResponse({'error':'Outside disposable settings-language UAT capability scope'},status_code=403)
+                current = dict(lease)
+                if args.uat_journey == 'project-and-chat':
+                    state = snapshot(lease)
+                    current.update(in_owned_project=state['in_owned_project'],
+                        session_ids=[s['id'] for s in state['sessions']],
+                        project_created='project' in reserved, turn_started='turn' in reserved)
+                if request.url.query or not allowed_write(args.uat_journey,request.method,request.url.path,body,current):
+                    return JSONResponse({'error':'Outside disposable '+args.uat_journey+' UAT capability scope'},status_code=403)
+                key = ('project' if request.url.path == '/api/projects' else 'session' if request.url.path == '/api/chat/sessions'
+                       else 'turn' if request.url.path.endswith('/turns') else request.url.path)
+                if args.uat_journey in ('project-and-chat','workflow-operations'):
+                    if key in reserved:return JSONResponse({'error':'UAT capability already consumed'},status_code=403)
+                    reserved.add(key)
             return await call_next(request)
 
     if args.lease_token:

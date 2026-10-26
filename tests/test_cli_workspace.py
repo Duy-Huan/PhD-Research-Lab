@@ -151,10 +151,13 @@ class Profiles(unittest.TestCase):
             W.check_profile("codex", "root-access")
         with self.assertRaises(W.WorkspaceError):
             W.check_profile("gemini_cli", "assisted")  # not supported → refused, never silently weaker
-        with self.assertRaises(W.WorkspaceError):
-            W.check_profile("claude_code", "assisted")  # weaker → needs consent
-        iso = W.check_profile("claude_code", "assisted", allow_weaker=True)
-        self.assertTrue(iso["consented_weaker"])
+        iso = W.check_profile('claude_code', 'assisted')
+        self.assertEqual(iso['level'], 'os-container')
+        self.assertFalse(iso['consented_weaker'])
+        with mock.patch.dict(W.ISOLATION, {('claude_code','assisted'): (True,'provider-permission',False,'Controlled weaker fixture')}):
+            with self.assertRaises(W.WorkspaceError):
+                W.check_profile('claude_code','assisted')
+            self.assertTrue(W.check_profile('claude_code','assisted',allow_weaker=True)['consented_weaker'])
         self.assertEqual(W.isolation("nope", "review")["level"], "none")
 
     def test_env_allowlist(self):
@@ -232,7 +235,7 @@ class GatewayIntegration(unittest.TestCase):
         return mock.patch.dict(C.CONNECTORS, {pid: f})
 
     def test_prepare_refuses_weaker_profile_without_consent(self):
-        with self._fake_conn():
+        with self._fake_conn(), mock.patch.dict(W.ISOLATION, {('claude_code','assisted'): (True,'provider-permission',False,'Controlled weaker fixture')}):
             with self.assertRaises(GS.GatewayError):
                 GS.prepare("question", "claude_code", profile="assisted")
             r = GS.prepare("question", "claude_code", profile="assisted", allow_weaker=True)

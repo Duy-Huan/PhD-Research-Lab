@@ -100,15 +100,9 @@ describe('ClaudeCLIStudio', () => {
     expect(screen.getByRole('button', { name: /OpenAI Codex/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Antigravity/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Gemini CLI/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Feynman Research/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /OpenCode Sandbox/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /PaperOrchestra/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /OpenScience/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Python venv/i })).toBeInTheDocument();
-
-    // 2. Click PaperOrchestra tab
-    fireEvent.click(screen.getByRole('button', { name: /PaperOrchestra/i }));
-    expect(useUIStore.getState().selectedCliProvider).toBe('paperorchestra');
+    expect(screen.queryByRole('button', { name: /Feynman|OpenCode|OpenScience|PaperOrchestra|Python venv/i })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', {name:/OpenAI Codex/i}));
+    expect(useUIStore.getState().selectedCliProvider).toBe('codex');
 
     // 3. Click 1-Click Launch External Terminal button
     const launchExtBtn = screen.getByTitle(/Mở trực tiếp cửa sổ Terminal ngoài máy tính bằng 1 click/i);
@@ -116,7 +110,7 @@ describe('ClaudeCLIStudio', () => {
     fireEvent.click(launchExtBtn);
 
     await waitFor(() => {
-      expect(postSpy).toHaveBeenCalledWith('/api/providers/paperorchestra/launch', { terminal: true });
+      expect(postSpy).toHaveBeenCalledWith('/api/providers/codex/launch', { terminal: true });
       expect(screen.getByText(/Đã mở Terminal ngoài!/i)).toBeInTheDocument();
     });
   });

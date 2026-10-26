@@ -210,7 +210,7 @@ def agent_skill(path: Path, pid: str) -> dict:
     title = str(meta.get("title") or meta.get("name") or path.parent.name).replace("-", " ").strip()
     return {"name": name, "title": title[:80], "description": desc[:300], "usage": "", "category": _category(name + " " + desc),
             "agent": "reviewer" if re.search(r"review|critique|referee", name + " " + desc[:120], re.I) else "research",
-            "mode": "chat", "pipeline": "", "provider": "app", "feynman": "", "risk": 0, "aliases": [],
+            "mode": "chat", "pipeline": "", "provider": "app", "risk": 0, "aliases": [],
             "origin": "plugin", "plugin": pid, "file": str(path), "instructions": body[:SKILL_CHARS]}
 
 

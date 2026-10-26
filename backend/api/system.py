@@ -46,8 +46,17 @@ async def codex_catalog():
     from backend.providers.app_server import model_catalog
     models = await call(model_catalog)
     cfg = load_config()
-    save_config({"gateway": {"cli_models": {**cfg["gateway"].get("cli_models", {}), "codex": models}}})
+    import time
+    save_config({"gateway": {"cli_models": {**cfg["gateway"].get("cli_models", {}), "codex": models},
+                             'cli_catalogs': {**cfg['gateway'].get('cli_catalogs', {}), 'codex':
+                                 {'origin': 'installed-cli-catalog', 'models': models, 'queried_at': time.time(), 'entitlement_verified': False}}}})
     return {"models": models, "entitlement_verified": False}
+
+
+@router.get('/api/models/usage')
+async def model_usage():
+    from backend.providers.gateway import usage_report
+    return await call(usage_report)
 
 
 @router.get("/api/models")
@@ -62,12 +71,13 @@ async def models():
     catalog = {}
     for agent in AGENTS:
         engine = resolve_engine(cfg, agent)
-        provider = next((p for p in provs if p["id"] in ("app:" + engine, "cli:" + engine)), None)
+        provider = next((p for p in provs if p["id"] in ("app:" + engine, "cli:" + engine, 'runtime:' + engine)), None)
         choices = (cfg.get("mcp_agent") or {}).get("models", []) if engine == "mcp" else (provider or {}).get("capabilities", {}).get("models", [])
-        catalog[agent] = {"engine": engine, "mode": cfg["agent_modes"][agent], "label": (provider or {}).get("label", engine),
+        catalog[agent] = {"provider_id": 'mcp' if engine == 'mcp' else (provider or {}).get('id', 'app:' + engine), "engine": engine,
+                          "mode": cfg["agent_modes"][agent], "label": (provider or {}).get("label", engine),
                           "models": list(dict.fromkeys([m for m in [*choices, cfg.get("agent_models", {}).get(agent)] if m])),
                           "selected": cfg.get("agent_models", {}).get(agent, "")}
-    return {"agents": agents, "agent_catalog": catalog, "providers": [{k: p[k] for k in ("id", "label", "transport", "state", "available", "detail")}
+    return {"agents": agents, "agent_catalog": catalog, "providers": [{**p}
                                             | {"models": p["capabilities"]["models"],
                                                "reasoning": p["capabilities"]["reasoning_controls"]} for p in provs],
             "default": cfg["aiws"]["provider"], "cloud": {k: {"label": v["label"], "models": v["models"]}
@@ -78,8 +88,8 @@ async def models():
 async def test_model(body: dict = Body(...)):
     from backend.providers.models import LLMError, _stream_engine, default_model_for
     from backend.providers.cli import CONNECTORS
-    pid = str(body.get("provider", "")).removeprefix("app:").removeprefix("cli:")
-    if pid not in (*PROVIDERS, "local", "ollama", *CONNECTORS):
+    pid = str(body.get("provider", "")).removeprefix("app:").removeprefix("cli:").removeprefix('runtime:')
+    if pid not in (*PROVIDERS, "local", "ollama", 'hermes', *CONNECTORS):
         raise HTTPException(400, "Unknown provider")
     cfg = load_config()
     model = str(body.get("model") or "").strip() or None
@@ -95,6 +105,38 @@ async def test_model(body: dict = Body(...)):
         raise LLMError("The provider returned an empty stream. Check the base URL, selected model and provider logs.")
     return {"ok": True, "provider": pid, "transport": "stream", "model": model or default_model_for(cfg, pid) or "(auto)",
             "reply": text[:80]}
+
+
+@router.get('/api/runtimes/hermes')
+async def hermes_runtime_status(profile: str = 'review'):
+    from backend.providers.hermes import status
+    return await call(status, profile)
+
+
+@router.post('/api/runtimes/hermes/{action}')
+async def hermes_runtime_action(action: str, body: dict = Body(default={})):
+    from backend.providers import hermes
+    profile = body.get('profile') or load_config()['gateway'].get('cli_profile', 'review')
+    if profile not in ('review', 'assisted'): raise HTTPException(400, 'Unsupported runtime profile')
+    if set(body) - {'profile'}: raise HTTPException(400, 'Unsupported runtime fields')
+    if action == 'models': return await call(hermes.refresh_models, profile)
+    if action == 'start':
+        value = await call(hermes.start, profile)
+        save_config({'hermes': {'enabled': True}})
+        return value
+    if action == 'stop': return await call(hermes.stop, profile)
+    if action == 'connect':
+        # The same global provider profile used by existing gateway settings.
+        if profile != load_config()['gateway'].get('cli_profile', 'review'):
+            raise HTTPException(409, 'Save the selected gateway profile before sign-in')
+        return await call(hermes.HermesConnector().connect, True)
+    raise HTTPException(404, 'Unsupported runtime action')
+
+
+@router.get('/api/runtimes/hermes/jobs/{job_id}')
+async def hermes_runtime_job(job_id: str, profile: str = 'review'):
+    from backend.providers.hermes import rpc
+    return await call(rpc, '/v1/jobs/' + job_id, profile=profile)
 
 
 @router.post("/api/models/list")
@@ -144,9 +186,6 @@ VENDOR_LOGIN_URLS = {
     "gemini": "https://gemini.google.com",
     "openai": "https://platform.openai.com/login",
     "anthropic": "https://console.anthropic.com/login",
-    "feynman": "https://feynman.ai",
-    "openscience": "https://openscience.org",
-    "opencode": "http://127.0.0.1:4097",
     "lmstudio": "http://127.0.0.1:1234",
     "ollama": "http://127.0.0.1:11434",
     "deepseek": "https://chat.deepseek.com",
@@ -188,7 +227,7 @@ async def provider_connect(pid: str, body: dict | None = None):
     payload = body if isinstance(body, dict) else {}
     clean_pid = pid.removeprefix("cli:").removeprefix("app:")
     mode = str(payload.get("mode") or "terminal").lower()
-    if clean_pid not in {*CONNECTORS, 'feynman', 'opencode', 'paperorchestra', 'openscience', 'app', 'phdlab'}:
+    if clean_pid not in {*CONNECTORS, 'app', 'phdlab'}:
         raise HTTPException(400, f"{pid} has no installed CLI sign-in flow")
     if mode not in ("terminal", "app", "web", "both"):
         raise HTTPException(400, "Choose terminal or app connection mode")
@@ -196,8 +235,6 @@ async def provider_connect(pid: str, body: dict | None = None):
         result = await call(launch_provider, clean_pid)
     elif clean_pid in CONNECTORS:
         connector = CONNECTORS[clean_pid]
-        result = await call(launch_provider, clean_pid, True)
-    elif clean_pid == "feynman":
         result = await call(launch_provider, clean_pid, True)
     else:
         result = await call(launch_provider, clean_pid)
@@ -214,6 +251,9 @@ async def provider_launch(pid: str, body: dict | None = None):
     """Open the installed CLI app, including npm shims; never a public website."""
     from backend.providers.native import launch_provider
     clean_pid = pid.removeprefix("cli:").removeprefix("app:")
+    from backend.providers.cli import CONNECTORS
+    if clean_pid not in {*CONNECTORS, 'app', 'phdlab'}:
+        raise HTTPException(404, 'Unsupported or retired native provider')
     result = await call(launch_provider, clean_pid)
     if not result.get("launched"):
         raise HTTPException(503, result.get("detail", "Native CLI is unavailable"))
@@ -229,6 +269,8 @@ async def provider_sync(pid: str):
     from backend.agent import decision_ledger as L
 
     clean_pid = pid.removeprefix("cli:").removeprefix("app:")
+    if clean_pid in ("feynman", "openscience", "opencode", "clearml"):
+        raise HTTPException(410, "Software provider retired; historical files remain available through native workspaces")
     synced_workspaces = []
     total_changed = 0
     total_observed = 0
@@ -241,7 +283,7 @@ async def provider_sync(pid: str):
         ws_list = W.list_workspaces(tid)
         matching = [w for w in ws_list if w.get("engine") == clean_pid]
         if not matching and clean_pid in ("claude_code", "codex", "antigravity", "gemini_cli", "python"):
-            matching = [w for w in ws_list if w.get("engine") in ("opencode", "feynman", "openscience")]
+            matching = [w for w in ws_list if w.get('engine') == 'phdlab']
         
         for w in matching:
             wid = w["id"]

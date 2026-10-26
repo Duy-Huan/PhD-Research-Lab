@@ -1,5 +1,11 @@
-# Current software verification ? 6.5.9 CI repair1
+# Actual software and integration verification6.5.10
 
-Local pre-publication snapshot for CI fixture repair1/3, source `b2b35a188e3eba19323c7c9eb51bf99b993c8f1018262787f974aff8baa47ac1`, stable. Baseline HEAD2a5ee141a1d06291eb65589045f0c5a35b711526. Actual latest publication/CI must be read from GitHub and shared.git/ci-observations/6.5.9-dev/receipt.json; no future remote result is presumed.
+Candidate6.5.10, branch `dev`, parent HEAD `10c3d018134204fb778206c825b28f1846998304`, measured source `d1caebdc1c8f6156ea8aedb905ccd9608c5cb5480fd3f3ddc9156bd0f74c1930`. Local source was stable. GitHub result for a future commit is not presumed.
 
-Actual canonical pr/all1199/1199PASS,0FAIL/ERROR/SKIP/NOT_RUN. Backend974; frontend194; actual2D27then3D1; owned boundaries3. Node policy48separate. All mandatory software checks executed/PASS. This is not complete live/scientific/AI-UAT release qualification. The previous real CI failed3fixture cases per matrix job and is preserved asFAIL; fresh exact-HEAD CI is still required. [Full measured scope and evidence](AGENT_NATIVE_CORE_CHECKPOINT_6.5.9.md).
+Canonical command: `python scripts/verify.py --profile pr --component all --base origin/dev --out output/playwright/native-consolidation/software-6.5.10`.
+
+**1266/1266 software assertions PASS,0FAIL/ERROR/SKIP/NOT_RUN; process exit0.** Backend1014, frontend217, deterministic boundaries6, browser2D28thenWebGL3D1. Separate Node policy48/48PASS. Static validation,15feature contracts, dynamic discovery, workflow policy, types, frontend build and browser gate PASS. Logs/screenshots/traces remain under that output folder. The exact canonical source-bound report is [evidence/local-verification/report.json](evidence/local-verification/report.json). Tests use owned disposable data; unit/controlled vendor boundaries retain their MOCKED classification.
+
+On the same final source, actual free Nous/Hermes gateway nonce and fresh-backend/runtime restart history checks passed. One direct-name native MCP attempt failed; a protocol-aware attempt passed with an independently observed native read call. Both are source-scoped live observations, not a general reliability certification. Raw receipts are under evidence/native-consolidation.
+
+The native local research harness completed8workflows and fresh CPU reproduction with measured artifacts/audit-chain/ZIP checks. Its literature and review fixtures are synthetic; this is neither deep-learning GPU validation nor scientific endorsement. It ran on the preceding source snapshot, which is retained in its own report. Current-source scientific paper qualification and AI-UAT remain BLOCKED/NOT_RUN. No GitHub CI result is inferred from local success.

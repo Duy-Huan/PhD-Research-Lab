@@ -18,6 +18,15 @@ describe('settings persistence and provider isolation (explicit HTTP fixtures)',
       mcp_agent:{models:['mcp-only']},runs:{slot_cpu:1,slot_cli:1,slot_cloud:2},ui:{language:'en'}};
     vi.spyOn(api,'get').mockImplementation(async url=>{
       if(url==='/api/config')return config;
+      if(url==='/api/models') {
+        const canonical: Record<string,string> = {local:'app:local',ollama:'app:ollama',mcp:'mcp',cloud:'app:openai',claude:'app:anthropic',codex:'cli:codex',auto:'app:auto'};
+        return {agent_catalog:{assistant:{provider_id:canonical[config.agent_modes.assistant] || config.agent_modes.assistant}},providers:[
+          {id:'app:auto',label:'Auto fixture',models:[]},
+          {id:'app:openai',label:'OpenAI fixture',models:['openai-saved','openai-choice']},
+          {id:'app:anthropic',label:'Anthropic fixture',models:['anthropic-saved','anthropic-choice']},
+          {id:'cli:codex',label:'Codex subscription fixture',models:['codex-saved']},
+        ]};
+      }
       if(url==='/api/models/local')return {lmstudio:{models:['local-string',{id:'local-object'}]},ollama:{models:[{name:'ollama-object'}]}};
       if(url==='/api/models/connections')return {connections:[]};
       if(url.startsWith('/api/skills'))return {skills:[],errors:[]};
@@ -48,13 +57,13 @@ describe('settings persistence and provider isolation (explicit HTTP fixtures)',
   it('selecting a provider resets the previous provider model before saving',async()=>{
     config.agent_models.assistant='old-foreign-model';renderWithProviders(<SettingsModal />);
     const select=await screen.findByRole('combobox',{name:'assistant provider'});
-    fireEvent.change(select,{target:{value:'openai'}});
+    fireEvent.change(select,{target:{value:'app:openai'}});
     await waitFor(()=>expect(api.post).toHaveBeenCalledWith('/api/config',{
-      agent_modes:{assistant:'openai'},agent_models:{assistant:'openai-saved'}}));
+      agent_modes:{assistant:'app:openai'},agent_models:{assistant:'openai-saved'}}));
   });
 
   it.each([
-    ['openscience-indigo','dark','#3b82f6'],['lab-midnight','dark','#a6b9ff'],['lab-forest','light','#27764b'],
+    ['research-indigo','dark','#3b82f6'],['lab-midnight','dark','#a6b9ff'],['lab-forest','light','#27764b'],
   ])('applies and persists complete %s theme tokens', (id,base,accent)=>{
     applyThemeById(id);expect(document.documentElement.getAttribute('data-theme')).toBe(base);
     expect(document.documentElement.getAttribute('data-theme-package')).toBe(id);
@@ -63,6 +72,12 @@ describe('settings persistence and provider isolation (explicit HTTP fixtures)',
     applyThemeById('system');expect(document.documentElement.style.getPropertyValue('--accent')).toBe('');
     expect(document.documentElement.hasAttribute('data-theme-package')).toBe(false);
     expect(localStorage.getItem('pl.theme')).toBeNull();
+  });
+
+  it('migrates the retired saved theme without losing appearance',()=>{
+    applyThemeById('openscience-indigo');
+    expect(document.documentElement.getAttribute('data-theme-package')).toBe('research-indigo');
+    expect(document.documentElement.style.getPropertyValue('--accent')).toBe('#3b82f6');
   });
 
   it.each(['dark','light'])('plain %s theme clears custom tokens',id=>{

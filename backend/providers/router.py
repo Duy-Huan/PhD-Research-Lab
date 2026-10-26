@@ -75,6 +75,12 @@ def local_up(cfg: dict, engine: str) -> bool:
 
 
 def provider_ready(cfg: dict, pid: str, is_online: bool) -> bool:
+    from backend.providers.models import CLI_LABELS
+    if pid in CLI_LABELS or pid == 'hermes':
+        if not is_online: return False
+        from backend.providers.registry import describe
+        descriptor = describe(('runtime:' if pid == 'hermes' else 'cli:') + pid, cfg)
+        return descriptor['available']
     from backend.providers.models import LLMError, gateway_headers, key_required, provider_settings
     spec = PROVIDERS.get(pid)
     if not spec:
@@ -110,7 +116,7 @@ def plan(cfg: dict, agent: str) -> dict:
         busy = False
     out, skipped = [], {}
     for tok in chain:
-        eng = cfg["default_cloud"] if tok == "@cloud" else ("anthropic" if tok == "@claude" else tok)
+        eng = cfg["default_cloud"] if tok == "@cloud" else ("anthropic" if tok == "@claude" else str(tok).removeprefix('app:').removeprefix('cli:').removeprefix('runtime:'))
         if eng in out or eng in skipped:
             continue
         if eng in LOCAL:
@@ -134,7 +140,8 @@ def plan(cfg: dict, agent: str) -> dict:
         verified = (policy.get("verified_fallbacks") or {}).get(kind) or []
         kept = [out[0]]  # configured primary; alternatives require explicit model-specific qualification
         for eng in out[1:]:
-            model = cfg.get("ollama_model", "") if eng == "ollama" else cfg.get("local_model", "") if eng == "local" else (cfg.get("providers", {}).get(eng) or {}).get("model", "")
+            from backend.providers.models import default_model_for
+            model = default_model_for(cfg, eng)
             if f"{eng}:{model}" in verified:
                 kept.append(eng)
             else:

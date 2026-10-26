@@ -435,7 +435,7 @@ async def local_chat(cfg: dict, system: str, messages: list, max_tokens: int, te
 
 # --------------------------------------------------------------------- router
 def resolve_engine(cfg: dict, agent: str) -> str:
-    mode = str(cfg["agent_modes"].get(agent_key(agent), "cloud")).removeprefix("cli:").removeprefix("app:")
+    mode = str(cfg["agent_modes"].get(agent_key(agent), "cloud")).removeprefix("cli:").removeprefix("app:").removeprefix('runtime:')
     if mode == "chatgpt_sub":
         return "codex"
     if mode == "claude":  # Claude preferred: Anthropic when it has a key, otherwise the default cloud provider
@@ -454,6 +454,7 @@ CLI_LABELS = {
     "gemini_cli": "Google Gemini CLI",
     "antigravity": "Google Antigravity CLI",
 }
+AGENT_RUNTIME_LABELS = {'hermes': 'Hermes Agent (isolated Nous runtime)'}
 
 
 def engine_label(engine: str) -> str:
@@ -465,6 +466,8 @@ def engine_label(engine: str) -> str:
         return "Ollama (local)"
     if engine in CLI_LABELS:
         return CLI_LABELS[engine]
+    if engine in AGENT_RUNTIME_LABELS:
+        return AGENT_RUNTIME_LABELS[engine]
     return PROVIDERS.get(engine, {}).get("label", engine)
 
 
@@ -473,6 +476,8 @@ def default_model_for(cfg: dict, engine: str) -> str:
         return cfg.get("local_model") or ""
     if engine == "ollama":
         return cfg.get("ollama_model") or ""
+    if engine == 'hermes':
+        return (cfg.get('hermes') or {}).get('model') or ''
     if engine in CLI_LABELS:
         return ""  # no override means the signed-in vendor CLI chooses its configured default
     if engine in PROVIDERS:
@@ -497,59 +502,46 @@ def agent_runtime(cfg: dict, agent: str) -> dict:
 
 
 async def _stream_cli(cfg: dict, engine: str, system: str, messages: list, model: str | None = None):
+    """All native CLI/runtime model calls use the existing durable project gateway."""
     import asyncio
-    import concurrent.futures
-    import threading
-    from backend.providers import cli as C
-    conn = C.CONNECTORS.get(engine)
-    if not conn:
-        raise LLMError(f"Unknown CLI provider '{engine}'")
+    from backend.providers import gateway as G
     prompt = (system + "\n\n" if system else "") + "\n\n".join(
         f"{m.get('role', 'user').upper()}: {m.get('content', '')}" for m in messages
     )
-    stopped=threading.Event()
-    ctx = {"profile": cfg.get("gateway", {}).get("cli_profile", "review"), "model": model or "", "reasoning": _reasoning(),
-           "_cancel":stopped}
-    loop=asyncio.get_running_loop();events=asyncio.Queue(maxsize=32)
-
-    def deliver(kind,value=None):
-        if stopped.is_set():return
-        future=asyncio.run_coroutine_threadsafe(events.put((kind,value)),loop)
-        while not stopped.is_set():
-            try:future.result(timeout=.1);return
-            except concurrent.futures.TimeoutError:continue
-        future.cancel()
-
-    def produce():
-        stream=None
-        try:
-            stream=conn.stream_message(prompt,ctx)
-            for ev in stream:
-                if stopped.is_set():break
-                if ev.get('type')=='text_delta' and ev.get('text'):deliver('delta',ev['text'])
-                elif ev.get('type')=='error':
-                    deliver('error',LLMError(ev.get('message',f'{engine} CLI error')));break
-        except Exception as exc:deliver('error',exc)
-        finally:
-            close=getattr(stream,'close',None)
-            if close:
-                try:close()
-                except Exception as exc:deliver('error',exc)
-            deliver('done')
-
-    worker=asyncio.create_task(asyncio.to_thread(produce));finished=False
+    request = None
+    finished = False
+    emitted = False
     try:
+        request = await asyncio.to_thread(G.prepare, prompt, engine,
+            profile=cfg.get('gateway', {}).get('cli_profile', 'review'), memory=False)
+        await asyncio.to_thread(G.send, request['id'], model=model or '', reasoning=_reasoning())
+        cursor = 0
         while True:
-            kind,value=await events.get()
-            if kind=='delta':yield value
-            elif kind=='error':raise LLMError(str(value)) from value
-            else:finished=True;break
+            batch = await asyncio.to_thread(G.wait_events, request['id'], cursor, 1.0)
+            cursor = batch['next']
+            for event in batch['events']:
+                if event.get('type') == 'text_delta' and event.get('text'):
+                    emitted = True
+                    yield event['text']
+            if batch['status'] not in ('ready', 'starting', 'running'):
+                # Drain the durable event window before accepting terminal state.
+                if batch['events']: continue
+                actual = await asyncio.to_thread(G.get, request['id'])
+                finished = True
+                if actual['status'] != 'completed':
+                    raise LLMError('; '.join(actual.get('errors') or []) or f"{engine} request {actual['status']}")
+                if not emitted and actual.get('answer'):
+                    yield actual['answer']
+                if not emitted and not actual.get('answer'):
+                    raise LLMError(f'{engine} returned no model response')
+                break
+    except G.GatewayError as error:
+        raise LLMError(str(error)) from error
     finally:
-        stopped.set()
-        if not finished and ctx.get('request_id'):
-            await asyncio.to_thread(conn.cancel,ctx['request_id'])
-        try:await asyncio.wait_for(asyncio.shield(worker),timeout=5)
-        except asyncio.TimeoutError:worker.cancel()
+        if request and not finished:
+            actual = await asyncio.to_thread(G.get, request['id'])
+            if actual.get('status') in ('ready', 'starting', 'running'):
+                await asyncio.to_thread(G.cancel, request['id'])
 
 
 async def call_agent(agent: str, system: str, user: str | None = None, messages: list | None = None,
@@ -566,11 +558,12 @@ async def call_agent(agent: str, system: str, user: str | None = None, messages:
         text = await complete(cfg, system, msgs, model, max_tokens, temperature)
         return {"text": strip_think(text).strip(), "engine": engine, "engine_label": engine_label(engine),
                 "model": model or "(server default)", "note": "MCP inference tool; server owns model execution"}
-    if engine in CLI_LABELS:
+    if engine in CLI_LABELS or engine in AGENT_RUNTIME_LABELS:
         parts = [p async for p in _stream_cli(cfg, engine, system, msgs, model)]
         text = strip_think("".join(parts)).strip()
         return {"text": text, "engine": engine, "engine_label": engine_label(engine),
-                "model": model or default_model_for(cfg, engine), "note": "CLI subscription connector"}
+                "model": model or default_model_for(cfg, engine),
+                "note": "Isolated agent runtime; final response after agent completion" if engine in AGENT_RUNTIME_LABELS else "CLI subscription connector"}
     if engine not in LOCAL_ENGINES:
         text = await cloud_chat(cfg, engine, system, msgs, max_tokens, temperature, model)
         return {"text": text, "engine": engine, "engine_label": engine_label(engine), "model": model or default_model_for(cfg, engine), "note": ""}
@@ -612,6 +605,8 @@ async def _call_auto(cfg: dict, agent: str, system: str, msgs: list, max_tokens:
         try:
             if eng in LOCAL_ENGINES:
                 text = await local_chat(cfg, system, msgs, max_tokens, temperature, eng, purpose=LC.purpose_for(agent))
+            elif eng in CLI_LABELS or eng in AGENT_RUNTIME_LABELS:
+                text = ''.join([part async for part in _stream_cli(cfg, eng, system, msgs, default_model_for(cfg, eng) or None)])
             else:
                 text = await cloud_chat(cfg, eng, system, msgs, max_tokens, temperature)
             return {"text": text, "engine": eng, "engine_label": engine_label(eng), "model": default_model_for(cfg, eng),
@@ -727,7 +722,7 @@ async def _stream_engine(cfg, engine, system, messages, max_tokens, temperature,
             async for t in _stream_openai(base, "", model, system, messages, max_tokens, temperature, label, engine, hint):
                 yield t
         return
-    if engine in CLI_LABELS:
+    if engine in CLI_LABELS or engine in AGENT_RUNTIME_LABELS:
         async for t in _stream_cli(cfg, engine, system, messages, model):
             yield t
         return

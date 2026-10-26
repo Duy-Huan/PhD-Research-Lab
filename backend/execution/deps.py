@@ -31,7 +31,7 @@ PIP_NAME = {
     "scipy": "scipy", "numpy": "numpy", "pandas": "pandas", "matplotlib": "matplotlib", "seaborn": "seaborn",
     "einops": "einops", "timm": "timm", "transformers": "transformers", "datasets": "datasets", "lightning": "lightning",
     "pytorch_lightning": "pytorch-lightning", "hydra": "hydra-core", "omegaconf": "omegaconf", "wandb": "wandb",
-    "clearml": "clearml", "tqdm": "tqdm", "rasterio": "rasterio", "tifffile": "tifffile", "imageio": "imageio",
+    "tqdm": "tqdm", "rasterio": "rasterio", "tifffile": "tifffile", "imageio": "imageio",
     "mat73": "mat73", "kornia": "kornia", "lpips": "lpips", "piq": "piq", "thop": "thop", "fvcore": "fvcore",
     "mmcv": "mmcv", "mamba_ssm": "mamba-ssm", "flash_attn": "flash-attn", "jax": "jax", "tensorflow": "tensorflow",
     "keras": "keras", "lightgbm": "lightgbm", "xgboost": "xgboost", "catboost": "catboost", "statsmodels": "statsmodels",

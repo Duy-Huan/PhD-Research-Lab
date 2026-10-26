@@ -35,20 +35,22 @@ export const ClaudeCLIStudio: React.FC = () => {
   const queryClient = useQueryClient();
   const { t } = useI18n();
   const { project, activeSessionId, setActiveSessionId, closeDrawer, openDrawer } = useUIStore();
-  const selectedCliProvider = useUIStore((s) => s.selectedCliProvider || 'claude_code');
+  const selectedCliProvider = useUIStore((s) => ['claude_code', 'codex', 'gemini_cli', 'antigravity'].includes(s.selectedCliProvider || '') ? s.selectedCliProvider : 'claude_code');
   const setSelectedCliProvider = useUIStore((s) => s.setSelectedCliProvider);
   const [launchingTerminal, setLaunchingTerminal] = useState(false);
   const [terminalLaunched, setTerminalLaunched] = useState(false);
+  const [launchError, setLaunchError] = useState('');
 
   const handleLaunchExternalTerminal = async (pidOverride?: string) => {
     const pid = pidOverride || selectedCliProvider || 'claude_code';
     setLaunchingTerminal(true);
+    setLaunchError('');
     try {
       await api.post(`/api/providers/${pid}/launch`, { terminal: true });
       setTerminalLaunched(true);
       setTimeout(() => setTerminalLaunched(false), 3000);
     } catch (err: any) {
-      console.error(`Failed to launch terminal for ${pid}:`, err);
+      setLaunchError(t('Không mở được CLI: ', 'Could not launch CLI: ') + (err?.message || t('Không khả dụng', 'Unavailable')));
     } finally {
       setLaunchingTerminal(false);
     }
@@ -403,11 +405,6 @@ export const ClaudeCLIStudio: React.FC = () => {
             { id: 'codex', label: 'OpenAI Codex', color: '#10b981' },
             { id: 'antigravity', label: 'Antigravity (agy)', color: '#3b82f6' },
             { id: 'gemini_cli', label: 'Gemini CLI', color: '#8b5cf6' },
-            { id: 'feynman', label: 'Feynman Research', color: '#ec4899' },
-            { id: 'opencode', label: 'OpenCode Sandbox', color: '#06b6d4' },
-            { id: 'paperorchestra', label: 'PaperOrchestra', color: '#f59e0b' },
-            { id: 'openscience', label: 'OpenScience', color: '#6366f1' },
-            { id: 'python', label: 'Python venv', color: '#eab308' },
           ].map((p) => {
             const isCur = selectedCliProvider === p.id;
             return (
@@ -475,6 +472,7 @@ export const ClaudeCLIStudio: React.FC = () => {
         </button>
       </div>
 
+      {launchError && <p role="alert" style={{ margin: '6px 12px', overflowWrap: 'anywhere' }}>{launchError}</p>}
       {/* 2. Quick Workflows Strip */}
       <div
         style={{

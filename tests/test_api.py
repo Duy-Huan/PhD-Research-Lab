@@ -49,10 +49,8 @@ class Api(unittest.TestCase):
     def setUp(self):
         _env.isolate_config(self)
         _env.fresh_project("api-" + self._testMethodName[:28])
-        # This API state-transition fixture requires an unavailable preferred
-        # provider. Never probe a developer's installed Feynman CLI/auth here.
-        config.save_config({"runs": {"web_search": False},
-                            "research_providers": {"feynman_enabled": False}})
+        # Hermetic API fixtures never probe installed model CLI/auth.
+        config.save_config({"runs": {"web_search": False}})
         for p in (mock.patch.object(llm, "stream_agent", fake_stream),
                   mock.patch.object(RP, "app_complete", return_value="text (Doe, 2020)")):
             p.start()
@@ -105,9 +103,10 @@ class Api(unittest.TestCase):
         self.bad("POST", "/api/models/unload", json={"engine": "tpu"})
         with mock.patch.object(RP, "describe_all", return_value=[{"id": "app"}]):
             self.assertEqual(self.ok("GET", "/api/providers?fresh=1")["providers"], [{"id": "app"}])
-        with mock.patch("backend.providers.native.launch_provider", return_value={'launched': True, 'command': ['feynman', 'model', 'login']}) as launch:
-            self.assertEqual(self.ok("POST", "/api/providers/feynman/connect")["command"], 'feynman model login')
-            self.assertEqual(launch.call_args.args, ('feynman', True))
+        with mock.patch("backend.providers.native.launch_provider") as launch:
+            for retired in ('feynman', 'openscience', 'opencode', 'clearml'):
+                self.bad("POST", f"/api/providers/{retired}/connect")
+            launch.assert_not_called()
         self.bad("POST", "/api/providers/nope/connect")
         from backend.providers import cli as C
         with mock.patch("backend.providers.native.launch_provider", return_value={'launched': True}):
@@ -237,8 +236,11 @@ class Api(unittest.TestCase):
     # ------------------------------------------------------------------ runs + memory + pins
     def test_runs_and_memory(self):
         s = sessions.create("t")
-        r = self.ok("POST", "/api/runs", json={"skill": "lit", "input": "vit", "session_id": s["id"]})
-        self.assertEqual(runs.wait(r["id"], 30)["status"], "NEEDS_USER_ACTION")
+        # Inject an actual native model boundary failure, then exercise the same
+        # recovery API; retirement must not remove outage/resume coverage.
+        with mock.patch.object(RP, 'app_complete', side_effect=RuntimeError('AUTH_EXPIRED: controlled fixture')):
+            r = self.ok("POST", "/api/runs", json={"skill": "lit", "input": "vit", "session_id": s["id"]})
+            self.assertEqual(runs.wait(r["id"], 30)["status"], "NEEDS_USER_ACTION")
         self.ok("POST", f"/api/runs/{r['id']}/provider", json={"step": "S1", "provider": "app"})
         self.ok("POST", f"/api/runs/{r['id']}/resume", json={"accept": False})
         self.assertEqual(runs.wait(r["id"], 30)["status"], "COMPLETED")

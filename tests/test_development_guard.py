@@ -10,7 +10,6 @@ import unittest
 import sys
 
 from devtools.verification.branch_policy import LOCAL_STEPS, record_report, report_errors
-from scripts.install_ci_sdk import unpack
 from scripts.development_guard import remote_errors
 
 
@@ -71,33 +70,6 @@ class DevelopmentGuard(unittest.TestCase):
             report['decision']='FAIL';file.write_text(json.dumps(report));record_report(root,file,report)
             stored=json.loads(receipt.read_text());self.assertEqual(stored['decision'],'FAIL')
             self.assertEqual(stored['sha256'],hashlib.sha256(file.read_bytes()).hexdigest())
-
-
-class PinnedSDK(unittest.TestCase):
-    def archive(self, names):
-        stream=io.BytesIO()
-        with tarfile.open(fileobj=stream,mode='w:gz') as archive:
-            for name in names:
-                content=b'# synthetic bounded test input\n';item=tarfile.TarInfo(name);item.size=len(content)
-                archive.addfile(item,io.BytesIO(content))
-        return stream.getvalue()
-
-    def test_wrong_digest_and_escaping_archive_never_write_files(self):
-        with tempfile.TemporaryDirectory() as directory:
-            out=Path(directory)/'sdk'
-            with self.assertRaises(ValueError):unpack(b'not trusted',out)
-            raw=self.archive(['../../escape.py'])
-            with self.assertRaises(ValueError):unpack(raw,out,hashlib.sha256(raw).hexdigest(),'fixture/')
-            self.assertFalse(out.exists())
-
-    def test_reviewed_inventory_is_exact_and_unknown_output_is_preserved(self):
-        raw=self.archive(['fixture/__init__.py','fixture/client.py'])
-        with tempfile.TemporaryDirectory() as directory:
-            out=Path(directory)/'sdk'
-            result=unpack(raw,out,hashlib.sha256(raw).hexdigest(),'fixture/')
-            self.assertEqual(set(result['files']),{'openscience/__init__.py','openscience/client.py'})
-            with self.assertRaises(ValueError):unpack(raw,out,hashlib.sha256(raw).hexdigest(),'fixture/')
-            self.assertTrue((out/'openscience/client.py').is_file())
 
 
 class LiveEvidencePolicy(unittest.TestCase):

@@ -78,7 +78,8 @@ class RuntimeCleanup(unittest.TestCase):
     def test_native_launch_shares_a_fresh_owner_with_the_runtime_wrapper(self):
         plan=config.data_dir()/'runtime-plan.json';plan.write_text('{}',encoding='utf-8')
         context={'cwd':str(config.data_dir()/'workspace')}
-        with patch.object(isolated_cli,'prepare',return_value={'state':'PREPARED','plan':str(plan)}):
+        with patch.object(isolated_cli,'prepare',return_value={'state':'PREPARED','plan':str(plan)}), \
+             patch.object(cli.CodexConnector,'_prefix',return_value=['codex']):
             argv=cli.CodexConnector().process_argv(['codex','exec','-'],context)
         self.assertRegex(context['_runtime_owner'],r'^[a-f0-9]{32}$')
         self.assertEqual(argv[-2:],['--runtime-owner',context['_runtime_owner']])

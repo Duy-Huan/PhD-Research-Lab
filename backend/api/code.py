@@ -81,6 +81,18 @@ async def code_scan():
 
 
 # ------------------------------------------------------------------ experiment jobs
+@router.get('/api/tracking/runs')
+async def native_tracking(limit: int = 100):
+    from backend.execution.tracker import list_records
+    return await call(list_records, limit)
+
+
+@router.post('/api/jobs/{job_id}/record')
+async def record_native_job(job_id: str):
+    from backend.execution.tracker import record_run
+    return await call(record_run, job_id)
+
+
 @router.get("/api/jobs")
 async def jobs(limit: int = 50):
     from backend.execution.sandbox import list_runs

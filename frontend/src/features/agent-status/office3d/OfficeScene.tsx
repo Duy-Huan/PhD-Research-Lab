@@ -78,7 +78,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
       { pos: [-3.2, 0, -4.4], rotY: 0 },
       // Slot 1: Literature & SKB Wing (West Wing)
       { pos: [-6.4, 0, -1.2], rotY: Math.PI / 6 },
-      // Slot 2: OpenScience Lab Bench (Front Center-Right)
+      // Slot 2: Experiment Lab Bench (Front Center-Right)
       { pos: [3.2, 0, -4.4], rotY: 0 },
       // Slot 3: OpenCode HPC Compute Station (South-West)
       { pos: [-3.8, 0, 2.2], rotY: 0 },
@@ -298,7 +298,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
                     fontWeight: 700,
                   }}
                 >
-                  OpenScience Autonomous University Lab · v{APP_VERSION}
+                  PhD Research Lab · v{APP_VERSION}
                 </div>
                 <div style={{ fontSize: 20, fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em' }}>
                   PhD Research Lab
@@ -479,7 +479,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
               boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
             }}
           >
-            {t('🖥️ Cụm HPC & OpenCode Parallel · Click mở Runtime', '🖥️ HPC & OpenCode Parallel · Open Runtime')}
+            {t('🖥️ Code native & GPU · Mở workspace', '🖥️ Native code & GPU · Open workspace')}
           </div>
         </Html>
       </group>

@@ -6,16 +6,17 @@ import {
 import type { Mission, OpenCodeSession } from '../api/types';
 
 describe('eventAdapter', () => {
-  it('localizes permanent faculty while preserving supplied live-agent context', () => {
+  it('localizes configured roles while preserving supplied observed agents', () => {
     const live = { agentId: 'user-agent', displayName: 'Tên riêng của người dùng' } as any;
-    const english = buildUniversityLabRoster([live], 'p', undefined, undefined, 'en');
-    expect(english[0]).toBe(live);
-    for (const agent of english.slice(1)) {
-      expect([agent.role, agent.personality, agent.speechBubble].join(' ')).not.toMatch(/[À-ỹ]/);
-    }
-    const vietnamese = buildUniversityLabRoster([], 'p', undefined, undefined, 'vi');
-    expect(vietnamese.find(a => a.agentId === 'faculty_pi_orchestrator')?.personality).toContain('Điềm tĩnh');
+    const english = buildUniversityLabRoster([live], 'p', undefined, {research: 'codex'}, 'en');
+    expect(english.find(agent => agent.agentId === 'user-agent')).toBe(live);
+    expect(english.find(agent => agent.agentId === 'configured_research')?.displayName).toBe('Research agent');
+    const vietnamese = buildUniversityLabRoster([], 'p', undefined, {research: 'codex'}, 'vi');
+    expect(vietnamese[0].displayName).toBe('Agent nghiên cứu');
+    expect(vietnamese[0].lastObservedAt).toBe('');
+    expect(vietnamese[0].speechBubble).toBeUndefined();
   });
+
   it('maps missions with various task statuses and capabilities to agent view models', () => {
     const mockMissions: Mission[] = [
       {
@@ -116,7 +117,7 @@ describe('eventAdapter', () => {
 
     const paperAgent = result.find((a) => a.agentId === 'm-1_task-paper');
     expect(paperAgent?.zone).toBe('literature');
-    expect(paperAgent?.archetype).toBe('feynman');
+    expect(paperAgent?.archetype).toBe('literature');
 
     const verifyAgent = result.find((a) => a.agentId === 'm-1_task-verify');
     expect(verifyAgent?.zone).toBe('review');
@@ -124,13 +125,13 @@ describe('eventAdapter', () => {
 
     const expAgent = result.find((a) => a.agentId === 'm-1_task-exp');
     expect(expAgent?.zone).toBe('lab_bench');
-    expect(expAgent?.archetype).toBe('openscience');
+    expect(expAgent?.archetype).toBe('experiment');
 
     const figAgent = result.find((a) => a.agentId === 'm-1_task-fig');
     expect(figAgent?.archetype).toBe('figure_fellow');
   });
 
-  it('maps OpenCode parallel core sessions across all lifecycle states', () => {
+  it('preserves historical OpenCode status without implying a live runtime', () => {
     const mockSessions: any[] = [
       { id: 's-run', topic_id: 't-1', status: 'running', created: '2026-10-24T00:00:00Z', updated: '2026-10-24T00:00:00Z' },
       { id: 's-appr', topic_id: 't-1', status: 'awaiting_approval', created: '2026-10-24T00:00:00Z', updated: '2026-10-24T00:00:00Z' },
@@ -143,15 +144,15 @@ describe('eventAdapter', () => {
     const result = mapMissionsToAgentViewModels([], 'proj-1', 't-1', mockSessions);
     expect(result).toHaveLength(6);
 
-    expect(result.find((a) => a.agentId === 'opencode_s-run')?.presence).toBe('running');
-    expect(result.find((a) => a.agentId === 'opencode_s-appr')?.presence).toBe('awaiting_approval');
-    expect(result.find((a) => a.agentId === 'opencode_s-rate')?.presence).toBe('rate_limited');
+    expect(result.find((a) => a.agentId === 'opencode_s-run')?.presence).toBe('unknown');
+    expect(result.find((a) => a.agentId === 'opencode_s-appr')?.presence).toBe('unknown');
+    expect(result.find((a) => a.agentId === 'opencode_s-rate')?.presence).toBe('unknown');
     expect(result.find((a) => a.agentId === 'opencode_s-done')?.presence).toBe('completed');
     expect(result.find((a) => a.agentId === 'opencode_s-fail')?.presence).toBe('failed');
-    expect(result.find((a) => a.agentId === 'opencode_s-pause')?.presence).toBe('paused');
+    expect(result.find((a) => a.agentId === 'opencode_s-pause')?.presence).toBe('unknown');
   });
 
-  it('builds full University Lab Roster including core faculty and live agents', () => {
+  it('builds configured idle roles without inventing activity or faculty', () => {
     const liveAgents = mapMissionsToAgentViewModels([], 'proj-1', 't-1', [
       { id: 'live-worker', topic_id: 't-1', status: 'running', created: '2026-10-24T00:00:00Z', updated: '2026-10-24T00:00:00Z' },
     ] as any);
@@ -163,11 +164,14 @@ describe('eventAdapter', () => {
       utility: 'antigravity',
     });
 
-    expect(roster.length).toBe(7); // 1 live agent + 6 core faculty
-    expect(roster[0].agentId).toBe('opencode_live-worker');
-    expect(roster.some((a) => a.agentId === 'faculty_pi_orchestrator')).toBe(true);
+    expect(roster).toHaveLength(5); // Four actually configured roles plus one historical record.
+    const configured = roster.filter(agent => agent.agentId.startsWith('configured_'));
+    expect(configured.map(agent => agent.role)).toEqual(['assistant', 'research', 'reviewer', 'utility']);
+    expect(configured.every(agent => agent.presence === 'idle' && agent.activity === 'none' && agent.lastObservedAt === '')).toBe(true);
+    expect(configured.find(agent => agent.role === 'research')?.engine).toBe('claude_code');
+    expect(roster.find(agent => agent.agentId === 'opencode_live-worker')?.canResume).toBe(false);
+    expect(roster.find(agent => agent.agentId === 'opencode_live-worker')?.canPause).toBe(false);
+    expect(buildUniversityLabRoster([], 'proj-1')).toHaveLength(0);
 
-    const emptyRoster = buildUniversityLabRoster([], 'proj-1');
-    expect(emptyRoster).toHaveLength(6);
   });
 });

@@ -92,7 +92,7 @@ export const MissionBuilder: React.FC<MissionBuilderProps> = ({ topicId, onSucce
           capability: t.capability,
           preferred_engine: DETERMINISTIC_CAPABILITIES.has(t.capability)
             ? 'deterministic'
-            : t.preferred_engine || 'opencode',
+            : t.preferred_engine || 'deterministic',
           depends_on: t.depends_on.filter(Boolean),
           args: {},
         })),
@@ -191,8 +191,8 @@ export const MissionBuilder: React.FC<MissionBuilderProps> = ({ topicId, onSucce
                     copy[idx].capability = cap;
                     copy[idx].preferred_engine = DETERMINISTIC_CAPABILITIES.has(cap)
                       ? 'deterministic'
-                      : cap === 'opencode.implement'
-                      ? 'opencode'
+                      : cap === 'code.implement'
+                      ? 'deterministic'
                       : 'app';
                     setTasks(copy);
                   }}
@@ -201,7 +201,7 @@ export const MissionBuilder: React.FC<MissionBuilderProps> = ({ topicId, onSucce
                   <option value="paper.discover">paper.discover (Tìm bài báo — Deterministic)</option>
                   <option value="paper.inspect">paper.inspect (Kiểm tra bài báo — Deterministic)</option>
                   <option value="paper.compare">paper.compare (So sánh tài liệu — Reasoning)</option>
-                  <option value="opencode.implement">opencode.implement (Lập trình OpenCode v6.4.1)</option>
+                  <option value="code.implement">code.implement (Lập trình native)</option>
                   <option value="figure.create_2d">figure.create_2d (Vẽ đồ thị 2D v6.4.0)</option>
                   <option value="figure.render_diagram">figure.render_diagram (Vẽ sơ đồ DOT v6.4.0)</option>
                   <option value="figure.validate">figure.validate (Kiểm định Figure v6.4.2)</option>

@@ -52,8 +52,13 @@ def main() -> int:
         runs=api('/actions/workflows/research-live.yml/runs?event=workflow_dispatch&head_sha='+head+'&per_page=100')['workflow_runs']
         run=latest_owner_run(runs,workflow['id'],repo,head)
         artifacts=api('/actions/runs/'+str(run['id'])+'/artifacts')['artifacts']
-        artifact=next((a for a in artifacts if a['name']=='live-qualification' and not a['expired']),None)
-        if not artifact:raise ValueError('Trusted live artifact is missing or expired')
+        name='live-qualification-'+str(run['id'])+'-'+str(run['run_attempt'])
+        matching=[a for a in artifacts if a.get('name')==name and not a.get('expired', True)]
+        if len(matching)!=1:raise ValueError('Exact latest-attempt live artifact is missing, ambiguous or expired')
+        artifact=matching[0]
+        if (artifact.get('workflow_run',{}).get('id')!=run['id']
+                or artifact.get('workflow_run',{}).get('head_sha')!=head):
+            raise ValueError('Live artifact belongs to a different run or commit')
         req=urllib.request.Request(artifact['archive_download_url'],headers={'User-Agent':'phdlab-live-qualification','Authorization':'Bearer '+token})
         try: response=urllib.request.build_opener(NoRedirect).open(req,timeout=30)
         except urllib.error.HTTPError as exc:

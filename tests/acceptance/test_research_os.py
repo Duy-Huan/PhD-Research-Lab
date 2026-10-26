@@ -44,8 +44,8 @@ def criterion(key: str):
     return deco
 
 
-def fake_llm(agent, system, user, max_tokens=6000):
-    if "experiment that runs on one PC" in system:
+def fake_llm(agent, system, user, max_tokens=6000, **kwargs):
+    if "code as fenced blocks with a path" in system:
         return "Plan.\n```python path=main.py\n" + OK + "```\n```phdlab-run\npython main.py\n```"
     return "Findings with a source (Doe, 2020) and [S1]."
 
@@ -222,9 +222,8 @@ class P1_Prompt(Base):
 class P1_Providers(Base):
     @criterion("provider_swap")
     def test_swapping_providers_keeps_the_state(self):
-        with mock.patch.object(RP, "pick", return_value=("feynman", "")), \
-                mock.patch.object(RP, "run_feynman", side_effect=RP.ProviderUnavailable("quota exceeded")):
-            rid = runs.create("research", "lit", "x", {"topic": "x"}, risk=0, provider="feynman", budget={"max_retries": 0})["id"]
+        with mock.patch.object(RP, "app_complete", side_effect=RP.ProviderUnavailable("quota exceeded")):
+            rid = runs.create("research", "lit", "x", {"topic": "x"}, risk=0, provider="app", budget={"max_retries": 0})["id"]
             r = runs.wait(rid, 30)
         self.assertEqual(r["status"], "NEEDS_USER_ACTION")
         runs.swap_provider(rid, "S1", "app")
@@ -250,7 +249,7 @@ class P1_Providers(Base):
         msgs = sessions.get(s["id"])["messages"]
         self.assertEqual([m["role"] for m in msgs], ["user", "assistant", "user", "assistant"])
         self.assertIn("3 messages", msgs[-1]["content"])  # the new provider received the whole conversation
-        return {"run_provider": "feynman → app", "conversation_messages_kept": len(msgs)}
+        return {"run_provider": "app outage → explicitly resumed app", "conversation_messages_kept": len(msgs)}
 
 
 class P1_Evidence(Base):
