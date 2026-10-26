@@ -10,16 +10,23 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class GateAccounting(unittest.TestCase):
-    def invoke(self, needs):
+    def invoke(self, needs, phase='development'):
         result = subprocess.run(
-            [sys.executable, str(ROOT/'scripts/quality_gate.py'), 'aggregate', '--phase', 'development'],
+            [sys.executable, str(ROOT/'scripts/quality_gate.py'), 'aggregate', '--phase', phase],
             cwd=ROOT, env=dict(os.environ, NEEDS_JSON=json.dumps(needs)),
             capture_output=True, text=True, check=False)
         return result.returncode, json.loads(result.stdout)
 
     def fixture(self):
         return {name: {'result': 'success'} for name in
-                ['policy', 'backend', 'frontend', 'security', 'browser', 'uat-policy']}
+                ['policy', 'backend', 'frontend', 'security', 'browser']}
+
+    def test_qa_requires_executed_software_gate_without_optional_live_jobs(self):
+        self.assertEqual(self.invoke({'development-gate':{'result':'success'}},'qa')[0],0)
+        for result in ('failure','skipped','cancelled','queued',None):
+            with self.subTest(result=result):
+                self.assertNotEqual(self.invoke({'development-gate':{'result':result}},'qa')[0],0)
+        self.assertNotEqual(self.invoke({},'qa')[0],0)
 
     def test_failed_dependency_remains_fail_instead_of_blocked(self):
         needs = self.fixture(); needs['backend']['result'] = 'failure'

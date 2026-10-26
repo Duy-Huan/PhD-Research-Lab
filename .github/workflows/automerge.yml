@@ -28,7 +28,8 @@ jobs:
             const {run} = require('./.github/scripts/automerge.cjs');
             for (const pr of context.payload.workflow_run.pull_requests || []) {
               // Owner authorization,2026-10-25: native main promotion only after
-              // every required software/live/AI-UAT check truly succeeds.
+              // every mandatory software regression and protected check truly succeeds.
+              // Live-provider/AI-UAT qualification is separate under owner2026-10-26 policy.
               const result = await run({github, context, core}, pr.number, true, {allowMain:true});
               core.info(JSON.stringify(result));
             }

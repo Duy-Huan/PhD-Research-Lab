@@ -1,0 +1,348 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_development_guard.DevelopmentGuard.test_complete_source_bound_regression_is_required_for_push",
+      "status": "PASS",
+      "duration": 0.0045,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "status": "PASS",
+      "duration": 0.8033,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.DevelopmentGuard.test_latest_failure_replaces_a_previous_green_receipt",
+      "status": "PASS",
+      "duration": 0.0142,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.DevelopmentGuard.test_push_cannot_target_another_repository_or_remote",
+      "status": "PASS",
+      "duration": 0.0062,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.LiveEvidencePolicy.test_deferred_live_ids_require_real_complete_non_skipped_evidence",
+      "status": "PASS",
+      "duration": 0.0197,
+      "details": null
+    },
+    {
+      "id": "test_verification_process_timeout.TimeoutContainment.test_current_case_progress_names_actual_running_test",
+      "status": "PASS",
+      "duration": 0.0101,
+      "details": null
+    },
+    {
+      "id": "test_verification_process_timeout.TimeoutContainment.test_deadline_stops_owned_descendant_and_preserves_unrelated_process",
+      "status": "PASS",
+      "duration": 7.0549,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_cancel_a_running_cli_turn",
+      "status": "PASS",
+      "duration": 0.9681,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_cli_partial_answer_keeps_the_text_with_the_error",
+      "status": "PASS",
+      "duration": 0.1072,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_cli_provider_answer_tools_usage_and_workspace",
+      "status": "PASS",
+      "duration": 0.1416,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_cli_provider_errors_and_refusals",
+      "status": "PASS",
+      "duration": 0.2262,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_decisions_validation_edits_and_failures",
+      "status": "PASS",
+      "duration": 0.026,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_history_off_no_artifacts_no_summary_and_provider_notes",
+      "status": "PASS",
+      "duration": 0.0639,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_input_validation",
+      "status": "PASS",
+      "duration": 0.0259,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_manual_mode_plan_for_cli_and_http_then_launch_and_cancel",
+      "status": "PASS",
+      "duration": 0.2069,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_protocol_fixture_does_not_require_or_certify_a_vendor_container",
+      "status": "PASS",
+      "duration": 0.1473,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.Api.test_plugin_endpoints",
+      "status": "PASS",
+      "duration": 0.5512,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.Api.test_ranking_export_and_library_check",
+      "status": "PASS",
+      "duration": 0.0764,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.Export.test_docx_is_valid_wordprocessingml",
+      "status": "PASS",
+      "duration": 0.0094,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.Export.test_export_entry_point_and_formats",
+      "status": "PASS",
+      "duration": 0.0115,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.Export.test_latex",
+      "status": "PASS",
+      "duration": 0.005,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.Export.test_pdf_through_the_local_browser",
+      "status": "PASS",
+      "duration": 1.7894,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.NotesGuideLanguage.test_language_of_app_messages_and_agent_instructions",
+      "status": "PASS",
+      "duration": 0.0469,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.NotesGuideLanguage.test_notes_on_answers",
+      "status": "PASS",
+      "duration": 0.0419,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.NotesGuideLanguage.test_revision_guide_and_review_exports",
+      "status": "PASS",
+      "duration": 0.0804,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.Plugins.test_ai_scientist_adapter",
+      "status": "PASS",
+      "duration": 0.029,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.Plugins.test_broken_plugin_folder_is_reported_not_fatal",
+      "status": "PASS",
+      "duration": 0.009,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.Plugins.test_extract_strips_top_folder_and_refuses_unsafe_archives",
+      "status": "PASS",
+      "duration": 0.0072,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.Plugins.test_install_discovers_agent_skills_and_phdlab_skills",
+      "status": "PASS",
+      "duration": 0.0455,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.Plugins.test_parse_url_and_ids",
+      "status": "PASS",
+      "duration": 0.0072,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.Plugins.test_plugin_skills_never_replace_builtin_commands",
+      "status": "PASS",
+      "duration": 0.0158,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.Plugins.test_prompts_fallback_and_static_strings",
+      "status": "PASS",
+      "duration": 0.0064,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.Plugins.test_yaml_subset_and_slug",
+      "status": "PASS",
+      "duration": 0.0079,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.Ranking.test_core_download_and_matching",
+      "status": "PASS",
+      "duration": 0.0133,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.Ranking.test_legacy_location_migrates",
+      "status": "PASS",
+      "duration": 0.0145,
+      "details": null
+    },
+    {
+      "id": "test_v51_features.Ranking.test_scimago_from_downloads_and_library_check",
+      "status": "PASS",
+      "duration": 0.0213,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='feature/forbidden')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='fix/forbidden')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='backup/forbidden')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='arbitrary')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='qa')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='main')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_v51_features.NotesGuideLanguage.test_notes_on_answers",
+      "id": "test_v51_features.NotesGuideLanguage.test_notes_on_answers [{'quote': 'x'}]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_v51_features.NotesGuideLanguage.test_notes_on_answers",
+      "id": "test_v51_features.NotesGuideLanguage.test_notes_on_answers [{'message_id': 'm-1e22174a'}]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_v51_features.NotesGuideLanguage.test_notes_on_answers",
+      "id": "test_v51_features.NotesGuideLanguage.test_notes_on_answers [{'message_id': 'm-none', 'quote': 'x'}]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_v51_features.Plugins.test_parse_url_and_ids",
+      "id": "test_v51_features.Plugins.test_parse_url_and_ids []",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_v51_features.Plugins.test_parse_url_and_ids",
+      "id": "test_v51_features.Plugins.test_parse_url_and_ids [https://gitlab.com/a/b]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_v51_features.Plugins.test_parse_url_and_ids",
+      "id": "test_v51_features.Plugins.test_parse_url_and_ids [a/b/tree/main/../../etc]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_v51_features.Ranking.test_core_download_and_matching",
+      "id": "test_v51_features.Ranking.test_core_download_and_matching [NeurIPS 2023]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_v51_features.Ranking.test_core_download_and_matching",
+      "id": "test_v51_features.Ranking.test_core_download_and_matching [Proc. NIPS]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_v51_features.Ranking.test_core_download_and_matching",
+      "id": "test_v51_features.Ranking.test_core_download_and_matching [Advances in Neural Information Processing Systems 36]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_v51_features.Ranking.test_core_download_and_matching",
+      "id": "test_v51_features.Ranking.test_core_download_and_matching [ICASSP 2024 \u2014 Seoul]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_v51_features.Ranking.test_core_download_and_matching",
+      "id": "test_v51_features.Ranking.test_core_download_and_matching [Pattern Recognition]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_v51_features.Ranking.test_core_download_and_matching",
+      "id": "test_v51_features.Ranking.test_core_download_and_matching [the cnf3 workshop]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_v51_features.Ranking.test_core_download_and_matching",
+      "id": "test_v51_features.Ranking.test_core_download_and_matching []",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 36,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "/tmp/phdlab-verify-avpc287j",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

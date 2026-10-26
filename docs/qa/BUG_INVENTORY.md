@@ -1,11 +1,13 @@
-# Native consolidation defect and migration inventory
+# CI recovery and known issues6.5.11
 
-Candidate6.5.10, branch `dev`, parent HEAD `10c3d018134204fb778206c825b28f1846998304`, measured source `d1caebdc1c8f6156ea8aedb905ccd9608c5cb5480fd3f3ddc9156bd0f74c1930`. Local source was stable. GitHub result for a future commit is not presumed.
+Candidate6.5.11 on existing `dev`, parent `3f60a77c54ada9f1197c901019a119ad5d4ddebf`, source `dd01c60ac488bd91da7dd0cfaf880893d88232e6c1444cebca1b8d265571886c`. Actual stable local complete software gate PASS. Fresh exact-head GitHub CI is still required; no future PASS is presumed.
 
-Confirmed repairs include approval before native code writes, durable gateway operation identity, byte-preserving materialization without duplicated experiment prefixes, cancellation before gateway preparation, malformed Settings model catalog handling, warning-text contrast, Sidebar/Header retirement of active software controls, and raw-metric/version/PDF publication integrity. Regression IDs and actual source-scoped receipts are retained in the feature contracts and evidence/native-consolidation. Header has an actual RED2FAIL then GREEN6PASS receipt.
+CI-DEP-001: explicit process-test dependency missing on hosted runners; corrected in dev/CI lock.
 
-Retired or migrated test IDs, reasons, preserved source digests and replacement scope are recorded in [test-retirement-native-migration.json](test-retirement-native-migration.json). Retired tests are not counted as PASS. Old multi-topic data is explicitly seeded only in disposable legacy-isolation fixtures; the production one-paper guard is unchanged.
+CI-FIXTURE-001: controlled CLI protocol fixture accidentally depended on real host runtime installation; corrected in fixture context, with new absent-runtime regression and production fail-closed assertion unchanged.
 
-Open P2 model/tool reliability observation: current-source Hermes called a deferred native tool directly rather than using the upstream tool discovery bridge. The native audit observed no execution; this run is FAIL. A subsequent protocol-aware prompt genuinely used the bridge and passed the independent native audit. Both receipts are retained; that success does not erase the failure or establish general autonomous reliability. No software-gate waiver was used.
+CI-NATIVE-CRASH-001: historical Ubuntu3.11 SIGSEGV cause remains UNKNOWN/NOT_REPRODUCED locally. New fault-handler instrumentation and actual fresh CI are required; no existing failure is reclassified as PASS.
 
-Remaining blockers: current-source official CLI subscription qualification, complete real research/paper/replay acceptance, all mandatory independently reviewed AI-UAT journeys and exact-head GitHub gates. The prior published WindowsPython3.12 CI timeout remains of unknown cause; current instrumentation adds case/stage progress and owned process timeout containment. No unqualified claim that all P0/P1/P2 defects are absent is made. First affected versions/new-versus-pre-existing attribution require the still-missing paired baseline comparison.
+Original native/UI/integrity fixes and the Hermes deferred-tool-discovery limitation remain recorded in NATIVE_CONSOLIDATION_DEFECTS.json and prior reports. The native tool reliability observation is an optional model qualification finding under the new owner policy, not a software regression waiver. Scientific quality/L3/L4 remain unproven.
+
+[Detailed CI diagnosis](CI_ROOT_CAUSE_REPORT.md). Test retirement ledger is unchanged by this recovery: no old software case was removed or skipped to get PASS.

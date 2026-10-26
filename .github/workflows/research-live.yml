@@ -1,9 +1,6 @@
 name: Research live qualification
 on:
-  # A real metadata-only push run registers this workflow before first dispatch.
-  # Qualification consumes only a successful owner workflow_dispatch, never this.
-  push:
-    branches: [dev]
+  # Optional owner-dispatched qualification; not a commit/merge prerequisite.
   workflow_dispatch:
     inputs:
       expected_head_sha:
@@ -25,13 +22,6 @@ on:
 permissions:
   contents: read
 jobs:
-  register:
-    name: Register live publisher (no inference or qualification)
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          printf '%s\n' 'NOT_RUN: registration only; no provider, AI-UAT or research evidence produced.'
   qualification:
     name: Publish actual owner-qualified local evidence
     if: github.event_name == 'workflow_dispatch' && github.actor == github.repository_owner && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/qa')

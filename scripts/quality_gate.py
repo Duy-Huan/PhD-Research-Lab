@@ -14,8 +14,8 @@ from devtools.verification.evidence import aggregate
 from devtools.verification.baseline import validate_baseline
 
 REQUIRED = {'development':['policy','backend','frontend','security','browser'],
-            'qa':['development-gate','live-qualification','uat-policy'],
-            'release':['qa-gate','release-approval']}
+            'qa':['development-gate'],
+            'release':['qa-gate']}
 
 
 def main() -> int:

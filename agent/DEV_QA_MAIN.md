@@ -1,3 +1,5 @@
+OWNER POLICY2026-10-26 (latest explicit chat answer): for ALL dev -> qa -> main stages, every mandatory SOFTWARE REGRESSION must execute/PASS100%. Coverage is informational. Live-provider, research and AI-UAT qualification run separately by explicit operator invocation and are NOT commit/merge prerequisites. Their FAIL/BLOCKED/NOT_RUN outcomes remain visible and must never be called live/scientific PASS. Preserve protected native forward merges, trust, security/data/API regressions and all UAT budgets. This supersedes every older instruction requiring live/AI-UAT evidence for QA/main.
+
 # Operator guide: single dev -> protected qa -> protected main
 
 All AI source edits, repairs, test additions and commits use the existing dev branch only. Do not create any other branch. Preserve every worktree, dirty user change, research dataset and file in skills/ or agent/. One writer at a time. Older guides are retained in agent/history/; this owner policy supersedes historical feature branches and manual-main requirements.
@@ -35,19 +37,19 @@ git commit -m "<reviewed scope>"
 git push origin dev
 ```
 
-Create the local-verification directory first if absent. Preserve raw execution logs, case outcomes, source hash and real RED/GREEN records. Pre-push requires a clean dev HEAD, authorized origin and current-source complete local report; GitHub independently repeats regression on the new SHA. Any source edit invalidates prior verification. Coverage is informational: desired production line/branch100%, >95% was only an estimate. Report real numerators/denominators and all uncovered paths. Every selected mandatory software regression must execute/PASS100%, zero FAIL/ERROR/SKIP/BLOCKED/NOT_RUN. Exactly three explicitly declared live-provider IDs defer as NOT_RUN on dev only, mandatory at QA/main.
+Create the local-verification directory first if absent. Preserve raw execution logs, case outcomes, source hash and real RED/GREEN records. Pre-push requires a clean dev HEAD, authorized origin and current-source complete local report; GitHub independently repeats regression on the new SHA. Any source edit invalidates prior verification. Coverage is informational: desired production line/branch100%, >95% was only an estimate. Report real numerators/denominators and all uncovered paths. Every selected mandatory software regression must execute/PASS100%, zero FAIL/ERROR/SKIP/BLOCKED/NOT_RUN. Explicit live-provider IDs remain a separate NOT_RUN inventory until actually invoked; no live result is required by commit/merge CI at any stage.
 
 ## Genuine live and AI acceptance
 
-QA/main require actual provider inference, CLI,2D/3D, experiment/report/paper lineage and required AI-UAT plus independent review. Missing infrastructure/credentials/unsupported journeys are BLOCKED, not waiver/PASS. Offline SDK/HTTP fixtures are software tests, never scientific evidence.
+Actual provider inference, research experiment/report/paper lineage and AI-UAT plus independent review are separate operator qualification; they do not block software promotion. Real deterministic CLI/2D/3D regression remains mandatory in software CI. Missing infrastructure/credentials/unsupported journeys are BLOCKED, not waiver/PASS. Offline SDK/HTTP fixtures are software tests, never scientific evidence.
 
 TASK-UAT-LOCAL-ADAPTER retains its original three failed attempts. Owner chat on2026-10-25 separately permits exactly ONE Spark X2.5 4B local attempt, at most600seconds/six steps. scripts/verify.py --profile uat --uat-journey settings-language --uat-model spark-x2.5-4b --uat-steps 6 --uat-deadline 600 --uat-owner-authorization <external-grant> consumes a source/HEAD-bound one-use grant in shared .git/uat-authorizations/. See UAT.md. A failed extra run stops the loop; no reset, rename or extra fallback. Package only actual passing current-source UAT; review stays PENDING until genuinely reviewed.
 
-For real evidence transport, build the validated exact-head bundle outside source, including genuine required UAT under uat/. Run python scripts/upload_live_evidence.py --help for required inputs. Owner-only dispatch publishes existing validated bytes; it neither executes models nor makes a scientific claim. Metadata-only research-live push runs are NOT_RUN. A new pending/failed dispatch blocks reuse of an older successful dispatch.
+For real evidence transport, build the validated exact-head bundle outside source, including genuine required UAT under uat/. Run python scripts/upload_live_evidence.py --help for required inputs. Owner-only dispatch publishes existing validated bytes; it neither executes models nor makes a scientific claim. The optional research-live publisher is workflow_dispatch-only; no registration push run is emitted. A new pending/failed dispatch blocks reuse of an older successful dispatch.
 
 ## Native automatic promotion
 
-Latest owner explicitly authorizes both dev -> qa and qa -> main automatically after ALL mandatory gates pass. Local controller reuses existing Quality Gates and native GitHub auto-merge, never direct/admin merge. It pins trusted code outside PR code, checks current local source proof, exact PR/head/run/check-suite, all mandatory job success, strict target protection, reviews and tested/merged tree equality. A merged flag or skipped required context alone never qualifies QA.
+Latest owner explicitly authorizes both dev -> qa and qa -> main automatically after ALL mandatory SOFTWARE gates pass. Local controller reuses existing Quality Gates and native GitHub auto-merge, never direct/admin merge. It pins trusted code outside PR code, checks current local source proof, exact PR/head/run/check-suite, all mandatory job success, strict target protection, reviews and tested/merged tree equality. A merged flag or skipped required context alone never qualifies QA.
 
 ```powershell
 python scripts/promote.py register --authorize-native-main-merge --enable-repo-auto-merge

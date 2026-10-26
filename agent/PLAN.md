@@ -1,3 +1,13 @@
+# Active priority2026-10-26 ? recover CI, software-only promotion at ALL stages
+
+Owner confirmed all dev->qa->main require regression100%PASS; live-provider/AI-UAT separate, coverage informational. All earlier mandatorylive QA/main entries below are historical/superseded. Preserve full regression/security/API/data invariants, source identity and protected native forward merge.
+
+1. Repair confirmed CI40331308169 roots (explicitpsutil lock; protocolfixtures independent of installedDocker/vendor runtime), preserveactualfailures and correctedscopedRED/GREEN.
+2. Diagnose originalUbuntu3.11SIGSEGV with faulthandler; two localnon-rootLinuxruns didnotreproduce. Fix diagnosticexec mount setup, not hookassertions; exercise realChromium and require1015+allcurrentcases withoutskip.
+3. Standardize workflows/requiredjobs/aggregators/guides to explicitnewownerpolicy. ActualpolicyRED2FAILthenGREEN37PASS; live/UATvalidation tests remain.
+4. Stableversion6.5.11; canonicalpr/all freshsource allPASS beforedevcommit/push. No force,no bypass,no otherbranch. Inspectexact-headfreshGitHuball4matrix/frontend/browser/policy/security/Developmentgate untilactualPASS; maximum3repaircycles, currently1.
+5. AfterindependentsoftwarePASS, protecteddev->qa->mainPRs and nativeautomergeusingregisteredtrustedcontroller; inspectactualmainmerge/releaseSHA. Optional science/live/UAT results stay separatelyqualified/unqualified and cannot become scientific claims.
+
 # Active continuation: publish verified6.5.10 dev milestone, qualify QA separately
 
 1. Preserve single dev writer, all worktrees/user data and every agent/skills file. Keep integrated PaperOrchestra; standalone software retirement is implemented with historical read-only readers.

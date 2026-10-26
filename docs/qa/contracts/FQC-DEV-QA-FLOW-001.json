@@ -1,6 +1,6 @@
 {
   "id": "FQC-DEV-QA-FLOW-001",
-  "title": "Dev-only development, complete software regression and protected QA/main live qualification",
+  "title": "Dev-only development, complete software regression and protected QA/main software qualification with optional live assessment",
   "risk": "CRITICAL",
   "mode": "MOCKED",
   "user_story": "The owner develops with AI on dev, verifies locally, then promotes through qa to main using honest phase-specific evidence.",
@@ -15,7 +15,7 @@
     },
     {
       "id": "REQ-LIVE",
-      "description": "Only exact currently declared active live IDs are deferred as NOT_RUN on dev; genuine complete evidence is required at QA/main. Retired service IDs have explicit disposition records, never PASS."
+      "description": "Only exact currently declared active live IDs are deferred as NOT_RUN on dev; genuine evidence is required only when separately claiming live qualification; software promotion at QA/main depends on complete regression. Retired service IDs have explicit disposition records, never PASS."
     },
     {
       "id": "SOURCE_EOL",
@@ -31,7 +31,7 @@
   "inputs": [
     "Actual regression reports",
     "Explicit owner branch policy",
-    "Pinned official SDK archive"
+    "Hash-locked development/test dependencies"
   ],
   "outputs": [
     "Hash-bound local verification receipt",
@@ -43,7 +43,7 @@
   ],
   "postconditions": [
     "No mandatory software skip/FAIL becomes PASS",
-    "QA/main missing live evidence remains blocked"
+    "Software QA/main require all software regressions PASS; missing optional live evidence remains NOT_RUN, not a merge blocker"
   ],
   "dependencies": [
     "Existing verification harness",
@@ -63,8 +63,8 @@
   "acceptance_criteria": [
     "Required software regression executes/PASS100% without coverage percentage threshold",
     "No feature-to-dev or dev-to-main promotion",
-    "QA/main require actual current-source qualification",
-    "SDK installation fails closed on changed/unsafe archive"
+    "QA/main require actual current-source complete software qualification; live and AI-UAT run separately",
+    "Hash-bound dependency and controller/source checks fail closed"
   ],
   "scenarios": [
     {
@@ -182,5 +182,11 @@
     "reason": "Owner2026-10-26 removed the OpenScience-only SDK installer and integration; it is no longer an active CI dependency.",
     "disposition_registry": "docs/qa/test-retirement-native-migration.json",
     "replacement": "Native bundle/transfer integrity belongs to the provider migration contract; no new-regression waiver or scientific acceptance is granted."
+  },
+  "policy_revision": {
+    "authorized_by": "Owner explicit chat answer2026-10-26: all dev/qa/main require regression; live-provider/AI-UAT separate, coverage informational",
+    "scope": "Changes promotion prerequisites only, never skip/disable/relax software tests or fabricate live acceptance",
+    "regression_red": "output/playwright/native-consolidation/regression-only-policy-red/unittest.json",
+    "historical_tdd": "Original RED/GREEN receipts remain historical for their recorded scope; fresh policy and full regression evidence is required for this revision."
   }
 }

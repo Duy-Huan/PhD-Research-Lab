@@ -1,9 +1,9 @@
-# Source baseline and native consolidation audit
+# Source baseline6.5.11
 
-Candidate6.5.10, branch `dev`, parent HEAD `10c3d018134204fb778206c825b28f1846998304`, measured source `d1caebdc1c8f6156ea8aedb905ccd9608c5cb5480fd3f3ddc9156bd0f74c1930`. Local source was stable. GitHub result for a future commit is not presumed.
+Candidate6.5.11 on existing `dev`, parent `3f60a77c54ada9f1197c901019a119ad5d4ddebf`, source `dd01c60ac488bd91da7dd0cfaf880893d88232e6c1444cebca1b8d265571886c`. Actual stable local complete software gate PASS. Fresh exact-head GitHub CI is still required; no future PASS is presumed.
 
-The owner explicitly retains integrated engines, especially PaperOrchestra. Its engine/API/Studio source is unchanged. Standalone Feynman/OpenScience/OpenCode/ClearML dispatch, setup and mutable controls are retired; historical producer IDs, opaque settings and files remain identifiable. Native coding, tracking, portable compute, VS Code and model CLI/subscriptions remain. Hermes is an independent pinned Docker runtime with unrestricted Internet and scoped host tools/filesystem.
+Owner explicitly confirmed on2026-10-26: complete software regression is mandatory across dev -> qa -> main; live-provider/research/AI-UAT qualification runs separately, and coverage is informational. Optional qualification never becomes live/scientific PASS merely because software CI passes.
 
-The initial full software backend diagnostic executed1010 cases:893PASS,19FAIL,98ERROR,0SKIP. Findings include obsolete standalone-provider fixtures, legacy multi-topic setup and real UI/materialization/integrity defects. Their original logs/results remain under output/playwright/native-consolidation/backend-full; the exact backend report is retained in evidence/native-consolidation/baseline-backend.json.
+Previous source baseline and native migration remain retained under history/20261026-before-ci-recovery-6.5.11 and evidence/native-consolidation. The actual failed6.5.10 CI is the recovery baseline; parent local1266PASS did not qualify its remote environment. New controlled absent-runtime RED reproduces that environment coupling. Same-suite main-versus-candidate comparison remains NOT_RUN; changing suite/coverage scopes cannot be ranked by absolute PASS counts. No baseline exception was added. Integrated PaperOrchestra remains preserved, standalone software retirement and native replacements are retained.
 
-The final suite has changed after explicit feature retirement and added regression coverage. It cannot be compared to main or the initial diagnostic by absolute PASS counts. A same-suite/same-environment paired main-versus-candidate comparison is NOT_RUN. No baseline exception or production defect waiver was added. Full current software results and residual qualification gaps are documented separately.
+[Actual root causes and evidence](CI_ROOT_CAUSE_REPORT.md).

@@ -119,7 +119,7 @@ def find_pr(api: GitHub,head: str,base: str,create: bool=False) -> dict | None:
     if prs:return api.request('/pulls/'+str(prs[0]['number']))
     if not create:return None
     return api.request('/pulls',{'head':head,'base':base,'title':'Qualified promotion: '+head+' -> '+base,
-        'body':'Contract: FQC-AUTO-PROMOTION-001\n\nOwner-authorized native forward promotion. Require actual current-source complete local software verification, independent software regression, live/provider/research and AI-UAT. No skipped/missing mandatory check is PASS.100%coverage is the desired informational target;95%was an estimate, never a waiver. Native GitHub alone may merge after all protected checks pass; no administrative bypass.'})
+        'body':'Contract: FQC-AUTO-PROMOTION-001\n\nOwner-authorized native forward promotion. Require actual current-source complete local software verification, independent complete software regression across backend/frontend/browser and policy/security. Live/provider/research and AI-UAT run separately and are not merge prerequisites under the owner2026-10-26 policy. No skipped/missing mandatory check is PASS.100%coverage is the desired informational target;95%was an estimate, never a waiver. Native GitHub alone may merge after all protected checks pass; no administrative bypass.'})
 
 
 def ensure_native(api: GitHub,root: Path,pr: dict,policy: dict,apply: bool) -> dict:
@@ -187,7 +187,7 @@ def tick(api: GitHub,root: Path,policy: dict,state: dict,apply: bool) -> dict:
             return record | {'phase':'QA_MERGE_VERIFIED','synchronization':synchronized}
     dev_run=execution(api,head,'dev','push');run=dev_run['run']
     software=[name for name in json.loads((root/'.github/required-ci-jobs.json').read_text())['qa']
-              if name not in ('Matching-source live research qualification','Risk-triggered verified AI-UAT evidence','QA gate')]
+              if name != 'QA gate']
     jobs={j['name']:j for j in dev_run['jobs']}
     dev_pass=bool(run and run['status']=='completed' and run['conclusion']=='success'
                   and all(jobs.get(name,{}).get('conclusion')=='success'

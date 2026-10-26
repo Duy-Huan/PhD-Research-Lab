@@ -37,12 +37,12 @@
     "Bound archive download/inventory; no arbitrary CLI/log instruction execution",
     "Desired coverage100% informational; >95% was an estimate.",
     "Archive50MBcompressed/200MBexpanded/1000files.",
-    "Native GitHub merge only after every mandatory software/live/research/UAT gate."
+    "Native GitHub merge only after every mandatory SOFTWARE gate. Live/research/UAT is separately invoked optional qualification under owner2026-10-26 policy."
   ],
   "inputs": [
     "Actual regression reports",
     "Explicit owner branch policy",
-    "Pinned official SDK archive"
+    "Hash-locked development/test dependencies"
   ],
   "outputs": [
     "Hash-bound local verification receipt",
@@ -54,7 +54,7 @@
   ],
   "postconditions": [
     "No mandatory software skip/FAIL becomes PASS",
-    "QA/main missing live evidence remains blocked"
+    "Software QA/main require all software regressions PASS; missing optional live evidence remains NOT_RUN, not a merge blocker"
   ],
   "dependencies": [
     "Existing verification harness",
@@ -74,8 +74,8 @@
   "acceptance_criteria": [
     "Required software regression executes/PASS100% without coverage percentage threshold",
     "No feature-to-dev or dev-to-main promotion",
-    "QA/main require actual current-source qualification",
-    "SDK installation fails closed on changed/unsafe archive"
+    "QA/main require actual current-source complete software qualification; live and AI-UAT run separately",
+    "Hash-bound dependency and controller/source checks fail closed"
   ],
   "scenarios": [
     {
@@ -166,5 +166,11 @@
       "settings-language"
     ],
     "independent_review": true
+  },
+  "policy_revision": {
+    "authorized_by": "Owner explicit chat answer2026-10-26: all dev/qa/main require regression; live-provider/AI-UAT separate, coverage informational",
+    "scope": "Changes promotion prerequisites only, never skip/disable/relax software tests or fabricate live acceptance",
+    "regression_red": "output/playwright/native-consolidation/regression-only-policy-red/unittest.json",
+    "historical_tdd": "Original RED/GREEN receipts remain historical for their recorded scope; fresh policy and full regression evidence is required for this revision."
   }
 }

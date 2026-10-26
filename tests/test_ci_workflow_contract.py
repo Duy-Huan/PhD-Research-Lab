@@ -34,6 +34,18 @@ class WorkflowContract(unittest.TestCase):
         job=self.load('quality.yml')['jobs']['qa-gate']
         self.assertEqual(job['name'], "${{ github.event_name == 'pull_request' && 'QA gate' || 'QA not requested on dev push' }}")
 
+    def test_all_promotion_stages_require_software_regression_without_live_credits(self):
+        from scripts.quality_gate import REQUIRED
+        self.assertEqual(REQUIRED['qa'],['development-gate'])
+        workflow=self.load('quality.yml')
+        self.assertEqual(workflow['jobs']['qa-gate']['needs'],['development-gate'])
+        self.assertEqual(set(workflow['jobs']['development-gate']['needs']),{'policy','backend','frontend','security','browser'})
+        optional={'Matching-source live research qualification','Risk-triggered verified AI-UAT evidence'}
+        import json
+        required=json.loads((ROOT/'.github/required-ci-jobs.json').read_text('utf-8'))['qa']
+        self.assertFalse(optional & set(required))
+        self.assertTrue({'Development gate','QA gate'} <= set(required))
+
     def test_release_runs_only_for_main_and_uses_exact_provenance(self):
         workflow=self.load('release.yml');triggers=workflow.get('on',workflow.get(True))
         self.assertEqual(triggers['push']['branches'],['main'])

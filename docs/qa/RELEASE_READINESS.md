@@ -1,11 +1,11 @@
-# Release readiness6.5.10
+# Software release readiness6.5.11
 
-**DEV SOFTWARE PASS; QA/main NO-GO / BLOCKED.**
+**LOCAL SOFTWARE PASS; WAITING FOR FRESH EXACT-HEAD GITHUB CI.**
 
-Candidate6.5.10, branch `dev`, parent HEAD `10c3d018134204fb778206c825b28f1846998304`, measured source `d1caebdc1c8f6156ea8aedb905ccd9608c5cb5480fd3f3ddc9156bd0f74c1930`. Local source was stable. GitHub result for a future commit is not presumed.
+Candidate6.5.11 on existing `dev`, parent `3f60a77c54ada9f1197c901019a119ad5d4ddebf`, source `dd01c60ac488bd91da7dd0cfaf880893d88232e6c1444cebca1b8d265571886c`. Actual stable local complete software gate PASS. Fresh exact-head GitHub CI is still required; no future PASS is presumed.
 
-Local full software gate passed1266/1266 plus48Node policy assertions. Protected dev publication is authorized after source/receipt review; no remote result or merge is presumed.
+Owner explicitly confirmed on2026-10-26: complete software regression is mandatory across dev -> qa -> main; live-provider/research/AI-UAT qualification runs separately, and coverage is informational. Optional qualification never becomes live/scientific PASS merely because software CI passes.
 
-Release remains blocked by missing current-source full provider/CLI/research/paper/replay and independently reviewed AI-UAT qualification, the retained Hermes tool-discovery failure, and exact-head GitHub CI. Same-suite main comparison is NOT_RUN. Coverage is below the100%target and remains informational, not an exception for mandatory failures.
+No promotion until every required software CI job and protected QA gate actually passes. GitHub must perform native dev->qa->main merges with source/tree/run provenance; no force/admin bypass. Actual remote run/PR/merge SHAs will be recorded after observation, not anticipated.
 
-Original three failed AI-UAT attempts remain intact. Exactly one additional Spark X2.5 4B allowance,600seconds/sixsteps, remains unused. No budget was reset. No paid provider calls, new branches, protected-history edits or automatic qa/main merge were performed. L3/L4 autonomy, scientific correctness and a zero-bug release are not demonstrated.
+Separate qualification: prior real Hermes free inference/history/native-tool observations include one deferred-tool discovery failure and a later protocol-aware success. Full current scientific/research/paper/replay and independently reviewed AI-UAT are unqualified unless separately executed. These do not block software promotion under the new explicit owner policy; they also do not establish scientific correctness orL3/L4. Original3failed UAT and one unused600s/sixstepSpark allowance remain unchanged. Historical SIGSEGV remains of unknown original cause pending fresh CI observation. No blanket zero-bug/100%coverage claim.

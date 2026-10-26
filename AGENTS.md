@@ -8,7 +8,7 @@ ACTIVE OWNER RULE (2026-10-25): All AI source development and repair commits MUS
 
 Before any code change, read [agent/AGENT.md](agent/AGENT.md), [agent/STATE.md](agent/STATE.md) and [agent/DEVELOPMENT_WORKFLOW.md](agent/DEVELOPMENT_WORKFLOW.md). Resume the first unfinished task; preserve all existing work.
 
-Read [docs/quality/ZERO_FAKE_TESTING_POLICY.md](docs/quality/ZERO_FAKE_TESTING_POLICY.md). Never promote a mocked, simulated, skipped, unavailable or unexecuted check into live or scientific validation. Report measured scope and denominators. Coverage is informational; required software regressions must all execute and PASS. Actual provider/research/AI-UAT qualification is mandatory at QA/main.
+Read [docs/quality/ZERO_FAKE_TESTING_POLICY.md](docs/quality/ZERO_FAKE_TESTING_POLICY.md). Never promote a mocked, simulated, skipped, unavailable or unexecuted check into live or scientific validation. Report measured scope and denominators. Coverage is informational; required software regressions must all execute and PASS. Owner2026-10-26: actual provider/research/AI-UAT qualification runs separately; all dev/qa/main merge gates require complete software regression, with coverage informational.
 
 For every new feature: search GitHub for relevant skills, inspect them, install selected skills under `skills/` with pinned revision/license/provenance, then write a reviewed Feature Quality Contract and behavioral tests before implementation. See [skills/SOURCES.json](skills/SOURCES.json).
 
