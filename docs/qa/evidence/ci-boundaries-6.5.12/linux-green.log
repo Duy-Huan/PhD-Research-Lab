@@ -1,0 +1,15 @@
+test_empty_project_reuses_context_after_reads_and_manifest_event_writes (test_context_cache.ContextCache.test_empty_project_reuses_context_after_reads_and_manifest_event_writes) ... ok
+test_legacy_knowledge_file_changes_retrieval_version (test_context_cache.ContextCache.test_legacy_knowledge_file_changes_retrieval_version) ... ok
+test_memory_compilation_keeps_starting_project_during_project_switch (test_context_cache.ContextCache.test_memory_compilation_keeps_starting_project_during_project_switch) ... ok
+test_pins_and_outline_invalidate_context (test_context_cache.ContextCache.test_pins_and_outline_invalidate_context) ... ok
+test_research_runs_and_other_conversation_summaries_invalidate_context (test_context_cache.ContextCache.test_research_runs_and_other_conversation_summaries_invalidate_context) ... ok
+test_updating_an_existing_experiment_refreshes_metrics (test_context_cache.ContextCache.test_updating_an_existing_experiment_refreshes_metrics) ... ok
+test_current_case_progress_names_actual_running_test (test_verification_process_timeout.TimeoutContainment.test_current_case_progress_names_actual_running_test) ... ok
+test_deadline_stops_owned_descendant_and_preserves_unrelated_process (test_verification_process_timeout.TimeoutContainment.test_deadline_stops_owned_descendant_and_preserves_unrelated_process) ... ok
+test_reparented_descendants_are_reaped_before_cleanup_is_reported (test_verification_process_timeout.TimeoutContainment.test_reparented_descendants_are_reaped_before_cleanup_is_reported)
+Actual helper owns its subreaper scope; no host-wide process policy changes. ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 4.545s
+
+OK

@@ -669,8 +669,11 @@ def _register(data_dir: str, activate: bool) -> None:
         _write_config(cfg)
 
 
-# ---- paths of the ACTIVE project (resolved on every call, so switching takes effect immediately)
+# ---- paths of the active project; a scoped operation keeps its starting project.
 def data_dir() -> Path:
+    scoped = _project_context.get()
+    if scoped is not None:
+        return Path(scoped)
     return Path(active_project()["data_dir"])
 
 

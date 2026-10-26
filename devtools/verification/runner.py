@@ -78,16 +78,22 @@ def run_command(name: str, argv: list[str], cwd: Path, out: Path, timeout: int =
                             try: child.kill()
                             except psutil.NoSuchProcess: pass
                             except psutil.AccessDenied: cleanup_errors.append('Owned descendant access denied: ' + str(child.pid))
-                        _, alive = psutil.wait_procs(children, timeout=5)
                 except psutil.NoSuchProcess: pass
                 except psutil.AccessDenied: cleanup_errors.append('Owned parent descendant inventory access denied')
                 finally:
                     if process.poll() is None: process.kill()
                     process.wait(timeout=10)
+                # Reap the parent first: orphaned children can now be adopted/reaped by
+                # this process (a subreaper) or the host init. Earlier alive results
+                # are stale across that transition and may retain owned zombies.
+                _, alive = psutil.wait_procs(children, timeout=5)
                 cleanup = {'owned_parent': process.pid, 'descendants_observed': len(children),
                            'surviving_descendants': [child.pid for child in alive if child.is_running()],
                            'errors': cleanup_errors}
-                code, reason = 124, 'Verification timeout; owned process tree stopped. Inspect raw log and current-test/stack diagnostics.'
+                code = 124
+                reason = ('Verification timeout; owned process cleanup incomplete.' if cleanup['surviving_descendants'] or cleanup_errors
+                          else 'Verification timeout; owned process tree stopped.')
+                reason += ' Inspect raw log and current-test/stack diagnostics.'
         except subprocess.TimeoutExpired:
             code, reason = 124, 'Verification process cleanup timeout; inspect owned-process diagnostics'
         except OSError as exc:

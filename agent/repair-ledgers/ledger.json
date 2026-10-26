@@ -62,7 +62,7 @@
     ]
   },
   "TASK-CI-6510-RECOVERY": {
-    "attempts": 2,
+    "attempts": 3,
     "history": [
       {
         "sha": "3f60a77c54ada9f1197c901019a119ad5d4ddebf",
@@ -73,8 +73,36 @@
         "sha": "536f09c6c102931023cd21d521ef74816fb7f2bf",
         "status": "FAIL",
         "evidence": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40344069655"
+      },
+      {
+        "sha": "857b5a9c80bc879d2963f633deb8caa94656aedd",
+        "status": "FAIL",
+        "evidence": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40370816116/job/121740747955",
+        "case": "test_verification_process_timeout.TimeoutContainment.test_deadline_stops_owned_descendant_and_preserves_unrelated_process",
+        "measured_scope": "Linux3.11 backend1020cases:1019PASS,1FAIL,0ERROR/SKIP. Surviving-descendant metadata retained PID6337 despite subsequent pid_exists assertion passing. No failed result waived.",
+        "additional_failed_case": {
+          "id": "memory_eval.test_golden.GoldenTasks.test_latency_budget",
+          "job": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40370816116/job/121740748111",
+          "compile_ms": 328.533,
+          "original_limit_ms": 300,
+          "result": "FAIL"
+        }
       }
     ],
-    "note": "Historical cycle1 missing dependency/protocol fixture, cycle2 native Windows process abort. Preserve same stable group; third correction is pending genuine local+remote verification. No further automatic repair after three failed cycles."
+    "note": "Original3failed CI cycles retained. Exactly one owner-authorized additional candidate cycle is now locally verified and awaits fresh independent CI; a new failed correction stops without further repair/reset. Local software PASS does not certify promotion, real inference or scientific autonomy.",
+    "owner_extensions": [
+      {
+        "id": "OWNER-20261027-ONE-CI-CYCLE",
+        "additional_cycles": 1,
+        "owner_reply": "Cho phép thêm 1 chu kỳ sửa CI, giữ nguyên mọi gate",
+        "status": "LOCAL_VERIFIED_AWAITING_INDEPENDENT_CI",
+        "original_attempts": 3,
+        "red_evidence": "output/playwright/ci-automerge-recovery/owner-cycle-4/linux-red/report.json",
+        "scope": "One additional correction cycle: owned reaping order and project-bound context compilation; all original gates and memory300/500ms unchanged.",
+        "source_sha256": "42bbc2791494831c1ccccca38b4c3d40347eac15222984112b346264f1123499",
+        "local_evidence": "docs/qa/evidence/ci-boundaries-6.5.12/pr-report.json",
+        "candidate_cycles_used": 1
+      }
+    ]
   }
 }
