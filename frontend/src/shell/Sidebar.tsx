@@ -31,6 +31,7 @@ import {
   Search,
   Edit3,
   SquarePen,
+  Feather,
   MoreHorizontal,
   Compass,
   HelpCircle,
@@ -907,6 +908,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
         >
           <SquarePen size={15} />
           <span>{t('Cuộc trò chuyện mới', 'New chat')}</span>
+        </button>
+
+        <button
+          type="button"
+          className="btn sm ghost"
+          data-testid="hermes-chat"
+          title={t('hermesChat.open')}
+          aria-label={t('hermesChat.open')}
+          onClick={async () => {
+            // v6.6.2: a dedicated chat with this project's Hermes (one Hermes per project).
+            const created = await api.post<ChatSession>('/api/chat/sessions', {
+              title: t('hermesChat.title'),
+              settings: { provider: 'runtime:hermes' },
+            });
+            await queryClient.invalidateQueries({ queryKey: ['sessions'] });
+            setActiveSessionId(created.id);
+            setMainView('chat');
+          }}
+          style={{ justifyContent: 'flex-start', padding: '7px 10px', borderRadius: 8, fontWeight: 500, gap: 8 }}
+        >
+          <Feather size={15} />
+          <span>{t('hermesChat.title')}</span>
         </button>
 
         <button
