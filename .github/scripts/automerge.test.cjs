@@ -7,7 +7,7 @@ function valid() {
   return {owner:'owner',repository:'owner/repo',allow_auto_merge:true,comparison:'ahead',
     run:{id:1,path:'.github/workflows/quality.yml',head_sha:'abc',head_repository:{full_name:'owner/repo'},event:'pull_request',status:'completed',conclusion:'success',check_suite_id:7},
     jobs:requiredJobs.map(name=>({name,run_id:1,status:'completed',conclusion:'success'})),
-    pr:{state:'open',draft:false,user:{login:'owner'},base:{ref:'qa',repo:{full_name:'owner/repo'}},head:{ref:'dev',sha:'abc',repo:{full_name:'owner/repo'}},mergeable:true,mergeable_state:'clean',body:'Contract: FQC-DEV-001'},
+    pr:{state:'open',draft:false,user:{login:'owner'},base:{ref:'qa',sha:'tested-base',repo:{full_name:'owner/repo'}},head:{ref:'dev',sha:'abc',repo:{full_name:'owner/repo'}},mergeable:true,mergeable_state:'clean',body:'Contract: FQC-DEV-001'},
     protection:{enforce_admins:{enabled:true},required_status_checks:{strict:true,checks:[{context:'QA gate',app_id:15368}]}},
     checks:[{name:'QA gate',head_sha:'abc',app:{id:15368},check_suite:{id:7},status:'completed',conclusion:'success'}],reviews:[]};
 }
@@ -57,14 +57,30 @@ test('unreadable branch protection blocks with an actionable decision and no wri
   assert.match(result.reasons.join(' '),/Administration/);
 });
 
-test('successful policy requests native auto-merge rather than directly merging', async () => {
-  const s=valid();let enabled=false;
+test('qualified CLEAN policy uses head-locked protected native merge and observes completion', async () => {
+  const s=valid();let merged=false;
   const checksFn=()=>{},reviewsFn=()=>{};
-  const github={rest:{actions:{listJobsForWorkflowRun:async()=>({data:{jobs:s.jobs}})},pulls:{get:async()=>({data:{...s.pr,node_id:'fixture-node',auto_merge:enabled?{merge_method:'squash'}:null,merged:false}}),listReviews:reviewsFn},
+  const github={rest:{actions:{listJobsForWorkflowRun:async()=>({data:{jobs:s.jobs}})},pulls:{get:async()=>({data:{...s.pr,node_id:'fixture-node',merged,merge_commit_sha:merged?'observed-merge':null}}),listReviews:reviewsFn},
     checks:{listForRef:checksFn},repos:{getBranchProtection:async()=>({data:s.protection}),get:async()=>({data:{allow_auto_merge:true}}),
       compareCommitsWithBasehead:async()=>({data:{status:'ahead'}})}},
     paginate:async fn=>fn===checksFn?s.checks:[],
-    graphql:async query=>{assert.match(query,/enablePullRequestAutoMerge/);assert.doesNotMatch(query,/\bmergePullRequest\(/);enabled=true;return {};}};
+    graphql:async (query,variables)=>{
+      if(query.includes('enablePullRequestAutoMerge'))throw Error('Controlled fixture of actual GitHub: Pull request is in clean status');
+      assert.match(query,/mergePullRequest\(/);assert.match(query,/expectedHeadOid:\s*\$sha/);
+      assert.deepEqual(variables,{id:'fixture-node',sha:'abc'});assert.doesNotMatch(query,/admin|force/i);
+      merged=true;return {};}};
   const result=await run({github,context:{repo:{owner:'owner',repo:'repo'},payload:{workflow_run:s.run}},core:{info(){}}},7);
-  assert.equal(result.decision,'AUTO_MERGE_ENABLED');assert.equal(enabled,true);
+  assert.equal(result.decision,'MERGED');assert.equal(result.merge_commit_sha,'observed-merge');assert.equal(merged,true);
+});
+
+test('fresh changed target or blocked PR cannot reuse a prior clean qualification', async () => {
+  for(const change of [{base:{...valid().pr.base,sha:'changed-base'}},{mergeable_state:'unstable'},{draft:true},{state:'closed'}]) {
+    const s=valid();let reads=0,writes=0;const checksFn=()=>{},reviewsFn=()=>{};
+    const github={rest:{actions:{listJobsForWorkflowRun:async()=>({data:{jobs:s.jobs}})},
+      pulls:{get:async()=>({data:{...s.pr,node_id:'fixture-node',...(++reads>1?change:{})}}),listReviews:reviewsFn},
+      checks:{listForRef:checksFn},repos:{getBranchProtection:async()=>({data:s.protection}),get:async()=>({data:{allow_auto_merge:true}}),compareCommitsWithBasehead:async()=>({data:{status:'ahead'}})}},
+      paginate:async fn=>fn===checksFn?s.checks:[],graphql:async()=>{writes++;return {};}};
+    const result=await run({github,context:{repo:{owner:'owner',repo:'repo'},payload:{workflow_run:s.run}},core:{info(){}}},7);
+    assert.equal(result.decision,'BLOCKED');assert.equal(writes,0);
+  }
 });

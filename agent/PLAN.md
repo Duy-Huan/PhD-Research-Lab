@@ -1,3 +1,7 @@
+# Current priority2026-10-27: complete actual native protected promotion
+
+Owner latest instruction: check web CI/CD conditions and fix if needed.5c71068 dev/PR software CI both SUCCESS; actual remaining blocker is CLEAN PR auto-merge API rejection. Correct existing controllers to normal head-locked protected native merge after the identical gates, refresh changed base/state, preserve all protection/history. Targeted RED/GREEN and Node49PASS recorded; run fresh quick/feature/pr, publish normally, re-register trusted source and verify actual dev->qa->main plus main CD in browser/API. No manual approval, admin/force or gate weakening. Then resume native core6.6.xx audit/corrections and seven reports/363item matrix; no scientific qualification inferred.
+
 # Active owner order 2026-10-26: actual CI/CD first, native core6.6.xx second
 
 Owner follow-up 2026-10-27: the full checklist is now a binding design requirement in [NATIVE_AI_RESEARCH_ENVIRONMENT.md](NATIVE_AI_RESEARCH_ENVIRONMENT.md), linked from all agent entry points. The checklist clarification is resolved. Maintain every item with actual source/evidence/status; do not infer completed capabilities from the requirements file. New policy input requires fresh frozen verification before publication.

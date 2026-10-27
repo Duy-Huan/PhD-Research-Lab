@@ -144,12 +144,19 @@ def ensure_native(api: GitHub,root: Path,pr: dict,policy: dict,apply: bool) -> d
             'reasons':assessment['reasons']}
     if assessment['decision']!='ELIGIBLE' or not apply:return result
     fresh=api.request('/pulls/'+str(pr['number']))
-    if fresh['head']['sha']!=sha or fresh['base']['ref']!=pr['base']['ref'] or fresh['head']['ref']!=pr['head']['ref']:
-        raise ValueError('PR changed before native request')
-    if not fresh.get('auto_merge') and not fresh.get('merged'):
-        api.request('/graphql',{'query':'mutation($id:ID!){enablePullRequestAutoMerge(input:{pullRequestId:$id,mergeMethod:MERGE}){pullRequest{number}}}',
-                                'variables':{'id':fresh['node_id']}})
-    return result | {'phase':'NATIVE_AUTO_MERGE_REQUESTED'}
+    if (fresh['head']['sha']!=sha or fresh['base']['ref']!=pr['base']['ref']
+            or fresh['base'].get('sha')!=pr['base'].get('sha') or fresh['head']['ref']!=pr['head']['ref']):
+        return result | {'phase':'BLOCKED','reasons':['PR head or target changed before native request']}
+    if not fresh.get('merged'):
+        if (fresh.get('state')!='open' or fresh.get('draft') or fresh.get('mergeable') is not True
+                or fresh.get('mergeable_state')!='clean'):
+            return result | {'phase':'BLOCKED','reasons':['PR is no longer ready for protected native merge']}
+        # GitHub rejects enablePullRequestAutoMerge for an already CLEAN PR. All
+        # gates above still apply; this normal native mutation locks the head and
+        # GitHub enforces the target's strict/admin-enforced branch protection.
+        api.request('/graphql',{'query':'mutation($id:ID!,$sha:GitObjectID!){mergePullRequest(input:{pullRequestId:$id,expectedHeadOid:$sha,mergeMethod:MERGE}){pullRequest{number}}}',
+                                'variables':{'id':fresh['node_id'],'sha':sha}})
+    return result | {'phase':'NATIVE_PROTECTED_MERGE_REQUESTED'}
 
 
 def tick(api: GitHub,root: Path,policy: dict,state: dict,apply: bool) -> dict:
@@ -220,6 +227,6 @@ def tick(api: GitHub,root: Path,policy: dict,state: dict,apply: bool) -> dict:
         pr=find_pr(api,'qa','main',create=apply)
         if not pr:return {'phase':'READY_MAIN_PR','head':qa,'reasons':['Observation only; no PR created']}
     result=ensure_native(api,root,pr,policy,apply)
-    if result['phase']=='NATIVE_AUTO_MERGE_REQUESTED':
+    if result['phase']=='NATIVE_PROTECTED_MERGE_REQUESTED':
         state['pending']=result | {'local_source_sha256':report['source']['sha256'],'local_tree':tree}
     return result

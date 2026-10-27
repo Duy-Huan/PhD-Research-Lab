@@ -40,7 +40,7 @@ class PromotionController(unittest.TestCase):
         names=json.loads((ROOT/'.github/required-ci-jobs.json').read_text())['qa']
         repo='Duy-Huan/PhD-Research-Lab'
         pr={'number':1,'node_id':'unit-fixture','state':'open','draft':False,'user':{'login':'Duy-Huan'},
-            'base':{'ref':'qa','repo':{'full_name':repo}},'head':{'ref':'dev','sha':'head','repo':{'full_name':repo}},
+            'base':{'ref':'qa','sha':'tested-base','repo':{'full_name':repo}},'head':{'ref':'dev','sha':'head','repo':{'full_name':repo}},
             'mergeable':True,'mergeable_state':'clean','body':'Contract: FQC-AUTO-PROMOTION-001'}
         run={'id':1,'head_sha':'head','head_branch':'dev','head_repository':{'full_name':repo},'workflow_id':5,
              'event':'pull_request','path':'.github/workflows/quality.yml','status':'completed','conclusion':'success','check_suite_id':7}
@@ -48,15 +48,20 @@ class PromotionController(unittest.TestCase):
             def __init__(self):
                 self.jobs=[{'name':name,'run_id':1,'status':'completed','conclusion':'success'} for name in names]
                 self.mutations=[]
+                self.fresh_changes={}
             def request(self,path,body=None):
-                if path=='/graphql':self.mutations.append(body);return {'data':{}}
+                if path=='/graphql':
+                    self.mutations.append(body)
+                    if 'enablePullRequestAutoMerge' in body['query']:
+                        raise RuntimeError('Controlled fixture of actual GitHub rejection: Pull request is in clean status')
+                    return {'data':{}}
                 if path=='/actions/workflows/quality.yml':return {'id':5}
                 if path.startswith('/actions/workflows/quality.yml/runs?'):return {'workflow_runs':[run]}
                 if path=='/branches/qa/protection':return {'enforce_admins':{'enabled':True},'required_status_checks':{
                     'strict':True,'checks':[{'context':'QA gate','app_id':15368}]}}
                 if path.startswith('/compare/'):return {'status':'ahead'}
                 if path=='':return {'allow_auto_merge':True}
-                if path=='/pulls/1':return pr
+                if path=='/pulls/1':return pr | self.fresh_changes
                 raise AssertionError('Unexpected API operation: '+path)
             def pages(self,path,field):
                 if '/jobs?' in path:return self.jobs
@@ -72,10 +77,20 @@ class PromotionController(unittest.TestCase):
         self.assertEqual(ensure_native(api,ROOT,pr,policy,True)['phase'],'BLOCKED')
         self.assertEqual(api.mutations,[])
         api.jobs[-1]['conclusion']='success'
-        self.assertEqual(ensure_native(api,ROOT,pr,policy,True)['phase'],'NATIVE_AUTO_MERGE_REQUESTED')
+        self.assertEqual(ensure_native(api,ROOT,pr,policy,True)['phase'],'NATIVE_PROTECTED_MERGE_REQUESTED')
         self.assertEqual(len(api.mutations),1)
-        self.assertIn('enablePullRequestAutoMerge',api.mutations[0]['query'])
-        self.assertNotIn('mergePullRequest(',api.mutations[0]['query'])
+        self.assertIn('mergePullRequest(',api.mutations[0]['query'])
+        self.assertIn('expectedHeadOid:$sha',api.mutations[0]['query'])
+        self.assertEqual(api.mutations[0]['variables'],{'id':'unit-fixture','sha':'head'})
+        self.assertNotIn('admin',api.mutations[0]['query'].lower())
+        api.mutations.clear()
+        # Changed target or newly blocked state cannot reuse the earlier eligibility.
+        for changes in ({'base':pr['base'] | {'sha':'different-base'}}, {'mergeable_state':'unstable'},
+                        {'draft':True}, {'state':'closed'}):
+            with self.subTest(fresh_changes=changes):
+                api.fresh_changes=changes
+                self.assertEqual(ensure_native(api,ROOT,pr,policy,True)['phase'],'BLOCKED')
+                self.assertEqual(api.mutations,[])
 
     def test_existing_api_pagination_supports_array_review_responses(self):
         from devtools.verification.ci_repair import GitHub

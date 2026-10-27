@@ -79,16 +79,18 @@ async function run({github, context, core}, number, apply = true, policy = {allo
     allow_auto_merge:config.allow_auto_merge,comparison:compare.status,owner,repository});
   if (reasons.length || !apply) return {decision:reasons.length?'BLOCKED':'ELIGIBLE',reasons,head:pr.head.sha};
   const fresh = (await github.rest.pulls.get({owner,repo,pull_number:number})).data;
-  if (fresh.head.sha !== pr.head.sha || fresh.base.ref !== pr.base.ref || fresh.head.ref !== pr.head.ref) return {decision:'BLOCKED',reasons:['PR changed during eligibility check']};
+  if (fresh.head.sha !== pr.head.sha || fresh.base.ref !== pr.base.ref || fresh.base.sha !== pr.base.sha || fresh.head.ref !== pr.head.ref) return {decision:'BLOCKED',reasons:['PR changed during eligibility check']};
+  if (!fresh.merged && (fresh.state !== 'open' || fresh.draft || fresh.mergeable !== true || fresh.mergeable_state !== 'clean')) return {decision:'BLOCKED',reasons:['PR is no longer ready for protected native merge']};
   // Native GitHub merge policy remains authoritative; never use admin overrides.
-  if (!fresh.auto_merge) await github.graphql(`mutation($id: ID!) {
-    enablePullRequestAutoMerge(input:{pullRequestId:$id, mergeMethod:MERGE}) {
+  // Already-CLEAN PRs cannot enable auto-merge; merge only the qualified head.
+  if (!fresh.merged) await github.graphql(`mutation($id: ID!, $sha: GitObjectID!) {
+    mergePullRequest(input:{pullRequestId:$id, expectedHeadOid:$sha, mergeMethod:MERGE}) {
       pullRequest { number }
     }
-  }`,{id:pr.node_id});
+  }`,{id:pr.node_id,sha:pr.head.sha});
   const merged=(await github.rest.pulls.get({owner,repo,pull_number:number})).data;
-  if (!merged.merged || !merged.merge_commit_sha) return {decision:merged.auto_merge?'AUTO_MERGE_ENABLED':'UNVERIFIED',
-    reasons:['Native auto-merge requested; actual merge completion must be observed separately'],head:pr.head.sha};
+  if (!merged.merged || !merged.merge_commit_sha) return {decision:'UNVERIFIED',
+    reasons:['Protected native merge requested; actual merge completion must be observed separately'],head:pr.head.sha};
   core.info(`Native ${pr.base.ref} promotion merge confirmed for PR ${number}: ${merged.merge_commit_sha}`);
   return {decision:'MERGED',head:pr.head.sha,merge_commit_sha:merged.merge_commit_sha};
 }
