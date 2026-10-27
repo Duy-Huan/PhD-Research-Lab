@@ -1,0 +1,94 @@
+{
+  "id": "FQC-PROJECTS-ROOT-662",
+  "title": "Default folder for new projects on any drive",
+  "risk": "MEDIUM",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the researcher I choose once where new projects are created (for example another drive) and still pick a specific folder per project when I want.",
+  "requirements": [
+    {
+      "id": "ROOT",
+      "description": "ui.projects_root (absolute path) is where projects without an explicit folder are created; explicit folders win; empty keeps <app data>/projects; relative paths are refused; existing projects are never reused or moved."
+    }
+  ],
+  "nonfunctional": [
+    "Data never written inside the installation folder when a root is set"
+  ],
+  "inputs": [
+    "ui.projects_root",
+    "project name"
+  ],
+  "outputs": [
+    "Project folder"
+  ],
+  "preconditions": [
+    "Writable chosen folder"
+  ],
+  "postconditions": [
+    "Project registered and active"
+  ],
+  "dependencies": [
+    "backend.core.config.create_project"
+  ],
+  "affected_modules": [
+    "backend/core/config.py",
+    "frontend/src/features/projects/ProjectSwitcher.tsx"
+  ],
+  "acceptance_criteria": [
+    "New project under the chosen root",
+    "Explicit folder respected",
+    "Relative root refused"
+  ],
+  "scenarios": [
+    {
+      "id": "root",
+      "requirement": "ROOT",
+      "kind": "positive",
+      "expected": "Created under the chosen root, duplicate names get a suffix",
+      "test": "tests/test_projects_root.py::ProjectsRoot.test_new_projects_go_to_the_chosen_default_folder"
+    },
+    {
+      "id": "explicit",
+      "requirement": "ROOT",
+      "kind": "boundary",
+      "expected": "Explicit folder wins; empty root keeps app folder",
+      "test": "tests/test_projects_root.py::ProjectsRoot.test_explicit_folder_wins_and_unset_root_keeps_the_app_folder"
+    },
+    {
+      "id": "relative",
+      "requirement": "ROOT",
+      "kind": "negative",
+      "expected": "Relative path refused on save",
+      "test": "tests/test_projects_root.py::ProjectsRoot.test_relative_root_is_refused"
+    },
+    {
+      "id": "invalid",
+      "requirement": "ROOT",
+      "kind": "failure",
+      "expected": "Invalid root never silently used",
+      "test": "tests/test_projects_root.py::ProjectsRoot.test_relative_root_is_refused"
+    }
+  ],
+  "recovery": "Clear ui.projects_root. TASK-PROJECTS-ROOT-662, max three cycles.",
+  "test_environment": "Real config and project creation in temporary folders.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 2 FAIL before implementation. GREEN: 3/3 PASS.",
+    "red": {
+      "path": "docs/qa/evidence/projects-root-662/red.json",
+      "sha256": "2abad35122b3cb6062701a2cfc0d2f63fdc42d9dfd816a5edfac11dfb4e3db72",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/projects-root-662/green.json",
+      "sha256": "2e52663e4a93f1db361fa0f642a667129dd16001b5c278265ec40418cb8f9226",
+      "exit_code": 0
+    }
+  }
+}

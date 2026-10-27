@@ -227,7 +227,8 @@ DEFAULTS["research_providers"] = {
 }
 # v5.1 interface language (UI strings) and AI response language
 DEFAULTS["ui"] = {"language": "vi", "ai_language": "auto", "prose_font": "sans", "paper_explorer_v2": True, "discovery_inbox": True,
-                  "contextual_actions": True, "topic_scheduler_ui": True}
+                  "contextual_actions": True, "topic_scheduler_ui": True,
+                  "projects_root": ""}  # v6.6.2: default folder (any drive) for new projects; "" = <app data>/projects
 DEFAULTS["mcp_agent"] = {"enabled": False, "url": "http://127.0.0.1:8766/mcp", "token": "",
                          "tool": "research", "models": [], "timeout_s": 120}
 DEFAULTS["research_os"] = {"enabled":False,"team_enabled":False,"multi_team_enabled":False}
@@ -306,6 +307,11 @@ def _merge_section(sec: str, target: dict, patch: dict, masked_ok: bool) -> None
         if allowed and v not in allowed:
             v = DEFAULTS[sec][f]
         target[f] = v
+    if sec == "ui" and target.get("projects_root"):
+        if not Path(target["projects_root"]).is_absolute():  # never resolve against the app or process folder
+            if masked_ok:
+                raise ValueError("The default projects folder must be an absolute path")
+            target["projects_root"] = ""
     if sec == 'hermes':
         target['free_only'] = True  # No paid model authorization exists in this campaign.
         for key, low, high in (('deadline_s', 5, 1800), ('max_iterations', 1, 50), ('max_tokens', 128, 16384)):
@@ -633,16 +639,23 @@ def _slug(name: str) -> str:
     return s[:60] or "project"
 
 
+def projects_root() -> Path:
+    """Where new projects without an explicit folder are created (ui.projects_root, else <app data>/projects)."""
+    chosen = (load_config().get("ui") or {}).get("projects_root") or ""
+    return Path(chosen) if chosen else PROJECTS_ROOT
+
+
 def create_project(name: str, data_dir: str | None = None, references_dir: str | None = None) -> dict:
     """New project folder (default: <app>/projects/<name>). Existing folders are opened, not overwritten."""
     if not name or not name.strip():
         raise ValueError("Project name is required")
-    d = _resolve(data_dir) if data_dir and data_dir.strip() else PROJECTS_ROOT / _slug(name)
+    root = projects_root()
+    d = _resolve(data_dir) if data_dir and data_dir.strip() else root / _slug(name)
     if d.exists() and (d / META_NAME).exists() and not data_dir:
         i = 2
-        while (PROJECTS_ROOT / f"{_slug(name)}-{i}").exists():
+        while (root / f"{_slug(name)}-{i}").exists():
             i += 1
-        d = PROJECTS_ROOT / f"{_slug(name)}-{i}"
+        d = root / f"{_slug(name)}-{i}"
     info = _ensure_project(d, name, references_dir, update_refs=bool(references_dir))
     _register(info["data_dir"], activate=True)
     return info
