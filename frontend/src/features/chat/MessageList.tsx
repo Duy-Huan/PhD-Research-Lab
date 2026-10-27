@@ -261,23 +261,8 @@ export const MessageList: React.FC<MessageListProps> = ({
               <span>{t('Thiết kế thí nghiệm', 'Design experiment')}</span>
             </button>
 
-            <button
-              type="button"
-              className="btn sm ghost"
-              onClick={() => openDrawer('code')}
-              style={{
-                borderRadius: 999,
-                padding: '7px 14px',
-                border: '1px solid var(--line-2)',
-                background: 'var(--panel)',
-                color: 'var(--ink)',
-                gap: 6,
-              }}
-            >
-              <Terminal size={14} color="#f59e0b" />
-              <span>{t('Code native', 'Native code')}</span>
-            </button>
-
+            {/* v6.6.2: one entry point per feature — navigation-only chips (code, 3D Lab, RO-Crate) were removed;
+                they stay reachable from the sidebar and header. Only research tasks remain here. */}
             <button
               type="button"
               className="btn sm ghost"
@@ -293,39 +278,6 @@ export const MessageList: React.FC<MessageListProps> = ({
             >
               <Award size={14} color="#ec4899" />
               <span>Peer Review</span>
-            </button>
-
-            {!compact && (
-              <button
-                type="button"
-                className="btn sm accent"
-                onClick={() => open3DOffice(true)}
-                style={{
-                  borderRadius: 999,
-                  padding: '7px 14px',
-                  gap: 6,
-                }}
-              >
-                <Bot size={14} />
-                <span>3D Lab</span>
-              </button>
-            )}
-
-            <button
-              type="button"
-              className="btn sm ghost"
-              onClick={() => openDrawer('intelligence')}
-              style={{
-                borderRadius: 999,
-                padding: '7px 14px',
-                border: '1px solid var(--line-2)',
-                background: 'var(--panel)',
-                color: 'var(--ink)',
-                gap: 6,
-              }}
-            >
-              <Brain size={14} color="#06b6d4" />
-              <span>RO-Crate</span>
             </button>
           </div>
         </div>

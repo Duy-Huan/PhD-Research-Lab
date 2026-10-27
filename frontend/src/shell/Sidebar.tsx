@@ -932,37 +932,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
           <span>{t('hermesChat.title')}</span>
         </button>
 
-        <button
-          type="button"
-          className={`btn sm ${mainView === 'office3d' ? 'accent' : 'ghost'}`}
-          onClick={() => open3DOffice(true)}
-          style={{
-            justifyContent: 'flex-start',
-            padding: '7px 10px',
-            borderRadius: 8,
-            fontWeight: 500,
-            gap: 8,
-          }}
-        >
-          <Bot size={15} />
-          <span>{t('Phòng Lab 3D', '3D University Lab')}</span>
-        </button>
-
-        <button
-          type="button"
-          className="btn sm ghost"
-          onClick={() => openDrawer('library')}
-          style={{
-            justifyContent: 'flex-start',
-            padding: '6px 10px',
-            borderRadius: 8,
-            gap: 8,
-          }}
-        >
-          <BookOpen size={15} />
-          <span>{t('Thư viện Bài báo', 'Paper Library')}</span>
-        </button>
-
+        {/* v6.6.2: 3D Lab, Library and Harness live once, as icons in the header; missions and tools stay here. */}
         <button
           type="button"
           className="btn sm ghost"
@@ -978,25 +948,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
           <span>{t('Nhiệm vụ Tự hành', 'Autonomous Missions')}</span>
         </button>
 
-        <button
-          type="button"
-          className="btn sm ghost"
-          onClick={() => {
-            setMainView('harness');
-            if (window.matchMedia('(max-width: 820px)').matches && sidebarOpen) toggleSidebar();
-          }}
-          style={{
-            justifyContent: 'flex-start',
-            padding: '6px 10px',
-            borderRadius: 8,
-            gap: 8,
-            color: mainView === 'harness' ? 'var(--accent)' : undefined,
-            background: mainView === 'harness' ? 'var(--panel)' : 'transparent',
-          }}
-        >
-          <Sliders size={15} />
-          <span>{t('Harness Studio', 'Harness Studio')}</span>
-        </button>
 
         <button className="btn sm ghost" onClick={() => openSettings('models')}>
           <Cpu size={14} /> {t('Mô hình & kết nối AI', 'Models & AI connections')}
