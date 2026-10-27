@@ -1,0 +1,100 @@
+{
+  "id": "FQC-UAT-TEARDOWN-6513-005",
+  "title": "Bounded owned-browser teardown: proxied SSE upstreams end with their browser connection",
+  "risk": "MEDIUM",
+  "mode": "REAL_LOCAL",
+  "user_story": "Deterministic browser acceptance finishes promptly and reliably instead of depending on a 30s upstream socket timeout racing a 30s finish limit.",
+  "requirements": [
+    {
+      "id": "BOUNDED",
+      "description": "After finish the owned browser process exits within 10 seconds; journeys keep every existing oracle check."
+    },
+    {
+      "id": "PROXY",
+      "description": "When the browser-side connection closes, the proxied upstream request to the owned application is destroyed; origin allowlist, 30s upstream bound and error mapping unchanged."
+    }
+  ],
+  "nonfunctional": [
+    "No timeout or assertion relaxation; a stricter 10s teardown assertion is added",
+    "Original pr/all failure, its raw evidence and the repair ledger entry are preserved"
+  ],
+  "inputs": [
+    "Actual pr/all failure output/playwright/cd-consistency-6513/pr/report.json"
+  ],
+  "outputs": [
+    "Owned browser exits promptly after evidence and trace are written"
+  ],
+  "preconditions": [
+    "Built frontend, Node, Chromium; disposable owned application server"
+  ],
+  "postconditions": [
+    "browser-evidence PASS and trace.zip retained"
+  ],
+  "dependencies": [
+    "@playwright/test",
+    "node:http"
+  ],
+  "affected_modules": [
+    "devtools/verification/uat_browser.mjs",
+    "tests/browser_acceptance_integration.py"
+  ],
+  "acceptance_criteria": [
+    "RED: both deterministic journeys exceed 10s teardown (~29s)",
+    "GREEN: both PASS with teardown below 10s"
+  ],
+  "scenarios": [
+    {
+      "id": "positive",
+      "requirement": "BOUNDED",
+      "kind": "positive",
+      "expected": "Workflow journey PASS with prompt teardown",
+      "test": "tests/browser_acceptance_integration.py::OwnedServerCapability.test_native_workflow_browser_oracle_retains_actual_cpu_artifacts_without_model"
+    },
+    {
+      "id": "negative",
+      "requirement": "PROXY",
+      "kind": "negative",
+      "expected": "Closed browser connections do not leave upstream SSE requests open",
+      "test": "tests/browser_acceptance_integration.py::OwnedServerCapability.test_native_workflow_browser_oracle_retains_actual_cpu_artifacts_without_model"
+    },
+    {
+      "id": "boundary",
+      "requirement": "BOUNDED",
+      "kind": "boundary",
+      "expected": "Teardown strictly below 10s, far from the 30s finish limit",
+      "test": "tests/browser_acceptance_integration.py::OwnedServerCapability.test_failure_recovery_browser_oracle_requires_observed_fault_and_real_reload"
+    },
+    {
+      "id": "failure",
+      "requirement": "PROXY",
+      "kind": "failure",
+      "expected": "Controlled-fault journey keeps its fault oracle and still tears down promptly",
+      "test": "tests/browser_acceptance_integration.py::OwnedServerCapability.test_failure_recovery_browser_oracle_requires_observed_fault_and_real_reload"
+    }
+  ],
+  "recovery": "Revert the two-line proxy change; the stricter assertion would then fail visibly. TASK-UAT-TEARDOWN-6513 max three cycles.",
+  "test_environment": "REAL_LOCAL owned server, Chromium persistent context and loopback proxy in disposable data; no model.",
+  "skill_sources": [
+    "skills/playwright/SKILL.md",
+    "skills/webapp-testing/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent root-cause review from phase timestamps (trace at +0.1s, exit at +29s) and proxy code; not independent."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "Actual REAL_LOCAL browser runs before and after the proxy change.",
+    "red": {
+      "path": "docs/qa/evidence/uat-teardown-6513/red.json",
+      "sha256": "c5b8161007db79a6dcfbb31ecc489589a4685d0adbead490138c9520c790e36b",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/uat-teardown-6513/green.json",
+      "sha256": "4d708b97c0fd4dad378cc0348b360e502e82bb7ffbdb61e729f8ac8a8733b602",
+      "exit_code": 0
+    }
+  }
+}

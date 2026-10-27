@@ -67,8 +67,11 @@ const page=browser.contexts()[0].pages()[0];"""+actions+"\nprocess.exit(0);})().
                         cwd=ROOT/'frontend',env=env,capture_output=True,text=True,timeout=100)
                     (out/'deterministic-actor.log').write_text(actor.stdout+actor.stderr,encoding='utf-8')
                     self.assertEqual(actor.returncode,0,'Deterministic browser actor failed; see '+str(out))
+                    finishing=time.monotonic()
                     browser.communicate('{"action":"finish"}\n',timeout=30)
                     self.assertEqual(browser.returncode,0,'See '+str(out/'browser.log'))
+                    # Bounded teardown: lingering proxied SSE upstreams must not keep the owned browser alive near the 30s limit.
+                    self.assertLess(time.monotonic()-finishing,10,'Owned browser teardown exceeded 10s; see '+str(out))
                 finally:
                     if browser.poll() is None:browser.terminate();browser.wait(timeout=15)
             evidence=json.loads((out/'browser-evidence.json').read_text(encoding='utf-8'))

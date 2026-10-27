@@ -1,3 +1,16 @@
+# Active 2026-10-27: finish 6.5.13 publication, then 6.6.0 native tool capability system
+
+1. 6.5.13 now includes the owner-authorized TASK-UAT-TEARDOWN-6513 repair (FQC-UAT-TEARDOWN-6513-005). Rerun quick/feature/pr on frozen source; publish via guarded dev push; verify exact-SHA CI, dev->qa->main merges and main CD in browser and API.
+2. 6.6.0 (owner P0 checklist, Native Tool Capability System): registry, unified runtime (grants, budgets, async jobs, streaming, timeout/cancel, retry, hash-chained provenance/replay), python/cli/mcp/container adapters, model-driven tool loop without keyword forcing (session tool_mode=agent), agent tool proposals with sandbox validation/promotion/rollback, /api/tools. FQC-NATIVE-TOOLS-660 with actual RED/GREEN; full gates; then separate bounded LIVE_PROVIDER acceptance with spark-x2.5-4b (owner-authorized) recorded apart from software CI.
+3. 6.6.1 candidates: default tool_mode flip after test review, mission capability unification into the registry, MCP server exposure of registry search/describe, real container validation evidence.
+
+# Active next: owner-granted one CD consistency cycle
+
+1. Apply fail-closed bounded provenance polling and regression tests under reviewed FQC-CD-PROVENANCE-CONSISTENCY-004; preserve every gate/history.6.5.13 because6.5.12 published.
+2. Run fresh quick, feature, pr/all on frozen source; normal guarded dev commit/push, register trusted controller.
+3. Verify new exact-SHA GitHub software checks, actual automatic dev->qa->main and first-push main CD in browser/API; no ad-hoc recovery claimed as fully automatic success. Stop on failed cycle; no budget reset.
+4. Then continue existing native core6.6.xx checklist/audit/confirmed fixes and7reports. No science/L3/L4 claim from software.
+
 # Current priority2026-10-27: complete actual native protected promotion
 
 Owner latest instruction: check web CI/CD conditions and fix if needed.5c71068 dev/PR software CI both SUCCESS; actual remaining blocker is CLEAN PR auto-merge API rejection. Correct existing controllers to normal head-locked protected native merge after the identical gates, refresh changed base/state, preserve all protection/history. Targeted RED/GREEN and Node49PASS recorded; run fresh quick/feature/pr, publish normally, re-register trusted source and verify actual dev->qa->main plus main CD in browser/API. No manual approval, admin/force or gate weakening. Then resume native core6.6.xx audit/corrections and seven reports/363item matrix; no scientific qualification inferred.

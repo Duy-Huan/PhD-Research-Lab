@@ -1,0 +1,117 @@
+{
+  "id": "FQC-CD-PROVENANCE-CONSISTENCY-004",
+  "title": "Bounded fail-closed GitHub merged PR provenance consistency",
+  "risk": "CRITICAL",
+  "mode": "MOCKED",
+  "user_story": "Automatic main CD tolerates delayed PR association indexing without accepting unqualified source.",
+  "requirements": [
+    {
+      "id": "READY",
+      "description": "At most six PR association reads and 31 seconds total scheduled waits; current protected main rechecked each attempt."
+    },
+    {
+      "id": "FAIL-CLOSED",
+      "description": "Every exact QA run, suite, app, SHA and tree check remains; no association after bound or moved/unprotected main rejects."
+    }
+  ],
+  "nonfunctional": [
+    "Preserve every gate, strict/admin-enforced protection, same-run/suite/source proof and original repair history",
+    "No admin/force merge, fabricated checks, other branches, direct dev->main or protection changes",
+    "Do not mistake MOCKED policy tests for actual GitHub merging or scientific execution"
+  ],
+  "inputs": [
+    "Actual failed main CD40429712059 and later matching PR15/API receipt",
+    "Owner explicit one CD-cycle extension"
+  ],
+  "outputs": [
+    "Same qualified release source after bounded provenance lookup"
+  ],
+  "preconditions": [
+    "Existingdev only; one authorized candidate; immutable published6.5.12 retained"
+  ],
+  "postconditions": [
+    "All original qualification conditions preserved"
+  ],
+  "dependencies": [
+    "Existing release qualifier; pinned GitHub Actions"
+  ],
+  "affected_modules": [
+    ".github/scripts/release_provenance.cjs",
+    ".github/scripts/release_provenance.test.cjs",
+    ".github/workflows/release.yml"
+  ],
+  "acceptance_criteria": [
+    "Delayed association succeeds only with all original qualification checks",
+    "Permanent absence stops at six reads and31seconds scheduled waits",
+    "Moved/unprotected main, failed/skipped/missing/wrong-source QA and changed tree reject"
+  ],
+  "scenarios": [
+    {
+      "id": "positive",
+      "requirement": "READY",
+      "kind": "positive",
+      "expected": "At most six PR association reads and 31 seconds total scheduled waits; current protected main rechecked each attempt.",
+      "test": "tests/test_release_provenance.py::ReleaseProvenance.test_bounded_consistency_and_all_original_negative_qualification_cases"
+    },
+    {
+      "id": "negative",
+      "requirement": "FAIL-CLOSED",
+      "kind": "negative",
+      "expected": "Every exact QA run, suite, app, SHA and tree check remains; no association after bound or moved/unprotected main rejects.",
+      "test": "tests/test_release_provenance.py::ReleaseProvenance.test_bounded_consistency_and_all_original_negative_qualification_cases"
+    },
+    {
+      "id": "boundary",
+      "requirement": "FAIL-CLOSED",
+      "kind": "boundary",
+      "expected": "Every exact QA run, suite, app, SHA and tree check remains; no association after bound or moved/unprotected main rejects.",
+      "test": "tests/test_release_provenance.py::ReleaseProvenance.test_bounded_consistency_and_all_original_negative_qualification_cases"
+    },
+    {
+      "id": "failure",
+      "requirement": "FAIL-CLOSED",
+      "kind": "failure",
+      "expected": "Every exact QA run, suite, app, SHA and tree check remains; no association after bound or moved/unprotected main rejects.",
+      "test": "tests/test_release_provenance.py::ReleaseProvenance.test_bounded_consistency_and_all_original_negative_qualification_cases"
+    },
+    {
+      "id": "security",
+      "requirement": "FAIL-CLOSED",
+      "kind": "security",
+      "expected": "Every exact QA run, suite, app, SHA and tree check remains; no association after bound or moved/unprotected main rejects.",
+      "test": "tests/test_release_provenance.py::ReleaseProvenance.test_bounded_consistency_and_all_original_negative_qualification_cases"
+    },
+    {
+      "id": "performance",
+      "requirement": "READY",
+      "kind": "performance",
+      "expected": "At most six PR association reads and 31 seconds total scheduled waits; current protected main rechecked each attempt.",
+      "test": "tests/test_release_provenance.py::ReleaseProvenance.test_bounded_consistency_and_all_original_negative_qualification_cases"
+    }
+  ],
+  "recovery": "Preserve original failure and all ledgers; exactly one authorized CD correction candidate; stop on mandatory failure.",
+  "test_environment": "MOCKED GitHub API fixture, injected no-op sleep; actual remote release separately verified.",
+  "skill_sources": [
+    "skills/gh-fix-ci/SKILL.md",
+    "skills/github-actions-hardening/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent adversarial review: bounded read-only consistency retry; no privilege, trigger, gate or artifact acceptance change. Not independent scientific review."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "Actual offline Python wrapper executes18Node protocol cases; RED failure and GREEN, not live GitHub proof.",
+    "red": {
+      "path": "docs/qa/evidence/cd-consistency-6.5.13/red.json",
+      "sha256": "f6c12c19fb657c1659f5df551b929c9611329253143142d12ea457fb5eeeedfb",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/cd-consistency-6.5.13/green.json",
+      "sha256": "7bcf2655da4c32d333c6a14d048075f40afa25e941f3fe07c0b33bbbd565bc18",
+      "exit_code": 0
+    }
+  }
+}

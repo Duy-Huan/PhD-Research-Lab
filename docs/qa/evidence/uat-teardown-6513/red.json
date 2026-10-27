@@ -1,0 +1,29 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_native_workflow_browser_oracle_retains_actual_cpu_artifacts_without_model",
+      "status": "FAIL",
+      "duration": 34.9892,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\browser_acceptance_integration.py\", line 92, in test_native_workflow_browser_oracle_retains_actual_cpu_artifacts_without_model\n    self._browser_journey_without_model('workflow-operations',\"\"\"\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\browser_acceptance_integration.py\", line 74, in _browser_journey_without_model\n    self.assertLess(time.monotonic()-finishing,10,'Owned browser teardown exceeded 10s; see '+str(out))\nAssertionError: 29.93699999997625 not less than 10 : Owned browser teardown exceeded 10s; see D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\uat-journey-selftest\\20261027T024725-bb026383f32f4ba9b54dfe68be0d4aea\n"
+    },
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_failure_recovery_browser_oracle_requires_observed_fault_and_real_reload",
+      "status": "FAIL",
+      "duration": 33.4931,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\browser_acceptance_integration.py\", line 84, in test_failure_recovery_browser_oracle_requires_observed_fault_and_real_reload\n    self._browser_journey_without_model('failure-recovery',\"\"\"\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\browser_acceptance_integration.py\", line 74, in _browser_journey_without_model\n    self.assertLess(time.monotonic()-finishing,10,'Owned browser teardown exceeded 10s; see '+str(out))\nAssertionError: 29.79700000002049 not less than 10 : Owned browser teardown exceeded 10s; see D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\uat-journey-selftest\\20261027T024800-a744e7d577284b7ebcf6e4ed31867acb\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 2,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-cis2f1ty",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

@@ -115,6 +115,15 @@
           "result": "BOTH_SUCCESS",
           "native_promotion": "BLOCKED: GitHub CLEAN PR rejects enablePullRequestAutoMerge"
         }
+      },
+      {
+        "id": "OWNER-20261027-ONE-CD-CYCLE",
+        "additional_cycles": 1,
+        "owner_reply": "Cho phép thêm 1 chu kỳ CD",
+        "status": "RESERVED",
+        "candidate_cycles_used": 1,
+        "original_attempts": 4,
+        "scope": "Bounded 31-second merged-PR provenance consistency read; unchanged protected current main, latest exact QA gates and same-tree proof. Version6.5.13 because6.5.12 published immutable. One candidate only; stop on failure, retain all earlier observations and UAT ledger."
       }
     ],
     "owner_followups": [
@@ -130,5 +139,29 @@
         "budget_basis": "Latest explicit owner follow-up requests condition correction after continued web failure; previous4observations and consumed one-cycle grant are preserved. One confirmed API correction candidate, no counter reset or native AI repair invocation."
       }
     ]
+  },
+  "TASK-UAT-TEARDOWN-6513": {
+    "attempts": 1,
+    "history": [
+      {
+        "sha": "57bac70d7edf0ba4d64848cb6302d5a503e1ecbd47f75c514289ad362fe64e7a",
+        "status": "FAIL",
+        "evidence": "output/playwright/cd-consistency-6513/pr/report.json",
+        "observation": "browser_acceptance_integration workflow-operations: owned browser finish exceeded 30s; journey evidence PASS 7/7; trace written; node stayed alive ~29s after trace because proxied SSE upstream requests outlive closed downstream connections until their 30s socket timeout. 3 isolated reruns PASS at ~35s total (near-boundary)."
+      },
+      {
+        "sha": "9aac715ef8f3bf1bc48db9597788560a20ce63ddbe8ce5d1cb526b8a253e0028",
+        "status": "PASS",
+        "evidence": "docs/qa/evidence/uat-teardown-6513/green.json",
+        "observation": "Targeted REAL_LOCAL GREEN 2/2 (teardown 8.7s and 4.5s, was 35.0s/33.5s RED with stricter 10s assertion). Full quick/feature/pr rerun pending."
+      },
+      {
+        "sha": "9aac715ef8f3bf1bc48db9597788560a20ce63ddbe8ce5d1cb526b8a253e0028",
+        "status": "PASS",
+        "evidence": "output/playwright/cd-consistency-6513/pr-2/report.json",
+        "observation": "Full frozen-source quick1240/feature1275/pr1275 PASS including both bounded-teardown browser journeys."
+      }
+    ],
+    "note": "Owner chat 2026-10-27 authorized repairing this new mandatory failure inside the 6.5.13 cycle; max three cycles; no timeout/assertion relaxation."
   }
 }
