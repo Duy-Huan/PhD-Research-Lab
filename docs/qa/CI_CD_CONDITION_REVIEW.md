@@ -39,3 +39,8 @@ Original three failed CI observations and the owner-granted additional cycle rem
 ## Current-source local qualification
 
 Quick1239/1239, feature1274/1274 and pr/all1274/1274 PASS, source stable, zero FAIL/ERROR/SKIP/NOT_RUN/BLOCKED. Controlled Node49/49PASS. Backend1022, frontend217, real-local boundary6,2D28 and WebGL3D1. Python23693/26679lines and7118/8958branches, combined86.46%; frontend2523/3818lines and2754/4218branches. Coverage100% is not achieved. Two live-provider cases remain NOT_RUN. Exact fresh GitHub CI, actual protected PR merges/main containment and matching main CD are required next; the existing5c CI success is not reused for changed code.
+
+
+## CD provenance consistency correction6.5.13
+
+Actual protected PR14/15 merged and6.5.12 tag targets main73e35da. Initial CD40429712059 rejected PR provenance8seconds after merge; later API returns matching PR15 and same-source recovery40430420830 passed and published. Delayed association indexing is an inference: failed-time response body was not logged. The new bounded qualifier permits6reads with1/2/4/8/16-second waits, rechecks current protected main each attempt and preserves every QA/source/tree condition. Permanent absence or changed/unprotected main fails closed. Controlled offline18release tests plus other policy suites total52PASS; not live/scientific proof. Exactly one extra owner-authorized CD correction candidate, all original ledgers retained. New independent CI and actual automatic release are still required.

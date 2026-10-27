@@ -1,0 +1,14 @@
+{
+  "sha": "73e35dabe289401135b537959657884fed9bc5ee",
+  "associated_prs": [
+    {
+      "number": 15,
+      "state": "closed",
+      "merged_at": "2026-10-27T00:58:06Z",
+      "merge_commit_sha": "73e35dabe289401135b537959657884fed9bc5ee",
+      "base": "main",
+      "head": "qa",
+      "head_repo": "Duy-Huan/PhD-Research-Lab"
+    }
+  ]
+}

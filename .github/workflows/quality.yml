@@ -71,6 +71,9 @@ jobs:
       - run: python -m pip check
       - run: python -m compileall -q backend devtools scripts tools tests
       - name: Complete software regression; informational production coverage
+        # Bounded below the 30m job limit so the always() artifact upload below still preserves
+        # current-test progress and stall stacks if a run hangs (6.5.13 Windows 3.12 timeout left no evidence).
+        timeout-minutes: 24
         env:
           VERIFY_BASE: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
         run: python scripts/verify.py --profile pr --component backend --base "$env:VERIFY_BASE" --out output/playwright/ci/backend

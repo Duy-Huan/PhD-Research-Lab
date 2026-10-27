@@ -1,0 +1,299 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_tool_capability_system.AgentLoop.test_agent_composes_multiple_tools_for_a_new_task",
+      "status": "PASS",
+      "duration": 0.4792,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.AgentLoop.test_agent_discovers_previously_unknown_tool_then_selects_and_uses_it",
+      "status": "PASS",
+      "duration": 0.4649,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.AgentLoop.test_agent_recovers_from_failure_and_switches_tool_when_result_inadequate",
+      "status": "PASS",
+      "duration": 0.4985,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.AgentLoop.test_authorization_boundary_cannot_be_widened_by_model_and_claims_are_verified",
+      "status": "PASS",
+      "duration": 0.222,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.AgentLoop.test_empty_or_truncated_reply_is_not_accepted_as_a_final_answer",
+      "status": "PASS",
+      "duration": 0.197,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.AgentLoop.test_loop_has_no_tool_specific_logic_or_keyword_forcing",
+      "status": "PASS",
+      "duration": 0.1962,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.AgentLoop.test_protocol_errors_step_limit_and_cancellation_are_bounded",
+      "status": "PASS",
+      "duration": 0.3457,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.AgentLoop.test_relabelled_json_fence_is_an_action_but_ordinary_json_is_an_answer",
+      "status": "PASS",
+      "duration": 0.3399,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.ChatAgentMode.test_agent_mode_replaces_keyword_preselection_and_keeps_session_allowlist",
+      "status": "PASS",
+      "duration": 7.8803,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.ChatAgentMode.test_legacy_mode_default_is_unchanged",
+      "status": "PASS",
+      "duration": 0.0855,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.ContainerAdapter.test_container_is_unavailable_without_docker_and_isolated_when_run",
+      "status": "PASS",
+      "duration": 0.0481,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.ExternalMcpAdapter.test_real_loopback_mcp_server_tools_are_discovered_and_called",
+      "status": "PASS",
+      "duration": 0.6163,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.McpRegistryBridge.test_ephemeral_session_grant_and_owner_switch_keep_the_boundary",
+      "status": "PASS",
+      "duration": 0.0904,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.McpRegistryBridge.test_external_client_discovers_and_runs_registry_tools_within_owner_permissions",
+      "status": "PASS",
+      "duration": 0.6044,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.Proposals.test_agent_proposes_and_validates_from_its_loop_without_escalation_or_promotion",
+      "status": "PASS",
+      "duration": 0.6586,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.Proposals.test_proposal_rejects_native_reserved_and_path_escape",
+      "status": "PASS",
+      "duration": 0.0572,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.Proposals.test_propose_validate_promote_rollback_lifecycle",
+      "status": "PASS",
+      "duration": 0.6539,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.Proposals.test_validation_blocked_without_container_and_tamper_after_validation_rejected",
+      "status": "PASS",
+      "duration": 0.1892,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.RegistryDiscovery.test_builtin_tools_are_registered_with_schemas_permissions_and_lazy_summaries",
+      "status": "PASS",
+      "duration": 0.2147,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.RegistryDiscovery.test_manifests_cannot_be_native_override_builtin_or_inject_host_paths",
+      "status": "PASS",
+      "duration": 0.2368,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.RegistryDiscovery.test_new_manifest_is_discovered_at_runtime_and_ranked_by_capability_search",
+      "status": "PASS",
+      "duration": 0.6616,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.RegistryDiscovery.test_unavailable_cli_tool_is_detected_and_reported",
+      "status": "PASS",
+      "duration": 0.3555,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.RegistryDiscovery.test_unknown_tool_error_suggests_similar_tools",
+      "status": "PASS",
+      "duration": 0.1933,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.RegistryDiscovery.test_versions_active_pointer_and_compatibility",
+      "status": "PASS",
+      "duration": 0.1065,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.RuntimeExecution.test_cli_tool_runs_without_shell_and_blocks_option_injection",
+      "status": "PASS",
+      "duration": 0.1571,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.RuntimeExecution.test_execution_failure_is_structured_and_not_reported_as_success",
+      "status": "PASS",
+      "duration": 0.1496,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.RuntimeExecution.test_invalid_arguments_fail_before_execution_with_actionable_paths",
+      "status": "PASS",
+      "duration": 0.0541,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.RuntimeExecution.test_native_builtin_tool_executes_through_unified_runtime",
+      "status": "PASS",
+      "duration": 0.1297,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.RuntimeExecution.test_output_budget_and_provenance_tamper_detection",
+      "status": "PASS",
+      "duration": 0.2722,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.RuntimeExecution.test_output_schema_violation_is_rejected",
+      "status": "PASS",
+      "duration": 0.1598,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.RuntimeExecution.test_permissions_allowlist_mutation_and_budgets_are_enforced_and_traced",
+      "status": "PASS",
+      "duration": 0.2746,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.RuntimeExecution.test_python_tool_executes_streams_observations_and_records_provenance",
+      "status": "PASS",
+      "duration": 0.1619,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.RuntimeExecution.test_replay_reproduces_deterministic_result",
+      "status": "PASS",
+      "duration": 0.2691,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.RuntimeExecution.test_retry_only_for_retryable_idempotent_failures",
+      "status": "PASS",
+      "duration": 2.1858,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.RuntimeExecution.test_timeout_kills_process_and_cancellation_stops_async_job",
+      "status": "PASS",
+      "duration": 1.1917,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.SchemaAndSpec.test_pydantic_refs_and_anyof_are_validated",
+      "status": "PASS",
+      "duration": 0.0256,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.SchemaAndSpec.test_validation_reports_paths_and_rejects_unknown_keywords",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.SchemaAndSpec.test_versions_and_constraints",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_tool_capability_system.ToolsApi.test_http_discovery_invocation_job_and_provenance_routes",
+      "status": "PASS",
+      "duration": 6.0163,
+      "details": null
+    },
+    {
+      "id": "test_google_mcp_isolation.ColabIsolation.test_colab_bridge_runs_in_isolated_folder_without_credentials_and_tracks_list_changed",
+      "status": "PASS",
+      "duration": 0.7788,
+      "details": null
+    },
+    {
+      "id": "test_google_mcp_isolation.ColabIsolation.test_disabled_or_missing_colab_is_unavailable_not_success",
+      "status": "PASS",
+      "duration": 0.0904,
+      "details": null
+    },
+    {
+      "id": "test_google_mcp_isolation.DriveFolderGuard.test_only_policy_tools_are_exposed_and_token_is_used",
+      "status": "PASS",
+      "duration": 0.6697,
+      "details": null
+    },
+    {
+      "id": "test_google_mcp_isolation.DriveFolderGuard.test_reads_inside_folder_including_nested_and_refuses_outside",
+      "status": "PASS",
+      "duration": 0.8201,
+      "details": null
+    },
+    {
+      "id": "test_google_mcp_isolation.DriveFolderGuard.test_search_is_filtered_and_create_copy_are_forced_into_folder",
+      "status": "PASS",
+      "duration": 0.8841,
+      "details": null
+    },
+    {
+      "id": "test_google_mcp_isolation.DriveFolderGuard.test_unverifiable_shapes_fail_closed_and_manifests_cannot_borrow_the_token",
+      "status": "PASS",
+      "duration": 0.7107,
+      "details": null
+    },
+    {
+      "id": "test_google_mcp_isolation.GoogleSettings.test_oauth_pkce_state_and_token_refresh",
+      "status": "PASS",
+      "duration": 0.1428,
+      "details": null
+    },
+    {
+      "id": "test_google_mcp_isolation.GoogleSettings.test_options_are_off_by_default_and_drive_requires_dedicated_folder_and_google_endpoint",
+      "status": "PASS",
+      "duration": 0.1011,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 47,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-oqf5knkg",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

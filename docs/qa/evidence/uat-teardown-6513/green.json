@@ -1,0 +1,29 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_native_workflow_browser_oracle_retains_actual_cpu_artifacts_without_model",
+      "status": "PASS",
+      "duration": 8.7277,
+      "details": null
+    },
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_failure_recovery_browser_oracle_requires_observed_fault_and_real_reload",
+      "status": "PASS",
+      "duration": 4.4658,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 2,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-ejwatgkn",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

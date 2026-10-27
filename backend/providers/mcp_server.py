@@ -61,7 +61,16 @@ def _mcfg() -> dict:
 def tool_list() -> list:
     from backend.providers.mcp_tools import listed
     m = _mcfg()
-    return listed(m) + (TOOLS if m.get("expose_sandbox", True) else [])
+    out = listed(m) + (TOOLS if m.get("expose_sandbox", True) else [])
+    if _registry_enabled():  # v6.6.0: the native tool registry for external agent clients
+        from backend.tools.mcp_bridge import TOOLS as BRIDGE
+        out += [{k: v for k, v in t.items() if k != "group"} for t in BRIDGE]
+    return out
+
+
+def _registry_enabled() -> bool:
+    from backend.core.config import load_config
+    return bool((load_config().get("tools") or {}).get("mcp_registry", True))
 
 
 def guard(headers: dict, client: str) -> tuple[int, str]:
@@ -106,6 +115,11 @@ def audit(rec: dict) -> None:
 
 
 def call_tool(name: str, args: dict, client: dict | None = None) -> dict:
+    if name.startswith("phdlab_tools_"):
+        from backend.tools.mcp_bridge import NAMES, call
+        if name in NAMES and _registry_enabled():
+            return call(name, args, client)
+        raise ValueError(f"Unknown tool {name}")
     if name.startswith("research_") or name.startswith("research."):
         from backend.providers.mcp_tools import call
         return call(name, args, client)
@@ -181,10 +195,10 @@ def handle(msg: dict, session: str = "", meta: dict | None = None) -> dict | Non
             res = {"tools": [t for t in tool_list() if not g or t["name"] in g["tools"]]}
         elif method == "tools/call":
             name = str(params.get("name") or "")
-            client = {**SESSIONS.get(session, {"name": "mcp-client"}), "session": session}
+            g = (meta or {}).get("grant")
+            client = {**SESSIONS.get(session, {"name": "mcp-client"}), "session": session, "grant": g}
             t0 = time.perf_counter()
             ok, err = True, ""
-            g = (meta or {}).get("grant")
             try:
                 if g and name not in g["tools"]:  # v4.2: outside the session's MCP allowlist
                     raise PermissionError(f"{name} is not allowed in this AI workspace session")
