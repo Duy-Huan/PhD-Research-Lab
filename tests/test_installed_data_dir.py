@@ -5,6 +5,7 @@ $XDG_DATA_HOME/phdlab or ~/.local/share/phdlab, ~/Library/Application Support/Ph
 The installer build stages the exact qualified archives and merges verified installer records into the manifest."""
 import hashlib
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -111,6 +112,29 @@ class Staging(unittest.TestCase):
         self.assertIn("--hash=sha256:", lock)
         for dev_only in ("coverage==", "ruff==", "pip-audit==", "bandit=="):
             self.assertNotIn(dev_only, lock, "installers ship runtime packages only")
+
+    def test_smoke_stops_every_process_started_from_the_installation(self):
+        # On Windows os.execv starts a new server process and exits, so terminating the launcher can leave the
+        # server running and the uninstaller cannot remove the locked files (CI run 40569790504).
+        install = self.tmp / "install"
+        (install / "bin").mkdir(parents=True)
+        if sys.platform.startswith("win"):
+            import shutil
+            import subprocess
+            exe = install / "bin" / "ping.exe"
+            shutil.copy(Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32" / "PING.EXE", exe)
+            outside = subprocess.Popen(["ping", "-n", "60", "127.0.0.1"], stdout=subprocess.DEVNULL)
+            inside = subprocess.Popen([str(exe), "-n", "60", "127.0.0.1"], stdout=subprocess.DEVNULL)
+            self.addCleanup(outside.kill)
+            self.assertEqual(B.stop_installed_processes(install), [inside.pid])
+            self.assertIsNotNone(inside.wait(timeout=20), "the installed process was stopped")
+            self.assertIsNone(outside.poll(), "processes outside the installation are untouched")
+        else:
+            from unittest import mock
+            with mock.patch.object(B.subprocess, "run") as run, mock.patch.object(B.time, "sleep"):
+                run.return_value.stdout = "101\r\n202\r\n"
+                self.assertEqual(B.stop_installed_processes(install), [101, 202])
+            self.assertEqual(run.call_args.kwargs["env"]["PHDLAB_SMOKE_INSTALL"], str(install.resolve()))
 
 
 if __name__ == "__main__":

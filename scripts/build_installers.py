@@ -234,6 +234,18 @@ def run_installed(command: list[str], env: dict, expect_version: str, data_dir: 
     return info
 
 
+def stop_installed_processes(install_dir: Path) -> list[int]:
+    """Stop every process started from the installation. On Windows os.execv starts a new process and exits, so the
+    server can outlive the launcher the smoke test terminated and keep the installed files locked."""
+    script = ("Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -and $_.ExecutablePath.StartsWith("
+              "$env:PHDLAB_SMOKE_INSTALL, [StringComparison]::OrdinalIgnoreCase) } | "
+              "ForEach-Object { Stop-Process -Id $_.ProcessId -Force; $_.ProcessId }")
+    out = subprocess.run(["powershell", "-NoProfile", "-Command", script], capture_output=True, text=True, timeout=60,
+                         env={**os.environ, "PHDLAB_SMOKE_INSTALL": str(install_dir.resolve())}).stdout
+    time.sleep(2)
+    return [int(x) for x in out.split() if x.isdigit()]
+
+
 def smoke_windows(installer: Path, version: str) -> dict:
     work = Path(tempfile.mkdtemp(prefix="phdlab-winsmoke-"))
     install_dir, local = work / "install", work / "localappdata"
@@ -244,14 +256,18 @@ def smoke_windows(installer: Path, version: str) -> dict:
     env.pop("PHDLAB_DATA_DIR", None)
     info = run_installed([str(install_dir / "python" / "python.exe"), str(install_dir / "app" / "start.py")], env, version,
                          local / "PhDLab", install_dir)
+    stop_installed_processes(install_dir)
     uninstaller = next(install_dir.glob("unins*.exe"))
     subprocess.run([str(uninstaller), "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART"], check=True, timeout=600)
-    for _ in range(60):  # the uninstaller finishes in a detached copy of itself
-        if not (install_dir / "app").exists():
+    left = []
+    for _ in range(180):  # the uninstaller finishes in a detached copy of itself
+        left = [p for p in (install_dir / "app", install_dir / "python") if p.exists()]
+        if not left:
             break
         time.sleep(1)
-    if (install_dir / "app").exists() or (install_dir / "python").exists():
-        raise RuntimeError("Uninstall left the application behind")
+    if left:
+        remaining = [str(p.relative_to(install_dir)) for d in left for p in d.rglob("*") if p.is_file()][:20]
+        raise RuntimeError(f"Uninstall left the application behind: {remaining}")
     if not (local / "PhDLab" / "project_meta.json").is_file():
         raise RuntimeError("Uninstall removed research data")
     return {"installed": True, "health": info, "uninstalled": True, "data_kept": True}
