@@ -1,3 +1,8 @@
+# 6.6.0 on qa; main promotion blocked by Windows CI time budget, measured correction pending gates (2026-10-27)
+
+PR30 dev->qa MERGED as cb9c52f (browser-verified, QA_MERGE_VERIFIED). Required dev-push CI on cb9c52f (run 40453684454) FAILED: Backend windows-latest Python 3.12 runner backend stage hit its 1200s budget after 1066 cases (artifact preserved thanks to the 6.6.0 step bound; no stuck test in stall stacks). Same tree measured 17.7m/18.3m: cumulative runtime at the budget edge. TASK-CI-WIN-HANG-6513 attempt 2; correction backend stage 1500s, step 28m, job 35m (resource bounds only). main still 73e35da. Watcher stopped for the edit; resume after guarded push.
+Official LIVE acceptance on committed cf90c98 (spark-x2.5-4b, reasoning low, pre-registered checks): FAIL - only two measurements (n=1,2), no registry search; reported order 1.98 citing both real succeeded jobs. Report output/playwright/native-tools-660/live-spark-official-1/report.json. Codex BLOCKED (usage limit), Antigravity wrapper BLOCKED by terms.
+
 # 6.6.0 locally qualified (2026-10-27): quick 1287, feature 1322, pr/all 1322 PASS
 
 Frozen source b159143153a37225cea1c686b9ba08f87a397b74604ede4ff18414a79ca9fe34, source_stable true, zero FAIL/ERROR/SKIP/NOT_RUN/BLOCKED; receipt copied to docs/qa/evidence/local-verification/report.json, check PASS. Python 25339/28633 lines, 7615/9624 branches (86.14%); React lines 2523/3818, branches 2754/4218. 100% coverage NOT achieved; live inventory NOT_RUN. Commit includes unpublished 6.5.13 (55852c2 parent), the CI diagnosability step timeout and 6.6.0. Next: guarded push, promote resume + watch, browser/API observation.
