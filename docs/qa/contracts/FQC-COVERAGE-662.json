@@ -1,0 +1,118 @@
+{
+  "id": "FQC-COVERAGE-662",
+  "title": "Behavioural regression tests raising backend coverage toward 100%",
+  "risk": "MEDIUM",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want every backend module exercised by behavioural tests so regressions are caught before release (target 90-100%).",
+  "requirements": [
+    {
+      "id": "COV",
+      "description": "New behavioural tests cover the least-covered modules (launcher, isolated CLI, config, system/tools/harness/intelligence API, Hermes provider and adapter, research jobs, routing, schema, PaperOrchestra dispatch, ChatGPT gateway edges, remote compute, project context) through real code paths; external processes/network only replaced at module boundaries."
+    },
+    {
+      "id": "HARNESS",
+      "description": "A malformed legacy harness graph (non-list nodes/edges) is reported as a failed graph, never a server error."
+    },
+    {
+      "id": "CONTEXT",
+      "description": "Any PDF extraction failure for a selected reference keeps the reference metadata in the conversation context instead of failing the request."
+    }
+  ],
+  "nonfunctional": [
+    "No production file excluded from coverage",
+    "No skipped mandatory cases"
+  ],
+  "inputs": [
+    "Test fixtures in disposable data folders"
+  ],
+  "outputs": [
+    "Coverage report",
+    "Test cases"
+  ],
+  "preconditions": [
+    "Disposable PHDLAB_DATA_DIR"
+  ],
+  "postconditions": [
+    "Researcher data untouched"
+  ],
+  "dependencies": [
+    "tools/backend_quality_gate.py"
+  ],
+  "affected_modules": [
+    "backend/execution/harness.py",
+    "backend/agent/project_context.py",
+    "tests/"
+  ],
+  "acceptance_criteria": [
+    "All new tests PASS",
+    "Malformed harness graph returns status failed",
+    "Broken PDF keeps metadata"
+  ],
+  "scenarios": [
+    {
+      "id": "launcher",
+      "requirement": "COV",
+      "kind": "positive",
+      "expected": "Bundle run completes with receipt and results.zip",
+      "test": "tests/test_remote_runner_bundle.py::RemoteRunner.test_completed_run_collects_artifacts_metrics_and_a_results_zip"
+    },
+    {
+      "id": "import-refusals",
+      "requirement": "COV",
+      "kind": "negative",
+      "expected": "Inconsistent results archives refused",
+      "test": "tests/test_remote_compute_validation.py::Import.test_inconsistent_results_are_refused"
+    },
+    {
+      "id": "config-clamp",
+      "requirement": "COV",
+      "kind": "boundary",
+      "expected": "Hermes limits clamped; 0 means none",
+      "test": "tests/test_config_behaviour.py::SaveAndLoad.test_hermes_limits_are_clamped_and_zero_means_no_limit"
+    },
+    {
+      "id": "hermes-errors",
+      "requirement": "COV",
+      "kind": "failure",
+      "expected": "RPC errors mapped without replay",
+      "test": "tests/test_hermes_rpc_lifecycle.py::Rpc.test_rpc_errors_are_mapped_without_replay"
+    },
+    {
+      "id": "harness-malformed",
+      "requirement": "HARNESS",
+      "kind": "failure",
+      "expected": "Malformed graph reported failed",
+      "test": "tests/test_harness_legacy_and_api.py::HarnessApi.test_execution_routes_and_debugger_actions"
+    },
+    {
+      "id": "pdf-broken",
+      "requirement": "CONTEXT",
+      "kind": "failure",
+      "expected": "Broken PDF keeps metadata with extraction error",
+      "test": "tests/test_project_context_sources.py::Sources.test_reference_sources_with_pdf_text_and_failed_extraction"
+    }
+  ],
+  "recovery": "Revert the test files; TASK-COVERAGE-662, max three cycles.",
+  "test_environment": "Real app/services on disposable project folders; Docker, vendor CLIs, network and model back ends replaced at module boundaries.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 2 ERROR on 28101de (harness 500, PDF stream error). GREEN: 100/100 PASS.",
+    "red": {
+      "path": "docs/qa/evidence/coverage-662/red.json",
+      "sha256": "159228c13b641b9e3532195d792628553b7bc6a0c4d2919930bb9c356cea473d",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/coverage-662/green.json",
+      "sha256": "aa3b862ee102a87646001abb12d6ec538fb3ffcc1c1c0448e1f6158f0be19f52",
+      "exit_code": 0
+    }
+  }
+}

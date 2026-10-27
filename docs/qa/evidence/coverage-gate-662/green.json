@@ -1,0 +1,35 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_coverage_gate.CoverageGate.test_backend_verdict_fails_below_the_minimum_and_without_data",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_coverage_gate.CoverageGate.test_frontend_thresholds_exist_and_never_drop_below_the_6_6_2_baseline",
+      "status": "PASS",
+      "duration": 0.0003,
+      "details": null
+    },
+    {
+      "id": "test_coverage_gate.CoverageGate.test_runner_always_enforces_the_backend_minimum",
+      "status": "PASS",
+      "duration": 0.1221,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 3,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-n3z5qtdu",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

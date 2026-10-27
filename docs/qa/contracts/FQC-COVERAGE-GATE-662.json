@@ -1,0 +1,96 @@
+{
+  "id": "FQC-COVERAGE-GATE-662",
+  "title": "Coverage is a hard gate (backend >= 90%, frontend ratchet)",
+  "risk": "MEDIUM",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want coverage to block a release when it drops, aiming for 100%.",
+  "requirements": [
+    {
+      "id": "GATE",
+      "description": "pr/full/release backend verification fails below 90% combined line+branch coverage; missing data never passes; frontend vitest thresholds ratchet from the 6.6.2 baseline; no production file excluded."
+    }
+  ],
+  "nonfunctional": [
+    "Same threshold on Windows and Linux CI"
+  ],
+  "inputs": [
+    "coverage summary"
+  ],
+  "outputs": [
+    "G9_Coverage PASS/FAIL",
+    "coverage_policy"
+  ],
+  "preconditions": [
+    "Coverage instrumentation available"
+  ],
+  "postconditions": [
+    "Report states the minimum and whether it was met"
+  ],
+  "dependencies": [
+    "coverage",
+    "vitest"
+  ],
+  "affected_modules": [
+    "tools/backend_quality_gate.py",
+    "devtools/verification/runner.py",
+    "frontend/vite.config.ts"
+  ],
+  "acceptance_criteria": [
+    "Below minimum fails",
+    "Runner always passes the minimum",
+    "Frontend thresholds configured"
+  ],
+  "scenarios": [
+    {
+      "id": "pass",
+      "requirement": "GATE",
+      "kind": "positive",
+      "expected": "At the minimum passes",
+      "test": "tests/test_coverage_gate.py::CoverageGate.test_backend_verdict_fails_below_the_minimum_and_without_data"
+    },
+    {
+      "id": "below",
+      "requirement": "GATE",
+      "kind": "boundary",
+      "expected": "89.99 fails at 90",
+      "test": "tests/test_coverage_gate.py::CoverageGate.test_backend_verdict_fails_below_the_minimum_and_without_data"
+    },
+    {
+      "id": "runner",
+      "requirement": "GATE",
+      "kind": "negative",
+      "expected": "Runner never informational; no omit",
+      "test": "tests/test_coverage_gate.py::CoverageGate.test_runner_always_enforces_the_backend_minimum"
+    },
+    {
+      "id": "frontend",
+      "requirement": "GATE",
+      "kind": "failure",
+      "expected": "Thresholds never below baseline",
+      "test": "tests/test_coverage_gate.py::CoverageGate.test_frontend_thresholds_exist_and_never_drop_below_the_6_6_2_baseline"
+    }
+  ],
+  "recovery": "Lower nothing; add tests. TASK-COVERAGE-GATE-662, max three cycles.",
+  "test_environment": "Pure verdict function, runner source and frontend config.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 3 FAIL on 28101de. GREEN: 3/3 PASS.",
+    "red": {
+      "path": "docs/qa/evidence/coverage-gate-662/red.json",
+      "sha256": "fddf97295feb3b7306fde969bc99961993b95bfe1ae1f973d2c7cca6df8ad432",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/coverage-gate-662/green.json",
+      "sha256": "58d0b8426eee9e9aafaefaa80492529870f5b845a8f4edb138eb162151cf8504",
+      "exit_code": 0
+    }
+  }
+}

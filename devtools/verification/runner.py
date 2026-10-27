@@ -18,6 +18,10 @@ from .evidence import aggregate, fingerprints, RepairBudget
 from .selection import changed_files, select
 
 ROOT = Path(__file__).resolve().parents[2]
+# v6.6.2 owner policy (2026-10-27): coverage is a hard gate. Backend: combined line+branch percentage on every CI
+# platform. Frontend: vitest thresholds in frontend/vite.config.ts (a ratchet; raise, never lower). Target is 100%.
+BACKEND_COVERAGE_MIN = 90.0
+FRONTEND_COVERAGE_MIN = 'frontend/vite.config.ts coverage.thresholds'
 
 
 def identity(root: Path) -> dict:
@@ -281,7 +285,8 @@ def main(argv: list[str] | None = None) -> int:
             if args.profile in ('pr', 'full', 'release'):
                 execute('backend', [sys.executable, 'tools/backend_quality_gate.py', '--profile', 'full',
                         '--layer', 'all' if args.profile in ('full','release') else 'software',
-                        '--i-understand-full-suite', '--require-complete', '--output-dir', str(out/'backend')],
+                        '--i-understand-full-suite', '--require-complete', '--coverage-min', str(BACKEND_COVERAGE_MIN),
+                        '--output-dir', str(out/'backend')],
                         timeout=1500)  # measured Windows 3.12 CI 13.7-18.3m; 20m was hit by runner variance (6.6.0)
                 report_path = out/'backend/report.json'
                 if report_path.is_file():
@@ -363,7 +368,8 @@ def main(argv: list[str] | None = None) -> int:
               'separate_live_inventory':{'status':'NOT_RUN','tests':selection.get('separate_live_tests',[]),
                                          'reason':'Legacy external/model tests require separate explicit authorization, model selection and isolated live execution; offline selection never starts them'},
               'counts':{state:sum(c.get('status')==state for c in cases) for state in ('PASS','FAIL','ERROR','SKIP','NOT_RUN','BLOCKED','UNVERIFIED')},
-              'cases':cases, 'coverage':coverage, 'coverage_policy':{'mode':'INFORMATIONAL','percentage_gate':False}, 'root_failures':groups,
+              'cases':cases, 'coverage':coverage, 'coverage_policy':{'mode':'GATE','percentage_gate':True,'backend_minimum_percent':BACKEND_COVERAGE_MIN,
+                                   'frontend_minimum':FRONTEND_COVERAGE_MIN}, 'root_failures':groups,
               'deferred_tests':deferred_tests,
               'limitations':['Quick/feature/targeted are scoped development checks, not release acceptance',
                             'No cached passing result is reused. Incremental selection saves work, never replaces PR/full gates',
