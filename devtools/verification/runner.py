@@ -28,8 +28,8 @@ def identity(root: Path) -> dict:
     """Hash source, tests, contracts, policy, runner and dependency inputs, including dirty files."""
     paths = subprocess.check_output(['git', 'ls-files', '--cached', '--others', '--exclude-standard', '-z'], cwd=root, timeout=30)
     prefixes = ('backend/', 'frontend/src/', 'frontend/e2e/', 'devtools/', 'scripts/', 'tools/',
-                'tests/', '.github/', '.githooks/', 'docs/qa/contracts/', '.codex/', '.agents/', '.claude/', '.gemini/', 'skills/', 'agent/')
-    exact = {'requirements.txt', 'requirements-dev.txt', 'requirements-ci.lock', 'requirements-uat.in', 'requirements-uat.lock', '.coveragerc', '.gitignore', '.gitattributes',
+                'tests/', '.github/', '.githooks/', 'docs/qa/contracts/', 'packaging/', '.codex/', '.agents/', '.claude/', '.gemini/', 'skills/', 'agent/')
+    exact = {'requirements.txt', 'requirements-dev.txt', 'requirements-ci.lock', 'requirements-uat.in', 'requirements-uat.lock', 'requirements-runtime.lock', '.coveragerc', '.gitignore', '.gitattributes',
              'pyproject.toml','pytest.ini','tox.ini','ruff.toml','AGENTS.md',
              'agent/AGENT.md', 'agent/DEVELOPMENT_WORKFLOW.md', 'agent/UAT.md', 'agent/CLI_COMPATIBILITY.md',
              'CLAUDE.md', 'GEMINI.md', 'skills/SOURCES.json', 'docs/qa/KNOWN_ISSUES_BASELINE.json',

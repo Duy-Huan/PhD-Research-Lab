@@ -1,0 +1,12 @@
+Package: phdlab
+Version: @VERSION@
+Section: science
+Priority: optional
+Architecture: amd64
+Depends: python3 (>= 3.11), python3-venv
+Maintainer: PhD Research Lab <noreply@phdlab.invalid>
+Homepage: https://github.com/Duy-Huan/PhD-Research-Lab
+Description: PhD Research Lab - local research workspace
+ Literature, experiments, writing and AI agents for one research project at a
+ time. Research data stays in ~/.local/share/phdlab and in the project folders
+ you choose; removing the package never deletes it.

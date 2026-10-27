@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import sys
 import threading
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -17,12 +18,36 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "6.6.1"
+APP_VERSION = "6.6.2"
 
 ROOT = Path(__file__).resolve().parents[2]
+INSTALL_MARKER = "phdlab-installed.json"  # written by the .exe/.deb installers next to the application
+
+
+def user_data_dir(env=os.environ, system: str = sys.platform) -> Path:
+    """Per-user data folder of an installed copy (v6.6.2): kept when the application is uninstalled or upgraded."""
+    if system.startswith("win"):
+        base = env.get("LOCALAPPDATA") or str(Path.home() / "AppData" / "Local")
+        return Path(base) / "PhDLab"
+    if system == "darwin":
+        return Path.home() / "Library" / "Application Support" / "PhDLab"
+    return Path(env.get("XDG_DATA_HOME") or str(Path.home() / ".local" / "share")) / "phdlab"
+
+
+def default_global_dir(root: Path = ROOT, env=os.environ, system: str = sys.platform) -> Path:
+    """PHDLAB_DATA_DIR wins (tests, portable setups); an installed copy uses the per-user folder, never its install
+    folder; a source checkout keeps <root>/data."""
+    override = env.get("PHDLAB_DATA_DIR", "").strip()
+    if override:
+        return Path(override).resolve()
+    if (root / INSTALL_MARKER).is_file():
+        return user_data_dir(env, system)
+    return root / "data"
+
+
 # PHDLAB_DATA_DIR (v3.2) moves ALL user data elsewhere — used by the test suite so it never touches the real data/.
 _DATA_OVERRIDE = os.environ.get("PHDLAB_DATA_DIR", "").strip()
-GLOBAL_DIR = Path(_DATA_OVERRIDE).resolve() if _DATA_OVERRIDE else ROOT / "data"   # global config + the "Default project"
+GLOBAL_DIR = default_global_dir()   # global config + the "Default project"
 CONFIG_PATH = GLOBAL_DIR / "config.json"
 PROJECTS_ROOT = GLOBAL_DIR / 'projects'  # New paper projects are data, never application source.
 DEFAULT_REFS = GLOBAL_DIR / "references"

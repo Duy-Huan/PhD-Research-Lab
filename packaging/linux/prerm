@@ -1,0 +1,6 @@
+#!/bin/sh
+# Remove only what postinst and the application created inside /opt/phdlab; user data is never touched.
+set -e
+rm -rf /opt/phdlab/venv
+find /opt/phdlab/app -name __pycache__ -type d -prune -exec rm -rf {} + 2>/dev/null || true
+exit 0

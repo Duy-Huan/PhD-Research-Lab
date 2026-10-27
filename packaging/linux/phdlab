@@ -1,0 +1,3 @@
+#!/bin/sh
+# PhD Research Lab launcher (installed by the phdlab .deb). Data: ${XDG_DATA_HOME:-~/.local/share}/phdlab
+exec /opt/phdlab/venv/bin/python /opt/phdlab/app/start.py "$@"

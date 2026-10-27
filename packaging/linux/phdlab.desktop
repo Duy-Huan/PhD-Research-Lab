@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=PhD Research Lab
+Comment=Local research workspace
+Exec=phdlab
+Icon=phdlab
+Terminal=true
+Categories=Science;Education;Office;
