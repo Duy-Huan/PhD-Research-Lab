@@ -301,7 +301,8 @@ def run(sid: str, tid: str, stage: str) -> None:
             except W.WorkspaceError as e:
                 return _fail(sid, tid, str(e), "denied")
             _set(sid, tid, isolation=iso)
-        if not _tools(sid, tid, v):
+        # tool_mode=agent: no keyword pre-selection; the model chooses tools itself inside its loop (_app_agent)
+        if v.get("tool_mode") != "agent" and not _tools(sid, tid, v):
             return
         stage = "after_tools"
     if stage == "after_tools":
@@ -585,7 +586,6 @@ def _cancelled(tid: str) -> bool:
 
 
 def _app(sid, tid, s, t, v):
-    from backend.providers import models as llm
     from backend.core.config import load_config
     system = instructions(s["binding"]["module"], t.get("skill", "")) + "\n" + (t.get("context_text") or "")
     if v["provider"] not in ENGINE and v["provider"] != "app:auto":
@@ -611,8 +611,54 @@ def _app(sid, tid, s, t, v):
     history, history_manifest = _history_packet(s, tid)
     _set(sid, tid, history_manifest=history_manifest)
     msgs = history + [user_msg]
-    out, err = [], ""
     limit = float(load_config()["aiws"].get("max_turn_s") or 900)
+    if v.get("tool_mode") == "agent":
+        return _app_agent(sid, tid, t, v, system, msgs, limit)
+    text, err = _model_text(tid, v, t, system, msgs, limit,
+                            lambda val: store.emit(sid, "message.delta", tid, v["provider"], text=val))
+    return text, err, _cancelled(tid)
+
+
+def _app_agent(sid, tid, t, v, system, msgs, limit):
+    """v6.6.0 tool_mode=agent: the model itself discovers, selects, chains and recovers from registry tools.
+    Authority is the session's MCP allowlist (topic isolation keeps it empty), read-only, bounded calls/time."""
+    from backend.tools import agent_loop
+    from backend.tools.runtime import Grant
+    started = time.monotonic()
+    grant = Grant(principal=f"session:{sid}", tools=mcp_policy.allowed(v["mcp_tools"]), permissions=["read", "network"],
+                  allow_mutation=False, max_calls=12, max_wall_s=max(1.0, limit))
+    errors = []
+
+    def complete(system_text, messages):
+        remaining = limit - (time.monotonic() - started)
+        if remaining <= 0:
+            raise TimeoutError(f"stopped after {limit:g} s (aiws.max_turn_s)")
+        text, err = _model_text(tid, v, t, system + "\n\n" + system_text, msgs[:-1] + messages, remaining, None)
+        if err and not text:
+            errors.append(err)
+            raise RuntimeError(err)
+        return text
+
+    def on_event(kind, data):
+        store.emit(sid, kind, tid, v["provider"], **{k: str(val) for k, val in data.items()})
+    out = agent_loop.run(t["question"], complete, grant, on_event=on_event, cancelled=lambda: _cancelled(tid))
+    _set(sid, tid, tool_loop={"status": out["status"], "steps": out["steps"], "jobs": [j["id"] for j in out["jobs"]],
+                              "verified_evidence": out["verified_evidence"],
+                              "unsupported_claims": out["unsupported_claims"], "grant_id": out["grant_id"]})
+    text = out["answer"]
+    if out["unsupported_claims"]:
+        text += "\n\n> Unverified: " + "; ".join(out["unsupported_claims"])
+    if text:
+        store.emit(sid, "message.delta", tid, v["provider"], text=text)
+    err = "" if out["status"] in ("completed", "cancelled") else (errors[-1] if errors else f"tool loop ended: {out['status']}")
+    return text.strip(), err, _cancelled(tid)
+
+
+def _model_text(tid, v, t, system, msgs, limit, on_delta):
+    """One bounded, cancellable model completion on the app loop; deltas go to `on_delta` when given."""
+    from backend.providers import models as llm
+    from backend.core.config import load_config
+    out, err = [], ""
 
     async def go():
         nonlocal err
@@ -631,7 +677,8 @@ def _app(sid, tid, s, t, v):
                     break
                 if kind == "delta":
                     out.append(val)
-                    store.emit(sid, "message.delta", tid, v["provider"], text=val)
+                    if on_delta:
+                        on_delta(val)
         except llm.LLMError as e:
             err = str(e)
         finally:
@@ -658,7 +705,7 @@ def _app(sid, tid, s, t, v):
                 await asyncio.gather(task, return_exceptions=True)
     from backend.providers.lifecycle import run_on_app_loop
     run_on_app_loop(bounded())
-    return "".join(out).strip(), err, _cancelled(tid)
+    return "".join(out).strip(), err
 
 
 async def _engine_stream(llm, cfg, eng, system, msgs, model):

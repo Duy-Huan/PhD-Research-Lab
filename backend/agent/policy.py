@@ -24,11 +24,11 @@ from backend.agent import AIWSError
 MEMORY_TYPES = ("decision", "finding", "hypothesis", "experiment", "knowledge", "open_question", "rejected_approach")
 CHOICES = {"operating_mode": ("automation", "manual"), "context_mode": ("none", "selected", "relevant", "expanded"),
            "memory_mode": ("off", "manual", "suggest", "auto"), "security_profile": ("review", "assisted"),
-           "reasoning": ("auto", "off", "low", "medium", "high")}
+           "reasoning": ("auto", "off", "low", "medium", "high"), "tool_mode": ("legacy", "agent")}
 BOOLS = ("mcp_auto", "keep_history", "summaries", "collect_artifacts")
 KEYS = ("provider", "model", "reasoning", "context_mode", "memory_mode", "operating_mode", "security_profile",
         "mcp_auto", "mcp_tools", "auto_memory_types", "keep_history", "summaries", "collect_artifacts",
-        "context_budget_tokens")
+        "context_budget_tokens", "tool_mode")
 # per-turn shortcuts → the settings they imply (labelled as turn overrides in the UI)
 TURN_FLAGS = {"selected_only": ("context_mode", "selected"), "read_only": ("security_profile", "review"),
               "no_mcp": ("mcp_tools", ["-"]), "no_memory": ("use_memory", False)}
