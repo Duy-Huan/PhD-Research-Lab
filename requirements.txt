@@ -1,5 +1,5 @@
 fastapi>=0.110
-uvicorn>=0.29
+uvicorn>=0.54.0
 httpx>=0.27
 pypdf>=6.21.2
 # Security floors verified by pip-audit; require patched PDF parsing and certificate bundles.
