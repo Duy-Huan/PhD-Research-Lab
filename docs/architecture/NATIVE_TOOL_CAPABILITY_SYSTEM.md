@@ -74,3 +74,22 @@ whose containment cannot be verified is refused. The OAuth token is sent only to
 Limitations, stated plainly: Google's required scopes (`drive.readonly`, `drive.file`) still let the token read the
 whole Drive — the folder boundary is enforced by this application, not by Google. Automated tests use local fixture
 servers; compatibility with Google's live servers must be recorded separately before it is claimed.
+
+## Provider pool (v6.6.1)
+
+`tools.provider_pool` (Settings, owner-configured, empty = off) lists DIFFERENT providers in order, for example
+`["cli:claude_code", "cli:codex", {"provider": "app:gemini", "model": "gemini-3.8-flash"}, {"provider": "app:local", "model": "spark-x2.5-4b"}]`.
+In `tool_mode: "agent"` the loop continues on the next provider only when the current one reports quota or rate-limit
+exhaustion; any other error stays with the model. A provider may appear once (no account rotation) and Antigravity
+cannot be a member (its terms). Exhausted providers rest `pool_cooldown_s` (60-86400 s). Every tool job records its
+`actor` (provider:model) in provenance, and chat records `providers_used` and `mixed_models`. All exhausted ends the
+run BLOCKED.
+
+## Antigravity as an interactive MCP client (v6.6.1)
+
+`POST /api/tools/clients/antigravity/register` writes `{"mcpServers": {"phd-research-lab": {"serverUrl":
+"http://127.0.0.1:<port>/mcp"}}}` into `~/.gemini/config/mcp_config.json` (other servers kept, previous file backed up,
+invalid JSON never overwritten, bearer header only if `mcp.token` is set). Restart Antigravity, choose Gemini 3.8 Flash
+and work in the same project; it reaches the registry through `phdlab_tools_search/describe/call` under
+`tools.mcp_permissions`. `POST /api/tools/clients/antigravity/unregister` removes only this entry.
+

@@ -1,3 +1,7 @@
+# 6.6.1 applied on dev; publishing 6.6.0+6.6.1 together (2026-10-27)
+
+main still 73e35da; qa cb9c52f (6.6.0). CI budget fix 9bbbd44 pushed after pr/all 1322 PASS; its push run had Backend windows 3.12 externally cancelled after 8.4m (unexplained, ledger CANCELLED_EXTERNAL, PR run same SHA PASS); not rerun unchanged. 6.6.1 applied on dev: provider pool (owner-approved option 2), actor attribution, Antigravity MCP client registration; FQC-PROVIDER-POOL-661 RED 10 ERROR -> GREEN 10 PASS. Local gates on the 6.6.1 source: quick 1297 PASS, feature PASS, pr/all 1332 PASS (0 FAIL/ERROR/SKIP). Next: guarded push, re-register controller, single watcher, browser/API verification of dev->qa->main and CD. Then 6.6.2 frontend Tools tab + i18n (owner-approved: remove hardcoded VI/EN in favour of i18next).
+
 # 6.6.0 on qa; main promotion blocked by Windows CI time budget, measured correction pending gates (2026-10-27)
 
 PR30 dev->qa MERGED as cb9c52f (browser-verified, QA_MERGE_VERIFIED). Required dev-push CI on cb9c52f (run 40453684454) FAILED: Backend windows-latest Python 3.12 runner backend stage hit its 1200s budget after 1066 cases (artifact preserved thanks to the 6.6.0 step bound; no stuck test in stall stacks). Same tree measured 17.7m/18.3m: cumulative runtime at the budget edge. TASK-CI-WIN-HANG-6513 attempt 2; correction backend stage 1500s, step 28m, job 35m (resource bounds only). main still 73e35da. Watcher stopped for the edit; resume after guarded push.

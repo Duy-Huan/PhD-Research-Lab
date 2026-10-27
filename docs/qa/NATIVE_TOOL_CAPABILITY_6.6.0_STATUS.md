@@ -68,7 +68,7 @@ of `tools/tool_agent_acceptance.py` and is reported separately. Software PASS is
 | Agent combines tools for a new task | PASS (software); live NOT VERIFIED | |
 | Agent recovers from tool failure | PASS (software); live NOT VERIFIED | |
 | Agent switches tools when results are inadequate | PASS (software); live NOT VERIFIED | |
-| Agent executes a real scientific experiment | NOT VERIFIED (official) | Pre-commit spark diagnostic executed a real convergence experiment (order 2; independent 1.997) but FAILED the pre-registered `searched_registry` check. Codex BLOCKED (quota), Antigravity wrapper BLOCKED (terms). |
+| Agent executes a real scientific experiment | FAIL (official, spark-x2.5-4b) | Official run on committed cf90c98: real measurements executed and cited, but only 2 points (pre-registered minimum 3) and no registry search. Earlier diagnostic reached order 2 with 3 points. Codex BLOCKED (quota), Antigravity wrapper BLOCKED (terms); other providers NOT RUN. |
 | Tool calls retain authorization boundaries | PASS (software) | Grants, session allowlist, MCP bridge permissions, Drive FolderGuard. |
 | All actions are traceable and reproducible | PASS (software) | Provenance chain + replay. |
 
@@ -86,3 +86,10 @@ Enterprise or Google AI Studio API key for third-party apps. Compliant routes: (
 Settings → Providers → Google Gemini (`tool_agent_acceptance.py --provider gemini`); (2) the researcher uses Antigravity
 directly as an MCP client of PhD Lab (register the MCP server), and Gemini reaches the registry through the
 `phdlab_tools_*` meta-tools under PhD Lab permissions.
+
+## v6.6.1 additions
+
+Provider pool failover between different providers on quota/rate limit (FQC-PROVIDER-POOL-661, RED 10 ERROR -> GREEN 10
+PASS, provider calls MOCKED), actor attribution in provenance, and Antigravity registration as a researcher-driven MCP
+client. Real quota messages of each provider and a live Antigravity session remain NOT VERIFIED.
+

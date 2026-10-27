@@ -596,7 +596,8 @@ class AntigravityConnector(CLIConnector):
 
     def setup(self) -> list:
         return ["Install Google Antigravity (https://antigravity.google)", "sign in with your Google account (run `agy` once)",
-                "register the PhD-Lab MCP server (Gateway → Antigravity → Register MCP)"]
+                "register the PhD-Lab MCP server (POST /api/tools/clients/antigravity/register), then use Antigravity "
+                "interactively; it reaches the tool registry through phdlab_tools_search/describe/call"]
 
     def argv(self, context: dict) -> list:
         args = [self.binary(), "--output-format", "stream-json", "--input-format", "stream-json", "--sandbox", "--print="]

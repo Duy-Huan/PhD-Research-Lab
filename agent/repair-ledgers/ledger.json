@@ -178,6 +178,12 @@
         "status": "FAIL",
         "evidence": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40453684454 ; docs/qa/evidence/ci-win-timeout-660/",
         "observation": "With the 6.6.0 diagnosability fix the artifact survived: runner backend stage hit its 1200s budget after 1066 completed cases; last test had just started; stall stacks show no stuck test. Windows 3.12 regression step measured 17.7m and 18.3m on the identical tree (cf90c98) and 20.0m here: cumulative runtime at the budget edge, not a hang. Correction: backend stage 1500s, step 28m, job 35m (resource bounds only; no assertion, threshold or selection change)."
+      },
+      {
+        "sha": "9bbbd4430c20a404f662bbbb8a6d522ca0f656d1",
+        "status": "CANCELLED_EXTERNAL",
+        "evidence": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40460815529/job/122044713772",
+        "observation": "Backend windows-latest Python 3.12 regression step 'The operation was canceled.' after 8.4m (06:33:01Z), far below the 28m step and 25m runner bounds; the always() upload was skipped (whole job cancelled). No concurrent Quality Gates run on refs/heads/dev and no controller cancel logic; the PR run on the same SHA passed. Root cause UNKNOWN (likely hosted runner); not counted as a repair failure, not rerun unchanged. Published 6.6.1 on new source instead."
       }
     ],
     "note": "Correction is diagnosability only: step timeout 24m below the 30m job limit so the always() artifact upload preserves backend-current-test.json and stall-stacks.log. No gate, threshold or assertion relaxed. Published together with 6.6.0 on new source; if the hang recurs the uploaded evidence identifies the test."

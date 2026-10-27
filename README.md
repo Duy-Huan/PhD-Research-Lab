@@ -1,4 +1,4 @@
-# PhD Research Lab - v6.6.0
+# PhD Research Lab - v6.6.1
 
 > PhD Research Lab is an agent-native scientific research environment that provides persistent knowledge, memory, computation, experimentation, collaboration, and verifiable evidence infrastructure, while allowing advanced AI agents to autonomously develop and execute their own research strategies.
 

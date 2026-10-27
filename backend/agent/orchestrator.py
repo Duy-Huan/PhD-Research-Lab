@@ -628,11 +628,20 @@ def _app_agent(sid, tid, t, v, system, msgs, limit):
     grant = Grant(principal=f"session:{sid}", tools=mcp_policy.allowed(v["mcp_tools"]), permissions=["read", "network"],
                   allow_mutation=False, max_calls=12, max_wall_s=max(1.0, limit))
     errors = []
+    from backend.core.config import load_config
+    tools_cfg = load_config().get("tools") or {}
+    pool = None
+    if tools_cfg.get("provider_pool"):  # v6.6.1 owner-approved failover between different providers on quota
+        from backend.tools.provider_pool import ProviderPool, default_call
+        pool = ProviderPool(tools_cfg["provider_pool"], default_call(load_config()),
+                            cooldown_s=float(tools_cfg.get("pool_cooldown_s") or 3600))
 
     def complete(system_text, messages):
         remaining = limit - (time.monotonic() - started)
         if remaining <= 0:
             raise TimeoutError(f"stopped after {limit:g} s (aiws.max_turn_s)")
+        if pool:
+            return pool.complete(system + "\n\n" + system_text, msgs[:-1] + messages)
         text, err = _model_text(tid, v, t, system + "\n\n" + system_text, msgs[:-1] + messages, remaining, None)
         if err and not text:
             errors.append(err)
@@ -641,10 +650,12 @@ def _app_agent(sid, tid, t, v, system, msgs, limit):
 
     def on_event(kind, data):
         store.emit(sid, kind, tid, v["provider"], **{k: str(val) for k, val in data.items()})
-    out = agent_loop.run(t["question"], complete, grant, on_event=on_event, cancelled=lambda: _cancelled(tid))
+    actor = (lambda: "{provider}:{model}".format(**pool.current())) if pool else (lambda: f"{v['provider']}:{v['model']}")
+    out = agent_loop.run(t["question"], complete, grant, on_event=on_event, cancelled=lambda: _cancelled(tid), actor=actor)
     _set(sid, tid, tool_loop={"status": out["status"], "steps": out["steps"], "jobs": [j["id"] for j in out["jobs"]],
                               "verified_evidence": out["verified_evidence"],
-                              "unsupported_claims": out["unsupported_claims"], "grant_id": out["grant_id"]})
+                              "unsupported_claims": out["unsupported_claims"], "grant_id": out["grant_id"],
+                              "providers": pool.summary() if pool else {"providers_used": [v["provider"]], "mixed_models": False}})
     text = out["answer"]
     if out["unsupported_claims"]:
         text += "\n\n> Unverified: " + "; ".join(out["unsupported_claims"])

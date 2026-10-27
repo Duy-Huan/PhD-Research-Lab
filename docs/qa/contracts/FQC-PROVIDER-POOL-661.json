@@ -1,0 +1,168 @@
+{
+  "id": "FQC-PROVIDER-POOL-661",
+  "title": "Provider failover between different providers and researcher-driven Antigravity MCP client registration",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the researcher I keep an agent run going when one subscription hits its quota by continuing on another provider I own, and I can use Antigravity interactively against the same project, without violating any provider's terms.",
+  "requirements": [
+    {
+      "id": "POOL",
+      "description": "Ordered pool of different providers (one account each, no duplicates, Antigravity excluded); failover only on errors classified as quota/rate limit; exhausted providers rest for a bounded cooldown shared across runs; all exhausted is unavailable/BLOCKED."
+    },
+    {
+      "id": "CONT",
+      "description": "The same agent loop continues on the next provider with the identical conversation, jobs and provenance; evidence from earlier providers remains citable."
+    },
+    {
+      "id": "ATTR",
+      "description": "Every tool job and provenance record carries the requesting provider/model (actor); chat tool_loop records providers used and flags mixed-model results."
+    },
+    {
+      "id": "CONF",
+      "description": "Owner config tools.provider_pool/pool_cooldown_s validated on save (duplicates/Antigravity refused); a malformed saved pool disables failover instead of breaking startup."
+    },
+    {
+      "id": "AGY",
+      "description": "Register/unregister PhD Lab in Antigravity's documented MCP config (serverUrl): loopback URL only, other servers preserved, non-empty file backed up, invalid JSON never overwritten, bearer header only when mcp.token is set."
+    }
+  ],
+  "nonfunctional": [
+    "No account rotation and no driving of Antigravity (its terms)",
+    "No new provider credentials; uses existing provider paths",
+    "Pool off by default"
+  ],
+  "inputs": [
+    "tools.provider_pool",
+    "Provider errors",
+    "Antigravity MCP config file"
+  ],
+  "outputs": [
+    "Failover decisions with attribution",
+    "Registered MCP entry"
+  ],
+  "preconditions": [
+    "6.6.0 native tool capability system"
+  ],
+  "postconditions": [
+    "Mixed-model runs are transparent",
+    "Antigravity config preserved"
+  ],
+  "dependencies": [
+    "backend.tools.agent_loop/runtime",
+    "backend.providers.models paths",
+    "Antigravity mcp_config.json format (official docs)"
+  ],
+  "affected_modules": [
+    "backend/tools/provider_pool.py",
+    "backend/tools/mcp_clients.py",
+    "backend/tools/runtime.py",
+    "backend/tools/agent_loop.py",
+    "backend/agent/orchestrator.py",
+    "backend/core/config.py",
+    "backend/api/tools.py",
+    "backend/providers/cli.py",
+    "tools/tool_agent_acceptance.py"
+  ],
+  "acceptance_criteria": [
+    "Quota failover continues the same run with attribution",
+    "Account rotation and Antigravity refused",
+    "Antigravity registration safe for existing config"
+  ],
+  "scenarios": [
+    {
+      "id": "rules",
+      "requirement": "POOL",
+      "kind": "negative",
+      "expected": "Duplicates, Antigravity, invalid ids and empty pools refused",
+      "test": "tests/test_provider_pool.py::PoolRules.test_pool_rotates_providers_never_accounts_and_excludes_antigravity"
+    },
+    {
+      "id": "quota-only",
+      "requirement": "POOL",
+      "kind": "boundary",
+      "expected": "Only quota errors fail over; cooldown bounded",
+      "test": "tests/test_provider_pool.py::PoolRules.test_only_quota_errors_fail_over_and_exhausted_providers_rest"
+    },
+    {
+      "id": "exhausted",
+      "requirement": "POOL",
+      "kind": "failure",
+      "expected": "All exhausted raises unavailable",
+      "test": "tests/test_provider_pool.py::PoolRules.test_all_exhausted_is_unavailable_not_success"
+    },
+    {
+      "id": "shared-rest",
+      "requirement": "POOL",
+      "kind": "performance",
+      "expected": "Exhausted provider skipped without a call in later runs",
+      "test": "tests/test_provider_pool.py::PoolRules.test_quota_knowledge_is_shared_across_runs"
+    },
+    {
+      "id": "continuity",
+      "requirement": "CONT",
+      "kind": "positive",
+      "expected": "Second provider sees full conversation and cites first provider's job",
+      "test": "tests/test_provider_pool.py::LoopContinuity.test_agent_loop_continues_the_same_research_on_the_next_provider"
+    },
+    {
+      "id": "paths",
+      "requirement": "CONT",
+      "kind": "positive",
+      "expected": "Members routed through existing CLI/local/cloud provider paths (MOCKED calls)",
+      "test": "tests/test_provider_pool.py::LoopContinuity.test_default_call_uses_existing_provider_paths"
+    },
+    {
+      "id": "config",
+      "requirement": "CONF",
+      "kind": "security",
+      "expected": "Config refuses account rotation and Antigravity; cooldown bounded",
+      "test": "tests/test_provider_pool.py::Integration.test_owner_config_rejects_account_rotation_and_antigravity"
+    },
+    {
+      "id": "chat-attr",
+      "requirement": "ATTR",
+      "kind": "positive",
+      "expected": "Chat agent mode fails over and attributes job and provenance actor",
+      "test": "tests/test_provider_pool.py::Integration.test_chat_agent_mode_fails_over_and_attributes_each_tool_call"
+    },
+    {
+      "id": "agy-register",
+      "requirement": "AGY",
+      "kind": "positive",
+      "expected": "Merge, preserve, back up, token header, unregister only ours",
+      "test": "tests/test_mcp_clients.py::AntigravityRegistration.test_register_merges_preserves_other_servers_backs_up_and_unregisters_only_ours"
+    },
+    {
+      "id": "agy-refuse",
+      "requirement": "AGY",
+      "kind": "security",
+      "expected": "Invalid JSON untouched; non-loopback URLs refused",
+      "test": "tests/test_mcp_clients.py::AntigravityRegistration.test_invalid_existing_file_and_non_local_urls_are_refused"
+    }
+  ],
+  "recovery": "Pool empty by default; unregister Antigravity entry via API; max three repair cycles under TASK-PROVIDER-POOL-661.",
+  "test_environment": "Provider calls MOCKED (scripted members); agent loop, runtime, registry, sessions/orchestrator and config are real in disposable data; Antigravity config on a temporary path. Real provider quota messages require live runs.",
+  "skill_sources": [
+    "skills/ai-agents-architect/SKILL.md",
+    "skills/mcp-builder/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent): terms constraints (no account rotation, no Antigravity driving), failure classification breadth, startup robustness of saved config, client config preservation."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: same modules on committed 6.6.0 (cf90c98) archive copy without the implementation: 10/10 ERROR. GREEN: dev worktree with implementation: 10/10 PASS. Provider calls MOCKED.",
+    "red": {
+      "path": "docs/qa/evidence/provider-pool-661/red.json",
+      "sha256": "f7e83dac1570afec9b0a600dc446682cadbb52f280622404dcfc0b29abcf827e",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/provider-pool-661/green.json",
+      "sha256": "a99cff5256724df480b9a96f4e970827e147dcb26edc20dd72d8b2f794b6493d",
+      "exit_code": 0
+    }
+  }
+}
