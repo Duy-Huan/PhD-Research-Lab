@@ -205,5 +205,29 @@
       }
     ],
     "note": "Owner-authorized root-cause fix of TASK-CI-WIN-HANG-6513; max three cycles."
+  },
+  "TASK-GATEWAY-DURABLE-661": {
+    "attempts": 1,
+    "history": [
+      {
+        "sha": "09f6817eba8f14834175e21fab23a67ecd6c2067",
+        "status": "FAIL",
+        "evidence": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40489502869/job/122139575045",
+        "observation": "Windows 3.12 push run (no hang; finished in 17m with artifact): 1090 PASS, 1 FAIL test_native_coding_artifacts...test_partial_answer_with_error_cannot_become_a_completed_research_step: request file status ready != failed. Pre-existing race: gateway worker published the terminal status in memory before persisting it."
+      }
+    ],
+    "note": "Owner instructed a root-cause fix (2026-10-27). Fix: terminal updates persisted before publication (_finish). Max three cycles."
+  },
+  "TASK-ENGINE-DEADLINE-661": {
+    "attempts": 1,
+    "history": [
+      {
+        "sha": "734de4632f1490f08ed1c3d8ae28b376a0f83da8",
+        "status": "FAIL",
+        "evidence": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40494229852",
+        "observation": "PR run Windows 3.12: 1091 PASS, 1 FAIL test_research_engines...test_deadline_cancels_the_actual_coroutine_instead_of_replaying ([] != [True]); the push run of the same SHA passed all jobs. 20 ms task deadline includes setup, so a slow runner timed out before dispatch. Test-timing defect; product correct."
+      }
+    ],
+    "note": "Owner instructed root-cause fixes (2026-10-27). Max three cycles."
   }
 }

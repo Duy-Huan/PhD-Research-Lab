@@ -1,0 +1,92 @@
+{
+  "id": "FQC-GATEWAY-DURABLE-661",
+  "title": "Gateway terminal status becomes visible only after it is durable",
+  "risk": "MEDIUM",
+  "mode": "REAL_LOCAL",
+  "user_story": "As a researcher (and CI) I must never see a provider request reported failed/completed while its durable record still says ready/running, so restarts, the API and research steps agree.",
+  "requirements": [
+    {
+      "id": "DURABLE",
+      "description": "Every terminal gateway update (worker completion, worker crash, refusal, prelaunch failure, ready-cancel) is persisted before it is published on the shared in-memory record."
+    }
+  ],
+  "nonfunctional": [
+    "No change to statuses, errors or answers produced",
+    "No test, assertion or threshold relaxed"
+  ],
+  "inputs": [
+    "Provider stream events"
+  ],
+  "outputs": [
+    "Durable request record consistent with readers"
+  ],
+  "preconditions": [
+    "Gateway request prepared"
+  ],
+  "postconditions": [
+    "Disk and memory agree whenever a terminal status is observed"
+  ],
+  "dependencies": [
+    "backend.providers.gateway._persist"
+  ],
+  "affected_modules": [
+    "backend/providers/gateway.py"
+  ],
+  "acceptance_criteria": [
+    "Reader never observes a terminal status absent from disk under a slow write",
+    "Existing gateway behaviour unchanged"
+  ],
+  "scenarios": [
+    {
+      "id": "slow-write",
+      "requirement": "DURABLE",
+      "kind": "failure",
+      "expected": "With a 0.4 s terminal write, the first terminal status a reader sees is already on disk",
+      "test": "tests/test_native_coding_artifacts.py::CodingGateway.test_terminal_status_is_durable_before_any_reader_can_observe_it"
+    },
+    {
+      "id": "partial-error",
+      "requirement": "DURABLE",
+      "kind": "negative",
+      "expected": "Partial answer with error is a failed durable request",
+      "test": "tests/test_native_coding_artifacts.py::CodingGateway.test_partial_answer_with_error_cannot_become_a_completed_research_step"
+    },
+    {
+      "id": "completed",
+      "requirement": "DURABLE",
+      "kind": "positive",
+      "expected": "Successful coding task records completed",
+      "test": "tests/test_native_coding_artifacts.py::CodingGateway.test_coding_task_uses_gateway_and_returns_the_actual_project_output"
+    },
+    {
+      "id": "session-collision",
+      "requirement": "DURABLE",
+      "kind": "boundary",
+      "expected": "Existing session history is never overwritten",
+      "test": "tests/test_native_coding_artifacts.py::CodingGateway.test_session_identity_collision_cannot_overwrite_an_existing_conversation"
+    }
+  ],
+  "recovery": "Revert gateway._finish and the final-status local in _run_inner. TASK-GATEWAY-DURABLE-661, max three cycles.",
+  "test_environment": "Real gateway, files and threads in disposable data; vendor transport is a scripted fixture.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent): every terminal write path, cancel interplay, readers polling get()."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: committed gateway (HEAD) with the new test: 1/1 FAIL [(failed, ready)]. GREEN: fixed gateway: 1/1 PASS.",
+    "red": {
+      "path": "docs/qa/evidence/gateway-durable-661/red.json",
+      "sha256": "82c3b7bc5885b5de90fb82ecf7a8658c6a0ca60a2871aad790f8ce4f771a64c5",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/gateway-durable-661/green.json",
+      "sha256": "e8cfe3ce9b5641eb16cc6581aa6b6010b8b7acb9828fcdd1d5e6c81437a0520c",
+      "exit_code": 0
+    }
+  }
+}

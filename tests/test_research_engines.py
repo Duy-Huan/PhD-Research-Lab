@@ -77,13 +77,17 @@ class NativeConformance(unittest.TestCase):
             self.assertFalse(target.exists())
 
     def test_deadline_cancels_the_actual_coroutine_instead_of_replaying(self):
-        cancelled=[]
+        started,cancelled=[],[]
         async def slow(*args,**kwargs):
+            started.append(True)
             try:await asyncio.sleep(10)
             finally:cancelled.append(True)
+        # The deadline covers setup too; 20 ms let slow Windows CI time out before dispatch, so the coroutine never
+        # ran (FQC-ENGINE-DEADLINE-661). 1 s guarantees dispatch; the 10 s model call must still be cancelled.
         with patch('backend.providers.models.call_agent',side_effect=slow) as model:
-            with self.assertRaises(EngineFailure) as caught:self.engine.execute(self.task(time_limit_s=.02),lambda e:None,lambda:False)
+            with self.assertRaises(EngineFailure) as caught:self.engine.execute(self.task(time_limit_s=1),lambda e:None,lambda:False)
         self.assertEqual(caught.exception.kind,'timeout')
+        self.assertEqual(started,[True],'the model coroutine was actually dispatched')
         self.assertEqual(cancelled,[True]);self.assertEqual(model.call_count,1)
         self.assertFalse((self.task().output_dir/'phdlab_research_report.md').exists())
 

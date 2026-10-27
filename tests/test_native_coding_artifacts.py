@@ -106,6 +106,37 @@ class CodingGateway(unittest.TestCase):
         self.assertEqual(actual['answer'],'Retained partial observation')
         self.assertFalse((config.data_dir()/'outputs').exists())
 
+    def test_terminal_status_is_durable_before_any_reader_can_observe_it(self):
+        # FQC-GATEWAY-DURABLE-661: Windows 3.12 CI saw run_coding fail on status 'failed' while the request file
+        # still said 'ready'. A slow disk write is simulated; every terminal status a reader sees must be on disk.
+        import json, threading, time
+        class Fixture(FixtureConnector):
+            def stream_message(self,message,context):
+                yield {'type':'text_delta','text':'partial'}
+                yield {'type':'error','message':'Controlled provider quota failure'}
+                yield {'type':'request_completed','exit_code':1}
+        real_persist=gateway._persist
+        def slow_persist(record):
+            if record.get('status') in ('failed','completed','cancelled') or record.get('ended'):
+                time.sleep(0.4)
+            real_persist(record)
+        mismatches=[];seen=None
+        with patch.dict(cli.CONNECTORS,{'codex':Fixture()}), patch.object(gateway,'_persist',slow_persist):
+            request=gateway.prepare('Controlled question','codex',profile='review',memory=False)
+            gateway.send(request['id'])
+            deadline=time.monotonic()+20
+            while time.monotonic()<deadline:
+                seen=gateway.get(request['id'])['status']
+                if seen in ('failed','completed','cancelled'):
+                    on_disk=json.loads((config.data_dir()/'gateway/requests'/f"{request['id']}.json").read_text('utf-8'))
+                    if on_disk['status']!=seen:mismatches.append((seen,on_disk['status']))
+                    break
+                time.sleep(0.005)
+            thread=gateway.REQS[request['id']].get('thread')
+            if isinstance(thread,threading.Thread):thread.join(10)
+        self.assertEqual(seen,'failed')
+        self.assertEqual(mismatches,[],'a reader saw a terminal status the durable record did not yet contain')
+
     def test_native_materialization_uses_actual_file_bytes_and_keeps_experiment_path_once(self):
         from backend.agent import runs
         from backend.execution import code_projects

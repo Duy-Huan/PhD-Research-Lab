@@ -1,0 +1,23 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_research_engines.NativeConformance.test_deadline_cancels_the_actual_coroutine_instead_of_replaying",
+      "status": "FAIL",
+      "duration": 0.2302,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_research_engines.py\", line 87, in test_deadline_cancels_the_actual_coroutine_instead_of_replaying\n    self.assertEqual(cancelled,[True]);self.assertEqual(model.call_count,1)\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Lists differ: [] != [True]\n\nSecond list contains 1 additional elements.\nFirst extra element 0:\nTrue\n\n- []\n+ [True]\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 1,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-ojcxn5m0",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}
