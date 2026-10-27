@@ -41,7 +41,6 @@ class DescendantSelection(Base):
         self.assertEqual(select_descendants(1, 5, {2: 1, 3: 2}, {3: 9}.get), [])
 
 
-@unittest.skipUnless(sys.platform.startswith("win"), "Windows process identity")
 class RealWindowsTree(Base):
     def test_owned_tree_stops_and_bystander_survives(self):
         bystander = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"])
@@ -59,15 +58,23 @@ class RealWindowsTree(Base):
             time.sleep(0.05)
         child = int(marker.read_text())
         stop_tree(owned)
-        owned.wait(10)
-        import ctypes
-        k = ctypes.WinDLL("kernel32")
-        handle = k.OpenProcess(0x100000, False, child)  # SYNCHRONIZE
-        alive = bool(handle) and k.WaitForSingleObject(handle, 3000) != 0
-        if handle:
-            k.CloseHandle(handle)
-        self.assertFalse(alive, "the owned grandchild is stopped")
+        self.assertIsNotNone(owned.wait(10), "the owned process is stopped on every platform")
         self.assertIsNone(bystander.poll(), "an unrelated process survives")
+        if sys.platform.startswith("win"):  # the identity-checked tree walk is Windows-only; POSIX uses process groups
+            import ctypes
+            k = ctypes.WinDLL("kernel32")
+            handle = k.OpenProcess(0x100000, False, child)  # SYNCHRONIZE
+            alive = bool(handle) and k.WaitForSingleObject(handle, 3000) != 0
+            if handle:
+                k.CloseHandle(handle)
+            self.assertFalse(alive, "the owned grandchild is stopped")
+        else:
+            import os
+            import signal
+            try:
+                os.kill(child, signal.SIGKILL)  # our own leftover grandchild; this test started it
+            except ProcessLookupError:
+                pass
 
 
 class NoUnsafeTreeKill(Base):

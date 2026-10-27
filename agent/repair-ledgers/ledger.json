@@ -193,5 +193,17 @@
       }
     ],
     "note": "Attempt 3 of 3. Root cause (owner-authorized fix 2026-10-27): Windows cancellation walked ParentProcessId (stop_descendants) and taskkill /T, which follow reused parent PIDs into unrelated long-lived processes; killing the GitHub runner explains jobs dying with no log, no artifact and no in-job timeout firing. Fix: identity-checked stop_tree (creation-time rule, same-handle kill), taskkill /T removed (FQC-PROCESS-TREE-661). Safety net: CI watchdog with heartbeats and evidence upload (FQC-CI-WATCHDOG-661). No gate, threshold, assertion or selection relaxed. Confirmation requires the next Windows 3.12 push run; if it recurs, escalate to the owner with the evidence."
+  },
+  "TASK-PROCESS-TREE-661": {
+    "attempts": 1,
+    "history": [
+      {
+        "sha": "f756cc6782360eb210ad88e59ddf5694342d1415",
+        "status": "FAIL",
+        "evidence": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40481197861",
+        "observation": "Windows 3.11 and 3.12 backend PASS (first Windows 3.12 push run to pass since the hang began). Ubuntu 3.11/3.12 FAIL only because RealWindowsTree was skipped on Linux (1 SKIP, 0 FAIL); mandatory gates reject SKIP. Fix: the real-process test runs on every platform; the grandchild assertion applies on Windows only."
+      }
+    ],
+    "note": "Owner-authorized root-cause fix of TASK-CI-WIN-HANG-6513; max three cycles."
   }
 }

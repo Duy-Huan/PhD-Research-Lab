@@ -96,7 +96,7 @@
     }
   ],
   "recovery": "Revert processes.py and the four call sites. TASK-CI-WIN-HANG-6513 (owner-authorized root-cause fix 2026-10-27).",
-  "test_environment": "Real Windows processes on the local host plus deterministic snapshot selection; GitHub runner effect is verified only by the next push run.",
+  "test_environment": "Real processes on every platform (owned stop + bystander survival); grandchild tree stop asserted on Windows, where the identity-checked walk applies; deterministic snapshot selection everywhere.",
   "skill_sources": [
     "skills/SOURCES.json"
   ],
@@ -114,7 +114,7 @@
     },
     "green": {
       "path": "docs/qa/evidence/process-tree-661/green.json",
-      "sha256": "7331d713e01e0c8df51de6d9b81e51a26d0c04861150cbe31d8edfbce48d776e",
+      "sha256": "2cf776d3a03e5a32c06563357b8fd5c4717097c9a14a8f2270dcfc6c8f1a2246",
       "exit_code": 0
     }
   }
