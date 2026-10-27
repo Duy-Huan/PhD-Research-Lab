@@ -949,16 +949,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
         </button>
 
 
-        <button className="btn sm ghost" onClick={() => openSettings('models')}>
+        <button className="btn sm ghost" onClick={() => openSettings('models')} style={{ justifyContent: 'flex-start', padding: '6px 10px', borderRadius: 8, gap: 8 }}>
           <Cpu size={14} /> {t('Mô hình & kết nối AI', 'Models & AI connections')}
         </button>
-        <button className="btn sm ghost" onClick={() => openDrawer('code')}>
+        <button className="btn sm ghost" onClick={() => openDrawer('code')} style={{ justifyContent: 'flex-start', padding: '6px 10px', borderRadius: 8, gap: 8 }}>
           <Terminal size={14} /> {t('Code và thí nghiệm native', 'Native code & experiments')}
         </button>
-        <button className="btn sm ghost" onClick={() => openDrawer('paper')}>
+        <button className="btn sm ghost" onClick={() => openDrawer('paper')} style={{ justifyContent: 'flex-start', padding: '6px 10px', borderRadius: 8, gap: 8 }}>
           <FileText size={14} /> PaperOrchestra Studio
         </button>
-        <button className="btn sm ghost" onClick={() => openDrawer('cli')}>
+        <button className="btn sm ghost" onClick={() => openDrawer('cli')} style={{ justifyContent: 'flex-start', padding: '6px 10px', borderRadius: 8, gap: 8 }}>
           <Terminal size={14} /> {t('Chat CLI', 'CLI chat')}
         </button>
 
