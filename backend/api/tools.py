@@ -161,6 +161,27 @@ async def clients_unregister_antigravity():
     return await _call(mcp_clients.unregister_antigravity)
 
 
+# v6.6.2 ChatGPT connector: local (loopback) owner controls for the public gateway.
+@router.get("/api/tools/clients/chatgpt")
+async def chatgpt_status():
+    from backend.tools import chatgpt_gateway
+    return chatgpt_gateway.status()
+
+
+@router.post("/api/tools/clients/chatgpt/{action}")
+async def chatgpt_action(action: str, body: dict = Body(default={})):
+    from backend.tools import chatgpt_gateway as G
+    if action == "enable":
+        return await _call(G.enable)
+    if action in ("disable", "kill"):
+        return G.kill_switch()
+    if action == "refresh-ranges":
+        return await _call(G.refresh_ranges)
+    if action in ("approve", "deny"):
+        return await _call(G.approve if action == "approve" else G.deny, str(body.get("request_id", "")))
+    raise HTTPException(404, "Unsupported ChatGPT connector action")
+
+
 @router.get("/api/tools/proposals")
 async def proposal_list():
     return {"proposals": await _call(P.listing)}

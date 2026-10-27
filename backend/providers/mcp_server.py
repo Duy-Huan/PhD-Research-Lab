@@ -180,7 +180,9 @@ def handle(msg: dict, session: str = "", meta: dict | None = None) -> dict | Non
         if method == "initialize":
             ci = params.get("clientInfo") or {}
             sid = "mcp-" + secrets.token_hex(8)
-            SESSIONS[sid] = {"name": str(ci.get("name") or "mcp-client")[:60], "version": str(ci.get("version") or "")[:30],
+            # An authenticated gateway (v6.6.2 ChatGPT) fixes the client identity; clientInfo cannot spoof it.
+            name = (meta or {}).get("client_name") or ci.get("name") or "mcp-client"
+            SESSIONS[sid] = {"name": str(name)[:60], "version": str(ci.get("version") or "")[:30],
                              "started": time.time()}
             while len(SESSIONS) > 500:
                 SESSIONS.pop(next(iter(SESSIONS)))
@@ -192,16 +194,22 @@ def handle(msg: dict, session: str = "", meta: dict | None = None) -> dict | Non
             res = {}
         elif method == "tools/list":
             g = (meta or {}).get("grant")
-            res = {"tools": [t for t in tool_list() if not g or t["name"] in g["tools"]]}
+            only = (meta or {}).get("only_tools")
+            res = {"tools": [t for t in tool_list() if (not g or t["name"] in g["tools"]) and (only is None or t["name"] in only)]}
         elif method == "tools/call":
             name = str(params.get("name") or "")
             g = (meta or {}).get("grant")
             client = {**SESSIONS.get(session, {"name": "mcp-client"}), "session": session, "grant": g}
+            if (meta or {}).get("client_name"):  # gateway-authenticated identity wins over any session record
+                client["name"] = meta["client_name"]
             t0 = time.perf_counter()
             ok, err = True, ""
             try:
                 if g and name not in g["tools"]:  # v4.2: outside the session's MCP allowlist
                     raise PermissionError(f"{name} is not allowed in this AI workspace session")
+                only = (meta or {}).get("only_tools")
+                if only is not None and name not in only:
+                    raise PermissionError(f"{name} is not exposed to this client")
                 res = call_tool(name, params.get("arguments") or {}, client)
             except Exception as e:
                 ok, err = False, type(e).__name__

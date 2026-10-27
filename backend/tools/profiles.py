@@ -17,6 +17,8 @@ from backend.tools.spec import PERMISSIONS
 ORDER = ("read", "compute", "network", "workspace_write", "process", "reasoning")  # display order of PERMISSIONS
 DEFAULT_PROFILE = {"permissions": ["read", "compute", "network", "workspace_write"], "tools": ["*"]}
 DEFAULT_CLIENTS = {"chatgpt": "agent", "hermes": "agent", "antigravity": "agent"}
+# Clients reached over the public Internet run code only in containers (owner-approved ChatGPT layer 1).
+CONTAINER_CLIENTS = {"chatgpt"}
 
 
 def normalize_profile(value) -> dict:
@@ -54,10 +56,10 @@ def agent_profile() -> dict:
         return dict(DEFAULT_PROFILE)
 
 
-def _grant(principal: str, profile: dict, tools: list | None = None) -> Grant:
+def _grant(principal: str, profile: dict, tools: list | None = None, isolation: str = "host") -> Grant:
     return Grant(principal=principal, tools=profile["tools"] if tools is None else tools,
                  permissions=profile["permissions"], allow_mutation="workspace_write" in profile["permissions"],
-                 max_calls=None, max_wall_s=None, max_output_bytes=None)
+                 max_calls=None, max_wall_s=None, max_output_bytes=None, isolation=isolation)
 
 
 def agent_grant(principal: str, session_tools: list | None = None) -> Grant:
@@ -76,10 +78,12 @@ def client_grant(client: str, principal: str) -> Grant:
         clients = {**DEFAULT_CLIENTS, **normalize_clients(cfg.get("client_profiles") or {})}
     except ValueError:
         clients = dict(DEFAULT_CLIENTS)
-    profile = clients.get((client or "").strip().lower())
+    key = (client or "").strip().lower()
+    profile = clients.get(key)
+    isolation = "container" if key in CONTAINER_CLIENTS else "host"
     if profile == "agent":
-        return _grant(principal, agent_profile())
+        return _grant(principal, agent_profile(), isolation=isolation)
     if isinstance(profile, dict):
-        return _grant(principal, profile)
+        return _grant(principal, profile, isolation=isolation)
     fallback = [p for p in (cfg.get("mcp_permissions") or ["read", "compute"]) if p in PERMISSIONS and p != "workspace_write"]
     return _grant(principal, {"permissions": fallback, "tools": ["*"]})

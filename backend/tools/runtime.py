@@ -21,6 +21,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -45,6 +46,9 @@ class Grant(BaseModel):
     max_calls: int | None = Field(default=50, ge=0, le=10_000)
     max_wall_s: float | None = Field(default=1800, gt=0, le=7 * 86400)
     max_output_bytes: int | None = Field(default=8_000_000, ge=1, le=512_000_000)
+    # "container": code runs only inside the Docker sandbox (v6.6.2, e.g. the public ChatGPT connector); tools that
+    # would execute on the host are refused instead of silently running there.
+    isolation: Literal["host", "container"] = "host"
     expires_at: float = Field(default_factory=lambda: time.time() + 86400)
 
     def model_post_init(self, _):
@@ -155,6 +159,11 @@ class Runtime:
                             details={"missing": missing})
         if spec.mutates and not grant.allow_mutation:
             raise ToolError("permission_denied", f"{spec.id} changes state; this grant is read-only")
+        if grant.isolation == "container":
+            from backend.tools.isolation import containable
+            reason = containable(spec)
+            if reason:
+                raise ToolError("permission_denied", reason, hint="This client may only run code inside the container sandbox")
         use = self.usage.setdefault(grant.id, Usage())
         if grant.max_calls is not None and use.calls >= grant.max_calls:
             raise ToolError("budget_exceeded", f"Call budget of {grant.max_calls} tool calls is exhausted")
@@ -287,7 +296,11 @@ class Runtime:
             try:
                 if budget <= 0:
                     raise ToolError("budget_exceeded", "No execution time remains in this grant")
-                result = self._call(ADAPTERS[spec.kind], spec, args, ctx)
+                run_spec = spec
+                if grant.isolation == "container":
+                    from backend.tools.isolation import containerize
+                    run_spec = containerize(spec)
+                result = self._call(ADAPTERS[run_spec.kind], run_spec, args, ctx)
                 if spec.output_schema:
                     errors = S.validate(result, spec.output_schema)
                     if errors:

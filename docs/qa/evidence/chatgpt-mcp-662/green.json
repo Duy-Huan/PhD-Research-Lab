@@ -1,0 +1,120 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_chatgpt_mcp.Boundary.test_audit_records_decisions_and_alerts",
+      "status": "PASS",
+      "duration": 0.1093,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_mcp.Boundary.test_ip_allowlist_applies_to_server_to_server_calls_not_the_owner_browser",
+      "status": "PASS",
+      "duration": 0.0855,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_mcp.Boundary.test_missing_or_foreign_token_gets_a_challenge",
+      "status": "PASS",
+      "duration": 0.044,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_mcp.Boundary.test_only_mcp_and_oauth_paths_are_served",
+      "status": "PASS",
+      "duration": 0.0545,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_mcp.Boundary.test_rate_limit_and_auth_failure_lockout",
+      "status": "PASS",
+      "duration": 0.1201,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_mcp.Isolation.test_chatgpt_compute_runs_in_a_container_and_host_execution_is_refused",
+      "status": "PASS",
+      "duration": 0.3029,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_mcp.LocalControls.test_owner_approves_through_the_local_api_and_ranges_refresh_daily",
+      "status": "PASS",
+      "duration": 5.209,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_mcp.OAuth.test_denied_request_never_yields_a_code",
+      "status": "PASS",
+      "duration": 0.0527,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_mcp.OAuth.test_discovery_metadata_meets_chatgpt_requirements",
+      "status": "PASS",
+      "duration": 0.0478,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_mcp.OAuth.test_owner_approved_flow_issues_audience_bound_tokens",
+      "status": "PASS",
+      "duration": 0.078,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_mcp.OAuth.test_pkce_redirect_and_resource_are_enforced",
+      "status": "PASS",
+      "duration": 0.0767,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_mcp.OAuth.test_refresh_rotates_and_kill_switch_revokes_everything",
+      "status": "PASS",
+      "duration": 0.0828,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_mcp.Tunnel.test_cloudflared_url_parsing_and_kill_switch_stops_everything",
+      "status": "PASS",
+      "duration": 0.0536,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_chatgpt_mcp.Boundary.test_only_mcp_and_oauth_paths_are_served",
+      "id": "test_chatgpt_mcp.Boundary.test_only_mcp_and_oauth_paths_are_served (path='/api/config')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_chatgpt_mcp.Boundary.test_only_mcp_and_oauth_paths_are_served",
+      "id": "test_chatgpt_mcp.Boundary.test_only_mcp_and_oauth_paths_are_served (path='/')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_chatgpt_mcp.Boundary.test_only_mcp_and_oauth_paths_are_served",
+      "id": "test_chatgpt_mcp.Boundary.test_only_mcp_and_oauth_paths_are_served (path='/api/tools')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_chatgpt_mcp.Boundary.test_only_mcp_and_oauth_paths_are_served",
+      "id": "test_chatgpt_mcp.Boundary.test_only_mcp_and_oauth_paths_are_served (path='/docs')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 13,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-crtyv57x",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}
