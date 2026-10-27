@@ -134,6 +134,14 @@ def build_windows(assets: Path, out: Path, cache: Path) -> Path:
         shutil.rmtree(work, ignore_errors=True)
 
 
+def lf_copy(source: Path, target: Path, replace: dict | None = None) -> None:
+    """Package scripts and metadata always get LF endings (a CRLF postinst or control file breaks dpkg)."""
+    text = source.read_bytes().decode("utf-8").replace("\r\n", "\n")
+    for key, value in (replace or {}).items():
+        text = text.replace(key, value)
+    target.write_bytes(text.encode("utf-8"))
+
+
 def build_deb(assets: Path, out: Path) -> Path:
     work = Path(tempfile.mkdtemp(prefix="phdlab-deb-"))
     try:
@@ -151,18 +159,18 @@ def build_deb(assets: Path, out: Path) -> Path:
                             "--dest", str(wheels), "-r", str(ROOT / LOCK)], check=True)
         linux = ROOT / "packaging" / "linux"
         (tree / "usr" / "bin").mkdir(parents=True)
-        shutil.copy2(linux / "phdlab", tree / "usr" / "bin" / "phdlab")
+        lf_copy(linux / "phdlab", tree / "usr" / "bin" / "phdlab")
         (tree / "usr" / "share" / "applications").mkdir(parents=True)
-        shutil.copy2(linux / "phdlab.desktop", tree / "usr" / "share" / "applications" / "phdlab.desktop")
+        lf_copy(linux / "phdlab.desktop", tree / "usr" / "share" / "applications" / "phdlab.desktop")
         for size in ICON_SIZES:
             icon_dir = tree / "usr" / "share" / "icons" / "hicolor" / f"{size}x{size}" / "apps"
             icon_dir.mkdir(parents=True)
             shutil.copy2(ROOT / "packaging" / "icons" / f"phdlab-{size}.png", icon_dir / "phdlab.png")
         debian = tree / "DEBIAN"
         debian.mkdir()
-        (debian / "control").write_text((linux / "control.in").read_text("utf-8").replace("@VERSION@", version), "utf-8")
+        lf_copy(linux / "control.in", debian / "control", {"@VERSION@": version})
         for script in ("postinst", "prerm"):
-            shutil.copy2(linux / script, debian / script)
+            lf_copy(linux / script, debian / script)
         for path in (debian / "postinst", debian / "prerm", tree / "usr" / "bin" / "phdlab"):
             path.chmod(0o755)
         out.mkdir(parents=True, exist_ok=True)
