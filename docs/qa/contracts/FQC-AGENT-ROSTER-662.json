@@ -1,0 +1,134 @@
+{
+  "id": "FQC-AGENT-ROSTER-662",
+  "title": "Unified live agent roster for 3D Lab, Harness and status views",
+  "risk": "MEDIUM",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the researcher I see in 3D Lab exactly the agents that exist (configured roles, every agent the Harness created, Hermes, connected MCP clients) with their real states, updated live.",
+  "requirements": [
+    {
+      "id": "SRC",
+      "description": "Roster lists the configured roles, Harness custom profiles and agent nodes of user-saved workflows (team nodes one agent per member; presets/templates excluded), Hermes, and MCP clients active within 30 minutes."
+    },
+    {
+      "id": "LIVE",
+      "description": "States come only from runtime records: running tool jobs (tool and job id), running chat turns, the latest Harness execution node statuses, and the Hermes runtime/gateway requests."
+    },
+    {
+      "id": "API",
+      "description": "GET /api/agents/roster and SSE /api/agents/roster/stream (event roster whenever the digest changes)."
+    }
+  ],
+  "nonfunctional": [
+    "No inference from text",
+    "Snapshot digest stable when nothing changes"
+  ],
+  "inputs": [
+    "config, harness profiles/workflows/executions, runtime jobs, chat turns, MCP sessions, Hermes"
+  ],
+  "outputs": [
+    "Roster snapshot with counts and digest"
+  ],
+  "preconditions": [
+    "Active project"
+  ],
+  "postconditions": [
+    "Consumers share one source"
+  ],
+  "dependencies": [
+    "backend.execution.harness",
+    "backend.execution.workflow_runtime",
+    "backend.tools.runtime",
+    "backend.agent.orchestrator",
+    "backend.providers.mcp_server",
+    "backend.providers.hermes"
+  ],
+  "affected_modules": [
+    "backend/agent/roster.py",
+    "backend/api/tools.py"
+  ],
+  "acceptance_criteria": [
+    "Harness-created agent count matches saved nodes/profiles",
+    "Live states reflect jobs/turns/executions"
+  ],
+  "scenarios": [
+    {
+      "id": "roles",
+      "requirement": "SRC",
+      "kind": "positive",
+      "expected": "Four roles idle",
+      "test": "tests/test_agent_roster.py::Sources.test_configured_roles_are_always_present_and_idle"
+    },
+    {
+      "id": "harness",
+      "requirement": "SRC",
+      "kind": "boundary",
+      "expected": "Every Harness agent counted, presets excluded, sync on change",
+      "test": "tests/test_agent_roster.py::Sources.test_every_agent_the_harness_created_appears_and_presets_do_not"
+    },
+    {
+      "id": "clients",
+      "requirement": "SRC",
+      "kind": "negative",
+      "expected": "Stale clients excluded; Hermes listed",
+      "test": "tests/test_agent_roster.py::Sources.test_connected_mcp_clients_and_hermes_are_listed"
+    },
+    {
+      "id": "tools",
+      "requirement": "LIVE",
+      "kind": "positive",
+      "expected": "Tool jobs mark agents busy with job links",
+      "test": "tests/test_agent_roster.py::LiveStates.test_tool_jobs_mark_the_requesting_agent_busy_with_the_tool"
+    },
+    {
+      "id": "turn",
+      "requirement": "LIVE",
+      "kind": "positive",
+      "expected": "Running turn makes assistant think",
+      "test": "tests/test_agent_roster.py::LiveStates.test_running_chat_turn_makes_the_assistant_think"
+    },
+    {
+      "id": "exec",
+      "requirement": "LIVE",
+      "kind": "failure",
+      "expected": "Execution node failure becomes error state",
+      "test": "tests/test_agent_roster.py::LiveStates.test_harness_execution_drives_node_agent_states"
+    },
+    {
+      "id": "digest",
+      "requirement": "API",
+      "kind": "boundary",
+      "expected": "Digest changes only on change",
+      "test": "tests/test_agent_roster.py::LiveStates.test_digest_changes_only_when_something_changes"
+    },
+    {
+      "id": "api",
+      "requirement": "API",
+      "kind": "positive",
+      "expected": "Snapshot and SSE agree",
+      "test": "tests/test_agent_roster.py::Api.test_snapshot_and_stream_endpoints"
+    }
+  ],
+  "recovery": "Remove the roster endpoints; consumers fall back to their own sources. TASK-AGENT-ROSTER-662, max three cycles.",
+  "test_environment": "Real config, harness files, execution records and API in disposable data; Hermes state and MCP sessions patched.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: module missing 8/8 ERROR. GREEN: 8/8 PASS.",
+    "red": {
+      "path": "docs/qa/evidence/agent-roster-662/red.json",
+      "sha256": "83f705829978c5e2a2a2f110715b4e1d563f3eaedbfa695a5d3d07a6a591110a",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/agent-roster-662/green.json",
+      "sha256": "9f277447c2edb6b259980e50ab90c1d6608af86ead588dc3c53a5d440cdd7df1",
+      "exit_code": 0
+    }
+  }
+}

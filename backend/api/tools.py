@@ -225,3 +225,29 @@ async def invoke(tool_id: str, request: Request, body: dict = Body(default={})):
 @router.get("/api/tools/{tool_id}")
 async def describe(tool_id: str, version: str = ""):
     return await _call(R.REGISTRY.describe, tool_id, version)
+
+
+# v6.6.2 one live roster of every agent (3D Lab, Harness, status views)
+@router.get("/api/agents/roster")
+async def agents_roster():
+    from backend.agent import roster
+    return await run_in_threadpool(roster.roster)
+
+
+@router.get("/api/agents/roster/stream")
+async def agents_roster_stream(once: int = 0):
+    """SSE: `event: roster` with the full snapshot now and whenever it changes (checked every second)."""
+    from backend.agent import roster
+    import json as _json
+
+    async def gen():
+        last = ""
+        while True:
+            snap = await run_in_threadpool(roster.roster)
+            if snap["digest"] != last:
+                last = snap["digest"]
+                yield "event: roster\ndata: " + _json.dumps(snap, ensure_ascii=False, default=str) + "\n\n"
+            if once:
+                return
+            await asyncio.sleep(1)
+    return stream(gen())
