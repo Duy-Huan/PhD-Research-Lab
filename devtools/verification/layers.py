@@ -3,10 +3,25 @@ from __future__ import annotations
 import unittest
 
 LIVE_TESTS = frozenset({
-    'test_live_integrations.ClearMLLive.test_create_log_read',
     'test_live_integrations.CodexLive.test_read_only_run',
     'test_vram_gate.LMStudioLive.test_real_gate_and_manual_unload',
 })
+
+
+class EmptyTestModule(unittest.TestCase):
+    def __init__(self,module):
+        super().__init__();self.module=module
+    def id(self):return 'discovery.empty.'+self.module
+    def runTest(self):
+        self.fail('No executable unittest cases in '+self.module+'; use unittest.TestCase or explicitly register its runner')
+
+
+def load_modules(loader: unittest.TestLoader,modules: list[str]) -> unittest.TestSuite:
+    suites=[]
+    for module in modules:
+        suite=loader.loadTestsFromName(module)
+        suites.append(suite if suite.countTestCases() else EmptyTestModule(module))
+    return unittest.TestSuite(suites)
 
 
 def live_ids() -> set[str]:

@@ -11,8 +11,7 @@ A skill is a Markdown file with a small front matter block and the instructions 
     agent: research             research | reviewer   (the two agents of the app)
     mode: run                   chat (one answer in the conversation) | run (a background research run)
     pipeline: research          run pipeline (see runs.PIPELINES); ignored for chat skills
-    provider: feynman           preferred research provider: feynman | coding | app (falls back to app)
-    feynman: lit                Feynman workflow used when the provider is Feynman
+    provider: app               native model role (app) or explicitly selected supported coding tool
     risk: 0                     0 read · 1 writes inside the project · 2 compute / code / research state
     aliases: [literature]
     ---
@@ -38,7 +37,7 @@ NAME_RE = re.compile(r"^[a-z][a-z0-9_-]{1,30}$")
 CATEGORIES = ("research", "experiment", "writing", "system")
 AGENTS = ("research", "reviewer")
 MODES = ("chat", "run")
-PROVIDERS = ("app", "feynman", "coding", "openscience", "opencode", "phdlab", "paperorchestra")
+PROVIDERS = ("app", "coding", "phdlab", "paperorchestra")
 CMD_RE = re.compile(r"^/([a-z][a-z0-9_-]{0,30})(?:\s+([\s\S]*))?$")
 _cache: dict = {}
 
@@ -75,7 +74,7 @@ def parse(text: str, origin: str = "builtin") -> dict:
          "usage": str(meta.get("usage") or "")[:120], "category": meta.get("category") or "research",
          "agent": meta.get("agent") or "research", "mode": meta.get("mode") or "chat",
          "pipeline": str(meta.get("pipeline") or ""), "provider": meta.get("provider") or "app",
-         "feynman": str(meta.get("feynman") or ""), "risk": meta.get("risk", 0),
+         "retired": bool(meta.get("retired", False)), "risk": meta.get("risk", 0),
          "aliases": [a for a in (meta.get("aliases") or []) if NAME_RE.match(str(a))], "origin": origin,
          "title_en": str(meta.get("title_en") or "")[:80], "description_en": str(meta.get("description_en") or "")[:300],
          "instructions": m.group(2).strip()}
@@ -138,6 +137,7 @@ def load() -> dict:
             except (AIWSError, OSError, UnicodeDecodeError) as e:
                 errors.append({"file": f.name, "origin": origin, "error": str(e)[:200]})
                 continue
+            if s.get("retired"): continue  # migration marker, never an executable command
             s["file"] = f.name
             skills[s["name"]] = s
     _cache.update(key=key, skills=skills, errors=errors)

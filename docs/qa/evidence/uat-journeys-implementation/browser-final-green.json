@@ -1,0 +1,53 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_actual_uat_server_allows_language_and_denies_other_writes",
+      "status": "PASS",
+      "duration": 1.5733,
+      "details": null
+    },
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_failure_recovery_browser_oracle_requires_observed_fault_and_real_reload",
+      "status": "PASS",
+      "duration": 33.5967,
+      "details": null
+    },
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_native_workflow_browser_oracle_retains_actual_cpu_artifacts_without_model",
+      "status": "PASS",
+      "duration": 35.4341,
+      "details": null
+    },
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_owned_browser_origin_proxy_and_finish_without_model",
+      "status": "PASS",
+      "duration": 32.3924,
+      "details": null
+    },
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_project_journey_has_owned_creation_but_cannot_switch_provider_or_launch_tools",
+      "status": "PASS",
+      "duration": 1.6887,
+      "details": null
+    },
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_python_worker_denies_file_mutation_and_processes_outside_lease",
+      "status": "PASS",
+      "duration": 0.2047,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 6,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-s2jmgasd",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

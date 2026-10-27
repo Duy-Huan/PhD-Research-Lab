@@ -1,0 +1,5 @@
+{
+  "exit_code": 0,
+  "stdout": "{\"decision\": \"PASS\", \"errors\": [], \"source_sha256\": \"568d68f5c218f4ccdfa941de160621e79e5a6794309ffaaf14b68d179e76b3c3\", \"counts\": {\"PASS\": 1198, \"FAIL\": 0, \"ERROR\": 0, \"SKIP\": 0, \"NOT_RUN\": 0, \"BLOCKED\": 0, \"UNVERIFIED\": 0}, \"scope\": \"Source-bound complete local software report, plus independent CI regression required\"}\n",
+  "stderr": ""
+}

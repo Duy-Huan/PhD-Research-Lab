@@ -1,0 +1,35 @@
+{
+  "mode": "LIVE_PROVIDER",
+  "head_sha": "b3080ab0f89715b207c7e2004d84968954eef5e5",
+  "source_sha256": "c32e3a07db066a577c74ee4d88ed3f13fdf3b7e8444ab0843b1dace6f4568808",
+  "source_stable": true,
+  "started_utc": 1792951489.3527231,
+  "finished_utc": 1792951510.4744763,
+  "data_root": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\data\\live-qualification-658\\codex-e5e7a18395",
+  "test_id": "test_live_integrations.CodexLive.test_read_only_run",
+  "runtime_cleanup": {
+    "before_containers": [],
+    "after_containers": [],
+    "before_volumes": [
+      "phdlab-cli-ipc-e3145e23f3404d2da3b275d87a2e4889"
+    ],
+    "after_volumes": [
+      "phdlab-cli-ipc-e3145e23f3404d2da3b275d87a2e4889"
+    ],
+    "passed": true
+  },
+  "passed": true,
+  "cases": [
+    {
+      "id": "test_live_integrations.CodexLive.test_read_only_run",
+      "status": "PASS",
+      "duration": 20.6806,
+      "details": null
+    }
+  ],
+  "skipped": 0,
+  "scope": "Actual existing opt-in native Codex acceptance, private hello.py, official ChatGPT sign-in, read-only isolated runtime; no mocks or altered assertions",
+  "limitations": [
+    "Not MCP tools or scientific qualification; other mandatory live tests remain unqualified"
+  ]
+}

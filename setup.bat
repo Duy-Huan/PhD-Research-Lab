@@ -10,9 +10,6 @@ if not exist .venv\Scripts\python.exe %PY% -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt || (echo Dependency install failed. & pause & exit /b 1)
 
 echo.
-echo === ClearML SDK (experiment tracking; offline mode works without a ClearML server) ===
-rem Separate step: clearml pulls native packages (numpy, psutil, Pillow); a failure here never breaks the app.
-.venv\Scripts\python.exe -m pip install "clearml>=2.0" || echo   [warning] ClearML SDK not installed - local run tracking is still available. Retry with .venv\Scripts\python.exe -m pip install clearml
 if not exist data mkdir data
 if not exist data\references mkdir data\references
 

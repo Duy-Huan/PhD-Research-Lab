@@ -1,0 +1,142 @@
+{
+  "id": "FQC-HERMES-RUNTIME-001",
+  "title": "Independent Hermes runtime with durable memory and verified free-only model admission",
+  "risk": "HIGH",
+  "mode": "MOCKED",
+  "user_story": "The researcher can use the existing native environment with honest state, durable evidence and retained integrated engines.",
+  "requirements": [
+    {
+      "id": "POSITIVE",
+      "description": "History is persisted and reused with the same explicit free model; no framework fallback."
+    },
+    {
+      "id": "NEGATIVE",
+      "description": "Unknown or paid models are refused before an agent is constructed."
+    },
+    {
+      "id": "BOUNDARY",
+      "description": "Both token prices must be explicitly finite and exactly zero."
+    },
+    {
+      "id": "FAILURE",
+      "description": "A cancelled admitted job cannot launch inference."
+    },
+    {
+      "id": "SECURITY",
+      "description": "Profile/path attacks fail and application source is not mounted."
+    },
+    {
+      "id": "PERFORMANCE",
+      "description": "Only one job per project can mutate shared intelligence; this is a concurrency bound, not a throughput benchmark."
+    }
+  ],
+  "nonfunctional": [
+    "Preserve native L1-L4/memory/workflow/data and PaperOrchestra; no duplicate research engine.",
+    "Software fixtures never qualify live providers or scientific conclusions.",
+    "Coverage target100% is informational; every mandatory regression must execute and PASS."
+  ],
+  "inputs": [
+    "Scoped project/workspace",
+    "Explicit model/authority and reviewed content"
+  ],
+  "outputs": [
+    "Durable results and exact lineage",
+    "Explicit failure/blocker/unknown status"
+  ],
+  "preconditions": [
+    "Existing dev branch only",
+    "Owned disposable PHDLAB_DATA_DIR for verification"
+  ],
+  "postconditions": [
+    "No silent fallback or fabricated completion",
+    "All historical producers and retained files remain identifiable"
+  ],
+  "dependencies": [
+    "Existing native gateway, workspace, mission and evidence infrastructure"
+  ],
+  "affected_modules": [
+    "backend/providers/hermes.py",
+    "tools/hermes_runtime/*",
+    "tools/manage_hermes_runtime.py",
+    "tools/prepare_hermes_runtime.py",
+    "tests/test_hermes_runtime.py"
+  ],
+  "acceptance_criteria": [
+    "History is persisted and reused with the same explicit free model; no framework fallback.",
+    "Unknown or paid models are refused before an agent is constructed.",
+    "Both token prices must be explicitly finite and exactly zero.",
+    "A cancelled admitted job cannot launch inference.",
+    "Profile/path attacks fail and application source is not mounted.",
+    "Only one job per project can mutate shared intelligence; this is a concurrency bound, not a throughput benchmark."
+  ],
+  "scenarios": [
+    {
+      "id": "1",
+      "requirement": "POSITIVE",
+      "kind": "positive",
+      "expected": "History is persisted and reused with the same explicit free model; no framework fallback.",
+      "test": "tests/test_hermes_runtime.py::HermesCatalog.test_history_is_durable_and_reused_without_paid_or_framework_fallback"
+    },
+    {
+      "id": "2",
+      "requirement": "NEGATIVE",
+      "kind": "negative",
+      "expected": "Unknown or paid models are refused before an agent is constructed.",
+      "test": "tests/test_hermes_runtime.py::HermesCatalog.test_unknown_or_nonzero_priced_model_never_constructs_agent"
+    },
+    {
+      "id": "3",
+      "requirement": "BOUNDARY",
+      "kind": "boundary",
+      "expected": "Both token prices must be explicitly finite and exactly zero.",
+      "test": "tests/test_hermes_runtime.py::HermesCatalog.test_free_pricing_requires_both_exact_finite_zero_prices"
+    },
+    {
+      "id": "4",
+      "requirement": "FAILURE",
+      "kind": "failure",
+      "expected": "A cancelled admitted job cannot launch inference.",
+      "test": "tests/test_hermes_runtime.py::HermesJobProtocol.test_cancel_before_worker_spawn_prevents_model_execution"
+    },
+    {
+      "id": "5",
+      "requirement": "SECURITY",
+      "kind": "security",
+      "expected": "Profile/path attacks fail and application source is not mounted.",
+      "test": "tests/test_hermes_runtime.py::HermesBoundary.test_runtime_profile_is_not_a_path_and_no_host_source_is_mounted"
+    },
+    {
+      "id": "6",
+      "requirement": "PERFORMANCE",
+      "kind": "performance",
+      "expected": "Only one job per project can mutate shared intelligence; this is a concurrency bound, not a throughput benchmark.",
+      "test": "tests/test_hermes_runtime.py::HermesJobProtocol.test_one_project_job_at_a_time_preserves_memory_and_skills"
+    }
+  ],
+  "recovery": "Retain failed output/checkpoints, never replay an uncertain external operation; require explicit bounded recovery.",
+  "test_environment": "Actual Windows Python3.12 disposable files/SQLite/CPU and controlled Docker/vendor RPC boundaries; no current-source live provider or scientific qualification in this receipt.",
+  "skill_sources": [
+    "skills/SOURCES.json",
+    "skills/codebase-design/SKILL.md",
+    "skills/frontend-design/SKILL.md"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Implementation-agent source, authority and oracle review; no independent human/scientific certification claimed."
+  },
+  "tdd": {
+    "status": "IMPLEMENTATION_FIRST_OWNER_AUTHORIZED",
+    "authorization": "OWNER-20261026-HERMES-FEATURE-FIRST",
+    "red": null,
+    "green": {
+      "path": "docs/qa/evidence/native-consolidation/feature-contract-green.json",
+      "sha256": "e7de9adba0f9ff01c37537ccdd78e07a72fda1f0a273a9527a68d4ae30e84b65",
+      "exit_code": 0
+    },
+    "scope": "Owner explicitly requested features before testcase standardization. Actual73/73 software assertions passed; source-scoped receipt retained separately. No RED fabricated."
+  },
+  "limitations": [
+    "Receipt predates these contract files; fresh full stable-source verification is still mandatory.",
+    "Separate live/research/CLI/browser/AI-UAT qualification and independent CI remain required at QA/main."
+  ]
+}

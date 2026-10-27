@@ -1,0 +1,108 @@
+{
+  "mode": "READINESS_ONLY",
+  "inference_executed": false,
+  "/v1/models": {
+    "data": [
+      {
+        "id": "nvidia/nemotron-3-nano-4b",
+        "object": "model",
+        "owned_by": "organization_owner"
+      },
+      {
+        "id": "spark-x2.5-4b",
+        "object": "model",
+        "owned_by": "organization_owner"
+      },
+      {
+        "id": "text-embedding-nomic-embed-text-v1.5",
+        "object": "model",
+        "owned_by": "organization_owner"
+      }
+    ],
+    "object": "list"
+  },
+  "/api/v1/models": {
+    "models": [
+      {
+        "type": "llm",
+        "publisher": "nvidia",
+        "key": "nvidia/nemotron-3-nano-4b",
+        "display_name": "Nemotron 3 Nano 4B",
+        "architecture": "nemotron_h",
+        "quantization": {
+          "name": "Q4_K_M",
+          "bits_per_weight": 4
+        },
+        "size_bytes": 2837173509,
+        "params_string": "4.0B",
+        "loaded_instances": [],
+        "max_context_length": 1048576,
+        "format": "gguf",
+        "capabilities": {
+          "vision": false,
+          "trained_for_tool_use": true,
+          "reasoning": {
+            "allowed_options": [
+              "off",
+              "on"
+            ],
+            "default": "on"
+          }
+        },
+        "description": null,
+        "variants": [
+          "nvidia/nemotron-3-nano-4b@q4_k_m"
+        ],
+        "selected_variant": "nvidia/nemotron-3-nano-4b@q4_k_m"
+      },
+      {
+        "type": "llm",
+        "publisher": "XHToken",
+        "key": "spark-x2.5-4b",
+        "display_name": "Spark X2.5 4B",
+        "architecture": "spark2_5",
+        "quantization": {
+          "name": "Q4_K_M",
+          "bits_per_weight": 4
+        },
+        "size_bytes": 2600224352,
+        "params_string": "4.1B",
+        "loaded_instances": [],
+        "max_context_length": 1048576,
+        "format": "gguf",
+        "capabilities": {
+          "vision": false,
+          "trained_for_tool_use": true,
+          "reasoning": {
+            "allowed_options": [
+              "off",
+              "on"
+            ],
+            "default": "on"
+          }
+        },
+        "description": null
+      },
+      {
+        "type": "embedding",
+        "publisher": "nomic-ai",
+        "key": "text-embedding-nomic-embed-text-v1.5",
+        "display_name": "Nomic Embed Text v1.5",
+        "quantization": {
+          "name": "Q4_K_M",
+          "bits_per_weight": 4
+        },
+        "size_bytes": 84106624,
+        "params_string": null,
+        "loaded_instances": [],
+        "max_context_length": 2048,
+        "format": "gguf"
+      }
+    ]
+  },
+  "adapter_import": {
+    "exit_code": 0,
+    "output": "{'browser-use': '0.13.11', 'openai': '2.26.0', 'httpx': '0.28.1'}\n",
+    "error": ""
+  }
+}

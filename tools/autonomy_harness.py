@@ -60,7 +60,7 @@ def main():
         os.environ["PHDLAB_DATA_DIR"] = data
         os.environ["JUPYTER_DATA_DIR"] = str(Path(data) / "_jupyter")
         from backend.core import config
-        config.save_config({"local_model": args.model, "lmstudio_base_url": "http://127.0.0.1:1234/v1", "agent_modes": {a: "local" for a in config.AGENTS}, "agent_models": {a: args.model for a in config.AGENTS}, "fallback_to_cloud": False, "research_os": {"enabled": True}, "memory": {"embed_engine": "hashing", "auto_summarize": False}, "lifecycle": {"unload_on_exit": False, "local_interactive": "keep_loaded"}, "clearml": {"auto_record": False}, "ranking": {"auto": False}, "ui": {"language": "en"}})
+        config.save_config({"local_model": args.model, "lmstudio_base_url": "http://127.0.0.1:1234/v1", "agent_modes": {a: "local" for a in config.AGENTS}, "agent_models": {a: args.model for a in config.AGENTS}, "fallback_to_cloud": False, "research_os": {"enabled": True}, "memory": {"embed_engine": "hashing", "auto_summarize": False}, "lifecycle": {"unload_on_exit": False, "local_interactive": "keep_loaded"}, "ranking": {"auto": False}, "ui": {"language": "en"}})
         import httpx
         import uvicorn
 

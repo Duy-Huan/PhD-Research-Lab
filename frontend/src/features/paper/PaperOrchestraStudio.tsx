@@ -93,7 +93,6 @@ export const PaperOrchestraStudio: React.FC = () => {
   const [selectedSection, setSelectedSection] = useState('abstract');
   const [objective, setObjective] = useState('');
   const [venue, setVenue] = useState('IEEE / ACM');
-  const [humanApproved, setHumanApproved] = useState(false);
   const [approvalNote, setApprovalNote] = useState('');
   const [diffVersionA, setDiffVersionA] = useState<number>(1);
   const [diffVersionB, setDiffVersionB] = useState<number>(1);
@@ -125,17 +124,17 @@ export const PaperOrchestraStudio: React.FC = () => {
   // 4. Plan & Launch Writing Mission
   const planMissionMutation = useMutation({
     mutationFn: async () => {
+      const topicId = activeTopicId;
+      if (!topicId) throw new Error(t('Chọn chủ đề trước khi tạo nhiệm vụ.', 'Select a topic before creating a writing mission.'));
       const res = await api.post<{ spec: any }>('/api/paperorchestra/plan-mission', {
-        topic_id: activeTopicId || 'default',
+        topic_id: topicId,
         level,
         objective: objective.trim() || t('Soạn thảo bản thảo bài báo hoàn chỉnh', 'Synthesize complete research paper manuscript'),
         section: selectedSection,
         target_venue: venue,
       });
-      // Submit to missions API if topic exists
-      if (activeTopicId && res.spec) {
-        await api.post(`/api/research/topics/${activeTopicId}/missions`, res.spec);
-      }
+      if (!res.spec) throw new Error(t('Không nhận được kế hoạch nhiệm vụ.', 'No mission specification was returned.'));
+      await api.post(`/api/research/topics/${topicId}/missions`, res.spec);
       return res;
     },
     onSuccess: () => {
@@ -324,7 +323,8 @@ export const PaperOrchestraStudio: React.FC = () => {
               type="button"
               className="btn sm accent"
               onClick={() => planMissionMutation.mutate()}
-              disabled={planMissionMutation.isPending}
+              disabled={planMissionMutation.isPending || !activeTopicId}
+              title={!activeTopicId ? t('Chọn chủ đề trước khi tạo nhiệm vụ.', 'Select a topic before creating a writing mission.') : undefined}
               style={{ display: 'flex', alignItems: 'center', gap: 5 }}
             >
               <Play size={13} />
@@ -413,17 +413,18 @@ export const PaperOrchestraStudio: React.FC = () => {
             />
             <button
               type="button"
-              className={`btn sm ${humanApproved ? 'ghost' : 'accent'}`}
-              onClick={() => {
-                setHumanApproved(true);
-                alert(t('Đã xác nhận ký duyệt bài báo thành công!', 'Paper manuscript approved for submission!'));
-              }}
+              className="btn sm ghost"
+              disabled
+              title={t('Chưa có cơ chế lưu ký duyệt tại đây. Kiểm tra bằng chứng trong Review Room.', 'Submission sign-off is unavailable here. Review evidence in Review Room.')}
               style={{ display: 'flex', alignItems: 'center', gap: 4 }}
             >
               <FileCheck size={13} />
-              <span>{humanApproved ? t('Đã duyệt', 'Approved') : t('Ký duyệt', 'Sign-Off')}</span>
+              <span>{t('Ký duyệt', 'Sign-Off')}</span>
             </button>
           </div>
+          <span className="muted" style={{ fontSize: 11 }}>
+            {t('Ghi chú ở trên là bản nháp cục bộ; ký duyệt chưa được hỗ trợ tại bảng này.', 'The note above is a local draft; this panel does not support submission approval.')}
+          </span>
         </div>
       </div>
 

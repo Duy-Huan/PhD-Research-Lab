@@ -1,10 +1,10 @@
 # Development / test tools (not needed to run the app)
 -r requirements.txt
 coverage>=7.6
+# Explicit cross-platform process-tree verification dependency (not an app SDK).
+psutil>=7.2.2
 # Optional runtime HPO engine (the workflow orchestrator falls back to builtin random/grid sampling without it)
 optuna>=4.0
 ruff>=0.17.2
 bandit>=1.9.4
 pip-audit>=2.10.1
-# Required software integration regression: actual offline ClearML SDK, no server/model calls.
-clearml==2.1.12

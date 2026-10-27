@@ -68,7 +68,7 @@ describe('AgentStatusView', () => {
     expect(useUIStore.getState().officeChatOpen).toBe(true);
 
     // Click HPC button
-    const hpcBtn = screen.getByTitle('HPC Server & OpenCode');
+    const hpcBtn = screen.getByTitle('Native Code & GPU Experiments');
     fireEvent.click(hpcBtn);
     expect(useUIStore.getState().selectedLabObject).toBe('hpc_opencode');
 
@@ -150,7 +150,7 @@ describe('AgentStatusView', () => {
     });
 
     // Find custom profile buttons in floating roster
-    const customizeBtns = screen.getAllByTitle(/Tùy biến hồ sơ & Đặt tên/i);
+    const customizeBtns = await screen.findAllByTitle(/Tùy biến hồ sơ & Đặt tên/i);
     expect(customizeBtns.length).toBeGreaterThanOrEqual(1);
 
     // Click customize for first agent

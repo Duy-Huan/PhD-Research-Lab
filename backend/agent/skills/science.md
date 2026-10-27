@@ -1,19 +1,15 @@
 ---
 name: science
-title: OpenScience task
-description: Giao một tác vụ khoa học có phạm vi rõ cho runtime OpenScience đã cấu hình
+title: Native scientific analysis
+description: Analyze a bounded scientific question using native context and approved tools
 usage: <task and expected outputs>
 category: research
 agent: research
 mode: run
 pipeline: research
-provider: openscience
+provider: phdlab
 risk: 2
-aliases: [openscience]
 ---
-Delegate this bounded scientific task to the configured external OpenScience engine.
-OpenScience discovers and uses its native scientific skills and tools. Do not copy
-its skill library into PhD Lab or replace it with an extra local agent loop.
-Keep evidence and uncertainty explicit. Code, compute and external actions require
-the configured permissions. Return a cited report and save durable Results for any
-files that should be collected. A finished agent turn is not a verified experiment.
+Analyze the stated question with source-grounded reasoning and explicit uncertainties.
+Propose code and experiment actions through the existing approved mission/tool contracts.
+A written answer is not an executed experiment or verified scientific result.

@@ -106,6 +106,33 @@ def validate_promotion(head: str, base: str, human_approved: bool = False) -> li
 def validate_tdd(contract: dict, root: Path) -> list[str]:
     """Check stored actual RED/GREEN runner records. Never create expected-result evidence."""
     tdd = contract.get('tdd', {})
+    if not isinstance(tdd, dict): return ['Malformed TDD policy']
+    if tdd.get('status') == 'IMPLEMENTATION_FIRST_OWNER_AUTHORIZED':
+        # Explicit owner2026-10-26 campaign order, not a general TDD waiver.
+        # It changes chronology only. All traced assertions still must execute/PASS.
+        permitted = {'FQC-HERMES-RUNTIME-001', 'FQC-NATIVE-PROVIDER-MIGRATION-001',
+                     'FQC-PAPER-PROJECT-001', 'FQC-RESEARCH-INTEGRITY-002'}
+        if (not isinstance(contract.get('id'), str) or contract.get('id') not in permitted or tdd.get('authorization') != 'OWNER-20261026-HERMES-FEATURE-FIRST'
+                or tdd.get('red') is not None):
+            return ['Unrecognized implementation-first authorization; never fabricate RED evidence']
+        try:
+            record = tdd['green']; path = (root / record['path']).resolve()
+            if not path.is_relative_to(root.resolve()) or not path.is_file():
+                return ['Missing or unsafe actual implementation-first verification']
+            raw = path.read_bytes()
+            if hashlib.sha256(raw).hexdigest() != record['sha256']:
+                return ['Changed actual implementation-first verification']
+            result = json.loads(raw); cases = result.get('cases', [])
+            if (record.get('exit_code') != 0 or result.get('passed') is not True or not cases
+                    or result.get('total') != len(cases) or any(c.get('status') != 'PASS' for c in cases)):
+                return ['Implementation-first still requires every executed assertion to PASS; no skips or empty suites']
+            ids = {c['id'] for c in cases}
+            if len(ids) != len(cases): return ['Duplicate implementation-first case IDs are not additional executed assertions']
+            required = {Path(s['test'].split('::')[0]).stem + '.' + s['test'].split('::')[1] for s in contract['scenarios']}
+            if not required.issubset(ids): return ['Actual execution is missing traced acceptance scenarios']
+            return []
+        except (KeyError, ValueError, TypeError, AttributeError, OSError, IndexError):
+            return ['Malformed implementation-first execution evidence']
     if tdd.get('status') != 'RED_GREEN':
         return ['TDD RED/GREEN execution evidence is required']
     reports = {}

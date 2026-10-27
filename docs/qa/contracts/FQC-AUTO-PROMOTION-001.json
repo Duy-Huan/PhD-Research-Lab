@@ -1,0 +1,176 @@
+{
+  "id": "FQC-AUTO-PROMOTION-001",
+  "title": "Single-dev dynamic regression discovery, trusted native promotion and one-use owner UAT exception",
+  "risk": "CRITICAL",
+  "mode": "MOCKED",
+  "user_story": "The owner develops with AI on dev, verifies locally, then promotes through qa to main using honest phase-specific evidence.",
+  "requirements": [
+    {
+      "id": "BRANCH",
+      "description": "Only dev source writes; no new development branch."
+    },
+    {
+      "id": "RUN",
+      "description": "Latest exact-source PR/run/check-suite and every mandatory job must succeed before native merge."
+    },
+    {
+      "id": "DISCOVERY",
+      "description": "Automatically discover tests, fail zero-case Python modules, execute2Dthen3D."
+    },
+    {
+      "id": "TRUST",
+      "description": "Require external owner code-pinned persistent policy; no arbitrary PR/log authority."
+    },
+    {
+      "id": "EVIDENCE",
+      "description": "Publish only genuine existing hash-bound evidence, rejecting unsafe paths and stale success."
+    },
+    {
+      "id": "UAT",
+      "description": "One owner-granted Spark local run maximum600seconds/six steps, preserve original3failures, deny replay."
+    }
+  ],
+  "nonfunctional": [
+    "Preserve user work, history, all skills/ and agent/ files",
+    "Only owner-authorized qualified native forward auto-merge; never bypass protected QA",
+    "At most three persistent repair invocations; only the separately owner-granted single600second/six-step Spark UAT exception may exceed the old exhausted UAT ledger",
+    "Bound archive download/inventory; no arbitrary CLI/log instruction execution",
+    "Desired coverage100% informational; >95% was an estimate.",
+    "Archive50MBcompressed/200MBexpanded/1000files.",
+    "Native GitHub merge only after every mandatory SOFTWARE gate. Live/research/UAT is separately invoked optional qualification under owner2026-10-26 policy."
+  ],
+  "inputs": [
+    "Actual regression reports",
+    "Explicit owner branch policy",
+    "Hash-locked development/test dependencies"
+  ],
+  "outputs": [
+    "Hash-bound local verification receipt",
+    "CI development and QA decisions",
+    "Measured informational coverage and explicit deferred test records"
+  ],
+  "preconditions": [
+    "Trusted dev worktree and reviewed owner policy"
+  ],
+  "postconditions": [
+    "No mandatory software skip/FAIL becomes PASS",
+    "Software QA/main require all software regressions PASS; missing optional live evidence remains NOT_RUN, not a merge blocker"
+  ],
+  "dependencies": [
+    "Existing verification harness",
+    "Git",
+    "Python3.11/3.12",
+    "Node24",
+    "Playwright Chromium"
+  ],
+  "affected_modules": [
+    ".githooks/*",
+    ".github/*",
+    "devtools/verification/*",
+    "scripts/*",
+    "frontend/src/features/paper/*",
+    "frontend/e2e/*"
+  ],
+  "acceptance_criteria": [
+    "Required software regression executes/PASS100% without coverage percentage threshold",
+    "No feature-to-dev or dev-to-main promotion",
+    "QA/main require actual current-source complete software qualification; live and AI-UAT run separately",
+    "Hash-bound dependency and controller/source checks fail closed"
+  ],
+  "scenarios": [
+    {
+      "id": "1",
+      "requirement": "BRANCH",
+      "kind": "negative",
+      "expected": "Actual private Git rejects nondev creation without changing HEAD.",
+      "test": "tests/test_development_guard.py::DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches"
+    },
+    {
+      "id": "2",
+      "requirement": "RUN",
+      "kind": "failure",
+      "expected": "Only exact qualifying run is considered; a skipped mandatory job blocks.",
+      "test": "tests/test_promotion_controller.py::PromotionController.test_native_request_uses_only_the_qualifying_run_and_never_bypasses_failed_jobs"
+    },
+    {
+      "id": "3",
+      "requirement": "RUN",
+      "kind": "security",
+      "expected": "Dev push cannot emit the skipped protected QA context.",
+      "test": "tests/test_ci_workflow_contract.py::WorkflowContract.test_dev_push_cannot_emit_a_skipped_required_qa_context"
+    },
+    {
+      "id": "4",
+      "requirement": "DISCOVERY",
+      "kind": "positive",
+      "expected": "New offline spec is included automatically without live-model opt-in.",
+      "test": "tests/test_dynamic_discovery.py::DynamicDiscovery.test_new_e2e_is_automatically_included_without_enabling_live_suites"
+    },
+    {
+      "id": "5",
+      "requirement": "TRUST",
+      "kind": "negative",
+      "expected": "Missing owner permission or changed pinned controller blocks.",
+      "test": "tests/test_promotion_controller.py::PromotionController.test_explicit_owner_policy_and_unchanged_trusted_controller_are_required"
+    },
+    {
+      "id": "6",
+      "requirement": "EVIDENCE",
+      "kind": "performance",
+      "expected": "Validate bounded ZIP/hash before writing; reject traversal and duplicate paths.",
+      "test": "tests/test_live_publisher.py::LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced"
+    },
+    {
+      "id": "7",
+      "requirement": "EVIDENCE",
+      "kind": "failure",
+      "expected": "Newest failed/pending dispatch cannot reuse older success.",
+      "test": "tests/test_live_publisher.py::LivePublisher.test_latest_failed_owner_dispatch_blocks_cached_success"
+    },
+    {
+      "id": "8",
+      "requirement": "UAT",
+      "kind": "boundary",
+      "expected": "One use only; original3failure bytes unchanged; new filename cannot replay.",
+      "test": "tests/test_uat_owner_authorization.py::OwnerSingleRetry.test_single_consumption_preserves_original_three_failures_and_blocks_new_file_replay"
+    }
+  ],
+  "recovery": "Preserve raw failures and state. Repair only confirmed root cause on dev, maximum3 invocations; no ledger resets or fake evidence.",
+  "test_environment": "Explicit offline policy fixtures, isolated actual Git repositories and bounded archive fixtures. MOCKED aggregate does not certify remote GitHub/AI execution.",
+  "skill_sources": [
+    "skills/gh-fix-ci/SKILL.md",
+    "skills/github-actions-hardening/SKILL.md",
+    "skills/playwright/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent adversarial review; not independent scientific/browser acceptance."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "red": {
+      "path": "docs/qa/evidence/single-dev-6.5.8/reference-red.json",
+      "sha256": "988ccd2e11487ab946a5a0902b90cfb4a8e36ae72014d39c6ca26b7b7b403440",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/single-dev-6.5.8/reference-green-2.json",
+      "sha256": "21f8fef621343a24d7104f6c6108d3b8a84af3c227f1e889bfed29099bca19c5",
+      "exit_code": 0
+    }
+  },
+  "browser_acceptance": {
+    "required": true,
+    "journeys": [
+      "settings-language"
+    ],
+    "independent_review": true
+  },
+  "policy_revision": {
+    "authorized_by": "Owner explicit chat answer2026-10-26: all dev/qa/main require regression; live-provider/AI-UAT separate, coverage informational",
+    "scope": "Changes promotion prerequisites only, never skip/disable/relax software tests or fabricate live acceptance",
+    "regression_red": "output/playwright/native-consolidation/regression-only-policy-red/unittest.json",
+    "historical_tdd": "Original RED/GREEN receipts remain historical for their recorded scope; fresh policy and full regression evidence is required for this revision."
+  }
+}

@@ -1,4 +1,8 @@
-# PhD Research Lab - v6.5.7
+# PhD Research Lab - v6.5.12
+
+> PhD Research Lab is an agent-native scientific research environment that provides persistent knowledge, memory, computation, experimentation, collaboration, and verifiable evidence infrastructure, while allowing advanced AI agents to autonomously develop and execute their own research strategies.
+
+Research quality takes priority over feature count. The target is scoped L3 autonomy with evidence toward L4; this is **not yet demonstrated**. Levels share one environment with different authority, scope, approval and verification policies. See [research-quality objectives](agent/RESEARCH_QUALITY_OBJECTIVES.md), [Open-Ended Capability Learning](agent/OPEN_ENDED_CAPABILITY_LEARNING.md) and the [backend reasoning audit](docs/architecture/BACKEND_REASONING_INTERFERENCE_AUDIT.md) for implemented corrections, pending design and measured limitations.
 
 **Unreleased integration candidate.** Active workflow: **dev (AI development + complete local software regression) -> qa (independent CI + real provider/research/AI-UAT) -> main (owner-controlled release)**. Coverage is informational; mandatory software regressions must all execute/PASS. See the [operator guide](agent/DEV_QA_MAIN.md). Preview6.3.0 on main/qa is untrusted; current-source QA/live qualification remains BLOCKED. See [CI/CD standard](agent/CI_CD_AUTOMATION.md), [local repair operations](docs/devops/CI_REPAIR_SUPERVISOR.vi.md) and [same-suite comparison](docs/qa/COMPARISON_PROTOCOL.md).
 

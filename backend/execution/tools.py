@@ -1,4 +1,4 @@
-"""Helpers for external tools (VS Code, coding CLIs, Feynman, ClearML worker): run a CLI without a console window,
+"""Helpers for external tools (VS Code and coding CLIs): run a CLI without a console window,
 find a binary, resolve an npm shim to `node <pkg>.js`, a tiny TTL cache. An adapter that cannot do what was asked raises
 IntegrationError (message safe to show: no secrets) — nothing may claim an operation succeeded unless it really ran.
 """
@@ -39,10 +39,6 @@ def node_argv(binary: str | None, package_js: str) -> list:
         return []
     p = Path(binary)
     if p.suffix.lower() in (".cmd", ".bat", ".ps1", "") and sys.platform.startswith("win"):
-        if p.stem.lower() == 'opencode' and package_js == 'opencode-ai/bin/opencode':
-            native = p.parent / 'node_modules' / '@opencode' / 'cli' / 'bin' / 'opencode.exe'
-            if native.is_file():
-                return [str(native)]
         js = p.parent / "node_modules" / Path(package_js)
         node = p.parent / "node.exe" if (p.parent / "node.exe").is_file() else which("node")
         if js.is_file() and node:

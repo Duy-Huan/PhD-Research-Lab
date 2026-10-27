@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "definition": "PhD Research Lab is an agent-native scientific research environment that provides persistent knowledge, memory, computation, experimentation, collaboration, and verifiable evidence infrastructure, while allowing advanced AI agents to autonomously develop and execute their own research strategies.",
+  "priority": "Research quality before feature count",
+  "target_autonomy_level": "L3",
+  "next_target": "L4_ASPIRATIONAL",
+  "achieved_level": null,
+  "qualification_status": "NOT_DEMONSTRATED",
+  "scope": "Declared bounded computational research domains until broader domain validation is actually available",
+  "first_action": "Audit and remove unnecessary backend interference with agent reasoning; do not add another Research Engine",
+  "learning": {
+    "principle": "Don't build an AI Scientist. Build an environment where an AI Scientist can learn to become more capable.",
+    "cycle": ["Explore", "Attempt", "Evaluate", "Learn", "Propose", "Evolve"],
+    "level": "environment, not a prescribed domain research workflow",
+    "status": "DESIGN_RECORDED_RUNTIME_NOT_RUN",
+    "candidate_upgrade_location": "authorized private sandbox",
+    "main_environment_promotion": "propose only after same-suite verification and applicable authorization",
+    "new_engine_required": false
+  },
+  "definitions": {
+    "autonomy_source": "https://arxiv.org/html/2605.23204v1",
+    "methodology_source": "https://arxiv.org/html/2505.18705v1",
+    "harness_layers_are_not_autonomy_levels": true,
+    "scientist_bench_task_levels_are_distinct": true,
+    "levels_share_one_environment": true,
+    "level_policy_axes": ["authority", "action_scope", "approval_conditions", "verifiability"]
+  },
+  "software_policy": {
+    "mandatory_regression_execution_pass_percent": 100,
+    "desired_production_line_branch_coverage_percent": 100,
+    "coverage_percentage_blocks_ci": false,
+    "qa_main_require_real_provider_research_uat": true
+  },
+  "criteria": [
+    {"id":"RQ-01","criterion":"One paper project, explicit research question, scoped permissions and budget","status":"NOT_RUN","evidence_refs":[]},
+    {"id":"RQ-02","criterion":"Natural model-led questions and follow-ups without unintended workflow launch","status":"NOT_RUN","evidence_refs":[]},
+    {"id":"RQ-03","criterion":"Traceable prior art, contradictory evidence and limited novelty claims","status":"NOT_RUN","evidence_refs":[]},
+    {"id":"RQ-04","criterion":"Method commitments mapped to mathematical definitions, actual code and falsifiable tests","status":"NOT_RUN","evidence_refs":[]},
+    {"id":"RQ-05","criterion":"Actual controls, baselines, uncertainty analysis and fresh replay appropriate to the investigation","status":"NOT_RUN","evidence_refs":[]},
+    {"id":"RQ-06","criterion":"Agent may reject or revise hypotheses, methodology and research strategy from observations","status":"NOT_RUN","evidence_refs":[]},
+    {"id":"RQ-07","criterion":"Precise context and commitments survive long work and restart without project leakage","status":"NOT_RUN","evidence_refs":[]},
+    {"id":"RQ-08","criterion":"Independent checks, claim-evidence consistency and correct inconclusive outcomes","status":"NOT_RUN","evidence_refs":[]},
+    {"id":"RQ-09","criterion":"Versioned procedural lessons with evidence, held-out evaluation, review and rollback","status":"NOT_RUN","evidence_refs":[]},
+    {"id":"RQ-10","criterion":"Actual supported native/API/local inference, isolation, cancellation and usage provenance","status":"NOT_RUN","evidence_refs":[]},
+    {"id":"RQ-11","criterion":"Recoverable one-paper-project migration preserving multiple code experiments","status":"NOT_RUN","evidence_refs":[]},
+    {"id":"RQ-12","criterion":"Evidence-linked report/paper, negative results, faithful tables/figures/citations and limitations","status":"NOT_RUN","evidence_refs":[]},
+    {"id":"RQ-13","criterion":"Frozen same-suite guided/open-ended evaluation with all attempts and human interventions recorded","status":"NOT_RUN","evidence_refs":[]},
+    {"id":"RQ-14","criterion":"Ordinary coordination, research-direction choice, rejection and continuation do not need routine human scientific rescue","status":"NOT_RUN","evidence_refs":[]}
+  ],
+  "human_intervention_categories": ["initial_authorization","routine_scientific_verification","scientific_rescue","risk_exception","final_publication_review"],
+  "report_dimensions": ["novelty","validity","impact","reliability","provenance"],
+  "future_agent_rules": [
+    "Read RESEARCH_QUALITY_OBJECTIVES.md before architecture or core changes.",
+    "Update STATE/PLAN with criterion IDs, measured scope, evidence and unknowns.",
+    "Keep model scientific decisions separate from enforced security, resource and evidence constraints.",
+    "Never claim L3/L4 from role names, software coverage, model self-reports or one polished paper.",
+    "Never build separate L2/L3/L4 workflow engines; use one environment with scoped autonomy policy.",
+    "Retire obsolete provider-specific tests only with a functional replacement record."
+  ]
+}

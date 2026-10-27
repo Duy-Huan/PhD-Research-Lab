@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "scope": "Confirmed scoped findings; not an exhaustive absence-of-defects certification",
+  "records": [
+    {
+      "id": "NC-P2-HEADER-001",
+      "module": "frontend/src/shell/Header.tsx",
+      "severity": "P2",
+      "reproduction": [
+        "Set VI or EN",
+        "Inspect main Header code shortcut title and destination"
+      ],
+      "expected": "Native code navigation opens the native code drawer without a retired software label.",
+      "actual_before": "Header still advertised OpenCode Parallel Core and used the legacy drawer alias.",
+      "evidence": [
+        "output/playwright/native-consolidation/header-red.json",
+        "output/playwright/native-consolidation/header-green.json"
+      ],
+      "root_cause": "Header retained an old standalone-provider shortcut after Sidebar consolidation.",
+      "regression_test_id": "Header keeps native code navigation unbranded by retired software in both languages",
+      "repair_status": "REPAIRED_SOFTWARE_VERIFIED",
+      "owner": "Current dev maintainer",
+      "first_known_affected_commit": "UNDETERMINED; dirty source campaign",
+      "baseline_comparison": "UNDETERMINED until same-suite paired main comparison",
+      "source_sha256": "d1caebdc1c8f6156ea8aedb905ccd9608c5cb5480fd3f3ddc9156bd0f74c1930"
+    },
+    {
+      "id": "NC-P1-CANCEL-001",
+      "module": "backend/providers/research.py::run_coding",
+      "severity": "P1",
+      "reproduction": [
+        "Supply a cancellation callback already returning true",
+        "Invoke native coding boundary"
+      ],
+      "expected": "Refuse before gateway/provider preparation and model launch.",
+      "actual_before": "Gateway preparation/send occurred before the first cancellation poll.",
+      "evidence": [
+        "output/playwright/native-consolidation/model-fixtures-first/unittest.json",
+        "output/playwright/native-consolidation/model-fixtures-second/unittest.json"
+      ],
+      "root_cause": "Cancellation was checked only inside the post-dispatch observation loop.",
+      "regression_test_id": "test_provider_faults.Faults.test_research_health_disabled_missing_install_and_cancellation",
+      "repair_status": "REPAIRED_SOFTWARE_VERIFIED",
+      "owner": "Current dev maintainer",
+      "first_known_affected_commit": "UNDETERMINED; dirty source campaign",
+      "baseline_comparison": "UNDETERMINED until same-suite paired main comparison",
+      "source_sha256": "d1caebdc1c8f6156ea8aedb905ccd9608c5cb5480fd3f3ddc9156bd0f74c1930"
+    },
+    {
+      "id": "NC-P2-HERMES-DISCOVERY-001",
+      "module": "Hermes free-model tool discovery behavior",
+      "severity": "P2",
+      "reproduction": [
+        "Run native_tools_probe.py on the actual authenticated free Nous runtime",
+        "Prompt directly names deferred phdlab_research_get_current_state",
+        "Observe persisted tool reply and independent native MCP audit"
+      ],
+      "expected": "Agent discovers/describes the deferred tool and uses the upstream tool_call bridge to retrieve the objective.",
+      "actual_before": "Model called the deferred tool name directly; upstream replied not available; no native MCP call was observed.",
+      "evidence": [
+        "docs/qa/evidence/native-consolidation/native-tools-failed-1793020246203004900.json",
+        "docs/qa/evidence/native-consolidation/native-tools-protocol-aware-1793020832620728100.json"
+      ],
+      "root_cause": "Persisted history confirms direct-name call while upstream exposed only tool_search/tool_describe/tool_call for deferred tools. Not missing grant or proof of a failed network bridge.",
+      "regression_test_id": "LIVE_PROVIDER native-tools exact objective plus independent mcp_audit.jsonl oracle",
+      "repair_status": "OPEN_MODEL_RELIABILITY_LIMITATION",
+      "owner": "Research runtime/model qualification maintainer",
+      "remediation": "Evaluate capability discovery guidance/skills and stronger explicitly free models under bounded trials; do not hardcode research reasoning or erase the failed observation.",
+      "first_known_affected_commit": "UNDETERMINED; dirty source campaign",
+      "baseline_comparison": "UNDETERMINED until same-suite paired main comparison",
+      "source_sha256": "d1caebdc1c8f6156ea8aedb905ccd9608c5cb5480fd3f3ddc9156bd0f74c1930"
+    }
+  ],
+  "exceptions": [],
+  "remaining_qualification": "QA/main BLOCKED; see RELEASE_READINESS.md"
+}

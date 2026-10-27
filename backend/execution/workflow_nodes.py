@@ -4,7 +4,7 @@ Defines schemas, execution contracts, input/output port definitions, and validat
 for all 17 workflow node types:
 - start / end
 - agent_task / multi_agent_team
-- research_engine (Feynman, OpenScience, OpenCode, PaperOrchestra)
+- research_engine (Native research, Native scientific analysis, PaperOrchestra)
 - tool_skill / mcp_tool
 - input / output
 - condition / parallel_branch / join / bounded_loop
@@ -194,8 +194,8 @@ NODE_REGISTRY: dict[NodeType, NodeMetadata] = {
         label_en="Research Engine",
         category="engine",
         icon="Cpu",
-        description="Kích hoạt động cơ nghiên cứu tích hợp: PaperOrchestra, Feynman, OpenScience, hoặc OpenCode.",
-        description_en="Invoke integrated research engines: PaperOrchestra, Feynman, OpenScience, or OpenCode.",
+        description="Kích hoạt động cơ nghiên cứu tích hợp: PaperOrchestra, Native research, Native scientific analysis, và công cụ native.",
+        description_en="Invoke integrated research engines: PaperOrchestra, Native research, Native scientific analysis, or native PhD research.",
         inputs=[NodePort(id="in", name="In", type="control", direction="input")],
         outputs=[
             NodePort(id="out", name="Done", type="control", direction="output"),
@@ -210,7 +210,7 @@ NODE_REGISTRY: dict[NodeType, NodeMetadata] = {
         config_schema={
             "type": "object",
             "properties": {
-                "engine": {"type": "string", "enum": ["paperorchestra", "feynman", "openscience", "opencode"]},
+                "engine": {"type": "string", "enum": ["paperorchestra", "phdlab"]},
                 "action": {"type": "string"},
                 "backend_mode": {"type": "string", "enum": ["cli", "skill", "hybrid"]},
                 "params": {"type": "object"},
@@ -224,15 +224,15 @@ NODE_REGISTRY: dict[NodeType, NodeMetadata] = {
         label_en="Skill (/skill)",
         category="tool",
         icon="Sparkles",
-        description="Chạy một kỹ năng nội bộ của hệ thống (/lit, /outline, /verify, /latex, /feynman).",
-        description_en="Execute a PhD Lab built-in skill (/lit, /outline, /verify, /latex, /feynman).",
+        description="Chạy một kỹ năng nội bộ của hệ thống (/lit, /outline, /verify, /latex, /lit).",
+        description_en="Execute a PhD Lab built-in skill (/lit, /outline, /verify, /latex, /lit).",
         inputs=[NodePort(id="in", name="In", type="control", direction="input")],
         outputs=[NodePort(id="out", name="Next", type="control", direction="output")],
         default_config={"skill": "lit", "input_arg": ""},
         config_schema={
             "type": "object",
             "properties": {
-                "skill": {"type": "string", "enum": ["lit", "outline", "verify", "latex", "feynman", "search", "compare"]},
+                "skill": {"type": "string", "enum": ["lit", "outline", "verify", "latex", "phdlab", "code", "search", "compare"]},
                 "input_arg": {"type": "string"},
             },
             "required": ["skill"],

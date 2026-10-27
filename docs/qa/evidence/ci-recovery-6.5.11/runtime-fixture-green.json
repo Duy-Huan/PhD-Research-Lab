@@ -1,0 +1,119 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_orchestrator.Orchestrator.test_cancel_a_running_cli_turn",
+      "status": "PASS",
+      "duration": 9.1643,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_cli_partial_answer_keeps_the_text_with_the_error",
+      "status": "PASS",
+      "duration": 0.4873,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_cli_provider_answer_tools_usage_and_workspace",
+      "status": "PASS",
+      "duration": 0.5881,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_cli_provider_errors_and_refusals",
+      "status": "PASS",
+      "duration": 0.8122,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_decisions_validation_edits_and_failures",
+      "status": "PASS",
+      "duration": 0.1511,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_history_off_no_artifacts_no_summary_and_provider_notes",
+      "status": "PASS",
+      "duration": 0.3987,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_input_validation",
+      "status": "PASS",
+      "duration": 0.1517,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_manual_mode_plan_for_cli_and_http_then_launch_and_cancel",
+      "status": "PASS",
+      "duration": 0.9265,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_protocol_fixture_does_not_require_or_certify_a_vendor_container",
+      "status": "PASS",
+      "duration": 0.6034,
+      "details": null
+    },
+    {
+      "id": "test_verification_process_timeout.TimeoutContainment.test_current_case_progress_names_actual_running_test",
+      "status": "PASS",
+      "duration": 0.0149,
+      "details": null
+    },
+    {
+      "id": "test_verification_process_timeout.TimeoutContainment.test_deadline_stops_owned_descendant_and_preserves_unrelated_process",
+      "status": "PASS",
+      "duration": 2.0609,
+      "details": null
+    },
+    {
+      "id": "providers.test_contract.Contract.test_auth_failure_updates_health",
+      "status": "PASS",
+      "duration": 0.2,
+      "details": null
+    },
+    {
+      "id": "providers.test_contract.Contract.test_cancel",
+      "status": "PASS",
+      "duration": 0.5624,
+      "details": null
+    },
+    {
+      "id": "providers.test_contract.Contract.test_claude_mcp_allowlist_read_only",
+      "status": "PASS",
+      "duration": 0.0741,
+      "details": null
+    },
+    {
+      "id": "providers.test_contract.Contract.test_codex_api_key_login_refused_without_fallback",
+      "status": "PASS",
+      "duration": 0.0621,
+      "details": null
+    },
+    {
+      "id": "providers.test_contract.Contract.test_error_normalisation",
+      "status": "PASS",
+      "duration": 0.8288,
+      "details": null
+    },
+    {
+      "id": "providers.test_contract.Contract.test_missing_cli_is_unavailable_not_faked",
+      "status": "PASS",
+      "duration": 0.0629,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 17,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-1iro60me",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

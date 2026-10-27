@@ -144,11 +144,13 @@ class GitHub:
         if isinstance(result, dict) and result.get('errors'): raise RuntimeError('GitHub GraphQL rejected operation')
         return result
 
-    def pages(self, path: str, field: str) -> list:
+    def pages(self, path: str, field: str | None) -> list:
         result = []
         for page in range(1, 11):
             data = self.request(path + ('&' if '?' in path else '?') + f'per_page=100&page={page}')
-            chunk = data[field]; result.extend(chunk)
+            chunk = data[field] if field is not None else data
+            if not isinstance(chunk,list):raise ValueError('Malformed paginated GitHub response')
+            result.extend(chunk)
             if len(chunk) < 100: return result
         raise ValueError('Pagination bound exceeded; cannot prove complete checks')
 
@@ -425,6 +427,20 @@ def step(policy: dict, state: PersistentState, folder: Path, apply: bool) -> dic
     fresh = api.request('/pulls/' + str(policy['pr']))
     if assignment_errors(policy, fresh, worktree_identity(root)): raise RuntimeError('PR changed before commit/push')
     if any(p not in policy['allowed_paths'] for p in changed_paths(root)): raise RuntimeError('Unapproved edit appeared during verification')
+    # Publishing the actual full receipt is a deterministic supervisor operation,
+    # never permission for the coding agent to edit tests, gates or evidence.
+    from scripts.check_local_verification import load_report
+    report_path = Path(str(target_out) + '-software') / 'report.json'
+    _, proof_errors = load_report(root, report_path)
+    if proof_errors:
+        state.save(phase='BLOCKED_LOCAL_RECEIPT', reasons=proof_errors, owned_dirty=dirty_digest(root)); return state.data
+    canonical = 'docs/qa/evidence/local-verification/report.json'
+    target_receipt = root / canonical
+    target_receipt.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(report_path, target_receipt)
+    shutil.copy2(report_path, attempt / 'published-local-verification.json')
+    paths = sorted(set(paths) | {canonical})
+    if any(p not in paths for p in changed_paths(root)): raise RuntimeError('Unexpected change during verified receipt publication')
     subprocess.run(['git','add','--',*paths], cwd=root, check=True)
     subprocess.run(['git','commit','-m',f"fix(ci): repair assigned PR {policy['pr']} defect (attempt {state.data['attempts']})"], cwd=root, check=True)
     fixed = git(root, 'rev-parse', 'HEAD'); state.save(phase='COMMITTED', fixed_sha=fixed)

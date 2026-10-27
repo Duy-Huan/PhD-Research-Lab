@@ -246,69 +246,25 @@ describe('Sidebar', () => {
     expect(useUIStore.getState().mainView).toBe('settings');
   });
 
-  it('renders quick apps & sync strip and triggers launch and sync', async () => {
-    vi.spyOn(api, 'get').mockResolvedValue({ sessions: [], projects: [] });
-    const postSpy = vi.spyOn(api, 'post').mockResolvedValue({ ok: true, total_changed: 1, total_observed: 5 });
-
+  it('routes model management to Models without launching retired software', () => {
+    vi.spyOn(api, 'get').mockResolvedValue({sessions: [], projects: []});
+    const post = vi.spyOn(api, 'post').mockResolvedValue({});
     renderWithProviders(<Sidebar collapsed={false} />);
-
-    const opencodeLaunchBtn = screen.getByRole('button', { name: /^OpenCode$/i });
-    expect(opencodeLaunchBtn).toBeInTheDocument();
-    fireEvent.click(opencodeLaunchBtn);
-    expect(postSpy).toHaveBeenCalledWith('/api/providers/opencode/launch', {});
-
-    const opencodeSyncBtn = screen.getByTitle(/Đồng bộ dữ liệu từ OpenCode|Sync data from OpenCode/i);
-    expect(opencodeSyncBtn).toBeInTheDocument();
-    fireEvent.click(opencodeSyncBtn);
-    expect(postSpy).toHaveBeenCalledWith('/api/providers/opencode/sync', {});
+    fireEvent.click(screen.getByRole('button', {name: /Mô hình & kết nối AI|Models & AI connections/i}));
+    expect(useUIStore.getState().mainView).toBe('settings');
+    expect(useUIStore.getState().settingsTab).toBe('models');
+    expect(screen.queryByText(/^OpenCode$/i)).not.toBeInTheDocument();
+    expect(post).not.toHaveBeenCalled();
   });
 
-  it('renders all CLI providers in the Provider & CLI list and supports 1-click manual launch for any provider', async () => {
-    vi.spyOn(api, 'get').mockImplementation(async (url: string) => {
-      if (url.includes('/api/providers')) {
-        return {
-          providers: [
-            { id: 'claude_code', label: 'Claude Code', state: 'READY', ready: true },
-            { id: 'codex', label: 'OpenAI Codex', state: 'READY', ready: true },
-            { id: 'paperorchestra', label: 'PaperOrchestra', state: 'READY', ready: true },
-          ],
-        };
-      }
-      return { sessions: [], projects: [] };
-    });
-
-    const postSpy = vi.spyOn(api, 'post').mockResolvedValue({ ok: true, terminal_launched: true });
-
+  it('keeps integrated PaperOrchestra Studio and native code workspace accessible', () => {
+    vi.spyOn(api, 'get').mockResolvedValue({sessions: [], projects: []});
+    const post = vi.spyOn(api, 'post').mockResolvedValue({});
     renderWithProviders(<Sidebar collapsed={false} />);
-
-    // 1. Verify Provider & CLI group header is present
-    expect(screen.getByText(/Danh sách Provider & CLI|Provider & CLI Hub/i)).toBeInTheDocument();
-
-    // 2. Verify all providers are listed
-    expect(screen.getByText(/Claude CLI Terminal/i)).toBeInTheDocument();
-    expect(screen.getByText(/OpenAI Codex CLI/i)).toBeInTheDocument();
-    expect(screen.getByText(/Antigravity CLI \(agy\)/i)).toBeInTheDocument();
-    expect(screen.getByText(/Gemini CLI/i)).toBeInTheDocument();
-    expect(screen.getByText(/Feynman Research CLI/i)).toBeInTheDocument();
-    expect(screen.getByText(/OpenCode Sandbox CLI/i)).toBeInTheDocument();
-    expect(screen.getByText(/PaperOrchestra Engine/i)).toBeInTheDocument();
-    expect(screen.getByText(/OpenScience Runtime/i)).toBeInTheDocument();
-    expect(screen.getByText(/Python venv Terminal/i)).toBeInTheDocument();
-
-    // 3. Test 1-click manual launch button for PaperOrchestra
-    const poLaunchBtn = screen.getByTitle(/Mở thủ công 1-Click: khởi chạy PaperOrchestra Engine trong cửa sổ terminal ngoài/i);
-    expect(poLaunchBtn).toBeInTheDocument();
-    fireEvent.click(poLaunchBtn);
-
-    await waitFor(() => {
-      expect(postSpy).toHaveBeenCalledWith('/api/providers/paperorchestra/launch', { terminal: true });
-    });
-
-    // 4. Test clicking Codex provider row opens CLI drawer and sets selected provider
-    const codexRow = screen.getByText(/OpenAI Codex CLI/i);
-    fireEvent.click(codexRow);
-
-    expect(useUIStore.getState().drawerKind).toBe('cli');
-    expect(useUIStore.getState().selectedCliProvider).toBe('codex');
+    fireEvent.click(screen.getByRole('button', {name:'PaperOrchestra Studio'}));
+    expect(useUIStore.getState().drawerKind).toBe('paper');
+    fireEvent.click(screen.getByRole('button', {name:/Code và thí nghiệm native|Native code & experiments/i}));
+    expect(useUIStore.getState().drawerKind).toBe('code');
+    expect(post).not.toHaveBeenCalled();
   });
 });

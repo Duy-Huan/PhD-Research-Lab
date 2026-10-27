@@ -1,4 +1,4 @@
-name: Trusted QA promotion auto-merge
+name: Trusted qualified promotion auto-merge
 on:
   workflow_run:
     workflows: [Quality Gates]
@@ -6,7 +6,9 @@ on:
 permissions: {}
 jobs:
   enable:
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request'
+    # Local-first scripts/promote.py is the default. Enable this optional hosted
+    # controller only after protected main adopts it and read-only policy auth exists.
+    if: vars.PHDLAB_HOSTED_AUTO_PROMOTION == 'enabled' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -25,6 +27,9 @@ jobs:
           script: |
             const {run} = require('./.github/scripts/automerge.cjs');
             for (const pr of context.payload.workflow_run.pull_requests || []) {
-              const result = await run({github, context, core}, pr.number);
+              // Owner authorization,2026-10-25: native main promotion only after
+              // every mandatory software regression and protected check truly succeeds.
+              // Live-provider/AI-UAT qualification is separate under owner2026-10-26 policy.
+              const result = await run({github, context, core}, pr.number, true, {allowMain:true});
               core.info(JSON.stringify(result));
             }

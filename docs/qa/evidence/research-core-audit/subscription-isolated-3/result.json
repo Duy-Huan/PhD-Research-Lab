@@ -1,0 +1,43 @@
+{
+  "mode": "LIVE_PROVIDER",
+  "scope": "Real app gateway and official Codex ChatGPT sign-in; synthetic prompt only",
+  "health": {
+    "provider": "codex",
+    "label": "ChatGPT (OpenAI Codex CLI)",
+    "path": "Codex CLI signed in with a ChatGPT plan (`codex login`)",
+    "billing": "subscription sign-in only (API keys removed)",
+    "api_fallback": false,
+    "state": "CONNECTED",
+    "detail": "signed in with ChatGPT",
+    "version": "codex-cli 0.163.0",
+    "setup": [
+      "npm install -g @openai/codex",
+      "codex login   (choose 'Sign in with ChatGPT')"
+    ]
+  },
+  "api_key_forwarded": {
+    "OPENAI_API_KEY": false,
+    "CODEX_API_KEY": false,
+    "OPENAI_BASE_URL": false,
+    "AZURE_OPENAI_API_KEY": false
+  },
+  "data_root": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\data\\gateway-verification\\subscription-1036881b1f",
+  "started_utc": 1792946658.758483,
+  "request_id": "gw-6c02facd19",
+  "nonce": "10a6fdd4b91fe03e",
+  "status": "completed",
+  "answer": "{\"nonce\":\"10a6fdd4b91fe03e\",\"sum\":121}",
+  "errors": [],
+  "timings_ms": {
+    "context": 17.29,
+    "prepare": 35.23,
+    "cli_startup": 7.55,
+    "first_cli_event": 4062.34,
+    "first_event": 11454.89,
+    "first_token": 21263.54,
+    "total": 21978.8
+  },
+  "usage": null,
+  "finished_utc": 1792946680.8272502,
+  "assertions_passed": true
+}

@@ -1,0 +1,74 @@
+{
+  "mode": "ACTUAL_CI_ARTIFACT_INSPECTION",
+  "run_id": 40221840300,
+  "head_sha": "2a5ee141a1d06291eb65589045f0c5a35b711526",
+  "overall_run": "FAILURE",
+  "matrix": [
+    {
+      "artifact": "backend-windows-latest-3.11",
+      "summary": {
+        "total_run": 973,
+        "passed": 970,
+        "failures": 0,
+        "errors": 3,
+        "failure_events": 0,
+        "error_events": 3,
+        "skipped": 0,
+        "was_successful": false,
+        "overall_decision": "FAIL"
+      },
+      "source_sha256": "568d68f5c218f4ccdfa941de160621e79e5a6794309ffaaf14b68d179e76b3c3",
+      "decision": "FAIL"
+    },
+    {
+      "artifact": "backend-ubuntu-latest-3.11",
+      "summary": {
+        "total_run": 973,
+        "passed": 970,
+        "failures": 0,
+        "errors": 3,
+        "failure_events": 0,
+        "error_events": 3,
+        "skipped": 0,
+        "was_successful": false,
+        "overall_decision": "FAIL"
+      },
+      "source_sha256": "568d68f5c218f4ccdfa941de160621e79e5a6794309ffaaf14b68d179e76b3c3",
+      "decision": "FAIL"
+    },
+    {
+      "artifact": "backend-windows-latest-3.12",
+      "summary": {
+        "total_run": 973,
+        "passed": 970,
+        "failures": 0,
+        "errors": 3,
+        "failure_events": 0,
+        "error_events": 3,
+        "skipped": 0,
+        "was_successful": false,
+        "overall_decision": "FAIL"
+      },
+      "source_sha256": "568d68f5c218f4ccdfa941de160621e79e5a6794309ffaaf14b68d179e76b3c3",
+      "decision": "FAIL"
+    },
+    {
+      "artifact": "backend-ubuntu-latest-3.12",
+      "summary": {
+        "total_run": 973,
+        "passed": 970,
+        "failures": 0,
+        "errors": 3,
+        "failure_events": 0,
+        "error_events": 3,
+        "skipped": 0,
+        "was_successful": false,
+        "overall_decision": "FAIL"
+      },
+      "source_sha256": "568d68f5c218f4ccdfa941de160621e79e5a6794309ffaaf14b68d179e76b3c3",
+      "decision": "FAIL"
+    }
+  ],
+  "source_fingerprints_equal": true,
+  "interpretation": "License EOL correction matches across four environments; this is not software PASS. Each failed three fixture cases before the next repair."
+}

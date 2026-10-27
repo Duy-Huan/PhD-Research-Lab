@@ -1,0 +1,468 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_uat_journeys.JourneyCapabilities.test_mission_review_note_schema_remains_strict",
+      "status": "PASS",
+      "duration": 1.0172,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyCapabilities.test_project_capability_rejects_paths_provider_overrides_and_unknown_sessions",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyCapabilities.test_settings_task_identity_cannot_evade_exhausted_original_budget",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyCapabilities.test_task_and_boundary_rules_preserve_all_four_scopes",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyCapabilities.test_workflow_capability_binds_native_mission_digest_and_strict_review_note",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyEvidence.test_expected_fault_phase_cannot_hide_unrelated_errors",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyEvidence.test_false_deterministic_assertion_cannot_be_overridden_by_ai_success",
+      "status": "PASS",
+      "duration": 0.0438,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyEvidence.test_individually_packaged_runs_keep_review_pending_and_require_each_journey",
+      "status": "PASS",
+      "duration": 0.1353,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyEvidence.test_one_settings_run_cannot_qualify_three_unexecuted_journeys",
+      "status": "PASS",
+      "duration": 0.0202,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyEvidence.test_raw_journey_identity_must_match_declaration",
+      "status": "PASS",
+      "duration": 0.0199,
+      "details": null
+    },
+    {
+      "id": "test_uat_harness.UATPolicy.test_ai_success_is_unverified_until_reproduced",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "status": "PASS",
+      "duration": 0.0002,
+      "details": null
+    },
+    {
+      "id": "test_uat_harness.UATPolicy.test_profiles_are_unique_and_inside_disposable_root",
+      "status": "PASS",
+      "duration": 0.0022,
+      "details": null
+    },
+    {
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "status": "PASS",
+      "duration": 0.0002,
+      "details": null
+    },
+    {
+      "id": "test_uat_harness.UATPolicy.test_risk_policy_preserves_optional_low_risk_exploration",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_uat_harness.UATPolicy.test_unavailable_adapter_never_passes",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_uat_gate.UATGate.test_contract_order_cannot_lower_critical_risk",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_uat_gate.UATGate.test_low_risk_docs_do_not_require_paid_or_local_llm",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy",
+      "status": "PASS",
+      "duration": 0.0445,
+      "details": null
+    },
+    {
+      "id": "test_uat_gate.UATGate.test_required_missing_exploration_blocks",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify",
+      "status": "PASS",
+      "duration": 0.0816,
+      "details": null
+    },
+    {
+      "id": "test_browser_acceptance.BrowserAcceptance.test_docs_select_smoke_without_llm_and_unknown_ui_broadens_offline",
+      "status": "PASS",
+      "duration": 0.0052,
+      "details": null
+    },
+    {
+      "id": "test_browser_acceptance.BrowserAcceptance.test_fixed_requires_reproduction_and_matching_behavioral_regression",
+      "status": "PASS",
+      "duration": 0.0041,
+      "details": null
+    },
+    {
+      "id": "test_browser_acceptance.BrowserAcceptance.test_live_journeys_never_silently_join_offline_ci",
+      "status": "PASS",
+      "duration": 0.0018,
+      "details": null
+    },
+    {
+      "id": "test_browser_acceptance.BrowserAcceptance.test_personas_have_existing_tests_and_explicit_exploration_capabilities",
+      "status": "PASS",
+      "duration": 0.0003,
+      "details": null
+    },
+    {
+      "id": "test_browser_acceptance.BrowserAcceptance.test_unknown_journey_and_unchanged_affected_contract_are_not_ignored",
+      "status": "PASS",
+      "duration": 0.0019,
+      "details": null
+    },
+    {
+      "id": "test_browser_acceptance.BrowserAcceptance.test_unreproduced_findings_remain_unconfirmed_with_compact_evidence",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_default_deadline_and_failure_limit_remain_strict",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_repository_or_pr_content_cannot_become_owner_authorization",
+      "status": "PASS",
+      "duration": 0.0954,
+      "details": null
+    },
+    {
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_single_consumption_preserves_original_three_failures_and_blocks_new_file_replay",
+      "status": "PASS",
+      "duration": 0.2105,
+      "details": null
+    },
+    {
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes",
+      "status": "PASS",
+      "duration": 0.8396,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "status": "PASS",
+      "duration": 0.0072,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_conflicting_artifact_digests_fail_closed",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_copy_only_declared_bytes_and_preserve_existing_output",
+      "status": "PASS",
+      "duration": 0.2948,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_failed_qualification_or_changed_artifact_cannot_write_output",
+      "status": "PASS",
+      "duration": 0.2864,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_latest_failed_owner_dispatch_blocks_cached_success",
+      "status": "PASS",
+      "duration": 0.0026,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_no_owner_dispatch_means_no_execution_or_publishing",
+      "status": "PASS",
+      "duration": 0.0027,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=0, deadline=120)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=99, deadline=120)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=3, deadline=0)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=3, deadline=3600)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=3.5, deadline=120)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=3, deadline=2.5)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps='3', deadline=120)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=True, deadline=120)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='https://example.com')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='file:///C:/Windows/system.ini')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='http://127.0.0.1.evil:8765')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='http://user:pass@127.0.0.1:8765')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='http://192.168.1.1:8765')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='http://127.0.0.1:0')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='http://localhost')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy",
+      "id": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy (acceptance={'required': 'yes', 'journeys': ['settings-language']})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy",
+      "id": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy (acceptance={'required': True, 'journeys': 'settings-language'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy",
+      "id": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy (acceptance={'required': True, 'journeys': []})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy",
+      "id": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy (acceptance={'required': True, 'journeys': ['settings-language'], 'applies_to': '*'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy",
+      "id": "test_uat_gate.UATGate.test_malformed_browser_contract_cannot_bypass_journey_policy (acceptance={'required': True, 'journeys': ['settings-language'], 'independent_review': 'approved'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify",
+      "id": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify (key='decision')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify",
+      "id": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify (key='mode')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify",
+      "id": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify (key='source_sha256')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify",
+      "id": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify (key='verified_journeys')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify",
+      "id": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify (key='review')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify",
+      "id": "test_uat_gate.UATGate.test_stale_mocked_pending_and_modified_evidence_cannot_qualify (key='release_blocking_defects')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes",
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes (change={'source_sha256': 'other'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes",
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes (change={'head_sha': 'other'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes",
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes (change={'model': 'paid-cloud'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes",
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes (change={'owner': 'external'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes",
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes (change={'used': True})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes",
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes (change={'max_steps': 8})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes",
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes (change={'expires_utc': '2026-10-25T23:16:40.389756+00:00'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced (name='../escape')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced (name='/absolute')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced (name='C:/system')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced (name='back\\\\slash')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced (name='raw/../escape')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 37,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-3jvmbsnd",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

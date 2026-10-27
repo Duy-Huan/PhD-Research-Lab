@@ -1,0 +1,140 @@
+{
+  "failed_test_ids": [
+    "test_orchestrator.Orchestrator.test_cancel_a_running_cli_turn",
+    "test_orchestrator.Orchestrator.test_cli_partial_answer_keeps_the_text_with_the_error",
+    "test_orchestrator.Orchestrator.test_cli_provider_answer_tools_usage_and_workspace",
+    "test_orchestrator.Orchestrator.test_cli_provider_errors_and_refusals",
+    "test_orchestrator.Orchestrator.test_manual_mode_plan_for_cli_and_http_then_launch_and_cancel",
+    "unittest.loader._FailedTest.test_verification_process_timeout"
+  ],
+  "unexecuted_test_ids": [],
+  "root_failures": [
+    {
+      "fingerprint": "deacad6b61e946ba",
+      "cause": "AssertionError: 'failed' != 'completed'",
+      "count": 12,
+      "status": "FAIL",
+      "case_ids": [
+        "test_orchestrator.Orchestrator.test_cli_partial_answer_keeps_the_text_with_the_error",
+        "test_orchestrator.Orchestrator.test_cli_provider_answer_tools_usage_and_workspace",
+        "test_orchestrator.Orchestrator.test_cli_partial_answer_keeps_the_text_with_the_error",
+        "test_orchestrator.Orchestrator.test_cli_provider_answer_tools_usage_and_workspace",
+        "test_orchestrator.Orchestrator.test_cli_partial_answer_keeps_the_text_with_the_error",
+        "test_orchestrator.Orchestrator.test_cli_provider_answer_tools_usage_and_workspace",
+        "test_orchestrator.Orchestrator.test_cli_partial_answer_keeps_the_text_with_the_error",
+        "test_orchestrator.Orchestrator.test_cli_provider_answer_tools_usage_and_workspace",
+        "test_orchestrator.Orchestrator.test_cli_partial_answer_keeps_the_text_with_the_error",
+        "test_orchestrator.Orchestrator.test_cli_provider_answer_tools_usage_and_workspace",
+        "test_orchestrator.Orchestrator.test_cli_partial_answer_keeps_the_text_with_the_error",
+        "test_orchestrator.Orchestrator.test_cli_provider_answer_tools_usage_and_workspace"
+      ],
+      "classification": "BEHAVIOR_ASSERTION",
+      "diagnosis": "Heuristic grouping; inspect raw evidence before repairing"
+    },
+    {
+      "fingerprint": "485d1771db500ff2",
+      "cause": "ImportError: Failed to import test module: test_verification_process_timeout",
+      "count": 6,
+      "status": "ERROR",
+      "case_ids": [
+        "unittest.loader._FailedTest.test_verification_process_timeout",
+        "unittest.loader._FailedTest.test_verification_process_timeout",
+        "unittest.loader._FailedTest.test_verification_process_timeout",
+        "unittest.loader._FailedTest.test_verification_process_timeout",
+        "unittest.loader._FailedTest.test_verification_process_timeout",
+        "unittest.loader._FailedTest.test_verification_process_timeout"
+      ],
+      "classification": "ENVIRONMENT_OR_DEPENDENCY",
+      "diagnosis": "Heuristic grouping; inspect raw evidence before repairing"
+    },
+    {
+      "fingerprint": "6a1c347d6aabb87d",
+      "cause": "backend.agent.AIWSError: Turn is failed",
+      "count": 6,
+      "status": "ERROR",
+      "case_ids": [
+        "test_orchestrator.Orchestrator.test_cancel_a_running_cli_turn",
+        "test_orchestrator.Orchestrator.test_cancel_a_running_cli_turn",
+        "test_orchestrator.Orchestrator.test_cancel_a_running_cli_turn",
+        "test_orchestrator.Orchestrator.test_cancel_a_running_cli_turn",
+        "test_orchestrator.Orchestrator.test_cancel_a_running_cli_turn",
+        "test_orchestrator.Orchestrator.test_cancel_a_running_cli_turn"
+      ],
+      "classification": "UNCLASSIFIED",
+      "diagnosis": "Heuristic grouping; inspect raw evidence before repairing"
+    },
+    {
+      "fingerprint": "a7e5460abeeb93a1",
+      "cause": "AssertionError: 'failed' != 'awaiting_launch'",
+      "count": 6,
+      "status": "FAIL",
+      "case_ids": [
+        "test_orchestrator.Orchestrator.test_manual_mode_plan_for_cli_and_http_then_launch_and_cancel",
+        "test_orchestrator.Orchestrator.test_manual_mode_plan_for_cli_and_http_then_launch_and_cancel",
+        "test_orchestrator.Orchestrator.test_manual_mode_plan_for_cli_and_http_then_launch_and_cancel",
+        "test_orchestrator.Orchestrator.test_manual_mode_plan_for_cli_and_http_then_launch_and_cancel",
+        "test_orchestrator.Orchestrator.test_manual_mode_plan_for_cli_and_http_then_launch_and_cancel",
+        "test_orchestrator.Orchestrator.test_manual_mode_plan_for_cli_and_http_then_launch_and_cancel"
+      ],
+      "classification": "BEHAVIOR_ASSERTION",
+      "diagnosis": "Heuristic grouping; inspect raw evidence before repairing"
+    },
+    {
+      "fingerprint": "ccd8713bfe3af814",
+      "cause": "AssertionError: 'Authentication' not found in 'ChatGPT (OpenAI Codex CLI) is not available (CONNECTED): Controlled subprocess fixture; no live authentication'",
+      "count": 6,
+      "status": "FAIL",
+      "case_ids": [
+        "test_orchestrator.Orchestrator.test_cli_provider_errors_and_refusals",
+        "test_orchestrator.Orchestrator.test_cli_provider_errors_and_refusals",
+        "test_orchestrator.Orchestrator.test_cli_provider_errors_and_refusals",
+        "test_orchestrator.Orchestrator.test_cli_provider_errors_and_refusals",
+        "test_orchestrator.Orchestrator.test_cli_provider_errors_and_refusals",
+        "test_orchestrator.Orchestrator.test_cli_provider_errors_and_refusals"
+      ],
+      "classification": "BEHAVIOR_ASSERTION",
+      "diagnosis": "Heuristic grouping; inspect raw evidence before repairing"
+    }
+  ],
+  "scope": "Raw assertion observations, not proof that unrelated qualification gaps are repaired",
+  "run_id": 40331308169,
+  "head_sha": "3f60a77c54ada9f1197c901019a119ad5d4ddebf",
+  "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40331308169",
+  "failed_jobs": [
+    {
+      "id": 121601125591,
+      "name": "Backend (ubuntu-latest, Python 3.12)",
+      "steps": [
+        "Complete software regression; informational production coverage"
+      ]
+    },
+    {
+      "id": 121601125964,
+      "name": "Backend (windows-latest, Python 3.11)",
+      "steps": [
+        "Complete software regression; informational production coverage"
+      ]
+    },
+    {
+      "id": 121601126012,
+      "name": "Backend (ubuntu-latest, Python 3.11)",
+      "steps": [
+        "Complete software regression; informational production coverage"
+      ]
+    },
+    {
+      "id": 121601126163,
+      "name": "Backend (windows-latest, Python 3.12)",
+      "steps": [
+        "Complete software regression; informational production coverage"
+      ]
+    },
+    {
+      "id": 121611989120,
+      "name": "Development gate",
+      "steps": [
+        "Run python scripts/quality_gate.py aggregate --phase development"
+      ]
+    }
+  ]
+}

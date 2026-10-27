@@ -1,0 +1,47 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_cleanup_failure_cannot_be_reported_as_a_successful_request",
+      "status": "FAIL",
+      "duration": 0.747,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_cli_runtime_cleanup.py\", line 55, in test_cleanup_failure_cannot_be_reported_as_a_successful_request\n    self.assertTrue(any(e['type']=='error' and 'cleanup' in e.get('message','').lower() for e in events))\nAssertionError: False is not true\n"
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_completed_turn_releases_owned_runtime_before_reporting_completion",
+      "status": "FAIL",
+      "duration": 0.7272,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_cli_runtime_cleanup.py\", line 39, in test_completed_turn_releases_owned_runtime_before_reporting_completion\n    if event['type']=='request_completed':self.assertNotIn(OWNER,resources)\n                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' unexpectedly found in {'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa': 'running', 'another-request': 'running'}\n"
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_consumer_close_releases_its_runtime_without_touching_other_requests",
+      "status": "FAIL",
+      "duration": 0.3612,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_cli_runtime_cleanup.py\", line 50, in test_consumer_close_releases_its_runtime_without_touching_other_requests\n    cleanup.assert_called_once_with(OWNER)\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 960, in assert_called_once_with\n    raise AssertionError(msg)\nAssertionError: Expected 'cleanup_owned_runtime' to be called once. Called 0 times.\n"
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_docker_cleanup_uses_exact_owned_label_and_volume_only",
+      "status": "ERROR",
+      "duration": 0.0371,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_cli_runtime_cleanup.py\", line 65, in test_docker_cleanup_uses_exact_owned_label_and_volume_only\n    isolated_cli.cleanup_owned_runtime(OWNER)\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.isolated_cli' has no attribute 'cleanup_owned_runtime'\n"
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_invalid_owner_cannot_start_docker_operations",
+      "status": "ERROR",
+      "duration": 0.0376,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_cli_runtime_cleanup.py\", line 72, in test_invalid_owner_cannot_start_docker_operations\n    with self.assertRaises(ValueError):isolated_cli.cleanup_owned_runtime('other; arbitrary')\n                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.isolated_cli' has no attribute 'cleanup_owned_runtime'\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 5,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-7ixi_sg8",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

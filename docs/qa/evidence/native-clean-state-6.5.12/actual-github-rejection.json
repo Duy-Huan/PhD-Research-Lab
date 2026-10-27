@@ -1,0 +1,28 @@
+{
+  "pr": 14,
+  "head": "5c71068e88a98249d5c9cb142519a24112415d5e",
+  "base": "a10bf8d8b38a6cc053b5d69fc257d6a1534049b4",
+  "mergeable_state": "clean",
+  "merged": false,
+  "auto_merge": null,
+  "graphql_response": {
+    "data": {
+      "enablePullRequestAutoMerge": null
+    },
+    "errors": [
+      {
+        "type": "UNPROCESSABLE",
+        "path": [
+          "enablePullRequestAutoMerge"
+        ],
+        "locations": [
+          {
+            "line": 1,
+            "column": 19
+          }
+        ],
+        "message": "Pull request Pull request is in clean status"
+      }
+    ]
+  }
+}

@@ -15,10 +15,10 @@
   },
   "journeys": {
     "settings-language": {"routes": ["/dist/react.html"], "tests": ["uat_harness.spec.ts"], "adapter": "local-settings", "needs_model": false, "paths": ["frontend/src/features/settings/**", "frontend/src/i18n/**"]},
-    "project-and-chat": {"routes": ["/dist/react.html"], "tests": ["journeys.spec.ts", "multi_turn_chat.spec.ts"], "adapter": "NOT_IMPLEMENTED", "needs_model": true, "paths": ["frontend/src/features/chat/**", "backend/api/chat.py"]},
+    "project-and-chat": {"routes": ["/dist/react.html"], "tests": ["journeys.spec.ts", "multi_turn_chat.spec.ts"], "adapter": "local-project-chat", "needs_model": true, "paths": ["frontend/src/features/chat/**", "backend/api/chat.py"]},
     "research-evidence": {"routes": ["/dist/react.html"], "tests": ["workflows.spec.ts"], "adapter": "NOT_IMPLEMENTED", "needs_model": true, "paths": ["backend/memory/**", "backend/research_engines/**", "backend/paper/**"]},
-    "workflow-operations": {"routes": ["/dist/react.html"], "tests": ["harness_ide.spec.ts", "tools.spec.ts"], "adapter": "NOT_IMPLEMENTED", "needs_model": true, "paths": ["frontend/src/features/harness/**", "backend/agent/**", "backend/execution/**"]},
-    "failure-recovery": {"routes": ["/dist/react.html"], "tests": ["uat_harness.spec.ts"], "adapter": "NOT_IMPLEMENTED", "needs_model": false, "paths": ["backend/providers/**", "frontend/src/lib/**"]},
+    "workflow-operations": {"routes": ["/dist/react.html"], "tests": ["harness_ide.spec.ts", "tools.spec.ts"], "adapter": "local-native-workflow", "needs_model": true, "paths": ["frontend/src/features/harness/**", "backend/agent/**", "backend/execution/**"]},
+    "failure-recovery": {"routes": ["/dist/react.html"], "tests": ["uat_harness.spec.ts"], "adapter": "local-config-recovery", "needs_model": false, "paths": ["backend/providers/**", "frontend/src/lib/**"]},
     "navigation-layout": {"routes": ["/dist/react.html"], "tests": ["navigation.spec.ts"], "adapter": "NOT_IMPLEMENTED", "needs_model": false, "paths": ["frontend/src/**"]},
     "three-dimensional-office": {"routes": ["/dist/react.html"], "tests": ["office3d.spec.ts"], "adapter": "NOT_IMPLEMENTED", "needs_model": false, "paths": ["frontend/src/features/office3d/**"]}
   }

@@ -4,7 +4,7 @@ No AI is invoked here. Missing live infrastructure or evidence blocks QA/release
 """
 from __future__ import annotations
 import argparse
-import io
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -22,6 +22,18 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self,*args,**kwargs):return None
 
 
+def latest_owner_run(runs: list,workflow: int,repo: str,head: str) -> dict:
+    candidates=[r for r in runs if r.get('workflow_id')==workflow
+                and r.get('head_repository',{}).get('full_name')==repo
+                and r.get('actor',{}).get('login')==repo.split('/')[0]
+                and r.get('event')=='workflow_dispatch' and r.get('head_sha')==head
+                and r.get('path')=='.github/workflows/research-live.yml']
+    run=max(candidates,key=lambda r:(r.get('id',0),r.get('run_attempt',1))) if candidates else None
+    if not run or run.get('status')!='completed' or run.get('conclusion')!='success':
+        raise ValueError('Latest owner-dispatched live workflow on the exact PR head has not succeeded')
+    return run
+
+
 def main() -> int:
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--check',action='store_true',required=True)
     parser.parse_args()
@@ -37,13 +49,16 @@ def main() -> int:
     try:
         if not token or '/' not in repo or not head: raise ValueError('No authenticated GitHub run/evidence context; run the real local qualification and publish trusted artifacts')
         workflow=api('/actions/workflows/research-live.yml')
-        runs=api('/actions/workflows/research-live.yml/runs?event=workflow_dispatch&status=success&head_sha='+head+'&per_page=20')['workflow_runs']
-        runs=[r for r in runs if r['workflow_id']==workflow['id'] and r['head_repository']['full_name']==repo
-              and r['actor']['login']==repo.split('/')[0] and r['head_sha']==head]
-        if not runs:raise ValueError('No successful owner-dispatched live workflow on the exact PR head')
-        run=runs[0]; artifacts=api('/actions/runs/'+str(run['id'])+'/artifacts')['artifacts']
-        artifact=next((a for a in artifacts if a['name']=='live-qualification' and not a['expired']),None)
-        if not artifact:raise ValueError('Trusted live artifact is missing or expired')
+        runs=api('/actions/workflows/research-live.yml/runs?event=workflow_dispatch&head_sha='+head+'&per_page=100')['workflow_runs']
+        run=latest_owner_run(runs,workflow['id'],repo,head)
+        artifacts=api('/actions/runs/'+str(run['id'])+'/artifacts')['artifacts']
+        name='live-qualification-'+str(run['id'])+'-'+str(run['run_attempt'])
+        matching=[a for a in artifacts if a.get('name')==name and not a.get('expired', True)]
+        if len(matching)!=1:raise ValueError('Exact latest-attempt live artifact is missing, ambiguous or expired')
+        artifact=matching[0]
+        if (artifact.get('workflow_run',{}).get('id')!=run['id']
+                or artifact.get('workflow_run',{}).get('head_sha')!=head):
+            raise ValueError('Live artifact belongs to a different run or commit')
         req=urllib.request.Request(artifact['archive_download_url'],headers={'User-Agent':'phdlab-live-qualification','Authorization':'Bearer '+token})
         try: response=urllib.request.build_opener(NoRedirect).open(req,timeout=30)
         except urllib.error.HTTPError as exc:
@@ -52,15 +67,8 @@ def main() -> int:
             response=urllib.request.urlopen(exc.headers['Location'],timeout=60)
         data=response.read(50_000_001)
         if len(data)>50_000_000:raise ValueError('Live artifact exceeds bounded download size')
-        with zipfile.ZipFile(io.BytesIO(data)) as archive:
-            total=sum(i.file_size for i in archive.infolist())
-            if total>200_000_000 or len(archive.infolist())>1000:raise ValueError('Unsafe live artifact expansion')
-            for item in archive.infolist():
-                path=(out/'evidence'/item.filename).resolve()
-                if not path.is_relative_to((out/'evidence').resolve()) or (item.external_attr>>16)&0o170000==0o120000:
-                    raise ValueError('Unsafe live artifact path or symlink')
-                if item.is_dir():continue
-                path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(archive.read(item))
+        from scripts.publish_live_evidence import unpack_bundle
+        unpack_bundle(data,out/'evidence',hashlib.sha256(data).hexdigest())
         manifest=out/'evidence/manifest.json'
         reasons += validate_live(manifest,identity(ROOT)['sha256'],head)
     except (ValueError,KeyError,TypeError,OSError,zipfile.BadZipFile) as exc:

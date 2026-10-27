@@ -1,0 +1,57 @@
+name: Research live qualification
+on:
+  # Optional owner-dispatched qualification; not a commit/merge prerequisite.
+  workflow_dispatch:
+    inputs:
+      expected_head_sha:
+        description: Exact locally verified dev or QA commit
+        required: true
+        type: string
+      source_sha256:
+        description: Exact canonical source digest from actual local verification
+        required: true
+        type: string
+      bundle_blob_sha:
+        description: Owner-uploaded Git blob containing the actual evidence archive
+        required: true
+        type: string
+      bundle_sha256:
+        description: SHA-256 of the actual local evidence archive
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  qualification:
+    name: Publish actual owner-qualified local evidence
+    if: github.event_name == 'workflow_dispatch' && github.actor == github.repository_owner && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/qa')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: verified-source
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          path: verified-source
+          clean: false
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with: {python-version: '3.12'}
+      - name: Validate genuine matching-source evidence; no model calls or fake fallback
+        env:
+          EXPECTED_HEAD_SHA: ${{ inputs.expected_head_sha }}
+          EXPECTED_SOURCE_SHA256: ${{ inputs.source_sha256 }}
+          BUNDLE_BLOB_SHA: ${{ inputs.bundle_blob_sha }}
+          BUNDLE_SHA256: ${{ inputs.bundle_sha256 }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python scripts/publish_live_evidence.py --out output/playwright/live-publisher/${{ github.run_id }}-${{ github.run_attempt }}/evidence
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: live-qualification-${{ github.run_id }}-${{ github.run_attempt }}
+          path: verified-source/output/playwright/live-publisher/${{ github.run_id }}-${{ github.run_attempt }}/evidence/
+          if-no-files-found: error
+          retention-days: 14

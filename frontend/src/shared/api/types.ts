@@ -42,6 +42,7 @@ export interface ProviderConfig {
 }
 
 export interface AppConfig {
+  hermes?: { enabled: boolean; model: string; deadline_s: number; max_iterations: number; max_tokens: number; free_only: boolean };
   project: Project;
   version: string;
   ui: UIConfig;
@@ -90,29 +91,13 @@ export interface AppConfig {
     slot_cloud: number;
   };
   research_providers: {
-    feynman_enabled: boolean;
-    feynman_share_app_key: boolean;
-    feynman_timeout_s: number;
     coding_default: string;
     engine_mode: string;
     engine_priority: string[];
   };
-  openscience: {
-    enabled: boolean;
-    base_url: string;
-    token?: string;
-    has_token?: boolean;
-    timeout_s: number;
-    request_timeout_s?: number;
-    max_artifact_mb: number;
-    max_artifacts?: number;
-    allow_execution: boolean;
-    policy_confirmed: boolean;
-    qualified_tasks: string[];
-    model_provider: string;
-    model_id: string;
-  };
-  opencode: {
+
+  /** Opaque historical configuration; active settings never write this section. */
+  readonly opencode?: {
     enabled: boolean;
     base_url: string;
     allow_metered_api: boolean;
@@ -167,7 +152,8 @@ export interface AppConfig {
     respect_manual_loads: boolean;
     single_model_vram: boolean;
   };
-  clearml: {
+  /** Historical migration metadata only. */
+  readonly clearml?: {
     enabled: boolean;
     auto_record: boolean;
     project: string;
@@ -399,6 +385,13 @@ export interface SkillItem {
 }
 
 export interface ModelProviderItem {
+  provider_id?: string;
+  readiness?: Record<string, string>;
+  model_catalog?: { origin: string; models: string[]; verified: boolean; queried_at?: number };
+  runtime?: { state?: string; detail?: string };
+  billing?: string;
+  setup?: string[];
+
   id: string;
   label: string;
   name?: string;
@@ -414,6 +407,7 @@ export interface ModelProviderItem {
 export interface ModelsResponse {
   agents: Record<string, { engine: string; model: string; label: string; [key: string]: unknown }>;
   agent_catalog: Record<string, {
+    provider_id?: string;
     engine: string;
     mode: string;
     label: string;
@@ -884,7 +878,7 @@ export interface AgentOfficeViewModel {
   canResume: boolean;
   hasApprovalRequest: boolean;
   zone?: 'podium' | 'literature' | 'compute' | 'lab_bench' | 'review' | 'lounge';
-  archetype?: 'pi' | 'feynman' | 'openscience' | 'opencode' | 'reviewer' | 'figure_fellow';
+  archetype?: 'pi' | 'literature' | 'experiment' | 'opencode' | 'reviewer' | 'figure_fellow';
   personality?: string;
   skillCommand?: string;
   speechBubble?: string;

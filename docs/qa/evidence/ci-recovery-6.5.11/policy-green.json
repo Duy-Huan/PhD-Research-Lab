@@ -1,0 +1,462 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "status": "PASS",
+      "duration": 0.0065,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_declared_live_ids_are_exact_and_do_not_hide_new_software_tests",
+      "status": "PASS",
+      "duration": 0.0005,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_live_cases_remain_registered_and_never_execute_in_software_layer",
+      "status": "PASS",
+      "duration": 0.0007,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_pr_and_dev_workflow_target_the_three_branch_flow",
+      "status": "PASS",
+      "duration": 0.0126,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_frontend_command_collects_coverage_without_percentage_thresholds",
+      "status": "PASS",
+      "duration": 0.0076,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "status": "PASS",
+      "duration": 0.0008,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "status": "PASS",
+      "duration": 0.0005,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "status": "PASS",
+      "duration": 0.0005,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_old_minimum_argument_cannot_reintroduce_a_coverage_gate",
+      "status": "PASS",
+      "duration": 0.0004,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_all_promotion_stages_require_software_regression_without_live_credits",
+      "status": "PASS",
+      "duration": 0.0131,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_dev_push_cannot_emit_a_skipped_required_qa_context",
+      "status": "PASS",
+      "duration": 0.0093,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_legacy_workflows_are_replaced_and_3d_is_not_left_diff_optional",
+      "status": "PASS",
+      "duration": 0.0093,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_policy_dependencies_precede_targeted_worker_execution",
+      "status": "PASS",
+      "duration": 0.0093,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_pr_quality_has_no_release_or_production_approval",
+      "status": "PASS",
+      "duration": 0.0092,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_release_runs_only_for_main_and_uses_exact_provenance",
+      "status": "PASS",
+      "duration": 0.0061,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_failed_dependency_remains_fail_instead_of_blocked",
+      "status": "PASS",
+      "duration": 0.094,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_malformed_result_preserves_fail_closed_behavior",
+      "status": "PASS",
+      "duration": 0.0848,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_missing_dependency_cannot_be_masked_by_other_successes",
+      "status": "PASS",
+      "duration": 0.0881,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_only_complete_success_passes",
+      "status": "PASS",
+      "duration": 0.0863,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_qa_requires_executed_software_gate_without_optional_live_jobs",
+      "status": "PASS",
+      "duration": 0.6201,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "status": "PASS",
+      "duration": 0.4348,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "status": "PASS",
+      "duration": 0.016,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_conflicting_artifact_digests_fail_closed",
+      "status": "PASS",
+      "duration": 0.0006,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_copy_only_declared_bytes_and_preserve_existing_output",
+      "status": "PASS",
+      "duration": 0.2617,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_failed_qualification_or_changed_artifact_cannot_write_output",
+      "status": "PASS",
+      "duration": 0.2451,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_latest_failed_owner_dispatch_blocks_cached_success",
+      "status": "PASS",
+      "duration": 0.0019,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_no_owner_dispatch_means_no_execution_or_publishing",
+      "status": "PASS",
+      "duration": 0.002,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyCapabilities.test_mission_review_note_schema_remains_strict",
+      "status": "PASS",
+      "duration": 1.2861,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyCapabilities.test_project_capability_rejects_paths_provider_overrides_and_unknown_sessions",
+      "status": "PASS",
+      "duration": 0.0015,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyCapabilities.test_settings_task_identity_cannot_evade_exhausted_original_budget",
+      "status": "PASS",
+      "duration": 0.0005,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyCapabilities.test_task_and_boundary_rules_preserve_all_four_scopes",
+      "status": "PASS",
+      "duration": 0.0005,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyCapabilities.test_workflow_capability_binds_native_mission_digest_and_strict_review_note",
+      "status": "PASS",
+      "duration": 0.0004,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyEvidence.test_expected_fault_phase_cannot_hide_unrelated_errors",
+      "status": "PASS",
+      "duration": 0.0004,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyEvidence.test_false_deterministic_assertion_cannot_be_overridden_by_ai_success",
+      "status": "PASS",
+      "duration": 0.0594,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyEvidence.test_individually_packaged_runs_keep_review_pending_and_require_each_journey",
+      "status": "PASS",
+      "duration": 0.284,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyEvidence.test_one_settings_run_cannot_qualify_three_unexecuted_journeys",
+      "status": "PASS",
+      "duration": 0.0264,
+      "details": null
+    },
+    {
+      "id": "test_uat_journeys.JourneyEvidence.test_raw_journey_identity_must_match_declaration",
+      "status": "PASS",
+      "duration": 0.0205,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='main')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='qa')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='feature/new')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='fix/bug')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='HEAD')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'failures': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'errors': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'skipped': 1, 'passed': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'passed': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'unverified': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'total_run': 0, 'passed': 0})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage=None)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage={})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage={'num_statements': 10})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage={'num_statements': 10, 'covered_lines': 1, 'num_branches': 8, 'covered_branches': 0})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'total_run': -1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'total_run': True})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'passed': -1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'passed': 3})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'errors': -1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'skipped': '0'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_qa_requires_executed_software_gate_without_optional_live_jobs",
+      "id": "test_ci_recovery.GateAccounting.test_qa_requires_executed_software_gate_without_optional_live_jobs (result='failure')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_qa_requires_executed_software_gate_without_optional_live_jobs",
+      "id": "test_ci_recovery.GateAccounting.test_qa_requires_executed_software_gate_without_optional_live_jobs (result='skipped')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_qa_requires_executed_software_gate_without_optional_live_jobs",
+      "id": "test_ci_recovery.GateAccounting.test_qa_requires_executed_software_gate_without_optional_live_jobs (result='cancelled')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_qa_requires_executed_software_gate_without_optional_live_jobs",
+      "id": "test_ci_recovery.GateAccounting.test_qa_requires_executed_software_gate_without_optional_live_jobs (result='queued')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_qa_requires_executed_software_gate_without_optional_live_jobs",
+      "id": "test_ci_recovery.GateAccounting.test_qa_requires_executed_software_gate_without_optional_live_jobs (result=None)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='skipped')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='cancelled')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='queued')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='timed_out')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status=None)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced (name='../escape')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced (name='/absolute')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced (name='C:/system')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced (name='back\\\\slash')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced (name='raw/../escape')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 37,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-_tvw996g",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

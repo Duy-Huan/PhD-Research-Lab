@@ -1,0 +1,486 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_development_guard.DevelopmentGuard.test_complete_source_bound_regression_is_required_for_push",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "status": "PASS",
+      "duration": 5.5911,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.DevelopmentGuard.test_latest_failure_replaces_a_previous_green_receipt",
+      "status": "PASS",
+      "duration": 0.1772,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.DevelopmentGuard.test_push_cannot_target_another_repository_or_remote",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.LiveEvidencePolicy.test_deferred_live_ids_require_real_complete_non_skipped_evidence",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.PinnedSDK.test_reviewed_inventory_is_exact_and_unknown_output_is_preserved",
+      "status": "PASS",
+      "duration": 0.0069,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.PinnedSDK.test_wrong_digest_and_escaping_archive_never_write_files",
+      "status": "PASS",
+      "duration": 0.0024,
+      "details": null
+    },
+    {
+      "id": "test_dynamic_discovery.DynamicDiscovery.test_2d_and_3d_are_executed_as_separate_ordered_groups",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_dynamic_discovery.DynamicDiscovery.test_empty_test_module_cannot_hide_behind_another_passing_module",
+      "status": "PASS",
+      "duration": 0.0167,
+      "details": null
+    },
+    {
+      "id": "test_dynamic_discovery.DynamicDiscovery.test_new_e2e_is_automatically_included_without_enabling_live_suites",
+      "status": "PASS",
+      "duration": 0.0233,
+      "details": null
+    },
+    {
+      "id": "test_dynamic_discovery.DynamicDiscovery.test_new_nested_backend_package_is_discovered_and_missing_init_blocks",
+      "status": "PASS",
+      "duration": 0.0053,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_dev_push_cannot_emit_a_skipped_required_qa_context",
+      "status": "PASS",
+      "duration": 0.0199,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_legacy_workflows_are_replaced_and_3d_is_not_left_diff_optional",
+      "status": "PASS",
+      "duration": 0.0184,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_policy_dependencies_precede_targeted_worker_execution",
+      "status": "PASS",
+      "duration": 0.0184,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_pr_quality_has_no_release_or_production_approval",
+      "status": "PASS",
+      "duration": 0.0197,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_release_runs_only_for_main_and_uses_exact_provenance",
+      "status": "PASS",
+      "duration": 0.0091,
+      "details": null
+    },
+    {
+      "id": "test_promotion_controller.PromotionController.test_existing_api_pagination_supports_array_review_responses",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_promotion_controller.PromotionController.test_explicit_owner_policy_and_unchanged_trusted_controller_are_required",
+      "status": "PASS",
+      "duration": 0.0605,
+      "details": null
+    },
+    {
+      "id": "test_promotion_controller.PromotionController.test_latest_matching_run_cannot_fall_back_to_an_older_success",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_promotion_controller.PromotionController.test_native_request_uses_only_the_qualifying_run_and_never_bypasses_failed_jobs",
+      "status": "PASS",
+      "duration": 0.169,
+      "details": null
+    },
+    {
+      "id": "test_promotion_controller.PromotionController.test_persistent_state_is_atomic_and_corruption_never_resets_authority",
+      "status": "PASS",
+      "duration": 0.0058,
+      "details": null
+    },
+    {
+      "id": "test_promotion_controller.PromotionController.test_same_tree_native_merge_fast_forwards_only_dev_and_preserves_dirty_work",
+      "status": "PASS",
+      "duration": 0.823,
+      "details": null
+    },
+    {
+      "id": "test_promotion_controller.PromotionController.test_shared_node_policy_never_qualifies_a_merged_flag_or_skipped_qa",
+      "status": "PASS",
+      "duration": 0.3084,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "status": "PASS",
+      "duration": 0.0186,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_conflicting_artifact_digests_fail_closed",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_copy_only_declared_bytes_and_preserve_existing_output",
+      "status": "PASS",
+      "duration": 0.2966,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_failed_qualification_or_changed_artifact_cannot_write_output",
+      "status": "PASS",
+      "duration": 0.2913,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_latest_failed_owner_dispatch_blocks_cached_success",
+      "status": "PASS",
+      "duration": 0.0052,
+      "details": null
+    },
+    {
+      "id": "test_live_publisher.LivePublisher.test_no_owner_dispatch_means_no_execution_or_publishing",
+      "status": "PASS",
+      "duration": 0.004,
+      "details": null
+    },
+    {
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_default_deadline_and_failure_limit_remain_strict",
+      "status": "PASS",
+      "duration": 0.0002,
+      "details": null
+    },
+    {
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_repository_or_pr_content_cannot_become_owner_authorization",
+      "status": "PASS",
+      "duration": 0.1099,
+      "details": null
+    },
+    {
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_single_consumption_preserves_original_three_failures_and_blocks_new_file_replay",
+      "status": "PASS",
+      "duration": 0.2679,
+      "details": null
+    },
+    {
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes",
+      "status": "PASS",
+      "duration": 1.0565,
+      "details": null
+    },
+    {
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_citation_network_permission_and_error_redaction",
+      "status": "PASS",
+      "duration": 0.0866,
+      "details": null
+    },
+    {
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped",
+      "status": "PASS",
+      "duration": 0.0844,
+      "details": null
+    },
+    {
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_pdf_missing_versions_and_missing_objects_are_not_fake_downloads",
+      "status": "PASS",
+      "duration": 0.0995,
+      "details": null
+    },
+    {
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order",
+      "status": "PASS",
+      "duration": 0.127,
+      "details": null
+    },
+    {
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_zotero_import_parses_json_and_enforces_upload_bound_before_dispatch",
+      "status": "PASS",
+      "duration": 0.1167,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='feature/forbidden')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='fix/forbidden')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='backup/forbidden')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='arbitrary')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='qa')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='main')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced (name='../escape')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced (name='/absolute')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced (name='C:/system')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced (name='back\\\\slash')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced (name='raw/../escape')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes",
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes (change={'source_sha256': 'other'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes",
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes (change={'head_sha': 'other'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes",
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes (change={'model': 'paid-cloud'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes",
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes (change={'owner': 'external'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes",
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes (change={'used': True})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes",
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes (change={'max_steps': 8})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes",
+      "id": "test_uat_owner_authorization.OwnerSingleRetry.test_wrong_scope_budget_model_or_expired_permission_never_consumes (change={'expires_utc': '2026-10-25T15:18:48.429782+00:00'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped (route='protocol_approve')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped (route='mission_approve')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped (route='mission_retry')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped (route='discover')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped (route='review_finding')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped (approval=None)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped (approval='yes')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped (approval=1)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_explicit_approval_digests_and_retry_notes_are_not_dropped (approval={})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order (route='team_capabilities')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order (route='team_monitor')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order (route='workstream_monitor')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order (route='audit')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order (route='experiment_verification')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order (route='mission_cancel')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order (route='import_library')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order (route='citation_graph')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order (route='cancel')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order (route='retry')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order (route='open_workspace')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order (route='workspace_editor')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order",
+      "id": "test_research_api_dispatch_contracts.ResearchDispatch.test_topic_scoped_dispatch_preserves_identifiers_and_argument_order (route='sync_status')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 38,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-633xyp27",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

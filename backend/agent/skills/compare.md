@@ -9,8 +9,7 @@ category: research
 agent: research
 mode: run
 pipeline: research
-provider: feynman
-feynman: compare
+provider: phdlab
 risk: 0
 ---
 Compare the sources or methods named by the researcher (or the most relevant ones in the project library) in a

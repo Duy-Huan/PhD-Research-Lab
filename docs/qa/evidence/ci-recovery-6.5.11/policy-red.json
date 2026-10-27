@@ -1,0 +1,240 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "status": "PASS",
+      "duration": 0.0556,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_declared_live_ids_are_exact_and_do_not_hide_new_software_tests",
+      "status": "PASS",
+      "duration": 0.0005,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_live_cases_remain_registered_and_never_execute_in_software_layer",
+      "status": "PASS",
+      "duration": 0.0006,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_pr_and_dev_workflow_target_the_three_branch_flow",
+      "status": "FAIL",
+      "duration": 0.0128,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_quality_policy.py\", line 94, in test_pr_and_dev_workflow_target_the_three_branch_flow\n    self.assertEqual(workflow['jobs']['qa-gate']['needs'], ['development-gate'])\nAssertionError: Lists differ: ['development-gate', 'live-qualification', 'uat-policy'] != ['development-gate']\n\nFirst list contains 2 additional elements.\nFirst extra element 1:\n'live-qualification'\n\n- ['development-gate', 'live-qualification', 'uat-policy']\n+ ['development-gate']\n"
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_frontend_command_collects_coverage_without_percentage_thresholds",
+      "status": "PASS",
+      "duration": 0.0076,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "status": "PASS",
+      "duration": 0.0007,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "status": "PASS",
+      "duration": 0.0005,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "status": "PASS",
+      "duration": 0.0006,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_old_minimum_argument_cannot_reintroduce_a_coverage_gate",
+      "status": "PASS",
+      "duration": 0.0004,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_all_promotion_stages_require_software_regression_without_live_credits",
+      "status": "FAIL",
+      "duration": 0.004,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_ci_workflow_contract.py\", line 39, in test_all_promotion_stages_require_software_regression_without_live_credits\n    self.assertEqual(REQUIRED['qa'],['development-gate'])\nAssertionError: Lists differ: ['development-gate', 'live-qualification', 'uat-policy'] != ['development-gate']\n\nFirst list contains 2 additional elements.\nFirst extra element 1:\n'live-qualification'\n\n- ['development-gate', 'live-qualification', 'uat-policy']\n+ ['development-gate']\n"
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_dev_push_cannot_emit_a_skipped_required_qa_context",
+      "status": "PASS",
+      "duration": 0.0113,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_legacy_workflows_are_replaced_and_3d_is_not_left_diff_optional",
+      "status": "PASS",
+      "duration": 0.0131,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_policy_dependencies_precede_targeted_worker_execution",
+      "status": "PASS",
+      "duration": 0.0109,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_pr_quality_has_no_release_or_production_approval",
+      "status": "PASS",
+      "duration": 0.0107,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_release_runs_only_for_main_and_uses_exact_provenance",
+      "status": "PASS",
+      "duration": 0.0056,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='main')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='qa')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='feature/new')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='fix/bug')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='HEAD')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'failures': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'errors': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'skipped': 1, 'passed': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'passed': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'unverified': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'total_run': 0, 'passed': 0})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage=None)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage={})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage={'num_statements': 10})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage={'num_statements': 10, 'covered_lines': 1, 'num_branches': 8, 'covered_branches': 0})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'total_run': -1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'total_run': True})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'passed': -1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'passed': 3})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'errors': -1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'skipped': '0'})",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 15,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-f8r_ciyd",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

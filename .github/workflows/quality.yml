@@ -15,6 +15,7 @@ concurrency:
 
 env:
   PYTHONIOENCODING: utf-8
+  PYTHONFAULTHANDLER: '1'
   PHDLAB_QA_OFFLINE: '1'
   NO_PROXY: localhost,127.0.0.1,::1
   # Binaries are shared within this job; each test still owns its private profile/cache.
@@ -35,6 +36,10 @@ jobs:
         with: {node-version: '24'}
       - run: python -m pip install --require-hashes -r requirements-ci.lock
       - run: python scripts/quality_gate.py policy
+      - name: Discover every software regression suite without executing model calls
+        run: python scripts/discover_tests.py --out output/playwright/ci/test-inventory.json
+      - name: Require actual current-source complete local verification before promotion
+        run: python scripts/check_local_verification.py
       - run: python scripts/check_workflows.py
       - name: Critical recovery accounting regressions (no live AI calls)
         run: python -m devtools.verification.unittest_worker output/playwright/ci/critical-recovery.json test_ci_recovery test_baseline_accounting test_ci_repair_supervisor test_ci_workflow_contract
@@ -50,8 +55,6 @@ jobs:
     name: Backend (${{ matrix.os }}, Python ${{ matrix.python }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
-    env:
-      PYTHONPATH: ${{ github.workspace }}/output/playwright/ci-sdk
     strategy:
       fail-fast: false
       matrix:
@@ -66,8 +69,6 @@ jobs:
           cache: pip
       - run: python -m pip install --require-hashes -r requirements-ci.lock
       - run: python -m pip check
-      - name: Install pinned official SDK for mandatory offline socket regression
-        run: python scripts/install_ci_sdk.py --out output/playwright/ci-sdk
       - run: python -m compileall -q backend devtools scripts tools tests
       - name: Complete software regression; informational production coverage
         env:
@@ -154,23 +155,6 @@ jobs:
             output/playwright/capability-selftest/
           retention-days: 14
 
-  uat-policy:
-    name: Risk-triggered verified AI-UAT evidence
-    if: github.base_ref == 'qa' || github.base_ref == 'main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with: {fetch-depth: 0, persist-credentials: false}
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with: {python-version: '3.12'}
-      - env:
-          VERIFY_BASE: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
-        run: python scripts/uat_gate.py --base "$VERIFY_BASE"
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
-        if: always()
-        with: {name: uat-policy, path: output/playwright/ci/uat-policy/, retention-days: 14}
-
   development-gate:
     name: Development gate
     if: always()
@@ -183,27 +167,13 @@ jobs:
           NEEDS_JSON: ${{ toJSON(needs) }}
         run: python scripts/quality_gate.py aggregate --phase development
 
-  live-qualification:
-    name: Matching-source live research qualification
-    if: github.base_ref == 'qa' || github.base_ref == 'main' || github.ref == 'refs/heads/qa'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      actions: read
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with: {fetch-depth: 0, persist-credentials: false}
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with: {python-version: '3.12'}
-      - name: Require actual trusted live qualification, never a mock fallback
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: python scripts/live_qualification.py --check
-
+  # Owner2026-10-26: all forward promotions require complete software regression.
+  # Live-provider/AI-UAT qualification is separately dispatched, never called PASS here.
   qa-gate:
-    name: QA gate
+    # Never satisfy a protected PR context with the skipped dev-push phase.
+    name: ${{ github.event_name == 'pull_request' && 'QA gate' || 'QA not requested on dev push' }}
     if: always() && (github.base_ref == 'qa' || github.base_ref == 'main' || github.ref == 'refs/heads/qa')
-    needs: [development-gate, live-qualification, uat-policy]
+    needs: [development-gate]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6

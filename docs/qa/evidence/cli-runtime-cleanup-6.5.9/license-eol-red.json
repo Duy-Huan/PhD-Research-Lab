@@ -1,0 +1,66 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_verification_source_identity.SourceIdentity.test_build_outputs_are_not_source_inputs",
+      "status": "PASS",
+      "duration": 0.1475,
+      "details": null
+    },
+    {
+      "id": "test_verification_source_identity.SourceIdentity.test_declared_upstream_license_line_endings_do_not_change_identity",
+      "status": "FAIL",
+      "duration": 0.1354,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_verification_source_identity.py\", line 64, in test_declared_upstream_license_line_endings_do_not_change_identity\n    self.assertEqual(original,identity(root)['sha256'])\nAssertionError: '810961a14593cec04c42ea6052f3f841f1d598d6ee99cfceae64b4520ffc1a66' != '8d6a0e11d4dd6b41c28fdada450c0f7e3e2a15f2b933adf51a06c77a9c07bafb'\n- 810961a14593cec04c42ea6052f3f841f1d598d6ee99cfceae64b4520ffc1a66\n+ 8d6a0e11d4dd6b41c28fdada450c0f7e3e2a15f2b933adf51a06c77a9c07bafb\n\n"
+    },
+    {
+      "id": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence",
+      "status": "PASS",
+      "duration": 0.2126,
+      "details": null
+    },
+    {
+      "id": "test_verification_source_identity.SourceIdentity.test_new_agent_policies_invalidate_evidence_but_operational_records_do_not",
+      "status": "PASS",
+      "duration": 0.2363,
+      "details": null
+    },
+    {
+      "id": "test_verification_source_identity.SourceIdentity.test_staging_a_real_deletion_does_not_change_worktree_identity",
+      "status": "PASS",
+      "duration": 0.1764,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence",
+      "id": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence (path='frontend/react.html')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence",
+      "id": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence (path='frontend/public/icon.svg')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence",
+      "id": "test_verification_source_identity.SourceIdentity.test_html_public_assets_and_cli_changes_invalidate_evidence (path='cli.py')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 5,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-1l9e1l6c",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

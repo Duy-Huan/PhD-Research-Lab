@@ -84,8 +84,6 @@ def validate(spec:MissionSpec):
     if control.end_date<=datetime.now(timezone.utc):raise ValueError("Mission end date has passed")
     for task in spec.tasks:
         if not {task.preferred_engine,*task.fallback_engines}<=set(control.allowed_engines):raise ValueError("Engine outside approved allowlist")
-        if {task.preferred_engine,*task.fallback_engines}&{"openscience","feynman"} and not control.allow_api_billing:
-            raise ValueError("Native engine billing is opaque; explicit API/opaque usage approval is required until subscription-only execution is qualified")
         if "app" in [task.preferred_engine,*task.fallback_engines]:
             if not control.app_model:raise ValueError("Supervised app reasoning requires an explicit model")
             if control.app_backend not in {"local","ollama",*PROVIDERS}:raise ValueError("Unknown fixed application backend")

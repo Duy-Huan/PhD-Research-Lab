@@ -1,15 +1,8 @@
 ---
 name: opencode
-title: OpenCode task
-description: Delegate a bounded prototype task to the configured OpenCode engine
-usage: <task and expected outputs>
-category: experiment
-agent: research
-mode: run
-pipeline: research
-provider: opencode
-risk: 2
+title: Retired software-provider migration record
+mode: chat
+provider: app
+retired: true
 ---
-Delegate this bounded prototype task to the configured OpenCode engine. Keep its
-workspace isolated and return artifacts for review. Execution requires approval;
-report unavailable runtimes and model access honestly.
+Standalone OpenCode integration is retired by owner2026-10-26. Historical sessions and artifacts remain readable. Native code projects, /code, the model gateway, sandbox and VS Code provide the retained research coding workflow. PaperOrchestra remains an integrated engine.

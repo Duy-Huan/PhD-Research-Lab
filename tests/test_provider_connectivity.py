@@ -184,10 +184,10 @@ class Connectivity(unittest.TestCase):
             self.assertEqual(connector.health()["state"], "AUTH_EXPIRED")
             C._last_error["codex"] = ("AUTH_EXPIRED", "old failure")
             self.assertEqual(connector.health(fresh=True)["state"], "CONNECTED")
-        with mock.patch.object(RP, "_feynman_health", return_value={"state": "READY"}) as probe:
-            self.assertTrue(RP.describe("feynman", self.cfg)["ready"])
-            self.cfg["research_providers"]["feynman_enabled"] = False
-            RP.describe("feynman", self.cfg)
+        with mock.patch.object(RP, "_coding_health", return_value={"state": "READY"}) as probe:
+            self.assertTrue(RP.describe("codex", self.cfg, fresh=True)["ready"])
+            self.cfg["research_providers"]["coding_default"] = 'gemini_cli'
+            RP.describe("codex", self.cfg)
             self.assertEqual(probe.call_count, 2)
 
     def test_windows_cancel_falls_back_when_taskkill_fails(self):

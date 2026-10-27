@@ -1,16 +1,21 @@
-"""Test PhD Lab Native Multi-Agent Workflow and Engine Adapter."""
+"""Controlled native model-role adapter contracts; not a multi-agent/live qualification."""
+import _env
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from backend.research_engines.contracts import EngineTask
+from backend.research_engines.contracts import EngineTask, EngineFailure
 from backend.research_engines import registry
 from backend.providers import research as RP
 from backend.agent import skills
+from backend.core import config
 
 
 class TestPhDLabNativeWorkflow(unittest.TestCase):
+    def setUp(self):
+        _env.isolate_config(self)
+        _env.fresh_project('native-role-adapter')
     def test_phdlab_engine_registry_and_plan(self):
         # 1. Registered in FACTORIES
         self.assertIn("phdlab", registry.FACTORIES)
@@ -30,12 +35,11 @@ class TestPhDLabNativeWorkflow(unittest.TestCase):
         # 4. plan with preferred="phdlab" returns ["phdlab"]
         self.assertEqual(registry.plan("auto", "literature", preferred="phdlab"), ["phdlab"])
 
-    def test_opencode_provider_registration_and_plan(self):
-        self.assertIn("opencode", RP.CATALOG)
-        d = RP.describe("opencode")
-        self.assertIn(d["state"], ("READY", "UNAVAILABLE"))
-        self.assertEqual(d["category"], "coding")
-        self.assertEqual(registry.plan("auto", "prototype", preferred="opencode"), ["opencode"])
+    def test_retired_opencode_is_absent_and_integrated_engines_are_preserved(self):
+        self.assertNotIn('opencode',RP.CATALOG)
+        self.assertIn('paperorchestra',RP.CATALOG)
+        self.assertIn('paperorchestra',registry.FACTORIES)
+        with self.assertRaises(EngineFailure):registry.plan('auto','prototype',preferred='opencode')
 
     def test_phdlab_provider_describe(self):
         self.assertIn("phdlab", RP.CATALOG)
@@ -50,7 +54,7 @@ class TestPhDLabNativeWorkflow(unittest.TestCase):
         engine = registry.get("phdlab")
         events = []
 
-        with tempfile.TemporaryDirectory() as td:
+        with tempfile.TemporaryDirectory(dir=config.data_dir()) as td:
             out_dir = Path(td)
             task = EngineTask(
                 operation_id="RR-12345678:S1",

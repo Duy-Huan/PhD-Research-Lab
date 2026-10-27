@@ -165,14 +165,14 @@ export const UserGuidePanel: React.FC = () => {
       stepsVi: [
         'Định nghĩa giao thức chuẩn: Thiết lập tham số thí nghiệm, điều kiện môi trường, bộ hạt giống ngẫu nhiên và tiêu chí dừng.',
         'Phân bổ tài nguyên thông minh: Trình bảo vệ ResourceGuard tự động điều phối bộ nhớ GPU, tạm dừng mô hình cục bộ khi cần VRAM chạy mã.',
-        'Ghi nhận nhật ký liên tục: Theo dõi số liệu huấn luyện và đánh giá theo thời gian thực, tích hợp công cụ theo dõi ClearML.',
+        'Ghi nhận nhật ký liên tục: Theo dõi số liệu huấn luyện và đánh giá theo thời gian thực, tích hợp công cụ theo dõi native.',
         'Băm mã định danh SHA-256: Mã hóa tệp cấu hình, mã nguồn thực thi và tập dữ liệu đầu ra để chứng thực tính nguyên bản.',
         'Đóng gói bộ thí nghiệm tái lập: Tự động xuất snapshot môi trường, đảm bảo đồng nghiệp có thể tái tạo kết quả chính xác 100%.',
       ],
       stepsEn: [
         'Structured protocol specification: Define experiment parameters, compute environment, seed sets, and convergence criteria.',
         'ResourceGuard GPU arbitration: Intelligently suspends idle local models from VRAM whenever compute jobs request GPU allocations.',
-        'Telemetry & experiment tracking: Stream training and evaluation metrics in real time with integrated ClearML logging.',
+        'Telemetry & experiment tracking: Stream training and evaluation metrics in real time with integrated native logging.',
         'SHA-256 cryptographic provenance: Hashes configs, executable source code, and result datasets to certify reproducibility.',
         'Reproducible bundle export: Generates full container snapshots and dependencies ensuring 100% reproducible results.',
       ],
@@ -190,9 +190,9 @@ export const UserGuidePanel: React.FC = () => {
       number: 5,
       icon: <Code size={20} color="#f59e0b" />,
       categoryVi: 'Lập trình & Bản vá Tự động',
-      categoryEn: 'OpenCode Sandbox',
-      titleVi: 'Quy trình Nhân Thực nghiệm OpenCode & Tự động Sửa mã',
-      titleEn: 'OpenCode Parallel Sandbox & Automated Self-Debugging Workflow',
+      categoryEn: 'Native Code Sandbox',
+      titleVi: 'Quy trình Nhân Thực nghiệm Native Code & Tự động Sửa mã',
+      titleEn: 'Native Experiment Sandbox & Automated Self-Debugging Workflow',
       descVi: 'Môi trường lập trình hộp cát cô lập, tác nhân AI tự động tạo bản vá, chạy kiểm thử và sửa lỗi lặp cho đến khi vượt qua 100% test.',
       descEn: 'Sandboxed code execution environment where agents craft diff patches, run regression suites, and iteratively fix bugs until all tests pass.',
       stepsVi: [
@@ -209,10 +209,10 @@ export const UserGuidePanel: React.FC = () => {
         'Iterative self-debugging loop: Automatically re-patches and re-executes tests upon failure until 100% test pass is achieved.',
         'Regression & efficiency benchmarking: Profiles compute throughput, RAM footprint, and VRAM utilization to ensure optimal code.',
       ],
-      actionLabelVi: 'Mở Không gian OpenCode',
-      actionLabelEn: 'Open OpenCode Workspace',
+      actionLabelVi: 'Mở Không gian Native Code',
+      actionLabelEn: 'Open Native Code Workspace',
       actionIcon: <Code size={13} style={{ marginRight: 5 }} />,
-      onAction: () => openDrawer('opencode'),
+      onAction: () => openDrawer('code'),
     },
     {
       id: 'scientific-figures',
@@ -781,8 +781,8 @@ export const UserGuidePanel: React.FC = () => {
               </div>
               <p style={{ margin: '0 0 12px', fontSize: 13, lineHeight: 1.65, color: 'var(--fg)' }}>
                 {t(
-                  'Hệ thống điều phối các tác nhân AI làm việc song song không giới hạn: từ tổng hợp tài liệu, phát hiện khoảng trống tri thức, chạy mã Python thực nghiệm trong OpenCode, đến chấm điểm phản biện R1–R3 và biên soạn bản thảo LaTeX.',
-                  'The system coordinates multi-agent parallel execution: from deep literature synthesis, gap analysis, automated OpenCode Python simulation, to calibrated R1–R3 peer reviews and LaTeX manuscript authoring.'
+                  'Hệ thống điều phối các tác nhân AI làm việc song song không giới hạn: từ tổng hợp tài liệu, phát hiện khoảng trống tri thức, chạy mã Python thực nghiệm trong Native Code, đến chấm điểm phản biện R1–R3 và biên soạn bản thảo LaTeX.',
+                  'The system coordinates multi-agent parallel execution: from deep literature synthesis, gap analysis, automated Native Code Python simulation, to calibrated R1–R3 peer reviews and LaTeX manuscript authoring.'
                 )}
               </p>
 
@@ -790,8 +790,8 @@ export const UserGuidePanel: React.FC = () => {
                 <b>{t('Chu trình Nghiên cứu Tự trị:', 'Autonomous Research Loop:')}</b>
                 <div style={{ marginTop: 4, fontFamily: 'var(--mono)', fontSize: 11.5, color: 'var(--accent)' }}>
                   {t(
-                    '1. Khám phá tài liệu /lit ➔ 2. Xây dựng giả thuyết /hypothesis ➔ 3. Thiết kế thí nghiệm /experiment ➔ 4. Chạy mã thực nghiệm /opencode ➔ 5. Kiểm định bằng chứng /claims ➔ 6. Hội đồng phản biện /review ➔ 7. Soạn thảo LaTeX /latex',
-                    '1. Literature Survey (/lit) ➔ 2. Hypothesize (/hypothesis) ➔ 3. Protocol Design (/experiment) ➔ 4. Execute Code (OpenCode) ➔ 5. Verify Claims (/claims) ➔ 6. Peer Review (/review) ➔ 7. Draft LaTeX (/latex)'
+                    '1. Khám phá tài liệu /lit ➔ 2. Xây dựng giả thuyết /hypothesis ➔ 3. Thiết kế thí nghiệm /experiment ➔ 4. Chạy mã thực nghiệm /code ➔ 5. Kiểm định bằng chứng /claims ➔ 6. Hội đồng phản biện /review ➔ 7. Soạn thảo LaTeX /latex',
+                    '1. Literature Survey (/lit) ➔ 2. Hypothesize (/hypothesis) ➔ 3. Protocol Design (/experiment) ➔ 4. Execute Code (Native Code) ➔ 5. Verify Claims (/claims) ➔ 6. Peer Review (/review) ➔ 7. Draft LaTeX (/latex)'
                   )}
                 </div>
               </div>
@@ -1100,13 +1100,13 @@ export const UserGuidePanel: React.FC = () => {
               {/* Engineer */}
               <div className="panelbox" style={{ padding: 16, borderRadius: 10, border: '1px solid var(--line)', background: 'var(--panel)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <b style={{ fontSize: 14, color: '#10b981' }}>{t('4. Kỹ sư Thực nghiệm', '4. Experiment Engineer (OpenCode)')}</b>
-                  <span style={{ fontSize: 10.5, padding: '2px 6px', borderRadius: 4, background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', fontWeight: 700 }}>OpenCode</span>
+                  <b style={{ fontSize: 14, color: '#10b981' }}>{t('4. Kỹ sư Thực nghiệm', '4. Experiment Engineer (Native Code)')}</b>
+                  <span style={{ fontSize: 10.5, padding: '2px 6px', borderRadius: 4, background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', fontWeight: 700 }}>Native Code</span>
                 </div>
                 <p style={{ margin: 0, fontSize: 12.5, lineHeight: 1.55, color: 'var(--fg)' }}>
                   {t(
-                    'Viết mã nguồn Python, chạy mô phỏng tính toán trong môi trường thực thi OpenCode, kiểm tra tính tái lập và giám sát tài nguyên phần cứng GPU/CPU.',
-                    'Writes clean Python code, runs simulations in OpenCode Runtime, verifies computational reproducibility, and monitors GPU/CPU hardware.'
+                    'Viết mã nguồn Python, chạy mô phỏng tính toán trong môi trường thực thi Native Code, kiểm tra tính tái lập và giám sát tài nguyên phần cứng GPU/CPU.',
+                    'Writes clean Python code, runs simulations in Native Code Runtime, verifies computational reproducibility, and monitors GPU/CPU hardware.'
                   )}
                 </p>
               </div>
@@ -1158,7 +1158,7 @@ export const UserGuidePanel: React.FC = () => {
                 </li>
                 <li>
                   <b>{t('Click vào Cụm máy chủ HPC:', 'Click the HPC Server Cluster:')}</b>{' '}
-                  {t('Mở trung tâm tính toán thực nghiệm OpenCode Runtime.', 'Opens the OpenCode parallel computing center.')}
+                  {t('Mở trung tâm tính toán thực nghiệm Native Code Runtime.', 'Opens the Native Code parallel computing center.')}
                 </li>
                 <li>
                   <b>{t('Click vào Bảng Đề cương trên tường:', 'Click the Wall Outline Board:')}</b>{' '}
@@ -1243,9 +1243,9 @@ export const UserGuidePanel: React.FC = () => {
                   desc: t('Mở Figure Studio để thiết kế biểu đồ vector, sơ đồ kiến trúc và đồ thị trực quan cho bài báo.', 'Opens Figure Studio to design vector charts, model architecture diagrams, and scientific figures.'),
                 },
                 {
-                  cmd: '/opencode',
-                  title: t('Môi trường Tính toán', 'OpenCode Runtime'),
-                  desc: t('Mở nhân tính toán OpenCode Parallel Core để chạy mô phỏng Python và kiểm tra mã nguồn.', 'Opens the OpenCode parallel runtime to execute Python scripts, train models, and test code.'),
+                  cmd: '/code',
+                  title: t('Môi trường Tính toán', 'Native Code Runtime'),
+                  desc: t('Mở nhân tính toán Native Experiment Workspace để chạy mô phỏng Python và kiểm tra mã nguồn.', 'Opens the Native Code parallel runtime to execute Python scripts, train models, and test code.'),
                 },
                 {
                   cmd: '/status',
@@ -1449,8 +1449,8 @@ export const UserGuidePanel: React.FC = () => {
                 </b>
                 <p style={{ margin: '6px 0 0', fontSize: 12.5, lineHeight: 1.6, color: 'var(--fg)' }}>
                   {t(
-                    'Đáp: Bạn chỉ cần vào mục Cài đặt (ở góc dưới bên trái màn hình) → Thí nghiệm & Phần cứng → Bật tùy chọn "Tự động giải phóng mô hình cục bộ đang rảnh khỏi VRAM khi cần GPU chạy thí nghiệm". Hệ thống có cơ chế ResourceGuard thông minh sẽ tự động tạm dừng mô hình ngôn ngữ khi phiên OpenCode cần tài nguyên GPU, ngăn chặn hoàn toàn lỗi tràn bộ nhớ VRAM.',
-                    'Answer: Navigate to Settings (bottom-left corner) → Experiments & Hardware → Enable "Auto-offload idle local models from VRAM during compute experiments". ResourceGuard automatically pauses local LLM memory when OpenCode requires GPU allocations.'
+                    'Đáp: Bạn chỉ cần vào mục Cài đặt (ở góc dưới bên trái màn hình) → Thí nghiệm & Phần cứng → Bật tùy chọn "Tự động giải phóng mô hình cục bộ đang rảnh khỏi VRAM khi cần GPU chạy thí nghiệm". Hệ thống có cơ chế ResourceGuard thông minh sẽ tự động tạm dừng mô hình ngôn ngữ khi phiên Native Code cần tài nguyên GPU, ngăn chặn hoàn toàn lỗi tràn bộ nhớ VRAM.',
+                    'Answer: Navigate to Settings (bottom-left corner) → Experiments & Hardware → Enable "Auto-offload idle local models from VRAM during compute experiments". ResourceGuard automatically pauses local LLM memory when Native Code requires GPU allocations.'
                   )}
                 </p>
               </div>

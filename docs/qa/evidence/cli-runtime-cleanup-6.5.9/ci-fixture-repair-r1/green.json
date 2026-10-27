@@ -1,0 +1,366 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_cleanup_failure_cannot_be_reported_as_a_successful_request",
+      "status": "PASS",
+      "duration": 0.7364,
+      "details": null
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_completed_turn_releases_owned_runtime_before_reporting_completion",
+      "status": "PASS",
+      "duration": 0.7398,
+      "details": null
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_consumer_close_releases_its_runtime_without_touching_other_requests",
+      "status": "PASS",
+      "duration": 0.356,
+      "details": null
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_docker_cleanup_uses_exact_owned_label_and_volume_only",
+      "status": "PASS",
+      "duration": 0.0409,
+      "details": null
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_invalid_owner_cannot_start_docker_operations",
+      "status": "PASS",
+      "duration": 0.0386,
+      "details": null
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_native_launch_shares_a_fresh_owner_with_the_runtime_wrapper",
+      "status": "PASS",
+      "duration": 0.045,
+      "details": null
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_protocol_fixture_does_not_require_a_vendor_cli_on_path",
+      "status": "PASS",
+      "duration": 0.7318,
+      "details": null
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_remaining_owned_resource_is_a_cleanup_failure",
+      "status": "PASS",
+      "duration": 0.0445,
+      "details": null
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_unexpected_resource_count_is_bounded_and_never_bulk_deleted",
+      "status": "PASS",
+      "duration": 0.0417,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "status": "PASS",
+      "duration": 0.1027,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_antigravity_print_flag_cannot_consume_output_format",
+      "status": "PASS",
+      "duration": 0.0495,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_cli_connection_test_uses_real_connector_path_without_api_fallback",
+      "status": "PASS",
+      "duration": 0.076,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_cli_default_does_not_force_an_api_model",
+      "status": "PASS",
+      "duration": 0.0538,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_codex_assistant_message_is_not_terminal_and_real_usage_event_is_retained",
+      "status": "PASS",
+      "duration": 0.1526,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_codex_failure_after_partial_assistant_text_is_not_hidden_as_success",
+      "status": "PASS",
+      "duration": 0.1504,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval",
+      "status": "PASS",
+      "duration": 0.3547,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_opencode_does_not_claim_manifest_creation_is_model_execution",
+      "status": "PASS",
+      "duration": 0.0704,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_opencode_html_fallback_is_not_api_readiness",
+      "status": "PASS",
+      "duration": 0.0536,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_opencode_v2_npm_shim_resolves_to_native_executable",
+      "status": "PASS",
+      "duration": 0.0433,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_openscience_chat_endpoint_accepts_the_exact_ui_command",
+      "status": "PASS",
+      "duration": 0.2597,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_real_cli_failures_are_classified",
+      "status": "PASS",
+      "duration": 0.0412,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_refresh_auth_does_not_hide_a_weekly_limit",
+      "status": "PASS",
+      "duration": 0.059,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_result_only_stream_still_produces_an_answer_and_empty_exit_is_error",
+      "status": "PASS",
+      "duration": 0.2279,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.GatewayIntegration.test_prepare_refuses_weaker_profile_without_consent",
+      "status": "PASS",
+      "duration": 0.1687,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Launch.test_consumer_abort_kills_the_process",
+      "status": "PASS",
+      "duration": 0.3797,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Launch.test_foreign_cwd_is_refused",
+      "status": "PASS",
+      "duration": 0.037,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Launch.test_time_limit_kills_the_process_tree",
+      "status": "PASS",
+      "duration": 1.0891,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Launch.test_two_sessions_two_workspaces",
+      "status": "PASS",
+      "duration": 0.0561,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Launch.test_unsupported_profile_is_refused_before_launch",
+      "status": "PASS",
+      "duration": 0.0362,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Paths.test_inner_symlink_is_allowed",
+      "status": "PASS",
+      "duration": 0.2445,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Paths.test_resolved_escape",
+      "status": "PASS",
+      "duration": 0.001,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Paths.test_safe_join_and_traversal",
+      "status": "PASS",
+      "duration": 0.0019,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Paths.test_symlink_checks_without_os_symlinks",
+      "status": "PASS",
+      "duration": 0.0038,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Paths.test_symlink_escape_is_refused",
+      "status": "PASS",
+      "duration": 0.2288,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Profiles.test_argv_follows_the_profile",
+      "status": "PASS",
+      "duration": 0.0035,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Profiles.test_env_allowlist",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Profiles.test_fail_closed",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Sessions.test_context_is_staged_read_only_with_hashes",
+      "status": "PASS",
+      "duration": 0.0654,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Sessions.test_custom_root",
+      "status": "PASS",
+      "duration": 0.0845,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Sessions.test_invalid_ids_and_forbidden_roots",
+      "status": "PASS",
+      "duration": 0.0649,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Sessions.test_layout_meta_and_reopen",
+      "status": "PASS",
+      "duration": 0.0739,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Sessions.test_list_and_prune",
+      "status": "PASS",
+      "duration": 0.1547,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Sessions.test_output_and_redacted_logs",
+      "status": "PASS",
+      "duration": 0.0648,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='Composer.tsx', command='openscience')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='Composer.tsx', command='feynman')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='Composer.tsx', command='opencode')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='Composer.tsx', command='search')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='Composer.tsx', command='status')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='Composer.tsx', command='outline')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='Composer.tsx', command='phdlab')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='Composer.tsx', command='paperorchestra')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='MessageList.tsx', command='feynman')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='MessageList.tsx', command='outline')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='MessageList.tsx', command='openscience')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval (command='openscience')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval (command='science')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval (command='feynman')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval (command='opencode')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 43,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-f1r6gct1",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

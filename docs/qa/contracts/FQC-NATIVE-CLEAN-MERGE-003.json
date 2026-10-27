@@ -1,0 +1,127 @@
+{
+  "id": "FQC-NATIVE-CLEAN-MERGE-003",
+  "title": "Exact-head protected native merge for fully qualified CLEAN PRs",
+  "risk": "CRITICAL",
+  "mode": "MOCKED",
+  "user_story": "Owner receives automatic dev->qa->main after real independent software gates, without the impossible CLEAN-only enable-auto-merge API combination.",
+  "requirements": [
+    {
+      "id": "READY",
+      "description": "Only after all existing gates qualify, request normal GitHub protected merge with expectedHeadOid; actual GitHub containment remains mandatory."
+    },
+    {
+      "id": "FAIL-CLOSED",
+      "description": "Changed head/base, closed/draft/blocked PR, failed/skipped/missing jobs, protection or reviews cannot issue a merge."
+    }
+  ],
+  "nonfunctional": [
+    "Preserve every gate, strict/admin-enforced protection, same-run/suite/source proof and original repair history",
+    "No admin/force merge, fabricated checks, other branches, direct dev->main or protection changes",
+    "Do not mistake MOCKED policy tests for actual GitHub merging or scientific execution"
+  ],
+  "inputs": [
+    "Actual GitHub CLEAN rejection captured on PR14/head5c71068",
+    "Real successful exact-head dev/PR Quality Gates runs",
+    "Existing owner policy, current source receipt and branch protection"
+  ],
+  "outputs": [
+    "Head-locked protected GitHub merge request",
+    "Actual observed merge SHA/target containment and same-tree dev synchronization"
+  ],
+  "preconditions": [
+    "Existingdev only",
+    "Latest owner2026-10-27 explicitly requests checking/fixing CI/CD conditions; existing no-gate-weakening authorization retained"
+  ],
+  "postconditions": [
+    "No queued/requested merge is called complete",
+    "All existing software qualification and distinct live/scientific scope remain unchanged"
+  ],
+  "dependencies": [
+    "Existing local/optional hosted promotion controllers",
+    "Official GitHub GraphQL mergePullRequest expectedHeadOid boundary",
+    "Pinned gh-fix-ci and github-actions-hardening skills already installed"
+  ],
+  "affected_modules": [
+    "devtools/verification/promotion.py",
+    ".github/scripts/automerge.cjs",
+    ".github/scripts/automerge.test.cjs",
+    "tests/test_promotion_controller.py",
+    "agent/DEV_QA_MAIN.md",
+    "agent/CI_CD_AUTOMATION.md"
+  ],
+  "acceptance_criteria": [
+    "Actual same-test RED/GREEN and all existing policy assertions pass",
+    "Every original gate remains; changed fresh PR state cannot reuse eligibility",
+    "New complete local/independent software checks then actual protected dev->qa->main merges verified"
+  ],
+  "scenarios": [
+    {
+      "id": "positive",
+      "requirement": "READY",
+      "kind": "positive",
+      "expected": "Eligible CLEAN fixture issues protected merge with exact expected head.",
+      "test": "tests/test_promotion_controller.py::PromotionController.test_native_request_uses_only_the_qualifying_run_and_never_bypasses_failed_jobs"
+    },
+    {
+      "id": "negative",
+      "requirement": "FAIL-CLOSED",
+      "kind": "negative",
+      "expected": "Skipped mandatory job performs no mutation.",
+      "test": "tests/test_promotion_controller.py::PromotionController.test_native_request_uses_only_the_qualifying_run_and_never_bypasses_failed_jobs"
+    },
+    {
+      "id": "boundary",
+      "requirement": "FAIL-CLOSED",
+      "kind": "boundary",
+      "expected": "Exact head and unchanged target are required at the final request boundary.",
+      "test": "tests/test_promotion_controller.py::PromotionController.test_native_request_uses_only_the_qualifying_run_and_never_bypasses_failed_jobs"
+    },
+    {
+      "id": "failure",
+      "requirement": "FAIL-CLOSED",
+      "kind": "failure",
+      "expected": "Observed CLEAN auto-merge rejection is reproduced before correction; later request errors cannot become verified merge.",
+      "test": "tests/test_promotion_controller.py::PromotionController.test_native_request_uses_only_the_qualifying_run_and_never_bypasses_failed_jobs"
+    },
+    {
+      "id": "security",
+      "requirement": "FAIL-CLOSED",
+      "kind": "security",
+      "expected": "Fresh draft/closed/unstable/changed-base cases perform no merge; no admin/force input.",
+      "test": "tests/test_promotion_controller.py::PromotionController.test_native_request_uses_only_the_qualifying_run_and_never_bypasses_failed_jobs"
+    },
+    {
+      "id": "performance",
+      "requirement": "READY",
+      "kind": "performance",
+      "expected": "Bounded existing pagination and one final mutation; no unbounded discovery or model calls.",
+      "test": "tests/test_promotion_controller.py::PromotionController.test_native_request_uses_only_the_qualifying_run_and_never_bypasses_failed_jobs"
+    }
+  ],
+  "recovery": "Retain original3failures and owner extension. Latest5csoftware CI genuinely passed; owner requests correction of newly confirmed native API condition. No budget reset, AI repair invocation or hidden retry of unchanged failing CI. Actual new gate failure stops publication.",
+  "test_environment": "Controlled offline GitHub fixture explicitly reproduces the retained real GitHub error; private Git same-tree/dirty-work regressions remain. Real GitHub proof is separate and still pending.",
+  "skill_sources": [
+    "skills/gh-fix-ci/SKILL.md",
+    "skills/github-actions-hardening/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent adversarial review, not independent approval. Retain all negative gate/protection/review tests; replace the historically incorrect CLEAN auto-merge oracle with the observed native API contract and exact-head assertion."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "Actual7case offline policy suite; RED1ERROR/6PASS, GREEN7PASS. Real GitHub rejection independently retained; mocked mutation acceptance does not certify a merge.",
+    "red": {
+      "path": "docs/qa/evidence/native-clean-state-6.5.12/red.json",
+      "sha256": "759b5cf63be244b57b1aebd1fa750fd228ff7ad9cbba5267e7c9f94ab019c500",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/native-clean-state-6.5.12/green.json",
+      "sha256": "0a99bd550975aab5e3a2a0e4ce9a970af95b3d0ef042f6c18e37d29abd94200f",
+      "exit_code": 0
+    }
+  },
+  "primary_reference": "https://github.com/cli/cli/blob/trunk/pkg/cmd/pr/merge/merge.go#L546"
+}

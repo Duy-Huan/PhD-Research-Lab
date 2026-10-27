@@ -141,19 +141,25 @@ class Intents(Base):
             launch.from_skill("gap", "x")
         self.assertIn("**Thí nghiệm**", launch.help_text())
 
-    def test_auto_started_read_only_run_and_proposed_risky_run(self):
-        O.start(self.s["id"], "tìm tài liệu về token pruning")
-        self.assertTrue(self.msgs()[-1]["run_id"])
-        O.start(self.s["id"], "chạy thử ý tưởng dùng MLP nhỏ")
+    def test_model_proposed_risky_run_requires_approval_and_retains_the_real_run(self):
+        async def propose(agent,system,messages,**kwargs):
+            yield ('delta','```phdlab-action\n'+json.dumps({'action':'start_run','args':{
+                'skill':'idea','input':'MLP nhỏ'}})+'\n```')
+        with mock.patch.object(llm,'stream_agent',propose):
+            O.start(self.s["id"], "chạy thử ý tưởng dùng MLP nhỏ")
+            wait_turn(self.s["id"])
+        self.assertFalse(any(m.get('run_id') for m in self.msgs()))
         ap = next(a for a in store.get(self.s["id"])["approvals"] if a["name"] == "start_run")
+        self.assertEqual(ap['status'],'pending')
         r = O.decide(self.s["id"], ap["id"], "approve")
         self.assertEqual(runs.get(r["result"]["run"])["approval"]["status"], "approved")
         runs.cancel(r["result"]["run"])
 
-    def test_chat_intent_uses_the_skill(self):
+    def test_plain_question_does_not_force_a_keyword_selected_role_or_skill(self):
         O.start(self.s["id"], "đề xuất giả thuyết cho hướng này")
         wait_turn(self.s["id"])
-        self.assertIn("# Skill /hypothesis", SEEN["system"])
+        self.assertNotIn("# Skill /hypothesis", SEEN["system"])
+        self.assertEqual(SEEN['agent'],'assistant')
 
 
 class Dashboard(Base):
@@ -166,6 +172,7 @@ class Dashboard(Base):
         outline.update({"topic": "Edge ViT"})
         r = runs.create("experiment", "e", inputs={"command": "python x.py"}, session_id=self.s["id"], risk=2)
         O.start(self.s["id"], "chạy thử ý tưởng MLP")
+        wait_turn(self.s['id'])  # Pending actions now come from the agent, not regex interception.
         from backend.memory import lifecycle
         lifecycle.propose("claim", {"text": "A finding"}, origin="provider")
         from backend.agent import pins
@@ -229,39 +236,24 @@ class Sync(Base):
 
 
 class Providers(Base):
-    def test_describe_and_pick(self):
+    def test_describe_native_tools_and_model_routing(self):
         RP._health.clear()
-        with mock.patch("backend.execution.tools.which", return_value=None):
-            self.assertEqual(RP.describe("feynman", fresh=True)["state"], "UNAVAILABLE")
-        with mock.patch("backend.execution.tools.which", return_value="feynman"), \
-                mock.patch("backend.execution.tools.run_cli", return_value=(0, "\x1b[1mModel: anthropic/x\nModel valid: yes")):
-            self.assertEqual(RP.describe("feynman", fresh=True)["detail"], "model anthropic/x")
-        with mock.patch("backend.execution.tools.which", return_value="feynman"), \
-                mock.patch("backend.execution.tools.run_cli", return_value=(0, "Model valid: no")):
-            d = RP.describe("feynman", fresh=True)
-            self.assertEqual(d["state"], "NOT_CONFIGURED")
-            config.save_config({"research_providers": {"feynman_share_app_key": True},
-                                "providers": {"anthropic": {"api_key": "sk-ant-x"}, "openai": {"api_key": "sk-o"}}})
-            self.assertEqual(RP.describe("feynman", fresh=True)["state"], "READY")
-            self.assertEqual(set(RP._shared_key(config.load_config())), {"ANTHROPIC_API_KEY", "OPENAI_API_KEY"})
-        config.save_config({"research_providers": {"feynman_enabled": False}})
-        self.assertEqual(RP.describe("feynman", fresh=True)["state"], "DISABLED")
-        self.assertEqual(RP.describe("feynman")["state"], "DISABLED")  # cached
-        with self.assertRaises(RP.ProviderUnavailable):
-            RP.describe("nope")
-        with mock.patch.object(RP, "_coding_health", side_effect=RuntimeError("boom")):
-            self.assertEqual(RP.describe("codex", fresh=True)["state"], "ERROR")
-        states = {p["id"]: p["state"] for p in RP.describe_all(fresh=True)}
-        self.assertEqual(states["app"], "READY")
-        self.assertEqual(states["python"], "READY")
-        self.assertEqual(RP.pick("app"), ("app", ""))
-        self.assertEqual(RP.pick("feynman")[0], "app")
-        with mock.patch.object(RP, "describe", return_value={"ready": True}):
-            self.assertEqual(RP.pick("coding"), ("codex", "") if config.load_config()["research_providers"]["coding_default"] == "codex"
-                             else ("claude_code", ""))
-        self.assertTrue(RP.needs_linux("apt-get install libgl1"))
-        self.assertFalse(RP.needs_linux("python train.py"))
-        self.assertEqual(RP.strip_ansi("\x1b[31mred\x1b[0m\r"), "red")
+        for retired in ('feynman','openscience','opencode','clearml'):
+            with self.assertRaises(RP.ProviderUnavailable): RP.describe(retired)
+        with mock.patch.object(RP, '_coding_health', side_effect=RuntimeError('boom')):
+            self.assertEqual(RP.describe('codex',fresh=True)['state'],'ERROR')
+        with mock.patch.object(RP, '_exec_health', return_value={'state':'READY'}):
+            states={p['id']:p['state'] for p in RP.describe_all(fresh=True)}
+        self.assertEqual(states['phdlab'],'READY')
+        self.assertEqual(states['python'],'READY')
+        self.assertIn('paperorchestra',states)
+        self.assertFalse({'feynman','openscience','opencode','clearml','codex','app'} & states.keys())
+        self.assertEqual(RP.pick('app'),('app',''))
+        with mock.patch.object(RP,'describe',return_value={'ready':True}):
+            self.assertEqual(RP.pick('coding'),(config.load_config()['research_providers']['coding_default'],''))
+        self.assertTrue(RP.needs_linux('apt-get install libgl1'))
+        self.assertFalse(RP.needs_linux('python train.py'))
+        self.assertEqual(RP.strip_ansi('\x1b[31mred\x1b[0m\r'),'red')
 
     def test_exec_health(self):
         cfg = config.load_config()
@@ -273,46 +265,19 @@ class Providers(Base):
         with mock.patch("backend.execution.sandbox.docker_exe", return_value="docker"), \
                 mock.patch("backend.execution.sandbox.docker_running", return_value=True):
             self.assertEqual(RP._exec_health("docker", cfg)["state"], "READY")
-        with mock.patch("importlib.util.find_spec", return_value=object()):
-            self.assertEqual(RP._exec_health("clearml", cfg)["state"], "READY")
-        with mock.patch("importlib.util.find_spec", return_value=None):
-            self.assertEqual(RP._exec_health("clearml", cfg)["state"], "UNAVAILABLE")
+        self.assertEqual(RP._exec_health('tracking', cfg)['state'], 'READY')
+        self.assertNotIn('clearml', RP.CATALOG)
         with mock.patch("backend.paper.latex.engines", return_value={"tectonic": "t"}):
             self.assertEqual(RP._exec_health("latex", cfg)["state"], "READY")
         with mock.patch("backend.paper.latex.engines", return_value={}):
             self.assertEqual(RP._exec_health("latex", cfg)["state"], "UNAVAILABLE")
 
-    def test_run_feynman_with_a_fake_cli(self):
-        fake = config.data_dir() / "feynman_fake.py"
-        fake.write_text("import sys,pathlib\npathlib.Path('brief.md').write_text('# brief')\nprint('\\x1b[1mdone\\x1b[0m', sys.argv[1:])\n"
-                        "sys.exit(3 if any('fail' in a for a in sys.argv) else 0)\n", "utf-8")
-        ready = {"ready": True, "state": "READY", "detail": ""}
-        with mock.patch.object(RP, "describe", return_value=ready), \
-                mock.patch("backend.execution.tools.node_argv", return_value=[sys.executable, str(fake)]):
-            out = RP.run_feynman("task-001", "lit", "topic", "ctx", config.data_dir() / "out")
-            self.assertIn("done", out["text"])
-            self.assertEqual(out["files"], ["brief.md"])
-            with self.assertRaisesRegex(RP.ProviderUnavailable, "exit 3"):
-                RP.run_feynman("task-002", "", "fail", "ctx", config.data_dir() / "out2")
-            with self.assertRaisesRegex(RP.ProviderUnavailable, "not allowed"):
-                RP.run_feynman("task-003", "autoresearch", "x", "", config.data_dir() / "o")
-            slow = config.data_dir() / "slow.py"
-            slow.write_text("import time; time.sleep(30)", "utf-8")
-        with mock.patch.object(RP, "describe", return_value=ready), \
-                mock.patch("backend.execution.tools.node_argv", return_value=[sys.executable, str(slow)]):
-            with self.assertRaisesRegex(RP.ProviderUnavailable, "time limit"):
-                RP.run_feynman("task-004", "", "x", "", config.data_dir() / "o4", timeout_s=0.5)
-            with self.assertRaisesRegex(RP.ProviderUnavailable, "cancelled"):
-                RP.run_feynman("task-005", "", "x", "", config.data_dir() / "o5", cancelled=lambda: True)
-        with mock.patch.object(RP, "describe", return_value={"ready": False, "state": "NOT_CONFIGURED", "detail": "d"}):
-            with self.assertRaises(RP.ProviderUnavailable):
-                RP.run_feynman("task-006", "", "x", "", config.data_dir() / "o6")
 
     def test_run_coding_with_a_fake_connector(self):
         from providers.fakes import fake
         from backend.providers import cli as C
         conn = fake("codex")
-        with mock.patch.dict(C.CONNECTORS, {"codex": conn}):
+        with mock.patch.dict(C.CONNECTORS, {"codex": conn}), mock.patch.dict(C._last_error, {}, clear=True):
             out = RP.run_coding("code-001", "codex", "write code", "ctx", config.data_dir() / "c1")
             self.assertTrue(out["text"])
             with self.assertRaises(RP.ProviderUnavailable):

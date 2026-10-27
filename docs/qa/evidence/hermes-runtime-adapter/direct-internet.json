@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-10-26T04:46:34.926090+00:00",
+  "execution_mode": "REAL_CONTAINER_NETWORK",
+  "adapter_sha256": "802d9efca1223f5c733c758ae298a3460c402bb11da751e4976b0103dfc9718c",
+  "image": "sha256:f5155dcf9cdf1479420216817fe206115d1c8c714933f8deb84b79071079c35f",
+  "network_mode": "bridge",
+  "checks": [
+    {
+      "url": "https://www.python.org/",
+      "status": 200
+    },
+    {
+      "url": "https://pypi.org/",
+      "status": 200
+    },
+    {
+      "url": "https://github.com/",
+      "status": 200
+    }
+  ],
+  "mount_destinations": [
+    [
+      "/hermes-home",
+      true
+    ],
+    [
+      "/ipc",
+      true
+    ],
+    [
+      "/workspace",
+      false
+    ],
+    [
+      "/opt/data",
+      true
+    ]
+  ],
+  "model_inference": "NOT_RUN",
+  "authentication": "PENDING_OFFICIAL_LOGIN",
+  "scope": "Direct public Internet reachability only; not scientific or full provider qualification"
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "trial": 1,
+    "python": "output\\playwright\\native-consolidation\\old-python\\cpython-3.12-windows-x86_64-none\\python.exe",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "trial": 2,
+    "python": "output\\playwright\\native-consolidation\\old-python\\cpython-3.12-windows-x86_64-none\\python.exe",
+    "exit_code": 0,
+    "stderr": ""
+  },
+  {
+    "trial": 3,
+    "python": "output\\playwright\\native-consolidation\\old-python\\cpython-3.12-windows-x86_64-none\\python.exe",
+    "exit_code": 0,
+    "stderr": ""
+  }
+]

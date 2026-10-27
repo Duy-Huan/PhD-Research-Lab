@@ -1,0 +1,29 @@
+{
+  "mode": "REAL_LOCAL_SOFTWARE_PROFILING",
+  "under_cprofile": true,
+  "scientific_qualification": false,
+  "dev": {
+    "recall@5": 0.935,
+    "recall@10": 0.972,
+    "precision@5": 0.378,
+    "mrr": 0.87,
+    "retrieve_ms": 141.856,
+    "compile_ms": 157.622,
+    "context_tokens": 1249.0,
+    "ids_in_context": 1.0,
+    "fact_fidelity": 1.0,
+    "efficiency": 1.667
+  },
+  "held": {
+    "recall@5": 0.917,
+    "recall@10": 1.0,
+    "precision@5": 0.25,
+    "mrr": 0.76,
+    "retrieve_ms": 90.3,
+    "compile_ms": 159.425,
+    "context_tokens": 1238.0,
+    "ids_in_context": 1.0,
+    "fact_fidelity": 1.0,
+    "efficiency": 1.695
+  }
+}

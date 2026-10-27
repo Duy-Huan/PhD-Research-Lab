@@ -1,0 +1,104 @@
+{
+  "defect_id": "BUG-CLI-RUNTIME-CLEANUP-001",
+  "severity": "P2",
+  "status": "CONFIRMED_OPEN",
+  "expected": "No owned runtime containers/IPC volumes after a finished request",
+  "actual": "Three egress proxy containers remain running after the three actual successful native probes",
+  "suspected_cause": "Terminal path kills the Python runtime wrapper after0.3seconds; its Docker cleanup finally block cannot complete",
+  "containers": [
+    {
+      "id": "97a5bdca54acd5a03ccedd03e1da61bea1be91942fb2080f5edadc9c22659d64",
+      "created": "2026-10-25T17:48:44.13198502Z",
+      "name": "/infallible_easley",
+      "labels": {
+        "phdlab.cli": "8b9f834113994c41aef4068a1c549c53",
+        "phdlab.cli.provider": "codex",
+        "phdlab.cli.version": "0.163.0"
+      },
+      "entrypoint": [
+        "node"
+      ],
+      "command": [
+        "/opt/phdlab/cli_egress_proxy.mjs"
+      ],
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "phdlab-cli-ipc-8b9f834113994c41aef4068a1c549c53",
+          "destination": "/ipc"
+        }
+      ]
+    },
+    {
+      "id": "7ad1617b9191913bf433c1de21526ac8ae14997edc28d18a08a5efe68c51dd4b",
+      "created": "2026-10-25T16:44:26.376136972Z",
+      "name": "/confident_solomon",
+      "labels": {
+        "phdlab.cli": "7912f833d2ef4779b115907ff3bd7eed",
+        "phdlab.cli.provider": "codex",
+        "phdlab.cli.version": "0.163.0"
+      },
+      "entrypoint": [
+        "node"
+      ],
+      "command": [
+        "/opt/phdlab/cli_egress_proxy.mjs"
+      ],
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "phdlab-cli-ipc-7912f833d2ef4779b115907ff3bd7eed",
+          "destination": "/ipc"
+        }
+      ]
+    },
+    {
+      "id": "418d88b23f8959bfe19a226a02f4d2616eb4135d55ee93612817e5e18d707fd4",
+      "created": "2026-10-25T16:40:57.752920595Z",
+      "name": "/objective_gates",
+      "labels": {
+        "phdlab.cli": "3d7f506ed2944ce8a342885b0322d7c6",
+        "phdlab.cli.provider": "codex",
+        "phdlab.cli.version": "0.163.0"
+      },
+      "entrypoint": [
+        "node"
+      ],
+      "command": [
+        "/opt/phdlab/cli_egress_proxy.mjs"
+      ],
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "phdlab-cli-ipc-3d7f506ed2944ce8a342885b0322d7c6",
+          "destination": "/ipc"
+        }
+      ]
+    }
+  ],
+  "probes": [
+    {
+      "name": "subscription-isolated-2",
+      "started": "2026-10-25T16:40:45.965989+00:00",
+      "finished": "2026-10-25T16:41:09.012089+00:00",
+      "request_id": "gw-05007490ba",
+      "data_root": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\data\\gateway-verification\\subscription-3134196162"
+    },
+    {
+      "name": "subscription-isolated-3",
+      "started": "2026-10-25T16:44:18.758483+00:00",
+      "finished": "2026-10-25T16:44:40.827250+00:00",
+      "request_id": "gw-6c02facd19",
+      "data_root": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\data\\gateway-verification\\subscription-1036881b1f"
+    },
+    {
+      "name": "codex-live-exact",
+      "started": "2026-10-25T17:48:36.046209+00:00",
+      "finished": "2026-10-25T17:48:58.427861+00:00",
+      "request_id": null,
+      "data_root": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\data\\live-qualification-658\\codex-c56ab4e040"
+    }
+  ],
+  "mode": "ACTUAL_DOCKER_INSPECTION",
+  "qualification": "Smoke provider assertions passed but did not assert resource cleanup"
+}

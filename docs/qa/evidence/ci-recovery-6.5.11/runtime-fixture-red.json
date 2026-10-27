@@ -1,0 +1,71 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_orchestrator.Orchestrator.test_cancel_a_running_cli_turn",
+      "status": "PASS",
+      "duration": 9.3827,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_cli_partial_answer_keeps_the_text_with_the_error",
+      "status": "PASS",
+      "duration": 0.7208,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_cli_provider_answer_tools_usage_and_workspace",
+      "status": "PASS",
+      "duration": 0.9035,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_cli_provider_errors_and_refusals",
+      "status": "PASS",
+      "duration": 2.2313,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_decisions_validation_edits_and_failures",
+      "status": "PASS",
+      "duration": 0.1857,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_history_off_no_artifacts_no_summary_and_provider_notes",
+      "status": "PASS",
+      "duration": 0.3805,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_input_validation",
+      "status": "PASS",
+      "duration": 0.1158,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_manual_mode_plan_for_cli_and_http_then_launch_and_cancel",
+      "status": "PASS",
+      "duration": 1.0434,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_protocol_fixture_does_not_require_or_certify_a_vendor_container",
+      "status": "FAIL",
+      "duration": 0.1878,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_orchestrator.py\", line 55, in test_protocol_fixture_does_not_require_or_certify_a_vendor_container\n    self.assertEqual(turn['status'],'completed',turn.get('error'))\nAssertionError: 'failed' != 'completed'\n- failed\n+ completed\n : ChatGPT (OpenAI Codex CLI) is not available (CONNECTED): Controlled subprocess fixture; no live authentication\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 9,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-kp23efy_",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

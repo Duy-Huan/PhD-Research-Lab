@@ -2,12 +2,12 @@
 research orchestrator → shared context memory + research state → providers → reliability layer).
 
     category      id            what it does here
-    research      feynman       Feynman CLI workflows (lit, deepresearch, compare, review, summarize, draft, recipe)
+    research      phdlab        native literature, analysis and review through the selected model gateway
     research      app           the app's own model, agent "research" or "reviewer" (always available as fallback)
     coding        claude_code   Claude Code CLI · codex · gemini_cli · antigravity (subscription sign-in, own workspace)
     experiment    python        Python venv of the active code project on this PC (default execution)
     experiment    docker        Linux container — only for tasks that need Linux (needs_linux)
-    experiment    clearml       offline experiment tracking of every run (no server)
+    experiment    tracking      native process journals, raw metrics and artifacts (no service)
     publication   latex         LaTeX → PDF (tectonic / latexmk / pdflatex)
     publication   paperorchestra PaperOrchestra Multi-Agent Research Writing Engine
 
@@ -29,22 +29,19 @@ import time
 from pathlib import Path
 
 ANSI = re.compile(r"\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07]*\x07")
-FEYNMAN_WORKFLOWS = ("lit", "deepresearch", "compare", "review", "summarize", "draft", "recipe", "audit")
-OUT_EXT = {".md", ".txt", ".csv", ".json", ".bib", ".tex", ".pdf", ".png", ".svg", ".py", ".yaml", ".yml"}
+OUT_EXT = {".md", ".txt", ".csv", ".json", ".bib", ".tex", ".pdf", ".png", ".svg", ".py", ".yaml", ".yml", ".sh", ".toml", ".ipynb", ".cfg", ".ini"}
 CODING = ("claude_code", "codex", "gemini_cli", "antigravity")
 CATALOG = {
-    "feynman": ("research", "Feynman (AI research agent)"),
-    "openscience": ("research", "OpenScience (external research runtime)"),
-    "phdlab": ("research", "PhD Lab Native (Toàn bộ Agent nội bộ của PhD Lab)"),
+    "phdlab": ("research", "PhD Lab Native Research"),
     "app": ("research", "Mô hình của ứng dụng (agent Research / Reviewer)"),
     "claude_code": ("coding", "Claude Code"),
     "codex": ("coding", "OpenAI Codex"),
     "gemini_cli": ("coding", "Gemini CLI"),
     "antigravity": ("coding", "Google Antigravity"),
-    "opencode": ("coding", "OpenCode Sandbox Thực nghiệm"),
-    "python": ("experiment", "Python venv (máy này)"),
+    "python": ("experiment", "Native Python experiments"),
+    "tracking": ("experiment", "Native experiment records"),
+    "vscode": ("editor", "VS Code"),
     "docker": ("experiment", "Docker (Linux, chạy ngầm khi cần)"),
-    "clearml": ("experiment", "ClearML (offline tracking)"),
     "latex": ("publication", "LaTeX → PDF"),
     "paperorchestra": ("publication", "PaperOrchestra (Multi-Agent Research Writing Engine)"),
 }
@@ -69,38 +66,8 @@ def _rp(cfg: dict | None = None) -> dict:
 
 
 # ------------------------------------------------------------------ health
-def _feynman_health(cfg: dict) -> dict:
-    from backend.execution.tools import run_cli, which
-    if _rp(cfg).get("feynman_enabled") is False:
-        return {"state": "DISABLED", "detail": "tắt trong Cài đặt → Providers"}
-    b = which("feynman")
-    if not b:
-        return {"state": "UNAVAILABLE", "detail": "không tìm thấy lệnh `feynman`",
-                "setup": ["irm https://feynman.is/install.ps1 | iex"]}
-    code, out = run_cli([b, "status"], 40)
-    text = strip_ansi(out)
-    m = re.search(r"Model valid:\s*(\w+)", text)
-    model = re.search(r"Model:\s*(.+)", text)
-    if m and m.group(1).lower() == "yes":
-        return {"state": "READY", "detail": f"model {model.group(1).strip() if model else '?'}", "bin": b}
-    if _shared_key(cfg):
-        return {"state": "READY", "detail": "dùng API key của ứng dụng (đã cho phép trong Cài đặt)", "bin": b}
-    return {"state": "NOT_CONFIGURED", "bin": b,
-            "detail": "Feynman chưa có model (Model valid: no)",
-            "setup": ["feynman model login", "hoặc bật 'Cho Feynman dùng API key của ứng dụng' trong Cài đặt"]}
 
 
-def _shared_key(cfg: dict) -> dict:
-    """{ENV: key} when the researcher allowed Feynman to use the app's Anthropic / OpenAI key (cost: their API account)."""
-    if not _rp(cfg).get("feynman_share_app_key"):
-        return {}
-    p = cfg.get("providers") or {}
-    out = {}
-    if (p.get("anthropic") or {}).get("api_key"):
-        out["ANTHROPIC_API_KEY"] = p["anthropic"]["api_key"]
-    if (p.get("openai") or {}).get("api_key"):
-        out["OPENAI_API_KEY"] = p["openai"]["api_key"]
-    return out
 
 
 def _coding_health(pid: str, fresh: bool = False) -> dict:
@@ -121,14 +88,12 @@ def _exec_health(pid: str, cfg: dict) -> dict:
             return {"state": "UNAVAILABLE", "detail": "Docker chưa cài — chỉ cần khi tác vụ yêu cầu Linux"}
         return {"state": "READY" if docker_running() else "STOPPED",
                 "detail": "chỉ dùng khi tác vụ cần Linux" + ("" if docker_running() else " · Docker Desktop đang tắt")}
-    if pid == "clearml":
-        import importlib.util
-        if not (cfg.get("clearml") or {}).get("enabled"):
-            return {"state": "DISABLED", "detail": "tắt trong cấu hình"}
-        if importlib.util.find_spec("clearml") is None:
-            return {"state": "UNAVAILABLE", "detail": "chưa cài gói clearml — run vẫn được lưu đầy đủ trong dự án",
-                    "setup": ["pip install clearml"]}
-        return {"state": "READY", "detail": "ghi offline mỗi run vào <dự án>/clearml (không cần server)"}
+    if pid == 'tracking':
+        return {'state':'READY','detail':'Project-owned run records, metrics, raw artifacts and code/data provenance; scientific verification is separate.'}
+    if pid == 'vscode':
+        from backend.execution.vscode import vscode_cli
+        binary=vscode_cli()
+        return {'state':'READY' if binary else 'UNAVAILABLE','detail':'Installed VS Code editor' if binary else 'VS Code is not installed or its CLI is unavailable'}
     from backend.paper.latex import engines
     e = engines()
     found = [k for k, v in e.items() if v]
@@ -147,20 +112,7 @@ def describe(pid: str, cfg: dict | None = None, fresh: bool = False) -> dict:
         h = hit[1]
     else:
         try:
-            if pid == "feynman":
-                h = _feynman_health(cfg)
-            elif pid == "openscience":
-                from backend.research_engines.registry import get
-                h = get(pid).health()
-            elif pid == "opencode":
-                from backend.research_engines.registry import get
-                oc_h = get(pid).health()
-                h = {
-                    "state": "READY" if oc_h.get("ready") else "UNAVAILABLE",
-                    "detail": oc_h.get("detail") or ("OpenCode runtime sẵn sàng" if oc_h.get("ready") else "Chưa cài đặt OpenCode CLI"),
-                    "setup": ["npm install -g opencode-ai"] if not oc_h.get("installed") else [],
-                }
-            elif pid == "paperorchestra":
+            if pid == "paperorchestra":
                 from backend.research_engines.registry import get
                 po_h = get(pid).health()
                 h = {
@@ -169,7 +121,7 @@ def describe(pid: str, cfg: dict | None = None, fresh: bool = False) -> dict:
                     "setup": po_h.get("setup", []),
                 }
             elif pid in ("app", "phdlab"):
-                h = {"state": "READY", "detail": "PhD Lab Native Multi-Agent OS (chạy toàn bộ hội đồng Agent nội bộ)"}
+                h = {"state": "READY", "detail": "Native research adapter available; each task uses one configured model role. Model authentication/inference is verified separately."}
             elif pid in CODING:
                 h = _coding_health(pid, fresh)
             else:
@@ -178,7 +130,7 @@ def describe(pid: str, cfg: dict | None = None, fresh: bool = False) -> dict:
             h = {"state": "ERROR", "detail": f"{type(e).__name__}: {e}"[:200]}
         _health[pid] = (time.time(), h, fingerprint)
     cat, label = CATALOG[pid]
-    return {"id": pid, "category": cat, "label": label, "state": h["state"],
+    return {"id": pid, "category": cat, "kind": "model" if pid in (*CODING, "app") else "embedded_engine" if pid in ("phdlab", "paperorchestra") else "native_tool", "label": label, "state": h["state"],
             "ready": h["state"] == "READY" or (pid in CODING and h["state"] == "UNKNOWN"),
             "detail": h.get("detail", ""), "setup": h.get("setup") or []}
 
@@ -187,8 +139,9 @@ def describe_all(fresh: bool = False) -> list:
     """Every provider, probed in parallel (CLI version / sign-in checks take seconds each)."""
     from concurrent.futures import ThreadPoolExecutor
     cfg = _cfg()
-    with ThreadPoolExecutor(max_workers=len(CATALOG)) as ex:
-        return list(ex.map(lambda p: describe(p, cfg, fresh), CATALOG))
+    names=[name for name in CATALOG if name not in (*CODING, "app")]
+    with ThreadPoolExecutor(max_workers=len(names)) as ex:
+        return list(ex.map(lambda p: describe(p, cfg, fresh), names))
 
 
 def pick(preferred: str, category: str = "research") -> tuple[str, str]:
@@ -205,132 +158,123 @@ def pick(preferred: str, category: str = "research") -> tuple[str, str]:
 
 
 # ------------------------------------------------------------------ running tasks
-def app_complete(agent: str, system: str, user: str, max_tokens: int = 6000) -> str:
+def app_complete(agent: str, system: str, user: str, max_tokens: int = 6000, *, timeout_s: float = 900, cancelled=None) -> str:
     """One call to the app's model for the given agent (research | reviewer | utility)."""
     import asyncio
 
     from backend.providers.models import call_agent
-    r = asyncio.run(call_agent(agent, system, user, max_tokens=max_tokens, temperature=0.3))
+    async def bounded():
+        task=asyncio.create_task(call_agent(agent, system, user, max_tokens=max_tokens, temperature=0.3))
+        deadline=time.monotonic()+timeout_s
+        try:
+            while not task.done():
+                if cancelled and cancelled(): raise InterruptedError('Native model request cancelled')
+                remaining=deadline-time.monotonic()
+                if remaining<=0: raise TimeoutError('Native model request exceeded its task deadline')
+                await asyncio.wait([task],timeout=min(.2,remaining))
+            return await task
+        finally:
+            if not task.done():
+                task.cancel()
+                await asyncio.gather(task,return_exceptions=True)
+    r = asyncio.run(bounded())
     return (r.get("text") or "").strip()
 
 
+def _artifact_files(folder: Path) -> list[Path]:
+    from backend.knowledge.research_store import safe_child
+    root=safe_child(folder);files=[];visited=0;started=time.monotonic()
+    for directory,children,names in os.walk(root,followlinks=False):
+        children[:]=sorted(name for name in children if not name.startswith('.') and name not in ('node_modules','__pycache__'))
+        for name in children:
+            safe_child(root,str((Path(directory)/name).relative_to(root)))
+        for name in sorted(names):
+            visited+=1
+            if visited>10000 or time.monotonic()-started>20:
+                raise ProviderUnavailable('Coding artifact inventory exceeded its explicit scan budget; files remain in the provider workspace')
+            candidate=Path(directory)/name
+            if name.startswith('.') or candidate.suffix.lower() not in OUT_EXT:continue
+            candidate=safe_child(root,str(candidate.relative_to(root)))
+            if candidate.is_file():files.append(candidate)
+            if len(files)>200:
+                raise ProviderUnavailable('Coding artifact inventory exceeds200files; originals are preserved, no silent truncation')
+    return files
+
+
 def _snapshot(d: Path) -> dict:
-    return {str(f): f.stat().st_mtime_ns for f in d.rglob("*") if f.is_file()}
+    return {str(f):f.stat().st_mtime_ns for f in _artifact_files(d)}
 
 
 def _collect(cwd: Path, before: dict, outdir: Path) -> list:
-    outdir.mkdir(parents=True, exist_ok=True)
-    files = []
-    for f in sorted(cwd.rglob("*")):
-        if not f.is_file() or f.suffix.lower() not in OUT_EXT or before.get(str(f)) == f.stat().st_mtime_ns:
-            continue
-        rel = f.relative_to(cwd)
-        dst = outdir / rel
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(f, dst)
-        files.append(str(rel).replace("\\", "/"))
-    return files[:200]
-
-
-def run_feynman(task_id: str, workflow: str, prompt: str, context_text: str, outdir: Path, cancelled=None,
-                timeout_s: float = 0) -> dict:
-    """One Feynman task in its own session workspace. Returns {text, files}. Raises ProviderUnavailable."""
-    from backend.providers import cli_space as W
-    from backend.providers.cli import kill_tree
-    from backend.execution.tools import NO_WINDOW
-    cfg = _cfg()
-    h = describe("feynman", cfg, fresh=True)
-    if not h["ready"]:
-        raise ProviderUnavailable(f"Feynman: {h['state']} — {h['detail']}")
-    if workflow and workflow not in FEYNMAN_WORKFLOWS:
-        raise ProviderUnavailable(f"Feynman workflow '{workflow}' is not allowed here")
-    sess = W.open_session("feynman", re.sub(r"[^\w.-]", "-", task_id)[:60], "assisted",
-                          W.check_profile("feynman", "assisted", allow_weaker=True))
-    cwd = Path(sess["cwd"])
-    (cwd / "PROJECT_CONTEXT.md").write_text(context_text or "(no project context)", "utf-8")
-    from backend.providers.firewall import prepare_workspace
-    prepare_workspace("feynman", cwd)
-    before = _snapshot(cwd)
-    from backend.execution.tools import node_argv, which
-    pre = node_argv(which("feynman"), "@companion-ai/feynman/bin/feynman.js")
-    topic = (prompt or "").strip()[:6000]
-    argv = pre + ([workflow, topic] if workflow else ["--prompt", "Read ./PROJECT_CONTEXT.md first.\n\n" + topic])
-    env = W.minimal_env() | {"NO_COLOR": "1", "FEYNMAN_TELEMETRY": "off"} | _shared_key(cfg)
-    proc = subprocess.Popen(argv, cwd=str(cwd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
-                            text=True, encoding="utf-8", errors="replace", env=env, creationflags=NO_WINDOW,
-                            start_new_session=os.name != "nt")
-    from collections import deque
-    from backend.core.telemetry import redact
-    out = deque(maxlen=2048)
-    def drain():
-        try:
-            for line in iter(proc.stdout.readline, ""):
-                out.append(redact(line)[:4000])
-        except (OSError, ValueError):
-            pass
-    reader = threading.Thread(target=drain, daemon=True)
-    reader.start()
-    limit = timeout_s or float(_rp(cfg).get("feynman_timeout_s") or 1800)
-    end = time.time() + limit
-    try:
-        while proc.poll() is None:
-            if (cancelled and cancelled()) or time.time() > end:
-                raise ProviderUnavailable("Feynman stopped: " + ("cancelled" if cancelled and cancelled() else f"time limit {int(limit)} s"))
-            time.sleep(0.3)
-        reader.join(5)
-        text = strip_ansi("".join(out)).strip()
-        if proc.returncode != 0:
-            raise ProviderUnavailable(f"Feynman exit {proc.returncode}: {text[-600:]}")
-        return {"text": text, "files": _collect(cwd, before, outdir), "workspace": str(cwd)}
-    except Exception:
-        kill_tree(proc)
-        reader.join(5)
-        files = _collect(cwd, before, outdir)
-        outdir.mkdir(parents=True, exist_ok=True)
-        (outdir / "interrupted.json").write_text(json.dumps({"task_id": task_id, "workflow": workflow,
-            "workspace": str(cwd), "files": files, "status": "interrupted", "native_resume_verified": False}), "utf-8")
-        (outdir / "partial-output.txt").write_text(strip_ansi("".join(out)), "utf-8")
-        raise
-    finally:
-        kill_tree(proc)
-        reader.join(5)
-        proc.stdout.close()
+    from backend.core.config import data_dir
+    from backend.knowledge.research_store import safe_child
+    try:outdir=safe_child(data_dir(),str(outdir.absolute().relative_to(data_dir().resolve())))
+    except ValueError as error:raise ProviderUnavailable('Coding artifacts must remain in this paper project') from error
+    pending=[];total=0
+    for source in _artifact_files(cwd):
+        stat=source.stat()
+        if before.get(str(source))==stat.st_mtime_ns:continue
+        total+=stat.st_size
+        if stat.st_size>32*1024*1024 or total>64*1024*1024:
+            raise ProviderUnavailable('Coding artifact byte budget exceeded; original files are preserved in the provider workspace')
+        target=safe_child(outdir,str(source.relative_to(cwd)))
+        pending.append((source,target,stat))
+    files=[]
+    for source,target,stat in pending:
+        target.parent.mkdir(parents=True,exist_ok=True)
+        # Provider termination precedes collection. Detect concurrent user edits as well.
+        current=source.stat()
+        if (current.st_size,current.st_mtime_ns)!=(stat.st_size,stat.st_mtime_ns):
+            raise ProviderUnavailable('Coding output changed during collection; inspect preserved originals')
+        shutil.copyfile(source,target)
+        files.append(str(target.relative_to(outdir)).replace('\\','/'))
+    return files
 
 
 def run_coding(task_id: str, pid: str, prompt: str, context_text: str, outdir: Path, cancelled=None) -> dict:
-    """A coding task on a CLI provider (assisted profile: writes only inside its own session workspace)."""
-    from backend.providers import cli_space as W
-    from backend.providers.cli import CONNECTORS, ProviderError
+    """An explicitly selected coding provider through the existing durable gateway."""
+    from backend.providers import cli_space as W, gateway as G
+    from backend.providers.cli import ProviderError
+    from backend.providers.privacy import sanitize
+    from backend.agent.mcp_policy import grant_for_cli, revoke
     if pid not in CODING:
         raise ProviderUnavailable(f"{pid} is not a coding provider")
+    if cancelled and cancelled():
+        raise ProviderUnavailable('Coding task cancelled before gateway preparation; no provider was invoked')
     profile = "assisted" if W.isolation(pid, "assisted")["supported"] else "review"
+    request=None;grant=None
     try:
-        iso = W.check_profile(pid, profile, allow_weaker=True)
-    except W.WorkspaceError as e:
-        raise ProviderUnavailable(str(e))
-    sess = W.open_session(pid, re.sub(r"[^\w.-]", "-", task_id)[:60], profile, iso)
-    cwd = Path(sess["cwd"])
-    (cwd / "PROJECT_CONTEXT.md").write_text(context_text or "", "utf-8")
-    before = _snapshot(cwd)
-    text, errors = [], []
-    from backend.agent.mcp_policy import grant_for_cli, revoke
-    ctx = {"cwd": str(cwd), "profile": profile, "allow_weaker": True, **grant_for_cli(f"run:{task_id}")}
-    try:
-        for e in CONNECTORS[pid].stream_message("Read ./PROJECT_CONTEXT.md and ./FIREWALL.md first.\n\n" + prompt, ctx):
+        iso=W.check_profile(pid,profile)
+        safe_context,_=sanitize(context_text or '')
+        request=G.prepare('Read ./PROJECT_CONTEXT.md and ./FIREWALL.md first.\n\n'+prompt,pid,
+                          profile=profile,module_context=safe_context,memory=False)
+        sid=request['session_id']
+        session=W.open_session(pid,sid,profile,iso)
+        cwd=Path(session['cwd'])
+        (cwd/'PROJECT_CONTEXT.md').write_text(safe_context,'utf-8')
+        before=_snapshot(cwd)
+        grant=grant_for_cli('run:'+task_id)
+        G.send(request['id'],base_url=grant['mcp_url'].removesuffix('/mcp'),
+               mcp={'token':grant['mcp_token'],'tools':grant['mcp_tools']})
+        deadline=time.monotonic()+600
+        while True:
+            actual=G.get(request['id'])
+            if actual['status'] not in ('ready','starting','running'):break
             if cancelled and cancelled():
-                break
-            if e["type"] == "text_delta":
-                text.append(e.get("text", ""))
-            elif e["type"] == "error":
-                errors.append(e.get("message", ""))
-    except ProviderError as e:
-        raise ProviderUnavailable(str(e))
+                G.cancel(request['id'])
+                raise ProviderUnavailable('Coding task cancelled; partial output retained in its gateway request')
+            if time.monotonic()>=deadline:
+                G.cancel(request['id'])
+                raise ProviderUnavailable('Coding task exceeded its deadline; inspect its gateway request before retrying')
+            time.sleep(.05)
+        if actual['status']!='completed':
+            raise ProviderUnavailable('; '.join(actual.get('errors') or []) or 'Coding provider did not complete')
+        return {'text':actual['answer'],'files':_collect(cwd,before,outdir),'workspace':str(cwd),
+                'gateway_request_id':request['id'],'notes':[]}
+    except (ProviderError,G.GatewayError,W.WorkspaceError) as error:
+        raise ProviderUnavailable(str(error)) from error
     finally:
-        revoke(ctx["mcp_token"])
-    if errors and not text:
-        raise ProviderUnavailable("; ".join(errors)[:600])
-    return {"text": "".join(text).strip(), "files": _collect(cwd, before, outdir), "workspace": str(cwd),
-            "notes": errors[:3]}
+        if grant:revoke(grant['mcp_token'])
 
 
 def needs_linux(text: str) -> bool:

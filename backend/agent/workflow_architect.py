@@ -71,7 +71,7 @@ PRESET_AGENTS: list[dict[str, Any]] = [
         "provider": "auto",
         "model": "",
         "reasoning_effort": "auto",
-        "skills": ["lit", "search", "feynman"],
+        "skills": ["lit", "search", "phdlab"],
         "mcp_tools": ["web_search", "web_fetch", "research_get_evidence"],
         "memory_scope": "project_shared",
         "permissions": ["read", "network"],
@@ -85,7 +85,7 @@ PRESET_AGENTS: list[dict[str, Any]] = [
         "provider": "auto",
         "model": "",
         "reasoning_effort": "medium",
-        "skills": ["opencode"],
+        "skills": ["code"],
         "mcp_tools": ["sandbox_run_code", "sandbox_manage_files", "sandbox_get_metrics"],
         "memory_scope": "project_shared",
         "permissions": ["read", "workspace_write", "compute"],
@@ -164,8 +164,8 @@ def save_agent_profile(agent_data: dict[str, Any]) -> dict[str, Any]:
         "id": aid,
         "name": str(agent_data.get("name", "Custom Agent")).strip()[:100],
         "role": str(agent_data.get("role", "researcher")).strip(),
-        "purpose": str(agent_data.get("purpose", "")).strip()[:500],
-        "system_prompt": str(agent_data.get("system_prompt", "")).strip()[:2000],
+        "purpose": str(agent_data.get("purpose", "")).strip(),
+        "system_prompt": str(agent_data.get("system_prompt", "")).strip(),
         "provider": str(agent_data.get("provider", "auto")).strip(),
         "model": str(agent_data.get("model", "")).strip(),
         "reasoning_effort": str(agent_data.get("reasoning_effort", "auto")),
@@ -293,7 +293,7 @@ def generate_workflow_from_objective(
     })
     prev_id = start_id
 
-    # 2. Literature / Feynman synthesis
+    # 2. Literature / Native research synthesis
     current_x += x_step
     lit_id = "node-literature"
     nodes.append({
@@ -302,9 +302,9 @@ def generate_workflow_from_objective(
         "position": {"x": current_x, "y": y_center},
         "data": {
             "node_type": "research_engine",
-            "label": "Tổng quan Văn hiến (Feynman)",
+            "label": "Tổng quan Văn hiến (Native research)",
             "config": {
-                "engine": "feynman",
+                "engine": "phdlab",
                 "action": "synthesize_literature",
                 "params": {"query": obj_clean[:200]},
             },
@@ -354,17 +354,17 @@ def generate_workflow_from_objective(
         edges.append({"id": f"e-{prev_id}-{gate1_id}", "source": prev_id, "target": gate1_id})
         prev_id = gate1_id
 
-    # 5. Experiment / Code Generation (OpenCode)
+    # 5. Experiment / Code Generation (Native Code)
     current_x += x_step
-    code_id = "node-opencode"
+    code_id = "node-native-code"
     nodes.append({
         "id": code_id,
-        "type": "research_engine",
+        "type": "tool_skill",
         "position": {"x": current_x, "y": y_center},
         "data": {
-            "node_type": "research_engine",
-            "label": "Thực nghiệm Mã nguồn (OpenCode)",
-            "config": {"engine": "opencode", "action": "generate_prototype"},
+            "node_type": "tool_skill",
+            "label": "Thực nghiệm Mã nguồn (Native Code)",
+            "config": {"skill": "code", "input_arg": "Implement the approved research objective in the active code project"},
             "status": "idle",
         },
     })

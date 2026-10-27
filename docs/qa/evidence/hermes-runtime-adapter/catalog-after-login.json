@@ -1,0 +1,3416 @@
+{
+  "models": [
+    "poolside/laguna-s-2.1:free",
+    "poolside/laguna-xs-2.1:free",
+    "upstage/solar-mini4:free",
+    "meituan/longcat-2.0:free",
+    "stepfun/step-3.7-flash:free",
+    "meituan/longcat-2.5-preview:free",
+    "reflection/beam-1.0-501b-a23b:free",
+    "ornith/ornith-1.5-122b:free"
+  ],
+  "catalog": {
+    "protocol": 1,
+    "provider": "nous",
+    "origin": "live-account-catalog",
+    "queried_at": 1792990233.1707225,
+    "inference_verified": false,
+    "models": [
+      {
+        "id": "moonshotai/kimi-k3.1-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "minimax/minimax-m3.1-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000900",
+          "completion": "0.0000005000"
+        }
+      },
+      {
+        "id": "deepseek/deepseek-v4.1-flash-1017",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000200",
+          "completion": "0.0000010000"
+        }
+      },
+      {
+        "id": "elorian/glimpse",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000006000",
+          "completion": "0.0000030000"
+        }
+      },
+      {
+        "id": "reflection/beam-1.0-501b-a23b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002400",
+          "completion": "0.0000009800"
+        }
+      },
+      {
+        "id": "inception/mercury-3",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000003500"
+        }
+      },
+      {
+        "id": "meta/muse-spark-open",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000012500",
+          "completion": "0.0000042500"
+        }
+      },
+      {
+        "id": "nvidia/nemotron-3.5-super-vl",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000600",
+          "completion": "0.0000003500"
+        }
+      },
+      {
+        "id": "unbiased/pareto-26.10",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000008000",
+          "completion": "0.0000032000"
+        }
+      },
+      {
+        "id": "~unbiased/pareto-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000008000",
+          "completion": "0.0000032000"
+        }
+      },
+      {
+        "id": "unbiased/pareto-26.9",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000025000",
+          "completion": "0.0000075000"
+        }
+      },
+      {
+        "id": "liquid/lfm-2.5-24b-a2b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000500",
+          "completion": "0.0000007000"
+        }
+      },
+      {
+        "id": "google/gemini-4-argon",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "google/gemini-4-argon:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000050000"
+        }
+      },
+      {
+        "id": "meta/muse-wonder",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000040000",
+          "completion": "0.0000200000"
+        }
+      },
+      {
+        "id": "stepfun/step-5-preview",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000027000"
+        }
+      },
+      {
+        "id": "anthropic/claude-haiku-5.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000005000"
+        }
+      },
+      {
+        "id": "anthropic/claude-haiku-5.5:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000500",
+          "completion": "0.0000002500"
+        }
+      },
+      {
+        "id": "google/gemini-nano-banana-2.1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000015000",
+          "completion": "0.0000075000"
+        }
+      },
+      {
+        "id": "mistralai/mistral-large-4-0",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000013600",
+          "completion": "0.0000041800"
+        }
+      },
+      {
+        "id": "inclusionai/ling-3.1-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000750",
+          "completion": "0.0000002250"
+        }
+      },
+      {
+        "id": "openai/gpt-6.1-sol-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "openai/gpt-6.1-sol-pro:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000050000"
+        }
+      },
+      {
+        "id": "openai/gpt-6.1-sol",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "openai/gpt-6.1-sol:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000050000"
+        }
+      },
+      {
+        "id": "anthropic/claude-sonnet-5.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "anthropic/claude-sonnet-5.5:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000050000"
+        }
+      },
+      {
+        "id": "perceptron/perceptron-mk1.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001500",
+          "completion": "0.0000015000"
+        }
+      },
+      {
+        "id": "fireworks/ember-1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000030000",
+          "completion": "0.0000150000"
+        }
+      },
+      {
+        "id": "z-ai/glm-5.3-prime",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000028000",
+          "completion": "0.0000088000"
+        }
+      },
+      {
+        "id": "qwen/qwen3.8-max-prime",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000040000",
+          "completion": "0.0000120000"
+        }
+      },
+      {
+        "id": "aion-labs/aion-3.5-mini",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000007000",
+          "completion": "0.0000014000"
+        }
+      },
+      {
+        "id": "aion-labs/aion-3.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000030000",
+          "completion": "0.0000060000"
+        }
+      },
+      {
+        "id": "upstage/solar-mini4",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000500",
+          "completion": "0.0000002000"
+        }
+      },
+      {
+        "id": "cohere/command-a-plus",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003000",
+          "completion": "0.0000015000"
+        }
+      },
+      {
+        "id": "openai/gpt-6-luna-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000005000"
+        }
+      },
+      {
+        "id": "openai/gpt-6-luna-pro:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000500",
+          "completion": "0.0000002500"
+        }
+      },
+      {
+        "id": "openai/gpt-6-luna",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000005000"
+        }
+      },
+      {
+        "id": "openai/gpt-6-luna:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000500",
+          "completion": "0.0000002500"
+        }
+      },
+      {
+        "id": "openai/gpt-6-sol-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "openai/gpt-6-sol-pro:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000050000"
+        }
+      },
+      {
+        "id": "openai/gpt-6-sol",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "openai/gpt-6-sol:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000050000"
+        }
+      },
+      {
+        "id": "anthropic/claude-opus-5.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000040000",
+          "completion": "0.0000200000"
+        }
+      },
+      {
+        "id": "anthropic/claude-opus-5.5:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "xiaomi/mimo-v2.6-pro-ultraspeed",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000043500",
+          "completion": "0.0000087000"
+        }
+      },
+      {
+        "id": "xiaomi/mimo-v2.6-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000910",
+          "completion": "0.0000001820"
+        }
+      },
+      {
+        "id": "xiaomi/mimo-v2.6-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003870",
+          "completion": "0.0000007830"
+        }
+      },
+      {
+        "id": "qwen/qwen3.8-omni-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001500",
+          "completion": "0.0000004700"
+        }
+      },
+      {
+        "id": "prism-ml/ternary-bonsai-2-27b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000750",
+          "completion": "0.0000005000"
+        }
+      },
+      {
+        "id": "z-ai/glm-5.3-flashx",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003700",
+          "completion": "0.0000012500"
+        }
+      },
+      {
+        "id": "~deepseek/deepseek-pro-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002565",
+          "completion": "0.0000080000"
+        }
+      },
+      {
+        "id": "~deepseek/deepseek-flash-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000200",
+          "completion": "0.0000010000"
+        }
+      },
+      {
+        "id": "~openai/gpt-astra-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000100000",
+          "completion": "0.0000500000"
+        }
+      },
+      {
+        "id": "~openai/gpt-sol-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "~openai/gpt-terra-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000120000"
+        }
+      },
+      {
+        "id": "~openai/gpt-luna-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000005000"
+        }
+      },
+      {
+        "id": "sakana/fugu-ultra-v2",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000050000",
+          "completion": "0.0000300000"
+        }
+      },
+      {
+        "id": "sakana/fugu-max",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000060000"
+        }
+      },
+      {
+        "id": "inclusionai/ling-3.0-flash-vl",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000600",
+          "completion": "0.0000001800"
+        }
+      },
+      {
+        "id": "deepseek/deepseek-v4.1-flash:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000500",
+          "completion": "0.0000001500"
+        }
+      },
+      {
+        "id": "inception/mercury-2.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000400",
+          "completion": "0.0000001500"
+        }
+      },
+      {
+        "id": "nex-agi/nex-n2.5-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000750",
+          "completion": "0.0000002500"
+        }
+      },
+      {
+        "id": "openai/gpt-6-astra",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000100000",
+          "completion": "0.0000500000"
+        }
+      },
+      {
+        "id": "openai/gpt-6-astra:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000050000",
+          "completion": "0.0000250000"
+        }
+      },
+      {
+        "id": "openai/gpt-6-astra-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000100000",
+          "completion": "0.0000500000"
+        }
+      },
+      {
+        "id": "openai/gpt-6-astra-pro:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000050000",
+          "completion": "0.0000250000"
+        }
+      },
+      {
+        "id": "qwen/qwen3.8-max-0902",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000060000"
+        }
+      },
+      {
+        "id": "meta/muse-spark-1.3",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000012500",
+          "completion": "0.0000042500"
+        }
+      },
+      {
+        "id": "google/gemini-3.8-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000007500",
+          "completion": "0.0000037500"
+        }
+      },
+      {
+        "id": "google/gemini-3.8-flash:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003750",
+          "completion": "0.0000018750"
+        }
+      },
+      {
+        "id": "anthropic/claude-fable-5.1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000100000",
+          "completion": "0.0000500000"
+        }
+      },
+      {
+        "id": "anthropic/claude-fable-5.1:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000050000",
+          "completion": "0.0000250000"
+        }
+      },
+      {
+        "id": "ibm-granite/granite-4.2-8b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000600",
+          "completion": "0.0000002500"
+        }
+      },
+      {
+        "id": "tencent/hy4-preview",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000004170",
+          "completion": "0.0000012500"
+        }
+      },
+      {
+        "id": "~z-ai/glm-flash-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000413",
+          "completion": "0.0000000758"
+        }
+      },
+      {
+        "id": "qwen/qwen3.8-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001500",
+          "completion": "0.0000004700"
+        }
+      },
+      {
+        "id": "z-ai/glm-5.3-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001200",
+          "completion": "0.0000004000"
+        }
+      },
+      {
+        "id": "z-ai/glm-5.3-flash:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000500",
+          "completion": "0.0000001800"
+        }
+      },
+      {
+        "id": "deepseek/deepseek-v4-flash-vision-exp",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002156",
+          "completion": "0.0000006468"
+        }
+      },
+      {
+        "id": "~z-ai/glm-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000699",
+          "completion": "0.0000014000"
+        }
+      },
+      {
+        "id": "z-ai/glm-5.3:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000004500",
+          "completion": "0.0000020000"
+        }
+      },
+      {
+        "id": "qwen/qwen3.8-27b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000200",
+          "completion": "0.0000005000"
+        }
+      },
+      {
+        "id": "google/gemini-3.7-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000007500",
+          "completion": "0.0000037500"
+        }
+      },
+      {
+        "id": "google/gemini-3.7-flash:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003750",
+          "completion": "0.0000018750"
+        }
+      },
+      {
+        "id": "voyageai/voyage-code-4",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001200",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "bytedance-seed/seed-2-1-turbo",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000005000",
+          "completion": "0.0000025000"
+        }
+      },
+      {
+        "id": "qwen/qwen3.8-2.4t-a95b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000060000"
+        }
+      },
+      {
+        "id": "bytedance-seed/seed-2.0-code",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000005000",
+          "completion": "0.0000030000"
+        }
+      },
+      {
+        "id": "deepseek/deepseek-v4-pro-0813",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002565",
+          "completion": "0.0000080000"
+        }
+      },
+      {
+        "id": "nvidia/nemotron-3.5-lightning",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000250",
+          "completion": "0.0000001200"
+        }
+      },
+      {
+        "id": "upstage/solar-pro4",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001500",
+          "completion": "0.0000006000"
+        }
+      },
+      {
+        "id": "meta/muse-glimmer-30b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003000",
+          "completion": "0.0000012000"
+        }
+      },
+      {
+        "id": "meta/muse-spark-1.2",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000012500",
+          "completion": "0.0000042500"
+        }
+      },
+      {
+        "id": "~deepseek/deepseek-v4-flash-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000475",
+          "completion": "0.0000001568"
+        }
+      },
+      {
+        "id": "thinkingmachines/inkling-small",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000004500",
+          "completion": "0.0000012000"
+        }
+      },
+      {
+        "id": "qwen/qwen3.7-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000300",
+          "completion": "0.0000001300"
+        }
+      },
+      {
+        "id": "voyageai/voyage-multimodal-3.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001200",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "voyageai/voyage-4-lite",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000200",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "voyageai/voyage-4",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000600",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "voyageai/voyage-4-large",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001200",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "anthropic/claude-opus-5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000050000",
+          "completion": "0.0000250000"
+        }
+      },
+      {
+        "id": "anthropic/claude-opus-5:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000025000",
+          "completion": "0.0000125000"
+        }
+      },
+      {
+        "id": "inclusionai/ling-3.0-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000210",
+          "completion": "0.0000000630"
+        }
+      },
+      {
+        "id": "poolside/laguna-s-2.1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000900",
+          "completion": "0.0000001800"
+        }
+      },
+      {
+        "id": "poolside/laguna-s-2.1:free",
+        "free": true,
+        "pricing": {
+          "prompt": "0",
+          "completion": "0"
+        }
+      },
+      {
+        "id": "google/gemini-3.6-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000007500",
+          "completion": "0.0000037500"
+        }
+      },
+      {
+        "id": "google/gemini-3.6-flash:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003750",
+          "completion": "0.0000018750"
+        }
+      },
+      {
+        "id": "google/gemini-3.5-flash-lite",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003000",
+          "completion": "0.0000025000"
+        }
+      },
+      {
+        "id": "google/gemini-3.5-flash-lite:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001500",
+          "completion": "0.0000012500"
+        }
+      },
+      {
+        "id": "meituan/longcat-2.0",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003000",
+          "completion": "0.0000012000"
+        }
+      },
+      {
+        "id": "thinkingmachines/inkling",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000040500"
+        }
+      },
+      {
+        "id": "moonshotai/kimi-k3",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001800",
+          "completion": "0.0000160000"
+        }
+      },
+      {
+        "id": "moonshotai/kimi-k3:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000022800",
+          "completion": "0.0000114000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.6-luna-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002000",
+          "completion": "0.0000012000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.6-luna-pro:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000006000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.6-luna",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002000",
+          "completion": "0.0000012000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.6-luna:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000006000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.6-terra-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000120000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.6-terra-pro:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000060000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.6-terra",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000120000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.6-terra:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000060000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.6-sol-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000040000",
+          "completion": "0.0000200000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.6-sol-pro:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.6-sol",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000040000",
+          "completion": "0.0000200000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.6-sol:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "~x-ai/grok-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000060000"
+        }
+      },
+      {
+        "id": "aion-labs/aion-3.0-mini",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000007000",
+          "completion": "0.0000014000"
+        }
+      },
+      {
+        "id": "aion-labs/aion-3.0",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000030000",
+          "completion": "0.0000060000"
+        }
+      },
+      {
+        "id": "tencent/hy3",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001320",
+          "completion": "0.0000005280"
+        }
+      },
+      {
+        "id": "poolside/laguna-xs-2.1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000600",
+          "completion": "0.0000001200"
+        }
+      },
+      {
+        "id": "poolside/laguna-xs-2.1:free",
+        "free": true,
+        "pricing": {
+          "prompt": "0",
+          "completion": "0"
+        }
+      },
+      {
+        "id": "anthropic/claude-sonnet-5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "anthropic/claude-sonnet-5:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000050000"
+        }
+      },
+      {
+        "id": "sakana/fugu-ultra",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000050000",
+          "completion": "0.0000300000"
+        }
+      },
+      {
+        "id": "google/gemini-3-pro-image",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000120000"
+        }
+      },
+      {
+        "id": "moonshotai/kimi-k2.7-code",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000006712",
+          "completion": "0.0000033500"
+        }
+      },
+      {
+        "id": "~anthropic/claude-fable-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000100000",
+          "completion": "0.0000500000"
+        }
+      },
+      {
+        "id": "anthropic/claude-fable-5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000100000",
+          "completion": "0.0000500000"
+        }
+      },
+      {
+        "id": "anthropic/claude-fable-5:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000050000",
+          "completion": "0.0000250000"
+        }
+      },
+      {
+        "id": "nvidia/nemotron-3-ultra-550b-a55b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000005000",
+          "completion": "0.0000022000"
+        }
+      },
+      {
+        "id": "qwen/qwen3.7-plus",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003200",
+          "completion": "0.0000012800"
+        }
+      },
+      {
+        "id": "qwen/qwen3.7-plus:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002300",
+          "completion": "0.0000009200"
+        }
+      },
+      {
+        "id": "minimax/minimax-m3",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002300",
+          "completion": "0.0000009600"
+        }
+      },
+      {
+        "id": "stepfun/step-3.7-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002000",
+          "completion": "0.0000011500"
+        }
+      },
+      {
+        "id": "anthropic/claude-opus-4.8",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000050000",
+          "completion": "0.0000250000"
+        }
+      },
+      {
+        "id": "anthropic/claude-opus-4.8:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000025000",
+          "completion": "0.0000125000"
+        }
+      },
+      {
+        "id": "qwen/qwen3.7-max",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000014750",
+          "completion": "0.0000044250"
+        }
+      },
+      {
+        "id": "x-ai/grok-build-0.1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000020000"
+        }
+      },
+      {
+        "id": "google/gemini-embedding-2",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002000",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "google/gemini-embedding-2:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "google/gemini-3.5-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000015000",
+          "completion": "0.0000090000"
+        }
+      },
+      {
+        "id": "google/gemini-3.5-flash:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000007500",
+          "completion": "0.0000045000"
+        }
+      },
+      {
+        "id": "google/gemini-3.1-flash-lite",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002500",
+          "completion": "0.0000015000"
+        }
+      },
+      {
+        "id": "google/gemini-3.1-flash-lite:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001250",
+          "completion": "0.0000007500"
+        }
+      },
+      {
+        "id": "openai/gpt-chat-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000050000",
+          "completion": "0.0000300000"
+        }
+      },
+      {
+        "id": "x-ai/grok-4.3",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000012500",
+          "completion": "0.0000025000"
+        }
+      },
+      {
+        "id": "x-ai/grok-4.3:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000020000"
+        }
+      },
+      {
+        "id": "mistralai/mistral-medium-3-5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000015000",
+          "completion": "0.0000075000"
+        }
+      },
+      {
+        "id": "mistralai/mistral-medium-3-5:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000007500",
+          "completion": "0.0000037500"
+        }
+      },
+      {
+        "id": "~anthropic/claude-haiku-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000005000"
+        }
+      },
+      {
+        "id": "~openai/gpt-mini-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000007500",
+          "completion": "0.0000045000"
+        }
+      },
+      {
+        "id": "~google/gemini-pro-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "~moonshotai/kimi-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001800",
+          "completion": "0.0000160000"
+        }
+      },
+      {
+        "id": "~google/gemini-flash-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000007500",
+          "completion": "0.0000037500"
+        }
+      },
+      {
+        "id": "~anthropic/claude-sonnet-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "qwen/qwen3.5-plus-20260420",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003000",
+          "completion": "0.0000018000"
+        }
+      },
+      {
+        "id": "qwen/qwen3.6-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001875",
+          "completion": "0.0000011250"
+        }
+      },
+      {
+        "id": "qwen/qwen3.6-35b-a3b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000500",
+          "completion": "0.0000007000"
+        }
+      },
+      {
+        "id": "qwen/qwen3.6-27b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002000",
+          "completion": "0.0000020000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.5-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000300000",
+          "completion": "0.0001800000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.5-pro:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000150000",
+          "completion": "0.0000900000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000050000",
+          "completion": "0.0000300000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.5:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000025000",
+          "completion": "0.0000150000"
+        }
+      },
+      {
+        "id": "deepseek/deepseek-v4-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000009400",
+          "completion": "0.0000018900"
+        }
+      },
+      {
+        "id": "deepseek/deepseek-v4-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000500",
+          "completion": "0.0000004500"
+        }
+      },
+      {
+        "id": "tencent/hy3-preview",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001800",
+          "completion": "0.0000006000"
+        }
+      },
+      {
+        "id": "xiaomi/mimo-v2.5-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003045",
+          "completion": "0.0000006090"
+        }
+      },
+      {
+        "id": "xiaomi/mimo-v2.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001190",
+          "completion": "0.0000002380"
+        }
+      },
+      {
+        "id": "~anthropic/claude-opus-latest",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000040000",
+          "completion": "0.0000200000"
+        }
+      },
+      {
+        "id": "moonshotai/kimi-k2.6",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000004500",
+          "completion": "0.0000019500"
+        }
+      },
+      {
+        "id": "google/gemini-embedding-2-preview",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002000",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "anthropic/claude-opus-4.7",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000050000",
+          "completion": "0.0000250000"
+        }
+      },
+      {
+        "id": "anthropic/claude-opus-4.7:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000025000",
+          "completion": "0.0000125000"
+        }
+      },
+      {
+        "id": "z-ai/glm-5.1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000009660",
+          "completion": "0.0000030360"
+        }
+      },
+      {
+        "id": "google/gemma-4-26b-a4b-it",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000420",
+          "completion": "0.0000002200"
+        }
+      },
+      {
+        "id": "google/gemma-4-31b-it",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000003400"
+        }
+      },
+      {
+        "id": "qwen/qwen3.6-plus",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003250",
+          "completion": "0.0000019500"
+        }
+      },
+      {
+        "id": "z-ai/glm-5v-turbo",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000012000",
+          "completion": "0.0000040000"
+        }
+      },
+      {
+        "id": "arcee-ai/trinity-large-thinking",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002500",
+          "completion": "0.0000008000"
+        }
+      },
+      {
+        "id": "x-ai/grok-4.20",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000012500",
+          "completion": "0.0000025000"
+        }
+      },
+      {
+        "id": "rekaai/reka-edge",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000001000"
+        }
+      },
+      {
+        "id": "minimax/minimax-m2.7",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002100",
+          "completion": "0.0000008400"
+        }
+      },
+      {
+        "id": "openai/gpt-5.4-nano",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002000",
+          "completion": "0.0000012500"
+        }
+      },
+      {
+        "id": "openai/gpt-5.4-nano:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000006250"
+        }
+      },
+      {
+        "id": "openai/gpt-5.4-mini",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000007500",
+          "completion": "0.0000045000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.4-mini:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003750",
+          "completion": "0.0000022500"
+        }
+      },
+      {
+        "id": "mistralai/mistral-small-2603",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001500",
+          "completion": "0.0000006000"
+        }
+      },
+      {
+        "id": "mistralai/mistral-small-2603:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000750",
+          "completion": "0.0000003000"
+        }
+      },
+      {
+        "id": "perplexity/pplx-embed-v1-4b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000300",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "perplexity/pplx-embed-v1-0.6b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000040",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "z-ai/glm-5-turbo",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000012000",
+          "completion": "0.0000040000"
+        }
+      },
+      {
+        "id": "nvidia/nemotron-3-super-120b-a12b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000800",
+          "completion": "0.0000004500"
+        }
+      },
+      {
+        "id": "bytedance-seed/seed-2.0-lite",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002500",
+          "completion": "0.0000020000"
+        }
+      },
+      {
+        "id": "qwen/qwen3.5-9b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000800",
+          "completion": "0.0000001300"
+        }
+      },
+      {
+        "id": "openai/gpt-5.4-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000300000",
+          "completion": "0.0001800000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.4-pro:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000150000",
+          "completion": "0.0000900000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.4",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000025000",
+          "completion": "0.0000150000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.4:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000012500",
+          "completion": "0.0000075000"
+        }
+      },
+      {
+        "id": "inception/mercury-2",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002500",
+          "completion": "0.0000007500"
+        }
+      },
+      {
+        "id": "google/gemini-3.1-flash-lite-preview",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002500",
+          "completion": "0.0000015000"
+        }
+      },
+      {
+        "id": "bytedance-seed/seed-2.0-mini",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000004000"
+        }
+      },
+      {
+        "id": "qwen/qwen3.5-35b-a3b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000650",
+          "completion": "0.0000007500"
+        }
+      },
+      {
+        "id": "qwen/qwen3.5-27b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001950",
+          "completion": "0.0000015600"
+        }
+      },
+      {
+        "id": "qwen/qwen3.5-122b-a10b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002600",
+          "completion": "0.0000020800"
+        }
+      },
+      {
+        "id": "qwen/qwen3.5-flash-02-23",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000650",
+          "completion": "0.0000002600"
+        }
+      },
+      {
+        "id": "google/gemini-3.1-pro-preview-customtools",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000120000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.3-codex",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000017500",
+          "completion": "0.0000140000"
+        }
+      },
+      {
+        "id": "aion-labs/aion-2.0",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000008000",
+          "completion": "0.0000016000"
+        }
+      },
+      {
+        "id": "google/gemini-3.1-pro-preview",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000120000"
+        }
+      },
+      {
+        "id": "google/gemini-3.1-pro-preview:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000060000"
+        }
+      },
+      {
+        "id": "anthropic/claude-sonnet-4.6",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000030000",
+          "completion": "0.0000150000"
+        }
+      },
+      {
+        "id": "anthropic/claude-sonnet-4.6:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000015000",
+          "completion": "0.0000075000"
+        }
+      },
+      {
+        "id": "qwen/qwen3.5-plus-02-15",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002600",
+          "completion": "0.0000015600"
+        }
+      },
+      {
+        "id": "qwen/qwen3.5-397b-a17b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003900",
+          "completion": "0.0000023400"
+        }
+      },
+      {
+        "id": "minimax/minimax-m2.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002700",
+          "completion": "0.0000009500"
+        }
+      },
+      {
+        "id": "z-ai/glm-5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000006000",
+          "completion": "0.0000019200"
+        }
+      },
+      {
+        "id": "anthropic/claude-opus-4.6",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000050000",
+          "completion": "0.0000250000"
+        }
+      },
+      {
+        "id": "anthropic/claude-opus-4.6:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000025000",
+          "completion": "0.0000125000"
+        }
+      },
+      {
+        "id": "qwen/qwen3-coder-next",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001200",
+          "completion": "0.0000008000"
+        }
+      },
+      {
+        "id": "stepfun/step-3.5-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000003000"
+        }
+      },
+      {
+        "id": "moonshotai/kimi-k2.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000004900",
+          "completion": "0.0000025000"
+        }
+      },
+      {
+        "id": "upstage/solar-pro-3",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001500",
+          "completion": "0.0000006000"
+        }
+      },
+      {
+        "id": "openai/gpt-audio",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000025000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "openai/gpt-audio-mini",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000006000",
+          "completion": "0.0000024000"
+        }
+      },
+      {
+        "id": "z-ai/glm-4.7-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000605",
+          "completion": "0.0000004000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.2-codex",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000017500",
+          "completion": "0.0000140000"
+        }
+      },
+      {
+        "id": "bytedance-seed/seed-1.6-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000750",
+          "completion": "0.0000003000"
+        }
+      },
+      {
+        "id": "bytedance-seed/seed-1.6",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002500",
+          "completion": "0.0000020000"
+        }
+      },
+      {
+        "id": "minimax/minimax-m2.1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003000",
+          "completion": "0.0000012000"
+        }
+      },
+      {
+        "id": "z-ai/glm-4.7",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000004000",
+          "completion": "0.0000017500"
+        }
+      },
+      {
+        "id": "google/gemini-3-flash-preview",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000005000",
+          "completion": "0.0000030000"
+        }
+      },
+      {
+        "id": "google/gemini-3-flash-preview:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002500",
+          "completion": "0.0000015000"
+        }
+      },
+      {
+        "id": "nvidia/nemotron-3-nano-30b-a3b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000500",
+          "completion": "0.0000002000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.2-chat",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000017500",
+          "completion": "0.0000140000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.2-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000210000",
+          "completion": "0.0001680000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.2-pro:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000105000",
+          "completion": "0.0000840000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.2",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000017500",
+          "completion": "0.0000140000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.2:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000008750",
+          "completion": "0.0000070000"
+        }
+      },
+      {
+        "id": "mistralai/devstral-2512",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000004000",
+          "completion": "0.0000020000"
+        }
+      },
+      {
+        "id": "relace/relace-search",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000030000"
+        }
+      },
+      {
+        "id": "z-ai/glm-4.6v",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003000",
+          "completion": "0.0000009000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.1-codex-max",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000012500",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "amazon/nova-2-lite-v1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003000",
+          "completion": "0.0000025000"
+        }
+      },
+      {
+        "id": "mistralai/ministral-14b-2512",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002000",
+          "completion": "0.0000002000"
+        }
+      },
+      {
+        "id": "mistralai/ministral-8b-2512",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001500",
+          "completion": "0.0000001500"
+        }
+      },
+      {
+        "id": "mistralai/ministral-8b-2512:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000750",
+          "completion": "0.0000000750"
+        }
+      },
+      {
+        "id": "mistralai/ministral-3b-2512",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000001000"
+        }
+      },
+      {
+        "id": "mistralai/mistral-large-2512",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000005000",
+          "completion": "0.0000015000"
+        }
+      },
+      {
+        "id": "mistralai/mistral-large-2512:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002500",
+          "completion": "0.0000007500"
+        }
+      },
+      {
+        "id": "deepseek/deepseek-v3.2",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002088",
+          "completion": "0.0000003096"
+        }
+      },
+      {
+        "id": "anthropic/claude-opus-4.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000050000",
+          "completion": "0.0000250000"
+        }
+      },
+      {
+        "id": "anthropic/claude-opus-4.5:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000025000",
+          "completion": "0.0000125000"
+        }
+      },
+      {
+        "id": "thenlper/gte-base",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000050",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "thenlper/gte-large",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000100",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "intfloat/e5-large-v2",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000100",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "intfloat/e5-base-v2",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000050",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "intfloat/multilingual-e5-large",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000100",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "sentence-transformers/paraphrase-minilm-l6-v2",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000050",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "sentence-transformers/all-minilm-l12-v2",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000050",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "baai/bge-base-en-v1.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000050",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "sentence-transformers/multi-qa-mpnet-base-dot-v1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000050",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "baai/bge-large-en-v1.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000100",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "baai/bge-m3",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000100",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "sentence-transformers/all-mpnet-base-v2",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000050",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "sentence-transformers/all-minilm-l6-v2",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000050",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000012500",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.1:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000006250",
+          "completion": "0.0000050000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.1-codex",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000012500",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "openai/gpt-5.1-codex-mini",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002500",
+          "completion": "0.0000020000"
+        }
+      },
+      {
+        "id": "moonshotai/kimi-k2-thinking",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000006000",
+          "completion": "0.0000025000"
+        }
+      },
+      {
+        "id": "amazon/nova-premier-v1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000025000",
+          "completion": "0.0000125000"
+        }
+      },
+      {
+        "id": "mistralai/mistral-embed-2312",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "google/gemini-embedding-001",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001500",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "openai/text-embedding-ada-002",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "openai/text-embedding-ada-002:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000500",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "mistralai/codestral-embed-2505",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001500",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "openai/text-embedding-3-large",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001300",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "openai/text-embedding-3-large:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000650",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "openai/text-embedding-3-small",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000200",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "openai/text-embedding-3-small:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000200",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "mistralai/voxtral-small-24b-2507",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000003000"
+        }
+      },
+      {
+        "id": "openai/gpt-oss-safeguard-20b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000750",
+          "completion": "0.0000003000"
+        }
+      },
+      {
+        "id": "qwen/qwen3-embedding-8b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000100",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "qwen/qwen3-embedding-4b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000200",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "minimax/minimax-m2",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002550",
+          "completion": "0.0000010200"
+        }
+      },
+      {
+        "id": "anthropic/claude-haiku-4.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000050000"
+        }
+      },
+      {
+        "id": "anthropic/claude-haiku-4.5:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000005000",
+          "completion": "0.0000025000"
+        }
+      },
+      {
+        "id": "qwen/qwen3-vl-8b-instruct",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002500",
+          "completion": "0.0000007500"
+        }
+      },
+      {
+        "id": "qwen/qwen3-vl-30b-a3b-thinking",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002900",
+          "completion": "0.0000010000"
+        }
+      },
+      {
+        "id": "qwen/qwen3-vl-30b-a3b-instruct",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001500",
+          "completion": "0.0000006000"
+        }
+      },
+      {
+        "id": "openai/gpt-5-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000150000",
+          "completion": "0.0001200000"
+        }
+      },
+      {
+        "id": "openai/gpt-5-pro:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000075000",
+          "completion": "0.0000600000"
+        }
+      },
+      {
+        "id": "z-ai/glm-4.6",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000004300",
+          "completion": "0.0000017500"
+        }
+      },
+      {
+        "id": "anthropic/claude-sonnet-4.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000030000",
+          "completion": "0.0000150000"
+        }
+      },
+      {
+        "id": "anthropic/claude-sonnet-4.5:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000015000",
+          "completion": "0.0000075000"
+        }
+      },
+      {
+        "id": "deepseek/deepseek-v3.2-exp",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002700",
+          "completion": "0.0000004100"
+        }
+      },
+      {
+        "id": "qwen/qwen3-vl-235b-a22b-instruct",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002000",
+          "completion": "0.0000008800"
+        }
+      },
+      {
+        "id": "deepseek/deepseek-v3.1-terminus",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002700",
+          "completion": "0.0000010000"
+        }
+      },
+      {
+        "id": "qwen/qwen3-coder-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001950",
+          "completion": "0.0000009750"
+        }
+      },
+      {
+        "id": "qwen/qwen3-next-80b-a3b-thinking",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001500",
+          "completion": "0.0000012000"
+        }
+      },
+      {
+        "id": "qwen/qwen3-next-80b-a3b-instruct",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000900",
+          "completion": "0.0000011000"
+        }
+      },
+      {
+        "id": "moonshotai/kimi-k2-0905",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000006000",
+          "completion": "0.0000025000"
+        }
+      },
+      {
+        "id": "deepseek/deepseek-chat-v3.1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002500",
+          "completion": "0.0000009500"
+        }
+      },
+      {
+        "id": "mistralai/mistral-medium-3.1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000004000",
+          "completion": "0.0000020000"
+        }
+      },
+      {
+        "id": "mistralai/mistral-medium-3.1:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002000",
+          "completion": "0.0000010000"
+        }
+      },
+      {
+        "id": "z-ai/glm-4.5v",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000006000",
+          "completion": "0.0000018000"
+        }
+      },
+      {
+        "id": "openai/gpt-5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000012500",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "openai/gpt-5:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000006250",
+          "completion": "0.0000050000"
+        }
+      },
+      {
+        "id": "openai/gpt-5-mini",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002500",
+          "completion": "0.0000020000"
+        }
+      },
+      {
+        "id": "openai/gpt-5-mini:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001250",
+          "completion": "0.0000010000"
+        }
+      },
+      {
+        "id": "openai/gpt-5-nano",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000500",
+          "completion": "0.0000004000"
+        }
+      },
+      {
+        "id": "openai/gpt-5-nano:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000250",
+          "completion": "0.0000002000"
+        }
+      },
+      {
+        "id": "openai/gpt-oss-120b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000300",
+          "completion": "0.0000001500"
+        }
+      },
+      {
+        "id": "openai/gpt-oss-120b:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000296",
+          "completion": "0.0000001360"
+        }
+      },
+      {
+        "id": "openai/gpt-oss-20b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000180",
+          "completion": "0.0000000900"
+        }
+      },
+      {
+        "id": "openai/gpt-oss-20b:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000240",
+          "completion": "0.0000001120"
+        }
+      },
+      {
+        "id": "anthropic/claude-opus-4.1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000150000",
+          "completion": "0.0000750000"
+        }
+      },
+      {
+        "id": "anthropic/claude-opus-4.1:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000075000",
+          "completion": "0.0000375000"
+        }
+      },
+      {
+        "id": "mistralai/codestral-2508",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003000",
+          "completion": "0.0000009000"
+        }
+      },
+      {
+        "id": "mistralai/codestral-2508:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001500",
+          "completion": "0.0000004500"
+        }
+      },
+      {
+        "id": "qwen/qwen3-coder-30b-a3b-instruct",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000700",
+          "completion": "0.0000002800"
+        }
+      },
+      {
+        "id": "qwen/qwen3-30b-a3b-instruct-2507",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000900",
+          "completion": "0.0000003000"
+        }
+      },
+      {
+        "id": "z-ai/glm-4.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000006000",
+          "completion": "0.0000022000"
+        }
+      },
+      {
+        "id": "z-ai/glm-4.5-air",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001300",
+          "completion": "0.0000008500"
+        }
+      },
+      {
+        "id": "qwen/qwen3-235b-a22b-thinking-2507",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000004500",
+          "completion": "0.0000035000"
+        }
+      },
+      {
+        "id": "qwen/qwen3-coder",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002200",
+          "completion": "0.0000018000"
+        }
+      },
+      {
+        "id": "google/gemini-2.5-flash-lite",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000004000"
+        }
+      },
+      {
+        "id": "qwen/qwen3-235b-a22b-2507",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000875",
+          "completion": "0.0000003500"
+        }
+      },
+      {
+        "id": "moonshotai/kimi-k2",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000005700",
+          "completion": "0.0000023000"
+        }
+      },
+      {
+        "id": "mistralai/mistral-small-3.2-24b-instruct",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000750",
+          "completion": "0.0000002000"
+        }
+      },
+      {
+        "id": "minimax/minimax-m1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000004000",
+          "completion": "0.0000022000"
+        }
+      },
+      {
+        "id": "google/gemini-2.5-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003000",
+          "completion": "0.0000025000"
+        }
+      },
+      {
+        "id": "google/gemini-2.5-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000012500",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "openai/o3-pro",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000200000",
+          "completion": "0.0000800000"
+        }
+      },
+      {
+        "id": "google/gemini-2.5-pro-preview",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000012500",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "deepseek/deepseek-r1-0528",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000005000",
+          "completion": "0.0000021500"
+        }
+      },
+      {
+        "id": "mistralai/mistral-medium-3",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000004000",
+          "completion": "0.0000020000"
+        }
+      },
+      {
+        "id": "qwen/qwen3-30b-a3b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001200",
+          "completion": "0.0000005000"
+        }
+      },
+      {
+        "id": "qwen/qwen3-14b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000002200"
+        }
+      },
+      {
+        "id": "qwen/qwen3-32b",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000800",
+          "completion": "0.0000002800"
+        }
+      },
+      {
+        "id": "openai/o4-mini-high",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000011000",
+          "completion": "0.0000044000"
+        }
+      },
+      {
+        "id": "openai/o3",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000080000"
+        }
+      },
+      {
+        "id": "openai/o3:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000040000"
+        }
+      },
+      {
+        "id": "openai/o4-mini",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000011000",
+          "completion": "0.0000044000"
+        }
+      },
+      {
+        "id": "openai/o4-mini:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000005500",
+          "completion": "0.0000022000"
+        }
+      },
+      {
+        "id": "openai/gpt-4.1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000080000"
+        }
+      },
+      {
+        "id": "openai/gpt-4.1:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000040000"
+        }
+      },
+      {
+        "id": "openai/gpt-4.1-mini",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000004000",
+          "completion": "0.0000016000"
+        }
+      },
+      {
+        "id": "openai/gpt-4.1-mini:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002000",
+          "completion": "0.0000008000"
+        }
+      },
+      {
+        "id": "openai/gpt-4.1-nano",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000004000"
+        }
+      },
+      {
+        "id": "openai/gpt-4.1-nano:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000500",
+          "completion": "0.0000002000"
+        }
+      },
+      {
+        "id": "meta-llama/llama-4-maverick",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001875",
+          "completion": "0.0000006525"
+        }
+      },
+      {
+        "id": "meta-llama/llama-4-scout",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000003000"
+        }
+      },
+      {
+        "id": "deepseek/deepseek-chat-v3-0324",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002500",
+          "completion": "0.0000010000"
+        }
+      },
+      {
+        "id": "mistralai/mistral-small-3.1-24b-instruct",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003510",
+          "completion": "0.0000005550"
+        }
+      },
+      {
+        "id": "google/gemma-3-12b-it",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000500",
+          "completion": "0.0000001500"
+        }
+      },
+      {
+        "id": "google/gemma-3-27b-it",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000800",
+          "completion": "0.0000001600"
+        }
+      },
+      {
+        "id": "mistralai/mistral-saba",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002000",
+          "completion": "0.0000006000"
+        }
+      },
+      {
+        "id": "openai/o3-mini-high",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000011000",
+          "completion": "0.0000044000"
+        }
+      },
+      {
+        "id": "qwen/qwen-plus",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002600",
+          "completion": "0.0000007800"
+        }
+      },
+      {
+        "id": "openai/o3-mini",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000011000",
+          "completion": "0.0000044000"
+        }
+      },
+      {
+        "id": "openai/o3-mini:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000005500",
+          "completion": "0.0000022000"
+        }
+      },
+      {
+        "id": "deepseek/deepseek-chat",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002574",
+          "completion": "0.0000010287"
+        }
+      },
+      {
+        "id": "openai/o1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000150000",
+          "completion": "0.0000600000"
+        }
+      },
+      {
+        "id": "meta-llama/llama-3.3-70b-instruct",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000003200"
+        }
+      },
+      {
+        "id": "amazon/nova-lite-v1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000600",
+          "completion": "0.0000002400"
+        }
+      },
+      {
+        "id": "amazon/nova-micro-v1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000350",
+          "completion": "0.0000001400"
+        }
+      },
+      {
+        "id": "amazon/nova-pro-v1",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000008000",
+          "completion": "0.0000032000"
+        }
+      },
+      {
+        "id": "openai/gpt-4o-2024-11-20",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000025000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "mistralai/mistral-large-2407",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000060000"
+        }
+      },
+      {
+        "id": "qwen/qwen-2.5-7b-instruct",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001000",
+          "completion": "0.0000002000"
+        }
+      },
+      {
+        "id": "qwen/qwen-2.5-72b-instruct",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003600",
+          "completion": "0.0000004000"
+        }
+      },
+      {
+        "id": "cohere/command-r-08-2024",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001500",
+          "completion": "0.0000006000"
+        }
+      },
+      {
+        "id": "cohere/command-r-plus-08-2024",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000025000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "openai/gpt-4o-2024-08-06",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000025000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "meta-llama/llama-3.1-70b-instruct",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000004000",
+          "completion": "0.0000004000"
+        }
+      },
+      {
+        "id": "meta-llama/llama-3.1-8b-instruct",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000200",
+          "completion": "0.0000000400"
+        }
+      },
+      {
+        "id": "mistralai/mistral-nemo",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000166",
+          "completion": "0.0000000216"
+        }
+      },
+      {
+        "id": "openai/gpt-4o-mini",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001500",
+          "completion": "0.0000006000"
+        }
+      },
+      {
+        "id": "openai/gpt-4o-mini-2024-07-18",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001500",
+          "completion": "0.0000006000"
+        }
+      },
+      {
+        "id": "openai/gpt-4o-mini:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000750",
+          "completion": "0.0000003000"
+        }
+      },
+      {
+        "id": "openai/gpt-4o",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000025000",
+          "completion": "0.0000100000"
+        }
+      },
+      {
+        "id": "openai/gpt-4o-2024-05-13",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000050000",
+          "completion": "0.0000150000"
+        }
+      },
+      {
+        "id": "openai/gpt-4o:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000012500",
+          "completion": "0.0000050000"
+        }
+      },
+      {
+        "id": "mistralai/mixtral-8x22b-instruct",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000060000"
+        }
+      },
+      {
+        "id": "openai/gpt-4-turbo",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000100000",
+          "completion": "0.0000300000"
+        }
+      },
+      {
+        "id": "openai/gpt-4-turbo:batch",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000050000",
+          "completion": "0.0000150000"
+        }
+      },
+      {
+        "id": "mistralai/mistral-large",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000060000"
+        }
+      },
+      {
+        "id": "openai/gpt-3.5-turbo-0613",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000010000",
+          "completion": "0.0000020000"
+        }
+      },
+      {
+        "id": "openai/gpt-3.5-turbo-16k",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000030000",
+          "completion": "0.0000040000"
+        }
+      },
+      {
+        "id": "openai/gpt-4",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000300000",
+          "completion": "0.0000600000"
+        }
+      },
+      {
+        "id": "upstage/solar-mini4:free",
+        "free": true,
+        "pricing": {
+          "prompt": "0",
+          "completion": "0"
+        }
+      },
+      {
+        "id": "meituan/longcat-2.0:free",
+        "free": true,
+        "pricing": {
+          "prompt": "0",
+          "completion": "0"
+        }
+      },
+      {
+        "id": "stepfun/step-3.7-flash:free",
+        "free": true,
+        "pricing": {
+          "prompt": "0",
+          "completion": "0"
+        }
+      },
+      {
+        "id": "openai/gpt-6-astra-fast",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000200000",
+          "completion": "0.0001000000"
+        }
+      },
+      {
+        "id": "openai/gpt-6-astra-flex",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000050000",
+          "completion": "0.0000250000"
+        }
+      },
+      {
+        "id": "openai/gpt-6-astra-pro-fast",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000200000",
+          "completion": "0.0001000000"
+        }
+      },
+      {
+        "id": "openai/gpt-6-astra-pro-flex",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000050000",
+          "completion": "0.0000250000"
+        }
+      },
+      {
+        "id": "z-ai/glm-5.2",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000009000",
+          "completion": "0.0000028300"
+        }
+      },
+      {
+        "id": "meituan/longcat-2.5-preview:free",
+        "free": true,
+        "pricing": {
+          "prompt": "0.0000000000",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "x-ai/grok-4.5",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000060000"
+        }
+      },
+      {
+        "id": "x-ai/grok-4.6",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000060000"
+        }
+      },
+      {
+        "id": "x-ai/grok-4.7",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000020000",
+          "completion": "0.0000060000"
+        }
+      },
+      {
+        "id": "moonshotai/kimi-k3:US",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000036300",
+          "completion": "0.0000181500"
+        }
+      },
+      {
+        "id": "deepseek/deepseek-v4-flash-0731:US",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003630",
+          "completion": "0.0000010890"
+        }
+      },
+      {
+        "id": "deepseek/deepseek-v4.1-flash:US",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000003630",
+          "completion": "0.0000010890"
+        }
+      },
+      {
+        "id": "z-ai/glm-5.3-flash:US",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000002475",
+          "completion": "0.0000008250"
+        }
+      },
+      {
+        "id": "z-ai/glm-5.3:US",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000023100",
+          "completion": "0.0000072600"
+        }
+      },
+      {
+        "id": "deepseek/deepseek-v4-flash-0731",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000000700",
+          "completion": "0.0000001400"
+        }
+      },
+      {
+        "id": "z-ai/glm-5.3",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000009100",
+          "completion": "0.0000028600"
+        }
+      },
+      {
+        "id": "deepseek/deepseek-v4.1-flash",
+        "free": false,
+        "pricing": {
+          "prompt": "0.0000001060",
+          "completion": "0.0000005130"
+        }
+      },
+      {
+        "id": "reflection/beam-1.0-501b-a23b:free",
+        "free": true,
+        "pricing": {
+          "prompt": "0.0000000000",
+          "completion": "0.0000000000"
+        }
+      },
+      {
+        "id": "ornith/ornith-1.5-122b:free",
+        "free": true,
+        "pricing": {
+          "prompt": "0.0000000000",
+          "completion": "0.0000000000"
+        }
+      }
+    ]
+  },
+  "entitlement_verified": false,
+  "inference_verified": false,
+  "free_only": true
+}

@@ -1,0 +1,32 @@
+import { test, expect, boot, json, topic } from './live';
+
+test('native coding stays approval-pending; integrated PaperOrchestra remains reachable', async ({page, request}, info) => {
+  await boot(page);
+  await topic(page,request,'native-tools');
+  await json(request,'post','/api/code',{name:'research-baseline',git:false,seed:false});
+  await expect(page.locator('button[title*="OpenCode"], button[title*="ClearML"]')).toHaveCount(0);
+  await page.locator('header').getByTitle('Native code & experiments',{exact:true}).click();
+  const panel=page.locator('#panel');
+  await expect(panel.getByRole('heading',{name:'Code Workspace & VS Code',exact:true})).toBeVisible();
+  await expect(panel.getByRole('button',{name:'Open in VS Code',exact:true})).toBeEnabled();
+  const goal='Prepare a deep learning baseline with explicit data/version/seed inputs. Do not execute training.';
+  await panel.getByLabel('Coding task for the AI configured in Models',{exact:true}).fill(goal);
+  await panel.getByRole('button',{name:'Create coding plan',exact:true}).click();
+  await expect(panel.getByRole('button',{name:'Approve and run',exact:true})).toBeVisible();
+  const list=await json(request,'get','/api/runs');
+  const summary=list.runs.find((run: {pipeline: string}) => run.pipeline==='code');
+  expect(summary).toBeTruthy();
+  const actual=await json(request,'get',`/api/runs/${summary.id}`);
+  expect(actual.status).toBe('APPROVAL_PENDING');
+  expect(actual.goal).toBe(goal);
+  expect(actual.inputs.task).toBe(goal);
+  expect(actual.steps.every((step: {status: string}) => step.status==='pending')).toBe(true);
+  await expect(panel.getByText('Experiment journals & results',{exact:true})).toBeVisible();
+  await expect(panel.getByRole('button',{name:/OpenCode|ClearML/})).toHaveCount(0);
+  await info.attach('native-code-approval.png',{body:await page.screenshot(),contentType:'image/png'});
+  await json(request,'post',`/api/runs/${summary.id}/cancel`,{});
+  await page.locator('#drawer-close-btn').click();
+  await page.getByRole('button',{name:'PaperOrchestra Studio',exact:true}).click();
+  await expect(page.locator('#panel').getByRole('button',{name:'PaperOrchestra',exact:true})).toBeVisible();
+  await info.attach('retained-paperorchestra.png',{body:await page.screenshot(),contentType:'image/png'});
+});

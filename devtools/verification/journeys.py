@@ -33,6 +33,18 @@ def browser_plan(root: Path, changed: list[str], contracts: list[dict], profile:
         selected.update(name for name,record in journeys.items() if not record['needs_model'])
     tests = list(config['smoke'])
     errors, states = [], {}
+    # Routine CI discovers new software suites automatically. Existing opt-in
+    # inference suites retain their explicit classification and are not started.
+    model_tests={test for record in journeys.values() if record['needs_model'] for test in record['tests']}
+    software_tests=set(config['smoke']) | {test for record in journeys.values() if not record['needs_model'] for test in record['tests']}
+    inventory=[]
+    directory=(root/'frontend/e2e').resolve()
+    for path in sorted(directory.rglob('*.spec.ts')):
+        if not path.resolve().is_relative_to(directory):
+            errors.append('Playwright suite escapes repository: '+path.name);continue
+        name=path.relative_to(directory).as_posix();inventory.append(name)
+        if (all_offline or profile in ('full','release')) and (name not in model_tests or name in software_tests or profile in ('full','release')):
+            if name not in tests:tests.append(name)
     for name in sorted(selected):
         record = journeys.get(name)
         if record is None:
@@ -48,8 +60,16 @@ def browser_plan(root: Path, changed: list[str], contracts: list[dict], profile:
                 tests.append(test)
     # Preserve the owner's required 2D -> 3D order. Native CLI is a separate live layer.
     tests.sort(key=lambda name: name == 'office3d.spec.ts')
-    return {'schema_version': 1, 'tests': tests, 'journeys': states, 'exploration': policy,
+    return {'schema_version': 1, 'tests': tests, 'discovered_tests':inventory,
+            'deferred_model_tests':sorted(set(inventory)&model_tests-set(tests)), 'journeys': states, 'exploration': policy,
             'errors': errors, 'calls_model': False, 'status': 'NOT_RUN',
             'scope': 'Selection only; deterministic execution and exploratory qualification are separate',
             'selection_mode': 'ALL_NON_MODEL' if all_offline else 'DIFF_OR_PROFILE',
             'personas': {name: [j for j in ids if j in selected] for name, ids in config['personas'].items()}}
+
+
+def execution_groups(tests: list[str]) -> list[tuple[str,list[str]]]:
+    """Playwright sorts files internally; separate invocations enforce actual 2D -> 3D."""
+    def three(name):return name=='office3d.spec.ts' or '.3d.' in name or name.startswith('3d/')
+    return [(phase,items) for phase,items in [('2d',[n for n in tests if not three(n)]),
+                                              ('3d',[n for n in tests if three(n)])] if items]

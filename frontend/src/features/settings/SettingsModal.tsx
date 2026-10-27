@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUIStore, useI18n } from '../../shared/state/uiStore';
 import { api } from '../../shared/api/client';
-import type { AppConfig, SkillItem } from '../../shared/api/types';
+import { GatewayConnections } from './GatewayConnections';
+import type { AppConfig, SkillItem, ModelsResponse } from '../../shared/api/types';
 import {
   Settings,
   Cpu,
@@ -52,8 +53,8 @@ const BUILTIN_THEMES = [
     swatch: { bg: '#1d1c1a', panel: '#252422', ink: '#ecebe6', accent: '#e7783f' },
   },
   {
-    id: 'openscience-indigo',
-    name: 'OpenScience Studio (Indigo)',
+    id: 'research-indigo',
+    name: 'Research Studio (Indigo)',
     base: 'dark',
     swatch: { bg: '#0f1420', panel: '#171f30', ink: '#edf2ff', accent: '#4f8cff' },
     colors: {
@@ -137,6 +138,7 @@ export function applyFontById(id: string) {
 }
 
 export function applyThemeById(id: string) {
+  if (id === 'openscience-indigo') id = 'research-indigo'; // Preserve saved appearance, retire vendor branding.
   const root = document.documentElement;
   const customTokens = [
     'bg', 'panel', 'side', 'raise', 'ink', 'ink-2', 'muted', 'faint',
@@ -172,7 +174,7 @@ export function applyThemeById(id: string) {
 
 export const SettingsModal: React.FC = () => {
   const queryClient = useQueryClient();
-  const { settingsTab, openSettings, setMainView, language, setLanguage, uiScale, setUiScale } = useUIStore();
+  const { settingsTab, openSettings, setMainView, language, setLanguage, uiScale, setUiScale, openDrawer } = useUIStore();
   const { t } = useI18n();
 
   const tabs = [
@@ -186,7 +188,7 @@ export const SettingsModal: React.FC = () => {
       id: 'engines',
       label: t('Công cụ Nghiên cứu', 'Research Engines'),
       icon: Terminal,
-      desc: t('OpenScience, Feynman, OpenCode & Giao diện dòng lệnh', 'OpenScience, Feynman, OpenCode & CLI'),
+      desc: t('Công cụ native và engine tích hợp', 'Native tools & integrated engines'),
     },
     {
       id: 'search',
@@ -198,7 +200,7 @@ export const SettingsModal: React.FC = () => {
       id: 'hardware',
       label: t('Thí nghiệm & Phần cứng', 'Experiments & Hardware'),
       icon: HardDrive,
-      desc: t('Bảo vệ GPU, Chạy ngầm, ClearML & VS Code', 'GPU Guard, Background Runs, ClearML & VS Code'),
+      desc: t('Bảo vệ GPU, tracking native & VS Code', 'GPU Guard, Native Tracking & VS Code'),
     },
     {
       id: 'memory',
@@ -244,6 +246,12 @@ export const SettingsModal: React.FC = () => {
     queryKey: ['config'],
     queryFn: () => api.get<AppConfig>('/api/config'),
   });
+  const { data: gatewayModels, error: catalogError } = useQuery({ queryKey: ['models'], queryFn: async () => {
+    const data = await api.get<ModelsResponse>('/api/models');
+    if (!Array.isArray(data.providers) || !data.agent_catalog || typeof data.agent_catalog !== 'object')
+      throw new Error(t('Danh mục model không hợp lệ. Hãy làm mới kết nối.', 'Invalid model catalog. Refresh the connections.'));
+    return data;
+  } });
   const [pendingCloudPreconnect, setPendingCloudPreconnect] = useState<boolean | null>(null);
 
   // Save config mutation (POST /api/config — exact backend route)
@@ -313,8 +321,6 @@ export const SettingsModal: React.FC = () => {
   const [syncingProvider, setSyncingProvider] = useState<string | null>(null);
   const [syncResults, setSyncResults] = useState<Record<string, { at: string; changed: number; observed: number }>>({});
 
-  // OpenScience token state
-  const [osciToken, setOsciToken] = useState('');
   // Search keys state
   const [searchKeyInputs, setSearchKeyInputs] = useState<Record<string, string>>({});
   // Venue lookup test
@@ -331,7 +337,8 @@ export const SettingsModal: React.FC = () => {
   // Theme state
   const [selectedTheme, setSelectedTheme] = useState<string>(() => {
     try {
-      return localStorage.getItem('pl.theme') || 'system';
+      const saved = localStorage.getItem('pl.theme');
+      return saved === 'openscience-indigo' ? 'research-indigo' : saved || 'system';
     } catch {
       return 'system';
     }
@@ -434,38 +441,20 @@ export const SettingsModal: React.FC = () => {
     }
   };
 
-  // Engine options for the 4 agents (includes Subscriptions, CLIs, Local, and all 17 Cloud Providers)
   const agentEngineOptions = [
-    ['auto', t('Tự động điều phối thông minh', 'Auto (Smart Router: Local → Cloud)')],
-    ['codex', t('Gói trả phí ChatGPT dòng lệnh', 'ChatGPT Subscription (Codex CLI)')],
-    ['claude_code', t('Gói trả phí Claude dòng lệnh', 'Claude Subscription (Claude Code CLI)')],
-    ['antigravity', t('Google Antigravity và công cụ agy', 'Google Antigravity (IDE + agy CLI)')],
-    ['gemini_cli', t('Gói trả phí Google Gemini dòng lệnh', 'Google Gemini Subscription (Gemini CLI)')],
-    ['claude', t('Anthropic Claude có khóa API', 'Anthropic Claude (API key preferred)')],
-    ['cloud', `${t('Đám mây mặc định', 'Default Cloud')} (${config.default_cloud})`],
-    ['local', t('LM Studio trên bộ nhớ cục bộ', 'LM Studio (Local VRAM)')],
-    ['ollama', t('Ollama trên bộ nhớ cục bộ', 'Ollama (Local VRAM)')],
-    ['mcp', t('Công cụ Suy luận MCP', 'MCP Inference Tool')],
-    ...Object.entries(providerSpecs).map(([k, v]) => [k, `${v.label} (${t('API Đám mây', 'Cloud API')})`]),
+    ...(gatewayModels?.providers || []).map(provider => [provider.id, provider.label]),
+    ['mcp', t('Công cụ suy luận MCP', 'MCP inference tool')],
   ];
-
-  const CLI_DEFAULT_MODELS: Record<string, string[]> = {
-    codex: [],
-    chatgpt_sub: [],
-    claude_code: ['sonnet', 'opus', 'haiku', 'claude-sonnet-4-6', 'claude-opus-4-6'],
-    gemini_cli: ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.0-flash'],
-    antigravity: ['gemini-2.5-pro', 'gemini-2.5-flash', 'claude-sonnet-4-6'],
-  };
 
   // Strict provider-scoped model list for any selected agent engine/provider
   const getModelsForEngine = (mode: string): string[] => {
-    const clean = (mode || '').replace(/^cli:/, '').replace(/^app:/, '');
+    const clean = (mode || '').replace(/^cli:/, '').replace(/^app:/, '').replace(/^runtime:/, '');
     if (clean === 'auto') return [];
     const targetPid =
       clean === 'cloud'
         ? config.default_cloud
         : clean === 'claude'
-        ? 'anthropic'
+        ? (config.providers?.anthropic?.has_key ? 'anthropic' : config.default_cloud)
         : clean;
 
     if (targetPid === 'local') {
@@ -483,9 +472,9 @@ export const SettingsModal: React.FC = () => {
     if (targetPid === 'mcp') {
       return config.mcp_agent?.models || [];
     }
-    if (CLI_DEFAULT_MODELS[targetPid]) {
+    if (['codex', 'claude_code', 'gemini_cli', 'antigravity', 'hermes'].includes(targetPid)) {
       const cliSaved = config.gateway?.cli_models?.[targetPid] || [];
-      return Array.from(new Set([...(fetchedProviderModels[targetPid] || []), ...cliSaved, ...CLI_DEFAULT_MODELS[targetPid]]));
+      return Array.from(new Set([...(fetchedProviderModels[targetPid] || []), ...cliSaved, ...(gatewayModels?.providers.find(provider => provider.id === 'cli:' + targetPid || provider.id === 'runtime:' + targetPid)?.models || [])]));
     }
     if (providerSpecs[targetPid]) {
       const fetched = fetchedProviderModels[targetPid] || [];
@@ -716,6 +705,7 @@ export const SettingsModal: React.FC = () => {
             maxWidth: 1080,
           }}
         >
+          {catalogError && <p role="alert">{catalogError.message}</p>}
           {/* ================================================================
               TAB 1: MODELS & AI AGENTS
              ================================================================ */}
@@ -762,15 +752,15 @@ export const SettingsModal: React.FC = () => {
                     </thead>
                     <tbody>
                       {Object.entries(config.agents || {}).map(([agentId, spec]) => {
-                        const mode = config.agent_modes?.[agentId] || spec.default;
+                        const mode = gatewayModels?.agent_catalog?.[agentId]?.provider_id || config.agent_modes?.[agentId] || spec.default;
                         const currentModel = config.agent_models?.[agentId] || '';
                         const supportedModels = getModelsForEngine(mode);
-                        const cleanMode = mode.replace(/^cli:/, '').replace(/^app:/, '');
+                        const cleanMode = mode.replace(/^cli:/, '').replace(/^app:/, '').replace(/^runtime:/, '');
                         const targetPid =
                           cleanMode === 'cloud'
                             ? config.default_cloud
                             : cleanMode === 'claude'
-                            ? 'anthropic'
+                            ? (config.providers?.anthropic?.has_key ? 'anthropic' : config.default_cloud)
                             : cleanMode;
                         const canFetch = targetPid === 'codex' || Boolean(providerSpecs[targetPid]);
 
@@ -790,7 +780,7 @@ export const SettingsModal: React.FC = () => {
                                   const nextModels = getModelsForEngine(nextMode);
                                   savePatch({
                                     agent_modes: { [agentId]: nextMode },
-                                    agent_models: { [agentId]: CLI_DEFAULT_MODELS[nextMode.replace(/^cli:/, '')] ? '' : nextModels[0] || '' },
+                                    agent_models: { [agentId]: nextMode.startsWith('cli:') || nextMode.startsWith('runtime:') ? '' : nextModels[0] || '' },
                                   });
                                 }}
                               >
@@ -802,7 +792,7 @@ export const SettingsModal: React.FC = () => {
                               </select>
                             </td>
                             <td>
-                              {mode === 'auto' ? (
+                              {mode === 'auto' || mode === 'app:auto' ? (
                                 <span className="muted" style={{ fontSize: 12.5 }}>
                                   {t('Tự động điều phối theo Router Thông minh', 'Auto-routed by Smart Router')}
                                 </span>
@@ -1224,14 +1214,14 @@ export const SettingsModal: React.FC = () => {
           )}
 
           {/* ================================================================
-              TAB 2: RESEARCH ENGINES (OpenScience · Feynman · OpenCode · CLI)
+              TAB 2: NATIVE RESEARCH TOOLS
              ================================================================ */}
           {activeTab === 'engines' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {/* 2A. Engine Mode & Priority */}
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>
-                  {t('Chế độ Điều phối Research Engines', 'Research Engines Orchestration Mode (Feynman · OpenScience · OpenCode)')}
+                  {t('Điều phối công cụ nghiên cứu', 'Native research tool routing')}
                 </h3>
                 <p className="muted" style={{ fontSize: 13, margin: '0 0 14px' }}>
                   {t('PhD Lab quản lý trạng thái nghiên cứu tập trung và ủy quyền từng tác vụ có phạm vi kiểm soát cho các Runtime Engine chuyên biệt.', 'PhD Lab maintains centralized research state while delegating scoped workloads to specialized runtime engines.')}
@@ -1248,10 +1238,7 @@ export const SettingsModal: React.FC = () => {
                       }
                     >
                       <option value="auto">{t('Router Thông minh (Tự động chọn theo năng lực)', 'Auto Smart Router (Capability-based dynamic routing)')}</option>
-                      <option value="feynman">{t('Chỉ dùng Feynman (Tổng quan văn hiến & phản biện)', 'Feynman Only (Literature review & peer critique)')}</option>
-                      <option value="openscience">{t('Chỉ dùng OpenScience (Thực nghiệm khoa học)', 'OpenScience Only (Scientific experimentation loop)')}</option>
-                      <option value="opencode">{t('Chỉ dùng OpenCode (Lập trình & bản mẫu song song)', 'OpenCode Only (Parallel code prototyping & runtime)')}</option>
-                      <option value="collaborative">{t('Phối hợp Đa giai đoạn', 'Collaborative Multi-Engine Pipeline')}</option>
+                      <option value="paperorchestra">PaperOrchestra</option>
                       <option value="phdlab">{t('Chỉ dùng PhD Lab Cốt lõi (Toàn bộ Agent nội bộ)', 'PhD Lab Native Only (Run all agents natively via PhD Lab)')}</option>
                     </select>
                   </label>
@@ -1275,225 +1262,15 @@ export const SettingsModal: React.FC = () => {
                 </div>
               </section>
 
-              {/* 2B. OpenScience Runtime Adapter (:4096) */}
-              <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <h3 style={{ margin: 0, fontSize: 16 }}>
-                    {t('OpenScience Runtime Adapter (v6.0+ · Loopback :4096)', 'OpenScience Runtime Adapter (v6.0+ · Loopback :4096)')}
-                  </h3>
-                  <span className={`chip ${config.openscience?.enabled ? 'ok' : ''}`}>
-                    {config.openscience?.enabled ? t('Đang bật', 'Enabled') : t('Đang tắt', 'Disabled')}
-                  </span>
-                </div>
-                <p className="muted" style={{ fontSize: 13, margin: '0 0 14px' }}>
-                  {t('Kết nối tới OpenScience Studio cục bộ để thực thi các nhiệm vụ nghiên cứu tự hành, kiểm định giả thuyết và thu thập artifacts.', 'Connect to local OpenScience Studio to execute autonomous research workflows, test hypotheses, and harvest artifacts.')}
-                </p>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={!!config.openscience?.enabled}
-                      onChange={(e) => savePatch({ openscience: { enabled: e.target.checked } })}
-                    />
-                    <span>{t('Bật OpenScience Runtime Adapter', 'Enable OpenScience Runtime Adapter')}</span>
-                  </label>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={!!config.openscience?.policy_confirmed}
-                      onChange={(e) =>
-                        savePatch({ openscience: { policy_confirmed: e.target.checked } })
-                      }
-                    />
-                    <span>{t('Tôi xác nhận đã xem xét quyền runtime và chính sách chia sẻ trace cục bộ', 'I confirm review of runtime permissions and local trace sharing policy')}</span>
-                  </label>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={!!config.openscience?.allow_execution}
-                      onChange={(e) =>
-                        savePatch({ openscience: { allow_execution: e.target.checked } })
-                      }
-                    />
-                    <span>{t('Cho phép thực thi mã nguồn đề xuất trong Workspace cô lập', 'Allow execution of proposed code within isolated workspace')}</span>
-                  </label>
-                </div>
-
-                <div className="grid2">
-                  <label className="field">
-                    <span>OpenScience Loopback URL</span>
-                    <input
-                      className="input"
-                      defaultValue={config.openscience?.base_url || 'http://127.0.0.1:4096'}
-                      onBlur={(e) => savePatch({ openscience: { base_url: e.target.value } })}
-                    />
-                  </label>
-                  <label className="field">
-                    <span>Deployment Token</span>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      <input
-                        type="password"
-                        className="input"
-                        placeholder={
-                          config.openscience?.has_token
-                            ? t('•••••• (Đã lưu token)', '•••••• (Token saved)')
-                            : t('Nhập OpenScience token…', 'Enter OpenScience token…')
-                        }
-                        value={osciToken}
-                        onChange={(e) => setOsciToken(e.target.value)}
-                      />
-                      <button
-                        type="button"
-                        className="btn sm accent"
-                        onClick={() => {
-                          if (osciToken.trim()) {
-                            savePatch({ openscience: { token: osciToken.trim() } });
-                            setOsciToken('');
-                          }
-                        }}
-                      >
-                        {t('Lưu Token', 'Save Token')}
-                      </button>
-                    </div>
-                  </label>
-                  <label className="field">
-                    <span>{t('Giới hạn thời gian (giây)', 'Timeout (seconds)')}</span>
-                    <input
-                      type="number"
-                      className="input"
-                      defaultValue={config.openscience?.timeout_s || 600}
-                      onBlur={(e) =>
-                        savePatch({ openscience: { timeout_s: Number(e.target.value) || 600 } })
-                      }
-                    />
-                  </label>
-                  <label className="field">
-                    <span>{t('Ngân sách Tệp kết quả tối đa theo MB', 'Max Artifact Budget (MB)')}</span>
-                    <input
-                      type="number"
-                      className="input"
-                      defaultValue={config.openscience?.max_artifact_mb || 64}
-                      onBlur={(e) =>
-                        savePatch({ openscience: { max_artifact_mb: Number(e.target.value) || 64 } })
-                      }
-                    />
-                  </label>
-                  <label className="field">
-                    <span>{t('Nhà cung cấp Model của OpenScience', 'OpenScience Model Provider')}</span>
-                    <input
-                      className="input"
-                      placeholder="vd: anthropic, openai…"
-                      defaultValue={config.openscience?.model_provider || ''}
-                      onBlur={(e) =>
-                        savePatch({ openscience: { model_provider: e.target.value } })
-                      }
-                    />
-                  </label>
-                  <label className="field">
-                    <span>{t('Mã định danh Model của OpenScience', 'OpenScience Model ID')}</span>
-                    <input
-                      className="input"
-                      placeholder="vd: claude-sonnet-4-20250514…"
-                      defaultValue={config.openscience?.model_id || ''}
-                      onBlur={(e) => savePatch({ openscience: { model_id: e.target.value } })}
-                    />
-                  </label>
-                </div>
-              </section>
-
-              {/* 2C. OpenCode Parallel Core (v6.4.1 · Loopback :4097) */}
-              <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <h3 style={{ margin: 0, fontSize: 16 }}>
-                    {t('Tích hợp OpenCode Parallel Core (v6.4.1 · Loopback :4097)', 'OpenCode Parallel Core Integration (v6.4.1 · Loopback :4097)')}
-                  </h3>
-                  <span className={`chip ${config.opencode?.enabled !== false ? 'ok' : ''}`}>
-                    {config.opencode?.enabled !== false ? t('Đang bật', 'Enabled') : t('Đang tắt', 'Disabled')}
-                  </span>
-                </div>
-                <p className="muted" style={{ fontSize: 13, margin: '0 0 14px' }}>
-                  {t('Thực thi kỹ thuật phần mềm và bản mẫu song song trong không gian cô lập <topic>/opencode_prj/ với luồng sự kiện SHA-256 deduplicated.', 'Executes parallel software engineering and prototyping inside isolated <topic>/opencode_prj/ with deduplicated SHA-256 event streams.')}
-                </p>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={config.opencode?.enabled !== false}
-                      onChange={(e) => savePatch({ opencode: { enabled: e.target.checked } })}
-                    />
-                    <span>{t('Bật OpenCode Parallel Core Runtime', 'Enable OpenCode Parallel Core Runtime')}</span>
-                  </label>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={!!config.opencode?.allow_metered_api}
-                      onChange={(e) =>
-                        savePatch({ opencode: { allow_metered_api: e.target.checked } })
-                      }
-                    />
-                    <span>{t('Cho phép dùng Metered API (vẫn yêu cầu cổng phê duyệt từng phiên)', 'Allow metered API calls (still requires per-session risk approval)')}</span>
-                  </label>
-                </div>
-
-                <div className="grid2">
-                  <label className="field">
-                    <span>OpenCode Server URL (Loopback)</span>
-                    <input
-                      className="input"
-                      defaultValue={config.opencode?.base_url || 'http://127.0.0.1:4097'}
-                      onBlur={(e) => savePatch({ opencode: { base_url: e.target.value } })}
-                    />
-                  </label>
-                  <label className="field">
-                    <span>{t('Timeout mỗi phiên OpenCode (giây)', 'OpenCode Turn Timeout (seconds)')}</span>
-                    <input
-                      type="number"
-                      className="input"
-                      defaultValue={config.opencode?.timeout_s || 600}
-                      onBlur={(e) =>
-                        savePatch({ opencode: { timeout_s: Number(e.target.value) || 600 } })
-                      }
-                    />
-                  </label>
-                </div>
-              </section>
-
-              {/* 2D. Feynman & Live CLI Providers */}
+              {/* Native research/computation/publication tools */}
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                   <h3 style={{ margin: 0, fontSize: 16 }}>
-                    {t('Nhà Cung Cấp Ứng Dụng & Điều Hướng Nhanh Kèm Đồng Bộ', 'App Providers, Quick Launch & 2-Way Data Sync')}
+                    {t('Công cụ native và engine nghiên cứu tích hợp', 'Native tools & integrated research engines')}
                   </h3>
                   <button type="button" className="btn sm ghost" onClick={() => refetchProviders()}>
-                    <RefreshCw size={13} /> {t('Làm mới trạng thái CLI', 'Refresh CLI Status')}
+                    <RefreshCw size={13} /> {t('Làm mới trạng thái', 'Refresh status')}
                   </button>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={config.research_providers?.feynman_enabled !== false}
-                      onChange={(e) =>
-                        savePatch({ research_providers: { feynman_enabled: e.target.checked } })
-                      }
-                    />
-                    <span>{t('Dùng Feynman cho /lit, /deepresearch, /compare và /review', 'Use Feynman for /lit, /deepresearch, /compare and /review')}</span>
-                  </label>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={!!config.research_providers?.feynman_share_app_key}
-                      onChange={(e) =>
-                        savePatch({
-                          research_providers: { feynman_share_app_key: e.target.checked },
-                        })
-                      }
-                    />
-                    <span>{t('Cho phép Feynman dùng chung khóa Anthropic/OpenAI của ứng dụng', 'Allow Feynman to share in-app Anthropic/OpenAI keys')}</span>
-                  </label>
                 </div>
 
                 <div className="list">
@@ -1533,50 +1310,15 @@ export const SettingsModal: React.FC = () => {
                         </div>
                       )}
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
-                        <button
-                          type="button"
-                          className="btn sm ghost"
-                          onClick={() => handleLaunchProvider(p.id, p.label)}
-                          title={t('Mở nhanh ứng dụng hoặc trang quản trị nhà cung cấp', 'Directly open app or provider web')}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', fontSize: 11.5, borderRadius: 6 }}
-                        >
-                          <ExternalLink size={12} />
-                          <span>{t('Mở Ứng dụng', 'Open App')}</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="btn sm accent"
-                          disabled={syncingProvider === p.id}
-                          onClick={() => handleSyncProvider(p.id, p.label)}
-                          title={t('Quét và đồng bộ tệp tin, dữ liệu từ ứng dụng về PhD Lab', 'Scan and sync files from app back into PhD Lab')}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', fontSize: 11.5, borderRadius: 6 }}
-                        >
-                          <RefreshCw size={12} className={syncingProvider === p.id ? 'spin' : ''} />
-                          <span>{syncingProvider === p.id ? t('Đang đồng bộ...', 'Syncing...') : t('Đồng bộ về Lab', 'Sync to Lab')}</span>
-                        </button>
-
-                        {['codex', 'claude_code', 'gemini_cli', 'antigravity'].includes(p.id) && <button
-                          className="btn sm" disabled={testingProvider === p.id}
-                          onClick={() => handleTestProvider(p.id)}>
-                          {testingProvider === p.id ? t('Đang thử...', 'Testing...') : t('Test chat CLI thật', 'Test real CLI chat')}
+                      <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+                        {p.id === 'vscode' && <button type="button" className="btn sm" onClick={async () => {
+                          try { await api.post('/api/code/vscode', {}); }
+                          catch (err) { notify((err as Error).message); }
+                        }}>{t('Mở trong VS Code', 'Open in VS Code')}</button>}
+                        {['phdlab', 'tracking'].includes(p.id) && <button type="button" className="btn sm" onClick={() => openDrawer('code')}>
+                          {t('Mở workspace native', 'Open native workspace')}
                         </button>}
-
-                        {!p.ready &&
-                          ['feynman', 'claude_code', 'codex', 'gemini_cli', 'antigravity'].includes(p.id) && (
-                            <button
-                              type="button"
-                              className="btn sm"
-                              onClick={async () => {
-                                await api.post(`/api/providers/${p.id}/connect`, {});
-                                notify(t('Đã mở cửa sổ đăng nhập cho ', 'Opened login window for ') + p.label);
-                              }}
-                              style={{ padding: '4px 10px', fontSize: 11.5, borderRadius: 6 }}
-                            >
-                              {t('Đăng nhập CLI', 'CLI Login')}
-                            </button>
-                          )}
+                        {p.id === 'paperorchestra' && <button type="button" className="btn sm" onClick={() => openDrawer('paper')}>PaperOrchestra Studio</button>}
                       </div>
                     </div>
                   ))}
@@ -1938,17 +1680,10 @@ export const SettingsModal: React.FC = () => {
 
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>
-                  ClearML Tracking, VS Code & Research OS Mode
+                  {t('Tracking native, VS Code và Research OS', 'Native Tracking, VS Code & Research OS')}
                 </h3>
                 <div className="grid2">
-                  <label className="field">
-                    <span>ClearML Web Server URL</span>
-                    <input
-                      className="input"
-                      defaultValue={config.clearml?.web_url || 'http://localhost:8080'}
-                      onBlur={(e) => savePatch({ clearml: { web_url: e.target.value } })}
-                    />
-                  </label>
+                  <p className="muted">{t('Kết quả được lưu cùng nhật ký chạy, metrics và artifact trong project; không cần máy chủ tracking riêng.', 'Results stay with project run journals, metrics and artifacts; no tracking server is required.')}</p>
                   <label className="field">
                     <span>{t('Đường dẫn thực thi VS Code (để trống = tự động tìm)', 'VS Code Executable Path (empty = auto-detect)')}</span>
                     <input
@@ -1961,16 +1696,6 @@ export const SettingsModal: React.FC = () => {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={!!config.clearml?.server_enabled}
-                      onChange={(e) =>
-                        savePatch({ clearml: { server_enabled: e.target.checked } })
-                      }
-                    />
-                    <span>{t('Đồng bộ trực tuyến với ClearML Server', 'Sync online with ClearML Server')}</span>
-                  </label>
                   <label className="switch">
                     <input
                       type="checkbox"
@@ -2522,7 +2247,7 @@ export const SettingsModal: React.FC = () => {
                   {t('Chủ đề Giao diện', 'Color Themes & Appearance')}
                 </h3>
                 <p className="muted" style={{ fontSize: 13, margin: '0 0 14px' }}>
-                  {t('Chọn bảng màu phù hợp với không gian làm việc của bạn. Hỗ trợ đầy đủ cả chế độ Sáng học thuật lẫn chế độ Tối OpenScience Studio.', 'Select the color palette for your research workspace. Fully supports Academic Light and OpenScience Studio Dark modes.')}
+                  {t('Chọn bảng màu cho không gian nghiên cứu, với chế độ sáng và tối.', 'Choose a research workspace palette, with light and dark modes.')}
                 </p>
 
                 <div

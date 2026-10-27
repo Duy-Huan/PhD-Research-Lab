@@ -134,24 +134,21 @@ class Remote(unittest.TestCase):
         self.code = active_dir()
         (self.code / "train.py").write_text("print('training')", "utf-8")
 
-    def test_bundle_approval_and_verified_completion(self):
-        r = RC.create({"files": ["train.py"], "required_artifacts": ["metrics.json"]})
-        rid = r["run_id"]
-        with self.assertRaises(ValueError):
-            RC.bundle(rid)
+    def test_bundle_approval_does_not_activate_retired_collection(self):
+        from backend.execution.tools import IntegrationError
+        r=RC.create({'files':['train.py'],'required_artifacts':['metrics.json']})
+        rid=r['run_id']
+        with self.assertRaises(ValueError): RC.bundle(rid)
         RC.approve(rid)
         self.assertTrue(RC.bundle(rid).is_file())
-        def collect(cmd, args, **kw):
-            dest = Path(args["destination"])
-            dest.mkdir(parents=True, exist_ok=True)
-            f = dest / "metrics.json"
-            f.write_text('{"loss": 0.1}')
-            return {"status": "completed", "metrics": {"loss": 0.1}, "artifacts": [{"name": f.name, "sha256": RC.sha(f)}] if args["collect"] else []}
-        with mock.patch("backend.execution.tracker.run_worker", side_effect=collect):
-            self.assertEqual(RC.sync(rid, "task123456")["status"], "awaiting_collection")
-            self.assertEqual(RC.sync(rid, collect=True)["status"], "completed")
-        self.assertEqual(len(RC.get(rid)["approvals"]), 1)
-        self.assertEqual(RC.get(rid)["evaluation"]["researcher_review"], "pending")
+        with mock.patch('backend.execution.tracker.run_worker') as worker:
+            with self.assertRaisesRegex(IntegrationError,'retired'):
+                RC.sync(rid,'task123456',collect=True)
+            worker.assert_not_called()
+        current=RC.get(rid)
+        self.assertEqual(current['status'],'ready_for_handoff')
+        self.assertEqual(len(current['approvals']),1)
+        self.assertEqual(current['evaluation']['researcher_review'],'pending')
 
     def test_paths_secrets_and_tampering(self):
         for name in ("../secret.py", ".env", "checkpoint.pt"):
@@ -176,27 +173,22 @@ class Remote(unittest.TestCase):
         self.assertEqual(path.read_text(), "{invalid")
 
     def test_generated_launcher_executes_and_checks_code_before_training(self):
-        (self.code / "train.py").write_text("import os\nfrom pathlib import Path\nPath(os.environ['RUN_DIR'], 'metrics.json').write_text('{\"loss\":0.1}')\n")
-        r = RC.create({"files": ["train.py"], "compute_target": "docker", "required_artifacts": ["metrics.json"]})
-        RC.approve(r["run_id"])
-        unpack = config.data_dir() / "unpacked"
-        with zipfile.ZipFile(RC.bundle(r["run_id"])) as z:
-            z.extractall(unpack)
-        (unpack / "clearml.py").write_text('''class Task:
-    @classmethod
-    def init(cls, **kwargs): return cls()
-    def set_parameter(self, name, value): print(name, value)
-    def get_logger(self): return self
-    def report_single_value(self, **kwargs): pass
-    def upload_artifact(self, **kwargs): print('UPLOAD', kwargs['name'])
-    def mark_failed(self, **kwargs): print('FAILED')
-    def close(self): pass
-''')
-        result = subprocess.run([sys.executable, str(unpack / "launch.py")], capture_output=True, text=True, timeout=10)
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("General/run_id " + r["run_id"], result.stdout)
-        self.assertIn("UPLOAD metrics.json", result.stdout)
-        (unpack / "code/train.py").write_text("raise SystemExit('should not execute')")
-        result = subprocess.run([sys.executable, "-O", str(unpack / "launch.py")], capture_output=True, text=True, timeout=10)
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("checksum mismatch", result.stderr)
+        import json
+        (self.code/'train.py').write_text("import os,json\nfrom pathlib import Path\nPath(os.environ['RUN_DIR'],'metrics.json').write_text(json.dumps({'loss':0.1}))\n",'utf-8')
+        r=RC.create({'files':['train.py'],'compute_target':'docker','required_artifacts':['metrics.json']})
+        RC.approve(r['run_id'])
+        unpack=config.data_dir()/'unpacked'
+        with zipfile.ZipFile(RC.bundle(r['run_id'])) as z:z.extractall(unpack)
+        # Portable script actually executed on local CPU, not Docker/GPU evidence.
+        result=subprocess.run([sys.executable,str(unpack/'launch.py')],capture_output=True,text=True,timeout=10)
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assertTrue((unpack/'results.zip').is_file())
+        execution=json.loads((unpack/'execution.json').read_text('utf-8'))
+        self.assertEqual(execution['exit_code'],0)
+        imported=RC.import_results(r['run_id'],unpack/'results.zip')
+        self.assertEqual(imported['metrics'],{'loss':0.1})
+        self.assertEqual(imported['verification']['scientific_review'],'pending')
+        (unpack/'code/train.py').write_text("raise SystemExit('should not execute')",'utf-8')
+        result=subprocess.run([sys.executable,'-O',str(unpack/'launch.py')],capture_output=True,text=True,timeout=10)
+        self.assertNotEqual(result.returncode,0)
+        self.assertIn('checksum mismatch',result.stderr)

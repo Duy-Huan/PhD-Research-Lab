@@ -35,9 +35,10 @@ def exploration_required(risk: str) -> bool:
     return risk in ('HIGH','CRITICAL')
 
 
-def bounded_options(steps: int,deadline: int) -> dict:
-    if type(steps) is not int or type(deadline) is not int or not 1<=steps<=12 or not 1<=deadline<=180:
-        raise ValueError('UAT requires 1..12 steps and a 1..180 second total deadline')
+def bounded_options(steps: int,deadline: int,owner_limit: bool = False) -> dict:
+    cap,step_cap=(600,6) if owner_limit is True else (180,12)
+    if type(steps) is not int or type(deadline) is not int or not 1<=steps<=step_cap or not 1<=deadline<=cap:
+        raise ValueError('UAT bounds exceeded; standard180seconds or explicit single-owner600second/six-step exception')
     return {'max_steps':steps,'timeout_s':deadline,'max_failures':3}
 
 
@@ -58,21 +59,24 @@ def allowed_settings_write(method: str, path: str, body: object) -> bool:
             and body['ui']['language'] in ('en','vi'))
 
 
-def execute(out: Path, model: str = 'spark-x2.5-4b', steps: int = 6, deadline: int = 180, source: str = 'UNATTESTED') -> dict:
+def execute(out: Path, model: str = 'spark-x2.5-4b', steps: int = 6, deadline: int = 180, source: str = 'UNATTESTED', owner_limit: bool = False, journey: str = 'settings-language') -> dict:
     """Own the app/browser lifecycle; optional adapter failures stay explicit."""
     from .browser import application
+    from .uat_journeys import JOURNEYS
+    if journey not in JOURNEYS or (owner_limit and journey != 'settings-language'):
+        raise ValueError('Unsupported journey or owner exception outside settings-language scope')
     root=Path(__file__).resolve().parents[2]
-    options=bounded_options(steps,deadline)
+    options=bounded_options(steps,deadline,owner_limit)
     python=root/'output/playwright/browser-uat-env'/('Scripts/python.exe' if os.name=='nt' else 'bin/python')
     record={'adapter_available':python.is_file(),'profile':'uat','mode':'REAL_LOCAL',
-            'scope':'First-time persona: settings navigation and VI -> EN persistence','source_sha256':source,
+            'scope':'Owned exploratory journey: '+journey,'journey':journey,'source_sha256':source,
             'defects':[],'deterministic_confirmation':'NOT_RUN'}
     if not python.is_file():
         record.update(decision='BLOCKED',reason='Install the optional hash-locked Browser Use environment; no cloud fallback')
         (out/'uat-report.json').write_text(json.dumps(record,indent=2)+'\n',encoding='utf-8');return record
     browser=None
-    with application(out,model=model,browser_uat=True) as env:
-        data={'url':validate_target(env['PHDLAB_E2E_URL']),'out':str(out),'model':model,**options}
+    with application(out,model=model,browser_uat=True,uat_journey=journey) as env:
+        data={'url':validate_target(env['PHDLAB_E2E_URL']),'out':str(out),'model':model,'journey':journey,'source_sha256':source,**options}
         path=out/'uat-options.json';path.write_text(json.dumps(data,indent=2),encoding='utf-8')
         with (out/'browser-console.log').open('wb') as blog,(out/'agent-console.log').open('wb') as alog:
             try:
@@ -96,7 +100,8 @@ def execute(out: Path, model: str = 'spark-x2.5-4b', steps: int = 6, deadline: i
                 if (out/'browser-evidence.json').is_file():
                     evidence=json.loads((out/'browser-evidence.json').read_text(encoding='utf-8'))
                     record['deterministic_confirmation']=evidence['confirmation']
-                    record['unexpected_browser_errors']=[e for e in evidence.get('events',[]) if e.get('phase')!='EXPECTED_FAULT_INJECTION']
+                    from .uat_gate import unexpected_events
+                    record['unexpected_browser_errors']=unexpected_events(evidence)
                 record['evidence_complete']=all((out/name).is_file() for name in ['agent-history.json','browser-evidence.json','trace.zip','final.png'])
             except (OSError,ValueError,RuntimeError,subprocess.TimeoutExpired) as exc:
                 record['error']=type(exc).__name__+': '+str(exc)[:1000]

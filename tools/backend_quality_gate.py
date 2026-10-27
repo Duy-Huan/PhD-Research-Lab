@@ -83,7 +83,7 @@ CORE_MODULES += AUTONOMY_MODULES
 
 def get_git_commit() -> str:
     try:
-        out = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, stderr=subprocess.DEVNULL)
+        out = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, stderr=subprocess.DEVNULL, timeout=30)
         return out.strip()
     except Exception:
         return "unknown"
@@ -91,7 +91,7 @@ def get_git_commit() -> str:
 
 def get_git_dirty() -> bool:
     try:
-        out = subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT, text=True, stderr=subprocess.DEVNULL)
+        out = subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT, text=True, stderr=subprocess.DEVNULL, timeout=30)
         return bool(out.strip())
     except Exception:
         return False
@@ -106,6 +106,14 @@ class QualityGateTestResult(unittest.TextTestResult):
     def startTest(self, test):
         super().startTest(test)
         self._test_start_time = time.perf_counter()
+        target = os.environ.get('PHDLAB_VERIFY_PROGRESS')
+        if target:
+            path = Path(target)
+            temporary = path.with_suffix('.partial-' + str(os.getpid()) + '-' + str(time.time_ns()))
+            temporary.write_text(json.dumps({'test': test.id(), 'status': 'RUNNING',
+                'completed_cases': len(self.test_cases_recorded), 'timestamp': datetime.datetime.now(datetime.timezone.utc).isoformat()}), 'utf-8')
+            from backend.memory.store import replace_retry
+            replace_retry(temporary, path)
 
     def addSuccess(self, test):
         super().addSuccess(test)
@@ -222,7 +230,7 @@ def run_gate(
             cov = coverage.Coverage(
                 config_file=str(ROOT / ".coveragerc") if (ROOT / ".coveragerc").exists() else True,
                 branch=True,
-                source=["backend"],
+                source=["backend", str(ROOT / 'tools' / 'hermes_runtime')],
                 data_file=str(output_dir / ".coverage"),
             )
             cov.start()
@@ -237,16 +245,21 @@ def run_gate(
     tee_stream = TeeStream(sys.stderr, log_buffer)
 
     loader = unittest.defaultTestLoader
+    from devtools.verification.layers import load_modules,EmptyTestModule
     if profile == "smoke":
         modules = [m for m in SMOKE_MODULES if (ROOT / "tests" / f"{m}.py").exists()]
-        suite = loader.loadTestsFromNames(modules)
+        suite = load_modules(loader,modules)
     elif profile == "core":
         modules = [m for m in CORE_MODULES if (ROOT / "tests" / f"{m}.py").exists()]
-        suite = loader.loadTestsFromNames(modules)
+        suite = load_modules(loader,modules)
     elif profile == "full":
-        suite = loader.discover(str(ROOT / "tests"), pattern="test_*.py")
+        from devtools.verification.selection import select
+        discovered=select(ROOT,[],'pr')
+        suite=load_modules(loader,discovered['backend_tests'])
+        for name in discovered['blocked_tests']:
+            suite.addTest(EmptyTestModule(name+' (unpackaged test directory)'))
     else:
-        suite = loader.loadTestsFromNames([profile])
+        suite = load_modules(loader,[profile])
 
     from devtools.verification.layers import partition
     suite, deferred_tests = partition(suite, layer)
@@ -257,7 +270,9 @@ def run_gate(
     )
 
     t0 = time.perf_counter()
-    result = runner.run(suite)
+    from devtools.verification.diagnostics import periodic_stacks
+    with periodic_stacks(output_dir / 'stall-stacks.log'):
+        result = runner.run(suite)
     after_hashes = {k: v for k, v in source_hashes().items() if k.startswith('backend/')}
     source_stable = before_hashes == after_hashes
     elapsed = time.perf_counter() - t0

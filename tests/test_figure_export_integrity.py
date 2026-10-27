@@ -40,7 +40,11 @@ class FigureExportIntegrity(unittest.TestCase):
                        lambda: store.attach_to_paper(topic['id'], figure['id'])):
             with self.assertRaisesRegex(ValueError, 'placeholder'):
                 action()
-        self.assertTrue(store.export_file_path(topic['id'], figure['id'], 'svg').is_file())
+        # Retained bytes remain on disk, but a v2 row pointing into v1 must
+        # never bypass immutable-version confinement, even for SVG download.
+        self.assertTrue(Path(old['provenance']['exports']['svg']['path']).is_file())
+        with self.assertRaisesRegex(ValueError, 'immutable version directory'):
+            store.export_file_path(topic['id'], figure['id'], 'svg')
     def test_png_depends_on_data_instead_of_a_placeholder_grid(self):
         with tempfile.TemporaryDirectory() as folder:
             exports = []

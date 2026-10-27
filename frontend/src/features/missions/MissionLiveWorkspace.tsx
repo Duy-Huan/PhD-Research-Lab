@@ -97,7 +97,6 @@ export const MissionLiveWorkspace: React.FC = () => {
   const reviewMutation = useMutation({
     mutationFn: ({ mid, decision }: { mid: string; decision: 'accept' | 'reject' }) =>
       api.post(`/api/research/topics/${activeTopicId}/missions/${mid}/review`, {
-        decision,
         note: `Reviewed (${decision}) via React UI`,
       }),
     onSuccess: () => {

@@ -51,5 +51,5 @@ class NativeCLILaunch(unittest.TestCase):
             self.assertEqual(launch.call_args.args, ('codex',))
             browser.assert_not_called()
         with patch.object(native, 'launch_provider', return_value={'launched': False, 'detail': 'Not installed'}):
-            response = client.post('/api/providers/openscience/launch')
+            response = client.post('/api/providers/codex/launch')
             self.assertEqual(response.status_code, 503)

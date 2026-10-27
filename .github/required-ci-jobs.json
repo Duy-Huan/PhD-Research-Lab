@@ -1,0 +1,14 @@
+{
+  "qa": [
+    "Contract and workflow policy",
+    "Backend (ubuntu-latest, Python 3.11)",
+    "Backend (ubuntu-latest, Python 3.12)",
+    "Backend (windows-latest, Python 3.11)",
+    "Backend (windows-latest, Python 3.12)",
+    "Frontend types, whole-source coverage and build",
+    "Dependency and high-confidence security checks",
+    "Real offline browser smoke",
+    "Development gate",
+    "QA gate"
+  ]
+}

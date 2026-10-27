@@ -16,7 +16,7 @@ from .uat import run_space
 
 
 @contextmanager
-def application(out: Path, model: str = 'spark-x2.5-4b', browser_uat: bool = False):
+def application(out: Path, model: str = 'spark-x2.5-4b', browser_uat: bool = False, uat_journey: str = 'settings-language'):
     root=Path(__file__).resolve().parents[2]
     nonce=uuid.uuid4().hex
     with socket.socket() as probe:
@@ -28,7 +28,7 @@ def application(out: Path, model: str = 'spark-x2.5-4b', browser_uat: bool = Fal
                XDG_CONFIG_HOME=str(out/'server-config'),XDG_CACHE_HOME=str(out/'server-cache'))
     with (out/'server.log').open('wb') as log:
         command=[sys.executable,'tools/playwright_server.py','--data',str(out/'data'),'--port',str(port),'--model',model,'--lease-token',nonce]
-        if browser_uat:command.append('--browser-uat')
+        if browser_uat:command.extend(['--browser-uat','--uat-journey',uat_journey])
         server=subprocess.Popen(command,cwd=root,stdout=log,stderr=subprocess.STDOUT,env=env)
         try:
             for _ in range(120):
@@ -56,7 +56,7 @@ def main() -> int:
     args=parser.parse_args()
     if args.offline_all and args.profile in ('full','release'):
         parser.error('--offline-all uses feature/pr; full/release retains separately authorized live qualification')
-    from .journeys import browser_plan,relevant_contracts
+    from .journeys import browser_plan,relevant_contracts,execution_groups
     from .selection import changed_files
     changed=changed_files(root,args.base)
     contracts=[json.loads(path.read_text(encoding='utf-8')) for path in (root/'docs/qa/contracts').glob('*.json')]
@@ -78,12 +78,25 @@ def main() -> int:
                           'evidence':str(out/'boundaries.json')}));return boundary.returncode
     with application(out) as env:
         npx=shutil.which('npx.cmd' if os.name=='nt' else 'npx') or 'npx'
-        code=subprocess.run([npx,'--no-install','playwright','test',*plan['tests']],cwd=root/'frontend',env=env,
-                            timeout=1800 if args.profile in ('full','release') else 600).returncode
-        results=out/'results.json'
-        stats=json.loads(results.read_text(encoding='utf-8')).get('stats',{}) if results.is_file() else {}
-        if not code and (not stats.get('expected') or stats.get('skipped') or stats.get('unexpected') or stats.get('flaky')):
-            code=2
+        code=0;combined={'suites':[],'stats':{},'errors':[],'execution':[]}
+        groups=execution_groups(plan['tests'])
+        if not groups:code=2
+        for phase,tests in groups:
+            folder=out/phase;folder.mkdir()
+            actual_env=dict(env,PHDLAB_E2E_OUTPUT=str(folder))
+            command=[npx,'--no-install','playwright','test',*tests]
+            result=subprocess.run(command,cwd=root/'frontend',env=actual_env,
+                                  timeout=1800 if args.profile in ('full','release') else 600)
+            results=folder/'results.json'
+            data=json.loads(results.read_text(encoding='utf-8')) if results.is_file() else {}
+            stats=data.get('stats',{})
+            code=result.returncode or (2 if not stats.get('expected') or stats.get('skipped') or stats.get('unexpected') or stats.get('flaky') else 0)
+            combined['suites'].extend(data.get('suites',[]));combined['errors'].extend(data.get('errors',[]))
+            for key in ('expected','unexpected','skipped','flaky','duration'):
+                combined['stats'][key]=combined['stats'].get(key,0)+stats.get(key,0)
+            combined['execution'].append({'phase':phase,'tests':tests,'status':'PASS' if code==0 else 'FAIL','raw':str(results)})
+            if code:break
+        results=out/'results.json';results.write_text(json.dumps(combined,indent=2)+'\n',encoding='utf-8')
         print(json.dumps({'decision':'PASS' if code==0 else 'FAIL','scope':'Deterministic Playwright only',
                           'plan':str(out/'selection.json'),'results':str(out/'results.json')}))
         return code

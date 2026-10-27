@@ -63,6 +63,18 @@ def _jaccard(a: set, b: set) -> float:
 def compile_context(tool: str = "", session_id: str = "", query: str = "", budget_tokens: int = 3500,
                     purged: set | None = None, cfg: dict | None = None, role: str = "", allowed=(), filters: dict | None = None,
                     budget: P.Budget | None = None, request_id: str = "") -> dict:
+    from backend.core.config import data_dir, project_scope
+
+    # Resolve once per compilation. Concurrent project selection cannot mix research
+    # inputs, and each memory path need not reload global config/project metadata.
+    with project_scope(data_dir()):
+        return _compile_context(tool, session_id, query, budget_tokens, purged, cfg, role, allowed,
+                                filters, budget, request_id)
+
+
+def _compile_context(tool: str, session_id: str, query: str, budget_tokens: int,
+                     purged: set | None, cfg: dict | None, role: str, allowed, filters: dict | None,
+                     budget: P.Budget | None, request_id: str) -> dict:
     from backend.core.config import load_config
     from backend.core.telemetry import span
     from backend.memory import cache, working

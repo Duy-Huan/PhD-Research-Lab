@@ -33,7 +33,7 @@ class SandboxCompletion(unittest.TestCase):
                 errors.append(error)
 
         with mock.patch.object(S, 'collect_run', side_effect=collect), \
-                mock.patch.object(S, '_after_run'), mock.patch.object(S, '_auto_clearml'), \
+                mock.patch.object(S, '_after_run'), \
                 mock.patch.dict(S.JOBS, {job.id: job}):
             worker = threading.Thread(target=wait)
             worker.start()

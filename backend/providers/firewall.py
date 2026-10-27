@@ -1,4 +1,4 @@
-"""Firewall for AI CLI providers (Claude Code, Codex, Gemini CLI, Antigravity, Feynman).
+"""Firewall for AI CLI providers (Claude Code, Codex, Gemini CLI and supported native coding tools).
 
 An external agent may work with the research project — never with the application that runs it:
 

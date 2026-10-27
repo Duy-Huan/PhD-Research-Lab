@@ -1,0 +1,11 @@
+# Native consolidation defect and migration inventory
+
+Candidate6.5.10, branch `dev`, parent HEAD `10c3d018134204fb778206c825b28f1846998304`, measured source `d1caebdc1c8f6156ea8aedb905ccd9608c5cb5480fd3f3ddc9156bd0f74c1930`. Local source was stable. GitHub result for a future commit is not presumed.
+
+Confirmed repairs include approval before native code writes, durable gateway operation identity, byte-preserving materialization without duplicated experiment prefixes, cancellation before gateway preparation, malformed Settings model catalog handling, warning-text contrast, Sidebar/Header retirement of active software controls, and raw-metric/version/PDF publication integrity. Regression IDs and actual source-scoped receipts are retained in the feature contracts and evidence/native-consolidation. Header has an actual RED2FAIL then GREEN6PASS receipt.
+
+Retired or migrated test IDs, reasons, preserved source digests and replacement scope are recorded in [test-retirement-native-migration.json](test-retirement-native-migration.json). Retired tests are not counted as PASS. Old multi-topic data is explicitly seeded only in disposable legacy-isolation fixtures; the production one-paper guard is unchanged.
+
+Open P2 model/tool reliability observation: current-source Hermes called a deferred native tool directly rather than using the upstream tool discovery bridge. The native audit observed no execution; this run is FAIL. A subsequent protocol-aware prompt genuinely used the bridge and passed the independent native audit. Both receipts are retained; that success does not erase the failure or establish general autonomous reliability. No software-gate waiver was used.
+
+Remaining blockers: current-source official CLI subscription qualification, complete real research/paper/replay acceptance, all mandatory independently reviewed AI-UAT journeys and exact-head GitHub gates. The prior published WindowsPython3.12 CI timeout remains of unknown cause; current instrumentation adds case/stage progress and owned process timeout containment. No unqualified claim that all P0/P1/P2 defects are absent is made. First affected versions/new-versus-pre-existing attribution require the still-missing paired baseline comparison.

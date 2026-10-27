@@ -1,0 +1,32 @@
+test_empty_project_reuses_context_after_reads_and_manifest_event_writes (test_context_cache.ContextCache.test_empty_project_reuses_context_after_reads_and_manifest_event_writes) ... ok
+test_legacy_knowledge_file_changes_retrieval_version (test_context_cache.ContextCache.test_legacy_knowledge_file_changes_retrieval_version) ... ok
+test_memory_compilation_keeps_starting_project_during_project_switch (test_context_cache.ContextCache.test_memory_compilation_keeps_starting_project_during_project_switch) ... FAIL
+test_pins_and_outline_invalidate_context (test_context_cache.ContextCache.test_pins_and_outline_invalidate_context) ... ok
+test_research_runs_and_other_conversation_summaries_invalidate_context (test_context_cache.ContextCache.test_research_runs_and_other_conversation_summaries_invalidate_context) ... ok
+test_updating_an_existing_experiment_refreshes_metrics (test_context_cache.ContextCache.test_updating_an_existing_experiment_refreshes_metrics) ... ok
+test_current_case_progress_names_actual_running_test (test_verification_process_timeout.TimeoutContainment.test_current_case_progress_names_actual_running_test) ... ok
+test_deadline_stops_owned_descendant_and_preserves_unrelated_process (test_verification_process_timeout.TimeoutContainment.test_deadline_stops_owned_descendant_and_preserves_unrelated_process) ... ok
+test_reparented_descendants_are_reaped_before_cleanup_is_reported (test_verification_process_timeout.TimeoutContainment.test_reparented_descendants_are_reaped_before_cleanup_is_reported)
+Actual helper owns its subreaper scope; no host-wide process policy changes. ... FAIL
+
+======================================================================
+FAIL: test_memory_compilation_keeps_starting_project_during_project_switch (test_context_cache.ContextCache.test_memory_compilation_keeps_starting_project_during_project_switch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/test_context_cache.py", line 43, in test_memory_compilation_keeps_starting_project_during_project_switch
+    self.assertIn("PROJECT_A_KEEP_THIS_RESEARCH_GOAL", result["text"])
+AssertionError: 'PROJECT_A_KEEP_THIS_RESEARCH_GOAL' not found in '[CONTEXT SYSTEM INJECTION]\n### RESEARCH STATE\n- Objective: PROJECT_B_PRIVATE_RESEARCH_GOAL\n### CURRENT WORKING STATE\n- Uncompressed short-term memory: 0 tokens\n- [goal:0] PROJECT_B_PRIVATE_RESEARCH_GOAL\n### RELATED EXPERIMENT EVIDENCE (ClearML Pointer)\n- (nothing recorded yet)\n### EVIDENCE & CLAIMS\n- (nothing recorded yet)\n### FOUNDATIONAL SCIENTIFIC KNOWLEDGE\n- (nothing recorded yet)'
+
+======================================================================
+FAIL: test_reparented_descendants_are_reaped_before_cleanup_is_reported (test_verification_process_timeout.TimeoutContainment.test_reparented_descendants_are_reaped_before_cleanup_is_reported)
+Actual helper owns its subreaper scope; no host-wide process policy changes.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/test_verification_process_timeout.py", line 64, in test_reparented_descendants_are_reaped_before_cleanup_is_reported
+    self.assertFalse(observed['child_exists'], 'No owned zombie or live descendant may remain')
+AssertionError: True is not false : No owned zombie or live descendant may remain
+
+----------------------------------------------------------------------
+Ran 9 tests in 14.679s
+
+FAILED (failures=2)

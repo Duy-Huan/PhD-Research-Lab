@@ -17,9 +17,9 @@ class ConfigV32(unittest.TestCase):
         self.assertEqual(cfg["memory"]["low_watermark_tokens"], 2000)
         self.assertEqual(cfg["memory"]["chunk_tokens"], 3500)
         self.assertEqual(cfg["codex"]["sandbox"], "read-only")
-        self.assertTrue(C.DEFAULTS["clearml"]["enabled"])
-        self.assertNotIn("mode", cfg["clearml"])  # ClearML records offline sessions only, no server
-        self.assertTrue(C.DEFAULTS["clearml"]["auto_record"])
+        self.assertNotIn('clearml',C.DEFAULTS)
+        self.assertNotIn('clearml',cfg)
+        self.assertNotIn('opencode',cfg)
         self.assertTrue(C.DEFAULTS["codex"]["enabled"])
         self.assertEqual(cfg["codex"]["windows_sandbox"], "unelevated")
         self.assertTrue(cfg["resources"]["require_unload"])  # GPU runs refused while LLMs hold VRAM
@@ -28,11 +28,10 @@ class ConfigV32(unittest.TestCase):
     def test_coercion_and_choices(self):
         try:
             cfg = C.save_config({"memory": {"high_watermark_tokens": "12000", "unknown_key": 5, "embed_engine": "bogus"},
-                                 "codex": {"sandbox": "danger-full-access"}, "resources": {"require_unload": "false"},
-                                 "clearml": {"mode": "cloud-magic"}})
+                                 "codex": {"sandbox": "danger-full-access"}, "resources": {"require_unload": "false"}})
             self.assertEqual(cfg["memory"]["high_watermark_tokens"], 12000)
             self.assertNotIn("unknown_key", cfg["memory"])
-            self.assertNotIn("mode", cfg["clearml"])
+            self.assertNotIn('clearml',cfg)
             self.assertEqual(cfg["memory"]["embed_engine"], "auto")
             self.assertEqual(cfg["codex"]["sandbox"], "read-only")  # never danger-full-access
             self.assertFalse(cfg["resources"]["require_unload"])

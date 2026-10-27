@@ -4,9 +4,9 @@
     "chạy thử ý tưởng dùng …"       → intent idea           → proposal "start /idea" (the researcher accepts)
     "viết phần Results theo văn phong …" → intent write     → the chat answers with the write skill's instructions
 
-The intent router is deliberately simple and transparent (keyword rules in Vietnamese and English, no model call):
-it only SUGGESTS. A run that writes code or computes always waits for the researcher's acceptance; read-only research
-runs start on their own when runs.auto_approve_risk allows it.
+The keyword router is retained as an optional suggestion helper; the chat does not
+use it to intercept plain language or impose a strategy. Explicit slash commands
+and approved model proposals can invoke skills. Execution remains permission-bound.
 """
 from __future__ import annotations
 
@@ -54,9 +54,6 @@ def route(text: str) -> dict | None:
 def effective_risk(s: dict) -> int:
     from backend.core.config import load_config
     cfg = load_config()
-    if s["provider"] == "openscience" or (s["pipeline"] in ("research", "review") and
-            (cfg["research_providers"].get("engine_mode") in ("openscience", "collaborative") or cfg["openscience"].get("enabled"))):
-        return max(2, s["risk"])
     if s["mode"] == "run" and s["pipeline"] in ("idea", "code", "experiment"):
         return max(2, s["risk"])
     return s["risk"]
@@ -66,7 +63,7 @@ def inputs_for(s: dict, text: str) -> dict:
     p = s["pipeline"]
     text = (text or "").strip()
     if p == "research":
-        return {"topic": text, "workflow": s["feynman"]}
+        return {"topic": text, "workflow": s["name"]}
     if p == "idea":
         return {"idea": text}
     if p == "code":
@@ -100,21 +97,24 @@ def from_skill(name: str, text: str, session: dict | None = None, approved: bool
     from backend.core.config import load_config
     cfg = load_config()
     steps, provider, risk = None, provider_for(s), effective_risk(s)
-    explicit_engine = name in ("science", "feynman", "opencode", "phdlab")
-    if s["pipeline"] in ("research", "review") and (explicit_engine or engine_mode or cfg["openscience"].get("enabled") or cfg["research_providers"].get("engine_mode", "auto") != "auto" or provider in ("openscience", "phdlab")):
+    explicit_engine = name in ("science", "phdlab")
+    if s["pipeline"] in ("research", "review") and (explicit_engine or engine_mode or cfg["research_providers"].get("engine_mode", "auto") != "auto" or provider == "phdlab"):
         from backend.research_engines.registry import plan
         mode = engine_mode or (provider if explicit_engine else cfg["research_providers"].get("engine_mode", "auto"))
-        capability = "prototype" if name == "opencode" else "analysis" if name in ("science", "phdlab") else "review" if s["pipeline"] == "review" else "literature"
+        capability = "analysis" if name in ("science", "phdlab") else "review" if s["pipeline"] == "review" else "literature"
         engines = plan(mode, capability, provider)
         provider = engines[0]
-        if "openscience" in engines:
-            risk = max(2, risk)
         if len(engines) > 1:
             steps = [{"kind": "research", "provider": engines[0]},
                      {"kind": "review", "provider": engines[1], "spec": {"review_prior": True}},
                      {"kind": "verify_sources"}, {"kind": "report"}]
-    r = runs.create(s["pipeline"], title, text, inputs_for(s, text), (session or {}).get("id", ""), turn_id, s["name"],
-                    risk, provider, steps=steps)
+    inputs = inputs_for(s, text)
+    if s['pipeline']=='code':
+        from backend.execution import code_projects
+        code_projects.active_dir()  # explicit project selection before durable authorization
+        inputs['code_project_id'] = code_projects.active()['id']
+    r = runs.create(s["pipeline"], title, text, inputs, (session or {}).get("id", ""), turn_id, s["name"],
+                    risk, provider, steps=steps, force_approval=s['pipeline']=='code')
     if approved and r["status"] == "APPROVAL_PENDING":
         r = runs.approve(r["id"], "researcher (chat)")
     return r

@@ -179,7 +179,7 @@ class Sandbox(unittest.TestCase):
             SB._after_run(job2)
         self.assertIn("failed", job2.tail(5, "sys"))
         with mock.patch("backend.execution.tracker.auto_record", side_effect=RuntimeError):
-            SB._auto_clearml("x")  # never raises
+            self.assertFalse(hasattr(SB,'_auto_clearml'))  # retired SDK hook cannot run
 
 
 @unittest.skipUnless(shutil.which("git"), "git is not installed")

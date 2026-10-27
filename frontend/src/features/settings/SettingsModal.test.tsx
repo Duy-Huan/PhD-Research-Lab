@@ -145,33 +145,23 @@ describe('SettingsModal', () => {
     expect(useUIStore.getState().mainView).toBe('chat');
   });
 
-  it('triggers provider launch and data synchronization back to PhD Lab', async () => {
-    useUIStore.setState({ mainView: 'settings', settingsTab: 'engines' });
-    const postSpy = vi.spyOn(api, 'post').mockResolvedValue({
-      ok: true,
-      total_changed: 3,
-      total_observed: 12,
-    });
-    vi.spyOn(api, 'get').mockImplementation(async (url: string) => {
-      if (url.includes('/api/providers')) {
-        return {
-          providers: [
-            { id: 'opencode', label: 'OpenCode Sandbox', category: 'coding', ready: true, state: 'READY', detail: 'Ready' },
-          ],
-        };
-      }
+  it('keeps PaperOrchestra integrated and opens native tools without third-party launches', async () => {
+    useUIStore.setState({mainView:'settings',settingsTab:'engines'});
+    const post=vi.spyOn(api,'post').mockResolvedValue({});
+    vi.spyOn(api,'get').mockImplementation(async url => {
+      if(url.includes('/api/providers')) return {providers:[
+        {id:'paperorchestra',label:'PaperOrchestra',kind:'embedded_engine',state:'READY',ready:true},
+        {id:'tracking',label:'Native tracking',kind:'native_tool',state:'READY',ready:true},
+      ]};
+      if(url==='/api/models') return {providers:[],agent_catalog:{}};
       return mockConfig;
     });
-
     renderWithProviders(<SettingsModal />);
-
-    const launchBtn = await screen.findByRole('button', { name: /Mở Ứng dụng|Open App/i });
-    fireEvent.click(launchBtn);
-    expect(postSpy).toHaveBeenCalledWith('/api/providers/opencode/launch', {});
-
-    const syncBtn = await screen.findByRole('button', { name: /Đồng bộ về Lab|Sync to Lab/i });
-    fireEvent.click(syncBtn);
-    expect(postSpy).toHaveBeenCalledWith('/api/providers/opencode/sync', {});
+    fireEvent.click(await screen.findByRole('button',{name:'PaperOrchestra Studio'}));
+    expect(useUIStore.getState().drawerKind).toBe('paper');
+    fireEvent.click(screen.getByRole('button',{name:/Mở workspace native|Open native workspace/}));
+    expect(useUIStore.getState().drawerKind).toBe('code');
+    expect(post).not.toHaveBeenCalled();
   });
 
   it('renders optional plugins catalog and allows installing AI-Scientist-v2 via GitHub plugin mechanism', async () => {

@@ -46,6 +46,13 @@ AUTH_RE = re.compile(r"(?i)authenticat|auth method|not logged in|login required|
 READ_TOOLS = ("research_get_current_state", "research_search_memory", "research_get_hypothesis", "research_get_experiment",
               "research_get_evidence", "research_get_decisions", "research_get_failures", "research_get_context",
               "research_get_provenance")
+
+
+def requested_model(context: dict) -> str:
+    value = context.get('model') or ''
+    if not isinstance(value, str) or (value and not re.fullmatch(r'[\w.:/@+-]{1,160}', value)):
+        raise ProviderError('Invalid model identifier; the configured value was not truncated or substituted')
+    return value
 _last_error: dict = {}
 _procs: dict = {}
 _lock = threading.Lock()
@@ -225,8 +232,11 @@ class CLIConnector(ProviderConnector):
             raise ProviderError(prepared['detail'], 'UNAVAILABLE')
         binary = isolated_cli.RUNTIMES[self.provider_id][0]
         workspace = str(Path(context['cwd']).resolve())
+        prefix = self._prefix() if self.provider_id == 'codex' and hasattr(self, '_prefix') else args[:1]
+        if args[:len(prefix)] != prefix:
+            raise ProviderError('Native CLI command prefix does not match its connector')
         command = [binary, *[('/workspace' + str(part)[len(workspace):].replace('\\', '/'))
-                            if str(part).startswith(workspace + os.sep) else part for part in args[1:]]]
+                            if str(part).startswith(workspace + os.sep) else part for part in args[len(prefix):]]]
         if self.provider_id == 'codex' and mcp:
             extra = ['-c', 'mcp_servers.phdlab.url="http://127.0.0.1:3128/mcp"']
             command = command[:-1] + extra + command[-1:] if command[-1:] == ['-'] else command + extra
@@ -235,7 +245,17 @@ class CLIConnector(ProviderConnector):
         plan['command'] = command
         plan_path.write_text(json.dumps(plan, indent=2), 'utf-8')
         from backend.core.config import ROOT
-        return [sys.executable, str(ROOT / 'tools/run_cli_container.py'), str(plan_path), '--headless']
+        owner = secrets.token_hex(16)
+        context['_runtime_owner'] = owner
+        return [sys.executable, str(ROOT / 'tools/run_cli_container.py'), str(plan_path), '--headless',
+                '--runtime-owner', owner]
+
+    def _release_runtime(self, context: dict) -> None:
+        owner = context.get('_runtime_owner')
+        if owner:
+            from backend.providers.isolated_cli import cleanup_owned_runtime
+            cleanup_owned_runtime(owner)
+            context.pop('_runtime_owner', None)
 
     def stream_message(self, message: str, context: dict):
         h = self.health()
@@ -313,7 +333,10 @@ class CLIConnector(ProviderConnector):
                 # Check for terminal events from normalizer or raw event payloads
                 if isinstance(raw, dict):
                     raw_type = raw.get("type") or raw.get("event") or ""
-                    if raw_type in ("turn.completed", "turn.failed", "result") or (raw_type == "item.completed" and raw.get("item", {}).get("type") == "agent_message" and self.provider_id == "codex"):
+                    # An assistant message can be an intermediate observation.
+                    # Only the terminal protocol event closes the turn; otherwise
+                    # later results, failures and actual usage would be discarded.
+                    if raw_type in ("turn.completed", "turn.failed", "result"):
                         # Terminal status signal received
                         turn_finished = True
                 for e in events_batch:
@@ -346,6 +369,12 @@ class CLIConnector(ProviderConnector):
             except subprocess.TimeoutExpired:
                 if proc.poll() is None:
                     kill_tree(proc)
+            try:
+                self._release_runtime(context)
+            except (OSError, ValueError, subprocess.SubprocessError) as exc:
+                yield E.ev('error', message=f'{self.label} runtime cleanup failed: {type(exc).__name__}', state='ERROR')
+                yield E.ev('request_completed', provider=self.provider_id, request_id=rid, exit_code=-1)
+                return
             if getattr(proc, "_phd_timeout", False):
                 yield E.ev("error", message=f"{self.label} did not finish within {int(limit)} s — stopped (time limit)",
                            state="ERROR")
@@ -376,6 +405,12 @@ class CLIConnector(ProviderConnector):
                 pass
             with _lock:
                 _procs.pop(rid, None)
+            try:
+                self._release_runtime(context)
+            except (OSError, ValueError, subprocess.SubprocessError) as exc:
+                # Generator close/cancel cannot yield another event; retain the
+                # failure for connection diagnostics instead of claiming cleanup.
+                _last_error[self.provider_id] = ('ERROR', 'Runtime cleanup failed: ' + type(exc).__name__)
             for f in (proc.stdin, proc.stdout, proc.stderr):
                 try:
                     f.close()
@@ -443,9 +478,9 @@ class CodexConnector(CLIConnector):
             ws = load_config()["codex"].get("windows_sandbox") or "unelevated"
             if ws != "config":
                 args += ["-c", f"windows.sandbox={ws}"]
-        model = str(context.get("model") or "").strip()[:80]
-        # Filter out API-only model default 'gpt-5' when using ChatGPT sign-in to prevent 400 errors
-        if model and model.lower() not in ("gpt-5", "default", "auto", "none"):
+        model = requested_model(context)
+        # The installed official CLI decides entitlement; never silently replace a requested model.
+        if model and model.lower() not in ('default', 'auto', 'none'):
             args += ["-m", model]
         if context.get("reasoning") in ("low", "medium", "high"):  # v4.2: Codex config key model_reasoning_effort
             args += ["-c", f"model_reasoning_effort={context['reasoning']}"]
@@ -490,6 +525,10 @@ class ClaudeCodeConnector(CLIConnector):
 
     def auth_state(self, probe: dict) -> tuple[str, str]:
         auth = probe.get("auth")
+        from backend.providers import cli_space as W
+        isolated_auth = W.safe_path(W.root(), 'claude_code', 'runtime-home', '.claude', '.credentials.json')
+        if isolated_auth.is_file() and (not auth or not auth.get('loggedIn')):
+            return 'UNKNOWN', 'Project-contained Claude subscription sign-in exists; the first request verifies it. Console/API login is disabled in this runtime.'
         if not auth:
             return super().auth_state(probe)
         if not auth["loggedIn"]:
@@ -507,10 +546,10 @@ class ClaudeCodeConnector(CLIConnector):
     def argv(self, context: dict) -> list:
         args = [self.binary(), "-p", "--output-format", "stream-json", "--verbose", "--include-partial-messages"]
         if context.get("mcp_url"):
-            cfg = {"mcpServers": {"phd-research-lab": {"type": "http", "url": context["mcp_url"]}}}
-            if context.get("mcp_token"):
-                cfg["mcpServers"]["phd-research-lab"]["headers"] = {"Authorization": f"Bearer {context['mcp_token']}"}
-            f = Path(tempfile.gettempdir()) / f"phdlab-mcp-{secrets.token_hex(4)}.json"
+            # The trusted sidecar attaches the ephemeral bearer token. It is not staged in agent-readable config.
+            cfg = {"mcpServers": {"phd-research-lab": {"type": "http", "url": 'http://127.0.0.1:3128/mcp'}}}
+            from backend.providers.cli_space import safe_path
+            f = safe_path(Path(context['cwd']), f'.phdlab-mcp-{secrets.token_hex(4)}.json')
             f.write_text(json.dumps(cfg), "utf-8")
             context["_tmpfile"] = str(f)  # removed when the request ends
             tools = context["mcp_tools"] if "mcp_tools" in context else READ_TOOLS  # v4.2: the session's MCP allowlist
@@ -522,7 +561,7 @@ class ClaudeCodeConnector(CLIConnector):
         if context.get("resume_session") and re.fullmatch(r"[\w-]{6,80}", context["resume_session"]):
             args += ["--resume", context["resume_session"]]
         if context.get("model"):
-            args += ["--model", str(context["model"])[:80]]
+            args += ['--model', requested_model(context)]
         return args
 
 class AntigravityConnector(CLIConnector):
@@ -562,7 +601,7 @@ class AntigravityConnector(CLIConnector):
     def argv(self, context: dict) -> list:
         args = [self.binary(), "--output-format", "stream-json", "--input-format", "stream-json", "--sandbox", "--print="]
         if context.get("model"):
-            args += ["--model", str(context["model"])[:80]]
+            args += ['--model', requested_model(context)]
         if context.get("resume_session") and re.fullmatch(r"[\w-]{6,80}", context["resume_session"]):
             args += ["--conversation", context["resume_session"]]
         return args
@@ -589,6 +628,10 @@ class GeminiCliConnector(CLIConnector):
         return probe
 
     def auth_state(self, probe: dict) -> tuple[str, str]:
+        from backend.providers import cli_space as W
+        isolated_auth = W.safe_path(W.root(), 'gemini_cli', 'runtime-home', '.gemini', 'oauth_creds.json')
+        if isolated_auth.is_file():
+            return 'UNKNOWN', 'Project-contained Google sign-in exists; the first request verifies it.'
         if probe.get('auth_configured') is False and not self.api_fallback():
             return "AUTH_EXPIRED", "Gemini CLI has no configured sign-in method. Run `gemini` and choose Login with Google."
         return super().auth_state(probe)
@@ -600,7 +643,7 @@ class GeminiCliConnector(CLIConnector):
         args = [self.binary(), "-p", "Answer the research question at the end of the input, using the research context it contains.",
                 "--output-format", "stream-json"]
         if context.get("model"):
-            args += ["--model", str(context["model"])[:80]]
+            args += ['--model', requested_model(context)]
         if context.get("resume_session") and re.fullmatch(r"[\w-]{6,80}", context["resume_session"]):
             args += ["--resume", context["resume_session"]]
         return args
@@ -610,6 +653,9 @@ CONNECTORS = {c.provider_id: c for c in (CodexConnector(), ClaudeCodeConnector()
 
 
 def get(pid: str) -> ProviderConnector:
+    if pid == 'hermes':
+        from backend.providers.hermes import HermesConnector
+        return HermesConnector()
     if pid not in CONNECTORS:
         raise ProviderError(f"Unknown provider '{pid}' (known: {', '.join(CONNECTORS)})")
     return CONNECTORS[pid]

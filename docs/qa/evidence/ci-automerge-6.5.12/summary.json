@@ -1,0 +1,95 @@
+{
+  "mode": "DERIVED_SUMMARY_NOT_AN_EXECUTION_REPORT",
+  "source_sha256": "28ffa3b991b36755a2d0b695f8fb53eb452d86faee080ad50e5d98391ea97c19",
+  "profile": "pr/all",
+  "source_stable": true,
+  "counts": {
+    "PASS": 1272,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "NOT_RUN": 0,
+    "BLOCKED": 0,
+    "UNVERIFIED": 0
+  },
+  "backend": {
+    "total_run": 1020,
+    "passed": 1020,
+    "failures": 0,
+    "errors": 0,
+    "failure_events": 0,
+    "error_events": 0,
+    "skipped": 0,
+    "was_successful": true,
+    "overall_decision": "CONDITIONAL"
+  },
+  "coverage": {
+    "backend": {
+      "percent_covered": 86.46,
+      "covered_lines": 23685,
+      "num_statements": 26672,
+      "covered_branches": 7118,
+      "num_branches": 8956
+    },
+    "frontend": {
+      "lines": {
+        "total": 3818,
+        "covered": 2523,
+        "skipped": 0,
+        "pct": 66.08
+      },
+      "statements": {
+        "total": 4143,
+        "covered": 2679,
+        "skipped": 0,
+        "pct": 64.66
+      },
+      "functions": {
+        "total": 1465,
+        "covered": 766,
+        "skipped": 0,
+        "pct": 52.28
+      },
+      "branches": {
+        "total": 4218,
+        "covered": 2754,
+        "skipped": 0,
+        "pct": 65.29
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    }
+  },
+  "live_deferred": [
+    {
+      "id": "test_live_integrations.CodexLive.test_read_only_run",
+      "status": "NOT_RUN",
+      "layer": "LIVE_PROVIDER",
+      "required_at": [
+        "qa",
+        "main"
+      ]
+    },
+    {
+      "id": "test_vram_gate.LMStudioLive.test_real_gate_and_manual_unload",
+      "status": "NOT_RUN",
+      "layer": "LIVE_PROVIDER",
+      "required_at": [
+        "qa",
+        "main"
+      ]
+    }
+  ],
+  "qualification": "Software only; no live provider/scientific/AI-UAT PASS claimed. Legacy required_at labels in deferred inventory do not supersede owner2026-10-26 software-only CI policy.",
+  "original_reports": [
+    "pr-report.json",
+    "feature-report.json"
+  ],
+  "original_failed_ci": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40344069655",
+  "remote_result": "PENDING_NEW_SHA_CI",
+  "prior_native_watchdog_probes": "6 completed without reproducing a crash; causality remains unproven."
+}

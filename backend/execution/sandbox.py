@@ -73,7 +73,7 @@ def sb_dir() -> Path:
 DEFAULT_SETTINGS = {"mode": "local",  # v5: Python venv first; Docker only when a task needs Linux
                     "image": "", "gpu": True, "memory_gb": 8, "cpus": 4, "shm_gb": 2,
                     "network": True, "timeout_s": 6 * 3600, "self_debug_max": 4,
-                    # v3.2: the local venv sees the packages of the Python that runs the app (clearml, torch, …)
+                    # v3.2: the local venv sees the packages of the Python that runs the app (torch, numpy, …)
                     "inherit_packages": True,
                     # v3.4 environments (envs.py): Python env = a project venv built from python_base, or python_base itself
                     # ("existing"); auto_deps installs what the code imports before every run (deps.py)
@@ -536,12 +536,6 @@ def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | No
                                    "gpu": bool(s.get("gpu")) and (extra_env or {}).get("CUDA_VISIBLE_DEVICES", gpu_env.get("CUDA_VISIBLE_DEVICES")) != "",
                                    "memory_gb": s.get("memory_gb"), "cpus": s.get("cpus")}
     env.update(extra_env or {})
-    if kind == "run":  # v3.2: a script that calls clearml Task.init records an offline session into its own run folder
-        try:
-            from backend.execution.tracker import run_env
-            env.update(run_env(f"/runs/{job.id}" if mode == "docker" else str(job.run_dir)))
-        except Exception:
-            pass
     if s.get("torch_index"):
         env["PHDLAB_TORCH_INDEX"] = s["torch_index"]
     if mode == "docker":
@@ -615,18 +609,6 @@ def _waiter(job: Job, t1, t2, timeout_s: int):
     # Consumers, including run_blocking, may read metrics as soon as status is
     # terminal. Publish completion only after the run evidence has been written.
     job.status = final_status
-    if job.run_dir:
-        if job.kind == "run":
-            threading.Thread(target=_auto_clearml, args=(job.id,), daemon=True).start()
-
-
-def _auto_clearml(run_id: str) -> None:
-    """Record the finished run as a ClearML offline session when clearml.auto_record is on."""
-    try:
-        from backend.execution.tracker import auto_record
-        auto_record(run_id)
-    except Exception:
-        pass
 
 
 def _after_run(job: Job, *, final_status: str | None = None) -> None:

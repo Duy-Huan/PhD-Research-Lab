@@ -7,13 +7,34 @@ import subprocess
 import tarfile
 import tempfile
 import unittest
+import sys
 
 from devtools.verification.branch_policy import LOCAL_STEPS, record_report, report_errors
-from scripts.install_ci_sdk import unpack
 from scripts.development_guard import remote_errors
 
 
 class DevelopmentGuard(unittest.TestCase):
+    def test_installed_reference_hook_rejects_new_development_branches(self):
+        script=Path(__file__).resolve().parents[1]/'scripts/development_guard.py'
+        with tempfile.TemporaryDirectory(prefix='phdlab-reference-policy-') as directory:
+            root=Path(directory)
+            def command(*args):
+                return subprocess.run(['git',*args],cwd=root,capture_output=True,text=True)
+            self.assertEqual(command('init','-q','--initial-branch=dev').returncode,0)
+            setup=subprocess.run([sys.executable,str(script),'install','--root',str(root)],capture_output=True,text=True)
+            self.assertEqual(setup.returncode,0,setup.stderr)
+            initial=command('-c','user.name=Policy Fixture','-c','user.email=fixture@example.invalid',
+                            'commit','--allow-empty','-m','Isolated actual Git fixture')
+            self.assertEqual(initial.returncode,0,initial.stderr)
+            before=command('rev-parse','HEAD').stdout.strip()
+            for branch in ['feature/forbidden','fix/forbidden','backup/forbidden','arbitrary','qa','main']:
+                with self.subTest(branch=branch):
+                    result=command('branch',branch)
+                    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)
+                    self.assertEqual(command('show-ref','--verify','refs/heads/'+branch).returncode,128)
+            self.assertEqual(command('rev-parse','HEAD').stdout.strip(),before)
+            self.assertEqual(command('branch','--show-current').stdout.strip(),'dev')
+
     def test_push_cannot_target_another_repository_or_remote(self):
         self.assertEqual(remote_errors('origin','https://github.com/Duy-Huan/PhD-Research-Lab.git'),[])
         self.assertEqual(remote_errors('origin','git@github.com:Duy-Huan/PhD-Research-Lab.git'),[])
@@ -49,33 +70,6 @@ class DevelopmentGuard(unittest.TestCase):
             report['decision']='FAIL';file.write_text(json.dumps(report));record_report(root,file,report)
             stored=json.loads(receipt.read_text());self.assertEqual(stored['decision'],'FAIL')
             self.assertEqual(stored['sha256'],hashlib.sha256(file.read_bytes()).hexdigest())
-
-
-class PinnedSDK(unittest.TestCase):
-    def archive(self, names):
-        stream=io.BytesIO()
-        with tarfile.open(fileobj=stream,mode='w:gz') as archive:
-            for name in names:
-                content=b'# synthetic bounded test input\n';item=tarfile.TarInfo(name);item.size=len(content)
-                archive.addfile(item,io.BytesIO(content))
-        return stream.getvalue()
-
-    def test_wrong_digest_and_escaping_archive_never_write_files(self):
-        with tempfile.TemporaryDirectory() as directory:
-            out=Path(directory)/'sdk'
-            with self.assertRaises(ValueError):unpack(b'not trusted',out)
-            raw=self.archive(['../../escape.py'])
-            with self.assertRaises(ValueError):unpack(raw,out,hashlib.sha256(raw).hexdigest(),'fixture/')
-            self.assertFalse(out.exists())
-
-    def test_reviewed_inventory_is_exact_and_unknown_output_is_preserved(self):
-        raw=self.archive(['fixture/__init__.py','fixture/client.py'])
-        with tempfile.TemporaryDirectory() as directory:
-            out=Path(directory)/'sdk'
-            result=unpack(raw,out,hashlib.sha256(raw).hexdigest(),'fixture/')
-            self.assertEqual(set(result['files']),{'openscience/__init__.py','openscience/client.py'})
-            with self.assertRaises(ValueError):unpack(raw,out,hashlib.sha256(raw).hexdigest(),'fixture/')
-            self.assertTrue((out/'openscience/client.py').is_file())
 
 
 class LiveEvidencePolicy(unittest.TestCase):

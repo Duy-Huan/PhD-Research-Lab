@@ -1,0 +1,106 @@
+{
+  "mode": "LIVE_PROVIDER",
+  "scope": "Fresh backend interpreter plus actual runtime container restart; recover nonce solely through persisted Hermes conversation history. Not scientific or learned-skill qualification",
+  "decision": "PASS",
+  "source_sha256": "bda98ede5fc22c51e5fd577656052cd0a4e2a6cf1fabee5ce2f8368091ecc35c",
+  "source_stable": true,
+  "before_container": "b326d6c8e7a4745d1cabdf09f998d09689ef7cdc75173b012a4abe5a3ce1c6c9",
+  "after_container": "e500f7d1b5d54a85ccda2943394ee5fc06d4ce2d9e9156b87da0cf52417690fe",
+  "expected": "HERMES-7c51ad885f10",
+  "expected_absent_from_new_prompt": true,
+  "model": "stepfun/step-3.7-flash:free",
+  "gateway": {
+    "id": "gw-e2bd1c746f",
+    "provider": "hermes",
+    "provider_label": "Hermes Agent",
+    "billing": "Nous free-only, independently verified before each job",
+    "session_id": "gs-de0693bc",
+    "query": "Synthetic recovery check. What was the HERMES-prefixed nonce in my previous request in this conversation? Reply with only that nonce. Do not use tools.",
+    "role": "",
+    "prompt": "You are assisting a PhD researcher. Below is the compiled research context of the active project, provided by the researcher's local PhD Research Lab (the source of truth). Ground your answer in it, cite record ids (HYPE-/EXP-/FAIL-/EVID-/CLM-/D\u2026) when you rely on them, say clearly when the context does not contain what is needed, and never invent results. If the PhD-Lab MCP tools are available you may call them for details.\n\n(research memory not included for this request)\n\n# RESEARCHER'S QUESTION\nSynthetic recovery check. What was the HERMES-prefixed nonce in my previous request in this conversation? Reply with only that nonce. Do not use tools.",
+    "context_tokens": 164,
+    "context_version": "0ff8260cf224",
+    "includes": {},
+    "included_ids": [],
+    "blocked": [],
+    "sanitize": [],
+    "sensitivity_allowed": [
+      "PUBLIC",
+      "INTERNAL"
+    ],
+    "status": "completed",
+    "health_state": "UNKNOWN",
+    "created": 1793016981.624373,
+    "ended": 1793016994.08992,
+    "answer": "HERMES-7c51ad885f10",
+    "errors": [],
+    "resume_session": "",
+    "provider_session": "2bd48695c9f29008d3d95b1aa2c1f07c",
+    "profile": "review",
+    "isolation": {
+      "provider": "hermes",
+      "profile": "review",
+      "supported": true,
+      "level": "os-container",
+      "enforced": true,
+      "how": "Independent Hermes container; read-only authorized workspace, persistent project memory/skills, unrestricted Internet and scoped PhD tools",
+      "profile_label": "Read-only / Review \u2014 reads the staged context only; no file writes, no shell commands",
+      "consented_weaker": false
+    },
+    "project_dir": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\hermes-runtime-development\\data",
+    "event_count": 5,
+    "timings_ms": {
+      "context": 15.91,
+      "prepare": 113.09,
+      "first_event": 317.08,
+      "first_token": 12575.15,
+      "total": 12576.75
+    },
+    "workspace": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\hermes-runtime-development\\data\\cli-space\\hermes\\sessions\\gs-de0693bc",
+    "runtime_job_id": "3c639e8e7e698a7a5115b1b714347f14",
+    "started": 1793016981.7294774,
+    "executing_model": "stepfun/step-3.7-flash:free",
+    "first_token_s": 12.355
+  },
+  "events": {
+    "id": "gw-e2bd1c746f",
+    "status": "completed",
+    "events": [
+      {
+        "type": "status",
+        "ts": 1793016981.83,
+        "state": "session",
+        "session_id": "2bd48695c9f29008d3d95b1aa2c1f07c",
+        "runtime_job_id": "3c639e8e7e698a7a5115b1b714347f14",
+        "model": "stepfun/step-3.7-flash:free"
+      },
+      {
+        "type": "request_started",
+        "ts": 1793016981.831,
+        "provider": "hermes",
+        "runtime_job_id": "3c639e8e7e698a7a5115b1b714347f14"
+      },
+      {
+        "type": "text_delta",
+        "ts": 1793016994.088,
+        "text": "HERMES-7c51ad885f10",
+        "final": true
+      },
+      {
+        "type": "status",
+        "ts": 1793016994.088,
+        "state": "result",
+        "final_text": "HERMES-7c51ad885f10",
+        "model": "stepfun/step-3.7-flash:free",
+        "runtime_job_id": "3c639e8e7e698a7a5115b1b714347f14"
+      },
+      {
+        "type": "request_completed",
+        "ts": 1793016994.088,
+        "exit_code": 0,
+        "runtime_job_id": "3c639e8e7e698a7a5115b1b714347f14"
+      }
+    ],
+    "next": 5
+  }
+}

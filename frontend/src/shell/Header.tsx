@@ -215,10 +215,10 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
             <BarChart3 size={16} />
           </button>
           <button
-            className={`icon ${drawerKind === 'opencode' ? 'active' : ''}`}
+            className={`icon ${drawerKind === 'code' ? 'active' : ''}`}
             type="button"
-            onClick={() => openDrawer('opencode')}
-            title={t('Nhân Thực nghiệm Tính toán OpenCode', 'OpenCode Parallel Core')}
+            onClick={() => openDrawer('code')}
+            title={t('Mã nguồn & thí nghiệm native', 'Native code & experiments')}
           >
             <Terminal size={16} />
           </button>

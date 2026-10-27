@@ -146,9 +146,11 @@ from backend.knowledge import research_store as S
 from backend.research_engines import workspaces as W
 root=Path(os.environ["PHDLAB_DATA_DIR"])
 '''
-        first = shared + '''config.save_config({"research_os":{"enabled":True,"team_enabled":True,"multi_team_enabled":True},"clearml":{"auto_record":False},"memory":{"embed_engine":"hashing"}})
+        first = shared + '''config.save_config({"research_os":{"enabled":True,"team_enabled":True,"multi_team_enabled":True},"memory":{"embed_engine":"hashing"}})
 tid=S.save_topic(S.TopicInput(title="Actual process-outage fixture"))["id"]
-ws=[W.link(tid,W.WorkspaceInput(engine=e)) for e in ("openscience","feynman")]
+locations=[root/'topics'/tid/name for name in ('experiment-context','coding-context')]
+for location in locations:location.mkdir(parents=True,exist_ok=True)
+ws=[W.link(tid,W.WorkspaceInput(engine='phdlab',path=str(location))) for location in locations]
 control={"success_criteria":["Preserve committed receipts"],"end_date":(datetime.now(timezone.utc)+timedelta(hours=1)).isoformat()}
 spec=MissionSpec(topic_id=tid,objective="Committed cross-team checkpoint",permissions=["workspace_write"],control=control,tasks=[{"id":"science","capability":"workspace.sync","args":{"workspace_id":ws[0]["id"]}},{"id":"feynman","capability":"workspace.sync","args":{"workspace_id":ws[1]["id"]}},{"id":"report","capability":"mission.report","depends_on":["science","feynman"]}])
 safe=M.create(C.partition(spec));M.approve(tid,safe["id"],safe["payload"]["plan_digest"],"Approved fixture")

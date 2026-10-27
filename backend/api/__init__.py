@@ -12,10 +12,10 @@
     mcp              MCP research tools for CLI providers
     plugins          GitHub skill plugins, automatic venue ranking, AI-Scientist-v2 manuscript writer, document export
     compute          compute plane status, hosts, jobs
-    research_engines external research engines (feynman, openscience, opencode)
+    research_engines native research roles, supported coding tools and historical job readers
     research         research topics, papers, workspaces, missions, teams, workstreams, protocols, claims, ledger
     figures          v6.4.0 Scientific Visualization & Figure Studio
-    opencode         v6.4.1 OpenCode Parallel Core Integration
+    opencode         read-only historical software session records
     intelligence     v6.4.2 Unified Research Intelligence & Integration Layer
     paperorchestra   v6.4.3 PaperOrchestra Multi-Agent Research Writing Engine
 """

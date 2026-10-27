@@ -78,20 +78,16 @@ class Faults(unittest.TestCase):
         self.assertEqual(plan["skipped"]["openai"], "offline")
 
     def test_research_health_disabled_missing_install_and_cancellation(self):
-        self.cfg["clearml"]["enabled"] = False
-        self.assertEqual(RP._exec_health("clearml", self.cfg)["state"], "DISABLED")
-        self.cfg["clearml"]["enabled"] = True
-        with mock.patch("importlib.util.find_spec", return_value=None):
-            self.assertEqual(RP._exec_health("clearml", self.cfg)["state"], "UNAVAILABLE")
-        self.cfg["research_providers"]["feynman_share_app_key"] = True
-        self.cfg["providers"]["anthropic"]["api_key"] = ""
-        self.cfg["providers"]["openai"]["api_key"] = ""
-        self.assertEqual(RP._shared_key(self.cfg), {})
+        self.assertNotIn('clearml', self.cfg)
+        self.assertEqual(RP._exec_health('tracking', self.cfg)['state'], 'READY')
+        with mock.patch('backend.execution.vscode.vscode_cli', return_value=None):
+            self.assertEqual(RP._exec_health('vscode', self.cfg)['state'], 'UNAVAILABLE')
         connector = mock.Mock()
         connector.stream_message.return_value = iter([{"type": "request_started"}, {"type": "text_delta", "text": "late"}])
         with mock.patch.dict(C.CONNECTORS, {"codex": connector}):
-            out = RP.run_coding("cancelled-provider", "codex", "q", "ctx", config.data_dir() / "out", cancelled=lambda: True)
-        self.assertEqual(out["text"], "")
+            with self.assertRaisesRegex(RP.ProviderUnavailable, 'cancelled'):
+                RP.run_coding("cancelled-provider", "codex", "q", "ctx", config.data_dir() / "out", cancelled=lambda: True)
+            connector.stream_message.assert_not_called()
 
     def test_mcp_guard_audit_disabled_and_token_failure(self):
         with mock.patch.object(MS, "_mcfg", return_value={"enabled": False}):

@@ -1,0 +1,132 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_explicit_slash_command_retains_its_existing_execution_contract",
+      "status": "PASS",
+      "duration": 0.1593,
+      "details": null
+    },
+    {
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_long_research_request_is_not_rewritten_or_cut_into_keyword_run_arguments",
+      "status": "PASS",
+      "duration": 0.1014,
+      "details": null
+    },
+    {
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_model_proposed_research_action_waits_for_real_approval",
+      "status": "PASS",
+      "duration": 0.1423,
+      "details": null
+    },
+    {
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "status": "PASS",
+      "duration": 0.3346,
+      "details": null
+    },
+    {
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_explicit_no_tools_never_performs_auto_memory_lookup",
+      "status": "PASS",
+      "duration": 0.0437,
+      "details": null
+    },
+    {
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_failed_gateway_with_partial_text_is_not_reconciled_to_completed",
+      "status": "PASS",
+      "duration": 0.1742,
+      "details": null
+    },
+    {
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_reasoning_is_permitted_without_fabricating_empirical_measurements",
+      "status": "PASS",
+      "duration": 0.0364,
+      "details": null
+    },
+    {
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_temporal_context_orders_equal_instants_by_id_without_sampling_clock",
+      "status": "PASS",
+      "duration": 0.0349,
+      "details": null
+    },
+    {
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_terminal_completion_waits_for_artifact_and_retention_writes",
+      "status": "PASS",
+      "duration": 0.1548,
+      "details": null
+    },
+    {
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_unowned_stale_turn_is_cancelled_and_cannot_block_new_work",
+      "status": "PASS",
+      "duration": 0.1804,
+      "details": null
+    },
+    {
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_unrelated_conversation_is_not_injected_as_default_project_context",
+      "status": "PASS",
+      "duration": 7.3927,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='How can I run an experiment that would falsify this hypothesis?')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='Explain how to find papers that contradict the result.')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='T\u00ecm t\u00e0i li\u1ec7u v\u1ec1 pruning, r\u1ed3i c\u00e2n nh\u1eafc c\u00f3 c\u1ea7n thay \u0111\u1ed5i h\u01b0\u1edbng nghi\u00ean c\u1ee9u kh\u00f4ng.')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='Why did the literature review fail? Do not start a new workflow.')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='Ch\u1ea1y th\u1eed \u00fd t\u01b0\u1edfng n\u00e0y c\u00f3 gi\u00fap ki\u1ec3m tra gi\u1ea3 thuy\u1ebft kh\u00f4ng?')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_preservation.IntelligencePreservation.test_explicit_no_tools_never_performs_auto_memory_lookup",
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_explicit_no_tools_never_performs_auto_memory_lookup (question='Return 13 plus 29. Do not use any tools.')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_preservation.IntelligencePreservation.test_explicit_no_tools_never_performs_auto_memory_lookup",
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_explicit_no_tools_never_performs_auto_memory_lookup (question='Calculate 17 * 23. No tools.')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_preservation.IntelligencePreservation.test_explicit_no_tools_never_performs_auto_memory_lookup",
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_explicit_no_tools_never_performs_auto_memory_lookup (question='Kh\u00f4ng d\u00f9ng c\u00f4ng c\u1ee5. H\u00e3y t\u00ednh 13 c\u1ed9ng 29.')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 11,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-nsvgcc2a",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

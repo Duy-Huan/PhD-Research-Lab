@@ -22,6 +22,11 @@ def fake(pid: str, mode: str = "ok"):
         def _probe(self):
             return {"bin": sys.executable, "ok": True, "version": "fake 1.0", "login_code": 0, "login": "Logged in using ChatGPT"}
 
+        def auth_state(self, probe):
+            # The isolated vendor home belongs to live qualification. This
+            # Python protocol fixture must never inspect the owner's login.
+            return 'CONNECTED', 'Controlled subprocess fixture; no live authentication'
+
         def argv(self, context):
             super().argv(context)  # the real argument builder must not fail
             return [sys.executable, FAKE, FMT[pid], mode]

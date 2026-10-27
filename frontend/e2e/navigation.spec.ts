@@ -1,7 +1,7 @@
 import { test, expect, boot, topic, studio } from './live';
 
 for (const label of ['Paper Library & Search', '5-Level Research Outline', 'Research Topics', 'Workstreams',
-  'Figure Studio', 'OpenCode Runtime', 'Intelligence & RO-Crate', 'Protocols', 'Claims & Evidence', 'Paper LaTeX', 'Code · VS Code']) {
+  'Figure Studio', 'Native code workspace', 'Intelligence & RO-Crate', 'Protocols', 'Claims & Evidence', 'Paper LaTeX', 'Code · VS Code']) {
   test(`navigation: ${label}`, async ({ page, request }, info) => {
     await boot(page);
     await topic(page, request, label);

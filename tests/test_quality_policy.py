@@ -68,7 +68,6 @@ class LayersAndFlow(unittest.TestCase):
         from devtools.verification.layers import live_ids
         ids = live_ids()
         self.assertEqual(ids, {
-            'test_live_integrations.ClearMLLive.test_create_log_read',
             'test_live_integrations.CodexLive.test_read_only_run',
             'test_vram_gate.LMStudioLive.test_real_gate_and_manual_unload'})
         self.assertFalse(any('*' in name for name in ids))
@@ -92,11 +91,13 @@ class LayersAndFlow(unittest.TestCase):
         self.assertEqual(event['pull_request']['branches'], ['qa', 'main'])
         self.assertEqual(event['push']['branches'], ['dev'])
         self.assertEqual(set(workflow['jobs']['development-gate']['needs']), {'policy', 'backend', 'frontend', 'security', 'browser'})
-        self.assertIn('uat-policy', workflow['jobs']['qa-gate']['needs'])
-        condition = workflow['jobs']['uat-policy']['if']
-        self.assertIn("github.base_ref == 'qa'", condition)
-        self.assertIn("github.base_ref == 'main'", condition)
-        self.assertNotIn("github.base_ref == 'dev'", condition)
+        self.assertEqual(workflow['jobs']['qa-gate']['needs'], ['development-gate'])
+        self.assertNotIn('uat-policy',workflow['jobs'])
+        self.assertNotIn('live-qualification',workflow['jobs'])
+        optional=yaml.safe_load((ROOT/'.github/workflows/research-live.yml').read_text('utf-8'))
+        triggers=optional.get('on',optional.get(True))
+        self.assertIn('workflow_dispatch',triggers)
+        self.assertNotIn('push',triggers,'An optional qualification must not produce a green registration run for every commit')
 
 
 if __name__ == '__main__': unittest.main()

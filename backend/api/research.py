@@ -37,6 +37,18 @@ class ReviewNote(G.Contract):
     note:str=Field(min_length=1,max_length=4000)
 
 
+@router.get('/project-layout')
+async def paper_project_layout():
+    return await call(S.paper_project_layout)
+
+
+@router.post('/project-layout/adopt')
+async def paper_project_adopt(body: dict = Body(...)):
+    if set(body) != {'plan_sha256'} or not isinstance(body.get('plan_sha256'), str):
+        raise HTTPException(400, 'Provide the exact reviewed migration plan digest')
+    return await call(S.adopt_paper_project, body['plan_sha256'])
+
+
 @router.get("/os-settings")
 async def os_settings():
     from backend.agent import teams,collaboration
@@ -512,7 +524,7 @@ async def workspace_editor(wid: str):
 
 
 @router.put("/workspaces/{wid}")
-async def relink_workspace(wid: str, body: W.WorkspaceInput):
+async def relink_workspace(wid: str, body: W.WorkspaceRelinkInput):
     return await call(W.relink, wid, body)
 
 

@@ -219,8 +219,8 @@ export const MessageList: React.FC<MessageListProps> = ({
               onClick={() =>
                 onQuickSend?.(
                   t(
-                    '/feynman Khảo sát bài báo Q1/A* mới nhất và phân tích Research Gap.',
-                    '/feynman Survey recent Q1/A* papers and analyze the Research Gap.'
+                    '/lit Khảo sát bài báo Q1/A* mới nhất và phân tích Research Gap.',
+                    '/lit Survey recent Q1/A* papers and analyze the Research Gap.'
                   )
                 )
               }
@@ -243,8 +243,8 @@ export const MessageList: React.FC<MessageListProps> = ({
               onClick={() =>
                 onQuickSend?.(
                   t(
-                    '/openscience Thiết kế giao thức thí nghiệm có kiểm soát & nghiên cứu loại trừ Ablation.',
-                    '/openscience Design a controlled experimental protocol & ablation study.'
+                    '/science Thiết kế giao thức thí nghiệm có kiểm soát & nghiên cứu loại trừ Ablation.',
+                    '/science Design a controlled experimental protocol & ablation study.'
                   )
                 )
               }
@@ -258,13 +258,13 @@ export const MessageList: React.FC<MessageListProps> = ({
               }}
             >
               <FlaskConical size={14} color="#8b5cf6" />
-              <span>OpenScience</span>
+              <span>{t('Thiết kế thí nghiệm', 'Design experiment')}</span>
             </button>
 
             <button
               type="button"
               className="btn sm ghost"
-              onClick={() => openDrawer('opencode')}
+              onClick={() => openDrawer('code')}
               style={{
                 borderRadius: 999,
                 padding: '7px 14px',
@@ -275,7 +275,7 @@ export const MessageList: React.FC<MessageListProps> = ({
               }}
             >
               <Terminal size={14} color="#f59e0b" />
-              <span>OpenCode</span>
+              <span>{t('Code native', 'Native code')}</span>
             </button>
 
             <button

@@ -4,10 +4,10 @@ It runs on the REAL research-run engine (state machine, events, resource guard, 
 only the step executor is synthetic: no GPU / cloud job is started, no API credit is spent, no project data is
 modified (everything is written under the run's own folder), and every number and artifact is labelled SYNTHETIC.
 
-    week 1  day 1   Feynman literature → research map, paper matrix, evidence ledger           (checkpoint)
+    week 1  day 1   Native research literature → research map, paper matrix, evidence ledger           (checkpoint)
     week 2          hypothesis v1, novelty / evidence analysis
     week 3  day 21  coding provider: baseline + smoke tests, Docker/venv setup                 (checkpoint)
-    week 4          ClearML baseline benchmark
+    week 4          Native tracking baseline benchmark
     week 5          candidate v1 + unit tests (commit)
     week 6          bounded HPO
     week 7  day 48  failure analysis (no repeated failed experiment)                           (checkpoint)
@@ -34,10 +34,10 @@ METRICS = {"baseline": {"accuracy": 85.2, "params_m": 5.4, "gflops": 1.20},
 CHECKPOINTS = {
     1: ("Tôi muốn nghiên cứu lightweight ViT cho thiết bị có tài nguyên hạn chế. Hãy phân tích literature, tìm research "
         "gap và đề xuất hướng có thể kiểm chứng.",
-        "Đã tạo project, ghi nhận mục tiêu và giới hạn. Feynman tổng hợp literature, lập evidence matrix và đề xuất "
+        "Đã tạo project, ghi nhận mục tiêu và giới hạn. Native research tổng hợp literature, lập evidence matrix và đề xuất "
         "hypotheses. Nhận định về novelty ở trạng thái unverified cho đến khi đối chiếu nguồn."),
     21: ("Tôi chọn giả thuyết số 2. Hãy xây baseline và chạy thử với ngân sách tính toán thấp.",
-         "Đã khôi phục quyết định nghiên cứu. Coding provider dựng baseline và test; ClearML ghi cấu hình, seed và "
+         "Đã khôi phục quyết định nghiên cứu. Coding provider dựng baseline và test; Native tracking ghi cấu hình, seed và "
          "metrics. Chỉ chạy trong ngân sách và quyền thực thi đã được duyệt."),
     48: ("Accuracy chưa tốt. Phân tích nguyên nhân, thử cải tiến và đừng lặp lại thí nghiệm thất bại.",
          "Đã đối chiếu các run trước và learning curves, xác định thay đổi cần thử; chạy một nhóm thí nghiệm có giới hạn, "
@@ -51,13 +51,13 @@ CHECKPOINTS = {
 }
 WEEKS = [
     # (week, day, provider, label, outputs, extra spec)
-    (1, 1, "feynman", "Feynman: tìm, lọc, phân loại literature",
+    (1, 1, "app", "Native research: tìm, lọc, phân loại literature",
      ["literature/research_map.md", "literature/paper_matrix.csv", "literature/evidence_ledger.json"], {}),
     (2, 10, "app", "Phân tích novelty, mâu thuẫn, evidence → Hypothesis v1",
      ["hypotheses/hypotheses.md", "hypotheses/decisions.jsonl"], {"decision": "chọn giả thuyết H2 (SIMULATED approval)"}),
     (3, 21, "claude_code", "Coding provider dựng baseline + smoke tests",
      ["code/baseline/README.md", "experiments/run_manifests/baseline.json"], {}),
-    (4, 28, "clearml", "ClearML chạy benchmark baseline có kiểm soát",
+    (4, 28, "tracking", "Native tracking chạy benchmark baseline có kiểm soát",
      ["experiments/metrics/baseline_metrics.json"], {"metrics": "baseline"}),
     (5, 35, "codex", "Coding provider tạo model v1 + unit tests",
      ["code/candidate_v1/README.md", "experiments/metrics/candidate_v1.json"], {"metrics": "candidate_v1", "commit": True}),
@@ -71,7 +71,7 @@ WEEKS = [
     (10, 70, "app", "Ablation + đối chiếu claim/evidence",
      ["experiments/ablation_matrix.csv", "findings/claim_evidence_report.md", "findings/verified_findings.md"], {}),
     (11, 77, "latex", "Soạn LaTeX draft IEEE", ["paper/main.tex", "paper/references.bib"], {}),
-    (12, 88, "feynman", "Feynman reviewer + consistency audit", ["reports/review_report.md"], {}),
+    (12, 88, "app", "Native research reviewer + consistency audit", ["reports/review_report.md"], {}),
 ]
 
 
@@ -139,7 +139,7 @@ def _execute(ctx) -> dict:
         u, a = CHECKPOINTS[day]
         ctx.log(f"Ngày {day} — checkpoint hội thoại", checkpoint=day, user=u, assistant=a)
     if spec.get("inject") == "oom" and re.search(r"--batch-size 64\b", spec.get("command", "")):
-        ctx.log("ClearML báo FAILED: CUDA out of memory (SYNTHETIC) — lỗi, log, resource metrics, checkpoint reference "
+        ctx.log("Native tracking báo FAILED: CUDA out of memory (SYNTHETIC) — lỗi, log, resource metrics, checkpoint reference "
                 "được gửi về PhD Lab", resource={"gpu_mem_gb": 11.8, "batch_size": 64, "precision": "fp32"},
                 checkpoint_ref="experiments/checkpoints/candidate_v2_epoch3.pt (SYNTHETIC reference)")
         raise runs.StepFailure("RuntimeError: CUDA out of memory. Tried to allocate 1.50 GiB (SYNTHETIC injection, day 53)",

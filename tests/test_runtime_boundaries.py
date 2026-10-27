@@ -69,28 +69,37 @@ class ComputeAPI(unittest.TestCase):
         (active_dir() / "train.py").write_text("print('baseline')", "utf-8")
         self.client = TestClient(app)
 
-    def test_approval_download_and_verified_collection_end_to_end(self):
-        self.assertEqual(self.client.get("/api/compute/runs").status_code, 200)
-        created = self.client.post("/api/compute/runs", json={"files": ["train.py"], "required_artifacts": ["metrics.json"]})
-        self.assertEqual(created.status_code, 200, created.text)
-        rid = created.json()["run_id"]
-        url = "/api/compute/runs/" + rid
-        self.assertEqual(self.client.get(url).json()["status"], "awaiting_approval")
-        self.assertEqual(self.client.get(url + "/bundle").status_code, 400)
-        self.assertEqual(self.client.post(url + "/approve").status_code, 200)
-        self.assertTrue(self.client.get(url + "/bundle").content.startswith(b"PK"))
-        from backend.execution.tools import IntegrationError
-        with mock.patch("backend.execution.tracker.run_worker", side_effect=IntegrationError("access_token=secret-value-12345")):
-            fault = self.client.post(url + "/sync", json={"task_id": "task123456"})
-        self.assertEqual(fault.status_code, 502)
-        self.assertNotIn("secret-value-12345", fault.text)
-        def collect(cmd, args, **kwargs):
-            dest = Path(args["destination"])
-            dest.mkdir(parents=True, exist_ok=True)
-            file = dest / "metrics.json"
-            file.write_text('{"loss":0.1}')
-            return {"status": "completed", "metrics": {}, "artifacts": [{"name": file.name, "sha256": RC.sha(file)}]}
-        with mock.patch("backend.execution.tracker.run_worker", side_effect=collect):
-            result = self.client.post(url + "/sync", json={"task_id": "task123456", "collect": True})
-        self.assertEqual(result.status_code, 200, result.text)
-        self.assertEqual(result.json()["status"], "completed")
+    def test_approval_download_and_native_results_import_end_to_end(self):
+        import subprocess,zipfile,json
+        from backend.execution.code_projects import active_dir
+        (active_dir()/'train.py').write_text("import os,json\nfrom pathlib import Path\nPath(os.environ['RUN_DIR'],'metrics.json').write_text(json.dumps({'loss':0.1}))\n",'utf-8')
+        self.assertEqual(self.client.get('/api/compute/runs').status_code,200)
+        created=self.client.post('/api/compute/runs',json={'files':['train.py'],'compute_target':'docker','required_artifacts':['metrics.json']})
+        self.assertEqual(created.status_code,200,created.text)
+        rid=created.json()['run_id'];url='/api/compute/runs/'+rid
+        self.assertEqual(self.client.get(url).json()['status'],'awaiting_approval')
+        self.assertEqual(self.client.get(url+'/bundle').status_code,400)
+        self.assertEqual(self.client.post(url+'/approve').status_code,200)
+        downloaded=self.client.get(url+'/bundle')
+        self.assertTrue(downloaded.content.startswith(b'PK'))
+        with mock.patch('backend.execution.tracker.run_worker') as old_worker:
+            self.assertEqual(self.client.post(url+'/sync',json={'task_id':'task123456'}).status_code,410)
+            old_worker.assert_not_called()
+        malformed=self.client.post(url+'/results',content=b'not-a-zip',headers={'Content-Type':'application/zip'})
+        self.assertEqual(malformed.status_code,422,malformed.text)
+        self.assertNotIn('Traceback',malformed.text)
+        unpack=config.data_dir()/'cpu-http-worker';unpack.mkdir()
+        with zipfile.ZipFile(RC.bundle(rid)) as archive:archive.extractall(unpack)
+        process=subprocess.run([sys.executable,str(unpack/'launch.py')],capture_output=True,timeout=20)
+        self.assertEqual(process.returncode,0,process.stderr.decode(errors='replace'))
+        uploaded=self.client.post(url+'/results',content=(unpack/'results.zip').read_bytes(),headers={'Content-Type':'application/zip'})
+        self.assertEqual(uploaded.status_code,200,uploaded.text)
+        actual=uploaded.json()
+        self.assertEqual(actual['status'],'completed')
+        self.assertEqual(actual['metrics'],{'loss':0.1})
+        self.assertEqual(actual['verification']['remote_authenticity'],'NOT_VERIFIED')
+        self.assertEqual(actual['verification']['scientific_review'],'pending')
+        digest=actual['imports'][0]['sha256']
+        artifact=self.client.get(url+'/imports/'+digest+'/file',params={'name':'metrics.json'})
+        self.assertEqual(artifact.status_code,200,artifact.text)
+        self.assertEqual(json.loads(artifact.content),{'loss':0.1})

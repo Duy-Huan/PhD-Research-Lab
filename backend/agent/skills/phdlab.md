@@ -19,5 +19,5 @@ Orchestrate all 6 internal specialized agents:
 4. Experiment Engineer for reproducible code and simulation
 5. Manuscript Scribe for IMRAD LaTeX and KaTeX formatting
 6. Evidence Verifier for SHA-256 data grounding and hallucination removal
-Do NOT delegate to external runtime engines or external CLI providers (no Feynman, no OpenScience, no OpenCode).
+Use the configured native model role. Explicitly requested coding tools and agent runtimes use the common gateway and retain their original permissions and evidence requirements.
 Work strictly from local project context, academic sources, and the user's active model.

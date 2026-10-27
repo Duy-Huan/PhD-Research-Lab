@@ -22,7 +22,7 @@ def refuse_inference(*args, **kwargs):
     raise AIWSError("Visual fixture only: agent execution is disabled")
 orchestrator.start = refuse_inference
 config.save_config({"memory": {"auto_summarize": False, "embed_engine": "hashing"}, "ranking": {"auto": False},
-                    "clearml": {"auto_record": False}, "lifecycle": {"unload_on_exit": False}})
+                    "lifecycle": {"unload_on_exit": False}})
 topic = S.save_topic(S.TopicInput(title="MRI denoising · TEST FIXTURE", keywords=["denoising"], objectives="Compare methods with page-grounded evidence"))
 S.save_topic(S.TopicInput(title="Edge SoC · TEST FIXTURE"))
 records = [{"title": f"TEST FIXTURE {i+1}: MRI denoising method", "authors": ["Fixture Author"], "year": 2024,
@@ -32,7 +32,7 @@ paper = corpus.paper(topic["id"], ids[0])
 vid = paper["versions"][0]["id"]
 corpus.store_document(topic["id"], ids[0], vid, make_pdf([[(12, "TEST FIXTURE: denoising page evidence. No scientific claim.")]]), {"origin": "test_fixture"})
 corpus.index_document(topic["id"], ids[0], vid)
-w = workspaces.link(topic["id"], workspaces.WorkspaceInput(engine="openscience"))
+w = workspaces.link(topic["id"], workspaces.WorkspaceInput(engine="phdlab"))
 path = Path(w["path"]) / "fixture-notes.md"
 path.write_text("TEST FIXTURE: saved artifact observed after offline work. Not a verified result.")
 os.utime(path, (time.time()-5, time.time()-5))

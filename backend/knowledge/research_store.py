@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import sqlite3
 import uuid
 import threading
@@ -66,7 +67,7 @@ CREATE TABLE IF NOT EXISTS chunks(id TEXT PRIMARY KEY, version_id TEXT NOT NULL 
 CREATE INDEX IF NOT EXISTS chunks_version ON chunks(version_id);
 CREATE VIRTUAL TABLE IF NOT EXISTS chunk_search USING fts5(chunk_id UNINDEXED,text);
 CREATE TABLE IF NOT EXISTS workspaces(id TEXT PRIMARY KEY, topic_id TEXT NOT NULL REFERENCES topics(id),
- engine TEXT NOT NULL CHECK(engine IN ('openscience','feynman','opencode')), path TEXT UNIQUE NOT NULL, payload TEXT NOT NULL);
+ engine TEXT NOT NULL CHECK(engine IN ('openscience','feynman','opencode','phdlab')), path TEXT UNIQUE NOT NULL, payload TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS artifact_versions(id TEXT PRIMARY KEY, workspace_id TEXT NOT NULL REFERENCES workspaces(id),
  path TEXT NOT NULL, signature TEXT NOT NULL, version INTEGER NOT NULL, sha256 TEXT, bytes INTEGER NOT NULL,
  available INTEGER NOT NULL DEFAULT 1, observed TEXT NOT NULL, payload TEXT NOT NULL,
@@ -135,7 +136,7 @@ CREATE TABLE IF NOT EXISTS routing_decisions(id TEXT PRIMARY KEY,topic_id TEXT N
 CREATE TABLE IF NOT EXISTS reproducibility_exports(id TEXT PRIMARY KEY,topic_id TEXT NOT NULL REFERENCES topics(id),mission_id TEXT NOT NULL,bundle_sha256 TEXT NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL,created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS report_manifests(id TEXT PRIMARY KEY,topic_id TEXT NOT NULL REFERENCES topics(id),mission_id TEXT NOT NULL,title TEXT NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL,created_at TEXT NOT NULL);
 """
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 _schema_lock = threading.RLock()
 
 
@@ -170,23 +171,31 @@ def db():
             version = c.execute("PRAGMA user_version").fetchone()[0]
             if version > SCHEMA_VERSION:
                 raise ValueError("Research store was created by a newer version; upgrade PhD Lab before opening it")
-            if 0 < version < SCHEMA_VERSION:
+            existing_tables = c.execute("SELECT 1 FROM sqlite_master WHERE type='table' LIMIT 1").fetchone()
+            if version < SCHEMA_VERSION and existing_tables:
                 backup = safe_child(store_dir(), f"research.v{version}.sqlite3.bak")
                 if not backup.exists():
                     with sqlite3.connect(backup) as target:
                         c.backup(target)
             c.executescript(SCHEMA)
             ws_sql = c.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='workspaces'").fetchone()
-            if ws_sql and "'opencode'" not in (ws_sql[0] or ""):
-                c.executescript("""
-                PRAGMA foreign_keys=OFF;
-                ALTER TABLE workspaces RENAME TO _workspaces_v7;
-                CREATE TABLE workspaces(id TEXT PRIMARY KEY, topic_id TEXT NOT NULL REFERENCES topics(id),
-                 engine TEXT NOT NULL CHECK(engine IN ('openscience','feynman','opencode')), path TEXT UNIQUE NOT NULL, payload TEXT NOT NULL);
-                INSERT INTO workspaces SELECT * FROM _workspaces_v7;
-                DROP TABLE _workspaces_v7;
-                PRAGMA foreign_keys=ON;
-                """)
+            if ws_sql and "'phdlab'" not in (ws_sql[0] or ""):
+                c.execute('PRAGMA foreign_keys=OFF')
+                try:
+                    c.execute('BEGIN IMMEDIATE')
+                    c.execute("""CREATE TABLE _workspaces_v9(id TEXT PRIMARY KEY, topic_id TEXT NOT NULL REFERENCES topics(id),
+                     engine TEXT NOT NULL CHECK(engine IN ('openscience','feynman','opencode','phdlab')), path TEXT UNIQUE NOT NULL, payload TEXT NOT NULL)""")
+                    c.execute('INSERT INTO _workspaces_v9 SELECT * FROM workspaces')
+                    c.execute('DROP TABLE workspaces')
+                    c.execute('ALTER TABLE _workspaces_v9 RENAME TO workspaces')
+                    if c.execute('PRAGMA foreign_key_check').fetchone():
+                        raise ValueError('Workspace migration failed integrity validation; original version backup is retained')
+                    c.commit()
+                except BaseException:
+                    c.rollback()
+                    raise
+                finally:
+                    c.execute('PRAGMA foreign_keys=ON')
             if version < SCHEMA_VERSION:
                 c.execute(f"PRAGMA user_version={SCHEMA_VERSION}")
             c.execute("INSERT INTO meta VALUES('schema',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", (str(SCHEMA_VERSION),))
@@ -229,13 +238,71 @@ def save_topic(body: TopicInput, tid: str = "") -> dict:
         data[field] = list(dict.fromkeys(s.strip()[:200] for s in data[field] if s.strip()))
     with db() as c:
         old = topic(c, tid) if tid else None
+        if not tid and c.execute('SELECT 1 FROM topics LIMIT 1').fetchone():
+            raise ValueError('Each project represents exactly one paper/topic. Create another project for a different paper; existing multi-topic history is preserved for migration.')
         tid = tid or uid()
         c.execute("INSERT INTO topics VALUES(?,?,?,?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload,updated=excluded.updated",
                   (tid, dumps(data), old["created"] if old else now(), now()))
         if not old:
+            c.execute("INSERT INTO meta VALUES('paper_topic_id',?) ON CONFLICT(key) DO NOTHING", (tid,))
+            c.execute("INSERT INTO meta VALUES('project_layout','one-project-one-paper') ON CONFLICT(key) DO NOTHING")
             from backend.agent import decision_ledger as L
             L.append(c, tid, tid, "topic_created", {"title": data["title"], "sources": data["sources"]})
         return topic(c, tid)
+
+
+def paper_project_layout() -> dict:
+    """Deterministic non-destructive migration inventory; never guess shared record ownership."""
+    from backend.core.config import data_dir
+    from contextlib import closing, nullcontext
+    path = safe_child(data_dir(), 'workspace', 'research', 'research.sqlite3')
+    connection = sqlite3.connect(path.as_uri() + '?mode=ro', uri=True) if path.is_file() else None
+    with closing(connection) if connection is not None else nullcontext(None):
+        if connection is not None:
+            connection.row_factory = sqlite3.Row
+            connection.execute('BEGIN')
+        tables = {r[0] for r in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")} if connection is not None else set()
+        if connection is not None and not connection.execute("SELECT 1 FROM sqlite_master WHERE name='topics'").fetchone():
+            raise ValueError('Existing research store has no topics table; preserve it for explicit recovery')
+        rows = [topic(connection, row[0]) for row in connection.execute('SELECT id FROM topics ORDER BY id')] if connection is not None else []
+        records, unavailable = [], []
+        for row in rows:
+            counts = {}
+            for table in ('workspaces', 'missions', 'experiment_protocols', 'experiment_runs', 'figures', 'scientific_claims'):
+                if table not in tables:
+                    counts[table] = None
+                    if table not in unavailable: unavailable.append(table)
+                else:
+                    counts[table] = connection.execute(f'SELECT count(*) FROM {table} WHERE topic_id=?', (row['id'],)).fetchone()[0]
+            records.append({'topic_id': row['id'], 'title': row['title'], 'records': counts,
+                            'proposed_project_key': 'paper-' + row['id']})
+        adopted = connection.execute("SELECT value FROM meta WHERE key='paper_topic_id'").fetchone() if 'meta' in tables else None
+    result = {'schema_version': 1, 'project_data': str(data_dir().resolve()), 'layout': 'one-project-one-paper',
+              'topics': records, 'topic_count': len(rows), 'multiple_experiments': 'preserved under code/',
+              'mutations_executed': False, 'originals_preserved': True,
+              'status': 'BLOCKED_OWNERSHIP_MAPPING' if len(rows) > 1 else 'ADOPTED' if len(rows) == 1 and adopted and adopted[0] == rows[0]['id'] else 'READY_TO_ADOPT' if rows else 'EMPTY_PAPER_PROJECT',
+              'assigned_topic_id': adopted[0] if adopted else None,
+              'unavailable_legacy_tables': unavailable,
+              'ambiguities': ['Legacy shared chat/memory/code/experiment ownership must be explicitly mapped before splitting projects. No files or IDs were moved.'] if len(rows) > 1 else []}
+    result['plan_sha256'] = hashlib.sha256(dumps(result).encode()).hexdigest()
+    return result
+
+
+def adopt_paper_project(plan_sha256: str) -> dict:
+    """Adopt an unambiguous current project without moving/deleting any research records."""
+    preview = paper_project_layout()
+    if preview['plan_sha256'] != plan_sha256: raise ValueError('Project migration inventory changed; review a fresh preview')
+    if preview['topic_count'] != 1: raise ValueError('Migration requires exactly one unambiguously owned paper; preserve legacy data and resolve the reported mapping first')
+    changed = False
+    with db() as connection:
+        ids = [row[0] for row in connection.execute('SELECT id FROM topics')]
+        if ids != [preview['topics'][0]['topic_id']]: raise ValueError('Paper migration changed concurrently')
+        for key, value in (('paper_topic_id', ids[0]), ('project_layout', 'one-project-one-paper')):
+            old = connection.execute('SELECT value FROM meta WHERE key=?', (key,)).fetchone()
+            if not old or old[0] != value:
+                connection.execute('INSERT INTO meta VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value', (key, value))
+                changed = True
+    return {**paper_project_layout(), 'mutations_executed': changed, 'status': 'ADOPTED', 'files_moved': 0, 'files_deleted': 0}
 
 
 def get_topic(tid: str) -> dict:

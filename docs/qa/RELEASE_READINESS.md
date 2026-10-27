@@ -1,21 +1,11 @@
-> Current6.5.7 owner-policy follow-up: [dev/QA/main report](DEV_QA_MAIN_6.5.7.md). Full local software1127/1127PASS,0selected skips/errors; coverage informational. Current-source QA live/research/AI-UAT remains BLOCKED, no main promotion/release. Earlier6.5.6 figures and issues below are historical, not current release certification.
+# Software release readiness6.5.11
 
-# Release readiness:6.5.6
+**LOCAL SOFTWARE PASS; WAITING FOR FRESH EXACT-HEAD GITHUB CI.**
 
-**NO-GO. QA100%, dev promotion, qa-to-main PR, native auto-merge acceptance and release are not completed.**
+Candidate6.5.11 on existing `dev`, parent `3f60a77c54ada9f1197c901019a119ad5d4ddebf`, source `dd01c60ac488bd91da7dd0cfaf880893d88232e6c1444cebca1b8d265571886c`. Actual stable local complete software gate PASS. Fresh exact-head GitHub CI is still required; no future PASS is presumed.
 
-Candidate passes the final local feature scope (1102PASS/8SKIP) and10fixed critical software groups. It still has OPEN P2 BUG-3D-LOCALE-001, incomplete production coverage, mandatory skips, exhausted/incomplete AI-UAT and unavailable matching-source all-provider/research/experiment-to-paper evidence. No approved baseline exceptions exist. This is not a bug-free or IEEE certification.
+Owner explicitly confirmed on2026-10-26: complete software regression is mandatory across dev -> qa -> main; live-provider/research/AI-UAT qualification runs separately, and coverage is informational. Optional qualification never becomes live/scientific PASS merely because software CI passes.
 
-main/dev/qa remain6725975261fe6a4d8a5cb3e10208e31c3e24f0e2; the owner explicitly rejects that preview as trusted production. [PR11](https://github.com/Duy-Huan/PhD-Research-Lab/pull/11) contains the integrated source and new standard. PR7/9 were closed after exact ancestry proof; duplicate Dependabot PR8 was closed after matching its full intent. Branches/worktrees/history remain preserved. Two old workflow registrations are disabled; protected-main files/CD activation await qualified adoption. Main's required pre-merge context is now strictQA gate, with other protections unchanged.
+No promotion until every required software CI job and protected QA gate actually passes. GitHub must perform native dev->qa->main merges with source/tree/run provenance; no force/admin bypass. Actual remote run/PR/merge SHAs will be recorded after observation, not anticipated.
 
-Hosted run40171931531 completedFAIL before6.5.6 repairs. Post-push CI must be read against the exact latest commit; no future result is presumed. Repo auto-merge remains quarantined. The actual PR10 exercise proves real Codex invocation, fixture repair, supervisor push and fresh CI; required-PASS/native dev merge stages remain BLOCKED and have no mergeSHA.
-
-Next priorities:
-
-1. Reproduce EN/VI3D localization with a dedicated behavioral regression; repair and verify without redesign.
-2. Close measured backend/frontend coverage gaps using behavior and failure tests; keep all mandatory assertions/exclusions.
-3. Establish an authorized trusted live producer and service prerequisites. AI-UAT task budget exhausted3 must not be reset or evaded; resolve the explicit authorization/infrastructure blocker before another repair phase.
-4. Pass exact-head mandatory independent CI, then eligible native dev merge. Only qualified dev may promote to qa for full regression/AI-UAT.
-5. Only after QA qualifies, create qa-to-main PR. Never auto-merge qa/main or bypass protection. Main-push CD then verifies QA provenance, packages checksummed assets and publishes; PC update remains controlled with backup/rollback.
-
-See [comparison](MAIN_CANDIDATE_COMPARISON.md), [defects](BUG_INVENTORY.md), [coverage](REGRESSION_COVERAGE_REPORT.md) and [CI recovery](CI_ROOT_CAUSE_REPORT.md). No protected merge, tag, release or deployment has occurred.
+Separate qualification: prior real Hermes free inference/history/native-tool observations include one deferred-tool discovery failure and a later protocol-aware success. Full current scientific/research/paper/replay and independently reviewed AI-UAT are unqualified unless separately executed. These do not block software promotion under the new explicit owner policy; they also do not establish scientific correctness orL3/L4. Original3failed UAT and one unused600s/sixstepSpark allowance remain unchanged. Historical SIGSEGV remains of unknown original cause pending fresh CI observation. No blanket zero-bug/100%coverage claim.

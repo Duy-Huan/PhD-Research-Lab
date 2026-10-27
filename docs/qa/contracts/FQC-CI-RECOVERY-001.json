@@ -97,5 +97,19 @@
       "sha256": "0ea243b6d1daac12c9785a5544a335b0a1138924e436006112203e93706d99b9",
       "exit_code": 0
     }
+  },
+  "diagnostics_followup": {
+    "id": "REQ-GIL-SNAPSHOTS",
+    "risk": "MEDIUM",
+    "review": "Same-agent adversarial review; independent hosted matrix required, not yet PASS",
+    "behavior": "Capture bounded periodic Python stacks without native no-GIL frame traversal; preserve original suite failures and parent hard deadlines; join the owned diagnostic worker. Do not dump frame locals.",
+    "tests": [
+      "tests/test_verification_diagnostics.py::StackDiagnostics.test_snapshots_survive_churning_frames_without_dumping_local_values",
+      "tests/test_verification_diagnostics.py::StackDiagnostics.test_test_failure_propagates_and_diagnostic_thread_is_joined",
+      "tests/test_verification_diagnostics.py::StackDiagnostics.test_invalid_interval_cannot_start_an_unbounded_worker"
+    ],
+    "red": "Actual GitHub 40344069655 Windows Python3.11/3.12 fatal access violations; incomplete suites remain FAIL. No deterministic same-test native crash reproduction claimed.",
+    "green": "output/playwright/ci-automerge-recovery/diagnostics-green/report.json (3/3 REAL_LOCAL assertions; remote matrix still required)",
+    "provenance": "Existing uncommitted prototype preserved and reviewed. Reuse pinned gh-fix-ci/github-actions-hardening/playwright from skills/SOURCES.json, searched on GitHub 2026-10-26. No additional upstream installation required."
   }
 }

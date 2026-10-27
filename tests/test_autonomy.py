@@ -19,7 +19,7 @@ class AutonomyTests(unittest.TestCase):
         _env.isolate_config(self)
         _env.fresh_project("autonomy", code_project=None)
         config.save_config({"research_os": {"enabled": True}})
-        self.tid = S.save_topic(S.TopicInput(title="Autonomy fixture"))["id"]
+        self.tid = _env.legacy_topic(S.TopicInput(title="Autonomy fixture"))["id"]
 
     def spec(self, level="L2", **changes):
         return MissionSpec.model_validate({
@@ -94,7 +94,7 @@ class AutonomyTests(unittest.TestCase):
         for changes in ({"plan_digest": "0"*64}, {"result_digest": "0"*64}, {"note": " "}):
             with self.assertRaises(ValueError):
                 self.review(m, **changes)
-        other = S.save_topic(S.TopicInput(title="Other scope"))["id"]
+        other = _env.legacy_topic(S.TopicInput(title="Other scope"))["id"]
         with self.assertRaises(ValueError):
             A.step_review(other, m["id"], "inspect", m["payload"]["plan_digest"], L.digest(m["tasks"][0]["payload"]["result"]), True, "Cross-topic")
         self.assertEqual(M.get(m["id"])["tasks"][1]["payload"]["attempts"], 0)

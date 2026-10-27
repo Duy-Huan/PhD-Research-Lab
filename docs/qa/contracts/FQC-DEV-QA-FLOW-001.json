@@ -1,6 +1,6 @@
 {
   "id": "FQC-DEV-QA-FLOW-001",
-  "title": "Dev-only development, complete software regression and protected QA/main live qualification",
+  "title": "Dev-only development, complete software regression and protected QA/main software qualification with optional live assessment",
   "risk": "CRITICAL",
   "mode": "MOCKED",
   "user_story": "The owner develops with AI on dev, verifies locally, then promotes through qa to main using honest phase-specific evidence.",
@@ -15,23 +15,23 @@
     },
     {
       "id": "REQ-LIVE",
-      "description": "Only exact three declared live IDs deferred as NOT_RUN on dev; real complete evidence required at QA/main"
+      "description": "Only exact currently declared active live IDs are deferred as NOT_RUN on dev; genuine evidence is required only when separately claiming live qualification; software promotion at QA/main depends on complete regression. Retired service IDs have explicit disposition records, never PASS."
     },
     {
-      "id": "REQ-SDK",
-      "description": "Mandatory offline official SDK tests run with pinned/hash-verified dependency; untrusted archive cannot escape or overwrite"
+      "id": "SOURCE_EOL",
+      "description": "Declared upstream license text uses LF normalization so identical Git source has the same canonical identity on Windows and Linux."
     }
   ],
   "nonfunctional": [
     "Preserve user work, history, all skills/ and agent/ files",
-    "Never auto-main or bypass protected QA",
-    "At most three persistent repair invocations; no retries for exhausted UAT",
+    "Only owner-authorized qualified native forward auto-merge; never bypass protected QA",
+    "At most three persistent repair invocations; only the separately owner-granted single600second/six-step Spark UAT exception may exceed the old exhausted UAT ledger",
     "Bound archive download/inventory; no arbitrary CLI/log instruction execution"
   ],
   "inputs": [
     "Actual regression reports",
     "Explicit owner branch policy",
-    "Pinned official SDK archive"
+    "Hash-locked development/test dependencies"
   ],
   "outputs": [
     "Hash-bound local verification receipt",
@@ -43,7 +43,7 @@
   ],
   "postconditions": [
     "No mandatory software skip/FAIL becomes PASS",
-    "QA/main missing live evidence remains blocked"
+    "Software QA/main require all software regressions PASS; missing optional live evidence remains NOT_RUN, not a merge blocker"
   ],
   "dependencies": [
     "Existing verification harness",
@@ -55,7 +55,6 @@
   "affected_modules": [
     "devtools/verification/*",
     "scripts/development_guard.py",
-    "scripts/install_ci_sdk.py",
     "tools/backend_quality_gate.py",
     "tools/quality_evidence.py",
     ".github/workflows/quality.yml",
@@ -64,8 +63,8 @@
   "acceptance_criteria": [
     "Required software regression executes/PASS100% without coverage percentage threshold",
     "No feature-to-dev or dev-to-main promotion",
-    "QA/main require actual current-source qualification",
-    "SDK installation fails closed on changed/unsafe archive"
+    "QA/main require actual current-source complete software qualification; live and AI-UAT run separately",
+    "Hash-bound dependency and controller/source checks fail closed"
   ],
   "scenarios": [
     {
@@ -132,18 +131,11 @@
       "test": "tests/test_development_guard.py::LiveEvidencePolicy.test_deferred_live_ids_require_real_complete_non_skipped_evidence"
     },
     {
-      "id": "10",
-      "requirement": "REQ-SDK",
-      "kind": "security",
-      "expected": "Wrong digest or escaping paths cannot write files",
-      "test": "tests/test_development_guard.py::PinnedSDK.test_wrong_digest_and_escaping_archive_never_write_files"
-    },
-    {
-      "id": "11",
-      "requirement": "REQ-SDK",
+      "id": "source-eol-license",
+      "requirement": "SOURCE_EOL",
       "kind": "boundary",
-      "expected": "Extract exactly reviewed files and preserve existing output",
-      "test": "tests/test_development_guard.py::PinnedSDK.test_reviewed_inventory_is_exact_and_unknown_output_is_preserved"
+      "expected": "LF/CRLF and staging preserve identity; real license content changes invalidate evidence.",
+      "test": "tests/test_verification_source_identity.py::SourceIdentity.test_declared_upstream_license_line_endings_do_not_change_identity"
     }
   ],
   "recovery": "Preserve raw failures and state. Repair only confirmed root cause on dev, maximum3 invocations; no ledger resets or fake evidence.",
@@ -161,7 +153,7 @@
   "tdd": {
     "status": "RED_GREEN",
     "test_sha256": "3089ffe2cd69ad4db9431e8b14704d27bce0824e72ed849ff420d458428b5ccd",
-    "scope": "Actual initial nine-case run: coverage behavior failed and missing new interfaces errored; missing interfaces are not called functional reproduction. Subsequent actual complete policy/guard suite passes. Locale unit RED/GREEN and actual SDK software results are separate raw records.",
+    "scope": "Actual initial nine-case run: coverage behavior failed and missing new interfaces errored; missing interfaces are not called functional reproduction. Subsequent actual complete policy/guard suite passes. Locale unit RED/GREEN and actual SDK software results are separate raw records. Original SDK installation checks remain historical evidence of retired functionality; active native transfer behavior requires its separate actual campaign verification.",
     "red": {
       "path": "docs/qa/evidence/dev-qa-main-6.5.7/policy-red.json",
       "sha256": "746a1f83c98061e800c21f18dacccf9ac413784389e1f2b5183a2bbbbc63c087",
@@ -172,5 +164,29 @@
       "sha256": "431b07a7e88ee6a163c5c47438c52fe8a82efc6c1c4079e92e93ef20af44ae8d",
       "exit_code": 0
     }
+  },
+  "additional_red_green": [
+    {
+      "red": {
+        "path": "docs/qa/evidence/cli-runtime-cleanup-6.5.9/license-eol-red.json",
+        "sha256": "4bb42ac1f704eec7ea0d9e3cc7347bca50ec0ed29be06fcf6ad968a3b65e78ae"
+      },
+      "green": {
+        "path": "docs/qa/evidence/cli-runtime-cleanup-6.5.9/license-eol-green.json",
+        "sha256": "440dd940b3dd8e64594da0343812b33b7077443ce51825b3232101d860b237f2"
+      }
+    }
+  ],
+  "retired_scope": {
+    "requirement": "REQ-SDK",
+    "reason": "Owner2026-10-26 removed the OpenScience-only SDK installer and integration; it is no longer an active CI dependency.",
+    "disposition_registry": "docs/qa/test-retirement-native-migration.json",
+    "replacement": "Native bundle/transfer integrity belongs to the provider migration contract; no new-regression waiver or scientific acceptance is granted."
+  },
+  "policy_revision": {
+    "authorized_by": "Owner explicit chat answer2026-10-26: all dev/qa/main require regression; live-provider/AI-UAT separate, coverage informational",
+    "scope": "Changes promotion prerequisites only, never skip/disable/relax software tests or fabricate live acceptance",
+    "regression_red": "output/playwright/native-consolidation/regression-only-policy-red/unittest.json",
+    "historical_tdd": "Original RED/GREEN receipts remain historical for their recorded scope; fresh policy and full regression evidence is required for this revision."
   }
 }

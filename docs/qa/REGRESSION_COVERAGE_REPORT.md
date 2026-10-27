@@ -1,23 +1,18 @@
-> Current6.5.7 owner-policy follow-up: [dev/QA/main report](DEV_QA_MAIN_6.5.7.md). Full local software1127/1127PASS,0selected skips/errors; coverage informational. Current-source QA live/research/AI-UAT remains BLOCKED, no main promotion/release. Earlier6.5.6 figures and issues below are historical, not current release certification.
+# Measured regression and coverage6.5.11
 
-# Regression and production coverage:6.5.6
+Candidate6.5.11 on existing `dev`, parent `3f60a77c54ada9f1197c901019a119ad5d4ddebf`, source `dd01c60ac488bd91da7dd0cfaf880893d88232e6c1444cebca1b8d265571886c`. Actual stable local complete software gate PASS. Fresh exact-head GitHub CI is still required; no future PASS is presumed.
 
-Same-suite policy, environment and source denominators: [measured comparison](MAIN_CANDIDATE_COMPARISON.md). No test/exclusion/threshold was weakened. Raw PASS counts from different source capabilities do not rank branches.
 
-| Production metric | Main | Candidate |
+Owner explicitly confirmed on2026-10-26: complete software regression is mandatory across dev -> qa -> main; live-provider/research/AI-UAT qualification runs separately, and coverage is informational. Optional qualification never becomes live/scientific PASS merely because software CI passes.
+
+
+| Scope | Covered / total | Actual |
 |---|---:|---:|
-| Backend lines |21808/24306|23833/26528|
-| Backend branches |6649/8132|7120/8808|
-| Backend combined coverage |87.73%|87.60%|
-| Frontend lines |UNAVAILABLE: collection errors|2445/3820=64.00%|
-| Frontend branches |UNAVAILABLE|2611/4125=63.29%|
-| Frontend functions |UNAVAILABLE|733/1467=49.96%|
-| Frontend statements |UNAVAILABLE|2574/4117=62.52%|
+| Python lines | 23691/26672 | 88.82% |
+| Python branches | 7121/8956 | 79.51% |
+| React lines | 2523/3818 | 66.08% |
+| React branches | 2754/4218 | 65.29% |
 
-Backend and frontend measures are separate. Main's missing frontend measurement is not0% and cannot be numerically ranked. Changed production denominators explain why combined coverage is not a direct correctness ranking.
+Software1269/1269PASS plus48Node policy cases. Desired100% coverage is not achieved and does not block CI; untested lines/branches are not asserted as covered. Python scope includes backend and first-party Hermes service; JavaScript proxy coverage is separately UNAVAILABLE. Full per-file missing lines/branches remain in the canonical raw coverage files.
 
-Candidate gaps:2695backend lines/1688branches,1375frontend lines/1514branches,734frontend functions and1543statements remain uncovered. [Machine-readable gap priority](COVERAGE_GAPS_6.5.6.json) names current files, including API research/system, CLI repl, agent runs/missions. Add meaningful behavior/failure assertions; never execute unasserted paths simply to inflate a number.
-
-Permanent regression additions retain the delayed metrics-publication oracle, exact release executable permissions, CI install ordering/fail accounting, context completeness, CLI/provider isolation, source evidence identity and local repair trust/state. UI-3D-LOCALE-001 remains NOT_IMPLEMENTED; the actual screenshot exposes why27browser PASS does not cover every localization requirement. No controlled human-approved visual baseline or hardware GPU qualification is claimed.
-
-Eight selected mandatory skips and separate legacy/live inventories remain unqualified. PR/full gates preserve100%/complete-case enforcement; local feature checks are development feedback, not release acceptance. Full/live/AI-UAT gates must all pass before protected promotion.
+Uncovered Python lines2981,branches1835; React lines1295,branches1464. New regression IDs are dynamically discovered; discovery does not generate complete behavioral assertions or waive recovery/platform/UI coverage gaps.

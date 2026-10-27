@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { ModelUsagePanel } from './ModelUsagePanel';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../shared/api/client';
-import { useUIStore } from '../../shared/state/uiStore';
+import { useI18n, useUIStore } from '../../shared/state/uiStore';
 import {
   Gauge,
   Cpu,
@@ -79,6 +80,7 @@ interface DashboardResponse {
 }
 
 export const DashboardView: React.FC = () => {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const { setMainView, open3DOffice, openDrawer, setActiveSessionId } = useUIStore();
   const [unloading, setUnloading] = useState(false);
@@ -113,6 +115,7 @@ export const DashboardView: React.FC = () => {
         background: 'var(--bg)',
       }}
     >
+      <ModelUsagePanel />
       {/* Top Header */}
       <div
         style={{
@@ -129,7 +132,7 @@ export const DashboardView: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Gauge size={22} color="var(--accent)" />
             <h2 style={{ margin: 0, fontSize: 20 }}>
-              Trung tâm Điều hành Nghiên cứu (OpenScience Dashboard)
+              {t('Trung tâm điều hành nghiên cứu', 'Research dashboard')}
             </h2>
           </div>
           <p className="muted" style={{ margin: '4px 0 0', fontSize: 13 }}>

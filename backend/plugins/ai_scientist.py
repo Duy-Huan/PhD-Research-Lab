@@ -116,7 +116,7 @@ def _fmt(template: str, **values) -> str:
 # ------------------------------------------------------------------ skills
 def skills(repo: Path, pid: str) -> list:
     p = prompts(repo)
-    base = {"usage": "", "pipeline": "", "provider": "app", "feynman": "", "aliases": [], "origin": "plugin", "plugin": pid,
+    base = {"usage": "", "pipeline": "", "provider": "app", "aliases": [], "origin": "plugin", "plugin": pid,
             "mode": "chat", "risk": 0, "file": str(repo / "ai_scientist")}
     idea = (p["idea_system"] + "\n\nWork from the project context (outline, library, research state). Propose exactly one idea "
             "as Markdown with these headings, then the same idea as an IDEA JSON block (Name, Title, Short Hypothesis, Related "

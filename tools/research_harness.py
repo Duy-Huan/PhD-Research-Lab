@@ -34,10 +34,10 @@ def main():
         from backend.execution import protocols as P
         from backend.execution.protocol_contracts import ExperimentProtocol
         from backend.research_engines import workspaces as W
-        config.save_config({"research_os":{"enabled":True,"team_enabled":args.stage!="6.0","multi_team_enabled":args.stage=="6.3"},"clearml":{"auto_record":False},"memory":{"embed_engine":"hashing"}})
+        config.save_config({"research_os":{"enabled":True,"team_enabled":args.stage!="6.0","multi_team_enabled":args.stage=="6.3"},"memory":{"embed_engine":"hashing"}})
         a=S.save_topic(S.TopicInput(title="MRI Denoising (generated acceptance fixture)"))["id"]
-        b=S.save_topic(S.TopicInput(title="CT Restoration (workspace fixture)"))["id"]
-        ch=O.create_charter(O.ProjectCharter(goal="Medical Image Restoration — offline harness",topics=[O.TopicGoal(topic_id=a,goal="MRI"),O.TopicGoal(topic_id=b,parent_topic_id=a,goal="CT")],permissions=["workspace_write","compute"],max_reasoning_calls=0))
+        b=a  # All experiment workspaces belong to the same paper project.
+        ch=O.create_charter(O.ProjectCharter(goal="Medical Image Restoration — offline harness",topics=[O.TopicGoal(topic_id=a,goal="MRI paper with multiple experiment workspaces")],permissions=["workspace_write","compute"],max_reasoning_calls=0))
         records=K.ingest(a,[{"title":f"Synthetic literature fixture {i}","source":"harness_fixture","abstract":"Untrusted fixture, never evidence of a real publication."} for i in range(10)])
         common={"success_criteria":["Deterministic evidence available for human review"],"charter_id":ch["id"],"charter_digest":ch["digest"],"end_date":(datetime.now(timezone.utc)+timedelta(hours=1)).isoformat()}
         rows=[];mission_ids=[]
@@ -67,10 +67,12 @@ def main():
         modes=["single"] if args.stage=="6.0" else ["single","multi"] if args.stage=="6.3" else ["single","fixed","adaptive"]
         for mode in modes:execute("Literature inspection",a,[{"id":"inspect","capability":"paper.inspect","args":{"paper_ids":records["paper_ids"][:2]}},{"id":"report","capability":"mission.report","depends_on":["inspect"]}],["workspace_write"],mode)
         workspaces=[]
-        for engine in ("openscience","feynman"):
-            w=W.link(b,W.WorkspaceInput(engine=engine));path=Path(w["path"])/"fixture.md"
-            path.write_text("# Harness fixture\nNot an external engine session.\n","utf-8");os.utime(path,(time.time()-10,time.time()-10));workspaces.append(w)
-        for mode in modes:execute("Federated artifact reconciliation",b,[{"id":"science","capability":"workspace.sync","args":{"workspace_id":workspaces[0]["id"]}},{"id":"feynman","capability":"workspace.sync","args":{"workspace_id":workspaces[1]["id"]}},{"id":"report","capability":"mission.report","depends_on":["science","feynman"]}],["workspace_write"],mode)
+        for purpose in ('experiment-context','coding-context'):
+            location=config.data_dir()/'topics'/b/purpose;location.mkdir(parents=True,exist_ok=True)
+            w=W.link(b,W.WorkspaceInput(engine='phdlab',path=str(location)));path=Path(w['path'])/'fixture.md'
+            path.write_text('# Harness fixture: owned native workspace, not model execution.\n','utf-8')
+            os.utime(path,(time.time()-10,time.time()-10));workspaces.append(w)
+        for mode in modes:execute("Federated artifact reconciliation",b,[{"id":"science","capability":"workspace.sync","args":{"workspace_id":workspaces[0]["id"]}},{"id":"coding","capability":"workspace.sync","args":{"workspace_id":workspaces[1]["id"]}},{"id":"report","capability":"mission.report","depends_on":["science","coding"]}],["workspace_write"],mode)
         protocol=P.create(ExperimentProtocol(topic_id=a,hypothesis="Fixed smoothing reduces noise in generated smooth images"))
         for mode in modes:
             for repeat in range(2):
@@ -86,21 +88,16 @@ def main():
             c.execute("UPDATE missions SET status='running' WHERE id=?",(interrupted["id"],))
             c.execute("UPDATE mission_tasks SET status='running' WHERE mission_id=?",(interrupted["id"],))
         M.recover();asyncio.run(M.tick());assert M.get(interrupted["id"])["status"]=="interrupted"
-        audits=[L.export(tid) for tid in (a,b)];assert all(audit["project_chain_valid"] for audit in audits)
+        audit_topics=list(dict.fromkeys((a,b)))
+        audits=[L.export(tid) for tid in audit_topics];assert all(audit["project_chain_valid"] for audit in audits)
         probes=[]
         if args.probe_engines:
-            from backend.execution.tools import which,NO_WINDOW
-            from backend.core.telemetry import redact
-            env=os.environ.copy();env.update({"OPENSCIENCE_DATA_DIR":str(Path(temporary)/"os-data"),"OPENSCIENCE_CONFIG_DIR":str(Path(temporary)/"os-config"),"OPENSCIENCE_TEST_HOME":temporary,"OPENSCIENCE_DISABLE_AUTOUPDATE":"1"})
-            for engine in ("openscience","feynman"):
-                binary=which(engine)
-                for option in ("--version","--help"):
-                    if not binary:probes.append({"engine":engine,"option":option,"status":"unavailable"});continue
-                    try:
-                        prefix=["cmd","/d","/c",binary] if Path(binary).suffix.lower() in (".cmd",".bat") else [binary]
-                        result=subprocess.run([*prefix,option],cwd=temporary,env=env,capture_output=True,text=True,encoding="utf-8",errors="replace",timeout=25,creationflags=NO_WINDOW)
-                        probes.append({"engine":engine,"option":option,"exit":result.returncode,"output":redact(result.stdout+result.stderr)[:18000]})
-                    except (OSError,subprocess.TimeoutExpired) as exc:probes.append({"engine":engine,"option":option,"error":type(exc).__name__})
+            from backend.research_engines import registry
+            for engine in registry.FACTORIES:
+                adapter=registry.get(engine)
+                probes.append({'engine':engine,'descriptor':adapter.descriptor.model_dump(),
+                               'health':adapter.health(),'inference':'NOT_RUN',
+                               'scope':'Adapter availability only, no model or scientific execution'})
         def portable(value):
             if isinstance(value,dict):return {k:portable(v) for k,v in value.items()}
             if isinstance(value,list):return [portable(v) for v in value]
@@ -128,7 +125,7 @@ def main():
                     for index,ref in enumerate(task["payload"].get("result",{}).get("artifacts",[])):
                         path=O.artifact(tid,mid,task["id"],index)
                         archive.write(path,f"missions/{mid}/{task['id']}/{path.name}")
-            for tid,audit in zip((a,b),audits):archive.writestr("audit/"+tid+".json",json.dumps(audit,ensure_ascii=False))
+            for tid,audit in zip(audit_topics,audits):archive.writestr("audit/"+tid+".json",json.dumps(audit,ensure_ascii=False))
         import hashlib
         with zipfile.ZipFile(output/"measurements.zip") as archive:
             assert archive.testzip() is None
