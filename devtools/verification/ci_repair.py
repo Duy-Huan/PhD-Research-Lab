@@ -251,7 +251,15 @@ def invoke_agent(agent: dict, worktree: Path, prompt: str, folder: Path) -> int:
                                    start_new_session=os.name != 'nt')
         try: process.communicate(prompt.encode(), timeout=300)
         except (subprocess.TimeoutExpired, KeyboardInterrupt) as error:
-            if os.name == 'nt': subprocess.run(['taskkill','/PID',str(process.pid),'/T','/F'], capture_output=True, check=False)
+            if os.name == 'nt':
+                # psutil.children() skips processes older than their parent, so reused parent PIDs are not followed.
+                import psutil
+                try:
+                    for child in reversed(psutil.Process(process.pid).children(recursive=True)):
+                        try: child.kill()
+                        except psutil.NoSuchProcess: pass
+                except psutil.NoSuchProcess: pass
+                if process.poll() is None: process.kill()
             else: os.killpg(process.pid, signal.SIGKILL)
             process.wait(timeout=15)
             if isinstance(error, KeyboardInterrupt): raise

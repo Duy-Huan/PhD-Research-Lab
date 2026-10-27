@@ -1,0 +1,130 @@
+{
+  "id": "FQC-CI-WATCHDOG-661",
+  "title": "CI regression step always ends with evidence before the job limit (Windows 3.12 push-run hang diagnosability)",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I need every failed CI backend regression to leave console progress and an uploaded artifact, so a recurring Windows 3.12 push-run hang can be diagnosed instead of blocking promotion without evidence.",
+  "requirements": [
+    {
+      "id": "BEAT",
+      "description": "A separate parent process prints a heartbeat (elapsed, current test, completed cases, owned processes, RSS, free memory) to the console at a fixed interval."
+    },
+    {
+      "id": "STOP",
+      "description": "At its deadline it records the running test and owned processes to watchdog-timeout.json, stops the owned process tree (children first, never by name) and exits 124."
+    },
+    {
+      "id": "EXIT",
+      "description": "The wrapped command's exit code is returned unchanged; a failing or timed-out command is never reported as PASS."
+    },
+    {
+      "id": "WF",
+      "description": "quality.yml runs the backend regression under the watchdog with a 1560 s deadline, between the runner's 1500 s stage budget and the 28 m step / 35 m job limits, so the always() upload runs."
+    }
+  ],
+  "nonfunctional": [
+    "No test, assertion, threshold or selection change",
+    "Console output of the wrapped command preserved"
+  ],
+  "inputs": [
+    "Wrapped verification command",
+    "Runner current-test JSON"
+  ],
+  "outputs": [
+    "Console heartbeats",
+    "watchdog-timeout.json"
+  ],
+  "preconditions": [
+    "devtools.verification runner current-test progress file"
+  ],
+  "postconditions": [
+    "Backend artifact uploaded even when the regression hangs"
+  ],
+  "dependencies": [
+    "psutil (pinned in requirements-ci.lock)",
+    "GitHub Actions step/job timeouts"
+  ],
+  "affected_modules": [
+    "devtools/verification/ci_watchdog.py",
+    ".github/workflows/quality.yml"
+  ],
+  "acceptance_criteria": [
+    "Hung tree stopped with diagnostics within the guard deadline",
+    "Exit codes preserved",
+    "Workflow wires the watchdog below step and job limits"
+  ],
+  "scenarios": [
+    {
+      "id": "heartbeat",
+      "requirement": "BEAT",
+      "kind": "positive",
+      "expected": "Passing command exits 0 with heartbeats naming the current test",
+      "test": "tests/test_ci_watchdog.py::Watchdog.test_passing_command_keeps_its_exit_code_and_reports_heartbeats"
+    },
+    {
+      "id": "fail-preserved",
+      "requirement": "EXIT",
+      "kind": "negative",
+      "expected": "Exit code 3 stays 3",
+      "test": "tests/test_ci_watchdog.py::Watchdog.test_failing_command_is_never_turned_into_pass"
+    },
+    {
+      "id": "hung-tree",
+      "requirement": "STOP",
+      "kind": "failure",
+      "expected": "Parent and descendant stopped; TIMEOUT report with last test; exit 124",
+      "test": "tests/test_ci_watchdog.py::Watchdog.test_hung_tree_is_stopped_at_deadline_with_diagnostics"
+    },
+    {
+      "id": "cli",
+      "requirement": "BEAT",
+      "kind": "positive",
+      "expected": "CLI wrapper keeps the inner command's console output",
+      "test": "tests/test_ci_watchdog.py::Watchdog.test_cli_wraps_the_real_regression_command"
+    },
+    {
+      "id": "workflow",
+      "requirement": "WF",
+      "kind": "boundary",
+      "expected": "Watchdog 1560 s inside 28 m step and 35 m job",
+      "test": "tests/test_ci_watchdog.py::Watchdog.test_workflow_runs_backend_regression_under_the_watchdog_below_step_and_job_limits"
+    },
+    {
+      "id": "prompt-stop",
+      "requirement": "STOP",
+      "kind": "performance",
+      "expected": "Guard ends within 20 s of a 1.5 s deadline despite a sleeping descendant",
+      "test": "tests/test_ci_watchdog.py::Watchdog.test_hung_tree_is_stopped_at_deadline_with_diagnostics"
+    },
+    {
+      "id": "owned-only",
+      "requirement": "STOP",
+      "kind": "security",
+      "expected": "An unrelated process survives the timeout stop",
+      "test": "tests/test_ci_watchdog.py::Watchdog.test_unrelated_processes_survive_the_timeout_stop"
+    }
+  ],
+  "recovery": "Remove the watchdog prefix from the quality.yml step to restore the previous command. TASK-CI-WIN-HANG-6513 attempt 3 of 3; if the hang recurs, escalate to the owner with the uploaded evidence.",
+  "test_environment": "Real subprocesses and process-tree stop on the local Windows host; GitHub-hosted runner behaviour is verified only by the next CI run.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent): exit-code preservation, owned-tree-only kill, console inheritance on Windows, bounds ordering 1500s < 1560s < 28m < 35m."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: tests before ci_watchdog existed (module withheld): 6/6 ERROR. GREEN: with implementation: 6/6 PASS.",
+    "red": {
+      "path": "docs/qa/evidence/ci-watchdog-661/red.json",
+      "sha256": "bb7ef5da313694fbcb7d6306a042fcfe02b6d8d247409b058cb43093a45909d1",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/ci-watchdog-661/green.json",
+      "sha256": "6fa7e57d9ebcd3400fea692e7386c0b2374cde4075aec51d49cc12ea789766e7",
+      "exit_code": 0
+    }
+  }
+}

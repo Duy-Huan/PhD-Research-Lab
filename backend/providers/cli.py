@@ -85,15 +85,11 @@ def kill_tree(proc) -> None:
         if proc.poll() is not None:
             return
         if sys.platform.startswith("win"):
-            from backend.execution.processes import stop_descendants
-            stop_descendants(proc)
+            from backend.execution.processes import stop_tree
             try:
-                subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)], capture_output=True,
-                               creationflags=NO_WINDOW, timeout=5)
-            except (OSError, subprocess.TimeoutExpired):
-                pass
-            if proc.poll() is None:
-                proc.kill()  # taskkill may be denied or unavailable; still terminate our own child promptly
+                stop_tree(proc)  # identity-checked: never kills processes behind a reused parent PID
+            except OSError:
+                proc.kill()  # the tree stop was denied; still terminate our own child promptly
         else:  # pragma: no cover - POSIX
             import signal
             if os.getpgid(proc.pid) == proc.pid:

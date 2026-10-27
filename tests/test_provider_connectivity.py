@@ -190,12 +190,14 @@ class Connectivity(unittest.TestCase):
             RP.describe("codex", self.cfg)
             self.assertEqual(probe.call_count, 2)
 
-    def test_windows_cancel_falls_back_when_taskkill_fails(self):
+    def test_windows_cancel_falls_back_when_tree_stop_fails(self):
         proc = mock.Mock(pid=123)
         proc.poll.return_value = None
-        with mock.patch.object(C.sys, "platform", "win32"), mock.patch.object(C.subprocess, "run", side_effect=subprocess.TimeoutExpired("taskkill", 5)):
+        with mock.patch.object(C.sys, "platform", "win32"), mock.patch.object(C.subprocess, "run") as run, \
+                mock.patch("backend.execution.processes.stop_tree", side_effect=OSError("denied")):
             C.kill_tree(proc)
         proc.kill.assert_called_once()
+        run.assert_not_called()  # 6.6.1: no taskkill /T (it follows reused parent PIDs)
 
     def test_claude_auth_probe_preserves_only_status_fields(self):
         connector = C.ClaudeCodeConnector()

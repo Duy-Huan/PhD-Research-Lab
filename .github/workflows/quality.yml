@@ -77,7 +77,9 @@ jobs:
         timeout-minutes: 28
         env:
           VERIFY_BASE: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
-        run: python scripts/verify.py --profile pr --component backend --base "$env:VERIFY_BASE" --out output/playwright/ci/backend
+        # Outer watchdog (26m): console heartbeats, then stops the owned tree so the upload below always runs
+        # (Windows 3.12 push runs were killed at the 35m job limit with no log or artifact; 6.6.1).
+        run: python -m devtools.verification.ci_watchdog --deadline-s 1560 --out output/playwright/ci/backend -- python scripts/verify.py --profile pr --component backend --base "$env:VERIFY_BASE" --out output/playwright/ci/backend
         shell: pwsh
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
