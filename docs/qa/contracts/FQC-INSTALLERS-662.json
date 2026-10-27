@@ -1,0 +1,138 @@
+{
+  "id": "FQC-INSTALLERS-662",
+  "title": "Windows .exe and Linux .deb installers on every release",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As a researcher I install PhD Research Lab with a normal installer (Windows .exe, Linux .deb) showing the PhD Lab logo; my research data lives outside the installation (any drive for projects) and survives uninstall/upgrade; every main release ships installers of its latest code.",
+  "requirements": [
+    {
+      "id": "DATA",
+      "description": "An installed copy (installer marker) stores data in %LOCALAPPDATA%\\PhDLab / $XDG_DATA_HOME/phdlab (~/.local/share/phdlab) / ~/Library/Application Support/PhDLab; PHDLAB_DATA_DIR always wins; a source checkout keeps data/."
+    },
+    {
+      "id": "BUILD",
+      "description": "Installers are built only from the qualified source/web archives (manifest SHA-256 verified), with pinned embedded Python 3.12.10 and hash-pinned runtime wheels, excluding development-only material, with the PhD Lab icon."
+    },
+    {
+      "id": "GATE",
+      "description": "Every candidate (Development gate) and every main release builds both installers and proves install -> start -> /api/version -> uninstall with data kept; releases must contain exactly source, web, .exe and .deb with checksums."
+    }
+  ],
+  "nonfunctional": [
+    "Per-user install without administrator rights on Windows",
+    "No network needed when installing the .deb",
+    "Unsigned until an owner certificate exists"
+  ],
+  "inputs": [
+    "Qualified release archives",
+    "requirements-runtime.lock",
+    "packaging/"
+  ],
+  "outputs": [
+    "phdlab-<v>-windows-x64-setup.exe",
+    "phdlab_<v>_amd64.deb",
+    "manifest.json"
+  ],
+  "preconditions": [
+    "Qualified commit"
+  ],
+  "postconditions": [
+    "Release assets match manifest SHA-256"
+  ],
+  "dependencies": [
+    "Inno Setup 6",
+    "dpkg-deb",
+    "python.org embeddable Python 3.12.10"
+  ],
+  "affected_modules": [
+    "backend/core/config.py",
+    "scripts/build_installers.py",
+    "packaging/",
+    "requirements-runtime.lock",
+    ".github/workflows/quality.yml",
+    ".github/workflows/release.yml",
+    ".github/scripts/publish_release.cjs",
+    "scripts/quality_gate.py",
+    ".github/required-ci-jobs.json"
+  ],
+  "acceptance_criteria": [
+    "Installed copy never writes data into its folder",
+    "Tampered archives refused",
+    "Development gate requires installers",
+    "Release has four verified assets"
+  ],
+  "scenarios": [
+    {
+      "id": "per-user",
+      "requirement": "DATA",
+      "kind": "positive",
+      "expected": "Installed copy uses the per-user data folder",
+      "test": "tests/test_installed_data_dir.py::DataFolder.test_installed_copy_uses_the_per_user_folder"
+    },
+    {
+      "id": "override",
+      "requirement": "DATA",
+      "kind": "boundary",
+      "expected": "PHDLAB_DATA_DIR wins",
+      "test": "tests/test_installed_data_dir.py::DataFolder.test_explicit_data_folder_always_wins"
+    },
+    {
+      "id": "stage",
+      "requirement": "BUILD",
+      "kind": "positive",
+      "expected": "Exact archives staged, marker written, dev material excluded",
+      "test": "tests/test_installed_data_dir.py::Staging.test_stage_unpacks_the_qualified_archives_and_marks_the_install"
+    },
+    {
+      "id": "tamper",
+      "requirement": "BUILD",
+      "kind": "security",
+      "expected": "Tampered/unsafe archives refused",
+      "test": "tests/test_installed_data_dir.py::Staging.test_tampered_or_unsafe_archives_are_refused"
+    },
+    {
+      "id": "embed",
+      "requirement": "BUILD",
+      "kind": "negative",
+      "expected": "Mismatching embedded Python discarded; runtime lock only",
+      "test": "tests/test_installed_data_dir.py::Staging.test_embedded_python_is_pinned_and_verified"
+    },
+    {
+      "id": "merge",
+      "requirement": "GATE",
+      "kind": "failure",
+      "expected": "Changed or duplicate installers refused",
+      "test": "tests/test_installed_data_dir.py::Staging.test_merge_adds_verified_installers_once"
+    },
+    {
+      "id": "dev-gate",
+      "requirement": "GATE",
+      "kind": "performance",
+      "expected": "Installers job (30 min bound) required by the Development gate",
+      "test": "tests/test_ci_workflow_contract.py::WorkflowContract.test_all_promotion_stages_require_software_regression_without_live_credits"
+    }
+  ],
+  "recovery": "Releases stay draft until all four assets verify; revert packaging changes. TASK-INSTALLERS-662, max three cycles.",
+  "test_environment": "Real staging/merge on temporary archives; real local installer build and smoke (docs/qa/evidence/installers-662/local-smoke.json); CI repeats on windows-latest and ubuntu-latest.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: Development gate lacked installers (1 FAIL). GREEN: 12/12 PASS. Publish tests 10/10 (node).",
+    "red": {
+      "path": "docs/qa/evidence/installers-662/red.json",
+      "sha256": "d8a04753f951d6cbfd1fb907db99b45bd003e56f672672175361ae7f67134504",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/installers-662/green.json",
+      "sha256": "1f78a1c8c72102c0cdc3c0ed9ab9aaa2b7b065c3d9798a1d85541d5c7a252f1e",
+      "exit_code": 0
+    }
+  }
+}

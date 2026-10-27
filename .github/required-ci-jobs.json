@@ -8,6 +8,8 @@
     "Frontend types, whole-source coverage and build",
     "Dependency and high-confidence security checks",
     "Real offline browser smoke",
+    "Installers (windows-latest)",
+    "Installers (ubuntu-latest)",
     "Development gate",
     "QA gate"
   ]

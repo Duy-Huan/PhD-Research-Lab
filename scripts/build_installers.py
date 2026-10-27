@@ -36,6 +36,8 @@ DEB_PYTHONS = ("3.11", "3.12", "3.13")  # wheels bundled for every supported sys
 LOCK = "requirements-runtime.lock"
 INSTALL_MARKER = "phdlab-installed.json"
 ICON_SIZES = (16, 24, 32, 48, 64, 128, 256)
+# Development-only material stays in the source archive, not in installed copies (QA evidence alone is >200 MB).
+INSTALL_EXCLUDE = ("docs/", "qa/", "tests/", "devtools/", ".github/", ".githooks/", "frontend/e2e/", "AUTORESEARCHAI.pdf")
 
 
 def sha256(path: Path) -> str:
@@ -62,20 +64,23 @@ def release_inputs(assets: Path) -> tuple[dict, Path, Path]:
     return manifest, files["source"], files["web"]
 
 
-def _extract(archive: Path, dest: Path) -> None:
+def _extract(archive: Path, dest: Path, skip: tuple = ()) -> None:
     with zipfile.ZipFile(archive) as z:
+        members = []
         for info in z.infolist():
             target = (dest / info.filename).resolve()
             if not target.is_relative_to(dest.resolve()):
                 raise ValueError("Unsafe archive entry: " + info.filename)
-        z.extractall(dest)
+            if not (skip and info.filename.startswith(skip)):
+                members.append(info)
+        z.extractall(dest, members)
 
 
 def stage_app(assets: Path, app: Path) -> dict:
     """Unpack the qualified source and web build into app/ and mark it as an installed copy."""
     manifest, source, web = release_inputs(assets)
     app.mkdir(parents=True)
-    _extract(source, app)
+    _extract(source, app, INSTALL_EXCLUDE)
     dist = app / "frontend" / "dist"
     shutil.rmtree(dist, ignore_errors=True)
     dist.mkdir(parents=True)
@@ -222,9 +227,9 @@ def run_installed(command: list[str], env: dict, expect_version: str, data_dir: 
                     proc.kill()
     if info.get("version") != expect_version:
         raise RuntimeError(f"Installed version {info.get('version')} != {expect_version}")
-    if not (data_dir / "config.json").is_file():
+    if not (data_dir / "project_meta.json").is_file():
         raise RuntimeError(f"Data was not created in the per-user folder {data_dir}")
-    if any(install_dir.rglob("config.json")) and any(p.parent.name == "data" for p in install_dir.rglob("config.json")):
+    if any(install_dir.rglob("project_meta.json")):
         raise RuntimeError("Data was written inside the installation folder")
     return info
 
@@ -247,7 +252,7 @@ def smoke_windows(installer: Path, version: str) -> dict:
         time.sleep(1)
     if (install_dir / "app").exists() or (install_dir / "python").exists():
         raise RuntimeError("Uninstall left the application behind")
-    if not (local / "PhDLab" / "config.json").is_file():
+    if not (local / "PhDLab" / "project_meta.json").is_file():
         raise RuntimeError("Uninstall removed research data")
     return {"installed": True, "health": info, "uninstalled": True, "data_kept": True}
 
@@ -265,7 +270,7 @@ def smoke_deb(deb: Path, version: str) -> dict:
     subprocess.run(sudo + ["apt-get", "remove", "-y", "-qq", "phdlab"], check=True, timeout=600)
     if Path("/opt/phdlab/app").exists() or Path("/usr/bin/phdlab").exists():
         raise RuntimeError("Package removal left the application behind")
-    if not (home / "phdlab" / "config.json").is_file():
+    if not (home / "phdlab" / "project_meta.json").is_file():
         raise RuntimeError("Package removal removed research data")
     return {"installed": True, "health": info, "uninstalled": True, "data_kept": True}
 

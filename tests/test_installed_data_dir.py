@@ -52,7 +52,7 @@ class Staging(unittest.TestCase):
 
     def release(self, tamper=False):
         records = []
-        for kind, files in (("source", {"start.py": b"print(1)", "backend/app.py": b"app"}), ("web", {"index.html": b"<html>"})):
+        for kind, files in (("source", {"start.py": b"print(1)", "backend/app.py": b"app", "docs/qa/evidence.json": b"{}", "tests/test_x.py": b""}), ("web", {"index.html": b"<html>"})):
             path = self.assets / f"phdlab-9.9.9-{kind}.zip"
             with zipfile.ZipFile(path, "w") as z:
                 for name, data in files.items():
@@ -68,6 +68,8 @@ class Staging(unittest.TestCase):
         manifest = B.stage_app(self.assets, app)
         self.assertEqual(manifest["version"], "9.9.9")
         self.assertEqual((app / "frontend" / "dist" / "index.html").read_bytes(), b"<html>")
+        self.assertTrue((app / "backend" / "app.py").is_file())
+        self.assertFalse((app / "docs").exists() or (app / "tests").exists(), "development-only material is not installed")
         marker = json.loads((app / config.INSTALL_MARKER).read_text("utf-8"))
         self.assertEqual((marker["version"], marker["source_sha"]), ("9.9.9", "a" * 40))
 

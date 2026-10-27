@@ -1,0 +1,13 @@
+{
+  "source_sha": "eb9cd4ac7a6c3127babf43656a9cd4ad493e6775",
+  "mode": "REAL_LOCAL",
+  "windows": {"host": "Windows 11 Pro 10.0.26300, Inno Setup 6.7.3, embedded Python 3.12.10",
+              "result": {"installed": true, "health": {"version": "6.6.2"}, "uninstalled": true, "data_kept": true},
+              "installer_bytes": 35081534},
+  "linux": {"host": "Docker python:3.11.17-slim (Debian 13), system python3 3.13.5 via package dependency",
+            "result": {"installed": true, "health": {"version": "6.6.2", "root": "/opt/phdlab/app"}, "uninstalled": true, "data_kept": true},
+            "package_bytes": 45527396},
+  "limitations": ["Unsigned installer (SmartScreen warning until an owner code-signing certificate exists)",
+                  "Embedded Windows Python has no tkinter: the native OS folder dialog reports cancelled; typing a path and the in-app folder browser (/api/system/fs-browse) still work",
+                  "CI rebuilds and re-smokes both installers on every candidate and release; these local runs are not CI evidence"]
+}
