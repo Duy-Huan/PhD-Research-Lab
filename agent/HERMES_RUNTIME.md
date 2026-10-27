@@ -39,3 +39,13 @@ Stop preserves home/memory/skills/history/workspace. Explicit start can replace 
 ## Qualification still required
 
 Current implementation work is uncommitted and NOT qualified. After features stabilize: protocol/auth/size/idempotency/security contracts, project isolation, token non-disclosure, free-only admission, durable history, backend/runtime restart, cancellation/deadline, scoped tools, frontend model/config state, real Nous inference, deep-learning experiment/replay/paper lineage and full2Dthen3D/nativeCLI/software regression. Keep fixture/mock/infrastructure and live/scientific results separate. Preserve every failure. Protected dev->qa->main promotion remains blocked until every mandatory current-source gate actually passes.
+
+## v6.6.2 native environment (owner decisions 2026-10-27)
+
+- One Hermes per project: memory, history and workspace stay under `<project>/agent-runtimes/hermes/<profile>/`. The workspace mode follows the owner's agent profile (`tools.client_profiles.hermes`, default "agent"): `workspace_write` -> `assisted` (writable), otherwise `review` (read-only). The old global `gateway.cli_profile` no longer selects Hermes' profile.
+- Shared across projects (app data `hermes-shared/`): the Nous sign-in through Hermes' own `HERMES_SHARED_AUTH_DIR` (`/opt/shared-auth`), and an owner-reviewed skill library mounted read-only at `/opt/shared-skills` and linked through `skills.external_dirs` in a newly created project `config.yaml` (an existing config is never rewritten). Share a learned skill with `POST /api/runtimes/hermes/share-skill {"skill", "approved_by"}`; list with `GET /api/runtimes/hermes/skills`.
+- No work budgets: jobs send no deadline/iteration/token limit unless the owner sets `hermes.deadline_s/max_iterations/max_tokens` above 0 (Hermes' own defaults are unlimited, verified in the pinned image). The backend observes without a deadline; only a runtime that does not answer for 120 s is an error. The user's cancel still stops the job.
+- Hermes always receives the registry meta-tools `phdlab_tools_search/describe/call`.
+- Only the open project's Hermes runs: starting it stops (never removes) other projects' Hermes containers.
+- The proxy container no longer receives the unused `PHDLAB_ALLOWED_DOMAINS` variable; the runtime keeps unrestricted Internet as before.
+- Real Docker smoke (no sign-in, no inference) is recorded in `docs/qa/evidence/hermes-native-662/live-docker-smoke.json`. Docker Desktop bind mounts from `%LOCALAPPDATA%\Temp` failed with EIO on this host; use project folders on a normal drive.

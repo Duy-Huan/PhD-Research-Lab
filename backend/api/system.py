@@ -108,16 +108,31 @@ async def test_model(body: dict = Body(...)):
 
 
 @router.get('/api/runtimes/hermes')
-async def hermes_runtime_status(profile: str = 'review'):
-    from backend.providers.hermes import status
-    return await call(status, profile)
+async def hermes_runtime_status(profile: str = ''):
+    from backend.providers import hermes
+    return await call(hermes.status, profile or hermes.runtime_profile())
+
+
+@router.get('/api/runtimes/hermes/skills')
+async def hermes_skills():
+    """Skills learned by the open project's Hermes and the shared, owner-reviewed library (v6.6.2)."""
+    from backend.providers import hermes
+    return await call(hermes.skills)
 
 
 @router.post('/api/runtimes/hermes/{action}')
 async def hermes_runtime_action(action: str, body: dict = Body(default={})):
     from backend.providers import hermes
-    profile = body.get('profile') or load_config()['gateway'].get('cli_profile', 'review')
+    # v6.6.2: the owner's agent profile decides the workspace mode; one Hermes per project.
+    profile = body.get('profile') or hermes.runtime_profile()
     if profile not in ('review', 'assisted'): raise HTTPException(400, 'Unsupported runtime profile')
+    if action == 'share-skill':
+        if set(body) - {'skill', 'approved_by'}: raise HTTPException(400, 'Unsupported fields')
+        from backend.providers.cli import ProviderError
+        try:
+            return await call(hermes.share_skill, str(body.get('skill', '')), str(body.get('approved_by', '')))
+        except ProviderError as e:  # invalid/missing skill or no reviewing owner: a request error, not a server fault
+            raise HTTPException(400, str(e)) from e
     if set(body) - {'profile'}: raise HTTPException(400, 'Unsupported runtime fields')
     if action == 'models': return await call(hermes.refresh_models, profile)
     if action == 'start':
@@ -126,17 +141,14 @@ async def hermes_runtime_action(action: str, body: dict = Body(default={})):
         return value
     if action == 'stop': return await call(hermes.stop, profile)
     if action == 'connect':
-        # The same global provider profile used by existing gateway settings.
-        if profile != load_config()['gateway'].get('cli_profile', 'review'):
-            raise HTTPException(409, 'Save the selected gateway profile before sign-in')
         return await call(hermes.HermesConnector().connect, True)
     raise HTTPException(404, 'Unsupported runtime action')
 
 
 @router.get('/api/runtimes/hermes/jobs/{job_id}')
-async def hermes_runtime_job(job_id: str, profile: str = 'review'):
-    from backend.providers.hermes import rpc
-    return await call(rpc, '/v1/jobs/' + job_id, profile=profile)
+async def hermes_runtime_job(job_id: str, profile: str = ''):
+    from backend.providers import hermes
+    return await call(hermes.rpc, '/v1/jobs/' + job_id, profile=profile or hermes.runtime_profile())
 
 
 @router.post("/api/models/list")

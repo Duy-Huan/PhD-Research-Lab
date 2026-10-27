@@ -1,0 +1,43 @@
+{
+ "mode": "REAL_LOCAL_DOCKER",
+ "date": "2026-10-27",
+ "scope": "Container start/health/mounts/stop and shared-skill discovery only. No Nous sign-in, no model call, no inference verified.",
+ "image": "phdlab-runtime/hermes:0.22.5-rpc1 rebuilt from adapter sha256 3587edf68fe4541ca64195778f4d11d2594d11f9b5dffe7cbdc4fc29bcf2214e, upstream bf0203a7",
+ "observed": {
+  "start_state": "READY",
+  "profile": "assisted",
+  "mounts": [
+   [
+    "/ipc",
+    true
+   ],
+   [
+    "/opt/data",
+    true
+   ],
+   [
+    "/opt/shared-auth",
+    true
+   ],
+   [
+    "/opt/shared-skills",
+    false
+   ],
+   [
+    "/workspace",
+    true
+   ]
+  ],
+  "HERMES_SHARED_AUTH_DIR": "/opt/shared-auth",
+  "health_network": "unrestricted-internet",
+  "config_yaml": "skills.external_dirs: [/opt/shared-skills]",
+  "hermes_get_external_skills_dirs": [
+   "/opt/shared-skills"
+  ],
+  "shared_skill_seen": [
+   "smoke-skill"
+  ],
+  "stop": "STOPPED data_preserved"
+ },
+ "environment_note": "A disposable data dir under %LOCALAPPDATA%/Temp failed with EIO on the Docker Desktop bind mount (mkdir /opt/data/phdlab); the same run under D: succeeded. Host file-sharing limitation, not a code defect."
+}

@@ -1,0 +1,71 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_hermes_native.NoBudgets.test_job_has_no_budgets_and_always_includes_the_registry_tools",
+      "status": "FAIL",
+      "duration": 0.0747,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_hermes_native.py\", line 111, in test_job_has_no_budgets_and_always_includes_the_registry_tools\n    self.assertNotIn(key, job)\nAssertionError: 'deadline_s' unexpectedly found in {'id': 'a533ead2e76a2da1303e66b11652961d', 'session': '2d711642b726b04401627ca9fbac32f5', 'model': 'observed:free', 'prompt': 'q', 'deadline_s': 600, 'max_iterations': 16, 'max_tokens': 4096, 'mcp': {'port': 8765, 'token': 't', 'tools': ['research_get_current_state']}}\n"
+    },
+    {
+      "id": "test_hermes_native.NoBudgets.test_observation_survives_transient_rpc_errors_and_long_jobs",
+      "status": "ERROR",
+      "duration": 0.0576,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_hermes_native.py\", line 126, in test_observation_survives_transient_rpc_errors_and_long_jobs\n    events = list(hermes.HermesConnector().stream_message(\"q\", {\"cwd\": \"x\"}))\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\backend\\providers\\hermes.py\", line 298, in stream_message\n    time.sleep(.25); value = rpc('/v1/jobs/' + jid, profile=profile)\n                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_hermes_native.py\", line 123, in rpc\n    raise item\nbackend.providers.cli.ProviderError: blip\n"
+    },
+    {
+      "id": "test_hermes_native.NoBudgets.test_runtime_unreachable_for_long_is_an_error_not_a_hang",
+      "status": "FAIL",
+      "duration": 0.0622,
+      "details": "backend.providers.cli.ProviderError: down\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_hermes_native.py\", line 143, in test_runtime_unreachable_for_long_is_an_error_not_a_hang\n    with self.assertRaisesRegex(ProviderError, \"not responding\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: \"not responding\" does not match \"down\"\n"
+    },
+    {
+      "id": "test_hermes_native.ProfileAndShared.test_existing_hermes_config_is_never_rewritten",
+      "status": "ERROR",
+      "duration": 0.0448,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_hermes_native.py\", line 75, in test_existing_hermes_config_is_never_rewritten\n    home = hermes.folder(hermes.runtime_profile()) / \"home\"\n                         ^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.hermes' has no attribute 'runtime_profile'\n"
+    },
+    {
+      "id": "test_hermes_native.ProfileAndShared.test_skill_sharing_copies_one_reviewed_skill_and_refuses_traversal",
+      "status": "ERROR",
+      "duration": 0.0816,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_hermes_native.py\", line 82, in test_skill_sharing_copies_one_reviewed_skill_and_refuses_traversal\n    skills = hermes.folder(hermes.runtime_profile()) / \"home\" / \"skills\" / \"lit-review\"\n                           ^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.hermes' has no attribute 'runtime_profile'\n"
+    },
+    {
+      "id": "test_hermes_native.ProfileAndShared.test_start_shares_login_and_skills_mounts_project_data_and_stops_other_projects",
+      "status": "ERROR",
+      "duration": 0.0623,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_hermes_native.py\", line 62, in test_start_shares_login_and_skills_mounts_project_data_and_stops_other_projects\n    shared = hermes.shared_root()\n             ^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.hermes' has no attribute 'shared_root'\n"
+    },
+    {
+      "id": "test_hermes_native.ProfileAndShared.test_workspace_mode_follows_the_agent_profile",
+      "status": "FAIL",
+      "duration": 0.0414,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_hermes_native.py\", line 37, in test_workspace_mode_follows_the_agent_profile\n    raise AssertionError(\"runtime_profile missing\")\nAssertionError: runtime_profile missing\n"
+    },
+    {
+      "id": "test_hermes_native.ServiceUnbounded.test_job_without_budgets_is_admitted_and_agent_gets_hermes_defaults",
+      "status": "ERROR",
+      "duration": 0.0767,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_hermes_native.py\", line 163, in test_job_without_budgets_is_admitted_and_agent_gets_hermes_defaults\n    with urllib.request.urlopen(req, timeout=5) as r:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\urllib\\request.py\", line 215, in urlopen\n    return opener.open(url, data, timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\urllib\\request.py\", line 521, in open\n    response = meth(req, response)\n               ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\urllib\\request.py\", line 630, in http_response\n    response = self.parent.error(\n               ^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\urllib\\request.py\", line 559, in error\n    return self._call_chain(*args)\n           ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\urllib\\request.py\", line 492, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\urllib\\request.py\", line 639, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 400: Bad Request\n"
+    },
+    {
+      "id": "test_hermes_native.ServiceUnbounded.test_supervisor_waits_for_the_worker_without_a_deadline",
+      "status": "ERROR",
+      "duration": 0.06,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_hermes_native.py\", line 197, in test_supervisor_waits_for_the_worker_without_a_deadline\n    service.supervise(job)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tools\\hermes_runtime\\service.py\", line 223, in supervise\n    try: process.wait(timeout=job['deadline_s'] + 15)\n                              ~~~^^^^^^^^^^^^^^\nKeyError: 'deadline_s'\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 9,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-felytqpe",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

@@ -231,8 +231,8 @@ DEFAULTS["ui"] = {"language": "vi", "ai_language": "auto", "prose_font": "sans",
 DEFAULTS["mcp_agent"] = {"enabled": False, "url": "http://127.0.0.1:8766/mcp", "token": "",
                          "tool": "research", "models": [], "timeout_s": 120}
 DEFAULTS["research_os"] = {"enabled":False,"team_enabled":False,"multi_team_enabled":False}
-DEFAULTS['hermes'] = {'enabled': False, 'model': '', 'deadline_s': 600, 'max_iterations': 16,
-                      'max_tokens': 4096, 'free_only': True}
+DEFAULTS['hermes'] = {'enabled': False, 'model': '', 'deadline_s': 0, 'max_iterations': 0,  # v6.6.2: 0 = no limit
+                      'max_tokens': 0, 'free_only': True}
 # v5.1 automatic venue ranking: CORE conference ranks are downloaded (refreshed after refresh_days); SCImago journal
 # v6.6.0 native tool capability system (backend/tools): agent-written proposal code validates in a container unless
 # the owner explicitly allows host validation; external MCP agent clients reach the registry with mcp_permissions.
@@ -309,7 +309,7 @@ def _merge_section(sec: str, target: dict, patch: dict, masked_ok: bool) -> None
     if sec == 'hermes':
         target['free_only'] = True  # No paid model authorization exists in this campaign.
         for key, low, high in (('deadline_s', 5, 1800), ('max_iterations', 1, 50), ('max_tokens', 128, 16384)):
-            target[key] = max(low, min(high, target[key]))
+            target[key] = 0 if not target[key] else max(low, min(high, target[key]))  # 0 = no owner limit
         if target['model'] and not re.fullmatch(r'[\w.:/@+-]{1,160}', target['model']):
             raise ValueError('Invalid Hermes model')
     if sec == "tools":
