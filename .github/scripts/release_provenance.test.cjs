@@ -10,7 +10,7 @@ function fixture(){
   getCommit:async({ref})=>({data:{commit:{tree:{sha:!s.sameTree && ref===sha?'different':'tree'}}}})},checks:{listForRef:checksFn}},
   paginate:async fn=>fn===prsFn?s.prs:fn===runsFn?s.runs:s.checks};
  github.rest.actions={getWorkflow:async()=>({data:{id:5}}),listWorkflowRuns:runsFn};
- return {s,args:{github,context:{repo:{owner:'owner',repo:'repo'},ref:'refs/heads/main',sha}},sha};
+ return {s,args:{github,sleep:async()=>{},context:{repo:{owner:'owner',repo:'repo'},ref:'refs/heads/main',sha}},sha};
 }
 test('qualified exact main source needs no second publication approval',async()=>{const f=fixture();assert.equal((await qualify(f.args,f.sha)).sha,f.sha);});
 test('latest failed QA run cannot reuse older successful contexts',async()=>{const f=fixture();f.s.runs.push({...f.s.runs[0],id:2,conclusion:'failure'});await assert.rejects(qualify(f.args,f.sha));});
@@ -24,3 +24,7 @@ for(const [name,change] of [
  ['wrong app',f=>f.s.checks[0].app.id=7],['wrong tested SHA',f=>f.s.checks[1].head_sha='old'],
  ['changed merge tree',f=>f.s.sameTree=false]
 ])test('reject '+name,async()=>{const f=fixture();change(f);await assert.rejects(qualify(f.args,f.sha));});
+
+test('delayed association is retried without weakening QA checks',async()=>{const f=fixture();const original=f.args.github.paginate;let calls=0,waits=[];f.args.sleep=async ms=>waits.push(ms);f.args.github.paginate=async(fn,...rest)=>fn===f.args.github.rest.repos.listPullRequestsAssociatedWithCommit && ++calls<3?[]:original(fn,...rest);assert.equal((await qualify(f.args,f.sha)).sha,f.sha);assert.deepEqual(waits,[1000,2000]);});
+test('absent association stops after bounded six attempts',async()=>{const f=fixture();f.s.prs=[];let waits=[];f.args.sleep=async ms=>waits.push(ms);await assert.rejects(qualify(f.args,f.sha),/No confirmed/);assert.deepEqual(waits,[1000,2000,4000,8000,16000]);});
+test('main moving during retry fails closed',async()=>{const f=fixture();f.s.prs=[];f.args.sleep=async()=>{f.s.main='c'.repeat(40)};await assert.rejects(qualify(f.args,f.sha),/main changed/);});

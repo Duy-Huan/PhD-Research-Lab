@@ -281,7 +281,8 @@ def main(argv: list[str] | None = None) -> int:
             if args.profile in ('pr', 'full', 'release'):
                 execute('backend', [sys.executable, 'tools/backend_quality_gate.py', '--profile', 'full',
                         '--layer', 'all' if args.profile in ('full','release') else 'software',
-                        '--i-understand-full-suite', '--require-complete', '--output-dir', str(out/'backend')])
+                        '--i-understand-full-suite', '--require-complete', '--output-dir', str(out/'backend')],
+                        timeout=1500)  # measured Windows 3.12 CI 13.7-18.3m; 20m was hit by runner variance (6.6.0)
                 report_path = out/'backend/report.json'
                 if report_path.is_file():
                     backend_report=json.loads(report_path.read_text(encoding='utf-8'))

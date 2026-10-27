@@ -1,0 +1,467 @@
+{
+  "id": "FQC-NATIVE-TOOLS-660",
+  "title": "P0 native tool capability system: registry, unified runtime, model-driven tool loop and tool lifecycle",
+  "risk": "CRITICAL",
+  "mode": "REAL_LOCAL",
+  "user_story": "As an AI research agent I discover, select, chain and recover from tools myself inside an environment that enforces authorization, budgets and provenance, so research actions are agent-driven yet traceable and reproducible.",
+  "requirements": [
+    {
+      "id": "REG",
+      "description": "Central versioned registry over builtin, manifest and external MCP tools with schema-validated specs, capability/lexical search, lazy full specifications, runtime availability detection, version constraints/active pointer and app compatibility."
+    },
+    {
+      "id": "RUN",
+      "description": "One execution interface for native, python, cli, mcp and container tools: async jobs, streamed observations, timeout and cancellation, structured errors, bounded retry only for retryable idempotent failures, input/output schema validation."
+    },
+    {
+      "id": "AUTH",
+      "description": "Authority only from a Grant (tool patterns, permissions, mutation, expiry, call/time/output budgets); models, specs, manifests and tool output cannot widen it; manifests cannot be native, reuse builtin ids or inject host paths/interpreters."
+    },
+    {
+      "id": "PROV",
+      "description": "Every call including denied/invalid/failed appends a hash-chained provenance record bound to principal, grant, exact tool version and spec digest, argument/result digests and attempts; tampering is detected; succeeded calls can be replayed and compared."
+    },
+    {
+      "id": "LOOP",
+      "description": "Model-driven loop with no tool-specific logic or keyword forcing: agent-initiated discovery (including tools added mid-task), selection, multi-tool composition, recovery and switching from structured errors; execution claims must cite succeeded jobs."
+    },
+    {
+      "id": "CHAT",
+      "description": "Session tool_mode=agent replaces keyword pre-selection in chat; authority stays the session MCP allowlist (topic isolation keeps none), read-only and bounded; default legacy behavior unchanged."
+    },
+    {
+      "id": "EXT",
+      "description": "Agents can propose tools into an isolated proposal area; validation runs declared examples through the runtime (agent-written python inside a no-network container, host only by explicit owner setting), binds to the proposal digest; promotion needs a named non-agent approver; versions immutable; rollback re-points the active version."
+    },
+    {
+      "id": "API",
+      "description": "Additive /api/tools HTTP routes for discovery, describe, invoke, jobs/events/stream/cancel, provenance/verify, MCP servers and proposal lifecycle with structured error status codes."
+    },
+    {
+      "id": "GOOGLE",
+      "description": "Optional, default-off Google Colab (official googlecolab/colab-mcp local stdio bridge) and Google Drive (official remote drivemcp.googleapis.com) MCP tools confined to a dedicated per-project folder: isolated local folder/HOME/caches/temp and credential-free environment for the Colab process with only that folder advertised as MCP root; Drive FolderGuard default-deny (containment proof for reads/downloads/copies, forced parent for create/copy, filtered search, unknown tools withheld, fail closed on unverifiable shapes); OAuth PKCE token stored in the isolated folder and sent only to *.googleapis.com by application-defined specs."
+    },
+    {
+      "id": "MCPX",
+      "description": "External agent clients (e.g. Antigravity used directly by the researcher as an MCP client, Codex, Claude Code) reach the registry through /mcp meta-tools search/describe/call; ephemeral session grants keep their allowlist; direct clients get owner-configured tools.mcp_permissions without mutation; per-session budget; meta-tools cannot recurse; owner switch tools.mcp_registry."
+    }
+  ],
+  "nonfunctional": [
+    "No new runtime dependency; JSON Schema subset rejects unsupported keywords instead of silently ignoring them",
+    "Process tools run with allowlisted environment (no provider/GitHub credentials), python -I, no shell, private working directory and whole-tree kill; containers read-only, cap-drop ALL, no-new-privileges, pids/memory/cpu limits, no network unless granted; defense in depth, not certified OS sandbox",
+    "Existing /mcp, mission capabilities and API/SSE contracts unchanged; new routes additive",
+    "Bounded: per-grant calls/time/output, per-tool timeout/output, loop max steps, observation truncation"
+  ],
+  "inputs": [
+    "Tool manifests and builtin MCP tool declarations",
+    "Grant issued by application code",
+    "Agent actions (search/describe/call/final)"
+  ],
+  "outputs": [
+    "Registry listings/search/descriptions",
+    "Job records with observations",
+    "Hash-chained provenance",
+    "Validation reports and active-version history"
+  ],
+  "preconditions": [
+    "Disposable PHDLAB_DATA_DIR project",
+    "Existing dev branch only"
+  ],
+  "postconditions": [
+    "No tool runs without an authorizing grant",
+    "Every attempt is traceable"
+  ],
+  "dependencies": [
+    "pydantic",
+    "httpx",
+    "psutil",
+    "existing backend.providers.mcp_server/mcp_tools",
+    "backend.execution.sandbox docker helpers",
+    "Optional: uv/uvx + network for googlecolab/colab-mcp; Google OAuth Web client and Workspace Developer Preview for Drive MCP"
+  ],
+  "affected_modules": [
+    "backend/tools/__init__.py",
+    "backend/tools/schema.py",
+    "backend/tools/spec.py",
+    "backend/tools/registry.py",
+    "backend/tools/adapters.py",
+    "backend/tools/runtime.py",
+    "backend/tools/agent_loop.py",
+    "backend/tools/proposals.py",
+    "backend/api/tools.py",
+    "backend/api/__init__.py",
+    "backend/agent/orchestrator.py",
+    "backend/agent/policy.py",
+    "backend/core/config.py",
+    "tools/tool_agent_acceptance.py",
+    "backend/tools/google_mcp.py",
+    "backend/tools/mcp_bridge.py",
+    "backend/providers/mcp_server.py"
+  ],
+  "acceptance_criteria": [
+    "Agent discovers a tool installed after the task started and uses it (MOCKED model, real registry/runtime)",
+    "Agent selects without hardcoding: loop source has no tool names/keyword routing; chat agent mode never calls keyword propose",
+    "Agent composes tools, recovers from invalid input and execution failure, switches tools",
+    "Real local model executes a real numerical experiment with independently recomputed measurements (separate LIVE_PROVIDER acceptance, not mandatory CI)",
+    "Denied, expired, over-budget and non-granted calls are refused and recorded",
+    "Provenance chain verifies; tampering detected; replay reproduces deterministic results"
+  ],
+  "scenarios": [
+    {
+      "id": "registry-discovery",
+      "requirement": "REG",
+      "kind": "positive",
+      "expected": "New manifest discovered at runtime and ranked first by search; summaries without schemas; describe returns schema and digest",
+      "test": "tests/test_tool_capability_system.py::RegistryDiscovery.test_new_manifest_is_discovered_at_runtime_and_ranked_by_capability_search"
+    },
+    {
+      "id": "registry-builtin",
+      "requirement": "REG",
+      "kind": "positive",
+      "expected": "Builtin research/sandbox tools registered with permissions; listing lazy",
+      "test": "tests/test_tool_capability_system.py::RegistryDiscovery.test_builtin_tools_are_registered_with_schemas_permissions_and_lazy_summaries"
+    },
+    {
+      "id": "registry-versions",
+      "requirement": "REG",
+      "kind": "boundary",
+      "expected": "Active pointer wins; constraints select; incompatible app/constraint rejected",
+      "test": "tests/test_tool_capability_system.py::RegistryDiscovery.test_versions_active_pointer_and_compatibility"
+    },
+    {
+      "id": "registry-unavailable",
+      "requirement": "REG",
+      "kind": "failure",
+      "expected": "Missing CLI binary reported unavailable with reason and filterable",
+      "test": "tests/test_tool_capability_system.py::RegistryDiscovery.test_unavailable_cli_tool_is_detected_and_reported"
+    },
+    {
+      "id": "registry-notfound",
+      "requirement": "REG",
+      "kind": "negative",
+      "expected": "Unknown id gives not_found with similar-tool hint",
+      "test": "tests/test_tool_capability_system.py::RegistryDiscovery.test_unknown_tool_error_suggests_similar_tools"
+    },
+    {
+      "id": "schema",
+      "requirement": "REG",
+      "kind": "negative",
+      "expected": "Path-specific validation errors; unsupported keywords rejected; pydantic refs/anyOf validated",
+      "test": "tests/test_tool_capability_system.py::SchemaAndSpec.test_validation_reports_paths_and_rejects_unknown_keywords"
+    },
+    {
+      "id": "schema-pydantic",
+      "requirement": "REG",
+      "kind": "positive",
+      "expected": "Existing pydantic capability schemas validate",
+      "test": "tests/test_tool_capability_system.py::SchemaAndSpec.test_pydantic_refs_and_anyof_are_validated"
+    },
+    {
+      "id": "versions",
+      "requirement": "REG",
+      "kind": "boundary",
+      "expected": "Semantic version constraints and invalid versions/permissions",
+      "test": "tests/test_tool_capability_system.py::SchemaAndSpec.test_versions_and_constraints"
+    },
+    {
+      "id": "run-python",
+      "requirement": "RUN",
+      "kind": "positive",
+      "expected": "Real subprocess result, streamed stderr observation, provenance and job record",
+      "test": "tests/test_tool_capability_system.py::RuntimeExecution.test_python_tool_executes_streams_observations_and_records_provenance"
+    },
+    {
+      "id": "run-invalid",
+      "requirement": "RUN",
+      "kind": "negative",
+      "expected": "Invalid args rejected before execution with JSON paths",
+      "test": "tests/test_tool_capability_system.py::RuntimeExecution.test_invalid_arguments_fail_before_execution_with_actionable_paths"
+    },
+    {
+      "id": "run-failure",
+      "requirement": "RUN",
+      "kind": "failure",
+      "expected": "Non-zero exit is structured execution_failed and no result",
+      "test": "tests/test_tool_capability_system.py::RuntimeExecution.test_execution_failure_is_structured_and_not_reported_as_success"
+    },
+    {
+      "id": "run-output-schema",
+      "requirement": "RUN",
+      "kind": "failure",
+      "expected": "Output violating schema rejected",
+      "test": "tests/test_tool_capability_system.py::RuntimeExecution.test_output_schema_violation_is_rejected"
+    },
+    {
+      "id": "run-timeout-cancel",
+      "requirement": "RUN",
+      "kind": "performance",
+      "expected": "Timeout kills process within bound; async job cancellation ends cancelled",
+      "test": "tests/test_tool_capability_system.py::RuntimeExecution.test_timeout_kills_process_and_cancellation_stops_async_job"
+    },
+    {
+      "id": "run-retry",
+      "requirement": "RUN",
+      "kind": "boundary",
+      "expected": "Retry only for retryable idempotent failures",
+      "test": "tests/test_tool_capability_system.py::RuntimeExecution.test_retry_only_for_retryable_idempotent_failures"
+    },
+    {
+      "id": "run-cli",
+      "requirement": "RUN",
+      "kind": "security",
+      "expected": "CLI without shell; metacharacters literal; option injection rejected",
+      "test": "tests/test_tool_capability_system.py::RuntimeExecution.test_cli_tool_runs_without_shell_and_blocks_option_injection"
+    },
+    {
+      "id": "run-native",
+      "requirement": "RUN",
+      "kind": "positive",
+      "expected": "Builtin native tool through unified runtime",
+      "test": "tests/test_tool_capability_system.py::RuntimeExecution.test_native_builtin_tool_executes_through_unified_runtime"
+    },
+    {
+      "id": "run-mcp",
+      "requirement": "RUN",
+      "kind": "positive",
+      "expected": "Real loopback MCP server discovered and called; permission enforced; non-loopback http rejected",
+      "test": "tests/test_tool_capability_system.py::ExternalMcpAdapter.test_real_loopback_mcp_server_tools_are_discovered_and_called"
+    },
+    {
+      "id": "run-container",
+      "requirement": "RUN",
+      "kind": "security",
+      "expected": "No docker -> unavailable; invocation isolated (MOCKED process boundary)",
+      "test": "tests/test_tool_capability_system.py::ContainerAdapter.test_container_is_unavailable_without_docker_and_isolated_when_run"
+    },
+    {
+      "id": "auth",
+      "requirement": "AUTH",
+      "kind": "security",
+      "expected": "Permissions, allowlist, mutation, budgets and expiry enforced; denials recorded",
+      "test": "tests/test_tool_capability_system.py::RuntimeExecution.test_permissions_allowlist_mutation_and_budgets_are_enforced_and_traced"
+    },
+    {
+      "id": "auth-manifest",
+      "requirement": "AUTH",
+      "kind": "security",
+      "expected": "Manifests cannot be native, override builtin ids or inject home/python",
+      "test": "tests/test_tool_capability_system.py::RegistryDiscovery.test_manifests_cannot_be_native_override_builtin_or_inject_host_paths"
+    },
+    {
+      "id": "prov-tamper",
+      "requirement": "PROV",
+      "kind": "security",
+      "expected": "Output budget enforced; edited provenance breaks the chain",
+      "test": "tests/test_tool_capability_system.py::RuntimeExecution.test_output_budget_and_provenance_tamper_detection"
+    },
+    {
+      "id": "prov-replay",
+      "requirement": "PROV",
+      "kind": "positive",
+      "expected": "Replay reproduces identical result digest with parent link",
+      "test": "tests/test_tool_capability_system.py::RuntimeExecution.test_replay_reproduces_deterministic_result"
+    },
+    {
+      "id": "loop-nohardcode",
+      "requirement": "LOOP",
+      "kind": "negative",
+      "expected": "No tool names/keywords in loop control; no forced tool",
+      "test": "tests/test_tool_capability_system.py::AgentLoop.test_loop_has_no_tool_specific_logic_or_keyword_forcing"
+    },
+    {
+      "id": "loop-discover",
+      "requirement": "LOOP",
+      "kind": "positive",
+      "expected": "Tool added mid-task found by agent search, described, called, cited",
+      "test": "tests/test_tool_capability_system.py::AgentLoop.test_agent_discovers_previously_unknown_tool_then_selects_and_uses_it"
+    },
+    {
+      "id": "loop-recover",
+      "requirement": "LOOP",
+      "kind": "failure",
+      "expected": "Invalid input and failure fed back with hint; agent switches tool and completes",
+      "test": "tests/test_tool_capability_system.py::AgentLoop.test_agent_recovers_from_failure_and_switches_tool_when_result_inadequate"
+    },
+    {
+      "id": "loop-compose",
+      "requirement": "LOOP",
+      "kind": "positive",
+      "expected": "Output of one tool feeds the next",
+      "test": "tests/test_tool_capability_system.py::AgentLoop.test_agent_composes_multiple_tools_for_a_new_task"
+    },
+    {
+      "id": "loop-auth-claims",
+      "requirement": "LOOP",
+      "kind": "security",
+      "expected": "Grant not widened by model; fabricated job/execution claims flagged",
+      "test": "tests/test_tool_capability_system.py::AgentLoop.test_authorization_boundary_cannot_be_widened_by_model_and_claims_are_verified"
+    },
+    {
+      "id": "loop-bounds",
+      "requirement": "LOOP",
+      "kind": "boundary",
+      "expected": "Protocol errors bounded by step limit; cancellation honored",
+      "test": "tests/test_tool_capability_system.py::AgentLoop.test_protocol_errors_step_limit_and_cancellation_are_bounded"
+    },
+    {
+      "id": "chat-agent",
+      "requirement": "CHAT",
+      "kind": "positive",
+      "expected": "Agent mode never calls keyword propose; allowlisted tool runs, others denied",
+      "test": "tests/test_tool_capability_system.py::ChatAgentMode.test_agent_mode_replaces_keyword_preselection_and_keeps_session_allowlist"
+    },
+    {
+      "id": "chat-legacy",
+      "requirement": "CHAT",
+      "kind": "boundary",
+      "expected": "Default tool_mode remains legacy",
+      "test": "tests/test_tool_capability_system.py::ChatAgentMode.test_legacy_mode_default_is_unchanged"
+    },
+    {
+      "id": "ext-lifecycle",
+      "requirement": "EXT",
+      "kind": "positive",
+      "expected": "Propose, validate, promote by owner, run, failing new version not promotable, rollback",
+      "test": "tests/test_tool_capability_system.py::Proposals.test_propose_validate_promote_rollback_lifecycle"
+    },
+    {
+      "id": "ext-blocked-tamper",
+      "requirement": "EXT",
+      "kind": "failure",
+      "expected": "No container -> BLOCKED; tampering after validation prevents promotion",
+      "test": "tests/test_tool_capability_system.py::Proposals.test_validation_blocked_without_container_and_tamper_after_validation_rejected"
+    },
+    {
+      "id": "ext-reject",
+      "requirement": "EXT",
+      "kind": "security",
+      "expected": "Native, reserved and path-escaping proposals rejected",
+      "test": "tests/test_tool_capability_system.py::Proposals.test_proposal_rejects_native_reserved_and_path_escape"
+    },
+    {
+      "id": "api",
+      "requirement": "API",
+      "kind": "positive",
+      "expected": "HTTP search/describe/invoke/job/denied/404/provenance verify",
+      "test": "tests/test_tool_capability_system.py::ToolsApi.test_http_discovery_invocation_job_and_provenance_routes"
+    },
+    {
+      "id": "google-settings",
+      "requirement": "GOOGLE",
+      "kind": "negative",
+      "expected": "Off by default; Drive needs dedicated folder and googleapis endpoint; malformed command/folder rejected",
+      "test": "tests/test_google_mcp_isolation.py::GoogleSettings.test_options_are_off_by_default_and_drive_requires_dedicated_folder_and_google_endpoint"
+    },
+    {
+      "id": "google-oauth",
+      "requirement": "GOOGLE",
+      "kind": "security",
+      "expected": "PKCE S256/offline; state mismatch rejected; refresh keeps refresh token; token never sent to other hosts (token endpoint MOCKED)",
+      "test": "tests/test_google_mcp_isolation.py::GoogleSettings.test_oauth_pkce_state_and_token_refresh"
+    },
+    {
+      "id": "colab-isolation",
+      "requirement": "GOOGLE",
+      "kind": "security",
+      "expected": "Real stdio process in isolated folder; no inherited secrets; single isolated root; list_changed refreshes registry; compute permission enforced",
+      "test": "tests/test_google_mcp_isolation.py::ColabIsolation.test_colab_bridge_runs_in_isolated_folder_without_credentials_and_tracks_list_changed"
+    },
+    {
+      "id": "colab-unavailable",
+      "requirement": "GOOGLE",
+      "kind": "failure",
+      "expected": "Missing binary or disabled server is unavailable, never success",
+      "test": "tests/test_google_mcp_isolation.py::ColabIsolation.test_disabled_or_missing_colab_is_unavailable_not_success"
+    },
+    {
+      "id": "drive-exposure",
+      "requirement": "GOOGLE",
+      "kind": "positive",
+      "expected": "Only policy tools exposed; delete_file withheld; bearer token used",
+      "test": "tests/test_google_mcp_isolation.py::DriveFolderGuard.test_only_policy_tools_are_exposed_and_token_is_used"
+    },
+    {
+      "id": "drive-containment",
+      "requirement": "GOOGLE",
+      "kind": "security",
+      "expected": "Inside and nested reads succeed; outside read refused and never forwarded",
+      "test": "tests/test_google_mcp_isolation.py::DriveFolderGuard.test_reads_inside_folder_including_nested_and_refuses_outside"
+    },
+    {
+      "id": "drive-filter-parent",
+      "requirement": "GOOGLE",
+      "kind": "boundary",
+      "expected": "Search filtered to folder; create/copy forced into folder; outside copy refused; writes need workspace_write",
+      "test": "tests/test_google_mcp_isolation.py::DriveFolderGuard.test_search_is_filtered_and_create_copy_are_forced_into_folder"
+    },
+    {
+      "id": "drive-failclosed",
+      "requirement": "GOOGLE",
+      "kind": "failure",
+      "expected": "Unverifiable schema refused; manifests cannot borrow auth/guard/stdio",
+      "test": "tests/test_google_mcp_isolation.py::DriveFolderGuard.test_unverifiable_shapes_fail_closed_and_manifests_cannot_borrow_the_token"
+    },
+    {
+      "id": "loop-truncation",
+      "requirement": "LOOP",
+      "kind": "failure",
+      "expected": "Empty or token-truncated replies become protocol observations, never final answers (regression from live spark diagnostic)",
+      "test": "tests/test_tool_capability_system.py::AgentLoop.test_empty_or_truncated_reply_is_not_accepted_as_a_final_answer"
+    },
+    {
+      "id": "loop-loose-fence",
+      "requirement": "LOOP",
+      "kind": "boundary",
+      "expected": "A json/bare fence holding exactly a protocol action is executed; ordinary JSON in prose stays the answer (regression from live spark diagnostic)",
+      "test": "tests/test_tool_capability_system.py::AgentLoop.test_relabelled_json_fence_is_an_action_but_ordinary_json_is_an_answer"
+    },
+    {
+      "id": "ext-agent-loop",
+      "requirement": "EXT",
+      "kind": "security",
+      "expected": "Agent proposes and self-validates from its loop only with workspace_write; validation cannot exceed the proposer's permissions; agents never promote",
+      "test": "tests/test_tool_capability_system.py::Proposals.test_agent_proposes_and_validates_from_its_loop_without_escalation_or_promotion"
+    },
+    {
+      "id": "mcpx-run",
+      "requirement": "MCPX",
+      "kind": "positive",
+      "expected": "tools/list exposes meta-tools; search/describe/call run a registry tool with mcp principal provenance; mutation denied; no recursion",
+      "test": "tests/test_tool_capability_system.py::McpRegistryBridge.test_external_client_discovers_and_runs_registry_tools_within_owner_permissions"
+    },
+    {
+      "id": "mcpx-boundary",
+      "requirement": "MCPX",
+      "kind": "security",
+      "expected": "Ephemeral chat grants cannot reach bridge tools; owner can disable the bridge",
+      "test": "tests/test_tool_capability_system.py::McpRegistryBridge.test_ephemeral_session_grant_and_owner_switch_keep_the_boundary"
+    }
+  ],
+  "recovery": "Feature is additive and default-off for chat (tool_mode=legacy). Disable by keeping legacy mode; registry data lives only in project data/tools and tool_runs. Max three repair cycles under TASK-NATIVE-TOOLS-660.",
+  "test_environment": "REAL_LOCAL subprocesses, loopback MCP HTTP server, FastAPI TestClient and files in disposable PHDLAB_DATA_DIR; agent-loop and chat cases use an explicitly MOCKED scripted model; container execution MOCKED at the process boundary; real-model acceptance separately in tools/tool_agent_acceptance.py (LIVE_PROVIDER). Google: real stdio fixture process and loopback HTTP fixture standing in for Google servers; Google OAuth token endpoint MOCKED; live Google compatibility recorded separately.",
+  "skill_sources": [
+    "skills/mcp-builder/SKILL.md",
+    "skills/ai-agents-architect/SKILL.md",
+    "skills/codebase-design/SKILL.md",
+    "skills/security-best-practices/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent adversarial review (not independent): authority sources, manifest injection paths, process/containment, provenance integrity, keyword-forcing removal scope. Fixed during review: builtin id override, manifest home/python injection, MCP snapshot kind confusion."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: the same two test modules executed (unittest_worker, REAL_LOCAL) on unmodified HEAD 55852c2 in an isolated archive copy without backend/tools: 47/47 ERROR (feature absent). GREEN: executed in the dev worktree with the implementation: 47/47 PASS, cleanup complete. Agent-loop/chat cases use an explicitly MOCKED scripted model; live model acceptance is separate.",
+    "red": {
+      "path": "docs/qa/evidence/native-tools-660/red.json",
+      "sha256": "ef5a17f4a1e84c313beb60cb6bb8570e469b37ace070ff9af8de3042e084c8c1",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/native-tools-660/green.json",
+      "sha256": "6df4b14039e1616191f8ccc4607a1b456f0bab044e9054b59691d9bdf291d5ae",
+      "exit_code": 0
+    }
+  }
+}

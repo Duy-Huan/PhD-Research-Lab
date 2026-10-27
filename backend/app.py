@@ -80,6 +80,11 @@ async def _shutdown() -> None:
         await asyncio.to_thread(stop_all, "shutdown")
     except Exception:
         pass
+    try:  # v6.6.0: owned Google Colab MCP bridge processes end with the app
+        from backend.tools.google_mcp import stop_servers
+        await asyncio.to_thread(stop_servers)
+    except Exception:
+        pass
     if (load_config().get("lifecycle") or {}).get("unload_on_exit", True):
         try:  # the researcher's rule: closing the app frees the GPU
             await asyncio.wait_for(LC.unload_all_local(force=True), timeout=20)

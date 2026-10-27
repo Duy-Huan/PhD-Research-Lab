@@ -1,3 +1,24 @@
+# Active 2026-10-27: publish 6.6.0 (includes unpublished 6.5.13) through dev -> qa -> main
+
+1. Frozen-source quick/feature/pr for 6.6.0 + CI diagnosability fix; guarded dev push; resume promote watcher; verify exact-SHA CI, PR merges and main CD in browser/API. If the Windows hang recurs, read the uploaded current-test/stall-stack evidence before any repair (TASK-CI-WIN-HANG-6513, max 3).
+2. Official LIVE_PROVIDER acceptance on committed source: spark-x2.5-4b (low reasoning), Codex after its usage reset, Gemini via AI Studio key if the owner adds one; Antigravity only as a researcher-driven MCP client (terms). Pre-registered checks unchanged.
+3. 6.6.1 (owner-approved option 2): provider pool failover between DIFFERENT providers on quota/rate limit (no account rotation, Antigravity excluded), actor attribution in provenance, Antigravity registration as researcher-driven MCP client (/api/tools/clients/antigravity/register), acceptance --pool. Drafted and tested in isolation (57/57).
+4. 6.6.2 frontend sync (owner: simplicity and ease of use): one Settings "Tools" tab with five blocks (agent tool mode switch, provider pool order, searchable registry with availability reasons, Google Colab/Drive connect, Antigravity connect); plus i18n infrastructure: i18next/react-i18next already installed but unused (0 useTranslation; ~1588 hardcoded Vietnamese lines in 61 files). JSON catalogs per namespace, pinned i18next-parser extraction, npm run i18n:check gate in CI, tools/i18n_translate.py filling missing keys through the existing provider layer (local model default, optional DeepL/Google key; machine translations flagged for review; no runtime translation calls). New UI written with keys only.
+5. 6.6.3+: migrate existing screens to i18n keys in batches (shell/sidebar/settings, chat, library, harness, guide, rest), each with updated tests/Playwright selectors and full gates. Later: default tool_mode=agent after test review, mission capabilities into the registry, agent-runtime adapters, real container validation, Google live checks.
+
+# Active 2026-10-27: finish 6.5.13 publication, then 6.6.0 native tool capability system
+
+1. 6.5.13 now includes the owner-authorized TASK-UAT-TEARDOWN-6513 repair (FQC-UAT-TEARDOWN-6513-005). Rerun quick/feature/pr on frozen source; publish via guarded dev push; verify exact-SHA CI, dev->qa->main merges and main CD in browser and API.
+2. 6.6.0 (owner P0 checklist, Native Tool Capability System): registry, unified runtime (grants, budgets, async jobs, streaming, timeout/cancel, retry, hash-chained provenance/replay), python/cli/mcp/container adapters, model-driven tool loop without keyword forcing (session tool_mode=agent), agent tool proposals with sandbox validation/promotion/rollback, /api/tools. FQC-NATIVE-TOOLS-660 with actual RED/GREEN; full gates; then separate bounded LIVE_PROVIDER acceptance with spark-x2.5-4b (owner-authorized) recorded apart from software CI.
+3. 6.6.1 candidates: default tool_mode flip after test review, mission capability unification into the registry, MCP server exposure of registry search/describe, real container validation evidence.
+
+# Active next: owner-granted one CD consistency cycle
+
+1. Apply fail-closed bounded provenance polling and regression tests under reviewed FQC-CD-PROVENANCE-CONSISTENCY-004; preserve every gate/history.6.5.13 because6.5.12 published.
+2. Run fresh quick, feature, pr/all on frozen source; normal guarded dev commit/push, register trusted controller.
+3. Verify new exact-SHA GitHub software checks, actual automatic dev->qa->main and first-push main CD in browser/API; no ad-hoc recovery claimed as fully automatic success. Stop on failed cycle; no budget reset.
+4. Then continue existing native core6.6.xx checklist/audit/confirmed fixes and7reports. No science/L3/L4 claim from software.
+
 # Current priority2026-10-27: complete actual native protected promotion
 
 Owner latest instruction: check web CI/CD conditions and fix if needed.5c71068 dev/PR software CI both SUCCESS; actual remaining blocker is CLEAN PR auto-merge API rejection. Correct existing controllers to normal head-locked protected native merge after the identical gates, refresh changed base/state, preserve all protection/history. Targeted RED/GREEN and Node49PASS recorded; run fresh quick/feature/pr, publish normally, re-register trusted source and verify actual dev->qa->main plus main CD in browser/API. No manual approval, admin/force or gate weakening. Then resume native core6.6.xx audit/corrections and seven reports/363item matrix; no scientific qualification inferred.

@@ -1,0 +1,138 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_provider_pool.Integration.test_chat_agent_mode_fails_over_and_attributes_each_tool_call",
+      "status": "PASS",
+      "duration": 7.8899,
+      "details": null
+    },
+    {
+      "id": "test_provider_pool.Integration.test_owner_config_rejects_account_rotation_and_antigravity",
+      "status": "PASS",
+      "duration": 0.046,
+      "details": null
+    },
+    {
+      "id": "test_provider_pool.LoopContinuity.test_agent_loop_continues_the_same_research_on_the_next_provider",
+      "status": "PASS",
+      "duration": 0.3383,
+      "details": null
+    },
+    {
+      "id": "test_provider_pool.LoopContinuity.test_default_call_uses_existing_provider_paths",
+      "status": "PASS",
+      "duration": 0.0447,
+      "details": null
+    },
+    {
+      "id": "test_provider_pool.PoolRules.test_all_exhausted_is_unavailable_not_success",
+      "status": "PASS",
+      "duration": 0.0417,
+      "details": null
+    },
+    {
+      "id": "test_provider_pool.PoolRules.test_only_quota_errors_fail_over_and_exhausted_providers_rest",
+      "status": "PASS",
+      "duration": 0.0464,
+      "details": null
+    },
+    {
+      "id": "test_provider_pool.PoolRules.test_pool_rotates_providers_never_accounts_and_excludes_antigravity",
+      "status": "PASS",
+      "duration": 0.0414,
+      "details": null
+    },
+    {
+      "id": "test_provider_pool.PoolRules.test_quota_knowledge_is_shared_across_runs",
+      "status": "PASS",
+      "duration": 0.0524,
+      "details": null
+    },
+    {
+      "id": "test_mcp_clients.AntigravityRegistration.test_invalid_existing_file_and_non_local_urls_are_refused",
+      "status": "PASS",
+      "duration": 0.013,
+      "details": null
+    },
+    {
+      "id": "test_mcp_clients.AntigravityRegistration.test_register_merges_preserves_other_servers_backs_up_and_unregisters_only_ours",
+      "status": "PASS",
+      "duration": 0.0488,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_provider_pool.Integration.test_owner_config_rejects_account_rotation_and_antigravity",
+      "id": "test_provider_pool.Integration.test_owner_config_rejects_account_rotation_and_antigravity (bad=['cli:codex', 'cli:codex'])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_provider_pool.Integration.test_owner_config_rejects_account_rotation_and_antigravity",
+      "id": "test_provider_pool.Integration.test_owner_config_rejects_account_rotation_and_antigravity (bad=['cli:antigravity'])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_provider_pool.PoolRules.test_pool_rotates_providers_never_accounts_and_excludes_antigravity",
+      "id": "test_provider_pool.PoolRules.test_pool_rotates_providers_never_accounts_and_excludes_antigravity (bad=['cli:codex', 'cli:codex'])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_provider_pool.PoolRules.test_pool_rotates_providers_never_accounts_and_excludes_antigravity",
+      "id": "test_provider_pool.PoolRules.test_pool_rotates_providers_never_accounts_and_excludes_antigravity (bad=['cli:antigravity'])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_provider_pool.PoolRules.test_pool_rotates_providers_never_accounts_and_excludes_antigravity",
+      "id": "test_provider_pool.PoolRules.test_pool_rotates_providers_never_accounts_and_excludes_antigravity (bad=['codex'])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_provider_pool.PoolRules.test_pool_rotates_providers_never_accounts_and_excludes_antigravity",
+      "id": "test_provider_pool.PoolRules.test_pool_rotates_providers_never_accounts_and_excludes_antigravity (bad=[])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_clients.AntigravityRegistration.test_invalid_existing_file_and_non_local_urls_are_refused",
+      "id": "test_mcp_clients.AntigravityRegistration.test_invalid_existing_file_and_non_local_urls_are_refused (bad='https://evil.example.com/mcp')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_clients.AntigravityRegistration.test_invalid_existing_file_and_non_local_urls_are_refused",
+      "id": "test_mcp_clients.AntigravityRegistration.test_invalid_existing_file_and_non_local_urls_are_refused (bad='http://127.0.0.1/mcp')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_clients.AntigravityRegistration.test_invalid_existing_file_and_non_local_urls_are_refused",
+      "id": "test_mcp_clients.AntigravityRegistration.test_invalid_existing_file_and_non_local_urls_are_refused (bad='http://127.0.0.1:8765/other')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mcp_clients.AntigravityRegistration.test_invalid_existing_file_and_non_local_urls_are_refused",
+      "id": "test_mcp_clients.AntigravityRegistration.test_invalid_existing_file_and_non_local_urls_are_refused (bad='http://10.0.0.2:8765/mcp')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 10,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-43h8o9gt",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

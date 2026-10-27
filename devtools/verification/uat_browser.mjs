@@ -39,6 +39,8 @@ const proxy = http.createServer((req, res) => {
   });
   upstream.setTimeout(30_000, () => upstream.destroy(Error('Bounded UAT upstream timeout')));
   upstream.on('error', () => { if (!res.headersSent) res.writeHead(502); res.end(); });
+  // A closed browser connection ends its upstream too; otherwise long-lived SSE requests keep this process alive.
+  res.on('close', () => { if (!upstream.destroyed) upstream.destroy(); });
   req.pipe(upstream);
 });
 proxy.on('connect', (req, socket) => { blocked.push({ method: 'CONNECT', host: req.url }); socket.end('HTTP/1.1 403 Forbidden\r\n\r\n'); });
@@ -168,3 +170,4 @@ input.close(); process.stdin.destroy();
 await Promise.all(context.pages().map(p => p.goto('about:blank', { waitUntil: 'commit', timeout: 10_000 }).catch(() => {})));
 await context.tracing.stop({ path: join(out, 'trace.zip') });
 await context.close(); proxy.closeAllConnections(); await new Promise(resolve => proxy.close(resolve));
+http.globalAgent.destroy();

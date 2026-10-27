@@ -138,6 +138,12 @@ def _persist(r: dict) -> None:
         pass
 
 
+def _finish(r: dict, **fields) -> None:
+    """Make a terminal update durable first, then visible to readers of the shared record."""
+    _persist({**r, **fields})
+    r.update(fields)
+
+
 def _session(sid: str = "") -> str:
     if sid:
         if not SID_RE.match(sid):
@@ -283,9 +289,8 @@ def send(rid: str, base_url: str = "", mcp: dict | None = None, model: str = "",
         return _send(r, base_url, mcp, model, reasoning)
     except Exception:
         with _changed:
-            r.update(status="failed", ended=time.time())
+            _finish(r, status="failed", ended=time.time())
             _changed.notify_all()
-        _persist(r)
         raise
 
 
@@ -296,8 +301,8 @@ def _send(r, base_url, mcp, model, reasoning):
     if h["state"] in ("DISCONNECTED", "UNAVAILABLE", "AUTH_EXPIRED", "RATE_LIMITED", "ERROR"):
         alt = [p for p, c in C.CONNECTORS.items() if p != r["provider"] and c.capabilities().get("send") is True
                and c.health()["state"] in ("CONNECTED", "UNKNOWN")]
-        r.update(status="failed", health_state=h["state"], errors=[f"{conn.label} is {h['state']}: {h['detail']}"], alternatives=alt)
-        _persist(r)
+        _finish(r, status="failed", health_state=h["state"], errors=[f"{conn.label} is {h['state']}: {h['detail']}"],
+                alternatives=alt)
         audit("refused", request_id=rid, provider=r["provider"], status=h["state"])
         return public(r)  # never an automatic fallback — the researcher picks an alternative
     from backend.core.config import load_config
@@ -345,8 +350,7 @@ def _run(r: dict, conn, ctx: dict) -> None:
         except Exception as e:
             from backend.core.telemetry import redact
             r["errors"].append(redact(f"{type(e).__name__}: {e}")[:300])
-            r.update(status="failed", ended=time.time())
-            _persist(r)
+            _finish(r, status="failed", ended=time.time())
         finally:
             with _changed:
                 _changed.notify_all()
@@ -369,6 +373,9 @@ def _run_inner(r: dict, conn, ctx: dict) -> None:
     t0 = time.perf_counter()
     text = []
     terminal_observed = False
+    # The terminal status stays private until it is durable: readers of r (callers polling get(), the API) must
+    # never see failed/completed while the request file still says running/ready (observed on slow CI runners).
+    final = r["status"]
     try:
         with span("gateway.request", request_id=r["id"], provider=r["provider"], session_id=r["session_id"], streaming=True,
                   context_tokens=r["context_tokens"], context_version=r["context_version"]) as sp:
@@ -394,34 +401,34 @@ def _run_inner(r: dict, conn, ctx: dict) -> None:
                     r["errors"].append(e.get("message", ""))
                 elif e["type"] == "request_cancelled":
                     terminal_observed = True
-                    r["status"] = "cancelled"
+                    final = "cancelled"
                 elif e["type"] == "request_completed":
                     terminal_observed = True
                     if e.get('exit_code') != 0:
                         r['errors'].append('Provider did not report a successful execution exit')
                     if not r.get("answer"):
                         r["answer"] = "".join(text)
-                    r["status"] = "failed" if r["errors"] else "completed"
+                    final = "failed" if r["errors"] else "completed"
             if not r["answer"]:
                 r["answer"] = "".join(text)
-            if r["status"] == "running":
+            if final == "running":
                 if not terminal_observed:
                     r['errors'].append('Provider stream ended without a verified terminal event; partial response retained')
-                r["status"] = "failed" if r["errors"] else "completed"
-            if r['status'] == 'completed' and not r['answer'].strip():
+                final = "failed" if r["errors"] else "completed"
+            if final == 'completed' and not r['answer'].strip():
                 r['errors'].append('Provider completed without a model response')
-                r['status'] = 'failed'
-            sp.update(status=r["status"])
+                final = 'failed'
+            sp.update(status=final)
     except C.ProviderError as e:
         from backend.core.telemetry import redact
         r["errors"].append(redact(str(e)))
-        r["status"] = "failed"
+        final = "failed"
         r["health_state"] = e.state
         _publish(r, {"type": "error", "message": str(e), "ts": time.time()})
     except Exception as e:  # never leave a request "running"
         from backend.core.telemetry import redact
         r["errors"].append(redact(f"{type(e).__name__}: {e}")[:300])
-        r["status"] = "failed"
+        final = "failed"
     finally:
         if not r["answer"]:
             r["answer"] = "".join(text)  # a provider exception must not discard streamed findings
@@ -431,7 +438,7 @@ def _run_inner(r: dict, conn, ctx: dict) -> None:
         if ctx.get("_session"):
             from backend.providers.cli_space import write_output
             write_output(ctx["_session"], r["id"], r["answer"], ctx.get("_stderr"))
-        _persist(r)
+        _finish(r, status=final)  # published only after the durable record carries it
         audit("completed", request_id=r["id"], provider=r["provider"], status=r["status"], session_id=r["session_id"],
               latency_ms=round((time.perf_counter() - t0) * 1000, 1), extra={"first_token_s": r["first_token_s"] or 0,
                                                                               "answer_chars": len(r["answer"])})
@@ -443,9 +450,8 @@ def cancel(rid: str) -> dict:
         if r.get("status") not in ("running", "ready", "starting"):
             raise GatewayError(f"Request is {r.get('status')}")
         if r["status"] == "ready":
-            r.update(status="cancelled", ended=time.time())
+            _finish(r, status="cancelled", ended=time.time())
             _changed.notify_all()
-            _persist(r)
             return public(r)
         if r.get('_cancel'):
             r['_cancel'].set()  # also covers cancellation before launch / while waiting for a lease

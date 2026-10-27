@@ -1,0 +1,23 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_native_coding_artifacts.CodingGateway.test_terminal_status_is_durable_before_any_reader_can_observe_it",
+      "status": "FAIL",
+      "duration": 0.5114,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_native_coding_artifacts.py\", line 138, in test_terminal_status_is_durable_before_any_reader_can_observe_it\n    self.assertEqual(mismatches,[],'a reader saw a terminal status the durable record did not yet contain')\nAssertionError: Lists differ: [('failed', 'ready')] != []\n\nFirst list contains 1 additional elements.\nFirst extra element 0:\n('failed', 'ready')\n\n- [('failed', 'ready')]\n+ [] : a reader saw a terminal status the durable record did not yet contain\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 1,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-3j_qdk_w",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

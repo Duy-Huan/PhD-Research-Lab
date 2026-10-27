@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "6.5.12"
+APP_VERSION = "6.6.1"
 
 ROOT = Path(__file__).resolve().parents[2]
 # PHDLAB_DATA_DIR (v3.2) moves ALL user data elsewhere — used by the test suite so it never touches the real data/.
@@ -207,7 +207,8 @@ DEFAULTS = {
     "aiws": {"enabled": True, "operating_mode": "automation", "provider": "app:auto", "model": "", "reasoning": "auto",
              "context_mode": "relevant", "memory_mode": "suggest", "auto_memory_types": ["open_question"],
              "mcp_auto": True, "mcp_tools": [], "security_profile": "review", "keep_history": True, "summaries": True,
-             "collect_artifacts": True, "context_budget_tokens": 6000, "history_budget_tokens": 4000, "module_defaults": {}, "max_turn_s": 900},
+             "collect_artifacts": True, "context_budget_tokens": 6000, "history_budget_tokens": 4000, "module_defaults": {}, "max_turn_s": 900,
+             "tool_mode": "legacy"},  # v6.6.0: "agent" = model-driven tool loop instead of keyword pre-selection
 }
 # v5 research runs (backend/agent/runs.py) and research providers (backend/providers/research.py)
 DEFAULTS["runs"] = {
@@ -233,10 +234,15 @@ DEFAULTS["research_os"] = {"enabled":False,"team_enabled":False,"multi_team_enab
 DEFAULTS['hermes'] = {'enabled': False, 'model': '', 'deadline_s': 600, 'max_iterations': 16,
                       'max_tokens': 4096, 'free_only': True}
 # v5.1 automatic venue ranking: CORE conference ranks are downloaded (refreshed after refresh_days); SCImago journal
+# v6.6.0 native tool capability system (backend/tools): agent-written proposal code validates in a container unless
+# the owner explicitly allows host validation; external MCP agent clients reach the registry with mcp_permissions.
+DEFAULTS["tools"] = {"allow_host_validation": False, "validation_image": "python:3.12-slim",
+                     "mcp_registry": True, "mcp_permissions": ["read", "compute"],
+                     "provider_pool": [], "pool_cooldown_s": 3600}  # v6.6.1: ordered DIFFERENT providers, empty = off
 # exports cannot be fetched automatically (bot protection), so a scimagojr*.csv saved in Downloads is imported by itself.
 DEFAULTS["ranking"] = {"auto": True, "core_source": "ICORE2026", "watch_downloads": True, "refresh_days": 30}
 SECTIONS_V32 = ("runs", "research_providers", "memory", "resources", "codex", "workspace", "routing", "provenance",
-                "gateway", "mcp", "lifecycle", "aiws", "ui", "ranking", "research_os", "mcp_agent", 'hermes')
+                "gateway", "mcp", "lifecycle", "aiws", "ui", "ranking", "research_os", "mcp_agent", 'hermes', "tools")
 LIFECYCLE_POLICIES = ("unload_after_task", "keep_loaded", "idle_unload")
 SECRET_FIELDS = {"mcp": ("token",), "mcp_agent": ("token",)}
 CHOICES = {("research_providers", "coding_default"): ("claude_code", "codex", "gemini_cli", "antigravity", "app"),
@@ -246,7 +252,7 @@ CHOICES = {("research_providers", "coding_default"): ("claude_code", "codex", "g
            ("memory", "embed_engine"): ("auto", "ollama", "hashing"), ("gateway", "cli_profile"): ("review", "assisted"),
            ("aiws", "operating_mode"): ("automation", "manual"), ("aiws", "context_mode"): ("none", "selected", "relevant", "expanded"),
            ("aiws", "memory_mode"): ("off", "manual", "suggest", "auto"), ("aiws", "security_profile"): ("review", "assisted"),
-           ("aiws", "reasoning"): ("auto", "off", "low", "medium", "high"),
+           ("aiws", "reasoning"): ("auto", "off", "low", "medium", "high"), ("aiws", "tool_mode"): ("legacy", "agent"),
            ("ui", "language"): ("vi", "en"), ("ui", "ai_language"): ("auto", "vi", "en", "bilingual"),
            ("ui", "prose_font"): (
                "sans", "serif", "source-serif", "latex", "merriweather", "lora",
@@ -303,6 +309,15 @@ def _merge_section(sec: str, target: dict, patch: dict, masked_ok: bool) -> None
             target[key] = max(low, min(high, target[key]))
         if target['model'] and not re.fullmatch(r'[\w.:/@+-]{1,160}', target['model']):
             raise ValueError('Invalid Hermes model')
+    if sec == "tools":
+        from backend.tools.provider_pool import normalize
+        try:  # duplicates (account rotation), Antigravity and invalid ids are refused on save
+            target["provider_pool"] = normalize(target["provider_pool"])
+        except ValueError:
+            if masked_ok:
+                raise
+            target["provider_pool"] = []  # a malformed saved pool disables failover instead of breaking startup
+        target["pool_cooldown_s"] = max(60, min(86400, target["pool_cooldown_s"]))
     if sec == "mcp_agent":
         from backend.providers.mcp_agent import endpoint
         if target["url"] or target["enabled"]:

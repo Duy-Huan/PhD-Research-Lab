@@ -674,14 +674,10 @@ def stop_job(job_id: str) -> dict:
                 f'sleep 2; [ -n "$P" ] && (pkill -KILL -P $P 2>/dev/null; kill -KILL $P 2>/dev/null); true'], 20)
     try:
         if IS_WIN:
-            from backend.execution.processes import stop_descendants
-            stop_descendants(job.proc)
-            subprocess.run(["taskkill", "/F", "/T", "/PID", str(job.proc.pid)], capture_output=True,
-                           creationflags=NO_WINDOW, timeout=5)
-            # A sharing/permission failure is reported by taskkill's exit code rather than an exception. Ensure the
-            # process we own is also asked to stop; the waiter reports completion only after it actually exits.
-            if job.proc.poll() is None:
-                job.proc.kill()
+            from backend.execution.processes import stop_tree
+            # Identity-checked: never kills processes behind a reused parent PID. It also stops the process we own;
+            # a failure falls back to that below. The waiter reports completion only after it actually exits.
+            stop_tree(job.proc)
         else:
             os.killpg(os.getpgid(job.proc.pid), signal.SIGTERM) if job.mode == "local" else job.proc.terminate()
     except Exception:

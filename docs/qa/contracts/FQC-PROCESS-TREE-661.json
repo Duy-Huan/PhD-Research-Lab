@@ -1,0 +1,121 @@
+{
+  "id": "FQC-PROCESS-TREE-661",
+  "title": "Windows process-tree stop never kills unrelated processes through reused parent PIDs",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As a researcher pressing Stop (and as the CI owner) I need cancellation to stop only the processes my run started; Windows PID reuse must never let it kill unrelated programs or the CI runner.",
+  "requirements": [
+    {
+      "id": "IDENT",
+      "description": "A process is a descendant only if its ParentProcessId names a tree member AND it was created no earlier than that member; termination uses the same handle that was checked."
+    },
+    {
+      "id": "NOTK",
+      "description": "CLI, sandbox, remote launcher and CI repair cancellation never use taskkill /T; the remote launcher stays free of backend imports."
+    },
+    {
+      "id": "FALLBACK",
+      "description": "If the tree stop fails, the owned process is still killed through its own handle; completion is reported only by the waiter."
+    }
+  ],
+  "nonfunctional": [
+    "No new runtime dependency (ctypes only in backend)",
+    "No test, assertion or threshold relaxed"
+  ],
+  "inputs": [
+    "Owned Popen",
+    "Windows process snapshot"
+  ],
+  "outputs": [
+    "Owned tree terminated"
+  ],
+  "preconditions": [
+    "Windows host for the real-process scenario"
+  ],
+  "postconditions": [
+    "Unrelated processes keep running"
+  ],
+  "dependencies": [
+    "kernel32 Toolhelp32/GetProcessTimes/TerminateProcess",
+    "psutil in devtools only"
+  ],
+  "affected_modules": [
+    "backend/execution/processes.py",
+    "backend/providers/cli.py",
+    "backend/execution/sandbox.py",
+    "backend/execution/remote_runner.py",
+    "devtools/verification/ci_repair.py"
+  ],
+  "acceptance_criteria": [
+    "Stale parent links excluded",
+    "Real owned tree stopped while a bystander survives",
+    "No taskkill in cancellation paths"
+  ],
+  "scenarios": [
+    {
+      "id": "stale-link",
+      "requirement": "IDENT",
+      "kind": "security",
+      "expected": "Older processes naming a reused parent PID are excluded with their subtree",
+      "test": "tests/test_process_tree_identity.py::DescendantSelection.test_stale_parent_links_from_reused_pids_are_excluded"
+    },
+    {
+      "id": "vanished",
+      "requirement": "IDENT",
+      "kind": "boundary",
+      "expected": "Processes that vanished are skipped",
+      "test": "tests/test_process_tree_identity.py::DescendantSelection.test_processes_that_vanished_are_skipped"
+    },
+    {
+      "id": "real-tree",
+      "requirement": "IDENT",
+      "kind": "positive",
+      "expected": "Owned grandchild stopped, bystander alive",
+      "test": "tests/test_process_tree_identity.py::RealWindowsTree.test_owned_tree_stops_and_bystander_survives"
+    },
+    {
+      "id": "no-taskkill",
+      "requirement": "NOTK",
+      "kind": "negative",
+      "expected": "No taskkill in cancellation sources",
+      "test": "tests/test_process_tree_identity.py::NoUnsafeTreeKill.test_cancellation_paths_use_the_identity_checked_stop"
+    },
+    {
+      "id": "fallback",
+      "requirement": "FALLBACK",
+      "kind": "failure",
+      "expected": "Denied tree stop still kills the owned process once",
+      "test": "tests/test_process_tree_identity.py::NoUnsafeTreeKill.test_cli_cancel_falls_back_to_the_owned_handle_when_tree_stop_fails"
+    },
+    {
+      "id": "perf",
+      "requirement": "IDENT",
+      "kind": "performance",
+      "expected": "Real tree stop completes within the 10 s owned wait",
+      "test": "tests/test_process_tree_identity.py::RealWindowsTree.test_owned_tree_stops_and_bystander_survives"
+    }
+  ],
+  "recovery": "Revert processes.py and the four call sites. TASK-CI-WIN-HANG-6513 (owner-authorized root-cause fix 2026-10-27).",
+  "test_environment": "Real processes on every platform (owned stop + bystander survival); grandchild tree stop asserted on Windows, where the identity-checked walk applies; deterministic snapshot selection everywhere.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent): creation-time rule per edge, handle reuse between check and kill, launcher independence, double-kill avoidance."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: before the fix (no select_descendants/stop_tree): 5/5 ERROR. GREEN: with the fix: 5/5 PASS. Two older taskkill-specific tests (test_process_stop, test_provider_connectivity) were updated to the replaced mechanism.",
+    "red": {
+      "path": "docs/qa/evidence/process-tree-661/red.json",
+      "sha256": "58eff444a847af417166ddd91058ef087d2035bba0c7876fb8d5c755d241d4a0",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/process-tree-661/green.json",
+      "sha256": "2cf776d3a03e5a32c06563357b8fd5c4717097c9a14a8f2270dcfc6c8f1a2246",
+      "exit_code": 0
+    }
+  }
+}

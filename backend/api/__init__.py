@@ -39,6 +39,7 @@ from backend.api import (
     review,
     runs,
     system,
+    tools,
 )
 
 ROUTERS = [
@@ -61,4 +62,5 @@ ROUTERS = [
     opencode.router,
     intelligence.router,
     paperorchestra.router,
+    tools.router,
 ]
