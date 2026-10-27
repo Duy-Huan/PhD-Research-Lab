@@ -8,7 +8,7 @@ defusedxml>=0.7.1
 python-multipart>=0.0.9
 # v3.0 Source Control / Publish to GitHub (pure Python; needs Git for Windows installed).
 # If it is missing the app drives the git command line directly.
-GitPython>=3.1.40
+GitPython>=3.2.1
 # Optional, faster/better PDF parsing (native DLL; may be blocked by Windows Smart App Control):
 # pymupdf>=1.24
 # Native experiment tracking reuses project-owned journals and raw artifacts; no tracking service SDK.
