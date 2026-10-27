@@ -1,0 +1,91 @@
+{
+  "id": "FQC-ENGINE-DEADLINE-661",
+  "title": "Native engine deadline test proves cancellation of a dispatched model call regardless of setup speed",
+  "risk": "MEDIUM",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I need the deadline-cancellation guarantee verified deterministically, not only when setup happens to finish within 20 ms.",
+  "requirements": [
+    {
+      "id": "DISPATCHED",
+      "description": "The test dispatches the model call (asserted), then the task deadline cancels that same coroutine once, with no replay and no published report."
+    }
+  ],
+  "nonfunctional": [
+    "Product code unchanged",
+    "Every original assertion kept; one assertion added"
+  ],
+  "inputs": [
+    "Task time_limit_s"
+  ],
+  "outputs": [
+    "timeout EngineFailure"
+  ],
+  "preconditions": [
+    "Native engine setup completes"
+  ],
+  "postconditions": [
+    "No report file"
+  ],
+  "dependencies": [
+    "backend/research_engines/phdlab.py deadline (unchanged)"
+  ],
+  "affected_modules": [
+    "tests/test_research_engines.py"
+  ],
+  "acceptance_criteria": [
+    "Passes with a slow (50 ms) setup that made the old test fail exactly like Windows 3.12 CI"
+  ],
+  "scenarios": [
+    {
+      "id": "dispatched-cancel",
+      "requirement": "DISPATCHED",
+      "kind": "failure",
+      "expected": "Started and cancelled exactly once; one model call; timeout kind",
+      "test": "tests/test_research_engines.py::NativeConformance.test_deadline_cancels_the_actual_coroutine_instead_of_replaying"
+    },
+    {
+      "id": "outside-output",
+      "requirement": "DISPATCHED",
+      "kind": "negative",
+      "expected": "Policy refusal before dispatch still holds",
+      "test": "tests/test_research_engines.py::NativeConformance.test_output_outside_project_is_refused_before_model_dispatch"
+    },
+    {
+      "id": "no-publish",
+      "requirement": "DISPATCHED",
+      "kind": "boundary",
+      "expected": "A failed model call publishes nothing",
+      "test": "tests/test_research_engines.py::NativeConformance.test_native_failure_does_not_publish_report_or_completion"
+    },
+    {
+      "id": "outage",
+      "requirement": "DISPATCHED",
+      "kind": "positive",
+      "expected": "Literature outage visible, not verified sources",
+      "test": "tests/test_research_engines.py::NativeConformance.test_literature_outage_is_visible_and_cannot_become_verified_sources"
+    }
+  ],
+  "recovery": "Revert the test change. TASK-ENGINE-DEADLINE-661, max three cycles.",
+  "test_environment": "RED and GREEN both ran with a temporary 50 ms sleep inserted in engine setup (emulating slow Windows CI) and removed immediately afterwards; product code is unchanged in the commit.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent): deadline includes setup by design (phdlab.py remaining check); old 20 ms budget could expire before dispatch."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: committed test with emulated 50 ms setup: 1/1 FAIL ([] != [True], identical to CI). GREEN: revised test with the same emulation: 1/1 PASS.",
+    "red": {
+      "path": "docs/qa/evidence/engine-deadline-661/red.json",
+      "sha256": "3cb29d3df4847d4c8f7dc1f8c69b6e58dff6b1621b74b2e16ac30d28a60fb3fd",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/engine-deadline-661/green.json",
+      "sha256": "8c75becd689e45f01168f44991bf95b72bfb02bb6aeea5a27bd7f56da7f4ec83",
+      "exit_code": 0
+    }
+  }
+}
