@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "6.6.0"
+APP_VERSION = "6.6.1"
 
 ROOT = Path(__file__).resolve().parents[2]
 # PHDLAB_DATA_DIR (v3.2) moves ALL user data elsewhere — used by the test suite so it never touches the real data/.
@@ -237,7 +237,8 @@ DEFAULTS['hermes'] = {'enabled': False, 'model': '', 'deadline_s': 600, 'max_ite
 # v6.6.0 native tool capability system (backend/tools): agent-written proposal code validates in a container unless
 # the owner explicitly allows host validation; external MCP agent clients reach the registry with mcp_permissions.
 DEFAULTS["tools"] = {"allow_host_validation": False, "validation_image": "python:3.12-slim",
-                     "mcp_registry": True, "mcp_permissions": ["read", "compute"]}
+                     "mcp_registry": True, "mcp_permissions": ["read", "compute"],
+                     "provider_pool": [], "pool_cooldown_s": 3600}  # v6.6.1: ordered DIFFERENT providers, empty = off
 # exports cannot be fetched automatically (bot protection), so a scimagojr*.csv saved in Downloads is imported by itself.
 DEFAULTS["ranking"] = {"auto": True, "core_source": "ICORE2026", "watch_downloads": True, "refresh_days": 30}
 SECTIONS_V32 = ("runs", "research_providers", "memory", "resources", "codex", "workspace", "routing", "provenance",
@@ -308,6 +309,15 @@ def _merge_section(sec: str, target: dict, patch: dict, masked_ok: bool) -> None
             target[key] = max(low, min(high, target[key]))
         if target['model'] and not re.fullmatch(r'[\w.:/@+-]{1,160}', target['model']):
             raise ValueError('Invalid Hermes model')
+    if sec == "tools":
+        from backend.tools.provider_pool import normalize
+        try:  # duplicates (account rotation), Antigravity and invalid ids are refused on save
+            target["provider_pool"] = normalize(target["provider_pool"])
+        except ValueError:
+            if masked_ok:
+                raise
+            target["provider_pool"] = []  # a malformed saved pool disables failover instead of breaking startup
+        target["pool_cooldown_s"] = max(60, min(86400, target["pool_cooldown_s"]))
     if sec == "mcp_agent":
         from backend.providers.mcp_agent import endpoint
         if target["url"] or target["enabled"]:

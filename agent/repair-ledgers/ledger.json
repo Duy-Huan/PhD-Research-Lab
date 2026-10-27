@@ -165,15 +165,45 @@
     "note": "Owner chat 2026-10-27 authorized repairing this new mandatory failure inside the 6.5.13 cycle; max three cycles; no timeout/assertion relaxation."
   },
   "TASK-CI-WIN-HANG-6513": {
-    "attempts": 1,
+    "attempts": 3,
     "history": [
       {
         "sha": "55852c22d6390b55de14ca5d9d3490e2f4ba6c03",
         "status": "FAIL",
         "evidence": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40443777929/job/121990051356",
         "observation": "Push-run Backend (windows-latest, Python 3.12) exceeded the 30m job limit (annotation 'exceeded the maximum execution time of 30m0s'); the same SHA passed this job in the PR run (19.7m); recent Windows jobs take 13-20m. Job killed before its always() upload, so no current-test/stall-stack evidence exists; root cause UNKNOWN. Not rerun unchanged."
+      },
+      {
+        "sha": "cb9c52f842ee38df5febe3fcc26a2c232a3dde82",
+        "status": "FAIL",
+        "evidence": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40453684454 ; docs/qa/evidence/ci-win-timeout-660/",
+        "observation": "With the 6.6.0 diagnosability fix the artifact survived: runner backend stage hit its 1200s budget after 1066 completed cases; last test had just started; stall stacks show no stuck test. Windows 3.12 regression step measured 17.7m and 18.3m on the identical tree (cf90c98) and 20.0m here: cumulative runtime at the budget edge, not a hang. Correction: backend stage 1500s, step 28m, job 35m (resource bounds only; no assertion, threshold or selection change)."
+      },
+      {
+        "sha": "9bbbd4430c20a404f662bbbb8a6d522ca0f656d1",
+        "status": "CANCELLED_EXTERNAL",
+        "evidence": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40460815529/job/122044713772",
+        "observation": "Backend windows-latest Python 3.12 regression step 'The operation was canceled.' after 8.4m (06:33:01Z), far below the 28m step and 25m runner bounds; the always() upload was skipped (whole job cancelled). No concurrent Quality Gates run on refs/heads/dev and no controller cancel logic; the PR run on the same SHA passed. Root cause UNKNOWN (likely hosted runner); not counted as a repair failure, not rerun unchanged. Published 6.6.1 on new source instead."
+      },
+      {
+        "sha": "d2e8e655c1bd1f367caa88c21ec09bbb23283ae4",
+        "status": "FAIL",
+        "evidence": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40468450753/job/122069466641",
+        "observation": "Push-run Backend windows-latest Python 3.12: regression step started 07:40:40Z and never completed; neither the runner 1500s stage budget nor the 28m step timeout ended it; job killed at the 35m limit; job log blob 404 and no artifact. The PR run on the same SHA passed this job in 21m (40468455733). Pattern across 55852c2/9bbbd44/d2e8e65: only push runs of Windows 3.12 fail. Root cause UNKNOWN."
       }
     ],
-    "note": "Correction is diagnosability only: step timeout 24m below the 30m job limit so the always() artifact upload preserves backend-current-test.json and stall-stacks.log. No gate, threshold or assertion relaxed. Published together with 6.6.0 on new source; if the hang recurs the uploaded evidence identifies the test."
+    "note": "Attempt 3 of 3. Root cause (owner-authorized fix 2026-10-27): Windows cancellation walked ParentProcessId (stop_descendants) and taskkill /T, which follow reused parent PIDs into unrelated long-lived processes; killing the GitHub runner explains jobs dying with no log, no artifact and no in-job timeout firing. Fix: identity-checked stop_tree (creation-time rule, same-handle kill), taskkill /T removed (FQC-PROCESS-TREE-661). Safety net: CI watchdog with heartbeats and evidence upload (FQC-CI-WATCHDOG-661). No gate, threshold, assertion or selection relaxed. Confirmation requires the next Windows 3.12 push run; if it recurs, escalate to the owner with the evidence."
+  },
+  "TASK-PROCESS-TREE-661": {
+    "attempts": 1,
+    "history": [
+      {
+        "sha": "f756cc6782360eb210ad88e59ddf5694342d1415",
+        "status": "FAIL",
+        "evidence": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40481197861",
+        "observation": "Windows 3.11 and 3.12 backend PASS (first Windows 3.12 push run to pass since the hang began). Ubuntu 3.11/3.12 FAIL only because RealWindowsTree was skipped on Linux (1 SKIP, 0 FAIL); mandatory gates reject SKIP. Fix: the real-process test runs on every platform; the grandchild assertion applies on Windows only."
+      }
+    ],
+    "note": "Owner-authorized root-cause fix of TASK-CI-WIN-HANG-6513; max three cycles."
   }
 }

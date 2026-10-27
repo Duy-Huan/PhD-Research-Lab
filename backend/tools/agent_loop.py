@@ -94,7 +94,8 @@ def _observation(payload: dict) -> str:
 
 def run(goal: str, complete: Callable[[str, list], str], grant: Grant, *, max_steps: int = 12,
         registry: Registry = REGISTRY, runtime: Runtime = RUNTIME, context: str = "",
-        on_event: Callable[[str, dict], None] | None = None, cancelled: Callable[[], bool] = lambda: False) -> dict:
+        on_event: Callable[[str, dict], None] | None = None, cancelled: Callable[[], bool] = lambda: False,
+        actor: Callable[[], str] | None = None) -> dict:
     """Run the loop. `complete(system, messages) -> str` is any model; `on_event(kind, data)` streams progress."""
     emit = on_event or (lambda kind, data: None)
     can_propose = "workspace_write" in grant.permissions
@@ -157,7 +158,7 @@ def run(goal: str, complete: Callable[[str, list], str], grant: Grant, *, max_st
                 record["tool"] = action.get("tool")
                 emit("tool.started", {"tool": action.get("tool")})
                 job = runtime.run(str(action.get("tool", "")), action.get("args") if isinstance(action.get("args"), dict)
-                                  else {}, grant, version=str(action.get("version", "")))
+                                  else {}, grant, version=str(action.get("version", "")), actor=actor() if actor else "")
                 jobs[job["id"]] = job
                 record.update(job=job["id"], status=job["status"])
                 emit("tool.completed" if job["status"] == "succeeded" else "tool.failed",

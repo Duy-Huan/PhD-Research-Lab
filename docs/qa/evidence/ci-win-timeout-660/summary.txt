@@ -1,0 +1,7 @@
+VERIFY: FAIL
+Profile: pr / backend
+Tests: {"PASS": 0, "FAIL": 0, "ERROR": 0, "SKIP": 0, "NOT_RUN": 0, "BLOCKED": 0, "UNVERIFIED": 0}
+Affected: 0 files; risk CRITICAL
+Gate: backend FAIL Verification timeout; owned process tree stopped. Inspect raw log and current-test/stack diagnostics.
+Evidence: D:\a\PhD-Research-Lab\PhD-Research-Lab\output\playwright\ci\backend\report.json
+Next action: Read the first relevant raw log; repair at most three cycles

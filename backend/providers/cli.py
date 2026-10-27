@@ -85,15 +85,11 @@ def kill_tree(proc) -> None:
         if proc.poll() is not None:
             return
         if sys.platform.startswith("win"):
-            from backend.execution.processes import stop_descendants
-            stop_descendants(proc)
+            from backend.execution.processes import stop_tree
             try:
-                subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)], capture_output=True,
-                               creationflags=NO_WINDOW, timeout=5)
-            except (OSError, subprocess.TimeoutExpired):
-                pass
-            if proc.poll() is None:
-                proc.kill()  # taskkill may be denied or unavailable; still terminate our own child promptly
+                stop_tree(proc)  # identity-checked: never kills processes behind a reused parent PID
+            except OSError:
+                proc.kill()  # the tree stop was denied; still terminate our own child promptly
         else:  # pragma: no cover - POSIX
             import signal
             if os.getpgid(proc.pid) == proc.pid:
@@ -596,7 +592,8 @@ class AntigravityConnector(CLIConnector):
 
     def setup(self) -> list:
         return ["Install Google Antigravity (https://antigravity.google)", "sign in with your Google account (run `agy` once)",
-                "register the PhD-Lab MCP server (Gateway → Antigravity → Register MCP)"]
+                "register the PhD-Lab MCP server (POST /api/tools/clients/antigravity/register), then use Antigravity "
+                "interactively; it reaches the tool registry through phdlab_tools_search/describe/call"]
 
     def argv(self, context: dict) -> list:
         args = [self.binary(), "--output-format", "stream-json", "--input-format", "stream-json", "--sandbox", "--print="]

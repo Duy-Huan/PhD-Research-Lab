@@ -217,12 +217,12 @@ class Runtime:
         return self.get(job_id)
 
     # -------------------------------------------------------------- execution
-    def submit(self, tool_id: str, args: dict, grant: Grant, *, version: str = "", parent: str = "") -> dict:
+    def submit(self, tool_id: str, args: dict, grant: Grant, *, version: str = "", parent: str = "", actor: str = "") -> dict:
         """Validate, authorize and start a tool call asynchronously. Rejections still produce a terminal job and a
         provenance record, so a denied attempt is as traceable as a successful one."""
         job_id = "tj-" + secrets.token_hex(10)
         job = {"id": job_id, "tool": tool_id, "version": version, "principal": grant.principal, "grant_id": grant.id,
-               "parent": parent, "status": "queued", "args": args, "observations": [], "attempts": [],
+               "parent": parent, "actor": actor[:120], "status": "queued", "args": args, "observations": [], "attempts": [],
                "result": None, "error": None, "created": time.time(), "started": None, "finished": None}
         with self.lock:
             self.jobs[job_id] = job
@@ -249,8 +249,8 @@ class Runtime:
         self.pool.submit(self._execute, job_id, spec, args, grant)
         return self.get(job_id)
 
-    def run(self, tool_id: str, args: dict, grant: Grant, *, version: str = "", parent: str = "") -> dict:
-        job = self.submit(tool_id, args, grant, version=version, parent=parent)
+    def run(self, tool_id: str, args: dict, grant: Grant, *, version: str = "", parent: str = "", actor: str = "") -> dict:
+        job = self.submit(tool_id, args, grant, version=version, parent=parent, actor=actor)
         return job if job["status"] in TERMINAL else self.wait(job["id"])
 
     def _execute(self, job_id: str, spec: ToolSpec, args: dict, grant: Grant) -> None:
@@ -342,7 +342,7 @@ class Runtime:
             "job_id": job_id, "ts": time.time(), "principal": grant.principal, "grant_id": grant.id,
             "grant_digest": _digest(grant.model_dump()), "tool": job["tool"], "version": job.get("version", ""),
             "kind": spec.kind if spec else job.get("kind", ""), "spec_digest": spec.digest() if spec else "",
-            "parent": job.get("parent", ""), "args_sha256": _digest(job["args"]),
+            "parent": job.get("parent", ""), "actor": job.get("actor", ""), "args_sha256": _digest(job["args"]),
             "args": json.dumps(job["args"], default=str, ensure_ascii=False)[:4000], "status": status,
             "error": error.as_dict() if error else None, "result_sha256": _digest(result) if result is not None else "",
             "attempts": len(job["attempts"]), "started": job.get("started"), "finished": job["finished"],

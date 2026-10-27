@@ -32,6 +32,12 @@ def contained(root, name):
     return path
 
 
+def _stop_owned_tree(proc):
+    """Stop the run we own. Windows tree kills by parent PID can follow reused PIDs into unrelated processes, and
+    this launcher has no backend imports, so only the owned process handle is terminated."""
+    proc.kill()
+
+
 def main():
     root = Path(__file__).resolve().parent
     manifest_path = root / 'manifest.json'
@@ -75,7 +81,7 @@ def main():
                 proc.wait(timeout=manifest.get('max_seconds', 3600))
             except subprocess.TimeoutExpired:
                 if os.name=='nt':
-                    subprocess.run(['taskkill','/PID',str(proc.pid),'/T','/F'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=15, check=False)
+                    _stop_owned_tree(proc)
                 else:
                     try:os.killpg(proc.pid, signal.SIGKILL)
                     except ProcessLookupError:pass

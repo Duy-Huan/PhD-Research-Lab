@@ -1,0 +1,53 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_ci_watchdog.Watchdog.test_cli_wraps_the_real_regression_command",
+      "status": "PASS",
+      "duration": 0.1499,
+      "details": null
+    },
+    {
+      "id": "test_ci_watchdog.Watchdog.test_failing_command_is_never_turned_into_pass",
+      "status": "PASS",
+      "duration": 0.0358,
+      "details": null
+    },
+    {
+      "id": "test_ci_watchdog.Watchdog.test_hung_tree_is_stopped_at_deadline_with_diagnostics",
+      "status": "PASS",
+      "duration": 1.6951,
+      "details": null
+    },
+    {
+      "id": "test_ci_watchdog.Watchdog.test_passing_command_keeps_its_exit_code_and_reports_heartbeats",
+      "status": "PASS",
+      "duration": 0.7406,
+      "details": null
+    },
+    {
+      "id": "test_ci_watchdog.Watchdog.test_unrelated_processes_survive_the_timeout_stop",
+      "status": "PASS",
+      "duration": 1.0581,
+      "details": null
+    },
+    {
+      "id": "test_ci_watchdog.Watchdog.test_workflow_runs_backend_regression_under_the_watchdog_below_step_and_job_limits",
+      "status": "PASS",
+      "duration": 0.0009,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 6,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-w0izvgw3",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

@@ -143,6 +143,24 @@ async def google_stop():
     return {"stopped": await _call(google_mcp.stop_servers)}
 
 
+@router.get("/api/tools/clients")
+async def clients_status():
+    from backend.tools import mcp_clients
+    return await _call(mcp_clients.status)
+
+
+@router.post("/api/tools/clients/antigravity/register")
+async def clients_register_antigravity(request: Request):
+    from backend.tools import mcp_clients
+    return await _call(mcp_clients.register_antigravity, str(request.base_url).rstrip("/") + "/mcp")
+
+
+@router.post("/api/tools/clients/antigravity/unregister")
+async def clients_unregister_antigravity():
+    from backend.tools import mcp_clients
+    return await _call(mcp_clients.unregister_antigravity)
+
+
 @router.get("/api/tools/proposals")
 async def proposal_list():
     return {"proposals": await _call(P.listing)}

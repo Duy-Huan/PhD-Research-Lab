@@ -167,6 +167,8 @@ def main() -> int:
     parser.add_argument("--max-steps", type=int, default=16)
     parser.add_argument("--deadline", type=float, default=900)
     parser.add_argument("--max-tokens", type=int, default=8000)  # reasoning models spend tokens on thinking first
+    parser.add_argument("--pool", default="", help="comma-separated provider pool, e.g. cli:claude_code,cli:codex,app:local "
+                                                   "(overrides --provider; failover only on quota/rate limit)")
     parser.add_argument("--reasoning", choices=["auto", "off", "low", "medium", "high"], default="auto",
                         help="the application's reasoning level (local streaming path sends reasoning_effort)")
     args = parser.parse_args()
@@ -231,7 +233,24 @@ def main() -> int:
                                "seconds": round(time.monotonic() - t0, 2)})
             return reply
 
-        result = agent_loop.run(GOAL, complete, grant, max_steps=args.max_steps, registry=rt.registry, runtime=rt)
+        pool = None
+        if args.pool:
+            from backend.tools.provider_pool import ProviderPool, default_call
+            members = [{"provider": p.split("=")[0], "model": (p.split("=") + [""])[1]} for p in args.pool.split(",") if p]
+            pool = ProviderPool(members, default_call(cfg, args.max_tokens), rest_until={})
+            models.REASONING.set(args.reasoning)
+            report["pool"] = pool.members
+
+            def complete(system, messages):  # noqa: F811 - the pool replaces the single-provider call
+                t0 = time.monotonic()
+                reply = pool.complete(system, messages)
+                transcript.append({"provider": pool.current()["provider"], "messages": len(messages), "reply": reply,
+                                   "seconds": round(time.monotonic() - t0, 2)})
+                return reply
+        result = agent_loop.run(GOAL, complete, grant, max_steps=args.max_steps, registry=rt.registry, runtime=rt,
+                                actor=(lambda: pool.current()["provider"]) if pool else (lambda: args.provider))
+        if pool:
+            report["pool_summary"] = pool.summary()
         report.update(loop=result, transcript=transcript, provenance=provenance(limit=200),
                       provenance_chain=verify_provenance(), elapsed_s=round(time.monotonic() - started, 1))
         if not transcript:

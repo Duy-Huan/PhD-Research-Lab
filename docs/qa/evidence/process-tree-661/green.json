@@ -1,0 +1,72 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_process_tree_identity.DescendantSelection.test_processes_that_vanished_are_skipped",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_process_tree_identity.DescendantSelection.test_stale_parent_links_from_reused_pids_are_excluded",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_process_tree_identity.NoUnsafeTreeKill.test_cancellation_paths_use_the_identity_checked_stop",
+      "status": "PASS",
+      "duration": 0.0007,
+      "details": null
+    },
+    {
+      "id": "test_process_tree_identity.NoUnsafeTreeKill.test_cli_cancel_falls_back_to_the_owned_handle_when_tree_stop_fails",
+      "status": "PASS",
+      "duration": 0.0033,
+      "details": null
+    },
+    {
+      "id": "test_process_tree_identity.RealWindowsTree.test_owned_tree_stops_and_bystander_survives",
+      "status": "PASS",
+      "duration": 0.1437,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_process_tree_identity.NoUnsafeTreeKill.test_cancellation_paths_use_the_identity_checked_stop",
+      "id": "test_process_tree_identity.NoUnsafeTreeKill.test_cancellation_paths_use_the_identity_checked_stop (rel='backend/providers/cli.py')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_process_tree_identity.NoUnsafeTreeKill.test_cancellation_paths_use_the_identity_checked_stop",
+      "id": "test_process_tree_identity.NoUnsafeTreeKill.test_cancellation_paths_use_the_identity_checked_stop (rel='backend/execution/sandbox.py')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_process_tree_identity.NoUnsafeTreeKill.test_cancellation_paths_use_the_identity_checked_stop",
+      "id": "test_process_tree_identity.NoUnsafeTreeKill.test_cancellation_paths_use_the_identity_checked_stop (rel='backend/execution/remote_runner.py')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_process_tree_identity.NoUnsafeTreeKill.test_cancellation_paths_use_the_identity_checked_stop",
+      "id": "test_process_tree_identity.NoUnsafeTreeKill.test_cancellation_paths_use_the_identity_checked_stop (rel='devtools/verification/ci_repair.py')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 5,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-svynbuyv",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}
