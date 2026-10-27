@@ -1,0 +1,186 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_mission_tools.MissionTools.test_call_creates_a_governed_mission_awaiting_researcher_approval",
+      "status": "PASS",
+      "duration": 0.4187,
+      "details": null
+    },
+    {
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "status": "PASS",
+      "duration": 1.9047,
+      "details": null
+    },
+    {
+      "id": "test_mission_tools.MissionTools.test_invalid_capability_arguments_are_structured_errors",
+      "status": "PASS",
+      "duration": 0.2512,
+      "details": null
+    },
+    {
+      "id": "test_mission_tools.MissionTools.test_read_only_grant_cannot_create_missions",
+      "status": "PASS",
+      "duration": 0.0672,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='experiment.verify')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='artifact.verify')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='experiment.run')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='paper.discover')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='paper.download')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='paper.inspect')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='paper.compare')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='workspace.sync')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='mission.report')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='figure.create_2d')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='figure.create_comparison')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='figure.render_diagram')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='figure.render_waveform')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='figure.create_3d')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='figure.validate')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='figure.export')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='figure.regenerate')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='code.implement')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='paperorchestra.outline')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='paperorchestra.section_write')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='paperorchestra.refine')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='paperorchestra.cite_verify')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='paperorchestra.figure_integrate')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool (cap='paperorchestra.full_orchestration')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 4,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-x166l3td",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}
