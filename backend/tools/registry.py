@@ -204,6 +204,10 @@ class Registry:
             _probe_cache[key] = (time.monotonic(), state)
         return state
 
+    def ids(self) -> list[str]:
+        """Every registered tool id, without probing availability."""
+        return sorted(self._all()[0])
+
     def listing(self, *, kind: str = "", capability: str = "", include_unavailable: bool = True) -> dict:
         by_id, active, problems = self._all()
         tools = []

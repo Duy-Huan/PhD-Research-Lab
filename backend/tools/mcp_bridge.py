@@ -48,14 +48,15 @@ _lock = threading.Lock()
 
 def grant_for(client: dict) -> Grant:
     """v6.6.2: authority comes from the owner's profiles (tools.client_profiles / tools.agent_profile), no budgets.
-    A PhD-Lab-issued ephemeral session grant (CLI agents, Hermes) keeps its own tool list under the agent profile."""
+    A PhD-Lab-issued ephemeral session grant (CLI agents, Hermes) runs under the agent profile, scoped to the registry
+    patterns issued with it (agent mode) or else to its own MCP tool list."""
     from backend.tools import profiles
     session = str(client.get("session") or client.get("name") or "mcp-client")[:80]
     name = str(client.get("name") or "client")[:60]
     ephemeral = client.get("grant")
     principal = f"mcp:{name}:{session}"
     base = profiles.agent_grant(principal) if ephemeral else profiles.client_grant(name, principal)
-    tools = sorted(ephemeral["tools"]) if ephemeral else base.tools
+    tools = sorted(ephemeral.get("registry", ephemeral["tools"])) if ephemeral else base.tools
     key = json.dumps([principal, tools, base.permissions])
     with _lock:
         g = _grants.get(key)

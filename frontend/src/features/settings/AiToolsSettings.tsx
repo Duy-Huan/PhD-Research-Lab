@@ -20,6 +20,8 @@ const PERMS = [
   { id: 'compute', icon: Cpu },
   { id: 'network', icon: Globe },
   { id: 'workspace_write', icon: FolderPen },
+  { id: 'process', icon: Terminal },
+  { id: 'reasoning', icon: Sparkles },
 ] as const;
 const PROVIDERS = ['cli:claude_code', 'cli:codex', 'app:local', 'app:ollama', 'app:gemini', 'app:openai', 'app:anthropic'];
 const KIND_ICON: Record<string, React.ElementType> = { native: Sparkles, python: Code2, cli: Terminal, mcp: Network, container: Container };

@@ -42,6 +42,18 @@ describe('AI tools settings', () => {
       { tools: { agent_profile: { permissions: ['read', 'compute', 'network'], tools: ['*'] } } }));
   });
 
+  it('offers every permission the backend grants, including process for running programs', async () => {
+    renderWithProviders(<AiToolsSettings />);
+    // backend/tools/spec.py PERMISSIONS: without a toggle the owner could never grant sandbox_run_code (needs process).
+    for (const id of ['read', 'compute', 'network', 'workspace_write', 'process', 'reasoning']) {
+      expect(await screen.findByTestId(`perm-${id}`)).toBeInTheDocument();
+    }
+    expect(screen.getByTestId('perm-process')).toHaveTextContent('Run programs');
+    fireEvent.click(screen.getByTestId('perm-process'));
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith('/api/config',
+      { tools: { agent_profile: { permissions: ['read', 'compute', 'process'], tools: ['*'] } } }));
+  });
+
   it('switches between agent and legacy tool mode', async () => {
     renderWithProviders(<AiToolsSettings />);
     const toggle = await screen.findByTestId('agent-mode-toggle');

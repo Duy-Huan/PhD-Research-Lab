@@ -623,10 +623,11 @@ def _app(sid, tid, s, t, v):
 
 def _app_agent(sid, tid, t, v, system, msgs, limit):
     """tool_mode=agent (default since v6.6.2): the model discovers, selects, chains and recovers from registry tools.
-    Authority is the owner's agent profile (tools.agent_profile); a session's explicit tool list narrows it and topic
-    isolation (["-"]) removes all tools. No step, call or time budget: the user's Stop ends the work."""
+    Authority is the owner's agent profile (tools.agent_profile); a session's explicit tool list narrows it, an explicit
+    ["-"] removes all tools and a Topic hides only the project-scope tools. No step, call or time budget: the user's Stop
+    ends the work."""
     from backend.tools import agent_loop, profiles
-    grant = profiles.agent_grant(f"session:{sid}", session_tools=v["mcp_tools"])
+    grant = profiles.agent_grant(f"session:{sid}", session_tools=_agent_tools(t, v))
     errors = []
     from backend.core.config import load_config
     tools_cfg = load_config().get("tools") or {}
@@ -750,9 +751,38 @@ async def _engine_stream(llm, cfg, eng, system, msgs, model):
             emitted = len(vis)
 
 
+def _agent_tools(t, v) -> list:
+    """Registry scope of the agent for this turn. Topic isolation hides the project-scope MCP tools (memory, files,
+    sandbox) but not the owner's agent profile; an explicit ["-"] from the session or module still removes every tool."""
+    if ((t.get("effective") or {}).get("mcp_tools") or {}).get("source") != "topic isolation":
+        return v["mcp_tools"]
+    from backend.tools.registry import REGISTRY
+    project = {x["name"] for x in mcp_policy.catalog()}
+    return [i for i in REGISTRY.ids() if i not in project] or ["-"]
+
+
+def _cli_grant(sid, t, v, provider: str) -> tuple[list, list | None, str]:
+    """(MCP tools, registry scope, security profile) of a CLI or runtime agent turn. In agent mode the CLI reaches the
+    registry through the phdlab_tools_* meta-tools under the agent profile, and writes its own session workspace when
+    the profile grants workspace_write and the provider enforces that isolation (as Hermes does); legacy mode keeps
+    the read-only MCP allowlist."""
+    allow = mcp_policy.allowed(v["mcp_tools"])
+    if v.get("tool_mode") != "agent":
+        return allow, None, v["security_profile"]
+    from backend.providers import cli_space as W
+    from backend.tools import mcp_bridge, profiles
+    grant = profiles.agent_grant(f"session:{sid}", session_tools=_agent_tools(t, v))
+    if not grant.tools:
+        return allow, None, v["security_profile"]
+    iso = W.isolation(provider, "assisted")
+    profile = "assisted" if grant.allow_mutation and iso["supported"] and iso["enforced"] else v["security_profile"]
+    return sorted(set(allow) | mcp_bridge.NAMES), list(grant.tools), profile
+
+
 def _cli(sid, tid, s, t, v):
     from backend.providers import gateway as GS
     name = v["provider"].split(':', 1)[1]
+    allow, registry, profile = _cli_grant(sid, t, v, name)
     hist, history_manifest = _history_packet(s, tid)
     _set(sid, tid, history_manifest=history_manifest)
     hist_text = ""
@@ -761,14 +791,13 @@ def _cli(sid, tid, s, t, v):
         hist_text = "\n\n# RECENT CONVERSATION IN THIS SESSION\n" + "\n\n".join(hist_lines)
     ctx_text = instructions(s["binding"]["module"], t.get("skill", "")) + "\n" + (t.get("context_text") or "") + hist_text
     try:
-        r = GS.prepare(t["question"], name, session_id=s["gateway_session"], profile=v["security_profile"],
+        r = GS.prepare(t["question"], name, session_id=s["gateway_session"], profile=profile,
                        allow_weaker=bool(v.get("consent_weaker")), module_context=ctx_text,
                        memory=False)  # upstream context.compile already selected/versioned the memory for this turn
     except GS.GatewayError as e:
         return "", None, str(e), False
     store.update(sid, lambda x: x.update(gateway_session=r["session_id"]))
-    allow = mcp_policy.allowed(v["mcp_tools"])
-    mcp = {"token": mcp_policy.issue(sid, allow), "tools": allow}  # every CLI: scoped grant (providers/firewall.py)
+    mcp = {"token": mcp_policy.issue(sid, allow, registry=registry), "tools": allow}  # every CLI: scoped grant (providers/firewall.py)
     with _lock:
         _running.setdefault(tid, {"cancel": threading.Event(), "rid": ""})["rid"] = r["id"]
     _set(sid, tid, gateway_request=r["id"])

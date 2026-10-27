@@ -233,6 +233,12 @@ class CLIConnector(ProviderConnector):
             raise ProviderError('Native CLI command prefix does not match its connector')
         command = [binary, *[('/workspace' + str(part)[len(workspace):].replace('\\', '/'))
                             if str(part).startswith(workspace + os.sep) else part for part in args[len(prefix):]]]
+        if self.provider_id == 'codex':
+            # The container is the boundary (read-only root, no capabilities, workspace mounted read-only for review):
+            # Codex's own bubblewrap sandbox cannot start without namespaces there and would break every shell command.
+            command = ['danger-full-access' if i and command[i - 1] == '--sandbox' else
+                       'sandbox_mode=danger-full-access' if str(part).startswith('sandbox_mode=') else part
+                       for i, part in enumerate(command)]
         if self.provider_id == 'codex' and mcp:
             extra = ['-c', 'mcp_servers.phdlab.url="http://127.0.0.1:3128/mcp"']
             command = command[:-1] + extra + command[-1:] if command[-1:] == ['-'] else command + extra
