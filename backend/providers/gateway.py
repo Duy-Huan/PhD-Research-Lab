@@ -81,6 +81,47 @@ def audit(event: str, **meta) -> None:
         pass
 
 
+def usage_report(limit: int = 2000) -> dict:
+    """Project-scoped measured gateway metadata; prompts and answers never leave this report."""
+    import math
+    files = sorted(_dir('requests').glob('gw-*.json'), key=lambda p: p.stat().st_mtime, reverse=True)
+    groups, malformed = {}, 0
+    def tokens(usage, names):
+        for name in names:
+            value = usage.get(name)
+            if type(value) is int and value >= 0: return value
+        return None
+    for path in files[:limit]:
+        try:
+            if path.stat().st_size > 5_000_000: raise ValueError('Oversized record')
+            value = json.loads(path.read_text('utf-8'))
+            provider = value['provider']; model = value.get('executing_model') or '(not reported)'
+            if not isinstance(provider, str) or not isinstance(model, str): raise ValueError('Invalid identity')
+            group = groups.setdefault((provider, model), {'provider': provider, 'model': model, 'requests': 0,
+                'completed': 0, 'failed': 0, 'cancelled': 0, 'input_tokens': None, 'output_tokens': None,
+                'usage_reported': 0, '_latencies': []})
+            group['requests'] += 1
+            if value.get('status') in ('completed', 'failed', 'cancelled'): group[value['status']] += 1
+            usage = value.get('usage') or {}
+            if not isinstance(usage, dict): raise ValueError('Invalid usage record')
+            incoming = tokens(usage, ('input_tokens', 'prompt_tokens', 'inputTokens'))
+            outgoing = tokens(usage, ('output_tokens', 'completion_tokens', 'outputTokens'))
+            if incoming is not None or outgoing is not None: group['usage_reported'] += 1
+            if incoming is not None: group['input_tokens'] = (group['input_tokens'] or 0) + incoming
+            if outgoing is not None: group['output_tokens'] = (group['output_tokens'] or 0) + outgoing
+            latency = (value.get('timings_ms') or {}).get('total')
+            if type(latency) in (int, float) and math.isfinite(latency) and latency >= 0: group['_latencies'].append(latency)
+        except (OSError, ValueError, KeyError, TypeError): malformed += 1
+    rows = []
+    for group in groups.values():
+        latencies = group.pop('_latencies')
+        group['mean_latency_ms'] = round(sum(latencies) / len(latencies), 2) if latencies else None
+        rows.append(group)
+    return {'scope': 'Current project durable gateway requests; no inferred API/CLI/subscription cost',
+            'providers': sorted(rows, key=lambda row: (row['provider'], row['model'])),
+            'total_requests': sum(row['requests'] for row in rows), 'malformed_records': malformed, 'truncated': len(files) > limit}
+
+
 def _persist(r: dict) -> None:
     from pathlib import Path
     from backend.core.config import data_dir
@@ -102,9 +143,15 @@ def _session(sid: str = "") -> str:
         if not SID_RE.match(sid):
             raise GatewayError("Invalid session id")
         return sid
-    sid = "gs-" + secrets.token_hex(4)
-    (_dir("sessions") / f"{sid}.json").write_text(json.dumps({"id": sid, "created": time.time(), "requests": []}), "utf-8")
-    return sid
+    for _ in range(8):
+        sid = "gs-" + secrets.token_hex(4)
+        try:
+            with (_dir("sessions") / f"{sid}.json").open('x', encoding='utf-8') as stream:
+                json.dump({"id": sid, "created": time.time(), "requests": []}, stream)
+            return sid
+        except FileExistsError:
+            continue
+    raise GatewayError('Could not allocate a distinct gateway session; existing histories were preserved')
 
 
 def _session_add(sid: str, rid: str, provider: str) -> None:
@@ -194,6 +241,24 @@ def get(rid: str) -> dict:
     if not f.exists():
         raise GatewayError("Request not found")
     r = json.loads(f.read_text("utf-8"))
+    if r.get('status') in ('starting', 'running') and r.get('provider') == 'hermes' and r.get('runtime_job_id'):
+        from backend.providers.hermes import rpc
+        try:
+            job = rpc('/v1/jobs/' + r['runtime_job_id'], profile=r.get('profile', 'review'), timeout=5)
+            r['runtime_job_status'] = job.get('status')
+            r['detached_runtime'] = True
+            if job.get('status') == 'completed':
+                r.update(status='completed', answer=job['answer'], usage=job.get('usage'), ended=job.get('ended'))
+            elif job.get('status') not in ('running',):
+                r.update(status='failed', ended=job.get('ended') or time.time())
+                r.setdefault('errors', []).append(job.get('error') or 'Hermes runtime interrupted; no automatic replay')
+            _persist(r)
+            return r
+        except C.ProviderError:
+            # An unavailable RPC service is not evidence of job completion or process death.
+            r['runtime_job_status'] = 'UNAVAILABLE'
+            r['detached_runtime'] = True
+            return r
     if r.get("status") in ("starting", "running"):
         r.update(status="failed", ended=time.time())
         r.setdefault("errors", []).append("CLI process lost after restart; partial outputs retained. Resume explicitly.")
@@ -248,11 +313,18 @@ def _send(r, base_url, mcp, model, reasoning):
     r["workspace"] = sess["dir"]
     ctx = {"request_id": rid, "resume_session": r.get("resume_session", ""), "cwd": sess["cwd"], "profile": profile,
            "_session": sess, "_cancel": r["_cancel"], "_timings_ms": r["timings_ms"]}
+    if r['provider'] == 'hermes':
+        # Publish before the model-bearing POST. A disconnect cannot lose the correlation.
+        import hashlib
+        r['runtime_job_id'] = hashlib.sha256((r['project_dir'] + ':' + rid).encode()).hexdigest()[:32]
+        ctx['runtime_job_id'] = r['runtime_job_id']
+        _persist(r)
     if model:
         ctx["model"] = model
     if reasoning:
         ctx["reasoning"] = reasoning
-    if base_url and mcfg.get("enabled") and mcfg.get("expose_research") and (mcp is None or mcp["tools"]):
+    if (base_url and mcfg.get("enabled") and mcfg.get("expose_research") and (mcp is None or mcp['tools'])
+            and (r['provider'] != 'hermes' or mcp is not None)):
         ctx["mcp_url"] = base_url.rstrip("/") + "/mcp"
         ctx["mcp_token"] = mcp["token"] if mcp else mcfg.get("token", "")
         if mcp:
@@ -296,6 +368,7 @@ def _run_inner(r: dict, conn, ctx: dict) -> None:
     first = None
     t0 = time.perf_counter()
     text = []
+    terminal_observed = False
     try:
         with span("gateway.request", request_id=r["id"], provider=r["provider"], session_id=r["session_id"], streaming=True,
                   context_tokens=r["context_tokens"], context_version=r["context_version"]) as sp:
@@ -310,14 +383,34 @@ def _run_inner(r: dict, conn, ctx: dict) -> None:
                     r["answer"] = e["final_text"]
                 elif e["type"] == "status" and e.get("state") == "session":
                     r["provider_session"] = e.get("session_id", "")
-                elif e["type"] == "error":
+                    if e.get('runtime_job_id'):
+                        r['runtime_job_id'] = e['runtime_job_id']
+                        _persist(r)
+                if isinstance(e.get('usage'), dict):
+                    r['usage'] = e['usage']
+                if e.get('model'):
+                    r['executing_model'] = e['model']
+                if e["type"] == "error":
                     r["errors"].append(e.get("message", ""))
                 elif e["type"] == "request_cancelled":
+                    terminal_observed = True
                     r["status"] = "cancelled"
+                elif e["type"] == "request_completed":
+                    terminal_observed = True
+                    if e.get('exit_code') != 0:
+                        r['errors'].append('Provider did not report a successful execution exit')
+                    if not r.get("answer"):
+                        r["answer"] = "".join(text)
+                    r["status"] = "failed" if r["errors"] else "completed"
             if not r["answer"]:
                 r["answer"] = "".join(text)
             if r["status"] == "running":
+                if not terminal_observed:
+                    r['errors'].append('Provider stream ended without a verified terminal event; partial response retained')
                 r["status"] = "failed" if r["errors"] else "completed"
+            if r['status'] == 'completed' and not r['answer'].strip():
+                r['errors'].append('Provider completed without a model response')
+                r['status'] = 'failed'
             sp.update(status=r["status"])
     except C.ProviderError as e:
         from backend.core.telemetry import redact
@@ -354,7 +447,15 @@ def cancel(rid: str) -> dict:
             _changed.notify_all()
             _persist(r)
             return public(r)
-        r["_cancel"].set()  # also covers cancellation before Popen / while waiting for a lease
+        if r.get('_cancel'):
+            r['_cancel'].set()  # also covers cancellation before launch / while waiting for a lease
+        elif r.get('provider') == 'hermes' and r.get('runtime_job_id'):
+            from backend.providers.hermes import rpc
+            job = rpc('/v1/jobs/' + r['runtime_job_id'] + '/cancel', {}, profile=r.get('profile', 'review'))
+            r.update(status=job.get('status', r['status']), ended=job.get('ended'))
+            _persist(r)
+            _changed.notify_all()
+            return public(r)
     out = C.get(r["provider"]).cancel(rid)
     with _changed:
         _changed.notify_all()

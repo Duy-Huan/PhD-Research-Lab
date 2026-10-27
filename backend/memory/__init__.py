@@ -285,8 +285,9 @@ async def worker(stop_event: asyncio.Event):
                 update(lambda st: st["stats"].update(last_check=_now()))
             delay = max(30, int(cfg.get("interval_s", 180)))
         except Exception as e:
+            error_text=f"{type(e).__name__}: {e}"[:300]
             try:
-                update(lambda st: st["stats"].update(last_error=f"{type(e).__name__}: {e}"[:300], last_check=_now()))
+                update(lambda st: st["stats"].update(last_error=error_text, last_check=_now()))
             except Exception:
                 pass
             delay = 300

@@ -1,0 +1,53 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_actual_uat_server_allows_language_and_denies_other_writes",
+      "status": "PASS",
+      "duration": 1.5677,
+      "details": null
+    },
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_failure_recovery_browser_oracle_requires_observed_fault_and_real_reload",
+      "status": "FAIL",
+      "duration": 33.6603,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\browser_acceptance_integration.py\", line 81, in test_failure_recovery_browser_oracle_requires_observed_fault_and_real_reload\n    self._browser_journey_without_model('failure-recovery',\"\"\"\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\browser_acceptance_integration.py\", line 76, in _browser_journey_without_model\n    self.assertEqual(unexpected_events(evidence),[],str(out))\nAssertionError: Lists differ: [{'phase': 'EXPECTED_FAULT_INJECTION', 'ki[274 chars]e.\"}] != []\n\nFirst list contains 1 additional elements.\nFirst extra element 0:\n{'phase': 'EXPECTED_FAULT_INJECTION', 'kind': 'console', 'url': 'http://127.0.0.1:54233/dist/react.html', 'text': \"Access to fetch at 'http://example.invalid/uat-canary' from origin 'http://127.0.0.1:54233' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.\"}\n\n+ []\n- [{'kind': 'console',\n-   'phase': 'EXPECTED_FAULT_INJECTION',\n-   'text': \"Access to fetch at 'http://example.invalid/uat-canary' from origin \"\n-           \"'http://127.0.0.1:54233' has been blocked by CORS policy: No \"\n-           \"'Access-Control-Allow-Origin' header is present on the requested \"\n-           'resource.',\n-   'url': 'http://127.0.0.1:54233/dist/react.html'}] : D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\uat-journey-selftest\\20261025T230850-296f345b01c54da39ba6c635bb382e06\n"
+    },
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_native_workflow_browser_oracle_retains_actual_cpu_artifacts_without_model",
+      "status": "ERROR",
+      "duration": 35.7059,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\browser_acceptance_integration.py\", line 89, in test_native_workflow_browser_oracle_retains_actual_cpu_artifacts_without_model\n    self._browser_journey_without_model('workflow-operations',\"\"\"\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\browser_acceptance_integration.py\", line 76, in _browser_journey_without_model\n    self.assertEqual(unexpected_events(evidence),[],str(out))\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\devtools\\verification\\uat_gate.py\", line 23, in unexpected_events\n    return [event for event in browser.get('events',[]) if not expected(event)]\n                                                               ^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\devtools\\verification\\uat_gate.py\", line 19, in expected\n    return (fault.get('id')=='UAT-CONFIG-503' and fault.get('path')=='/api/config'\n            ^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'get'\n"
+    },
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_owned_browser_origin_proxy_and_finish_without_model",
+      "status": "PASS",
+      "duration": 32.4453,
+      "details": null
+    },
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_project_journey_has_owned_creation_but_cannot_switch_provider_or_launch_tools",
+      "status": "PASS",
+      "duration": 1.6855,
+      "details": null
+    },
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_python_worker_denies_file_mutation_and_processes_outside_lease",
+      "status": "PASS",
+      "duration": 0.2308,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 6,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-q0djwb2k",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

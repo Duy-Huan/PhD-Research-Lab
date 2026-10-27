@@ -1,0 +1,35 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_actual_uat_server_allows_language_and_denies_other_writes",
+      "status": "PASS",
+      "duration": 1.5596,
+      "details": null
+    },
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_owned_browser_origin_proxy_and_finish_without_model",
+      "status": "PASS",
+      "duration": 32.4089,
+      "details": null
+    },
+    {
+      "id": "browser_acceptance_integration.OwnedServerCapability.test_python_worker_denies_file_mutation_and_processes_outside_lease",
+      "status": "PASS",
+      "duration": 0.1776,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 3,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-ry59ivk0",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

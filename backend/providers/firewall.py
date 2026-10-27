@@ -1,4 +1,4 @@
-"""Firewall for AI CLI providers (Claude Code, Codex, Gemini CLI, Antigravity, Feynman).
+"""Firewall for AI CLI providers (Claude Code, Codex, Gemini CLI and supported native coding tools).
 
 An external agent may work with the research project — never with the application that runs it:
 
@@ -90,7 +90,7 @@ def check(path, root: str = "data") -> Path:
     if root == "data" and any(_inside(p, d) for d in denied_roots()):
         raise FirewallError("this part of the data folder belongs to another project")
     rel_parts = p.relative_to(base).parts
-    if any(SECRET.match(x) for x in rel_parts) or (rel_parts[:1] == ("cli-space",)):
+    if any(SECRET.match(x) for x in rel_parts) or _inside(p, roots['workspace']):
         raise FirewallError("settings, credentials and other agents' workspaces are not readable")
     return p
 

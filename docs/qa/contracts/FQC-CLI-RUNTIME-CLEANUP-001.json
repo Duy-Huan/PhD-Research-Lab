@@ -1,0 +1,182 @@
+{
+  "id": "FQC-CLI-RUNTIME-CLEANUP-001",
+  "title": "Release exact owned native runtime resources after terminal, cancellation and consumer close",
+  "risk": "CRITICAL",
+  "mode": "MOCKED",
+  "user_story": "Long-running research agents must not leak proxy containers or destroy another invocation when a CLI turn ends.",
+  "requirements": [
+    {
+      "id": "OWNERSHIP",
+      "description": "Parent and wrapper share a fresh per-invocation owner; cleanup targets only its exact label and IPC volume."
+    },
+    {
+      "id": "RELEASE",
+      "description": "Terminal completion and consumer close release owned resources even when the wrapper is stopped before its finally block."
+    },
+    {
+      "id": "TRUTH",
+      "description": "Cleanup failure cannot become a successful request; resource count and command timeouts bound cleanup."
+    },
+    {
+      "id": "HERMETIC",
+      "description": "Controlled Python protocol fixtures identify their own executable and cannot reuse an unavailable vendor CLI health cache."
+    }
+  ],
+  "nonfunctional": [
+    "Preserve existing API/SSE contracts, raw scientific evidence, user data, worktrees and every skills/agent file.",
+    "No new Research Engine, autonomy-level workflow stack, paid API fallback or protection bypass.",
+    "Mandatory software regression100% executed/PASS; desired100%coverage informational.",
+    "Live subscription inference, software fixture execution and scientific qualification remain separate evidence modes."
+  ],
+  "inputs": [
+    "Existing authorized project-owned native CLI invocation"
+  ],
+  "outputs": [
+    "Preserved response/events",
+    "Owned runtime resources released or explicit cleanup error"
+  ],
+  "preconditions": [
+    "Single existing dev branch",
+    "Reviewed installed-before-plan skills and owner architecture definition"
+  ],
+  "postconditions": [
+    "No new container/IPC-volume leak on actual checked invocation",
+    "Other invocations remain untouched",
+    "No simulated transport is classified as actual Docker proof"
+  ],
+  "dependencies": [
+    "Existing orchestrator and Model Gateway",
+    "Existing mission/skill/action schemas",
+    "Existing context/memory/evidence stores",
+    "Authorized official native CLI and isolated runtime for actual provider checks"
+  ],
+  "affected_modules": [
+    "backend/providers/cli.py",
+    "backend/providers/isolated_cli.py",
+    "tools/run_cli_container.py",
+    "tests/test_cli_runtime_cleanup.py"
+  ],
+  "acceptance_criteria": [
+    "Behavioral RED/GREEN and complete affected software regression",
+    "Actual Docker inspection and native smoke with no new owned runtime resources",
+    "Fresh full software gate before guarded dev push; independent exact-HEAD CI required"
+  ],
+  "scenarios": [
+    {
+      "id": "1",
+      "requirement": "OWNERSHIP",
+      "kind": "security",
+      "expected": "native launch shares a fresh owner with the runtime wrapper",
+      "test": "tests/test_cli_runtime_cleanup.py::RuntimeCleanup.test_native_launch_shares_a_fresh_owner_with_the_runtime_wrapper"
+    },
+    {
+      "id": "2",
+      "requirement": "OWNERSHIP",
+      "kind": "positive",
+      "expected": "docker cleanup uses exact owned label and volume only",
+      "test": "tests/test_cli_runtime_cleanup.py::RuntimeCleanup.test_docker_cleanup_uses_exact_owned_label_and_volume_only"
+    },
+    {
+      "id": "3",
+      "requirement": "OWNERSHIP",
+      "kind": "negative",
+      "expected": "invalid owner cannot start docker operations",
+      "test": "tests/test_cli_runtime_cleanup.py::RuntimeCleanup.test_invalid_owner_cannot_start_docker_operations"
+    },
+    {
+      "id": "4",
+      "requirement": "RELEASE",
+      "kind": "positive",
+      "expected": "completed turn releases owned runtime before reporting completion",
+      "test": "tests/test_cli_runtime_cleanup.py::RuntimeCleanup.test_completed_turn_releases_owned_runtime_before_reporting_completion"
+    },
+    {
+      "id": "5",
+      "requirement": "RELEASE",
+      "kind": "failure",
+      "expected": "consumer close releases its runtime without touching other requests",
+      "test": "tests/test_cli_runtime_cleanup.py::RuntimeCleanup.test_consumer_close_releases_its_runtime_without_touching_other_requests"
+    },
+    {
+      "id": "6",
+      "requirement": "TRUTH",
+      "kind": "failure",
+      "expected": "cleanup failure cannot be reported as a successful request",
+      "test": "tests/test_cli_runtime_cleanup.py::RuntimeCleanup.test_cleanup_failure_cannot_be_reported_as_a_successful_request"
+    },
+    {
+      "id": "7",
+      "requirement": "TRUTH",
+      "kind": "boundary",
+      "expected": "remaining owned resource is a cleanup failure",
+      "test": "tests/test_cli_runtime_cleanup.py::RuntimeCleanup.test_remaining_owned_resource_is_a_cleanup_failure"
+    },
+    {
+      "id": "8",
+      "requirement": "TRUTH",
+      "kind": "performance",
+      "expected": "unexpected resource count is bounded and never bulk deleted",
+      "test": "tests/test_cli_runtime_cleanup.py::RuntimeCleanup.test_unexpected_resource_count_is_bounded_and_never_bulk_deleted"
+    },
+    {
+      "id": "fixture-no-vendor",
+      "requirement": "HERMETIC",
+      "kind": "positive",
+      "expected": "Real absent-vendor health remains UNAVAILABLE while independent Python protocol fixture completes and releases owned resources.",
+      "test": "tests/test_cli_runtime_cleanup.py::RuntimeCleanup.test_protocol_fixture_does_not_require_a_vendor_cli_on_path"
+    }
+  ],
+  "recovery": "Preserve original failures and all attempts. Bounded development repair, exact request cancellation, no retries that hide failures. Missing live/research/UAT remains BLOCKED.",
+  "test_environment": "MOCKED model/transport with real disposable backend state, actual controlled Python protocol processes and async boundaries; not scientific or remote CI proof.",
+  "skill_sources": [
+    "skills/ai-agents-architect/SKILL.md",
+    "skills/agent-memory-systems/SKILL.md",
+    "skills/agent-evaluation/SKILL.md",
+    "skills/hermes-grounded-citations/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent source and adversarial behavior review; independent acceptance/scientific review remains pending."
+  },
+  "browser_acceptance": {
+    "required": true,
+    "journeys": [
+      "failure-recovery"
+    ],
+    "independent_review": true
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "red": {
+      "path": "docs/qa/evidence/cli-runtime-cleanup-6.5.9/runtime-cleanup-red.json",
+      "sha256": "656c2d9dcf1cee4b61a39af6485dc6c29ce9ffc33e37d687af8c8ba3f1316656",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/cli-runtime-cleanup-6.5.9/runtime-cleanup-contract-green.json",
+      "sha256": "180e314c18e2ae45395896729ddee3db4a1c4a13cd904d7b1d1381bf21444526",
+      "exit_code": 0
+    }
+  },
+  "additional_red_green": [
+    {
+      "red": {
+        "path": "docs/qa/evidence/cli-runtime-cleanup-6.5.9/ci-fixture-repair-r1/red.json",
+        "sha256": "ec10db5cf8ffbad7f137e0b5a2b18ed7ce55b8fa5b0c5180e27b01489ba4ca25"
+      },
+      "green": {
+        "path": "docs/qa/evidence/cli-runtime-cleanup-6.5.9/ci-fixture-repair-r1/green.json",
+        "sha256": "ff91e53c3c2c1610dd1b7cb2cffe8582a4fb655809d67764a18cc306aa453d1e"
+      }
+    }
+  ],
+  "limitations": [
+    "Protocol-process assertions use mocked Docker transport; worker REAL_LOCAL on original RED describes local processes, not live Docker/provider qualification.",
+    "Actual Docker inspection confirmed three proxy leaks after successful 6.5.8 native probes; initial smoke assertions did not cover cleanup.",
+    "First targeted green attempt exposed fixture-owned connector error state leaking into other cases; cleanup added without weakening assertions; raw failed report retained.",
+    "Actual corrected native probe proved no newly leaked container/volume relative to its captured baseline, not arbitrary host-crash recovery or all concurrent startup races.",
+    "Full capability learning and required exploratory AI-UAT adapters remain unqualified.",
+    "Actual first6.5.9 CI exposed an installed-vendor health cache dependency in the Python fixture. New absent-vendor cached-health RED then43affectedPASS retain all cleanup assertions. Initial incomplete repro did not seed the unavailable cache and is not RED evidence."
+  ]
+}

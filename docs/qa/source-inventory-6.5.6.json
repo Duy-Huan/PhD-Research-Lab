@@ -1,0 +1,2526 @@
+{
+  "application_commit": "97845ee2d79cba43ff5a483a3462a64eed10bc0d",
+  "feature_input_sha256": "787477e606825f75fa54ed1bd2f99f8ccb62c6892566ffa9cb29e8d192d1350b",
+  "scope": "Static implemented-file/decorator inventory, not runtime API or feature coverage",
+  "groups": {
+    "backend/agent": [
+      "backend/agent/__init__.py",
+      "backend/agent/acceptance.py",
+      "backend/agent/artifacts.py",
+      "backend/agent/autonomy.py",
+      "backend/agent/capabilities.py",
+      "backend/agent/collaboration.py",
+      "backend/agent/context.py",
+      "backend/agent/dashboard.py",
+      "backend/agent/decision_ledger.py",
+      "backend/agent/launch.py",
+      "backend/agent/mcp_policy.py",
+      "backend/agent/memory_modes.py",
+      "backend/agent/mission_contracts.py",
+      "backend/agent/missions.py",
+      "backend/agent/orchestrator.py",
+      "backend/agent/outline.py",
+      "backend/agent/pins.py",
+      "backend/agent/policy.py",
+      "backend/agent/project_context.py",
+      "backend/agent/research_os.py",
+      "backend/agent/runs.py",
+      "backend/agent/sessions.py",
+      "backend/agent/skills.py",
+      "backend/agent/teams.py",
+      "backend/agent/ui_actions.py",
+      "backend/agent/workflow_architect.py",
+      "backend/agent/workflow_worker.py"
+    ],
+    "backend/api": [
+      "backend/api/__init__.py",
+      "backend/api/chat.py",
+      "backend/api/code.py",
+      "backend/api/common.py",
+      "backend/api/compute.py",
+      "backend/api/figures.py",
+      "backend/api/harness.py",
+      "backend/api/intelligence.py",
+      "backend/api/library.py",
+      "backend/api/mcp.py",
+      "backend/api/memory.py",
+      "backend/api/opencode.py",
+      "backend/api/paper.py",
+      "backend/api/paperorchestra.py",
+      "backend/api/plugins.py",
+      "backend/api/projects.py",
+      "backend/api/research.py",
+      "backend/api/research_engines.py",
+      "backend/api/review.py",
+      "backend/api/runs.py",
+      "backend/api/system.py"
+    ],
+    "backend/cli": [
+      "backend/cli/__init__.py",
+      "backend/cli/__main__.py",
+      "backend/cli/repl.py"
+    ],
+    "backend/core": [
+      "backend/core/__init__.py",
+      "backend/core/bus.py",
+      "backend/core/config.py",
+      "backend/core/i18n.py",
+      "backend/core/telemetry.py"
+    ],
+    "backend/execution": [
+      "backend/execution/__init__.py",
+      "backend/execution/clearml_worker.py",
+      "backend/execution/code_projects.py",
+      "backend/execution/denoising_worker.py",
+      "backend/execution/deps.py",
+      "backend/execution/envs.py",
+      "backend/execution/files.py",
+      "backend/execution/gitops.py",
+      "backend/execution/guard.py",
+      "backend/execution/harness.py",
+      "backend/execution/processes.py",
+      "backend/execution/protocol_contracts.py",
+      "backend/execution/protocols.py",
+      "backend/execution/remote_compute.py",
+      "backend/execution/resources.py",
+      "backend/execution/sandbox.py",
+      "backend/execution/sync.py",
+      "backend/execution/sysinfo.py",
+      "backend/execution/tools.py",
+      "backend/execution/tracker.py",
+      "backend/execution/vscode.py",
+      "backend/execution/workflow_nodes.py",
+      "backend/execution/workflow_runtime.py",
+      "backend/execution/workflow_templates.py"
+    ],
+    "backend/figures": [
+      "backend/figures/__init__.py",
+      "backend/figures/contracts.py",
+      "backend/figures/renderers.py",
+      "backend/figures/store.py",
+      "backend/figures/verifier.py"
+    ],
+    "backend/intelligence": [
+      "backend/intelligence/__init__.py",
+      "backend/intelligence/context_gateway.py",
+      "backend/intelligence/observability.py",
+      "backend/intelligence/report_composer.py",
+      "backend/intelligence/reproducibility.py",
+      "backend/intelligence/smart_router.py",
+      "backend/intelligence/urap.py"
+    ],
+    "backend/knowledge": [
+      "backend/knowledge/__init__.py",
+      "backend/knowledge/attachments.py",
+      "backend/knowledge/corpus.py",
+      "backend/knowledge/download.py",
+      "backend/knowledge/evidence_retrieval.py",
+      "backend/knowledge/governance.py",
+      "backend/knowledge/library.py",
+      "backend/knowledge/pdf_index_worker.py",
+      "backend/knowledge/pdf_indexer.py",
+      "backend/knowledge/provenance.py",
+      "backend/knowledge/ranking.py",
+      "backend/knowledge/research_context.py",
+      "backend/knowledge/research_jobs.py",
+      "backend/knowledge/research_store.py",
+      "backend/knowledge/source_packs.py",
+      "backend/knowledge/sources.py",
+      "backend/knowledge/verification.py",
+      "backend/knowledge/websearch.py"
+    ],
+    "backend/memory": [
+      "backend/memory/__init__.py",
+      "backend/memory/cache.py",
+      "backend/memory/compiler.py",
+      "backend/memory/compressor.py",
+      "backend/memory/embeddings.py",
+      "backend/memory/engine.py",
+      "backend/memory/evidence.py",
+      "backend/memory/graph.py",
+      "backend/memory/knowledge.py",
+      "backend/memory/lifecycle.py",
+      "backend/memory/lod.py",
+      "backend/memory/notes.py",
+      "backend/memory/pages.py",
+      "backend/memory/policy.py",
+      "backend/memory/research.py",
+      "backend/memory/retrieval.py",
+      "backend/memory/state.py",
+      "backend/memory/store.py",
+      "backend/memory/trace.py",
+      "backend/memory/working.py"
+    ],
+    "backend/paper": [
+      "backend/paper/__init__.py",
+      "backend/paper/export.py",
+      "backend/paper/latex.py",
+      "backend/paper/results.py",
+      "backend/paper/review.py",
+      "backend/paper/review_prompts.py",
+      "backend/paper/writer.py"
+    ],
+    "backend/plugins": [
+      "backend/plugins/__init__.py",
+      "backend/plugins/ai_scientist.py",
+      "backend/plugins/document_parser.py",
+      "backend/plugins/document_parser_worker.py",
+      "backend/plugins/local_research.py"
+    ],
+    "backend/providers": [
+      "backend/providers/__init__.py",
+      "backend/providers/app_server.py",
+      "backend/providers/cli.py",
+      "backend/providers/cli_space.py",
+      "backend/providers/connections.py",
+      "backend/providers/context_packet.py",
+      "backend/providers/events.py",
+      "backend/providers/firewall.py",
+      "backend/providers/gateway.py",
+      "backend/providers/isolated_cli.py",
+      "backend/providers/lifecycle.py",
+      "backend/providers/local.py",
+      "backend/providers/mcp_agent.py",
+      "backend/providers/mcp_server.py",
+      "backend/providers/mcp_tools.py",
+      "backend/providers/models.py",
+      "backend/providers/native.py",
+      "backend/providers/privacy.py",
+      "backend/providers/registry.py",
+      "backend/providers/research.py",
+      "backend/providers/router.py"
+    ],
+    "backend/research_engines": [
+      "backend/research_engines/__init__.py",
+      "backend/research_engines/contracts.py",
+      "backend/research_engines/feynman.py",
+      "backend/research_engines/opencode.py",
+      "backend/research_engines/openscience.py",
+      "backend/research_engines/paperorchestra/__init__.py",
+      "backend/research_engines/paperorchestra/artifact_store.py",
+      "backend/research_engines/paperorchestra/backends/cli_backend.py",
+      "backend/research_engines/paperorchestra/backends/skill_backend.py",
+      "backend/research_engines/paperorchestra/contracts.py",
+      "backend/research_engines/paperorchestra/engine.py",
+      "backend/research_engines/paperorchestra/modes.py",
+      "backend/research_engines/paperorchestra/quality_gates.py",
+      "backend/research_engines/phdlab.py",
+      "backend/research_engines/registry.py",
+      "backend/research_engines/workspaces.py"
+    ],
+    "devtools/verification": [
+      "devtools/verification/__init__.py",
+      "devtools/verification/baseline.py",
+      "devtools/verification/browser.py",
+      "devtools/verification/browser_use_worker.py",
+      "devtools/verification/ci_repair.py",
+      "devtools/verification/comparison.py",
+      "devtools/verification/contracts.py",
+      "devtools/verification/defects.py",
+      "devtools/verification/evidence.py",
+      "devtools/verification/journeys.py",
+      "devtools/verification/runner.py",
+      "devtools/verification/selection.py",
+      "devtools/verification/uat.py",
+      "devtools/verification/uat_gate.py",
+      "devtools/verification/unittest_worker.py"
+    ],
+    "frontend/src": [
+      "frontend/src/app/App.tsx",
+      "frontend/src/features/agent-status/AgentProfileModal.tsx",
+      "frontend/src/features/agent-status/AgentStatusList.tsx",
+      "frontend/src/features/agent-status/AgentStatusView.tsx",
+      "frontend/src/features/agent-status/office3d/AgentAvatar.tsx",
+      "frontend/src/features/agent-status/office3d/OfficeCanvas.tsx",
+      "frontend/src/features/agent-status/office3d/OfficeScene.tsx",
+      "frontend/src/features/chat/ChatCenter.tsx",
+      "frontend/src/features/chat/ChatRunCard.tsx",
+      "frontend/src/features/chat/Composer.tsx",
+      "frontend/src/features/chat/MessageList.tsx",
+      "frontend/src/features/cli/ClaudeCLIStudio.tsx",
+      "frontend/src/features/cli/waitForChatTurn.ts",
+      "frontend/src/features/dashboard/DashboardView.tsx",
+      "frontend/src/features/evidence/EvidenceReview.tsx",
+      "frontend/src/features/figures/FigureStudioPanel.tsx",
+      "frontend/src/features/guide/UserGuidePanel.tsx",
+      "frontend/src/features/harness/CustomHarnessStudio.tsx",
+      "frontend/src/features/harness/HarnessNodeComponent.tsx",
+      "frontend/src/features/intelligence/IntelligenceHubPanel.tsx",
+      "frontend/src/features/library/LibraryPanel.tsx",
+      "frontend/src/features/missions/AutonomyPanel.tsx",
+      "frontend/src/features/missions/MissionBuilder.tsx",
+      "frontend/src/features/missions/MissionDAG.tsx",
+      "frontend/src/features/missions/MissionLiveWorkspace.tsx",
+      "frontend/src/features/missions/TaskInspector.tsx",
+      "frontend/src/features/missions/autonomyPlan.ts",
+      "frontend/src/features/opencode/OpenCodePanel.tsx",
+      "frontend/src/features/paper/PaperOrchestraStudio.tsx",
+      "frontend/src/features/projects/ProjectSwitcher.tsx",
+      "frontend/src/features/research-topics/TopicView.tsx",
+      "frontend/src/features/review/ReviewView.tsx",
+      "frontend/src/features/settings/SettingsModal.tsx",
+      "frontend/src/features/workspace-tools/OutlinePaperCodePanels.tsx",
+      "frontend/src/features/workstreams/WorkstreamMonitor.tsx",
+      "frontend/src/main.tsx",
+      "frontend/src/shared/api/client.ts",
+      "frontend/src/shared/api/types.ts",
+      "frontend/src/shared/events/eventAdapter.ts",
+      "frontend/src/shared/events/useAppBus.ts",
+      "frontend/src/shared/i18n/index.ts",
+      "frontend/src/shared/state/uiStore.ts",
+      "frontend/src/shared/ui/FolderBrowserModal.tsx",
+      "frontend/src/shared/ui/FolderPickerInput.tsx",
+      "frontend/src/shared/ui/MarkdownRenderer.tsx",
+      "frontend/src/shared/version.ts",
+      "frontend/src/shell/AppShell.tsx",
+      "frontend/src/shell/ContextualDrawer.tsx",
+      "frontend/src/shell/Header.tsx",
+      "frontend/src/shell/Sidebar.tsx"
+    ]
+  },
+  "api_declarations": [
+    {
+      "file": "backend/api/chat.py",
+      "line": 24,
+      "method": "get",
+      "declared_path": "/api/chat/projects",
+      "function": "chat_projects"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 29,
+      "method": "post",
+      "declared_path": "/api/chat/projects",
+      "function": "chat_project_create"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 34,
+      "method": "put",
+      "declared_path": "/api/chat/projects/{gid}",
+      "function": "chat_project_update"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 39,
+      "method": "delete",
+      "declared_path": "/api/chat/projects/{gid}",
+      "function": "chat_project_delete"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 44,
+      "method": "get",
+      "declared_path": "/api/chat/sessions",
+      "function": "sessions"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 49,
+      "method": "post",
+      "declared_path": "/api/chat/sessions",
+      "function": "create"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 74,
+      "method": "get",
+      "declared_path": "/api/chat/sessions/{sid}",
+      "function": "get"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 94,
+      "method": "put",
+      "declared_path": "/api/chat/sessions/{sid}",
+      "function": "update"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 122,
+      "method": "get",
+      "declared_path": "/api/chat/sessions/{sid}/effective",
+      "function": "effective"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 132,
+      "method": "delete",
+      "declared_path": "/api/chat/sessions/{sid}",
+      "function": "delete"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 137,
+      "method": "post",
+      "declared_path": "/api/chat/sessions/{sid}/fork",
+      "function": "fork"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 142,
+      "method": "put",
+      "declared_path": "/api/chat/sessions/{sid}/messages/{mid}/pin",
+      "function": "pin_message"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 148,
+      "method": "post",
+      "declared_path": "/api/chat/sessions/{sid}/turns",
+      "function": "turn"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 155,
+      "method": "post",
+      "declared_path": "/api/chat/sessions/{sid}/retry",
+      "function": "retry"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 160,
+      "method": "post",
+      "declared_path": "/api/chat/sessions/{sid}/turns/{tid}/cancel",
+      "function": "cancel"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 165,
+      "method": "post",
+      "declared_path": "/api/chat/sessions/{sid}/cancel",
+      "function": "cancel_session_turns"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 181,
+      "method": "post",
+      "declared_path": "/api/chat/sessions/{sid}/turns/{tid}/launch",
+      "function": "launch"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 186,
+      "method": "get",
+      "declared_path": "/api/chat/sessions/{sid}/turns/{tid}/context",
+      "function": "turn_context"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 192,
+      "method": "get",
+      "declared_path": "/api/chat/sessions/{sid}/events",
+      "function": "events"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 197,
+      "method": "get",
+      "declared_path": "/api/chat/sessions/{sid}/stream",
+      "function": "events_stream"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 226,
+      "method": "post",
+      "declared_path": "/api/chat/sessions/{sid}/approvals/{aid}",
+      "function": "decide"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 233,
+      "method": "post",
+      "declared_path": "/api/chat/attachments",
+      "function": "attach"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 240,
+      "method": "get",
+      "declared_path": "/api/chat/attachments/{att_id}/file",
+      "function": "attachment_file"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 251,
+      "method": "get",
+      "declared_path": "/api/chat/attachments/{att_id}",
+      "function": "attachment_meta"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 258,
+      "method": "post",
+      "declared_path": "/api/chat/attachments/{att_id}/analyze",
+      "function": "attachment_analyze"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 266,
+      "method": "get",
+      "declared_path": "/api/chat/sessions/{sid}/artifacts/{aid}",
+      "function": "artifact"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 271,
+      "method": "get",
+      "declared_path": "/api/chat/sessions/{sid}/artifacts/{aid}/diff",
+      "function": "artifact_diff"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 276,
+      "method": "get",
+      "declared_path": "/api/chat/sessions/{sid}/artifacts/{aid}/download",
+      "function": "artifact_download"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 283,
+      "method": "post",
+      "declared_path": "/api/chat/sessions/{sid}/artifacts/{aid}/apply",
+      "function": "artifact_apply"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 288,
+      "method": "post",
+      "declared_path": "/api/chat/sessions/{sid}/artifacts/{aid}/reject",
+      "function": "artifact_reject"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 293,
+      "method": "post",
+      "declared_path": "/api/chat/sessions/{sid}/memory",
+      "function": "remember"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 302,
+      "method": "get",
+      "declared_path": "/api/chat/sessions/{sid}/notes",
+      "function": "notes_list"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 307,
+      "method": "post",
+      "declared_path": "/api/chat/sessions/{sid}/notes",
+      "function": "notes_add"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 313,
+      "method": "put",
+      "declared_path": "/api/chat/sessions/{sid}/notes/{nid}",
+      "function": "notes_update"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 318,
+      "method": "delete",
+      "declared_path": "/api/chat/sessions/{sid}/notes/{nid}",
+      "function": "notes_delete"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 324,
+      "method": "get",
+      "declared_path": "/api/skills",
+      "function": "skills_list"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 331,
+      "method": "get",
+      "declared_path": "/api/skills/{name}",
+      "function": "skill_get"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 337,
+      "method": "post",
+      "declared_path": "/api/skills",
+      "function": "skill_save"
+    },
+    {
+      "file": "backend/api/chat.py",
+      "line": 344,
+      "method": "delete",
+      "declared_path": "/api/skills/{name}",
+      "function": "skill_delete"
+    },
+    {
+      "file": "backend/api/code.py",
+      "line": 20,
+      "method": "get",
+      "declared_path": "/api/code",
+      "function": "code_list"
+    },
+    {
+      "file": "backend/api/code.py",
+      "line": 25,
+      "method": "post",
+      "declared_path": "/api/code",
+      "function": "code_create"
+    },
+    {
+      "file": "backend/api/code.py",
+      "line": 34,
+      "method": "post",
+      "declared_path": "/api/code/open",
+      "function": "code_open"
+    },
+    {
+      "file": "backend/api/code.py",
+      "line": 41,
+      "method": "post",
+      "declared_path": "/api/code/close",
+      "function": "code_close"
+    },
+    {
+      "file": "backend/api/code.py",
+      "line": 46,
+      "method": "post",
+      "declared_path": "/api/code/delete",
+      "function": "code_delete"
+    },
+    {
+      "file": "backend/api/code.py",
+      "line": 51,
+      "method": "get",
+      "declared_path": "/api/code/environment",
+      "function": "code_env"
+    },
+    {
+      "file": "backend/api/code.py",
+      "line": 56,
+      "method": "post",
+      "declared_path": "/api/code/vscode",
+      "function": "code_vscode"
+    },
+    {
+      "file": "backend/api/code.py",
+      "line": 71,
+      "method": "post",
+      "declared_path": "/api/code/sync",
+      "function": "code_sync"
+    },
+    {
+      "file": "backend/api/code.py",
+      "line": 78,
+      "method": "get",
+      "declared_path": "/api/code/scan",
+      "function": "code_scan"
+    },
+    {
+      "file": "backend/api/code.py",
+      "line": 85,
+      "method": "get",
+      "declared_path": "/api/jobs",
+      "function": "jobs"
+    },
+    {
+      "file": "backend/api/code.py",
+      "line": 91,
+      "method": "get",
+      "declared_path": "/api/jobs/{job_id}",
+      "function": "job"
+    },
+    {
+      "file": "backend/api/code.py",
+      "line": 97,
+      "method": "post",
+      "declared_path": "/api/jobs/{job_id}/stop",
+      "function": "job_stop"
+    },
+    {
+      "file": "backend/api/code.py",
+      "line": 103,
+      "method": "get",
+      "declared_path": "/api/jobs/{job_id}/file",
+      "function": "job_file"
+    },
+    {
+      "file": "backend/api/code.py",
+      "line": 115,
+      "method": "get",
+      "declared_path": "/api/jobs/{job_id}/stream",
+      "function": "job_stream"
+    },
+    {
+      "file": "backend/api/compute.py",
+      "line": 11,
+      "method": "get",
+      "declared_path": "/api/compute/runs",
+      "function": "listing"
+    },
+    {
+      "file": "backend/api/compute.py",
+      "line": 16,
+      "method": "post",
+      "declared_path": "/api/compute/runs",
+      "function": "create"
+    },
+    {
+      "file": "backend/api/compute.py",
+      "line": 21,
+      "method": "get",
+      "declared_path": "/api/compute/runs/{rid}",
+      "function": "get"
+    },
+    {
+      "file": "backend/api/compute.py",
+      "line": 26,
+      "method": "post",
+      "declared_path": "/api/compute/runs/{rid}/approve",
+      "function": "approve"
+    },
+    {
+      "file": "backend/api/compute.py",
+      "line": 31,
+      "method": "get",
+      "declared_path": "/api/compute/runs/{rid}/bundle",
+      "function": "bundle"
+    },
+    {
+      "file": "backend/api/compute.py",
+      "line": 36,
+      "method": "post",
+      "declared_path": "/api/compute/runs/{rid}/sync",
+      "function": "sync"
+    },
+    {
+      "file": "backend/api/figures.py",
+      "line": 30,
+      "method": "get",
+      "declared_path": "/api/figures/capabilities",
+      "function": "figure_capabilities"
+    },
+    {
+      "file": "backend/api/figures.py",
+      "line": 35,
+      "method": "get",
+      "declared_path": "/api/research/topics/{tid}/figures",
+      "function": "list_topic_figures"
+    },
+    {
+      "file": "backend/api/figures.py",
+      "line": 40,
+      "method": "post",
+      "declared_path": "/api/research/topics/{tid}/figures",
+      "function": "create_topic_figure"
+    },
+    {
+      "file": "backend/api/figures.py",
+      "line": 47,
+      "method": "get",
+      "declared_path": "/api/research/topics/{tid}/figures/{fid}",
+      "function": "get_topic_figure"
+    },
+    {
+      "file": "backend/api/figures.py",
+      "line": 52,
+      "method": "put",
+      "declared_path": "/api/research/topics/{tid}/figures/{fid}/style",
+      "function": "update_figure_style"
+    },
+    {
+      "file": "backend/api/figures.py",
+      "line": 60,
+      "method": "post",
+      "declared_path": "/api/research/topics/{tid}/figures/{fid}/regenerate",
+      "function": "regenerate_topic_figure"
+    },
+    {
+      "file": "backend/api/figures.py",
+      "line": 70,
+      "method": "post",
+      "declared_path": "/api/research/topics/{tid}/figures/{fid}/validate",
+      "function": "validate_topic_figure"
+    },
+    {
+      "file": "backend/api/figures.py",
+      "line": 76,
+      "method": "post",
+      "declared_path": "/api/figures/{fid}/validate",
+      "function": "validate_figure_direct"
+    },
+    {
+      "file": "backend/api/figures.py",
+      "line": 90,
+      "method": "post",
+      "declared_path": "/api/research/topics/{tid}/figures/{fid}/approve",
+      "function": "approve_topic_figure"
+    },
+    {
+      "file": "backend/api/figures.py",
+      "line": 97,
+      "method": "post",
+      "declared_path": "/api/research/topics/{tid}/figures/{fid}/attach-paper",
+      "function": "attach_figure_to_paper"
+    },
+    {
+      "file": "backend/api/figures.py",
+      "line": 104,
+      "method": "get",
+      "declared_path": "/api/research/topics/{tid}/figures/{fid}/export/{fmt}",
+      "function": "export_topic_figure"
+    },
+    {
+      "file": "backend/api/harness.py",
+      "line": 27,
+      "method": "get",
+      "declared_path": "/tools",
+      "function": "get_harness_tools"
+    },
+    {
+      "file": "backend/api/harness.py",
+      "line": 33,
+      "method": "get",
+      "declared_path": "/nodes",
+      "function": "get_workflow_nodes"
+    },
+    {
+      "file": "backend/api/harness.py",
+      "line": 44,
+      "method": "get",
+      "declared_path": "/templates",
+      "function": "get_workflow_templates"
+    },
+    {
+      "file": "backend/api/harness.py",
+      "line": 54,
+      "method": "get",
+      "declared_path": "/agents",
+      "function": "get_agents"
+    },
+    {
+      "file": "backend/api/harness.py",
+      "line": 61,
+      "method": "post",
+      "declared_path": "/agents",
+      "function": "create_or_update_agent"
+    },
+    {
+      "file": "backend/api/harness.py",
+      "line": 68,
+      "method": "post",
+      "declared_path": "/architect/team",
+      "function": "build_dynamic_team"
+    },
+    {
+      "file": "backend/api/harness.py",
+      "line": 81,
+      "method": "post",
+      "declared_path": "/architect/generate",
+      "function": "architect_generate_workflow"
+    },
+    {
+      "file": "backend/api/harness.py",
+      "line": 96,
+      "method": "post",
+      "declared_path": "/validate",
+      "function": "validate_workflow"
+    },
+    {
+      "file": "backend/api/harness.py",
+      "line": 108,
+      "method": "get",
+      "declared_path": "/workflows",
+      "function": "get_workflows"
+    },
+    {
+      "file": "backend/api/harness.py",
+      "line": 121,
+      "method": "get",
+      "declared_path": "/workflows/{wid}",
+      "function": "get_single_workflow"
+    },
+    {
+      "file": "backend/api/harness.py",
+      "line": 134,
+      "method": "post",
+      "declared_path": "/workflows",
+      "function": "create_or_save_workflow"
+    },
+    {
+      "file": "backend/api/harness.py",
+      "line": 141,
+      "method": "put",
+      "declared_path": "/workflows/{wid}",
+      "function": "update_workflow"
+    },
+    {
+      "file": "backend/api/harness.py",
+      "line": 149,
+      "method": "delete",
+      "declared_path": "/workflows/{wid}",
+      "function": "delete_workflow"
+    },
+    {
+      "file": "backend/api/harness.py",
+      "line": 162,
+      "method": "post",
+      "declared_path": "/execute",
+      "function": "run_workflow"
+    },
+    {
+      "file": "backend/api/harness.py",
+      "line": 188,
+      "method": "post",
+      "declared_path": "/execute/action",
+      "function": "workflow_execution_action"
+    },
+    {
+      "file": "backend/api/harness.py",
+      "line": 220,
+      "method": "get",
+      "declared_path": "/executions",
+      "function": "get_executions"
+    },
+    {
+      "file": "backend/api/harness.py",
+      "line": 233,
+      "method": "get",
+      "declared_path": "/executions/{eid}",
+      "function": "get_single_execution"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 132,
+      "method": "post",
+      "declared_path": "/api/research/topics/{tid}/artifacts-urap",
+      "function": "api_register_topic_artifact"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 132,
+      "method": "post",
+      "declared_path": "/api/research/topics/{tid}/urap/artifacts",
+      "function": "api_register_topic_artifact"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 159,
+      "method": "post",
+      "declared_path": "/api/artifacts",
+      "function": "api_register_artifact_root"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 167,
+      "method": "get",
+      "declared_path": "/api/research/topics/{tid}/artifacts-urap",
+      "function": "api_list_topic_urap_artifacts"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 167,
+      "method": "get",
+      "declared_path": "/api/research/topics/{tid}/urap/artifacts",
+      "function": "api_list_topic_urap_artifacts"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 181,
+      "method": "get",
+      "declared_path": "/api/artifacts",
+      "function": "api_list_artifacts_root"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 187,
+      "method": "get",
+      "declared_path": "/api/artifacts/{aid}",
+      "function": "api_get_artifact"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 195,
+      "method": "get",
+      "declared_path": "/api/artifacts/{aid}/lineage",
+      "function": "api_get_artifact_lineage"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 203,
+      "method": "post",
+      "declared_path": "/api/artifacts/{aid}/verify-integrity",
+      "function": "api_verify_artifact_integrity"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 213,
+      "method": "get",
+      "declared_path": "/api/missions/{mid}/trace",
+      "function": "api_get_mission_trace"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 222,
+      "method": "get",
+      "declared_path": "/api/research/topics/{tid}/missions/{mid}/trace",
+      "function": "api_get_topic_mission_trace"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 230,
+      "method": "post",
+      "declared_path": "/api/missions/{mid}/trace",
+      "function": "api_emit_mission_trace"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 253,
+      "method": "post",
+      "declared_path": "/api/tasks/{task_id}/context-pack",
+      "function": "api_build_task_context_pack"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 272,
+      "method": "get",
+      "declared_path": "/api/tasks/{task_id}/context-pack",
+      "function": "api_get_task_context_pack"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 282,
+      "method": "post",
+      "declared_path": "/api/tasks/{task_id}/route-preview",
+      "function": "api_preview_task_route"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 303,
+      "method": "post",
+      "declared_path": "/api/missions/{mid}/reproducibility-export",
+      "function": "api_export_reproducibility"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 313,
+      "method": "get",
+      "declared_path": "/api/missions/{mid}/reproducibility-export/download",
+      "function": "api_download_reproducibility"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 337,
+      "method": "post",
+      "declared_path": "/api/missions/{mid}/reproducibility-replay",
+      "function": "api_replay_reproducibility"
+    },
+    {
+      "file": "backend/api/intelligence.py",
+      "line": 349,
+      "method": "post",
+      "declared_path": "/api/missions/{mid}/report-manifest",
+      "function": "api_compose_report_manifest"
+    },
+    {
+      "file": "backend/api/library.py",
+      "line": 57,
+      "method": "post",
+      "declared_path": "/api/search",
+      "function": "search"
+    },
+    {
+      "file": "backend/api/library.py",
+      "line": 76,
+      "method": "post",
+      "declared_path": "/api/journals/import",
+      "function": "import_rankings"
+    },
+    {
+      "file": "backend/api/library.py",
+      "line": 89,
+      "method": "post",
+      "declared_path": "/api/library/save",
+      "function": "save_paper"
+    },
+    {
+      "file": "backend/api/library.py",
+      "line": 110,
+      "method": "get",
+      "declared_path": "/api/papers",
+      "function": "library"
+    },
+    {
+      "file": "backend/api/library.py",
+      "line": 110,
+      "method": "get",
+      "declared_path": "/api/library",
+      "function": "library"
+    },
+    {
+      "file": "backend/api/library.py",
+      "line": 123,
+      "method": "post",
+      "declared_path": "/api/library/upload",
+      "function": "upload"
+    },
+    {
+      "file": "backend/api/library.py",
+      "line": 140,
+      "method": "post",
+      "declared_path": "/api/library/refine",
+      "function": "refine"
+    },
+    {
+      "file": "backend/api/library.py",
+      "line": 164,
+      "method": "put",
+      "declared_path": "/api/library/{name}",
+      "function": "update"
+    },
+    {
+      "file": "backend/api/library.py",
+      "line": 187,
+      "method": "delete",
+      "declared_path": "/api/library/{name}",
+      "function": "delete"
+    },
+    {
+      "file": "backend/api/library.py",
+      "line": 202,
+      "method": "get",
+      "declared_path": "/api/library/file/{name}",
+      "function": "file"
+    },
+    {
+      "file": "backend/api/library.py",
+      "line": 210,
+      "method": "get",
+      "declared_path": "/api/library/bib",
+      "function": "bib"
+    },
+    {
+      "file": "backend/api/library.py",
+      "line": 215,
+      "method": "get",
+      "declared_path": "/api/library/{name}/citation",
+      "function": "citation"
+    },
+    {
+      "file": "backend/api/mcp.py",
+      "line": 21,
+      "method": "post",
+      "declared_path": "/mcp",
+      "function": "mcp"
+    },
+    {
+      "file": "backend/api/mcp.py",
+      "line": 52,
+      "method": "get",
+      "declared_path": "/mcp",
+      "function": "mcp_get"
+    },
+    {
+      "file": "backend/api/memory.py",
+      "line": 13,
+      "method": "get",
+      "declared_path": "/api/memory/candidates",
+      "function": "candidates"
+    },
+    {
+      "file": "backend/api/memory.py",
+      "line": 19,
+      "method": "post",
+      "declared_path": "/api/memory/candidates/{cid}/approve",
+      "function": "approve"
+    },
+    {
+      "file": "backend/api/memory.py",
+      "line": 25,
+      "method": "post",
+      "declared_path": "/api/memory/candidates/{cid}/reject",
+      "function": "reject"
+    },
+    {
+      "file": "backend/api/memory.py",
+      "line": 31,
+      "method": "put",
+      "declared_path": "/api/memory/sensitivity",
+      "function": "sensitivity"
+    },
+    {
+      "file": "backend/api/memory.py",
+      "line": 38,
+      "method": "get",
+      "declared_path": "/api/research",
+      "function": "research_state"
+    },
+    {
+      "file": "backend/api/memory.py",
+      "line": 49,
+      "method": "get",
+      "declared_path": "/api/pins",
+      "function": "pins_list"
+    },
+    {
+      "file": "backend/api/memory.py",
+      "line": 55,
+      "method": "post",
+      "declared_path": "/api/pins",
+      "function": "pins_add"
+    },
+    {
+      "file": "backend/api/memory.py",
+      "line": 62,
+      "method": "put",
+      "declared_path": "/api/pins/{pid}",
+      "function": "pins_update"
+    },
+    {
+      "file": "backend/api/memory.py",
+      "line": 68,
+      "method": "delete",
+      "declared_path": "/api/pins/{pid}",
+      "function": "pins_delete"
+    },
+    {
+      "file": "backend/api/opencode.py",
+      "line": 27,
+      "method": "get",
+      "declared_path": "/api/opencode/status",
+      "function": "opencode_status"
+    },
+    {
+      "file": "backend/api/opencode.py",
+      "line": 32,
+      "method": "post",
+      "declared_path": "/api/opencode/server/launch",
+      "function": "launch_opencode_server"
+    },
+    {
+      "file": "backend/api/opencode.py",
+      "line": 37,
+      "method": "post",
+      "declared_path": "/api/research/topics/{tid}/opencode/workspace",
+      "function": "ensure_opencode_workspace"
+    },
+    {
+      "file": "backend/api/opencode.py",
+      "line": 44,
+      "method": "get",
+      "declared_path": "/api/research/topics/{tid}/opencode/sessions",
+      "function": "list_opencode_sessions"
+    },
+    {
+      "file": "backend/api/opencode.py",
+      "line": 49,
+      "method": "post",
+      "declared_path": "/api/research/topics/{tid}/opencode/sessions",
+      "function": "create_opencode_session"
+    },
+    {
+      "file": "backend/api/opencode.py",
+      "line": 55,
+      "method": "get",
+      "declared_path": "/api/research/topics/{tid}/opencode/sessions/{sid}",
+      "function": "get_opencode_session"
+    },
+    {
+      "file": "backend/api/opencode.py",
+      "line": 60,
+      "method": "post",
+      "declared_path": "/api/research/topics/{tid}/opencode/sessions/{sid}/events",
+      "function": "post_opencode_event"
+    },
+    {
+      "file": "backend/api/opencode.py",
+      "line": 69,
+      "method": "post",
+      "declared_path": "/api/research/topics/{tid}/opencode/sessions/{sid}/approvals",
+      "function": "request_opencode_approval"
+    },
+    {
+      "file": "backend/api/opencode.py",
+      "line": 77,
+      "method": "post",
+      "declared_path": "/api/research/topics/{tid}/opencode/sessions/{sid}/approvals/{aid}",
+      "function": "decide_opencode_approval"
+    },
+    {
+      "file": "backend/api/opencode.py",
+      "line": 84,
+      "method": "post",
+      "declared_path": "/api/research/topics/{tid}/opencode/sessions/{sid}/cancel",
+      "function": "cancel_opencode_session"
+    },
+    {
+      "file": "backend/api/opencode.py",
+      "line": 89,
+      "method": "post",
+      "declared_path": "/api/research/topics/{tid}/opencode/sessions/{sid}/reconcile",
+      "function": "reconcile_opencode_session"
+    },
+    {
+      "file": "backend/api/paper.py",
+      "line": 16,
+      "method": "get",
+      "declared_path": "/api/paper",
+      "function": "paper"
+    },
+    {
+      "file": "backend/api/paper.py",
+      "line": 28,
+      "method": "put",
+      "declared_path": "/api/paper",
+      "function": "paper_update"
+    },
+    {
+      "file": "backend/api/paper.py",
+      "line": 40,
+      "method": "put",
+      "declared_path": "/api/paper/section",
+      "function": "section"
+    },
+    {
+      "file": "backend/api/paper.py",
+      "line": 61,
+      "method": "get",
+      "declared_path": "/api/paper/engines",
+      "function": "paper_engines"
+    },
+    {
+      "file": "backend/api/paper.py",
+      "line": 67,
+      "method": "post",
+      "declared_path": "/api/paper/engines/online",
+      "function": "toggle_online_compilation"
+    },
+    {
+      "file": "backend/api/paper.py",
+      "line": 76,
+      "method": "post",
+      "declared_path": "/api/paper/compile",
+      "function": "compile_pdf"
+    },
+    {
+      "file": "backend/api/paper.py",
+      "line": 102,
+      "method": "get",
+      "declared_path": "/api/paper/tex",
+      "function": "tex"
+    },
+    {
+      "file": "backend/api/paper.py",
+      "line": 113,
+      "method": "get",
+      "declared_path": "/api/paper/pdf",
+      "function": "pdf"
+    },
+    {
+      "file": "backend/api/paper.py",
+      "line": 122,
+      "method": "get",
+      "declared_path": "/api/paper/log",
+      "function": "log"
+    },
+    {
+      "file": "backend/api/paper.py",
+      "line": 128,
+      "method": "get",
+      "declared_path": "/api/paper/latex.zip",
+      "function": "export_zip"
+    },
+    {
+      "file": "backend/api/paperorchestra.py",
+      "line": 100,
+      "method": "get",
+      "declared_path": "/health",
+      "function": "health"
+    },
+    {
+      "file": "backend/api/paperorchestra.py",
+      "line": 106,
+      "method": "get",
+      "declared_path": "/artifacts/{topic_id}",
+      "function": "get_artifacts"
+    },
+    {
+      "file": "backend/api/paperorchestra.py",
+      "line": 112,
+      "method": "get",
+      "declared_path": "/artifacts/{topic_id}/{artifact_id}",
+      "function": "get_single_artifact"
+    },
+    {
+      "file": "backend/api/paperorchestra.py",
+      "line": 120,
+      "method": "post",
+      "declared_path": "/verify-citations",
+      "function": "api_verify_citations"
+    },
+    {
+      "file": "backend/api/paperorchestra.py",
+      "line": 126,
+      "method": "post",
+      "declared_path": "/verify-figures",
+      "function": "api_verify_figures"
+    },
+    {
+      "file": "backend/api/paperorchestra.py",
+      "line": 132,
+      "method": "post",
+      "declared_path": "/verify-provenance",
+      "function": "api_verify_provenance"
+    },
+    {
+      "file": "backend/api/paperorchestra.py",
+      "line": 138,
+      "method": "post",
+      "declared_path": "/quality-gates",
+      "function": "api_quality_gates"
+    },
+    {
+      "file": "backend/api/paperorchestra.py",
+      "line": 149,
+      "method": "post",
+      "declared_path": "/independent-review",
+      "function": "api_independent_review"
+    },
+    {
+      "file": "backend/api/paperorchestra.py",
+      "line": 155,
+      "method": "post",
+      "declared_path": "/plan-mission",
+      "function": "api_plan_mission"
+    },
+    {
+      "file": "backend/api/plugins.py",
+      "line": 66,
+      "method": "get",
+      "declared_path": "/api/plugins",
+      "function": "plugins_list"
+    },
+    {
+      "file": "backend/api/plugins.py",
+      "line": 86,
+      "method": "get",
+      "declared_path": "/api/plugins/catalog",
+      "function": "plugins_catalog"
+    },
+    {
+      "file": "backend/api/plugins.py",
+      "line": 99,
+      "method": "post",
+      "declared_path": "/api/plugins",
+      "function": "plugins_install"
+    },
+    {
+      "file": "backend/api/plugins.py",
+      "line": 116,
+      "method": "post",
+      "declared_path": "/api/plugins/{pid}/update",
+      "function": "plugins_update"
+    },
+    {
+      "file": "backend/api/plugins.py",
+      "line": 129,
+      "method": "put",
+      "declared_path": "/api/plugins/{pid}",
+      "function": "plugins_toggle"
+    },
+    {
+      "file": "backend/api/plugins.py",
+      "line": 138,
+      "method": "put",
+      "declared_path": "/api/plugins/skills/{name}",
+      "function": "plugins_skill_toggle"
+    },
+    {
+      "file": "backend/api/plugins.py",
+      "line": 146,
+      "method": "delete",
+      "declared_path": "/api/plugins/{pid}",
+      "function": "plugins_remove"
+    },
+    {
+      "file": "backend/api/plugins.py",
+      "line": 155,
+      "method": "get",
+      "declared_path": "/api/ranking",
+      "function": "ranking_status"
+    },
+    {
+      "file": "backend/api/plugins.py",
+      "line": 162,
+      "method": "get",
+      "declared_path": "/api/ranking/lookup",
+      "function": "ranking_lookup"
+    },
+    {
+      "file": "backend/api/plugins.py",
+      "line": 170,
+      "method": "post",
+      "declared_path": "/api/library/rank",
+      "function": "library_rank"
+    },
+    {
+      "file": "backend/api/plugins.py",
+      "line": 197,
+      "method": "get",
+      "declared_path": "/api/paper/ais",
+      "function": "ais_status"
+    },
+    {
+      "file": "backend/api/plugins.py",
+      "line": 207,
+      "method": "post",
+      "declared_path": "/api/paper/ais/install",
+      "function": "ais_install"
+    },
+    {
+      "file": "backend/api/plugins.py",
+      "line": 221,
+      "method": "post",
+      "declared_path": "/api/paper/ais/writeup",
+      "function": "ais_writeup"
+    },
+    {
+      "file": "backend/api/plugins.py",
+      "line": 241,
+      "method": "post",
+      "declared_path": "/api/paper/ais/compile",
+      "function": "ais_compile"
+    },
+    {
+      "file": "backend/api/plugins.py",
+      "line": 247,
+      "method": "get",
+      "declared_path": "/api/paper/ais/download/{kind}",
+      "function": "ais_download"
+    },
+    {
+      "file": "backend/api/plugins.py",
+      "line": 262,
+      "method": "get",
+      "declared_path": "/api/export/capabilities",
+      "function": "export_caps"
+    },
+    {
+      "file": "backend/api/plugins.py",
+      "line": 273,
+      "method": "post",
+      "declared_path": "/api/export",
+      "function": "export"
+    },
+    {
+      "file": "backend/api/projects.py",
+      "line": 32,
+      "method": "get",
+      "declared_path": "/api/projects",
+      "function": "projects"
+    },
+    {
+      "file": "backend/api/projects.py",
+      "line": 37,
+      "method": "get",
+      "declared_path": "/api/projects/conversations",
+      "function": "project_conversations"
+    },
+    {
+      "file": "backend/api/projects.py",
+      "line": 52,
+      "method": "post",
+      "declared_path": "/api/projects",
+      "function": "projects_create"
+    },
+    {
+      "file": "backend/api/projects.py",
+      "line": 67,
+      "method": "post",
+      "declared_path": "/api/projects/open",
+      "function": "projects_open"
+    },
+    {
+      "file": "backend/api/projects.py",
+      "line": 75,
+      "method": "post",
+      "declared_path": "/api/projects/activate",
+      "function": "projects_activate"
+    },
+    {
+      "file": "backend/api/projects.py",
+      "line": 82,
+      "method": "put",
+      "declared_path": "/api/projects/rename",
+      "function": "projects_rename"
+    },
+    {
+      "file": "backend/api/projects.py",
+      "line": 93,
+      "method": "post",
+      "declared_path": "/api/projects/forget",
+      "function": "projects_forget"
+    },
+    {
+      "file": "backend/api/projects.py",
+      "line": 102,
+      "method": "delete",
+      "declared_path": "/api/projects",
+      "function": "projects_delete"
+    },
+    {
+      "file": "backend/api/projects.py",
+      "line": 128,
+      "method": "post",
+      "declared_path": "/api/projects/reveal",
+      "function": "projects_reveal"
+    },
+    {
+      "file": "backend/api/projects.py",
+      "line": 143,
+      "method": "get",
+      "declared_path": "/api/outline",
+      "function": "outline_get"
+    },
+    {
+      "file": "backend/api/projects.py",
+      "line": 149,
+      "method": "put",
+      "declared_path": "/api/outline",
+      "function": "outline_put"
+    },
+    {
+      "file": "backend/api/projects.py",
+      "line": 156,
+      "method": "post",
+      "declared_path": "/api/outline/restore",
+      "function": "outline_restore"
+    },
+    {
+      "file": "backend/api/projects.py",
+      "line": 162,
+      "method": "post",
+      "declared_path": "/api/outline/attach",
+      "function": "outline_attach"
+    },
+    {
+      "file": "backend/api/projects.py",
+      "line": 168,
+      "method": "get",
+      "declared_path": "/api/outline/attach/{aid}",
+      "function": "outline_attachment"
+    },
+    {
+      "file": "backend/api/projects.py",
+      "line": 174,
+      "method": "delete",
+      "declared_path": "/api/outline/attach/{aid}",
+      "function": "outline_detach"
+    },
+    {
+      "file": "backend/api/projects.py",
+      "line": 181,
+      "method": "get",
+      "declared_path": "/api/files",
+      "function": "project_file"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 41,
+      "method": "get",
+      "declared_path": "/os-settings",
+      "function": "os_settings"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 48,
+      "method": "put",
+      "declared_path": "/os-settings",
+      "function": "os_settings_update"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 55,
+      "method": "get",
+      "declared_path": "/charters",
+      "function": "charter_list"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 59,
+      "method": "post",
+      "declared_path": "/charters",
+      "function": "charter_create"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 63,
+      "method": "post",
+      "declared_path": "/topics/{tid}/missions/{mid}/request-approval",
+      "function": "mission_request"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 67,
+      "method": "post",
+      "declared_path": "/topics/{tid}/missions/{mid}/pause",
+      "function": "mission_pause"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 71,
+      "method": "post",
+      "declared_path": "/topics/{tid}/missions/{mid}/review",
+      "function": "mission_review"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 75,
+      "method": "get",
+      "declared_path": "/topics/{tid}/missions/{mid}/report",
+      "function": "mission_bundle"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 79,
+      "method": "get",
+      "declared_path": "/topics/{tid}/missions/{mid}/artifacts/{task_id}/{index}",
+      "function": "mission_artifact"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 84,
+      "method": "get",
+      "declared_path": "/team-capabilities",
+      "function": "team_capabilities"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 90,
+      "method": "post",
+      "declared_path": "/teams/propose",
+      "function": "team_propose"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 98,
+      "method": "get",
+      "declared_path": "/topics/{tid}/missions/{mid}/team",
+      "function": "team_monitor"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 109,
+      "method": "post",
+      "declared_path": "/topics/{tid}/missions/{mid}/replan",
+      "function": "team_replan"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 115,
+      "method": "post",
+      "declared_path": "/workstreams/propose",
+      "function": "workstream_propose"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 123,
+      "method": "get",
+      "declared_path": "/topics/{tid}/missions/{mid}/workstreams",
+      "function": "workstream_monitor"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 138,
+      "method": "post",
+      "declared_path": "/topics/{tid}/missions/{mid}/handoffs",
+      "function": "workstream_publish"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 144,
+      "method": "post",
+      "declared_path": "/topics/{tid}/missions/{mid}/handoffs/{hid}/ack",
+      "function": "workstream_receive"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 158,
+      "method": "post",
+      "declared_path": "/topics/{tid}/missions/{mid}/outputs",
+      "function": "workstream_output"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 169,
+      "method": "post",
+      "declared_path": "/topics/{tid}/missions/{mid}/disputes",
+      "function": "workstream_dispute"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 179,
+      "method": "post",
+      "declared_path": "/topics/{tid}/missions/{mid}/disputes/{did}/resolve",
+      "function": "workstream_resolve"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 189,
+      "method": "post",
+      "declared_path": "/topics/{tid}/missions/{mid}/findings",
+      "function": "workstream_finding"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 195,
+      "method": "get",
+      "declared_path": "/topics/{tid}/claims",
+      "function": "claims"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 199,
+      "method": "post",
+      "declared_path": "/topics/{tid}/claims",
+      "function": "claim_create"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 204,
+      "method": "post",
+      "declared_path": "/topics/{tid}/claims/{cid}/check",
+      "function": "claim_check"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 213,
+      "method": "post",
+      "declared_path": "/topics/{tid}/claims/{cid}/decision",
+      "function": "claim_decide"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 217,
+      "method": "post",
+      "declared_path": "/topics/{tid}/citations/resolve",
+      "function": "citation_resolve"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 225,
+      "method": "get",
+      "declared_path": "/topics/{tid}/ledger",
+      "function": "audit"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 225,
+      "method": "get",
+      "declared_path": "/topics/{tid}/audit",
+      "function": "audit"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 231,
+      "method": "get",
+      "declared_path": "/topics/{tid}/claims/export",
+      "function": "claim_export"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 235,
+      "method": "get",
+      "declared_path": "/topics/{tid}/prior-art",
+      "function": "prior_art"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 239,
+      "method": "get",
+      "declared_path": "/topics/{tid}/experiments/{rid}/verification",
+      "function": "experiment_verification"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 245,
+      "method": "get",
+      "declared_path": "/topics/{tid}/protocols",
+      "function": "protocol_list"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 249,
+      "method": "post",
+      "declared_path": "/topics/{tid}/protocols",
+      "function": "protocol_create"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 255,
+      "method": "post",
+      "declared_path": "/topics/{tid}/protocols/{pid}/approve",
+      "function": "protocol_approve"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 260,
+      "method": "post",
+      "declared_path": "/topics/{tid}/protocols/{pid}/mission",
+      "function": "protocol_mission"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 264,
+      "method": "get",
+      "declared_path": "/mission-capabilities",
+      "function": "mission_capabilities"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 279,
+      "method": "post",
+      "declared_path": "/topics/{tid}/missions/{mid}/steps/{task_id}/review",
+      "function": "mission_step_review"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 285,
+      "method": "get",
+      "declared_path": "/topics/{tid}/missions",
+      "function": "mission_list"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 290,
+      "method": "post",
+      "declared_path": "/topics/{tid}/missions",
+      "function": "mission_create"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 296,
+      "method": "post",
+      "declared_path": "/topics/{tid}/missions/plan",
+      "function": "mission_plan"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 312,
+      "method": "post",
+      "declared_path": "/topics/{tid}/missions/{mid}/approve",
+      "function": "mission_approve"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 317,
+      "method": "post",
+      "declared_path": "/topics/{tid}/missions/{mid}/cancel",
+      "function": "mission_cancel"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 322,
+      "method": "post",
+      "declared_path": "/topics/{tid}/missions/{mid}/retry",
+      "function": "mission_retry"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 327,
+      "method": "get",
+      "declared_path": "/capabilities",
+      "function": "capabilities"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 335,
+      "method": "get",
+      "declared_path": "/sources",
+      "function": "source_catalog"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 343,
+      "method": "post",
+      "declared_path": "/topics/{tid}/zotero/import",
+      "function": "zotero_import"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 366,
+      "method": "post",
+      "declared_path": "/topics/{tid}/zotero/sync",
+      "function": "zotero_sync"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 389,
+      "method": "get",
+      "declared_path": "/topics",
+      "function": "topics"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 396,
+      "method": "post",
+      "declared_path": "/topics",
+      "function": "create_topic"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 401,
+      "method": "get",
+      "declared_path": "/topics/{tid}",
+      "function": "topic"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 406,
+      "method": "put",
+      "declared_path": "/topics/{tid}",
+      "function": "update_topic"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 411,
+      "method": "get",
+      "declared_path": "/topics/{tid}/papers",
+      "function": "papers"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 419,
+      "method": "post",
+      "declared_path": "/topics/{tid}/papers/import",
+      "function": "import_papers"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 427,
+      "method": "post",
+      "declared_path": "/topics/{tid}/papers/import-library",
+      "function": "import_library"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 432,
+      "method": "post",
+      "declared_path": "/topics/{tid}/papers/bulk",
+      "function": "bulk"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 443,
+      "method": "get",
+      "declared_path": "/topics/{tid}/papers/{pid}",
+      "function": "paper"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 448,
+      "method": "get",
+      "declared_path": "/topics/{tid}/papers/{pid}/pdf/{vid}",
+      "function": "pdf"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 460,
+      "method": "get",
+      "declared_path": "/topics/{tid}/evidence",
+      "function": "evidence"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 465,
+      "method": "get",
+      "declared_path": "/topics/{tid}/bibliography",
+      "function": "bibliography"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 470,
+      "method": "get",
+      "declared_path": "/topics/{tid}/citation-graph",
+      "function": "citation_graph"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 475,
+      "method": "post",
+      "declared_path": "/topics/{tid}/discover",
+      "function": "discover"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 480,
+      "method": "get",
+      "declared_path": "/jobs",
+      "function": "jobs"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 485,
+      "method": "post",
+      "declared_path": "/jobs/{jid}/cancel",
+      "function": "cancel"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 490,
+      "method": "post",
+      "declared_path": "/jobs/{jid}/retry",
+      "function": "retry"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 495,
+      "method": "get",
+      "declared_path": "/topics/{tid}/workspaces",
+      "function": "workspaces"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 500,
+      "method": "post",
+      "declared_path": "/topics/{tid}/workspaces",
+      "function": "link_workspace"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 505,
+      "method": "post",
+      "declared_path": "/workspaces/{wid}/open",
+      "function": "open_workspace"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 510,
+      "method": "post",
+      "declared_path": "/workspaces/{wid}/editor",
+      "function": "workspace_editor"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 515,
+      "method": "put",
+      "declared_path": "/workspaces/{wid}",
+      "function": "relink_workspace"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 520,
+      "method": "post",
+      "declared_path": "/workspaces/{wid}/sync",
+      "function": "sync_workspace"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 526,
+      "method": "get",
+      "declared_path": "/workspaces/{wid}/sync-status",
+      "function": "sync_status"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 531,
+      "method": "get",
+      "declared_path": "/topics/{tid}/artifacts",
+      "function": "artifacts"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 536,
+      "method": "get",
+      "declared_path": "/topics/{tid}/artifacts/{aid}",
+      "function": "artifact_detail"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 541,
+      "method": "get",
+      "declared_path": "/topics/{tid}/provenance",
+      "function": "provenance"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 546,
+      "method": "get",
+      "declared_path": "/topics/{tid}/findings",
+      "function": "findings"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 551,
+      "method": "post",
+      "declared_path": "/topics/{tid}/findings",
+      "function": "propose_finding"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 556,
+      "method": "post",
+      "declared_path": "/topics/{tid}/findings/{fid}/review",
+      "function": "review_finding"
+    },
+    {
+      "file": "backend/api/research.py",
+      "line": 563,
+      "method": "get",
+      "declared_path": "/topics/{tid}/research-state",
+      "function": "state"
+    },
+    {
+      "file": "backend/api/research_engines.py",
+      "line": 36,
+      "method": "get",
+      "declared_path": "/api/research-engines",
+      "function": "engines"
+    },
+    {
+      "file": "backend/api/research_engines.py",
+      "line": 43,
+      "method": "get",
+      "declared_path": "/api/research-engines/jobs/{job_id}",
+      "function": "job"
+    },
+    {
+      "file": "backend/api/research_engines.py",
+      "line": 48,
+      "method": "post",
+      "declared_path": "/api/research-engines/jobs/{job_id}/decisions",
+      "function": "decision"
+    },
+    {
+      "file": "backend/api/research_engines.py",
+      "line": 53,
+      "method": "post",
+      "declared_path": "/api/research-engines/jobs/{job_id}/recover-admission",
+      "function": "recover"
+    },
+    {
+      "file": "backend/api/research_engines.py",
+      "line": 58,
+      "method": "post",
+      "declared_path": "/api/research-engines/jobs/{job_id}/cancel",
+      "function": "cancel"
+    },
+    {
+      "file": "backend/api/review.py",
+      "line": 19,
+      "method": "get",
+      "declared_path": "/api/review",
+      "function": "review_list"
+    },
+    {
+      "file": "backend/api/review.py",
+      "line": 24,
+      "method": "post",
+      "declared_path": "/api/review/upload",
+      "function": "review_upload"
+    },
+    {
+      "file": "backend/api/review.py",
+      "line": 31,
+      "method": "get",
+      "declared_path": "/api/review/{rid}",
+      "function": "review_get"
+    },
+    {
+      "file": "backend/api/review.py",
+      "line": 36,
+      "method": "delete",
+      "declared_path": "/api/review/{rid}",
+      "function": "review_delete"
+    },
+    {
+      "file": "backend/api/review.py",
+      "line": 42,
+      "method": "put",
+      "declared_path": "/api/review/{rid}/settings",
+      "function": "review_settings"
+    },
+    {
+      "file": "backend/api/review.py",
+      "line": 48,
+      "method": "post",
+      "declared_path": "/api/review/{rid}/source",
+      "function": "review_source"
+    },
+    {
+      "file": "backend/api/review.py",
+      "line": 54,
+      "method": "get",
+      "declared_path": "/api/review/{rid}/text",
+      "function": "review_text"
+    },
+    {
+      "file": "backend/api/review.py",
+      "line": 59,
+      "method": "get",
+      "declared_path": "/api/review/{rid}/original",
+      "function": "review_original"
+    },
+    {
+      "file": "backend/api/review.py",
+      "line": 70,
+      "method": "post",
+      "declared_path": "/api/review/{rid}/stage",
+      "function": "review_stage"
+    },
+    {
+      "file": "backend/api/review.py",
+      "line": 155,
+      "method": "post",
+      "declared_path": "/api/review/{rid}/fix",
+      "function": "review_fix"
+    },
+    {
+      "file": "backend/api/review.py",
+      "line": 175,
+      "method": "put",
+      "declared_path": "/api/review/{rid}/issue/{iid}",
+      "function": "review_issue"
+    },
+    {
+      "file": "backend/api/review.py",
+      "line": 191,
+      "method": "post",
+      "declared_path": "/api/review/{rid}/apply",
+      "function": "review_apply"
+    },
+    {
+      "file": "backend/api/review.py",
+      "line": 197,
+      "method": "get",
+      "declared_path": "/api/review/{rid}/download/{kind}",
+      "function": "review_download"
+    },
+    {
+      "file": "backend/api/runs.py",
+      "line": 16,
+      "method": "get",
+      "declared_path": "/api/runs",
+      "function": "runs_list"
+    },
+    {
+      "file": "backend/api/runs.py",
+      "line": 21,
+      "method": "post",
+      "declared_path": "/api/runs",
+      "function": "runs_create"
+    },
+    {
+      "file": "backend/api/runs.py",
+      "line": 31,
+      "method": "get",
+      "declared_path": "/api/runs/{rid}",
+      "function": "runs_get"
+    },
+    {
+      "file": "backend/api/runs.py",
+      "line": 36,
+      "method": "post",
+      "declared_path": "/api/runs/{rid}/approve",
+      "function": "runs_approve"
+    },
+    {
+      "file": "backend/api/runs.py",
+      "line": 41,
+      "method": "post",
+      "declared_path": "/api/runs/{rid}/cancel",
+      "function": "runs_cancel"
+    },
+    {
+      "file": "backend/api/runs.py",
+      "line": 46,
+      "method": "post",
+      "declared_path": "/api/runs/{rid}/resume",
+      "function": "runs_resume"
+    },
+    {
+      "file": "backend/api/runs.py",
+      "line": 52,
+      "method": "post",
+      "declared_path": "/api/runs/{rid}/provider",
+      "function": "runs_provider"
+    },
+    {
+      "file": "backend/api/runs.py",
+      "line": 58,
+      "method": "get",
+      "declared_path": "/api/runs/{rid}/events",
+      "function": "runs_events"
+    },
+    {
+      "file": "backend/api/runs.py",
+      "line": 63,
+      "method": "get",
+      "declared_path": "/api/runs/{rid}/stream",
+      "function": "runs_stream"
+    },
+    {
+      "file": "backend/api/runs.py",
+      "line": 79,
+      "method": "get",
+      "declared_path": "/api/acceptance",
+      "function": "acceptance"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 18,
+      "method": "get",
+      "declared_path": "/api/version",
+      "function": "version"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 23,
+      "method": "get",
+      "declared_path": "/api/config",
+      "function": "get_config"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 28,
+      "method": "post",
+      "declared_path": "/api/config",
+      "function": "set_config"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 38,
+      "method": "get",
+      "declared_path": "/api/models/connections",
+      "function": "model_connections"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 45,
+      "method": "post",
+      "declared_path": "/api/models/cli/codex",
+      "function": "codex_catalog"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 54,
+      "method": "get",
+      "declared_path": "/api/models",
+      "function": "models"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 78,
+      "method": "post",
+      "declared_path": "/api/models/test",
+      "function": "test_model"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 101,
+      "method": "post",
+      "declared_path": "/api/models/list",
+      "function": "provider_models"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 107,
+      "method": "get",
+      "declared_path": "/api/models/local",
+      "function": "local_status"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 118,
+      "method": "post",
+      "declared_path": "/api/models/unload",
+      "function": "unload_models"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 131,
+      "method": "get",
+      "declared_path": "/api/providers",
+      "function": "providers"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 157,
+      "method": "get",
+      "declared_path": "/api/providers/{pid}/auth-status",
+      "function": "provider_auth_status"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 184,
+      "method": "post",
+      "declared_path": "/api/providers/{pid}/connect",
+      "function": "provider_connect"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 213,
+      "method": "post",
+      "declared_path": "/api/providers/{pid}/launch",
+      "function": "provider_launch"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 225,
+      "method": "post",
+      "declared_path": "/api/providers/{pid}/sync",
+      "function": "provider_sync"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 286,
+      "method": "get",
+      "declared_path": "/api/dashboard",
+      "function": "dashboard"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 292,
+      "method": "get",
+      "declared_path": "/api/events",
+      "function": "events"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 297,
+      "method": "get",
+      "declared_path": "/api/events/stream",
+      "function": "events_stream"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 313,
+      "method": "post",
+      "declared_path": "/api/system/pick-folder",
+      "function": "pick_folder"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 359,
+      "method": "get",
+      "declared_path": "/api/system/fs-browse",
+      "function": "fs_browse"
+    },
+    {
+      "file": "backend/api/system.py",
+      "line": 430,
+      "method": "post",
+      "declared_path": "/api/system/fs-mkdir",
+      "function": "fs_mkdir"
+    }
+  ],
+  "backend_root_files": [
+    "backend/__init__.py",
+    "backend/app.py"
+  ],
+  "application_entrypoints": [
+    "start.py",
+    "run.sh",
+    "run.bat",
+    "setup.bat"
+  ]
+}

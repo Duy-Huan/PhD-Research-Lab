@@ -20,12 +20,8 @@ from backend.agent import AIWSError
 
 REASONING = {"codex": ("low", "medium", "high")}
 APP_LOCAL = {"local": "Local AI (LM Studio / configured local engine)", "ollama": "Ollama (local)"}
-DEFAULT_CLI_MODELS = {
-    "codex": ["gpt-5", "gpt-5-codex", "gpt-5-mini", "o3", "o4-mini", "gpt-4.1"],
-    "claude_code": ["sonnet", "opus", "haiku", "claude-sonnet-4-6", "claude-opus-4-6"],
-    "gemini_cli": ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash"],
-    "antigravity": ["gemini-2.5-pro", "gemini-2.5-flash", "claude-sonnet-4-6"],
-}
+DEFAULT_CLI_MODELS = {}  # Vendor suggestions are not installed-account model entitlements.
+
 
 
 def _cfg():
@@ -62,7 +58,11 @@ def _app(pid: str, cfg: dict) -> dict:
     if engine == "anthropic" and (p.get("model") or PROVIDERS[engine]["model"]).startswith(
             ("claude-opus-5-5", "claude-fable-5", "claude-mythos-5")):
         levels.remove("off")
-    return {"id": pid, "label": label, "transport": transport, "state": state, "detail": detail, "available": state not in ("NO_KEY", "ERROR"),
+    catalog = {'origin': 'configured-and-suggested' if models else 'unavailable', 'models': models, 'verified': False}
+    readiness = {'installation': 'NOT_APPLICABLE', 'authentication': state, 'isolation': 'NOT_APPLICABLE',
+                 'catalog': catalog['origin'], 'inference': 'NOT_RUN'}
+    return {"provider_id": pid, "readiness": readiness, "model_catalog": catalog,
+            "id": pid, "label": label, "transport": transport, "state": state, "detail": detail, "available": state not in ("NO_KEY", "ERROR"),
             "capabilities": {"streaming": True, "native_session_resume": False, "conversation": "restored-context",
                              "reasoning_controls": levels, "image_or_file_inputs": False, "structured_tool_events": False,
                              "usage_reporting": False, "cancellation": True, "model_override": True, "models": models,
@@ -83,8 +83,19 @@ def _cli(pid: str) -> dict:
     sendable = caps.get("send") is True
     profiles = [{"profile": prof, "level": iso[1], "enforced": iso[2], "how": iso[3]}
                 for (p, prof), iso in W.ISOLATION.items() if p == name and iso[0]]
-    return {"id": pid, "label": conn.label, "transport": "cli", "state": h.get("state", "UNKNOWN"), "detail": h.get("detail", ""),
-            "available": sendable and h.get("state") not in ("DISCONNECTED", "UNAVAILABLE", "ERROR", "AUTH_EXPIRED"),
+    from backend.providers.isolated_cli import runtime_status
+    isolation = runtime_status(name)
+    installed = bool(conn.binary())
+    configured = list(dict.fromkeys((_cfg()['gateway'].get('cli_models') or {}).get(name) or []))
+    discovered = (_cfg()['gateway'].get('cli_catalogs') or {}).get(name) or {}
+    catalog = {'origin': discovered.get('origin') if discovered.get('models') == configured else 'configured' if configured else 'unavailable',
+               'models': configured, 'queried_at': discovered.get('queried_at'), 'verified': False}
+    readiness = {'installation': 'INSTALLED' if installed else 'UNAVAILABLE', 'authentication': h.get('state', 'UNKNOWN'),
+                 'isolation': isolation['state'], 'catalog': catalog['origin'],
+                 'inference': 'UNSUPPORTED' if isolation['state'] == 'UNSUPPORTED' else 'NOT_RUN'}
+    return {"provider_id": pid, "readiness": readiness, "model_catalog": catalog, "runtime": isolation,
+            "id": pid, "label": conn.label, "transport": "cli", "state": h.get("state", "UNKNOWN"), "detail": h.get("detail", ""),
+            "available": sendable and isolation["verified"] and h.get("state") not in ("DISCONNECTED", "UNAVAILABLE", "ERROR", "AUTH_EXPIRED"),
             "setup": h.get("setup", []), "billing": h.get("billing", ""),
             "capabilities": {"streaming": sendable, "native_session_resume": bool(conn.supports_resume),
                              "conversation": "native" if conn.supports_resume else "restored-context",
@@ -100,7 +111,7 @@ def ids(cfg: dict | None = None) -> list:
     from backend.core.config import PROVIDERS
     from backend.providers.cli import CONNECTORS
     return ["app:auto", "app:local", "app:ollama"] + [f"app:{p}" for p in PROVIDERS] + \
-        [f"cli:{c}" for c in CONNECTORS]
+        [f"cli:{c}" for c in CONNECTORS] + ['runtime:hermes']
 
 
 def describe(pid: str, cfg: dict | None = None) -> dict:
@@ -109,6 +120,9 @@ def describe(pid: str, cfg: dict | None = None) -> dict:
         raise AIWSError(f"Unknown provider '{pid}'")
     if pid.startswith("app:"):
         return _app(pid, cfg)
+    if pid == 'runtime:hermes':
+        from backend.providers.hermes import describe as describe_runtime
+        return describe_runtime(cfg)
     return _cli(pid)
 
 

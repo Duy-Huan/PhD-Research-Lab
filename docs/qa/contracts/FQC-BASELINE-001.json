@@ -1,0 +1,108 @@
+{
+  "id": "FQC-BASELINE-001",
+  "title": "Evidence-backed recovery baseline accounting",
+  "risk": "MEDIUM",
+  "mode": "MOCKED",
+  "user_story": "Repository owner can distinguish confirmed failures from unavailable execution without accepting a false green gate.",
+  "requirements": [
+    {
+      "id": "REQ-ACCOUNTING",
+      "description": "Preserve results and bind auditable evidence without waivers"
+    }
+  ],
+  "nonfunctional": [
+    "No live or paid model calls",
+    "No threshold relaxation",
+    "Preserve protected branches"
+  ],
+  "inputs": [
+    "Explicit upstream state fixtures",
+    "Hash-bound issue evidence"
+  ],
+  "outputs": [
+    "Honest fail-closed reports"
+  ],
+  "preconditions": [
+    "Preserved worktrees and actual CI artifacts"
+  ],
+  "postconditions": [
+    "Existing failures remain blocking"
+  ],
+  "dependencies": [
+    "Python3.11/3.12",
+    "Existing verification harness"
+  ],
+  "affected_modules": [
+    "scripts/quality_gate.py",
+    "devtools/verification/baseline.py",
+    "devtools/verification/runner.py",
+    ".github/workflows/quality.yml"
+  ],
+  "acceptance_criteria": [
+    "Named regressions pass",
+    "Missing/skipped/failed evidence never becomes PASS"
+  ],
+  "scenarios": [
+    {
+      "id": "0",
+      "requirement": "REQ-ACCOUNTING",
+      "kind": "positive",
+      "expected": "Preserve fail-closed accounting for BaselineAccounting.test_verified_open_issue_is_accounted_without_becoming_a_waiver",
+      "test": "tests/test_baseline_accounting.py::BaselineAccounting.test_verified_open_issue_is_accounted_without_becoming_a_waiver"
+    },
+    {
+      "id": "1",
+      "requirement": "REQ-ACCOUNTING",
+      "kind": "negative",
+      "expected": "Preserve fail-closed accounting for BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception",
+      "test": "tests/test_baseline_accounting.py::BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception"
+    },
+    {
+      "id": "2",
+      "requirement": "REQ-ACCOUNTING",
+      "kind": "boundary",
+      "expected": "Preserve fail-closed accounting for BaselineAccounting.test_malformed_duplicate_and_unowned_records_are_rejected",
+      "test": "tests/test_baseline_accounting.py::BaselineAccounting.test_malformed_duplicate_and_unowned_records_are_rejected"
+    },
+    {
+      "id": "3",
+      "requirement": "REQ-ACCOUNTING",
+      "kind": "failure",
+      "expected": "Preserve fail-closed accounting for BaselineAccounting.test_changed_missing_or_escaping_evidence_is_rejected",
+      "test": "tests/test_baseline_accounting.py::BaselineAccounting.test_changed_missing_or_escaping_evidence_is_rejected"
+    },
+    {
+      "id": "4",
+      "requirement": "REQ-ACCOUNTING",
+      "kind": "security",
+      "expected": "Preserve fail-closed accounting for BaselineAccounting.test_baseline_policy_changes_invalidate_source_evidence",
+      "test": "tests/test_baseline_accounting.py::BaselineAccounting.test_baseline_policy_changes_invalidate_source_evidence"
+    }
+  ],
+  "recovery": "Preserve raw failure. At most3 repair attempts per stable defect group. No waiver has been approved.",
+  "test_environment": "Disposable local subprocess and file fixtures. Not live merge or AI acceptance.",
+  "skill_sources": [
+    "skills/gh-fix-ci/SKILL.md",
+    "skills/github-actions-hardening/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent adversarial review, not independent approval"
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "test_sha256": "84633f41d8905d37ebefaef744868ec56509aec4446b75aae45e3c2daa80f1f3",
+    "scope": "Actual same-test functional RED/GREEN. Baseline initial missing-module RED separately retained; no live acceptance claimed.",
+    "red": {
+      "path": "docs/qa/evidence/ci-recovery-2026-10-25/baseline-identity-red.json",
+      "sha256": "b0c522fee11464bccefe44b83ec9407dd7fb80bd1f13de4371997a148719c097",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/ci-recovery-2026-10-25/final-targeted-green.json",
+      "sha256": "0ea243b6d1daac12c9785a5544a335b0a1138924e436006112203e93706d99b9",
+      "exit_code": 0
+    }
+  }
+}

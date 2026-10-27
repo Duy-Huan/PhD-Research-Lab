@@ -69,7 +69,9 @@ class Contract(unittest.TestCase):
 
 
     def test_claude_mcp_allowlist_read_only(self):
-        ctx = {"mcp_url": "http://127.0.0.1:8765/mcp"}
+        from backend.providers import cli_space
+        ctx = {"mcp_url": "http://127.0.0.1:8765/mcp",
+               'cwd': cli_space.open_session('claude_code', 'gs-allowlist01')['cwd']}
         args = C.ClaudeCodeConnector().argv.__func__(fake("claude_code"), ctx)
         allowed = args[args.index("--allowedTools") + 1]
         self.assertNotIn("record", allowed)

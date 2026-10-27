@@ -1,0 +1,226 @@
+[
+  {
+    "subject": "main",
+    "step": "python311-compatibility",
+    "exit_code": 1,
+    "seconds": 0.33,
+    "command": [
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\output\\playwright\\clean-install\\py311\\Scripts\\python.exe",
+      "-c",
+      "import pathlib,json,sys; errors=[]\nfor p in pathlib.Path('backend').rglob('*.py'):\n try: compile(p.read_bytes(),str(p),'exec')\n except (SyntaxError,ValueError) as e: errors.append({'file':str(p),'error':str(e)})\nprint(json.dumps({'python':sys.version,'errors':errors}));sys.exit(bool(errors))"
+    ],
+    "log": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\main-python311-compatibility.log"
+  },
+  {
+    "subject": "main",
+    "step": "backend",
+    "exit_code": 1,
+    "seconds": 431.29,
+    "command": [
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\output\\playwright\\clean-install\\py312\\Scripts\\python.exe",
+      "scripts/verify.py",
+      "--profile",
+      "full",
+      "--component",
+      "backend",
+      "--base",
+      "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+      "--out",
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\backend"
+    ],
+    "log": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\main-backend.log"
+  },
+  {
+    "subject": "main",
+    "step": "frontend",
+    "exit_code": 1,
+    "seconds": 42.63,
+    "command": [
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\output\\playwright\\clean-install\\py312\\Scripts\\python.exe",
+      "scripts/verify.py",
+      "--profile",
+      "pr",
+      "--component",
+      "frontend",
+      "--base",
+      "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+      "--out",
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\frontend"
+    ],
+    "log": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\main-frontend.log"
+  },
+  {
+    "subject": "main",
+    "step": "diagnostic-web-transpile",
+    "exit_code": 0,
+    "seconds": 5.91,
+    "command": [
+      "npx.cmd",
+      "--no-install",
+      "vite",
+      "build"
+    ],
+    "log": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\main-diagnostic-web-transpile.log"
+  },
+  {
+    "subject": "main",
+    "step": "diagnostic-web-index",
+    "exit_code": 0,
+    "seconds": 0.05,
+    "command": [
+      "node",
+      "postbuild.js"
+    ],
+    "log": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\main-diagnostic-web-index.log"
+  },
+  {
+    "subject": "main",
+    "step": "browser",
+    "exit_code": 1,
+    "seconds": 220.88,
+    "command": [
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\output\\playwright\\clean-install\\py312\\Scripts\\python.exe",
+      "-m",
+      "devtools.verification.browser",
+      "--profile",
+      "pr",
+      "--offline-all",
+      "--base",
+      "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+      "--out",
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\browser"
+    ],
+    "log": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\main-browser.log"
+  },
+  {
+    "subject": "main",
+    "step": "uat",
+    "exit_code": 2,
+    "seconds": 0.58,
+    "command": [
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\output\\playwright\\clean-install\\py312\\Scripts\\python.exe",
+      "scripts/verify.py",
+      "--profile",
+      "uat",
+      "--repair-key",
+      "TASK-UAT-LOCAL-ADAPTER",
+      "--base",
+      "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+      "--out",
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\main-shared-verification-656\\output\\playwright\\same-suite\\uat"
+    ],
+    "log": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\main-uat.log"
+  },
+  {
+    "subject": "candidate",
+    "step": "python311-compatibility",
+    "exit_code": 0,
+    "seconds": 0.37,
+    "command": [
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\output\\playwright\\clean-install\\py311\\Scripts\\python.exe",
+      "-c",
+      "import pathlib,json,sys; errors=[]\nfor p in pathlib.Path('backend').rglob('*.py'):\n try: compile(p.read_bytes(),str(p),'exec')\n except (SyntaxError,ValueError) as e: errors.append({'file':str(p),'error':str(e)})\nprint(json.dumps({'python':sys.version,'errors':errors}));sys.exit(bool(errors))"
+    ],
+    "log": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\candidate-python311-compatibility.log"
+  },
+  {
+    "subject": "candidate",
+    "step": "backend",
+    "exit_code": 1,
+    "seconds": 521.15,
+    "command": [
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\output\\playwright\\clean-install\\py312\\Scripts\\python.exe",
+      "scripts/verify.py",
+      "--profile",
+      "full",
+      "--component",
+      "backend",
+      "--base",
+      "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+      "--out",
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\backend"
+    ],
+    "log": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\candidate-backend.log"
+  },
+  {
+    "subject": "candidate",
+    "step": "frontend",
+    "exit_code": 1,
+    "seconds": 57.17,
+    "command": [
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\output\\playwright\\clean-install\\py312\\Scripts\\python.exe",
+      "scripts/verify.py",
+      "--profile",
+      "pr",
+      "--component",
+      "frontend",
+      "--base",
+      "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+      "--out",
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\frontend"
+    ],
+    "log": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\candidate-frontend.log"
+  },
+  {
+    "subject": "candidate",
+    "step": "diagnostic-web-transpile",
+    "exit_code": 0,
+    "seconds": 8.86,
+    "command": [
+      "npx.cmd",
+      "--no-install",
+      "vite",
+      "build"
+    ],
+    "log": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\candidate-diagnostic-web-transpile.log"
+  },
+  {
+    "subject": "candidate",
+    "step": "diagnostic-web-index",
+    "exit_code": 0,
+    "seconds": 0.08,
+    "command": [
+      "node",
+      "postbuild.js"
+    ],
+    "log": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\candidate-diagnostic-web-index.log"
+  },
+  {
+    "subject": "candidate",
+    "step": "browser",
+    "exit_code": 0,
+    "seconds": 173.09,
+    "command": [
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\output\\playwright\\clean-install\\py312\\Scripts\\python.exe",
+      "-m",
+      "devtools.verification.browser",
+      "--profile",
+      "pr",
+      "--offline-all",
+      "--base",
+      "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+      "--out",
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\browser"
+    ],
+    "log": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\candidate-browser.log"
+  },
+  {
+    "subject": "candidate",
+    "step": "uat",
+    "exit_code": 2,
+    "seconds": 0.63,
+    "command": [
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\output\\playwright\\clean-install\\py312\\Scripts\\python.exe",
+      "scripts/verify.py",
+      "--profile",
+      "uat",
+      "--repair-key",
+      "TASK-UAT-LOCAL-ADAPTER",
+      "--base",
+      "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+      "--out",
+      "D:\\git-repo\\PhD-Research-Lab-worktrees\\candidate-shared-verification-656\\output\\playwright\\same-suite\\uat"
+    ],
+    "log": "D:\\git-repo\\PhD-Research-Lab-worktrees\\local-ci-repair-supervisor\\output\\playwright\\ci-supervisor\\comparison-656\\candidate-uat.log"
+  }
+]

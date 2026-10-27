@@ -84,8 +84,6 @@ def validate(spec:MissionSpec):
     if control.end_date<=datetime.now(timezone.utc):raise ValueError("Mission end date has passed")
     for task in spec.tasks:
         if not {task.preferred_engine,*task.fallback_engines}<=set(control.allowed_engines):raise ValueError("Engine outside approved allowlist")
-        if {task.preferred_engine,*task.fallback_engines}&{"openscience","feynman"} and not control.allow_api_billing:
-            raise ValueError("Native engine billing is opaque; explicit API/opaque usage approval is required until subscription-only execution is qualified")
         if "app" in [task.preferred_engine,*task.fallback_engines]:
             if not control.app_model:raise ValueError("Supervised app reasoning requires an explicit model")
             if control.app_backend not in {"local","ollama",*PROVIDERS}:raise ValueError("Unknown fixed application backend")
@@ -205,10 +203,16 @@ async def fixed_reasoning(m,system,user):
     from backend.core.config import load_config
     from backend.providers import models
     control=m["payload"]["spec"]["control"];backend=control["app_backend"];cfg=load_config()
+    output_tokens=(m["payload"]["spec"].get("autonomy") or {}).get("max_output_tokens",3000)
     if backend in ("local","ollama"):
-        text=await models.local_chat(cfg,system,[{"role":"user","content":user}],3000,0,backend,control["app_model"],"interactive")
+        token = models.REASONING.set("off") if m["payload"]["spec"].get("autonomy") else None
+        try:
+            text=await models.local_chat(cfg,system,[{"role":"user","content":user}],output_tokens,0,backend,control["app_model"],"interactive")
+        finally:
+            if token is not None:
+                models.REASONING.reset(token)
     elif control["allow_api_billing"]:
-        text=await models.cloud_chat(cfg,backend,system,[{"role":"user","content":user}],3000,0,control["app_model"])
+        text=await models.cloud_chat(cfg,backend,system,[{"role":"user","content":user}],output_tokens,0,control["app_model"])
     else:raise ValueError("Hidden API billing refused")
     return {"text":text,"engine":backend,"model":control["app_model"],"usage":None,"fallback":False}
 
@@ -229,7 +233,12 @@ def report(tid,mid):
 
 def artifact(tid,mid,task_id,index):
     from backend.agent import missions as M
-    m=M.get(mid,tid);task=next((t for t in m["tasks"] if t["id"]==task_id),None)
+    return checked_artifact(M.get(mid,tid),task_id,index)
+
+
+def checked_artifact(m,task_id,index):
+    """Check an already-scoped mission snapshot without opening a nested transaction."""
+    task=next((t for t in m["tasks"] if t["id"]==task_id),None)
     if not task or task["status"]!="completed":raise ValueError("Completed task artifact required")
     refs=task["payload"].get("result",{}).get("artifacts",[])
     if not 0<=index<len(refs):raise ValueError("Artifact not found")

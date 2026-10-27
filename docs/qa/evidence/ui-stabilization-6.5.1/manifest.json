@@ -1,0 +1,30 @@
+{
+  "version": "6.5.1",
+  "mode": "REAL_LOCAL",
+  "requirements": [
+    "UI-MOBILE-SETTINGS-001",
+    "UI-DESKTOP-SETTINGS-001",
+    "UI-ACCESSIBLE-NAMES-001"
+  ],
+  "test_source": "frontend/e2e/ui_quality.spec.ts",
+  "test_sha256": "4f1c5ac3ee8087d66ff86acf1fe688cc2ec66580e7209d5d8d628e23967bcd62",
+  "red": {
+    "passed": 1,
+    "failed": 4,
+    "exit_code": 1,
+    "source": "323e816f0d5625120197d8670f7f47f49d497a4367ec6072667f554dd01554e8"
+  },
+  "green": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "exit_code": 0,
+    "source": "80ab50d561be0d58cf3c54732f725ebde85b408340eb91b159db29d58ed9905d"
+  },
+  "limitations": [
+    "Automated WCAG checks are not full conformance or screen-reader certification",
+    "Visual snapshots are evidence with review pending, not auto-approved golden images",
+    "Independent required CI and protected merge remain pending",
+    "Canonical contract validator currently supports Python symbols; Playwright IDs are explicitly traced here, not falsely claimed Python coverage"
+  ]
+}

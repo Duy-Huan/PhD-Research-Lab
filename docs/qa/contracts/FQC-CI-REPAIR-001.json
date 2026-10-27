@@ -1,0 +1,178 @@
+{
+  "id": "FQC-CI-REPAIR-001",
+  "title": "Authorized local CI repair, same-suite comparison and separated qualified CD",
+  "risk": "CRITICAL",
+  "mode": "MOCKED",
+  "user_story": "An owner-authorized coding agent repairs actual assigned CI assertions without weakening gates or automatically modifying qa/main; branch evaluation uses identical recorded tests and policies.",
+  "requirements": [
+    {
+      "id": "REQ-REPAIR",
+      "description": "Bind trusted assignment/state, genuine CI evidence, bounded native CLI repair and protected native dev merge"
+    },
+    {
+      "id": "REQ-COMPARE",
+      "description": "Compare fixed suite/environment/policy with complete critical denominators, not raw pass totals"
+    },
+    {
+      "id": "REQ-CD",
+      "description": "Keep PR verification separate from exact qualified-main packaging/publication"
+    }
+  ],
+  "nonfunctional": [
+    "At most3 reserved CLI invocations per stable PR, including crashes",
+    "No credentials passed to CLI or arbitrary fork repair",
+    "Never weaken100% or count missing/skipped asPASS",
+    "Never automatically modifyqa/main",
+    "No assertion of standards certification or scientific correctness"
+  ],
+  "inputs": [
+    "Explicit upstream state fixtures",
+    "Hash-bound issue evidence"
+  ],
+  "outputs": [
+    "Honest fail-closed reports"
+  ],
+  "preconditions": [
+    "Preserved worktrees and actual CI artifacts"
+  ],
+  "postconditions": [
+    "Existing failures remain blocking"
+  ],
+  "dependencies": [
+    "Python3.11/3.12",
+    "Existing verification harness"
+  ],
+  "affected_modules": [
+    "devtools/verification/**",
+    "scripts/**",
+    ".github/**",
+    "agent/**",
+    "tests/**",
+    "docs/qa/CRITICAL_SOFTWARE_CHECKS.json"
+  ],
+  "acceptance_criteria": [
+    "Critical policy/unit cases execute",
+    "Actual repair stages have explicit real evidence, blocked stages remain blocked",
+    "Same suite/env/policy required for comparison",
+    "Release verifies protected-main provenance/checks/tree and package hashes"
+  ],
+  "scenarios": [
+    {
+      "id": "0",
+      "requirement": "REQ-REPAIR",
+      "kind": "positive",
+      "expected": "Exact owner/PR/branch/SHA/worktree assignment is required",
+      "test": "tests/test_ci_repair_supervisor.py::SupervisorPolicy.test_only_explicit_matching_owner_branch_sha_and_worktree_can_execute"
+    },
+    {
+      "id": "1",
+      "requirement": "REQ-REPAIR",
+      "kind": "negative",
+      "expected": "External authors/forks/protected targets reject execution",
+      "test": "tests/test_ci_repair_supervisor.py::SupervisorPolicy.test_external_authors_forks_closed_prs_and_protected_bases_are_rejected"
+    },
+    {
+      "id": "2",
+      "requirement": "REQ-REPAIR",
+      "kind": "boundary",
+      "expected": "Three reservations persist across changing commits and restarts",
+      "test": "tests/test_ci_repair_supervisor.py::SupervisorPolicy.test_attempt_reservation_survives_restart_and_never_resets_on_new_sha"
+    },
+    {
+      "id": "3",
+      "requirement": "REQ-REPAIR",
+      "kind": "failure",
+      "expected": "Missing state cannot reset an existing registration",
+      "test": "tests/test_ci_repair_supervisor.py::SupervisorPolicy.test_missing_state_for_a_registered_pr_cannot_reset_budget"
+    },
+    {
+      "id": "4",
+      "requirement": "REQ-REPAIR",
+      "kind": "security",
+      "expected": "Log payload stays quoted untrusted data",
+      "test": "tests/test_ci_repair_supervisor.py::SupervisorPolicy.test_log_content_is_quoted_data_not_task_instructions"
+    },
+    {
+      "id": "5",
+      "requirement": "REQ-REPAIR",
+      "kind": "performance",
+      "expected": "Duplicate matrix observations share a fingerprint without losing IDs/count",
+      "test": "tests/test_ci_repair_supervisor.py::SupervisorPolicy.test_matrix_duplicates_preserve_all_observations_and_one_root_cause"
+    },
+    {
+      "id": "6",
+      "requirement": "REQ-CD",
+      "kind": "failure",
+      "expected": "Dependency install precedes precise canonical worker execution",
+      "test": "tests/test_ci_workflow_contract.py::WorkflowContract.test_policy_dependencies_precede_targeted_worker_execution"
+    },
+    {
+      "id": "7",
+      "requirement": "REQ-CD",
+      "kind": "boundary",
+      "expected": "PR pipeline cannot deploy or overwrite PR status through dispatch",
+      "test": "tests/test_ci_workflow_contract.py::WorkflowContract.test_pr_quality_has_no_release_or_production_approval"
+    },
+    {
+      "id": "8",
+      "requirement": "REQ-CD",
+      "kind": "security",
+      "expected": "Privileged inline provenance matches separately tested code",
+      "test": "tests/test_ci_workflow_contract.py::WorkflowContract.test_release_runs_only_for_main_and_uses_exact_provenance"
+    },
+    {
+      "id": "9",
+      "requirement": "REQ-CD",
+      "kind": "positive",
+      "expected": "Exact source and fresh web package exclude private data",
+      "test": "tests/test_release_packaging.py::ReleasePackaging.test_new_compiled_assets_and_exact_digests_are_packaged_without_private_data"
+    },
+    {
+      "id": "10",
+      "requirement": "REQ-COMPARE",
+      "kind": "negative",
+      "expected": "Different suites/environments/policies are incomparable",
+      "test": "tests/test_verification_comparison.py::Comparison.test_different_suite_environment_or_policy_is_incomparable"
+    },
+    {
+      "id": "11",
+      "requirement": "REQ-COMPARE",
+      "kind": "failure",
+      "expected": "Missing/skipped critical cases never count asPASS",
+      "test": "tests/test_verification_comparison.py::Comparison.test_fixed_critical_denominator_never_counts_missing_or_skipped_as_pass"
+    },
+    {
+      "id": "12",
+      "requirement": "REQ-COMPARE",
+      "kind": "security",
+      "expected": "Unstable source cannot be ranked from passing cases",
+      "test": "tests/test_verification_comparison.py::Comparison.test_unstable_source_cannot_be_ranked_by_passing_cases"
+    }
+  ],
+  "recovery": "Preserve raw failure. At most3 repair attempts per stable defect group. No waiver has been approved.",
+  "test_environment": "Disposable local subprocess and file fixtures. Not live merge or AI acceptance.",
+  "skill_sources": [
+    "skills/gh-fix-ci/SKILL.md",
+    "skills/github-actions-hardening/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent adversarial review, not independent approval"
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "test_sha256": "4345cab3e33650f52e5777cd49154ea2f06ac5891d1601f1675c0099390ad986",
+    "scope": "Same final workflow test source against actual previous workflow:3functionalFAIL/1PASS, then GREEN. Supervisor policy fixtures are not live GitHub/AI proof; actual partially assisted repair evidence is separate. Initial missing-module RED retained, not called a behavioral reproduction.",
+    "red": {
+      "path": "docs/qa/evidence/ci-supervisor-6.5.5/final-workflow-red.json",
+      "sha256": "42aef7ea534a35147ff644b1351bc9d8c05550445523e945eef75dfa31c410e0",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/ci-supervisor-6.5.5/final-contract-green-complete.json",
+      "sha256": "784ee02a34d48010187d80ccf5755451bf73dfc7d077afb8811f8b8d94dd387d",
+      "exit_code": 0
+    }
+  }
+}

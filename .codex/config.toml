@@ -1,0 +1,7 @@
+# Project-scoped MCP configuration. Run `npm ci --prefix frontend` first.
+# https://developers.openai.com/codex/mcp
+[mcp_servers.playwright]
+command = "npx"
+args = ["--prefix", "frontend", "--no-install", "playwright-mcp", "--headless", "--isolated", "--browser", "chromium", "--output-dir", "output/playwright/mcp"]
+startup_timeout_sec = 30
+tool_timeout_sec = 60

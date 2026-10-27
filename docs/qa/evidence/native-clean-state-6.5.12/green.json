@@ -1,0 +1,84 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_promotion_controller.PromotionController.test_existing_api_pagination_supports_array_review_responses",
+      "status": "PASS",
+      "duration": 0.0311,
+      "details": null
+    },
+    {
+      "id": "test_promotion_controller.PromotionController.test_explicit_owner_policy_and_unchanged_trusted_controller_are_required",
+      "status": "PASS",
+      "duration": 0.0529,
+      "details": null
+    },
+    {
+      "id": "test_promotion_controller.PromotionController.test_latest_matching_run_cannot_fall_back_to_an_older_success",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_promotion_controller.PromotionController.test_native_request_uses_only_the_qualifying_run_and_never_bypasses_failed_jobs",
+      "status": "PASS",
+      "duration": 0.3132,
+      "details": null
+    },
+    {
+      "id": "test_promotion_controller.PromotionController.test_persistent_state_is_atomic_and_corruption_never_resets_authority",
+      "status": "PASS",
+      "duration": 0.0054,
+      "details": null
+    },
+    {
+      "id": "test_promotion_controller.PromotionController.test_same_tree_native_merge_fast_forwards_only_dev_and_preserves_dirty_work",
+      "status": "PASS",
+      "duration": 0.6869,
+      "details": null
+    },
+    {
+      "id": "test_promotion_controller.PromotionController.test_shared_node_policy_never_qualifies_a_merged_flag_or_skipped_qa",
+      "status": "PASS",
+      "duration": 0.2731,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_promotion_controller.PromotionController.test_native_request_uses_only_the_qualifying_run_and_never_bypasses_failed_jobs",
+      "id": "test_promotion_controller.PromotionController.test_native_request_uses_only_the_qualifying_run_and_never_bypasses_failed_jobs (fresh_changes={'base': {'ref': 'qa', 'sha': 'different-base', 'repo': {'full_name': 'Duy-Huan/PhD-Research-Lab'}}})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_promotion_controller.PromotionController.test_native_request_uses_only_the_qualifying_run_and_never_bypasses_failed_jobs",
+      "id": "test_promotion_controller.PromotionController.test_native_request_uses_only_the_qualifying_run_and_never_bypasses_failed_jobs (fresh_changes={'mergeable_state': 'unstable'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_promotion_controller.PromotionController.test_native_request_uses_only_the_qualifying_run_and_never_bypasses_failed_jobs",
+      "id": "test_promotion_controller.PromotionController.test_native_request_uses_only_the_qualifying_run_and_never_bypasses_failed_jobs (fresh_changes={'draft': True})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_promotion_controller.PromotionController.test_native_request_uses_only_the_qualifying_run_and_never_bypasses_failed_jobs",
+      "id": "test_promotion_controller.PromotionController.test_native_request_uses_only_the_qualifying_run_and_never_bypasses_failed_jobs (fresh_changes={'state': 'closed'})",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 7,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-6wrjge0c",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

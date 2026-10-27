@@ -73,7 +73,7 @@ def sb_dir() -> Path:
 DEFAULT_SETTINGS = {"mode": "local",  # v5: Python venv first; Docker only when a task needs Linux
                     "image": "", "gpu": True, "memory_gb": 8, "cpus": 4, "shm_gb": 2,
                     "network": True, "timeout_s": 6 * 3600, "self_debug_max": 4,
-                    # v3.2: the local venv sees the packages of the Python that runs the app (clearml, torch, …)
+                    # v3.2: the local venv sees the packages of the Python that runs the app (torch, numpy, …)
                     "inherit_packages": True,
                     # v3.4 environments (envs.py): Python env = a project venv built from python_base, or python_base itself
                     # ("existing"); auto_deps installs what the code imports before every run (deps.py)
@@ -131,7 +131,7 @@ def container_name() -> str:
     from backend.execution.code_projects import active, container_for
     rec = active()
     if not rec:  # nothing to address without a code project; the name of no real container
-        return "phdlab-" + hashlib.sha1(str(data_dir().resolve()).encode()).hexdigest()[:10]
+        return "phdlab-" + hashlib.sha1(str(data_dir().resolve()).encode(), usedforsecurity=False).hexdigest()[:10]
     return container_for(rec)
 
 
@@ -296,7 +296,7 @@ def ensure_container(recreate: bool = False) -> dict:
 
 def _code_label() -> str:
     """Which folder the container mounts (v4.2): a renamed or different code project gets a fresh container."""
-    return hashlib.sha1(str(code_dir().resolve()).encode()).hexdigest()[:12]
+    return hashlib.sha1(str(code_dir().resolve()).encode(), usedforsecurity=False).hexdigest()[:12]
 
 
 def container_action(action: str) -> dict:
@@ -398,7 +398,8 @@ def _venv_dir(s: dict) -> Path:
     base = _base_python(s)
     if base == sys.executable:
         return sb_dir() / "venv"  # v3.0-v3.3 location (kept: existing venvs and their packages stay in use)
-    return sb_dir() / ("venv-" + hashlib.sha1(str(Path(base).resolve()).lower().encode()).hexdigest()[:8])
+    # Existing environment folder identity; changing it would discard cached environments.
+    return sb_dir() / ("venv-" + hashlib.sha1(str(Path(base).resolve()).lower().encode(), usedforsecurity=False).hexdigest()[:8])
 
 
 def local_python_info() -> dict:
@@ -535,12 +536,6 @@ def start_job(cmd: str, kind: str = "run", title: str = "", extra_env: dict | No
                                    "gpu": bool(s.get("gpu")) and (extra_env or {}).get("CUDA_VISIBLE_DEVICES", gpu_env.get("CUDA_VISIBLE_DEVICES")) != "",
                                    "memory_gb": s.get("memory_gb"), "cpus": s.get("cpus")}
     env.update(extra_env or {})
-    if kind == "run":  # v3.2: a script that calls clearml Task.init records an offline session into its own run folder
-        try:
-            from backend.execution.tracker import run_env
-            env.update(run_env(f"/runs/{job.id}" if mode == "docker" else str(job.run_dir)))
-        except Exception:
-            pass
     if s.get("torch_index"):
         env["PHDLAB_TORCH_INDEX"] = s["torch_index"]
     if mode == "docker":
@@ -602,29 +597,21 @@ def _waiter(job: Job, t1, t2, timeout_s: int):
     t1.join(5); t2.join(5)
     job.exit_code = job.proc.returncode
     job.ended = time.time()
-    job.status = "stopped" if job.stop_requested else ("done" if job.exit_code == 0 else "failed")
-    job.add("sys", f"[{job.status}] exit code {job.exit_code} · {round(job.ended - job.started, 1)} s")
+    final_status = "stopped" if job.stop_requested else ("done" if job.exit_code == 0 else "failed")
+    job.add("sys", f"[{final_status}] exit code {job.exit_code} · {round(job.ended - job.started, 1)} s")
     if job.run_dir:
         try:
             job.meta.update(collect_run(job))
         except Exception as e:
             job.add("sys", f"(metrics extraction failed: {e})")
-        _after_run(job)
-        _write_run_meta(job)
-        if job.kind == "run":
-            threading.Thread(target=_auto_clearml, args=(job.id,), daemon=True).start()
+        _after_run(job, final_status=final_status)
+        _write_run_meta(job, status=final_status)
+    # Consumers, including run_blocking, may read metrics as soon as status is
+    # terminal. Publish completion only after the run evidence has been written.
+    job.status = final_status
 
 
-def _auto_clearml(run_id: str) -> None:
-    """Record the finished run as a ClearML offline session when clearml.auto_record is on."""
-    try:
-        from backend.execution.tracker import auto_record
-        auto_record(run_id)
-    except Exception:
-        pass
-
-
-def _after_run(job: Job) -> None:
+def _after_run(job: Job, *, final_status: str | None = None) -> None:
     """v3.2: seal produced artifacts with provenance metadata; re-run once on CPU after a GPU fault."""
     try:
         from backend.core.config import load_config
@@ -634,7 +621,7 @@ def _after_run(job: Job) -> None:
             job.meta["provenance"] = seal_run(job.run_dir, job.id, job.meta, csv_header=cfg["provenance"].get("csv_header", True))
     except Exception as e:
         job.add("sys", f"(provenance sealing failed: {e})")
-    if job.status != "failed" or job.kind != "run":
+    if (final_status or job.status) != "failed" or job.kind != "run":
         return
     try:
         from backend.core.config import load_config
@@ -787,11 +774,13 @@ def collect_run(job: Job) -> dict:
             "series": sorted(parsed["series"].keys())}
 
 
-def _write_run_meta(job: Job):
+def _write_run_meta(job: Job, *, status: str | None = None):
     if not job.run_dir:
         return
     d = job.info()
     d.update(job.meta or {})
+    if status is not None:
+        d["status"] = status
     d["stdout_tail"] = job.tail(40, "out")
     d["stderr_tail"] = job.tail(40, "err")
     try:

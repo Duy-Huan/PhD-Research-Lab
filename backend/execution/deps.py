@@ -31,7 +31,7 @@ PIP_NAME = {
     "scipy": "scipy", "numpy": "numpy", "pandas": "pandas", "matplotlib": "matplotlib", "seaborn": "seaborn",
     "einops": "einops", "timm": "timm", "transformers": "transformers", "datasets": "datasets", "lightning": "lightning",
     "pytorch_lightning": "pytorch-lightning", "hydra": "hydra-core", "omegaconf": "omegaconf", "wandb": "wandb",
-    "clearml": "clearml", "tqdm": "tqdm", "rasterio": "rasterio", "tifffile": "tifffile", "imageio": "imageio",
+    "tqdm": "tqdm", "rasterio": "rasterio", "tifffile": "tifffile", "imageio": "imageio",
     "mat73": "mat73", "kornia": "kornia", "lpips": "lpips", "piq": "piq", "thop": "thop", "fvcore": "fvcore",
     "mmcv": "mmcv", "mamba_ssm": "mamba-ssm", "flash_attn": "flash-attn", "jax": "jax", "tensorflow": "tensorflow",
     "keras": "keras", "lightgbm": "lightgbm", "xgboost": "xgboost", "catboost": "catboost", "statsmodels": "statsmodels",
@@ -172,7 +172,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 plan = json.load(open(os.path.join(HERE, "deps.json"), encoding="utf-8"))
 root = os.path.dirname(HERE)
 stamp_dir = os.path.join(HERE, "stamps"); os.makedirs(stamp_dir, exist_ok=True)
-env_id = hashlib.sha1((sys.executable + sys.version).encode()).hexdigest()[:12]
+env_id = hashlib.sha1((sys.executable + sys.version).encode(), usedforsecurity=False).hexdigest()[:12]
 stamp_f = os.path.join(stamp_dir, env_id + ".json")
 try:
     stamp = json.load(open(stamp_f, encoding="utf-8"))
@@ -217,7 +217,7 @@ if subprocess.call([sys.executable, "-m", "pip", "--version"], stdout=subprocess
 failed = []
 for rel in plan.get("requirements_files", []):
     path = os.path.join(root, rel)
-    h = hashlib.sha1(open(path, "rb").read()).hexdigest()
+    h = hashlib.sha1(open(path, "rb").read(), usedforsecurity=False).hexdigest()
     if satisfied(path):  # every requirement present at its pinned version: no pip call (works offline)
         stamp[rel] = h
         continue
@@ -287,7 +287,8 @@ def plan_cached(root: Path) -> dict:
             sig.append((str(p), p.stat().st_mtime_ns))
         except OSError:
             pass
-    key = (str(root), hashlib.sha1(repr(sorted(sig)).encode()).hexdigest())
+    # Dependency discovery memoization, not package authenticity verification.
+    key = (str(root), hashlib.sha1(repr(sorted(sig)).encode(), usedforsecurity=False).hexdigest())
     if _cache.get("key") != key:
         _cache.update(key=key, plan=detect(root))
     return _cache["plan"]

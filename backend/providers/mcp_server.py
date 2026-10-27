@@ -76,9 +76,9 @@ def guard(headers: dict, client: str) -> tuple[int, str]:
     got = (headers.get("authorization") or "")
     got = got[7:].strip() if got.lower().startswith("bearer ") else ""
     from backend.agent.mcp_policy import lookup
-    if tok and not lookup(got):  # v4.2: an ephemeral session grant authorises (and restricts) its holder
-        if not hmac.compare_digest(got.encode(), tok.encode()):
-            return 401, "MCP token required (Authorization: Bearer <token>)"
+    grant = lookup(got)
+    if (tok or got) and not grant and not (tok and hmac.compare_digest(got.encode(), tok.encode())):
+        return 401, "A valid project-scoped MCP token is required"
     limit = int(m.get("rate_limit_per_min") or 0)
     if limit > 0:
         now = time.time()

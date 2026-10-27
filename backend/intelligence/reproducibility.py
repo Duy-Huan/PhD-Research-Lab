@@ -73,7 +73,7 @@ def export_reproducibility_pack(
             mission = {
                 "id": mission_id,
                 "topic_id": topic_id,
-                "status": "completed",
+                "status": "unknown",
                 "title": f"Mission {mission_id}",
                 "objective": topic.get("title", "Research mission"),
                 "payload": {},
@@ -134,7 +134,7 @@ def export_reproducibility_pack(
     _write_json(env_dir / "seed_policy.json", seed_policy)
 
     # 2. Protocol & deterministic baseline metrics
-    baseline_metrics: dict[str, float] = {"psnr_db": 31.42, "ssim": 0.912, "seed": 42.0}
+    baseline_metrics: dict[str, float] = {}
     for exp in experiments:
         comp = (exp.get("payload") or {}).get("comparison") or {}
         for k, v in comp.items():
@@ -161,9 +161,8 @@ def export_reproducibility_pack(
         "def main() -> int:\n"
         "    root = Path(__file__).resolve().parents[1]\n"
         "    cfg = json.loads((root / 'protocol' / 'experiment_config.json').read_text(encoding='utf-8'))\n"
-        "    expected = cfg.get('expected_metrics', {})\n"
-        "    print(json.dumps({'status': 'replayed', 'metrics': expected}, indent=2, sort_keys=True))\n"
-        "    return 0\n\n"
+        "    print(json.dumps({'status': 'unverified', 'metrics': {}, 'executed': False, 'reason': 'No executable replay protocol is bundled'}, indent=2))\n"
+        "    return 2\n\n"
         "if __name__ == '__main__':\n"
         "    raise SystemExit(main())\n"
     )
@@ -305,16 +304,26 @@ def replay_reproducibility_pack(
 
     mismatches: list[dict[str, str]] = []
     verified_files: list[str] = []
-    for raw_line in checksums_file.read_text(encoding="utf-8").splitlines():
+    checksum_lines = checksums_file.read_text(encoding="utf-8").splitlines()
+    if not any(line.strip() for line in checksum_lines):
+        mismatches.append({"file": "checksums.sha256", "reason": "empty manifest"})
+    seen = set()
+    for raw_line in checksum_lines:
         line = raw_line.strip()
         if not line:
             continue
         parts = line.split("  ", 1)
         if len(parts) != 2:
+            mismatches.append({"file": "checksums.sha256", "reason": "malformed entry"})
             continue
         expected_hash, rel_path = parts
-        target = pack_root / rel_path
-        if not target.exists():
+        target = (pack_root / rel_path).resolve()
+        if (not target.is_relative_to(pack_root.resolve()) or rel_path in seen
+                or len(expected_hash) != 64 or any(c not in "0123456789abcdef" for c in expected_hash)):
+            mismatches.append({"file": rel_path, "reason": "invalid path, digest or duplicate entry"})
+            continue
+        seen.add(rel_path)
+        if not target.is_file():
             mismatches.append({"file": rel_path, "reason": "missing"})
             continue
         actual_hash = _sha256_file(target)
@@ -327,19 +336,12 @@ def replay_reproducibility_pack(
     cfg = json.loads(cfg_path.read_text(encoding="utf-8")) if cfg_path.exists() else {}
     expected_metrics: dict[str, float] = cfg.get("expected_metrics") or {}
 
+    # File integrity and fresh scientific execution are distinct checks. This
+    # exporter has no executable replay protocol; never copy expected results.
     replayed_metrics: dict[str, float] = {}
     metric_diffs: dict[str, float] = {}
-    within_tolerance = True
-    for k, v in expected_metrics.items():
-        val = float(v)
-        replayed_metrics[k] = val
-        diff = abs(replayed_metrics[k] - val)
-        metric_diffs[k] = diff
-        if diff > tolerance:
-            within_tolerance = False
-
-    passed = (len(mismatches) == 0) and within_tolerance
-    status = "verified" if passed else "failed"
+    passed = False
+    status = "failed" if mismatches else "unverified"
     report = {
         "topic_id": topic_id,
         "mission_id": mission_id,
@@ -352,6 +354,8 @@ def replay_reproducibility_pack(
         "replayed_metrics": replayed_metrics,
         "metric_diffs": metric_diffs,
         "replayed_at": S.now(),
+        "execution": {"executed": False, "reason": "No executable replay protocol is bundled"},
+        "integrity_verified": bool(verified_files) and not mismatches,
     }
 
     with S.db() as c:

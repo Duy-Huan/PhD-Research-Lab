@@ -129,7 +129,10 @@ class ApiFaults(unittest.IsolatedAsyncioTestCase):
     async def test_portable_local_actions_and_nontext_file_response(self):
         with mock.patch.object(projects.sys, "platform", "linux"):
             self.assertEqual(projects.projects_reveal()["path"], str(config.data_dir()))
-            self.assertFalse((await system.provider_connect("feynman"))["launched"])
+            with mock.patch('backend.providers.native.launch_provider', return_value={'launched': False, 'detail': 'No terminal'}):
+                with self.assertRaises(HTTPException) as raised:
+                    await system.provider_connect("codex")
+                self.assertEqual(raised.exception.status_code, 503)
         p = config.data_dir() / "plot.png"
         p.write_bytes(b"png fixture")
         self.assertEqual(projects.project_file("plot.png").media_type, "image/png")

@@ -1,0 +1,10 @@
+{
+  "name": "phdlab-cli-ipc-e3145e23f3404d2da3b275d87a2e4889",
+  "created": "2026-10-25T02:13:31Z",
+  "labels": {
+    "phdlab.cli": "e3145e23f3404d2da3b275d87a2e4889"
+  },
+  "referencing_containers": [],
+  "purpose": "Application-owned IPC socket volume; never a research-data mount",
+  "cleanup": "ACTUALLY_EXECUTED_EXACT_OWNER_ONLY"
+}

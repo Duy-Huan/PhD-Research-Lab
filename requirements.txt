@@ -1,18 +1,23 @@
 fastapi>=0.110
 uvicorn>=0.29
 httpx>=0.27
-pypdf>=4.2
+pypdf>=6.21.2
+# Security floors verified by pip-audit; require patched PDF parsing and certificate bundles.
+certifi>=2026.10.19
+defusedxml>=0.7.1
 python-multipart>=0.0.9
 # v3.0 Source Control / Publish to GitHub (pure Python; needs Git for Windows installed).
 # If it is missing the app drives the git command line directly.
 GitPython>=3.1.40
 # Optional, faster/better PDF parsing (native DLL; may be blocked by Windows Smart App Control):
 # pymupdf>=1.24
-# v3.2 ClearML experiment tracking (offline mode needs no server) is installed by setup.bat as a SEPARATE step,
-# because it pulls native packages (numpy, psutil, Pillow). The app only uses it in a subprocess:
-#   pip install "clearml>=2.0"      (or Control Center -> Integrations -> Install ClearML SDK)
+# Native experiment tracking reuses project-owned journals and raw artifacts; no tracking service SDK.
 # Not needed: Docker, GPU and system monitoring use the docker / nvidia-smi command-line tools,
 # so no native Python packages (docker-py, psutil, pynvml) are installed.
 # Terminal chat (`phdlab`): input with completion menu + Markdown rendering (pure Python)
 prompt_toolkit>=3.0.47
 rich>=13.7
+# Real Figure Store SVG -> PDF/PNG exports; no placeholder raster fallback.
+reportlab>=4.4
+svglib>=1.6
+pypdfium2>=4.30

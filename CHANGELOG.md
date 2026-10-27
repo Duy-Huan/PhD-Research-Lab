@@ -1,4 +1,25 @@
+# Unreleased6.5.5 - local CI repair and qualified CD
+
+Owner-authorized persistent CLI repair, exact PR/SHA/worktree matching, native dev-only auto-merge requests, preserved three-invocation budget and actual assisted PR10 repair/push/rerun evidence. CI is PR-only with lock-first targeted policy tests and offline2D/3D; qualified main CD packages checksummed source/web assets. Same-suite/environment/policy comparison rejects incomparable or unstable observations. Legacy duplicate GitHub workflows disabled; no protected merge/release or100% qualification claimed.
+
+# Unreleased6.5.3 - CI recovery
+
+Preserve upstream failure classifications and raw results; validate evidence-backed known-issue accounting without waivers; include baseline policy in source identity; retain mandatory100% coverage and live gates. Recovery policy quarantines automatic merging; no main auto-merge or release certification.
+
+# 6.5.1 ? UI stabilization candidate (unreleased)
+
+- Dismiss mobile navigation when Settings opens; preserve desktop navigation.
+- Include visible language, zoom and panel text in accessible control names, including the Vietnamese floating menu.
+- Add five real browser regressions and16 viewport/locale accessibility scans to canonical offline browser selection.
+- Preserve functional RED/GREEN of the same test source. Independent CI, global coverage and live acceptance remain required.
+
 # Changelog
+
+## 6.4.3 — QA foundation — 2026-10-24
+
+- Pin four reviewed GitHub skills with source revisions and upstream licenses. Add session continuation plan, state and repository QA instructions.
+- Protect `skills/` and `agent/` from deletion, including CI/staged-change checks. Preserve existing research data and unrelated working changes.
+- Add a single version synchronization command. Full-project 100% coverage and release qualification remain unachieved; see `agent/STATE.md`.
 
 ## Frontend workflow and model resources — 2026-10-22
 

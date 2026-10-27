@@ -13,8 +13,13 @@ from backend.knowledge import research_store as S
 def extract_experiment_metrics(tid: str, experiment_id: str) -> tuple[dict[str, list[float]], list[str], str]:
     """Load real experiment run metrics for a topic and return (series, x_labels, sha256)."""
     from backend.execution import protocols as P
+    from backend.knowledge.verification import verify_run
+    import statistics
 
     run = P.run(tid, experiment_id)
+    checked = verify_run(tid, experiment_id, _find_reproduction=False)
+    if checked['status'] != 'passed':
+        raise ValueError('Independent raw experiment recomputation failed; stored summaries are not figure evidence')
     series: dict[str, list[float]] = {"mean_psnr_db": [], "mean_mse": []}
     x_labels: list[str] = []
     for trial in run.get("trials") or []:
@@ -22,14 +27,12 @@ def extract_experiment_metrics(tid: str, experiment_id: str) -> tuple[dict[str, 
         summary = (trial.get("payload") or {}).get("summary") or {}
         if req.get("split") == "validation":
             x_labels.append(f"alpha={req.get('alpha', 0)}")
-            series["mean_psnr_db"].append(round(float(summary.get("mean_psnr_db", 0.0)), 6))
-            series["mean_mse"].append(round(float(summary.get("mean_mse", 0.0)), 8))
+            series['mean_psnr_db'].append(round(float(summary['mean_psnr_db']), 6))
+            per_seed = summary.get('per_seed')
+            if not isinstance(per_seed, dict) or not per_seed: raise ValueError('Missing measured per-seed MSE')
+            series['mean_mse'].append(round(statistics.mean(float(row['mse']) for row in per_seed.values()), 8))
     if not x_labels:
-        for idx, trial in enumerate(run.get("trials") or []):
-            summary = (trial.get("payload") or {}).get("summary") or {}
-            x_labels.append(f"T{idx + 1}")
-            series["mean_psnr_db"].append(round(float(summary.get("mean_psnr_db", 0.0)), 6))
-            series["mean_mse"].append(round(float(summary.get("mean_mse", 0.0)), 8))
+        raise ValueError('No measured validation split; held-out/test data cannot silently replace it')
     canonical = S.dumps({"experiment_id": experiment_id, "x": x_labels, "series": series}).encode("utf-8")
     return series, x_labels, hashlib.sha256(canonical).hexdigest()
 
@@ -93,16 +96,22 @@ def verify_figure(
     # 2. Numerical integrity check against experiment measurements
     if spec.source.kind == "experiment_artifact" and spec.source.experiment_id:
         try:
-            exp_series, _, _ = extract_experiment_metrics(tid, spec.source.experiment_id)
-            mismatch = False
+            exp_series, x_labels, _ = extract_experiment_metrics(tid, spec.source.experiment_id)
+            mismatch = not spec.source.series or spec.source.x_values != x_labels
+            if spec.source.x_values != x_labels: errors.append('Plotted X values do not match the measured validation methods/order.')
+            aliases = {'Validation Mean PSNR (dB)': 'mean_psnr_db', 'Validation Mean MSE': 'mean_mse'}
             for k, vals in spec.source.series.items():
-                if k in exp_series:
-                    ref_vals = exp_series[k]
+                canonical = aliases.get(k, k)  # Explicit historical display labels only.
+                if canonical in exp_series:
+                    ref_vals = exp_series[canonical]
                     if len(vals) != len(ref_vals) or any(
                         not math.isclose(float(a), float(b), rel_tol=1e-5, abs_tol=1e-5) for a, b in zip(vals, ref_vals)
                     ):
                         mismatch = True
                         errors.append(f"Plotted series '{k}' diverges from raw experiment measurements.")
+                else:
+                    mismatch = True
+                    errors.append(f"Plotted series '{k}' has no independently verified experiment metric.")
             tests["numerical_values"] = "fail" if mismatch else "pass"
         except Exception as exc:
             tests["numerical_values"] = "fail"

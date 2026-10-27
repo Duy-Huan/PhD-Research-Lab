@@ -1,0 +1,134 @@
+{
+  "TASK-UAT-LOCAL-ADAPTER": {
+    "attempts": 3,
+    "history": [
+      {
+        "sha": "9bef17c7bb5f9062ed8324aed3e5927cc2ca53b6",
+        "status": "FAIL"
+      },
+      {
+        "sha": "9bef17c7bb5f9062ed8324aed3e5927cc2ca53b6",
+        "status": "FAIL"
+      },
+      {
+        "sha": "9bef17c7bb5f9062ed8324aed3e5927cc2ca53b6",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "TASK-SELECTION-NESTED": {
+    "attempts": 1,
+    "history": [
+      {
+        "sha": "9bef17c7bb5f9062ed8324aed3e5927cc2ca53b6",
+        "status": "FAIL"
+      },
+      {
+        "sha": "9bef17c7bb5f9062ed8324aed3e5927cc2ca53b6",
+        "status": "PASS"
+      }
+    ]
+  },
+  "BUG-UI-001-002": {
+    "attempts": 2,
+    "history": [
+      {
+        "sha": "dc7d87daaacd806c6514f58eaf90cb257793e7ce43b02727bff899a783e0922d",
+        "status": "FAIL",
+        "evidence": "docs/qa/evidence/ui-stabilization-6.5.1/candidate-failed/source.json"
+      },
+      {
+        "sha": "80ab50d561be0d58cf3c54732f725ebde85b408340eb91b159db29d58ed9905d",
+        "status": "PASS",
+        "evidence": "docs/qa/evidence/ui-stabilization-6.5.1/functional-green/source.json"
+      },
+      {
+        "sha": "3d15080054bd04c191d5a21425baee8bd57d261381d2a577c6ea373154d3c10f",
+        "status": "FAIL"
+      },
+      {
+        "sha": "a4ea18120b9382061cb4eb3ee1e5487c28a3f7b8302f6c8e3faa9384a2006d5d",
+        "status": "PASS"
+      }
+    ]
+  },
+  "BUG-TEST-RUNTIME-CACHE-001": {
+    "attempts": 1,
+    "history": [
+      {
+        "sha": "2a5ee141a1d06291eb65589045f0c5a35b711526",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "TASK-CI-6510-RECOVERY": {
+    "attempts": 4,
+    "history": [
+      {
+        "sha": "3f60a77c54ada9f1197c901019a119ad5d4ddebf",
+        "status": "FAIL",
+        "evidence": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40331308169"
+      },
+      {
+        "sha": "536f09c6c102931023cd21d521ef74816fb7f2bf",
+        "status": "FAIL",
+        "evidence": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40344069655"
+      },
+      {
+        "sha": "857b5a9c80bc879d2963f633deb8caa94656aedd",
+        "status": "FAIL",
+        "evidence": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40370816116/job/121740747955",
+        "case": "test_verification_process_timeout.TimeoutContainment.test_deadline_stops_owned_descendant_and_preserves_unrelated_process",
+        "measured_scope": "Linux3.11 backend1020cases:1019PASS,1FAIL,0ERROR/SKIP. Surviving-descendant metadata retained PID6337 despite subsequent pid_exists assertion passing. No failed result waived.",
+        "additional_failed_case": {
+          "id": "memory_eval.test_golden.GoldenTasks.test_latency_budget",
+          "job": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40370816116/job/121740748111",
+          "compile_ms": 328.533,
+          "original_limit_ms": 300,
+          "result": "FAIL"
+        }
+      },
+      {
+        "sha": "5c71068e88a98249d5c9cb142519a24112415d5e",
+        "status": "SOFTWARE_PASS_PROMOTION_BLOCKED",
+        "evidence": "docs/qa/evidence/native-clean-state-6.5.12/actual-github-rejection.json",
+        "measured_scope": "Dev40381520620 andPR40381529763 bothSUCCESS;8actual backend artifacts each1022/1022PASS. Native CLEAN auto-merge request rejected; no main merge."
+      }
+    ],
+    "note": "Four observed correction outcomes retained: original3software failures, then owner-granted5csoftwarePASS/native-promotionBLOCKED. Latest owner explicitly asks to check/fix CI/CD conditions; the confirmed CLEAN API correction is locally verified. New mandatory failure stops publication; no gate/counter/UAT reset.",
+    "owner_extensions": [
+      {
+        "id": "OWNER-20261027-ONE-CI-CYCLE",
+        "additional_cycles": 1,
+        "owner_reply": "Cho phép thêm 1 chu kỳ sửa CI, giữ nguyên mọi gate",
+        "status": "CONSUMED_SOFTWARE_PASS_PROMOTION_BLOCKED",
+        "original_attempts": 3,
+        "red_evidence": "output/playwright/ci-automerge-recovery/owner-cycle-4/linux-red/report.json",
+        "scope": "One additional correction cycle: owned reaping order and project-bound context compilation; all original gates and memory300/500ms unchanged.",
+        "source_sha256": "42bbc2791494831c1ccccca38b4c3d40347eac15222984112b346264f1123499",
+        "local_evidence": "docs/qa/evidence/ci-boundaries-6.5.12/pr-report.json",
+        "candidate_cycles_used": 1,
+        "remote_software_result": {
+          "sha": "5c71068e88a98249d5c9cb142519a24112415d5e",
+          "dev_run": 40381520620,
+          "pr_run": 40381529763,
+          "result": "BOTH_SUCCESS",
+          "native_promotion": "BLOCKED: GitHub CLEAN PR rejects enablePullRequestAutoMerge"
+        }
+      }
+    ],
+    "owner_followups": [
+      {
+        "date": "2026-10-27",
+        "request": "Owner reports web still failing and explicitly asks to recheck/fix CI/CD conditions.",
+        "action": "Correct confirmed CLEAN-only native API mismatch without changing any gate, admin enforcement, source proof, review, branch order or repair/UAT history.",
+        "evidence": "docs/qa/evidence/native-clean-state-6.5.12/actual-github-rejection.json",
+        "scope": "Continued authorized automation repair; no native AI repair invocation, ledger reset or fabricated failed software cycle.",
+        "status": "LOCAL_VERIFIED_AWAITING_NEW_CI",
+        "source_sha256": "fd1e9964dd4fce07bd20477dcd968d0a82a68a7b56c2f2c920f136b4b6d7e6c5",
+        "local_evidence": "docs/qa/evidence/native-clean-state-6.5.12/pr-report.json",
+        "budget_basis": "Latest explicit owner follow-up requests condition correction after continued web failure; previous4observations and consumed one-cycle grant are preserved. One confirmed API correction candidate, no counter reset or native AI repair invocation."
+      }
+    ]
+  }
+}

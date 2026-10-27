@@ -33,18 +33,24 @@ async def lifespan(_app):
     reap = asyncio.create_task(reaper(stop))
     from backend.knowledge.research_jobs import worker as research_worker
     research_task = asyncio.create_task(research_worker(stop))
+    from backend.agent.workflow_worker import worker as workflow_worker
+    workflow_task = asyncio.create_task(workflow_worker(stop))
     try:
         await asyncio.to_thread(runs.recover_all)
     except Exception:  # a damaged run file must never keep the app from starting
         pass
     asyncio.get_running_loop().run_in_executor(None, _warm)
+    from backend.providers import connections
+    await connections.selected()
     try:
         yield
     finally:
+        await connections.shutdown()
         stop.set()
         task.cancel()
         research_task.cancel()
-        await asyncio.gather(research_task, return_exceptions=True)
+        workflow_task.cancel()
+        await asyncio.gather(research_task, workflow_task, return_exceptions=True)
         await _shutdown()
         try:
             await asyncio.wait_for(reap, timeout=3)

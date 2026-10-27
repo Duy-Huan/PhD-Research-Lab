@@ -1,0 +1,21 @@
+{
+  "pr12_merged_at": "2026-10-25T11:06:14Z",
+  "head": "4cfa0c0d99aa31a7612d1c5219f88721759d936d",
+  "qa_checks": [
+    {
+      "run": 40185961365,
+      "job": "QA gate",
+      "status": "skipped",
+      "started": "2026-10-25T11:05:32Z",
+      "completed": "2026-10-25T11:05:32Z"
+    },
+    {
+      "run": 40187464241,
+      "job": "QA gate",
+      "status": "failure",
+      "started": "2026-10-25T11:21:15Z",
+      "completed": "2026-10-25T11:21:26Z"
+    }
+  ],
+  "diagnosis": "Investigate required context collision: a skipped QA gate existed on dev-push for the same SHA. Do not equate this with QA PR qualification."
+}

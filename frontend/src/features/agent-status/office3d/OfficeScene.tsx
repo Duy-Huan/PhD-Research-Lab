@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Html } from '@react-three/drei';
 import type { AgentOfficeViewModel } from '../../../shared/api/types';
 import type { InteractiveLabObjectKind } from '../../../shared/state/uiStore';
+import { useI18n } from '../../../shared/state/uiStore';
 import { AgentAvatar } from './AgentAvatar';
+import { APP_VERSION } from '../../../shared/version';
 
 export type LabLightingMode = 'biophilic_green' | 'daylight' | 'night_lab' | 'cyber_science';
 
@@ -32,6 +34,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
   onSelectLabObject,
 }) => {
   const [hoveredObj, setHoveredObj] = useState<string | null>(null);
+  const { t } = useI18n();
 
   const isGreen = lightingMode === 'biophilic_green';
   const isNight = lightingMode === 'night_lab';
@@ -75,7 +78,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
       { pos: [-3.2, 0, -4.4], rotY: 0 },
       // Slot 1: Literature & SKB Wing (West Wing)
       { pos: [-6.4, 0, -1.2], rotY: Math.PI / 6 },
-      // Slot 2: OpenScience Lab Bench (Front Center-Right)
+      // Slot 2: Experiment Lab Bench (Front Center-Right)
       { pos: [3.2, 0, -4.4], rotY: 0 },
       // Slot 3: OpenCode HPC Compute Station (South-West)
       { pos: [-3.8, 0, 2.2], rotY: 0 },
@@ -295,13 +298,13 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
                     fontWeight: 700,
                   }}
                 >
-                  OpenScience Autonomous University Lab · v6.4.2
+                  PhD Research Lab · v{APP_VERSION}
                 </div>
                 <div style={{ fontSize: 20, fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em' }}>
                   PhD Research Lab
                 </div>
                 <div style={{ fontSize: 11.5, color: '#cbd5e1', marginTop: 2 }}>
-                  {topicTitle || 'Click để mở Đề cương 5 cấp độ (Outline) & Nhiệm vụ Tự hành'}
+                  {topicTitle || t('Click để mở Đề cương 5 cấp độ (Outline) & Nhiệm vụ Tự hành', 'Open the 5-level outline and autonomous missions')}
                 </div>
               </div>
             </div>
@@ -329,7 +332,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
                 🤖 Active Agents: <b style={{ color: '#fbbf24' }}>{runningCount}/{agents.length}</b>
               </span>
               <span style={{ fontSize: 10, color: '#a7f3d0', fontWeight: 700 }}>
-                [Click: Xem Đề cương & Missions]
+                {t('[Click: Xem Đề cương & Missions]', '[Open Outline & Missions]')}
               </span>
             </div>
           </div>
@@ -405,7 +408,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
               boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
             }}
           >
-            📚 Thư viện SKB ({paperCount} bài báo) · Click để tra cứu
+            {t(`📚 Thư viện SKB (${paperCount} bài báo) · Click để tra cứu`, `📚 SKB Library (${paperCount} papers) · Browse references`)}
           </div>
         </Html>
       </group>
@@ -476,7 +479,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
               boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
             }}
           >
-            🖥️ Cụm HPC & OpenCode Parallel · Click mở Runtime
+            {t('🖥️ Code native & GPU · Mở workspace', '🖥️ Native code & GPU · Open workspace')}
           </div>
         </Html>
       </group>
@@ -547,7 +550,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
               boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
             }}
           >
-            🏆 Bàn Hội đồng Bình duyệt R1–R3 · Click mở Review
+            {t('🏆 Bàn Hội đồng Bình duyệt R1–R3 · Click mở Review', '🏆 R1–R3 Peer Review Table · Open Review')}
           </div>
         </Html>
       </group>
@@ -617,7 +620,7 @@ export const OfficeScene: React.FC<OfficeSceneProps> = ({
               boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
             }}
           >
-            📊 Bàn Hologram Figure Studio · Click thiết kế Đồ thị
+            {t('📊 Bàn Hologram Figure Studio · Click thiết kế Đồ thị', '📊 Figure Studio Hologram · Design Figures')}
           </div>
         </Html>
       </group>

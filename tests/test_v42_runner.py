@@ -228,7 +228,9 @@ class GatewayExtensions(unittest.TestCase):
         self.assertIn("model_reasoning_effort=medium", argv)
         self.assertNotIn("model_reasoning_effort=x", " ".join(C.CodexConnector().argv({"reasoning": "x"})))
         with mock.patch.object(C.ClaudeCodeConnector, "binary", return_value="claude"):
-            a = C.ClaudeCodeConnector().argv({"mcp_url": "http://h/mcp", "mcp_token": "t", "mcp_tools": ["research_get_decisions"]})
+            from backend.providers import cli_space
+            a = C.ClaudeCodeConnector().argv({"mcp_url": "http://h/mcp", "mcp_token": "t", "mcp_tools": ["research_get_decisions"],
+                                              'cwd': cli_space.open_session('claude_code','gs-argvscope1')['cwd']})
             import os
             os.remove(a[a.index("--mcp-config") + 1])
         self.assertEqual(a[a.index("--allowedTools") + 1], "mcp__phd-research-lab__research_get_decisions")

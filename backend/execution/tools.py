@@ -1,4 +1,4 @@
-"""Helpers for external tools (VS Code, coding CLIs, Feynman, ClearML worker): run a CLI without a console window,
+"""Helpers for external tools (VS Code and coding CLIs): run a CLI without a console window,
 find a binary, resolve an npm shim to `node <pkg>.js`, a tiny TTL cache. An adapter that cannot do what was asked raises
 IntegrationError (message safe to show: no secrets) — nothing may claim an operation succeeded unless it really ran.
 """

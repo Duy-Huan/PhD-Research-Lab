@@ -1,0 +1,158 @@
+[
+  {
+    "id": 40381520620,
+    "status": "completed",
+    "conclusion": "success",
+    "sha": "5c71068e88a98249d5c9cb142519a24112415d5e",
+    "jobs": [
+      {
+        "name": "Real offline browser smoke",
+        "id": 121778710809,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381520620/job/121778710809"
+      },
+      {
+        "name": "Backend (ubuntu-latest, Python 3.11)",
+        "id": 121778711199,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381520620/job/121778711199"
+      },
+      {
+        "name": "Backend (windows-latest, Python 3.12)",
+        "id": 121778711397,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381520620/job/121778711397"
+      },
+      {
+        "name": "Dependency and high-confidence security checks",
+        "id": 121778711504,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381520620/job/121778711504"
+      },
+      {
+        "name": "Frontend types, whole-source coverage and build",
+        "id": 121778711507,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381520620/job/121778711507"
+      },
+      {
+        "name": "Backend (ubuntu-latest, Python 3.12)",
+        "id": 121778711543,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381520620/job/121778711543"
+      },
+      {
+        "name": "Backend (windows-latest, Python 3.11)",
+        "id": 121778711651,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381520620/job/121778711651"
+      },
+      {
+        "name": "Contract and workflow policy",
+        "id": 121778711722,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381520620/job/121778711722"
+      },
+      {
+        "name": "Development gate",
+        "id": 121787400171,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381520620/job/121787400171"
+      },
+      {
+        "name": "github.event_name == 'pull_request' && 'QA gate' || 'QA not requested on dev push'",
+        "id": 121787489990,
+        "status": "completed",
+        "conclusion": "skipped",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381520620/job/121787489990"
+      }
+    ]
+  },
+  {
+    "id": 40381529763,
+    "status": "completed",
+    "conclusion": "success",
+    "sha": "5c71068e88a98249d5c9cb142519a24112415d5e",
+    "jobs": [
+      {
+        "name": "Dependency and high-confidence security checks",
+        "id": 121778744362,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381529763/job/121778744362"
+      },
+      {
+        "name": "Real offline browser smoke",
+        "id": 121778744550,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381529763/job/121778744550"
+      },
+      {
+        "name": "Backend (ubuntu-latest, Python 3.12)",
+        "id": 121778744587,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381529763/job/121778744587"
+      },
+      {
+        "name": "Frontend types, whole-source coverage and build",
+        "id": 121778744644,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381529763/job/121778744644"
+      },
+      {
+        "name": "Backend (windows-latest, Python 3.11)",
+        "id": 121778744669,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381529763/job/121778744669"
+      },
+      {
+        "name": "Backend (windows-latest, Python 3.12)",
+        "id": 121778744712,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381529763/job/121778744712"
+      },
+      {
+        "name": "Backend (ubuntu-latest, Python 3.11)",
+        "id": 121778744877,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381529763/job/121778744877"
+      },
+      {
+        "name": "Contract and workflow policy",
+        "id": 121778745073,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381529763/job/121778745073"
+      },
+      {
+        "name": "Development gate",
+        "id": 121789265809,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381529763/job/121789265809"
+      },
+      {
+        "name": "QA gate",
+        "id": 121789353409,
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40381529763/job/121789353409"
+      }
+    ]
+  }
+]

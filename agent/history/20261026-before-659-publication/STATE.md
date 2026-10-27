@@ -1,0 +1,15 @@
+# Active continuation ? 6.5.9 runtime cleanup repair
+
+Only existing dev may be edited. Published6.5.8 HEADb3080ab0f89715b207c7e2004d84968954eef5e5 has genuine local1189PASS and exact GitHub run40218073963SUCCESS, including all four Windows/Linux Python3.11/3.12 jobs. QA/main were out of phase, not qualified. Remote qa/main remain untouched.
+
+A later actual-resource inspection found P2 BUG-CLI-RUNTIME-CLEANUP-001: three proxy containers from our successful native probes remained running. The0.3second terminal shutdown could kill the wrapper before Docker finally cleanup. Record: docs/qa/evidence/cli-runtime-cleanup-6.5.9/runtime-cleanup-red-observation.json. This is a confirmed defect missed by the smoke assertions, not hidden under passing unit tests.
+
+Current uncommitted6.5.9 repair: per-invocation owner shared by connector/wrapper; reusable exact-label/volume cleanup in parent and wrapper; bounded resource count/timeouts; cleanup failure emits an error/nonzero completion. Consumer-close fallback retains diagnostics. Behavioral RED5cases(3FAIL/2ERROR); final affected suite42PASS after isolating fixture-owned error state. First green failure retained. Actual native Codex smoke after correction returned with no new container/volume leak relative to captured baseline. Host-crash recovery and every startup/cancel race remain unqualified.
+
+Version synchronized6.5.9. New FQC-CLI-RUNTIME-CLEANUP-001. Before committing/pushing, freeze source and rerun canonical pr/all in a fresh directory;6.5.8 PASS does not qualify changed source. Preserve all histories and every agent/skills file; no branch creation, force/admin merge or quality waivers.
+
+Architecture/learning objectives and earlier work remain in the preceding handoff and mandatory AGENT.md. Full open-ended learning, scopedL3/L4, one-paper migration, active Feynman/OpenScience retirement and complete unified provider UI/tool workflow are pending/partial. QA/main blocked by complete real research/provider bundle and new exploratory AI-UAT adapters. Exactly one extra600second/six-step Spark UAT allowance remains UNUSED, old3failures unchanged. Native ChatGPT inference and separate Spark load/unload smoke were real, not full scientific acceptance.
+
+Current operational evidence: output/playwright/hermes-core-audit/ and shared.git/ci-observations/6.5.8-dev/. Read current git status/log rather than assuming this handoff's baselineSHA is current HEAD.
+
+Additional confirmed CI infrastructure defect BUG-VERIFY-EOL-001: actual6.5.8 Ubuntu source6e6167c... versus Windows504a99f... differed only in three DECLARED_SOURCE_APACHE_LICENSE CRLF hashes. Exact artifact source comparison retained. Added declared-text normalization with real RED then5PASS, staging and genuine-content sensitivity preserved. First6.5.9 full run was deliberately ABORTED before source correction, notPASS; raw partial logs/ABORTED.json retained. New full gate must use a fresh output directory. Actual forced-wrapper Docker experiment PASS: killing ownerA left resources, parent cleanup removed A resources while ownerB remained running; both cleaned afterward. No model inference or mocks in that experiment.

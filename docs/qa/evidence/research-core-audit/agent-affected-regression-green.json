@@ -1,0 +1,378 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_explicit_slash_command_retains_its_existing_execution_contract",
+      "status": "PASS",
+      "duration": 0.1645,
+      "details": null
+    },
+    {
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_long_research_request_is_not_rewritten_or_cut_into_keyword_run_arguments",
+      "status": "PASS",
+      "duration": 0.1038,
+      "details": null
+    },
+    {
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_model_proposed_research_action_waits_for_real_approval",
+      "status": "PASS",
+      "duration": 0.1481,
+      "details": null
+    },
+    {
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "status": "PASS",
+      "duration": 0.3035,
+      "details": null
+    },
+    {
+      "id": "test_agent.Acceptance.test_evaluate_and_gaps",
+      "status": "PASS",
+      "duration": 3.7325,
+      "details": null
+    },
+    {
+      "id": "test_agent.Dashboard.test_failures_are_tolerated",
+      "status": "PASS",
+      "duration": 3.1539,
+      "details": null
+    },
+    {
+      "id": "test_agent.Dashboard.test_status_pending_and_text",
+      "status": "PASS",
+      "duration": 13.8656,
+      "details": null
+    },
+    {
+      "id": "test_agent.Intents.test_inputs_and_help",
+      "status": "PASS",
+      "duration": 0.0982,
+      "details": null
+    },
+    {
+      "id": "test_agent.Intents.test_model_proposed_risky_run_requires_approval_and_retains_the_real_run",
+      "status": "PASS",
+      "duration": 0.6013,
+      "details": null
+    },
+    {
+      "id": "test_agent.Intents.test_plain_question_does_not_force_a_keyword_selected_role_or_skill",
+      "status": "PASS",
+      "duration": 0.3535,
+      "details": null
+    },
+    {
+      "id": "test_agent.Intents.test_router",
+      "status": "PASS",
+      "duration": 0.1198,
+      "details": null
+    },
+    {
+      "id": "test_agent.Providers.test_app_complete",
+      "status": "PASS",
+      "duration": 0.0616,
+      "details": null
+    },
+    {
+      "id": "test_agent.Providers.test_describe_and_pick",
+      "status": "PASS",
+      "duration": 1.4644,
+      "details": null
+    },
+    {
+      "id": "test_agent.Providers.test_exec_health",
+      "status": "PASS",
+      "duration": 0.0671,
+      "details": null
+    },
+    {
+      "id": "test_agent.Providers.test_run_coding_with_a_fake_connector",
+      "status": "PASS",
+      "duration": 0.2039,
+      "details": null
+    },
+    {
+      "id": "test_agent.Providers.test_run_feynman_with_a_fake_cli",
+      "status": "PASS",
+      "duration": 2.0598,
+      "details": null
+    },
+    {
+      "id": "test_agent.Skills.test_chat_skill_instructions_and_agent",
+      "status": "PASS",
+      "duration": 0.8963,
+      "details": null
+    },
+    {
+      "id": "test_agent.Skills.test_help_status_and_unknown",
+      "status": "PASS",
+      "duration": 0.3611,
+      "details": null
+    },
+    {
+      "id": "test_agent.Skills.test_run_skill_starts_a_run_and_errors_are_answers",
+      "status": "PASS",
+      "duration": 0.7311,
+      "details": null
+    },
+    {
+      "id": "test_agent.Skills.test_write_section_keeps_the_previous_version",
+      "status": "PASS",
+      "duration": 0.0781,
+      "details": null
+    },
+    {
+      "id": "test_agent.Sync.test_scan_and_proposals",
+      "status": "PASS",
+      "duration": 1.0268,
+      "details": null
+    },
+    {
+      "id": "test_agent.Sync.test_scan_without_git",
+      "status": "PASS",
+      "duration": 0.0839,
+      "details": null
+    },
+    {
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_explicit_no_tools_never_performs_auto_memory_lookup",
+      "status": "PASS",
+      "duration": 0.0396,
+      "details": null
+    },
+    {
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_failed_gateway_with_partial_text_is_not_reconciled_to_completed",
+      "status": "PASS",
+      "duration": 0.1591,
+      "details": null
+    },
+    {
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_reasoning_is_permitted_without_fabricating_empirical_measurements",
+      "status": "PASS",
+      "duration": 0.0369,
+      "details": null
+    },
+    {
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_temporal_context_orders_equal_instants_by_id_without_sampling_clock",
+      "status": "PASS",
+      "duration": 0.035,
+      "details": null
+    },
+    {
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_terminal_completion_waits_for_artifact_and_retention_writes",
+      "status": "PASS",
+      "duration": 0.1616,
+      "details": null
+    },
+    {
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_unowned_stale_turn_is_cancelled_and_cannot_block_new_work",
+      "status": "PASS",
+      "duration": 0.1724,
+      "details": null
+    },
+    {
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_unrelated_conversation_is_not_injected_as_default_project_context",
+      "status": "PASS",
+      "duration": 0.2928,
+      "details": null
+    },
+    {
+      "id": "acceptance.test_research_os.P0_Context.test_a_new_session_after_a_restart_knows_the_project",
+      "status": "PASS",
+      "duration": 0.2861,
+      "details": null
+    },
+    {
+      "id": "acceptance.test_research_os.P0_Permissions.test_cli_agents_cannot_reach_the_app",
+      "status": "PASS",
+      "duration": 0.1223,
+      "details": null
+    },
+    {
+      "id": "acceptance.test_research_os.P0_Permissions.test_hardware_guard_and_budget",
+      "status": "PASS",
+      "duration": 2.6196,
+      "details": null
+    },
+    {
+      "id": "acceptance.test_research_os.P0_Permissions.test_nothing_risky_runs_without_approval",
+      "status": "PASS",
+      "duration": 0.8386,
+      "details": null
+    },
+    {
+      "id": "acceptance.test_research_os.P0_Progress.test_one_timeline_for_ui_cli_and_chat",
+      "status": "PASS",
+      "duration": 0.442,
+      "details": null
+    },
+    {
+      "id": "acceptance.test_research_os.P0_Recovery.test_oom_is_recovered_without_duplicate_jobs",
+      "status": "PASS",
+      "duration": 1.6014,
+      "details": null
+    },
+    {
+      "id": "acceptance.test_research_os.P0_Recovery.test_restart_reuses_the_finished_job",
+      "status": "PASS",
+      "duration": 1.1902,
+      "details": null
+    },
+    {
+      "id": "acceptance.test_research_os.P1_EndToEnd.test_idea_to_measured_result",
+      "status": "PASS",
+      "duration": 1.7873,
+      "details": null
+    },
+    {
+      "id": "acceptance.test_research_os.P1_Evidence.test_claims_need_evidence",
+      "status": "PASS",
+      "duration": 1.1831,
+      "details": null
+    },
+    {
+      "id": "acceptance.test_research_os.P1_Prompt.test_plain_requests_use_agent_proposals_before_workflow_execution",
+      "status": "PASS",
+      "duration": 0.649,
+      "details": null
+    },
+    {
+      "id": "acceptance.test_research_os.P1_Providers.test_swapping_providers_keeps_the_state",
+      "status": "PASS",
+      "duration": 0.9966,
+      "details": null
+    },
+    {
+      "id": "acceptance.test_research_os.Simulation90Days.test_dry_run",
+      "status": "PASS",
+      "duration": 4.4772,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='How can I run an experiment that would falsify this hypothesis?')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='Explain how to find papers that contradict the result.')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='T\u00ecm t\u00e0i li\u1ec7u v\u1ec1 pruning, r\u1ed3i c\u00e2n nh\u1eafc c\u00f3 c\u1ea7n thay \u0111\u1ed5i h\u01b0\u1edbng nghi\u00ean c\u1ee9u kh\u00f4ng.')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='Why did the literature review fail? Do not start a new workflow.')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='Ch\u1ea1y th\u1eed \u00fd t\u01b0\u1edfng n\u00e0y c\u00f3 gi\u00fap ki\u1ec3m tra gi\u1ea3 thuy\u1ebft kh\u00f4ng?')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent.Intents.test_router",
+      "id": "test_agent.Intents.test_router [ch\u1ea1y th\u1eed \u00fd t\u01b0\u1edfng d\u00f9ng MLP]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent.Intents.test_router",
+      "id": "test_agent.Intents.test_router [t\u00ecm t\u00e0i li\u1ec7u v\u1ec1 pruning]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent.Intents.test_router",
+      "id": "test_agent.Intents.test_router [vi\u1ebft ph\u1ea7n results theo v\u0103n phong IEEE]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent.Intents.test_router",
+      "id": "test_agent.Intents.test_router [research gap l\u00e0 g\u00ec]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent.Intents.test_router",
+      "id": "test_agent.Intents.test_router [\u0111\u1ec1 xu\u1ea5t gi\u1ea3 thuy\u1ebft]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent.Intents.test_router",
+      "id": "test_agent.Intents.test_router [bi\u00ean d\u1ecbch latex]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent.Intents.test_router",
+      "id": "test_agent.Intents.test_router [ph\u1ea3n bi\u1ec7n b\u00e0i b\u00e1o n\u00e0y]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent.Intents.test_router",
+      "id": "test_agent.Intents.test_router [ki\u1ec3m ch\u1ee9ng k\u1ebft qu\u1ea3]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent.Intents.test_router",
+      "id": "test_agent.Intents.test_router [\u0111\u1ec1 c\u01b0\u01a1ng c\u1ee7a m\u00ecnh]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent.Intents.test_router",
+      "id": "test_agent.Intents.test_router [ti\u1ebfn \u0111\u1ed9 th\u1ebf n\u00e0o]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent.Intents.test_router",
+      "id": "test_agent.Intents.test_router [ch\u1ea1y l\u1ec7nh python train.py]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_preservation.IntelligencePreservation.test_explicit_no_tools_never_performs_auto_memory_lookup",
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_explicit_no_tools_never_performs_auto_memory_lookup (question='Return 13 plus 29. Do not use any tools.')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_preservation.IntelligencePreservation.test_explicit_no_tools_never_performs_auto_memory_lookup",
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_explicit_no_tools_never_performs_auto_memory_lookup (question='Calculate 17 * 23. No tools.')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_preservation.IntelligencePreservation.test_explicit_no_tools_never_performs_auto_memory_lookup",
+      "id": "test_intelligence_preservation.IntelligencePreservation.test_explicit_no_tools_never_performs_auto_memory_lookup (question='Kh\u00f4ng d\u00f9ng c\u00f4ng c\u1ee5. H\u00e3y t\u00ednh 13 c\u1ed9ng 29.')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 41,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-pwkn3h3g",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

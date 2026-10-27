@@ -2,13 +2,19 @@
 grants — the provider sees only the tools its chat session allows; write tools only create review candidates."""
 from __future__ import annotations
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse, Response
 
 from backend.providers import mcp_server
 
-router = APIRouter()
+async def bind_project():
+    from backend.core.config import data_dir, project_scope
+    with project_scope(data_dir()):
+        yield
+
+
+router = APIRouter(dependencies=[Depends(bind_project)])
 
 
 @router.post("/mcp")
@@ -26,6 +32,8 @@ async def mcp(request: Request):
     from backend.agent.mcp_policy import lookup
     auth = hdrs.get("authorization", "")
     grant = lookup(auth[7:].strip()) if auth.lower().startswith("bearer ") else None
+    if auth.lower().startswith('bearer phg_') and not grant:
+        return JSONResponse({'error': 'Project grant expired or was revoked'}, status_code=401)
     meta: dict = {"grant": grant} if grant else {}
     if isinstance(payload, list):
         res = [r for r in [await run_in_threadpool(mcp_server.handle, m, sess, meta) for m in payload if isinstance(m, dict)] if r]

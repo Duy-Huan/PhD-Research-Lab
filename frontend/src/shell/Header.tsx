@@ -12,6 +12,7 @@ import {
   Bot,
   Gauge,
   Award,
+  Sliders,
   MessageSquare,
   BookOpen,
   Compass,
@@ -62,6 +63,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
       id="top"
       style={{
         display: 'flex',
+        flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 8,
@@ -72,7 +74,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
       }}
     >
       {/* Left: Sidebar Toggle + Topic Pill */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+      <div className="header-topic" style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
         {!sidebarOpen && (
           <button
             className="icon"
@@ -107,11 +109,12 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
 
       {/* Center: ChatGPT-Style Segmented Mode Pill Switcher */}
       <div
+        className="header-modes"
         style={{
           display: 'inline-flex',
           alignItems: 'center',
-          gap: 2,
-          padding: 3,
+          gap: 6,
+          padding: 4,
           borderRadius: 999,
           background: 'var(--bg-2)',
           border: '1px solid var(--line)',
@@ -122,7 +125,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           className={`btn sm ${mainView === 'chat' ? 'accent' : 'ghost'}`}
           onClick={() => setMainView('chat')}
           title={t('Trò chuyện Nghiên cứu', 'Research Chat')}
-          style={{ borderRadius: 999, padding: '4px 12px', gap: 5 }}
+          style={{ borderRadius: 999, padding: '5px 12px', minHeight: 28, gap: 5 }}
         >
           <MessageSquare size={14} />
           <span style={{ fontSize: 12 }}>{t('Trò chuyện', 'Chat')}</span>
@@ -132,7 +135,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           className={`btn sm ${mainView === 'library' ? 'accent' : 'ghost'}`}
           onClick={() => setMainView('library')}
           title={t('Thư viện Bài báo & Tài liệu', 'Paper Library & Documents')}
-          style={{ borderRadius: 999, padding: '4px 12px', gap: 5 }}
+          style={{ borderRadius: 999, padding: '5px 12px', minHeight: 28, gap: 5 }}
         >
           <BookOpen size={14} />
           <span style={{ fontSize: 12 }}>{t('Thư viện', 'Library')}</span>
@@ -145,17 +148,30 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
             'Không gian Phòng Lab Đại học 3D Toàn màn hình',
             'Full-Screen 3D University Research Lab'
           )}
-          style={{ borderRadius: 999, padding: '4px 12px', gap: 5 }}
+          style={{ borderRadius: 999, padding: '5px 12px', minHeight: 28, gap: 5 }}
         >
           <Bot size={14} />
           <span style={{ fontSize: 12 }}>{t('Lab 3D', '3D Lab')}</span>
         </button>
         <button
           type="button"
+          className={`btn sm ${mainView === 'harness' ? 'accent' : 'ghost'}`}
+          onClick={() => setMainView('harness')}
+          title={t(
+            'Không gian Kiểm định & Thiết kế Quy trình Harness Studio Toàn màn hình',
+            'Full-Space Visual Harness Studio & Evaluation Pipeline'
+          )}
+          style={{ borderRadius: 999, padding: '5px 12px', minHeight: 28, gap: 5 }}
+        >
+          <Sliders size={14} />
+          <span style={{ fontSize: 12 }}>{t('Harness', 'Harness')}</span>
+        </button>
+        <button
+          type="button"
           className={`btn sm ${mainView === 'review' ? 'accent' : 'ghost'}`}
           onClick={() => setMainView('review')}
           title={t('Hội đồng Bình duyệt R1–R3 & LaTeX', 'Peer Review R1–R3 & LaTeX')}
-          style={{ borderRadius: 999, padding: '4px 10px', gap: 4 }}
+          style={{ borderRadius: 999, padding: '5px 10px', minHeight: 28, minWidth: 32, gap: 4 }}
         >
           <Award size={14} />
         </button>
@@ -164,14 +180,14 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           className={`btn sm ${mainView === 'dashboard' ? 'accent' : 'ghost'}`}
           onClick={() => setMainView('dashboard')}
           title={t('Bảng điều khiển Hệ thống', 'System Dashboard')}
-          style={{ borderRadius: 999, padding: '4px 10px', gap: 4 }}
+          style={{ borderRadius: 999, padding: '5px 10px', minHeight: 28, minWidth: 32, gap: 4 }}
         >
           <Gauge size={14} />
         </button>
       </div>
 
       {/* Right: Icon-First Studio Bar + Language + Scale + Settings + Dedicated Panel Toggle */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, minWidth: 0 }}>
+      <div className="header-tools" style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, minWidth: 0 }}>
         {/* Collapsible/Scrollable Studio Shortcut Icons */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 3, minWidth: 0 }}>
           <button
@@ -199,10 +215,10 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
             <BarChart3 size={16} />
           </button>
           <button
-            className={`icon ${drawerKind === 'opencode' ? 'active' : ''}`}
+            className={`icon ${drawerKind === 'code' ? 'active' : ''}`}
             type="button"
-            onClick={() => openDrawer('opencode')}
-            title={t('Nhân Thực nghiệm Tính toán OpenCode', 'OpenCode Parallel Core')}
+            onClick={() => openDrawer('code')}
+            title={t('Mã nguồn & thí nghiệm native', 'Native code & experiments')}
           >
             <Terminal size={16} />
           </button>
@@ -222,13 +238,16 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           className="btn sm ghost"
           onClick={() => setLanguage(language === 'vi' ? 'en' : 'vi')}
           title={t('Chuyển đổi ngôn ngữ VI / ENG', 'Switch language VI / ENG')}
+          aria-label={`${language.toUpperCase()} — ${t('Chuyển đổi ngôn ngữ VI / ENG', 'Switch language VI / ENG')}`}
           style={{
             borderRadius: 999,
-            padding: '3px 8px',
+            padding: '4px 10px',
             fontSize: 11,
             fontWeight: 700,
             border: '1px solid var(--line)',
             flexShrink: 0,
+            minHeight: 26,
+            minWidth: 32,
           }}
         >
           {language.toUpperCase()}
@@ -240,13 +259,16 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
           className="btn sm ghost"
           onClick={cycleScale}
           title={t('Tỉ lệ hiển thị giao diện', 'UI Display Scale')}
+          aria-label={`${Math.round(uiScale * 100)}% — ${t('Tỉ lệ hiển thị giao diện', 'UI Display Scale')}`}
           style={{
             borderRadius: 999,
-            padding: '3px 7px',
+            padding: '4px 8px',
             fontSize: 11,
             border: '1px solid var(--line)',
             gap: 3,
             flexShrink: 0,
+            minHeight: 26,
+            minWidth: 44,
           }}
         >
           <ZoomIn size={12} />
@@ -293,7 +315,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
               ? t('Ẩn bảng công cụ bên phải', 'Hide right tools panel')
               : t('Mở bảng công cụ bên phải', 'Open right tools panel')
           }
-          aria-label={t('Bảng kết quả & công cụ', 'Inspector Drawer')}
+          aria-label={`${drawerKind ? t('Ẩn bảng công cụ', 'Hide panel') : t('Bảng công cụ', 'Tools panel')} — ${t('Bảng kết quả & công cụ', 'Inspector Drawer')}`}
           onClick={handlePanelToggle}
           style={{
             display: 'flex',

@@ -1,0 +1,22 @@
+{
+  "mode": "MIXED_LOCAL_SOFTWARE",
+  "scientific_or_provider_validation": false,
+  "defects": [
+    {
+      "id": "BUG-MISSION-REVIEW-BODY-001",
+      "severity": "P2",
+      "status": "CONFIRMED",
+      "classification": "PRODUCT_API_UI_CONTRACT",
+      "expected": "Accept Results sends the strict ReviewNote body and reaches technical review.",
+      "actual_before": "UI sent decision plus note; actual FastAPI validation rejects decision as extra_forbidden with HTTP422.",
+      "remediation": "Remove only decision from the UI request; preserve note and backend strictness.",
+      "evidence": [
+        "frontend-behavioral-red.json",
+        "frontend-behavioral-green.json",
+        "targeted-green.json"
+      ],
+      "regression_scope": "2frontend unit cases plus actual in-process HTTP422 schema check. Native AutonomyPanel operations separately executed realHTTP/browser review with note. Legacy current-build button live verification remains pending.",
+      "source_status": "REPAIRED_PENDING_FULL_CURRENT_BUILD_BROWSER"
+    }
+  ]
+}

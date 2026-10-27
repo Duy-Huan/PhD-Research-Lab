@@ -1,0 +1,1238 @@
+[
+  {
+    "id": 121036312767,
+    "run_id": 40148986328,
+    "workflow_name": "Quality Gates",
+    "head_branch": "feature/development-governance",
+    "run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOVNKW4s8AAAAcLlOQvw",
+    "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d",
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/jobs/121036312767",
+    "html_url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328/job/121036312767",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-25T01:01:31Z",
+    "started_at": "2026-10-25T01:01:33Z",
+    "completed_at": "2026-10-25T01:02:56Z",
+    "name": "Frontend types, whole-source coverage and build",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-25T01:01:34Z",
+        "completed_at": "2026-10-25T01:01:35Z"
+      },
+      {
+        "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-25T01:01:35Z",
+        "completed_at": "2026-10-25T01:01:38Z"
+      },
+      {
+        "name": "Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-25T01:01:38Z",
+        "completed_at": "2026-10-25T01:01:38Z"
+      },
+      {
+        "name": "Run python -m pip install --require-hashes -r requirements-ci.lock",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-25T01:01:38Z",
+        "completed_at": "2026-10-25T01:01:57Z"
+      },
+      {
+        "name": "Run actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-25T01:01:57Z",
+        "completed_at": "2026-10-25T01:01:59Z"
+      },
+      {
+        "name": "Run npm ci",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-25T01:01:59Z",
+        "completed_at": "2026-10-25T01:02:05Z"
+      },
+      {
+        "name": "Run npm audit --audit-level=high",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-25T01:02:05Z",
+        "completed_at": "2026-10-25T01:02:05Z"
+      },
+      {
+        "name": "Frontend mandatory gate",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 8,
+        "started_at": "2026-10-25T01:02:05Z",
+        "completed_at": "2026-10-25T01:02:52Z"
+      },
+      {
+        "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-10-25T01:02:52Z",
+        "completed_at": "2026-10-25T01:02:54Z"
+      },
+      {
+        "name": "Post Run actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 16,
+        "started_at": "2026-10-25T01:02:54Z",
+        "completed_at": "2026-10-25T01:02:54Z"
+      },
+      {
+        "name": "Post Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 17,
+        "started_at": "2026-10-25T01:02:54Z",
+        "completed_at": "2026-10-25T01:02:54Z"
+      },
+      {
+        "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 18,
+        "started_at": "2026-10-25T01:02:54Z",
+        "completed_at": "2026-10-25T01:02:54Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 19,
+        "started_at": "2026-10-25T01:02:54Z",
+        "completed_at": "2026-10-25T01:02:54Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/check-runs/121036312767",
+    "labels": [
+      "ubuntu-latest"
+    ],
+    "runner_id": 1000000056,
+    "runner_name": "GitHub Actions 1000000056",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 121036312842,
+    "run_id": 40148986328,
+    "workflow_name": "Quality Gates",
+    "head_branch": "feature/development-governance",
+    "run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOVNKW4s8AAAAcLlORCg",
+    "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d",
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/jobs/121036312842",
+    "html_url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328/job/121036312842",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-25T01:01:31Z",
+    "started_at": "2026-10-25T01:01:33Z",
+    "completed_at": "2026-10-25T01:01:40Z",
+    "name": "Risk-triggered verified AI-UAT evidence",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-25T01:01:34Z",
+        "completed_at": "2026-10-25T01:01:35Z"
+      },
+      {
+        "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-25T01:01:35Z",
+        "completed_at": "2026-10-25T01:01:37Z"
+      },
+      {
+        "name": "Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-25T01:01:37Z",
+        "completed_at": "2026-10-25T01:01:37Z"
+      },
+      {
+        "name": "Run python scripts/uat_gate.py --base \"$VERIFY_BASE\"",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 4,
+        "started_at": "2026-10-25T01:01:37Z",
+        "completed_at": "2026-10-25T01:01:38Z"
+      },
+      {
+        "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-25T01:01:38Z",
+        "completed_at": "2026-10-25T01:01:39Z"
+      },
+      {
+        "name": "Post Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 9,
+        "started_at": "2026-10-25T01:01:39Z",
+        "completed_at": "2026-10-25T01:01:39Z"
+      },
+      {
+        "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10,
+        "started_at": "2026-10-25T01:01:39Z",
+        "completed_at": "2026-10-25T01:01:39Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 11,
+        "started_at": "2026-10-25T01:01:39Z",
+        "completed_at": "2026-10-25T01:01:39Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/check-runs/121036312842",
+    "labels": [
+      "ubuntu-latest"
+    ],
+    "runner_id": 1000000052,
+    "runner_name": "GitHub Actions 1000000052",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 121036312894,
+    "run_id": 40148986328,
+    "workflow_name": "Quality Gates",
+    "head_branch": "feature/development-governance",
+    "run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOVNKW4s8AAAAcLlORPg",
+    "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d",
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/jobs/121036312894",
+    "html_url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328/job/121036312894",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-25T01:01:31Z",
+    "started_at": "2026-10-25T01:01:33Z",
+    "completed_at": "2026-10-25T01:03:52Z",
+    "name": "Real offline browser smoke",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-25T01:01:34Z",
+        "completed_at": "2026-10-25T01:01:35Z"
+      },
+      {
+        "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-25T01:01:35Z",
+        "completed_at": "2026-10-25T01:01:38Z"
+      },
+      {
+        "name": "Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-25T01:01:38Z",
+        "completed_at": "2026-10-25T01:01:38Z"
+      },
+      {
+        "name": "Run actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-25T01:01:38Z",
+        "completed_at": "2026-10-25T01:01:41Z"
+      },
+      {
+        "name": "Run python -m pip install --require-hashes -r requirements-ci.lock",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-25T01:01:41Z",
+        "completed_at": "2026-10-25T01:01:57Z"
+      },
+      {
+        "name": "Run npm ci",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-25T01:01:57Z",
+        "completed_at": "2026-10-25T01:02:05Z"
+      },
+      {
+        "name": "Run npm run build",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-25T01:02:05Z",
+        "completed_at": "2026-10-25T01:02:20Z"
+      },
+      {
+        "name": "Run npx --no-install playwright install --with-deps chromium",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-25T01:02:20Z",
+        "completed_at": "2026-10-25T01:02:41Z"
+      },
+      {
+        "name": "Run python -m devtools.verification.browser --profile pr --base \"$VERIFY_BASE\"",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-10-25T01:02:41Z",
+        "completed_at": "2026-10-25T01:03:46Z"
+      },
+      {
+        "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10,
+        "started_at": "2026-10-25T01:03:46Z",
+        "completed_at": "2026-10-25T01:03:50Z"
+      },
+      {
+        "name": "Post Run actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 18,
+        "started_at": "2026-10-25T01:03:50Z",
+        "completed_at": "2026-10-25T01:03:50Z"
+      },
+      {
+        "name": "Post Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 19,
+        "started_at": "2026-10-25T01:03:50Z",
+        "completed_at": "2026-10-25T01:03:50Z"
+      },
+      {
+        "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 20,
+        "started_at": "2026-10-25T01:03:50Z",
+        "completed_at": "2026-10-25T01:03:50Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 21,
+        "started_at": "2026-10-25T01:03:50Z",
+        "completed_at": "2026-10-25T01:03:50Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/check-runs/121036312894",
+    "labels": [
+      "ubuntu-latest"
+    ],
+    "runner_id": 1000000053,
+    "runner_name": "GitHub Actions 1000000053",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 121036312896,
+    "run_id": 40148986328,
+    "workflow_name": "Quality Gates",
+    "head_branch": "feature/development-governance",
+    "run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOVNKW4s8AAAAcLlORQA",
+    "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d",
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/jobs/121036312896",
+    "html_url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328/job/121036312896",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-25T01:01:31Z",
+    "started_at": "2026-10-25T01:01:33Z",
+    "completed_at": "2026-10-25T01:07:25Z",
+    "name": "Backend (ubuntu-latest, Python 3.12)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-25T01:01:34Z",
+        "completed_at": "2026-10-25T01:01:34Z"
+      },
+      {
+        "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-25T01:01:34Z",
+        "completed_at": "2026-10-25T01:01:36Z"
+      },
+      {
+        "name": "Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-25T01:01:36Z",
+        "completed_at": "2026-10-25T01:01:37Z"
+      },
+      {
+        "name": "Run python -m pip install --require-hashes -r requirements-ci.lock",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-25T01:01:37Z",
+        "completed_at": "2026-10-25T01:01:57Z"
+      },
+      {
+        "name": "Run python -m pip check",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-25T01:01:57Z",
+        "completed_at": "2026-10-25T01:01:57Z"
+      },
+      {
+        "name": "Run python -m compileall -q backend devtools scripts tools tests",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-25T01:01:57Z",
+        "completed_at": "2026-10-25T01:01:58Z"
+      },
+      {
+        "name": "Independent complete regression and 100 percent production coverage",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 7,
+        "started_at": "2026-10-25T01:01:58Z",
+        "completed_at": "2026-10-25T01:07:23Z"
+      },
+      {
+        "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-25T01:07:23Z",
+        "completed_at": "2026-10-25T01:07:24Z"
+      },
+      {
+        "name": "Post Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 15,
+        "started_at": "2026-10-25T01:07:24Z",
+        "completed_at": "2026-10-25T01:07:24Z"
+      },
+      {
+        "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 16,
+        "started_at": "2026-10-25T01:07:24Z",
+        "completed_at": "2026-10-25T01:07:24Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 17,
+        "started_at": "2026-10-25T01:07:24Z",
+        "completed_at": "2026-10-25T01:07:24Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/check-runs/121036312896",
+    "labels": [
+      "ubuntu-latest"
+    ],
+    "runner_id": 1000000054,
+    "runner_name": "GitHub Actions 1000000054",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 121036312906,
+    "run_id": 40148986328,
+    "workflow_name": "Quality Gates",
+    "head_branch": "feature/development-governance",
+    "run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOVNKW4s8AAAAcLlORSg",
+    "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d",
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/jobs/121036312906",
+    "html_url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328/job/121036312906",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-25T01:01:31Z",
+    "started_at": "2026-10-25T01:01:33Z",
+    "completed_at": "2026-10-25T01:16:12Z",
+    "name": "Backend (windows-latest, Python 3.12)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-25T01:01:34Z",
+        "completed_at": "2026-10-25T01:01:35Z"
+      },
+      {
+        "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-25T01:01:35Z",
+        "completed_at": "2026-10-25T01:01:44Z"
+      },
+      {
+        "name": "Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-25T01:01:44Z",
+        "completed_at": "2026-10-25T01:01:48Z"
+      },
+      {
+        "name": "Run python -m pip install --require-hashes -r requirements-ci.lock",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-25T01:01:48Z",
+        "completed_at": "2026-10-25T01:02:22Z"
+      },
+      {
+        "name": "Run python -m pip check",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-25T01:02:22Z",
+        "completed_at": "2026-10-25T01:02:23Z"
+      },
+      {
+        "name": "Run python -m compileall -q backend devtools scripts tools tests",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-25T01:02:23Z",
+        "completed_at": "2026-10-25T01:02:24Z"
+      },
+      {
+        "name": "Independent complete regression and 100 percent production coverage",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 7,
+        "started_at": "2026-10-25T01:02:24Z",
+        "completed_at": "2026-10-25T01:16:06Z"
+      },
+      {
+        "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-25T01:16:06Z",
+        "completed_at": "2026-10-25T01:16:08Z"
+      },
+      {
+        "name": "Post Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 15,
+        "started_at": "2026-10-25T01:16:08Z",
+        "completed_at": "2026-10-25T01:16:08Z"
+      },
+      {
+        "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 16,
+        "started_at": "2026-10-25T01:16:08Z",
+        "completed_at": "2026-10-25T01:16:10Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 17,
+        "started_at": "2026-10-25T01:16:10Z",
+        "completed_at": "2026-10-25T01:16:10Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/check-runs/121036312906",
+    "labels": [
+      "windows-latest"
+    ],
+    "runner_id": 1000000055,
+    "runner_name": "GitHub Actions 1000000055",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 121036312913,
+    "run_id": 40148986328,
+    "workflow_name": "Quality Gates",
+    "head_branch": "feature/development-governance",
+    "run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOVNKW4s8AAAAcLlORUQ",
+    "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d",
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/jobs/121036312913",
+    "html_url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328/job/121036312913",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-25T01:01:31Z",
+    "started_at": "2026-10-25T01:01:33Z",
+    "completed_at": "2026-10-25T01:02:03Z",
+    "name": "Contract and workflow policy",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-25T01:01:34Z",
+        "completed_at": "2026-10-25T01:01:34Z"
+      },
+      {
+        "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-25T01:01:34Z",
+        "completed_at": "2026-10-25T01:01:37Z"
+      },
+      {
+        "name": "Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-25T01:01:37Z",
+        "completed_at": "2026-10-25T01:01:37Z"
+      },
+      {
+        "name": "Run python scripts/quality_gate.py policy",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-25T01:01:37Z",
+        "completed_at": "2026-10-25T01:01:37Z"
+      },
+      {
+        "name": "Run python scripts/check_workflows.py",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-25T01:01:37Z",
+        "completed_at": "2026-10-25T01:01:38Z"
+      },
+      {
+        "name": "Run python -m pip install --require-hashes -r requirements-ci.lock",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-25T01:01:38Z",
+        "completed_at": "2026-10-25T01:01:58Z"
+      },
+      {
+        "name": "Run python tools/qa_harness.py audit --out output/playwright/ci/integrity.json",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-25T01:01:58Z",
+        "completed_at": "2026-10-25T01:01:59Z"
+      },
+      {
+        "name": "Run python tools/qa_harness.py generate --seed 20261024 --count 100 --out output/playwright/ci/generated-graphs.json",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-25T01:01:59Z",
+        "completed_at": "2026-10-25T01:01:59Z"
+      },
+      {
+        "name": "Preserve skills and agent files throughout the commit range",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-10-25T01:01:59Z",
+        "completed_at": "2026-10-25T01:02:00Z"
+      },
+      {
+        "name": "Run node --test .github/scripts/automerge.test.cjs",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10,
+        "started_at": "2026-10-25T01:02:00Z",
+        "completed_at": "2026-10-25T01:02:00Z"
+      },
+      {
+        "name": "Post Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 19,
+        "started_at": "2026-10-25T01:02:00Z",
+        "completed_at": "2026-10-25T01:02:00Z"
+      },
+      {
+        "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 20,
+        "started_at": "2026-10-25T01:02:00Z",
+        "completed_at": "2026-10-25T01:02:01Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 21,
+        "started_at": "2026-10-25T01:02:01Z",
+        "completed_at": "2026-10-25T01:02:01Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/check-runs/121036312913",
+    "labels": [
+      "ubuntu-latest"
+    ],
+    "runner_id": 1000000057,
+    "runner_name": "GitHub Actions 1000000057",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 121036312973,
+    "run_id": 40148986328,
+    "workflow_name": "Quality Gates",
+    "head_branch": "feature/development-governance",
+    "run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOVNKW4s8AAAAcLlORjQ",
+    "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d",
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/jobs/121036312973",
+    "html_url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328/job/121036312973",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-25T01:01:31Z",
+    "started_at": "2026-10-25T01:01:33Z",
+    "completed_at": "2026-10-25T01:06:45Z",
+    "name": "Backend (ubuntu-latest, Python 3.11)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-25T01:01:34Z",
+        "completed_at": "2026-10-25T01:01:35Z"
+      },
+      {
+        "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-25T01:01:35Z",
+        "completed_at": "2026-10-25T01:01:38Z"
+      },
+      {
+        "name": "Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-25T01:01:38Z",
+        "completed_at": "2026-10-25T01:01:41Z"
+      },
+      {
+        "name": "Run python -m pip install --require-hashes -r requirements-ci.lock",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-25T01:01:41Z",
+        "completed_at": "2026-10-25T01:02:00Z"
+      },
+      {
+        "name": "Run python -m pip check",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-25T01:02:00Z",
+        "completed_at": "2026-10-25T01:02:00Z"
+      },
+      {
+        "name": "Run python -m compileall -q backend devtools scripts tools tests",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-25T01:02:00Z",
+        "completed_at": "2026-10-25T01:02:00Z"
+      },
+      {
+        "name": "Independent complete regression and 100 percent production coverage",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 7,
+        "started_at": "2026-10-25T01:02:00Z",
+        "completed_at": "2026-10-25T01:06:40Z"
+      },
+      {
+        "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-25T01:06:40Z",
+        "completed_at": "2026-10-25T01:06:42Z"
+      },
+      {
+        "name": "Post Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 15,
+        "started_at": "2026-10-25T01:06:42Z",
+        "completed_at": "2026-10-25T01:06:42Z"
+      },
+      {
+        "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 16,
+        "started_at": "2026-10-25T01:06:42Z",
+        "completed_at": "2026-10-25T01:06:42Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 17,
+        "started_at": "2026-10-25T01:06:42Z",
+        "completed_at": "2026-10-25T01:06:42Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/check-runs/121036312973",
+    "labels": [
+      "ubuntu-latest"
+    ],
+    "runner_id": 1000000058,
+    "runner_name": "GitHub Actions 1000000058",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 121036312994,
+    "run_id": 40148986328,
+    "workflow_name": "Quality Gates",
+    "head_branch": "feature/development-governance",
+    "run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOVNKW4s8AAAAcLlORog",
+    "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d",
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/jobs/121036312994",
+    "html_url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328/job/121036312994",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-25T01:01:31Z",
+    "started_at": "2026-10-25T01:01:33Z",
+    "completed_at": "2026-10-25T01:19:08Z",
+    "name": "Backend (windows-latest, Python 3.11)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-25T01:01:34Z",
+        "completed_at": "2026-10-25T01:01:35Z"
+      },
+      {
+        "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-25T01:01:35Z",
+        "completed_at": "2026-10-25T01:01:45Z"
+      },
+      {
+        "name": "Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-25T01:01:45Z",
+        "completed_at": "2026-10-25T01:01:51Z"
+      },
+      {
+        "name": "Run python -m pip install --require-hashes -r requirements-ci.lock",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-25T01:01:51Z",
+        "completed_at": "2026-10-25T01:02:27Z"
+      },
+      {
+        "name": "Run python -m pip check",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-25T01:02:27Z",
+        "completed_at": "2026-10-25T01:02:28Z"
+      },
+      {
+        "name": "Run python -m compileall -q backend devtools scripts tools tests",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-25T01:02:28Z",
+        "completed_at": "2026-10-25T01:02:30Z"
+      },
+      {
+        "name": "Independent complete regression and 100 percent production coverage",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 7,
+        "started_at": "2026-10-25T01:02:30Z",
+        "completed_at": "2026-10-25T01:19:02Z"
+      },
+      {
+        "name": "Run actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-25T01:19:02Z",
+        "completed_at": "2026-10-25T01:19:03Z"
+      },
+      {
+        "name": "Post Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 15,
+        "started_at": "2026-10-25T01:19:03Z",
+        "completed_at": "2026-10-25T01:19:03Z"
+      },
+      {
+        "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 16,
+        "started_at": "2026-10-25T01:19:03Z",
+        "completed_at": "2026-10-25T01:19:06Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 17,
+        "started_at": "2026-10-25T01:19:06Z",
+        "completed_at": "2026-10-25T01:19:06Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/check-runs/121036312994",
+    "labels": [
+      "windows-latest"
+    ],
+    "runner_id": 1000000060,
+    "runner_name": "GitHub Actions 1000000060",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 121036312997,
+    "run_id": 40148986328,
+    "workflow_name": "Quality Gates",
+    "head_branch": "feature/development-governance",
+    "run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOVNKW4s8AAAAcLlORpQ",
+    "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d",
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/jobs/121036312997",
+    "html_url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328/job/121036312997",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-25T01:01:31Z",
+    "started_at": "2026-10-25T01:01:33Z",
+    "completed_at": "2026-10-25T01:02:17Z",
+    "name": "Dependency and high-confidence security checks",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-25T01:01:34Z",
+        "completed_at": "2026-10-25T01:01:34Z"
+      },
+      {
+        "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-25T01:01:34Z",
+        "completed_at": "2026-10-25T01:01:36Z"
+      },
+      {
+        "name": "Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-25T01:01:36Z",
+        "completed_at": "2026-10-25T01:01:37Z"
+      },
+      {
+        "name": "Run python -m pip install --require-hashes -r requirements-ci.lock",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-25T01:01:37Z",
+        "completed_at": "2026-10-25T01:01:57Z"
+      },
+      {
+        "name": "Run python -m pip_audit -r requirements-ci.lock --strict --progress-spinner off",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-25T01:01:57Z",
+        "completed_at": "2026-10-25T01:02:08Z"
+      },
+      {
+        "name": "Run python -m bandit -r backend devtools scripts -lll -iii",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-25T01:02:08Z",
+        "completed_at": "2026-10-25T01:02:15Z"
+      },
+      {
+        "name": "Post Run actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 11,
+        "started_at": "2026-10-25T01:02:15Z",
+        "completed_at": "2026-10-25T01:02:15Z"
+      },
+      {
+        "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 12,
+        "started_at": "2026-10-25T01:02:15Z",
+        "completed_at": "2026-10-25T01:02:15Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 13,
+        "started_at": "2026-10-25T01:02:15Z",
+        "completed_at": "2026-10-25T01:02:15Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/check-runs/121036312997",
+    "labels": [
+      "ubuntu-latest"
+    ],
+    "runner_id": 1000000059,
+    "runner_name": "GitHub Actions 1000000059",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 121036313537,
+    "run_id": 40148986328,
+    "workflow_name": "Quality Gates",
+    "head_branch": "feature/development-governance",
+    "run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOVNKW4s8AAAAcLlOTwQ",
+    "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d",
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/jobs/121036313537",
+    "html_url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328/job/121036313537",
+    "status": "completed",
+    "conclusion": "skipped",
+    "created_at": "2026-10-25T01:01:31Z",
+    "started_at": "2026-10-25T01:01:31Z",
+    "completed_at": "2026-10-25T01:01:31Z",
+    "name": "Matching-source live research qualification",
+    "steps": [],
+    "check_run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/check-runs/121036313537",
+    "labels": [
+      "ubuntu-latest"
+    ],
+    "runner_id": null,
+    "runner_name": null,
+    "runner_group_id": null,
+    "runner_group_name": null
+  },
+  {
+    "id": 121039824822,
+    "run_id": 40148986328,
+    "workflow_name": "Quality Gates",
+    "head_branch": "feature/development-governance",
+    "run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOVNKW4s8AAAAcLokntg",
+    "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d",
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/jobs/121039824822",
+    "html_url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328/job/121039824822",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-25T01:19:08Z",
+    "started_at": "2026-10-25T01:19:10Z",
+    "completed_at": "2026-10-25T01:19:16Z",
+    "name": "Development gate",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-25T01:19:11Z",
+        "completed_at": "2026-10-25T01:19:11Z"
+      },
+      {
+        "name": "Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-25T01:19:11Z",
+        "completed_at": "2026-10-25T01:19:14Z"
+      },
+      {
+        "name": "Run python scripts/quality_gate.py aggregate --phase development",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 3,
+        "started_at": "2026-10-25T01:19:14Z",
+        "completed_at": "2026-10-25T01:19:14Z"
+      },
+      {
+        "name": "Post Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-25T01:19:14Z",
+        "completed_at": "2026-10-25T01:19:14Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-25T01:19:14Z",
+        "completed_at": "2026-10-25T01:19:14Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/check-runs/121039824822",
+    "labels": [
+      "ubuntu-latest"
+    ],
+    "runner_id": 1000000061,
+    "runner_name": "GitHub Actions 1000000061",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 121039854346,
+    "run_id": 40148986328,
+    "workflow_name": "Quality Gates",
+    "head_branch": "feature/development-governance",
+    "run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOVNKW4s8AAAAcLombCg",
+    "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d",
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/jobs/121039854346",
+    "html_url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328/job/121039854346",
+    "status": "completed",
+    "conclusion": "skipped",
+    "created_at": "2026-10-25T01:19:17Z",
+    "started_at": "2026-10-25T01:19:17Z",
+    "completed_at": "2026-10-25T01:19:16Z",
+    "name": "Human release authorization",
+    "steps": [],
+    "check_run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/check-runs/121039854346",
+    "labels": [
+      "ubuntu-latest"
+    ],
+    "runner_id": null,
+    "runner_name": null,
+    "runner_group_id": null,
+    "runner_group_name": null
+  },
+  {
+    "id": 121039854587,
+    "run_id": 40148986328,
+    "workflow_name": "Quality Gates",
+    "head_branch": "feature/development-governance",
+    "run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOVNKW4s8AAAAcLomb-w",
+    "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d",
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/jobs/121039854587",
+    "html_url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328/job/121039854587",
+    "status": "completed",
+    "conclusion": "skipped",
+    "created_at": "2026-10-25T01:19:17Z",
+    "started_at": "2026-10-25T01:19:17Z",
+    "completed_at": "2026-10-25T01:19:16Z",
+    "name": "Release gate",
+    "steps": [],
+    "check_run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/check-runs/121039854587",
+    "labels": [
+      "ubuntu-latest"
+    ],
+    "runner_id": null,
+    "runner_name": null,
+    "runner_group_id": null,
+    "runner_group_name": null
+  },
+  {
+    "id": 121039854615,
+    "run_id": 40148986328,
+    "workflow_name": "Quality Gates",
+    "head_branch": "feature/development-governance",
+    "run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOVNKW4s8AAAAcLomcFw",
+    "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d",
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/jobs/121039854615",
+    "html_url": "https://github.com/Duy-Huan/PhD-Research-Lab/actions/runs/40148986328/job/121039854615",
+    "status": "completed",
+    "conclusion": "skipped",
+    "created_at": "2026-10-25T01:19:17Z",
+    "started_at": "2026-10-25T01:19:17Z",
+    "completed_at": "2026-10-25T01:19:16Z",
+    "name": "QA gate",
+    "steps": [],
+    "check_run_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/check-runs/121039854615",
+    "labels": [
+      "ubuntu-latest"
+    ],
+    "runner_id": null,
+    "runner_name": null,
+    "runner_group_id": null,
+    "runner_group_name": null
+  }
+]

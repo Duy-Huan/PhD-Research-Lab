@@ -27,12 +27,13 @@ function inferZone(role: string, engine: string): AgentOfficeViewModel['zone'] {
   return 'lab_bench';
 }
 
+// Old producer IDs below are read-only historical aliases, never active runtime choices.
 function inferArchetype(role: string, engine: string): AgentOfficeViewModel['archetype'] {
   const r = (role || '').toLowerCase();
   const e = (engine || '').toLowerCase();
   if (e === 'opencode' || r.includes('code') || r.includes('implement')) return 'opencode';
-  if (e === 'feynman' || r.includes('paper') || r.includes('lit')) return 'feynman';
-  if (e === 'openscience' || r.includes('protocol') || r.includes('experiment')) return 'openscience';
+  if (e === 'feynman' || r.includes('paper') || r.includes('lit')) return 'literature';
+  if (e === 'openscience' || r.includes('protocol') || r.includes('experiment')) return 'experiment';
   if (r.includes('review') || r.includes('verify') || r.includes('claim')) return 'reviewer';
   if (r.includes('figure') || r.includes('latex')) return 'figure_fellow';
   return 'pi';
@@ -117,29 +118,12 @@ export function mapMissionsToAgentViewModels(
     }
   }
 
-  // Also map v6.4.1 OpenCode Parallel Core sessions into AgentOfficeViewModel
+  // Historical producer IDs/status remain visible, never advertised as live processes.
   for (const s of opencodeSessions) {
     if (topicId && s.topic_id !== topicId) continue;
 
-    let presence: AgentPresence = 'idle';
-    let activity: AgentActivity = 'none';
-
-    if (s.status === 'running') {
-      presence = 'running';
-      activity = 'writing';
-    } else if (s.status === 'awaiting_approval') {
-      presence = 'awaiting_approval';
-      activity = 'reviewing';
-    } else if (s.status === 'blocked_by_quota') {
-      presence = 'rate_limited';
-      activity = 'none';
-    } else if (s.status === 'completed') {
-      presence = 'completed';
-    } else if (s.status === 'failed') {
-      presence = 'failed';
-    } else if (s.status === 'paused' || s.status === 'reconciled_with_gap') {
-      presence = 'paused';
-    }
+    const presence: AgentPresence = s.status === 'completed' ? 'completed' : s.status === 'failed' ? 'failed' : 'unknown';
+    const activity: AgentActivity = 'none';
 
     models.push({
       agentId: `opencode_${s.id}`,
@@ -148,22 +132,19 @@ export function mapMissionsToAgentViewModels(
       taskId: s.task_id || s.id,
       projectId,
       topicId: s.topic_id,
-      displayName: `${s.id} (opencode)`,
+      displayName: `${s.id} (OpenCode history: ${s.status})`,
       role: s.payload?.spec?.goal?.slice(0, 40) || 'opencode.implement',
       engine: 'opencode',
       presence,
       activity,
       lastObservedAt: s.updated || s.created,
       canInspect: true,
-      canPause: presence === 'running',
-      canResume: presence === 'paused',
-      hasApprovalRequest: s.status === 'awaiting_approval',
+      canPause: false,
+      canResume: false,
+      hasApprovalRequest: false,
       zone: 'compute',
       archetype: 'opencode',
-      personality: 'Systems & GPU Sandbox Engineer',
-      skillCommand: '/opencode',
-      speechBubble:
-        presence === 'running' ? 'Running parallel benchmark in sandbox…' : undefined,
+      personality: 'Historical software execution record (read only)',
     });
   }
 
@@ -171,146 +152,28 @@ export function mapMissionsToAgentViewModels(
 }
 
 /**
- * Builds the complete University Lab Roster combining live Mission/OpenCode agents
- * with the permanent core faculty stations of the PhD Research Lab.
+ * Add configured roles as idle stations. Configuration is not execution telemetry.
  */
 export function buildUniversityLabRoster(
   liveAgents: AgentOfficeViewModel[],
   projectId: string,
   topicId?: string,
-  agentModes?: Record<string, string>
+  agentModes?: Record<string, string>,
+  language: 'vi' | 'en' = 'en',
+  configuredAgents?: Record<string, {label: string}>
 ): AgentOfficeViewModel[] {
-  const nowIso = new Date().toISOString();
-  const anyRunning = liveAgents.some((a) => a.presence === 'running');
-
-  const coreFaculty: AgentOfficeViewModel[] = [
-    {
-      agentId: 'faculty_pi_orchestrator',
-      projectId,
-      topicId,
-      displayName: 'Prof. AI Orchestrator (PI)',
-      role: 'Principal Investigator · Điều phối Đề cương 5 Cấp & Mission DAG',
-      engine: agentModes?.assistant || agentModes?.research || 'auto',
-      presence: anyRunning ? 'running' : 'idle',
-      activity: anyRunning ? 'reviewing' : 'reading',
-      lastObservedAt: nowIso,
-      canInspect: true,
-      canPause: false,
-      canResume: false,
-      hasApprovalRequest: liveAgents.some((a) => a.hasApprovalRequest),
-      zone: 'podium',
-      archetype: 'pi',
-      personality: 'Điềm tĩnh, chiến lược, định hướng giả thuyết khoa học & điều phối toàn Lab',
-      skillCommand: '/outline',
-      speechBubble: anyRunning
-        ? 'Đang giám sát tiến độ DAG & đồng bộ kết quả giữa các nhóm…'
-        : 'Sẵn sàng thảo luận Đề cương 5 cấp độ & phân công nhiệm vụ mới!',
-    },
-    {
-      agentId: 'faculty_feynman_lit',
-      projectId,
-      topicId,
-      displayName: 'Dr. Feynman (Literature & SKB)',
-      role: 'Literature & Deep Discovery · OpenAlex / ArXiv / Semantic Scholar',
-      engine: 'feynman',
-      presence: 'idle',
-      activity: 'reading',
-      lastObservedAt: nowIso,
-      canInspect: true,
-      canPause: false,
-      canResume: false,
-      hasApprovalRequest: false,
-      zone: 'literature',
-      archetype: 'feynman',
-      personality: 'Uyên bác, tò mò, chuyên gia săn tìm bài báo Q1/A* và phát hiện Research Gap',
-      skillCommand: '/feynman',
-      speechBubble: 'Đang đối chiếu trích dẫn CORE/SCImago Q1 trong Thư viện SKB…',
-    },
-    {
-      agentId: 'faculty_openscience_lab',
-      projectId,
-      topicId,
-      displayName: 'Dr. OpenScience (Protocols)',
-      role: 'Scientific Hypothesis & Controlled Experimentation (:4096)',
-      engine: 'openscience',
-      presence: 'idle',
-      activity: 'executing',
-      lastObservedAt: nowIso,
-      canInspect: true,
-      canPause: false,
-      canResume: false,
-      hasApprovalRequest: false,
-      zone: 'lab_bench',
-      archetype: 'openscience',
-      personality: 'Thực nghiệm chuẩn mực, kiểm soát biến số chặt chẽ, thiết kế Ablation Study',
-      skillCommand: '/openscience',
-      speechBubble: 'Đang kiểm định giao thức thí nghiệm (Protocol) & đối chứng Baseline…',
-    },
-    {
-      agentId: 'faculty_opencode_core',
-      projectId,
-      topicId,
-      displayName: 'Lead OpenCode (HPC & Code)',
-      role: 'Parallel Core Engineering & Reproducible Sandbox (:4097)',
-      engine: 'opencode',
-      presence: 'idle',
-      activity: 'writing',
-      lastObservedAt: nowIso,
-      canInspect: true,
-      canPause: false,
-      canResume: false,
-      hasApprovalRequest: false,
-      zone: 'compute',
-      archetype: 'opencode',
-      personality: 'Tốc độ cao, tối ưu hóa CUDA/VRAM, viết code song song sạch & tái lập 100%',
-      skillCommand: '/opencode',
-      speechBubble: 'Cụm HPC & GPU Sandbox sẵn sàng chạy huấn luyện song song!',
-    },
-    {
-      agentId: 'faculty_reviewer_chair',
-      projectId,
-      topicId,
-      displayName: 'Area Chair & Reviewer R1–R3',
-      role: 'Peer Review, Claim Verification & Evidence Audit',
-      engine: agentModes?.reviewer || 'claude',
-      presence: 'idle',
-      activity: 'reviewing',
-      lastObservedAt: nowIso,
-      canInspect: true,
-      canPause: false,
-      canResume: false,
-      hasApprovalRequest: false,
-      zone: 'review',
-      archetype: 'reviewer',
-      personality: 'Khắt khe, khách quan, soi xét từng Claim và bằng chứng theo chuẩn NeurIPS/ICML',
-      skillCommand: '/review',
-      speechBubble: 'Sẵn sàng thẩm định bản thảo theo chuẩn Hội đồng R1–R3 & Area Chair.',
-    },
-    {
-      agentId: 'faculty_figure_studio',
-      projectId,
-      topicId,
-      displayName: 'Figure Studio & LaTeX Fellow',
-      role: 'Scientific Visualization (Nature/IEEE Presets) & Manuscript',
-      engine: agentModes?.utility || 'auto',
-      presence: 'idle',
-      activity: 'reporting',
-      lastObservedAt: nowIso,
-      canInspect: true,
-      canPause: false,
-      canResume: false,
-      hasApprovalRequest: false,
-      zone: 'lounge',
-      archetype: 'figure_fellow',
-      personality: 'Tinh tế, chuẩn thẩm mỹ Nature/Science/IEEE, chuyên gia biểu đồ vector & LaTeX',
-      skillCommand: '/paper',
-      speechBubble: 'Đang tinh chỉnh đồ thị Vector SVG 600 DPI & bố cục LaTeX.',
-    },
-  ];
-
-  if (liveAgents.length === 0) {
-    return coreFaculty;
-  }
-
-  return [...liveAgents, ...coreFaculty];
+  const roles = configuredAgents ? Object.keys(configuredAgents) : Object.keys(agentModes || {});
+  const names: Record<string, [string,string]> = {
+    assistant: ['Trợ lý chat','Chat assistant'], research: ['Agent nghiên cứu','Research agent'],
+    reviewer: ['Agent phản biện','Reviewer agent'], utility: ['Agent tiện ích','Utility agent'],
+  };
+  const stations = roles.map(role => ({
+    agentId: `configured_${role}`, projectId, topicId,
+    displayName: names[role]?.[language === 'vi' ? 0 : 1] || configuredAgents?.[role]?.label || role,
+    role, engine: agentModes?.[role] || 'auto', presence: 'idle' as const, activity: 'none' as const,
+    lastObservedAt: '', canInspect: true, canPause: false, canResume: false, hasApprovalRequest: false,
+    zone: inferZone(role, ''), archetype: inferArchetype(role, ''),
+    personality: language === 'vi' ? 'Vai trò đã cấu hình; chưa có quan sát thực thi' : 'Configured role; no execution observation',
+  }));
+  return [...stations, ...liveAgents];
 }

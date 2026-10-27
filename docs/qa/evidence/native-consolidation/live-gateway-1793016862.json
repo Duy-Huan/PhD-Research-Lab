@@ -1,0 +1,123 @@
+{
+  "mode": "LIVE_PROVIDER",
+  "scope": "Synthetic exact-answer connection through real gateway, Docker RPC and official Hermes Python AIAgent; not scientific/workflow/release qualification",
+  "decision": "PASS",
+  "source_sha256": "bda98ede5fc22c51e5fd577656052cd0a4e2a6cf1fabee5ce2f8368091ecc35c",
+  "source_stable": true,
+  "model": "stepfun/step-3.7-flash:free",
+  "free_catalog_verified_before_request": true,
+  "nonce": "HERMES-7c51ad885f10",
+  "expected": "HERMES-7c51ad885f10 121",
+  "gateway": {
+    "id": "gw-69f2ec9b83",
+    "provider": "hermes",
+    "provider_label": "Hermes Agent",
+    "billing": "Nous free-only, independently verified before each job",
+    "session_id": "gs-de0693bc",
+    "query": "Synthetic connection check. Do not use tools. Reply with exactly: HERMES-7c51ad885f10 121",
+    "role": "",
+    "prompt": "You are assisting a PhD researcher. Below is the compiled research context of the active project, provided by the researcher's local PhD Research Lab (the source of truth). Ground your answer in it, cite record ids (HYPE-/EXP-/FAIL-/EVID-/CLM-/D\u2026) when you rely on them, say clearly when the context does not contain what is needed, and never invent results. If the PhD-Lab MCP tools are available you may call them for details.\n\n(research memory not included for this request)\n\n# RESEARCHER'S QUESTION\nSynthetic connection check. Do not use tools. Reply with exactly: HERMES-7c51ad885f10 121",
+    "context_tokens": 148,
+    "context_version": "0ff8260cf224",
+    "includes": {},
+    "included_ids": [],
+    "blocked": [],
+    "sanitize": [],
+    "sensitivity_allowed": [
+      "PUBLIC",
+      "INTERNAL"
+    ],
+    "status": "completed",
+    "health_state": "UNKNOWN",
+    "created": 1793016850.3458452,
+    "ended": 1793016862.1379778,
+    "answer": "HERMES-7c51ad885f10 121",
+    "errors": [],
+    "resume_session": "",
+    "provider_session": "2bd48695c9f29008d3d95b1aa2c1f07c",
+    "profile": "review",
+    "isolation": {
+      "provider": "hermes",
+      "profile": "review",
+      "supported": true,
+      "level": "os-container",
+      "enforced": true,
+      "how": "Independent Hermes container; read-only authorized workspace, persistent project memory/skills, unrestricted Internet and scoped PhD tools",
+      "profile_label": "Read-only / Review \u2014 reads the staged context only; no file writes, no shell commands",
+      "consented_weaker": false
+    },
+    "project_dir": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\hermes-runtime-development\\data",
+    "event_count": 5,
+    "timings_ms": {
+      "context": 21.52,
+      "prepare": 157.98,
+      "first_event": 404.79,
+      "first_token": 11945.44,
+      "total": 11947.66
+    },
+    "workspace": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\hermes-runtime-development\\data\\cli-space\\hermes\\sessions\\gs-de0693bc",
+    "runtime_job_id": "537838420311d834f2ba6cf7e28ad194",
+    "started": 1793016850.4892716,
+    "executing_model": "stepfun/step-3.7-flash:free",
+    "first_token_s": 11.641
+  },
+  "events": {
+    "id": "gw-69f2ec9b83",
+    "status": "completed",
+    "events": [
+      {
+        "type": "status",
+        "ts": 1793016850.595,
+        "state": "session",
+        "session_id": "2bd48695c9f29008d3d95b1aa2c1f07c",
+        "runtime_job_id": "537838420311d834f2ba6cf7e28ad194",
+        "model": "stepfun/step-3.7-flash:free"
+      },
+      {
+        "type": "request_started",
+        "ts": 1793016850.596,
+        "provider": "hermes",
+        "runtime_job_id": "537838420311d834f2ba6cf7e28ad194"
+      },
+      {
+        "type": "text_delta",
+        "ts": 1793016862.135,
+        "text": "HERMES-7c51ad885f10 121",
+        "final": true
+      },
+      {
+        "type": "status",
+        "ts": 1793016862.136,
+        "state": "result",
+        "final_text": "HERMES-7c51ad885f10 121",
+        "model": "stepfun/step-3.7-flash:free",
+        "runtime_job_id": "537838420311d834f2ba6cf7e28ad194"
+      },
+      {
+        "type": "request_completed",
+        "ts": 1793016862.136,
+        "exit_code": 0,
+        "runtime_job_id": "537838420311d834f2ba6cf7e28ad194"
+      }
+    ],
+    "next": 5
+  },
+  "runtime": {
+    "state": "READY",
+    "ready": true,
+    "protocol": 1,
+    "runtime": "hermes",
+    "upstream": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
+    "free_only": true,
+    "inference": "NOT_RUN",
+    "detail": "Container runtime responds with unrestricted Internet access. Refresh models to verify Nous access; inference is separate.",
+    "setup": [
+      "python tools/prepare_hermes_runtime.py",
+      "python tools/manage_hermes_runtime.py start"
+    ],
+    "authentication": "UNKNOWN",
+    "network": "unrestricted-internet",
+    "persistence": "project-home-and-explicit-conversation-history",
+    "streaming": false
+  }
+}

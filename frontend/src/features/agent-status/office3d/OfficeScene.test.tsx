@@ -3,8 +3,24 @@ import { describe, it, expect, vi } from 'vitest';
 import { renderWithProviders } from '../../../test/test-utils';
 import { OfficeScene, type LabLightingMode } from './OfficeScene';
 import type { AgentOfficeViewModel } from '../../../shared/api/types';
+import { screen } from '@testing-library/react';
+import { useUIStore } from '../../../shared/state/uiStore';
 
 describe('OfficeScene', () => {
+  it('renders world labels in the selected EN/VI language', () => {
+    const original = useUIStore.getState().language;
+    try {
+      useUIStore.getState().setLanguage('en');
+      const first = renderWithProviders(<OfficeScene agents={[]} />);
+      expect(screen.getByText(/Native code & GPU · Open workspace/)).toBeInTheDocument();
+      expect(screen.queryByText(/Click mở Runtime/)).not.toBeInTheDocument();
+      first.unmount();
+      useUIStore.getState().setLanguage('vi');
+      const second = renderWithProviders(<OfficeScene agents={[]} />);
+      expect(screen.getByText(/Code native & GPU · Mở workspace/)).toBeInTheDocument();
+      second.unmount();
+    } finally { useUIStore.getState().setLanguage(original); }
+  });
   const dummyAgents: AgentOfficeViewModel[] = [
     {
       agentId: 'a-1',
@@ -56,7 +72,7 @@ describe('OfficeScene', () => {
       projectId: 'p-1',
       displayName: 'Agent 4',
       role: 'Lit',
-      engine: 'feynman',
+      engine: 'phdlab',
       presence: 'idle',
       activity: 'reading',
       lastObservedAt: '2026-10-24T00:00:00Z',
@@ -64,7 +80,7 @@ describe('OfficeScene', () => {
       canPause: false,
       canResume: false,
       hasApprovalRequest: false,
-      archetype: 'feynman',
+      archetype: 'literature',
     },
     {
       agentId: 'a-5',
@@ -86,7 +102,7 @@ describe('OfficeScene', () => {
       projectId: 'p-1',
       displayName: 'Agent 6',
       role: 'Science',
-      engine: 'openscience',
+      engine: 'phdlab',
       presence: 'idle',
       activity: 'executing',
       lastObservedAt: '2026-10-24T00:00:00Z',
@@ -94,7 +110,7 @@ describe('OfficeScene', () => {
       canPause: false,
       canResume: false,
       hasApprovalRequest: false,
-      archetype: 'openscience',
+      archetype: 'experiment',
     },
     // Extra agents for station grid wrapping
     {

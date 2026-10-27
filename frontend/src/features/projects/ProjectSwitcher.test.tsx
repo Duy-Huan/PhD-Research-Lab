@@ -148,6 +148,9 @@ describe('ProjectSwitcher', () => {
       expect(screen.getByText('Quantum Project')).toBeInTheDocument();
     });
 
+    const optionsBtn = screen.getByTitle(/Tùy chọn dự án|Project options/i);
+    fireEvent.click(optionsBtn);
+
     const renameBtn = screen.getByTitle(/Đổi tên dự án|Rename project/i);
     fireEvent.click(renameBtn);
 
@@ -187,11 +190,14 @@ describe('ProjectSwitcher', () => {
       expect(screen.getByText('Obsolete Project')).toBeInTheDocument();
     });
 
-    // Default project delete button is disabled
+    const optionsBtns = screen.getAllByTitle(/Tùy chọn dự án|Project options/i);
+    // Default project delete button is disabled inside menu
+    fireEvent.click(optionsBtns[0]);
     const defaultDeleteBtn = screen.getByTitle(/Dự án Mặc định không thể xóa/i);
     expect(defaultDeleteBtn).toBeDisabled();
 
-    // Click delete on obsolete project
+    // Click delete on obsolete project inside menu
+    fireEvent.click(optionsBtns[1]);
     const deleteBtn = screen.getByTitle(/Xóa hoặc gỡ dự án/i);
     fireEvent.click(deleteBtn);
 
@@ -227,6 +233,9 @@ describe('ProjectSwitcher', () => {
     await waitFor(() => {
       expect(screen.getByText('Fluid Lab')).toBeInTheDocument();
     });
+
+    const optionsBtn = screen.getByTitle(/Tùy chọn dự án|Project options/i);
+    fireEvent.click(optionsBtn);
 
     const revealBtn = screen.getByTitle(/Mở thư mục trong máy tính/i);
     fireEvent.click(revealBtn);

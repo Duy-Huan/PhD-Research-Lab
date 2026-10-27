@@ -1,0 +1,75 @@
+{
+  "mode": "LIVE_PROVIDER",
+  "scope": "Real free Nous AIAgent calls the actual PhD Lab MCP read tool over Docker HTTP; no scientific/release qualification",
+  "source_sha256": "bda98ede5fc22c51e5fd577656052cd0a4e2a6cf1fabee5ce2f8368091ecc35c",
+  "model": "stepfun/step-3.7-flash:free",
+  "expected": "NATIVE-3c0b581de6452105b1aa",
+  "gateway": {
+    "id": "gw-0f454cb97b",
+    "provider": "hermes",
+    "provider_label": "Hermes Agent",
+    "billing": "Nous free-only, independently verified before each job",
+    "session_id": "gs-1c5305f9",
+    "query": "Call phdlab_research_get_current_state. Read its objective and reply with exactly that objective, with no other text. The objective is not in this message; do not guess. Do not write memory or use web tools.",
+    "role": "",
+    "prompt": "You are assisting a PhD researcher. Below is the compiled research context of the active project, provided by the researcher's local PhD Research Lab (the source of truth). Ground your answer in it, cite record ids (HYPE-/EXP-/FAIL-/EVID-/CLM-/D\u2026) when you rely on them, say clearly when the context does not contain what is needed, and never invent results. If the PhD-Lab MCP tools are available you may call them for details.\n\n(research memory not included for this request)\n\n# RESEARCHER'S QUESTION\nCall phdlab_research_get_current_state. Read its objective and reply with exactly that objective, with no other text. The objective is not in this message; do not guess. Do not write memory or use web tools.",
+    "context_tokens": 178,
+    "context_version": "37e31eea4ff9",
+    "includes": {},
+    "included_ids": [],
+    "blocked": [],
+    "sanitize": [],
+    "sensitivity_allowed": [
+      "PUBLIC",
+      "INTERNAL"
+    ],
+    "status": "completed",
+    "health_state": "UNKNOWN",
+    "created": 1793017078.8154256,
+    "ended": 1793017113.096666,
+    "answer": "NATIVE-3c0b581de6452105b1aa",
+    "errors": [],
+    "resume_session": "",
+    "provider_session": "ead172b070a6c446dd0553f040e03c09",
+    "profile": "review",
+    "isolation": {
+      "provider": "hermes",
+      "profile": "review",
+      "supported": true,
+      "level": "os-container",
+      "enforced": true,
+      "how": "Independent Hermes container; read-only authorized workspace, persistent project memory/skills, unrestricted Internet and scoped PhD tools",
+      "profile_label": "Read-only / Review \u2014 reads the staged context only; no file writes, no shell commands",
+      "consented_weaker": false
+    },
+    "project_dir": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\hermes-runtime-development\\data",
+    "event_count": 5,
+    "timings_ms": {
+      "context": 16.78,
+      "prepare": 135.07,
+      "first_event": 346.26,
+      "first_token": 34412.18,
+      "total": 34414.61
+    },
+    "workspace": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\hermes-runtime-development\\data\\cli-space\\hermes\\sessions\\gs-1c5305f9",
+    "runtime_job_id": "c159f7a149d5000a8c49a9024dcd3d70",
+    "started": 1793017078.9213545,
+    "executing_model": "stepfun/step-3.7-flash:free",
+    "first_token_s": 34.169
+  },
+  "native_tool_executed": true,
+  "audit": [
+    {
+      "ts": 1793017107.149,
+      "tool": "research_get_current_state",
+      "client": "mcp-client",
+      "session": "",
+      "ok": true,
+      "error": "",
+      "arg_keys": [],
+      "latency_ms": 4117.7
+    }
+  ],
+  "source_stable": true,
+  "decision": "PASS"
+}

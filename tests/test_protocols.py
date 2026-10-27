@@ -14,7 +14,7 @@ from backend.execution.protocol_contracts import ExperimentProtocol
 class Protocols(unittest.TestCase):
     def setUp(self):
         _env.isolate_config(self);_env.fresh_project("protocol tests",code_project=None)
-        self.tid=S.save_topic(S.TopicInput(title="Denoising acceptance"))["id"]
+        self.tid=_env.legacy_topic(S.TopicInput(title="Denoising acceptance"))["id"]
 
     def protocol(self,**patches):
         p=P.create(ExperimentProtocol.model_validate({"topic_id":self.tid,"hypothesis":"Fixed smoothing improves a generated noisy image",**patches}))
@@ -67,7 +67,7 @@ class Protocols(unittest.TestCase):
 
     def test_worker_revision_and_topic_boundaries(self):
         p=self.protocol()
-        other=S.save_topic(S.TopicInput(title="Other"))["id"]
+        other=_env.legacy_topic(S.TopicInput(title="Other"))["id"]
         with self.assertRaises(ValueError):P.get(other,p["id"])
         m=P.mission_draft(self.tid,p["id"]);M.approve(self.tid,m["id"],m["payload"]["plan_digest"],"Reviewed")
         with patch.object(P,"worker_hash",return_value="0"*64):asyncio.run(M.tick())

@@ -1,0 +1,72 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_explicit_slash_command_retains_its_existing_execution_contract",
+      "status": "PASS",
+      "duration": 0.1528,
+      "details": null
+    },
+    {
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_long_research_request_is_not_rewritten_or_cut_into_keyword_run_arguments",
+      "status": "FAIL",
+      "duration": 0.1545,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_agent_native_reasoning.py\", line 47, in test_long_research_request_is_not_rewritten_or_cut_into_keyword_run_arguments\n    dispatch.assert_called_once()\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 928, in assert_called_once\n    raise AssertionError(msg)\nAssertionError: Expected '_spawn' to have been called once. Called 0 times.\n"
+    },
+    {
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_model_proposed_research_action_waits_for_real_approval",
+      "status": "PASS",
+      "duration": 0.1477,
+      "details": null
+    },
+    {
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "status": "FAIL",
+      "duration": 0.5188,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_agent_native_reasoning.py\", line 36, in test_plain_language_reaches_agent_without_keyword_workflow_interception\n    dispatch.assert_called_once_with(session['id'],turn['id'],'start')\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 960, in assert_called_once_with\n    raise AssertionError(msg)\nAssertionError: Expected '_spawn' to be called once. Called 0 times.\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_agent_native_reasoning.py\", line 35, in test_plain_language_reaches_agent_without_keyword_workflow_interception\n    self.assertFalse(run.called,'Plain language must not execute a keyword-selected research strategy')\nAssertionError: True is not false : Plain language must not execute a keyword-selected research strategy\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_agent_native_reasoning.py\", line 35, in test_plain_language_reaches_agent_without_keyword_workflow_interception\n    self.assertFalse(run.called,'Plain language must not execute a keyword-selected research strategy')\nAssertionError: True is not false : Plain language must not execute a keyword-selected research strategy\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_agent_native_reasoning.py\", line 36, in test_plain_language_reaches_agent_without_keyword_workflow_interception\n    dispatch.assert_called_once_with(session['id'],turn['id'],'start')\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 960, in assert_called_once_with\n    raise AssertionError(msg)\nAssertionError: Expected '_spawn' to be called once. Called 0 times.\n"
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='How can I run an experiment that would falsify this hypothesis?')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_agent_native_reasoning.py\", line 36, in test_plain_language_reaches_agent_without_keyword_workflow_interception\n    dispatch.assert_called_once_with(session['id'],turn['id'],'start')\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 960, in assert_called_once_with\n    raise AssertionError(msg)\nAssertionError: Expected '_spawn' to be called once. Called 0 times.\n"
+    },
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='Explain how to find papers that contradict the result.')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_agent_native_reasoning.py\", line 35, in test_plain_language_reaches_agent_without_keyword_workflow_interception\n    self.assertFalse(run.called,'Plain language must not execute a keyword-selected research strategy')\nAssertionError: True is not false : Plain language must not execute a keyword-selected research strategy\n"
+    },
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='T\u00ecm t\u00e0i li\u1ec7u v\u1ec1 pruning, r\u1ed3i c\u00e2n nh\u1eafc c\u00f3 c\u1ea7n thay \u0111\u1ed5i h\u01b0\u1edbng nghi\u00ean c\u1ee9u kh\u00f4ng.')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_agent_native_reasoning.py\", line 35, in test_plain_language_reaches_agent_without_keyword_workflow_interception\n    self.assertFalse(run.called,'Plain language must not execute a keyword-selected research strategy')\nAssertionError: True is not false : Plain language must not execute a keyword-selected research strategy\n"
+    },
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='Why did the literature review fail? Do not start a new workflow.')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='Ch\u1ea1y th\u1eed \u00fd t\u01b0\u1edfng n\u00e0y c\u00f3 gi\u00fap ki\u1ec3m tra gi\u1ea3 thuy\u1ebft kh\u00f4ng?')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_agent_native_reasoning.py\", line 36, in test_plain_language_reaches_agent_without_keyword_workflow_interception\n    dispatch.assert_called_once_with(session['id'],turn['id'],'start')\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 960, in assert_called_once_with\n    raise AssertionError(msg)\nAssertionError: Expected '_spawn' to be called once. Called 0 times.\n"
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 4,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-zmnnwq30",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

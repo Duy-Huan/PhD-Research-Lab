@@ -1,0 +1,47 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_model_cli_streaming.StreamingAuthority.test_closing_reader_cancels_only_its_owned_cli_request",
+      "status": "PASS",
+      "duration": 0.0191,
+      "details": null
+    },
+    {
+      "id": "test_model_cli_streaming.StreamingAuthority.test_completed_stream_does_not_cancel_an_already_finished_request",
+      "status": "PASS",
+      "duration": 0.0151,
+      "details": null
+    },
+    {
+      "id": "test_model_cli_streaming.StreamingAuthority.test_connector_startup_failure_is_reported_without_waiting_for_a_delta",
+      "status": "ERROR",
+      "duration": 2.0198,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\backend\\providers\\models.py\", line 540, in _stream_cli\n    kind,value=await events.get()\n               ^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\asyncio\\queues.py\", line 158, in get\n    await getter\nasyncio.exceptions.CancelledError\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\asyncio\\runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\asyncio\\base_events.py\", line 691, in run_until_complete\n    return future.result()\n           ^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_model_cli_streaming.py\", line 88, in test_connector_startup_failure_is_reported_without_waiting_for_a_delta\n    await asyncio.wait_for(anext(stream),2)\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\asyncio\\tasks.py\", line 520, in wait_for\n    return await fut\n           ^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\backend\\providers\\models.py\", line 548, in _stream_cli\n    try:await asyncio.wait_for(asyncio.shield(worker),timeout=5)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\asyncio\\tasks.py\", line 520, in wait_for\n    return await fut\n           ^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\asyncio\\threads.py\", line 25, in to_thread\n    return await loop.run_in_executor(None, func_call)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\concurrent\\futures\\thread.py\", line 59, in run\n    result = self.fn(*self.args, **self.kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\backend\\providers\\models.py\", line 524, in produce\n    stream=conn.stream_message(prompt,ctx)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_model_cli_streaming.py\", line 82, in stream_message\n    def stream_message(self,prompt,context):raise OSError('Controlled connector startup failure')\n                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nOSError: Controlled connector startup failure\n"
+    },
+    {
+      "id": "test_model_cli_streaming.StreamingAuthority.test_first_delta_arrives_before_cli_finishes",
+      "status": "PASS",
+      "duration": 0.0141,
+      "details": null
+    },
+    {
+      "id": "test_model_cli_streaming.StreamingAuthority.test_partial_delta_is_delivered_before_later_provider_failure",
+      "status": "PASS",
+      "duration": 0.0121,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 5,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-rp1t80zf",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

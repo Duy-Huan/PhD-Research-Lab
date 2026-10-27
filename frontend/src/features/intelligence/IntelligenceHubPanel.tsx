@@ -111,7 +111,7 @@ export const IntelligenceHubPanel: React.FC = () => {
         topic_id: activeTopicId,
         mission_id: activeMid,
         capability,
-        preferred_engine: capability === 'opencode.implement' ? 'opencode' : 'deterministic',
+        preferred_engine: capability === 'code.implement' ? 'deterministic' : 'deterministic',
         simulate_quota_exhausted: simulateQuota,
         allow_metered_api: false,
       }),
@@ -356,7 +356,7 @@ export const IntelligenceHubPanel: React.FC = () => {
               <select className="input sm" value={capability} onChange={(e) => setCapability(e.target.value)}>
                 <option value="paper.discover">paper.discover (Deterministic — 0 LLM)</option>
                 <option value="figure.create_2d">figure.create_2d (Deterministic — 0 LLM)</option>
-                <option value="opencode.implement">opencode.implement (OpenCode Peer Runtime)</option>
+                <option value="code.implement">code.implement (Native Research Run)</option>
                 <option value="paper.compare">paper.compare (Reasoning Engine)</option>
               </select>
               <label style={{ fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>

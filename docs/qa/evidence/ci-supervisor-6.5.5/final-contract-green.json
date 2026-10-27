@@ -1,0 +1,334 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_attempt_reservation_survives_restart_and_never_resets_on_new_sha",
+      "status": "PASS",
+      "duration": 0.0452,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_cli_adapters_never_enable_permission_bypass_or_shell_interpolation",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_corrupt_counter_cannot_restart_a_repair_budget",
+      "status": "PASS",
+      "duration": 0.0014,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_exclusive_lock_rejects_concurrent_owner_and_releases_after_close",
+      "status": "PASS",
+      "duration": 0.0024,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_external_authors_forks_closed_prs_and_protected_bases_are_rejected",
+      "status": "PASS",
+      "duration": 0.0004,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_log_content_is_quoted_data_not_task_instructions",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_matrix_duplicates_preserve_all_observations_and_one_root_cause",
+      "status": "PASS",
+      "duration": 0.0004,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_missing_state_for_a_registered_pr_cannot_reset_budget",
+      "status": "PASS",
+      "duration": 0.0013,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_only_explicit_matching_owner_branch_sha_and_worktree_can_execute",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_skipped_missing_and_failed_jobs_cannot_hide_behind_a_green_aggregate",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_ci_repair_supervisor.SupervisorPolicy.test_skips_and_coverage_failures_never_become_repairable_assertions",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_legacy_workflows_are_replaced_and_3d_is_not_left_diff_optional",
+      "status": "PASS",
+      "duration": 0.0158,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_policy_dependencies_precede_targeted_worker_execution",
+      "status": "PASS",
+      "duration": 0.0153,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_pr_quality_has_no_release_or_production_approval",
+      "status": "PASS",
+      "duration": 0.0128,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_release_runs_only_for_main_and_uses_exact_provenance",
+      "status": "PASS",
+      "duration": 0.0055,
+      "details": null
+    },
+    {
+      "id": "test_release_packaging.ReleasePackaging.test_archive_is_reproducible_and_does_not_overwrite_a_prior_output",
+      "status": "PASS",
+      "duration": 0.6493,
+      "details": null
+    },
+    {
+      "id": "test_release_packaging.ReleasePackaging.test_new_compiled_assets_and_exact_digests_are_packaged_without_private_data",
+      "status": "PASS",
+      "duration": 0.3991,
+      "details": null
+    },
+    {
+      "id": "test_release_packaging.ReleasePackaging.test_source_archive_preserves_git_executable_permissions",
+      "status": "PASS",
+      "duration": 0.5074,
+      "details": null
+    },
+    {
+      "id": "test_release_packaging.ReleasePackaging.test_uncommitted_source_cannot_be_labeled_with_the_committed_sha",
+      "status": "PASS",
+      "duration": 0.2202,
+      "details": null
+    },
+    {
+      "id": "test_release_packaging.ReleasePackaging.test_version_mismatch_and_missing_build_are_rejected",
+      "status": "PASS",
+      "duration": 0.2867,
+      "details": null
+    },
+    {
+      "id": "test_release_packaging.ReleasePackaging.test_wrong_commit_and_unsafe_output_are_rejected",
+      "status": "PASS",
+      "duration": 0.203,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_failed_dependency_remains_fail_instead_of_blocked",
+      "status": "PASS",
+      "duration": 0.074,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_malformed_result_preserves_fail_closed_behavior",
+      "status": "PASS",
+      "duration": 0.0706,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_missing_dependency_cannot_be_masked_by_other_successes",
+      "status": "PASS",
+      "duration": 0.0704,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_only_complete_success_passes",
+      "status": "PASS",
+      "duration": 0.0678,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "status": "PASS",
+      "duration": 0.3498,
+      "details": null
+    },
+    {
+      "id": "test_baseline_accounting.BaselineAccounting.test_baseline_policy_changes_invalidate_source_evidence",
+      "status": "PASS",
+      "duration": 0.0956,
+      "details": null
+    },
+    {
+      "id": "test_baseline_accounting.BaselineAccounting.test_changed_missing_or_escaping_evidence_is_rejected",
+      "status": "PASS",
+      "duration": 0.0043,
+      "details": null
+    },
+    {
+      "id": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception",
+      "status": "PASS",
+      "duration": 0.0044,
+      "details": null
+    },
+    {
+      "id": "test_baseline_accounting.BaselineAccounting.test_malformed_duplicate_and_unowned_records_are_rejected",
+      "status": "PASS",
+      "duration": 0.0034,
+      "details": null
+    },
+    {
+      "id": "test_baseline_accounting.BaselineAccounting.test_verified_open_issue_is_accounted_without_becoming_a_waiver",
+      "status": "PASS",
+      "duration": 0.0015,
+      "details": null
+    },
+    {
+      "id": "test_verification_comparison.Comparison.test_different_suite_environment_or_policy_is_incomparable",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_verification_comparison.Comparison.test_fixed_critical_denominator_never_counts_missing_or_skipped_as_pass",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_verification_comparison.Comparison.test_later_duplicate_pass_cannot_erase_a_failure",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_verification_comparison.Comparison.test_offline_all_covers_actual_3d_without_scheduling_model_journeys",
+      "status": "PASS",
+      "duration": 0.0005,
+      "details": null
+    },
+    {
+      "id": "test_verification_comparison.Comparison.test_unstable_source_cannot_be_ranked_by_passing_cases",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_browser_acceptance.BrowserAcceptance.test_docs_select_smoke_without_llm_and_unknown_ui_broadens_offline",
+      "status": "PASS",
+      "duration": 0.0012,
+      "details": null
+    },
+    {
+      "id": "test_browser_acceptance.BrowserAcceptance.test_fixed_requires_reproduction_and_matching_behavioral_regression",
+      "status": "PASS",
+      "duration": 0.0027,
+      "details": null
+    },
+    {
+      "id": "test_browser_acceptance.BrowserAcceptance.test_live_journeys_never_silently_join_offline_ci",
+      "status": "PASS",
+      "duration": 0.0005,
+      "details": null
+    },
+    {
+      "id": "test_browser_acceptance.BrowserAcceptance.test_personas_have_existing_tests_and_explicit_exploration_capabilities",
+      "status": "PASS",
+      "duration": 0.0006,
+      "details": null
+    },
+    {
+      "id": "test_browser_acceptance.BrowserAcceptance.test_unknown_journey_and_unchanged_affected_contract_are_not_ignored",
+      "status": "PASS",
+      "duration": 0.0003,
+      "details": null
+    },
+    {
+      "id": "test_browser_acceptance.BrowserAcceptance.test_unreproduced_findings_remain_unconfirmed_with_compact_evidence",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_release_packaging.ReleasePackaging.test_wrong_commit_and_unsafe_output_are_rejected",
+      "id": "test_release_packaging.ReleasePackaging.test_wrong_commit_and_unsafe_output_are_rejected (target=WindowsPath('C:/Users/win/AppData/Local/Temp/phdlab-release-fixture-t8png39f/output/release/x'))",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_release_packaging.ReleasePackaging.test_wrong_commit_and_unsafe_output_are_rejected",
+      "id": "test_release_packaging.ReleasePackaging.test_wrong_commit_and_unsafe_output_are_rejected (target=WindowsPath('C:/Users/win/AppData/Local/Temp/phdlab-release-fixture-t8png39f/outside'))",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='skipped')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='cancelled')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='queued')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='timed_out')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status=None)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception",
+      "id": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception (value=[{'test_id': 'test.exact', 'approved': True}])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception",
+      "id": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception (value=['*'])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception",
+      "id": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception (value=None)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception",
+      "id": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception (value={})",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "total": 42,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-mpi67v1j",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

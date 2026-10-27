@@ -80,7 +80,6 @@ def gaps() -> list:
         "Dữ liệu thật: cần dataset (đường dẫn, phiên bản, license) cho baseline và các candidate.",
         "Multi-seed / ablation thật: cần thời gian GPU thực (RTX 3060 — mỗi lần 1 job) và ngân sách được duyệt.",
         "Đánh giá novelty / chất lượng khoa học: do nhà nghiên cứu quyết định; LLM self-review không phải chứng cứ duy nhất.",
-        "ClearML server (tuỳ chọn): hiện ghi offline trong từng project; cần server nếu muốn dashboard dùng chung.",
     ]
     return out
 

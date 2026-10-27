@@ -1,0 +1,76 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_ci_recovery.GateAccounting.test_failed_dependency_remains_fail_instead_of_blocked",
+      "status": "FAIL",
+      "duration": 0.0784,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_ci_recovery.py\", line 28, in test_failed_dependency_remains_fail_instead_of_blocked\n    self.assertEqual(report['decision'], 'FAIL')\nAssertionError: 'BLOCKED' != 'FAIL'\n- BLOCKED\n+ FAIL\n\n"
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_malformed_result_preserves_fail_closed_behavior",
+      "status": "PASS",
+      "duration": 0.0683,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_missing_dependency_cannot_be_masked_by_other_successes",
+      "status": "PASS",
+      "duration": 0.0692,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_only_complete_success_passes",
+      "status": "PASS",
+      "duration": 0.0702,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "status": "PASS",
+      "duration": 0.3558,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='skipped')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='cancelled')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='queued')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='timed_out')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status=None)",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "total": 5,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-as1hf63f",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

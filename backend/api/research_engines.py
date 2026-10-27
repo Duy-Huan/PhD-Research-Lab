@@ -1,34 +1,19 @@
-"""External engine receipts and live decisions, separate from model/provider APIs."""
-from typing import Annotated, Literal
-
-from fastapi import APIRouter
-from pydantic import BaseModel, ConfigDict, Field
-
+"""Supported research inventory and read-only retired-run history."""
+import json
+import re
+from fastapi import APIRouter, HTTPException
 from backend.api.common import call
 from backend.research_engines import registry
-from backend.research_engines.openscience import inspect_job, decide, recover_admission, cancel_job
 
 router = APIRouter()
 
 
-class Decision(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    request_id: str = Field(min_length=1, max_length=200)
-    reply: Literal["once", "reject"] = "reject"
-    answers: list[Annotated[list[Annotated[str, Field(max_length=4000)]], Field(max_length=50)]] | None = Field(default=None, max_length=20)
-
-
-def public(value, _token=None):
+def public(value):
     from backend.core.telemetry import redact
-    if _token is None:
-        from backend.core.config import load_config
-        _token = load_config().get("openscience", {}).get("token", "")
-    if isinstance(value, str):
-        return redact(value).replace(_token, "[REDACTED]") if _token else redact(value)
+    if isinstance(value, str): return redact(value)
+    if isinstance(value, list): return [public(v) for v in value]
     if isinstance(value, dict):
-        return {k: public(v, _token) for k, v in value.items()}
-    if isinstance(value, list):
-        return [public(v, _token) for v in value]
+        return {k: public(v) for k, v in value.items() if k.lower() not in ("token", "password", "api_key", "authorization")}
     return value
 
 
@@ -41,19 +26,16 @@ async def engines():
 
 @router.get("/api/research-engines/jobs/{job_id}")
 async def job(job_id: str):
-    return public(await call(inspect_job, job_id))
+    from backend.core.config import data_dir
+    from backend.knowledge.research_store import safe_child
+    if not re.fullmatch(r"ej-[0-9a-f]{20}", job_id): raise HTTPException(400, "Invalid historical job id")
+    path = safe_child(data_dir(), "research-engines", "jobs", job_id + ".json")
+    if not path.is_file(): raise HTTPException(404, "Historical job not found in current project")
+    return public(json.loads(path.read_text("utf-8")))
 
 
 @router.post("/api/research-engines/jobs/{job_id}/decisions")
-async def decision(job_id: str, body: Decision):
-    return public(await call(decide, job_id, body.request_id, reply=body.reply, answers=body.answers))
-
-
 @router.post("/api/research-engines/jobs/{job_id}/recover-admission")
-async def recover(job_id: str):
-    return await call(recover_admission, job_id)
-
-
 @router.post("/api/research-engines/jobs/{job_id}/cancel")
-async def cancel(job_id: str):
-    return await call(cancel_job, job_id)
+async def retired_mutation(job_id: str):
+    raise HTTPException(410, "External research runtime retired; historical receipts remain read-only. No provider action was executed.")

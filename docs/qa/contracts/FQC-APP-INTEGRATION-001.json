@@ -1,0 +1,177 @@
+{
+  "id": "FQC-APP-INTEGRATION-001",
+  "title": "Latest application cloud, context and project containment acceptance",
+  "risk": "HIGH",
+  "mode": "MOCKED",
+  "user_story": "The owner uses current application source rather than trusting the old6.3.0 preview on main/dev/qa.",
+  "requirements": [
+    {
+      "id": "REQ-LATEST",
+      "description": "Consolidate latest application behavior and retain honest permanent acceptance tests"
+    },
+    {
+      "id": "REQ-COMPLETE",
+      "description": "Publish terminal experiment status only after metrics and run metadata persistence completes"
+    }
+  ],
+  "nonfunctional": [
+    "No live or paid model calls",
+    "No threshold relaxation",
+    "Preserve protected branches"
+  ],
+  "inputs": [
+    "Explicit upstream state fixtures",
+    "Hash-bound issue evidence"
+  ],
+  "outputs": [
+    "Honest fail-closed reports"
+  ],
+  "preconditions": [
+    "Preserved worktrees and actual CI artifacts"
+  ],
+  "postconditions": [
+    "Existing failures remain blocking"
+  ],
+  "dependencies": [
+    "Python3.11/3.12",
+    "Existing verification harness"
+  ],
+  "affected_modules": [
+    "backend/agent/**",
+    "backend/providers/**",
+    "backend/api/**",
+    "frontend/src/features/settings/**",
+    "frontend/e2e/ui_quality.spec.ts",
+    "tests/test_context_intelligence_audit.py",
+    "tests/test_cloud_connections.py",
+    "tests/test_provider_project_security.py",
+    "tools/cli_*.mjs",
+    "tools/*cli*.py",
+    "backend/execution/sandbox.py",
+    "tests/test_sandbox_completion_regressions.py"
+  ],
+  "acceptance_criteria": [
+    "Full selected PDF includes final-page results",
+    "No hidden20-message history cut",
+    "Cloud never unloads local weights",
+    "CLI refuses unrestricted host fallback",
+    "Settings persists actual model rules and bounded budgets",
+    "No live-provider or OS isolation certification is inferred from fixtures",
+    "An observer cannot see done while metrics collection is still pending"
+  ],
+  "scenarios": [
+    {
+      "id": "0",
+      "requirement": "REQ-LATEST",
+      "kind": "positive",
+      "expected": "All selected PDF pages remain available",
+      "test": "tests/test_context_intelligence_audit.py::ContextIntelligenceAudit.test_expanded_selected_paper_includes_results_after_page_three"
+    },
+    {
+      "id": "1",
+      "requirement": "REQ-LATEST",
+      "kind": "negative",
+      "expected": "Cloud is never a local unload target",
+      "test": "tests/test_cloud_connections.py::Connections.test_cloud_is_never_a_local_unload_target"
+    },
+    {
+      "id": "2",
+      "requirement": "REQ-LATEST",
+      "kind": "boundary",
+      "expected": "Framing stays within declared budget with original hash",
+      "test": "tests/test_context_intelligence_audit.py::ContextIntelligenceAudit.test_budget_includes_source_framing_and_reports_original_hash"
+    },
+    {
+      "id": "3",
+      "requirement": "REQ-LATEST",
+      "kind": "failure",
+      "expected": "Missing authentication and disabled preconnection make no network request",
+      "test": "tests/test_cloud_connections.py::Connections.test_preconnect_off_local_and_missing_auth_do_not_make_network_calls"
+    },
+    {
+      "id": "4",
+      "requirement": "REQ-LATEST",
+      "kind": "security",
+      "expected": "Unrestricted host launch and missing isolation fail closed",
+      "test": "tests/test_provider_project_security.py::ProjectSecurity.test_raw_host_launch_and_missing_isolation_fail_closed"
+    },
+    {
+      "id": "5",
+      "requirement": "REQ-LATEST",
+      "kind": "performance",
+      "expected": "History is explicitly budgeted without arbitrary20-message slicing",
+      "test": "tests/test_context_intelligence_audit.py::ContextIntelligenceAudit.test_no_arbitrary_twenty_message_limit_and_large_history_is_declared"
+    },
+    {
+      "id": "remote-record-serialization",
+      "requirement": "REQ-LATEST",
+      "kind": "failure",
+      "expected": "Pending remote record identity and missing metrics remain explicit without NameError or invented measurements",
+      "test": "tests/test_latest_integration_regressions.py::LatestIntegration.test_remote_compute_context_preserves_record_identity_and_unverified_status"
+    },
+    {
+      "id": "terminal-evidence-publication",
+      "requirement": "REQ-COMPLETE",
+      "kind": "boundary",
+      "expected": "Paused metrics collection retains running status; final metadata and metrics exist when done is published",
+      "test": "tests/test_sandbox_completion_regressions.py::SandboxCompletion.test_terminal_status_is_published_only_after_metrics_are_persisted"
+    }
+  ],
+  "recovery": "Preserve raw failure. At most3 repair attempts per stable defect group. No waiver has been approved.",
+  "test_environment": "Disposable local subprocess and file fixtures. Not live merge or AI acceptance.",
+  "skill_sources": [
+    "skills/gh-fix-ci/SKILL.md",
+    "skills/github-actions-hardening/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent adversarial review, not independent approval"
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "test_sha256": "cf9572b3b30522d124a7c92e2d27cf15f91575bc32991b4826c0bc98200dc156",
+    "scope": "Retrospective acceptance comparison of unchanged context tests against pre-integration and integrated source, not a claim original implementation followed test-first development. Cloud/security have current GREEN execution, no retrospective RED claimed.",
+    "red": {
+      "path": "docs/qa/evidence/latest-application-6.5.4/latest-context-red.json",
+      "sha256": "27cb55b073834531ff9c83f629f69fb3381e0e3dc29f6b26e97c8603a21a7378",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/latest-application-6.5.4/latest-application-green.json",
+      "sha256": "81c950f0b08963598dce1fb57e3b76611d35eeb3c5992247280dc914a7dda2d1",
+      "exit_code": 0
+    }
+  },
+  "browser_acceptance": {
+    "required": true,
+    "journeys": [
+      "settings-language"
+    ],
+    "independent_review": true
+  },
+  "additional_tdd": [
+    {
+      "scope": "Remote context missingjson import regression and corrected CLI mock boundaries; original assertions retained",
+      "red": {
+        "path": "docs/qa/evidence/ci-supervisor-6.5.5/remote-context-red.json",
+        "sha256": "75fe06563f06a5d16aabc0caea22e5637a2fa9d2890c5beb81d00fba1a00e071"
+      },
+      "green": {
+        "path": "docs/qa/evidence/ci-supervisor-6.5.5/remote-context-and-cli-fixture-green.json",
+        "sha256": "d785d617e62539334d6ba6362a8129badc119790204f978deefe8d2438c4091f"
+      }
+    },
+    {
+      "scope": "Actual deterministic delayed-collection regression, RED before changing sandbox completion publication; MOCKED software evidence only",
+      "red": {
+        "path": "docs/qa/evidence/ci-stabilization-6.5.6/sandbox-race-red.json",
+        "sha256": "ba3c8fe0139dd63db48cdbf541fb4a38fd59a0e7132115d9eedcb1a1982742c9"
+      },
+      "green": {
+        "path": "docs/qa/evidence/ci-stabilization-6.5.6/sandbox-race-green.json",
+        "sha256": "9e167739a9b48a80a16edb7b561ffdd8b5494440edf98bd3d4f819f40d8618a2"
+      }
+    }
+  ]
+}

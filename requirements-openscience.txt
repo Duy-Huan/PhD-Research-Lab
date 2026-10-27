@@ -1,2 +1,0 @@
-# Optional official source-preview SDK. No native skills or engine runtime are vendored.
-openscience-runtime @ git+https://github.com/synthetic-sciences/openscience.git@d720862157d146d52b6faae1e5aff9d3973ed918#subdirectory=tooling/sdk/python

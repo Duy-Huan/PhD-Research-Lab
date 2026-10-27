@@ -1,0 +1,71 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_cleanup_failure_cannot_be_reported_as_a_successful_request",
+      "status": "PASS",
+      "duration": 0.7478,
+      "details": null
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_completed_turn_releases_owned_runtime_before_reporting_completion",
+      "status": "PASS",
+      "duration": 0.7562,
+      "details": null
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_consumer_close_releases_its_runtime_without_touching_other_requests",
+      "status": "PASS",
+      "duration": 0.38,
+      "details": null
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_docker_cleanup_uses_exact_owned_label_and_volume_only",
+      "status": "PASS",
+      "duration": 0.0479,
+      "details": null
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_invalid_owner_cannot_start_docker_operations",
+      "status": "PASS",
+      "duration": 0.0401,
+      "details": null
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_native_launch_shares_a_fresh_owner_with_the_runtime_wrapper",
+      "status": "PASS",
+      "duration": 0.0437,
+      "details": null
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_protocol_fixture_does_not_require_a_vendor_cli_on_path",
+      "status": "PASS",
+      "duration": 0.7117,
+      "details": null
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_remaining_owned_resource_is_a_cleanup_failure",
+      "status": "PASS",
+      "duration": 0.044,
+      "details": null
+    },
+    {
+      "id": "test_cli_runtime_cleanup.RuntimeCleanup.test_unexpected_resource_count_is_bounded_and_never_bulk_deleted",
+      "status": "PASS",
+      "duration": 0.0416,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 9,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-ghilp54y",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

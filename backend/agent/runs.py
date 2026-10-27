@@ -230,7 +230,7 @@ def _needs_approval(risk: int) -> bool:
 
 def create(pipeline: str, title: str, goal: str = "", inputs: dict | None = None, session_id: str = "", turn_id: str = "",
            skill: str = "", risk: int = 2, provider: str = "", steps: list | None = None, synthetic: bool = False,
-           budget: dict | None = None, start: bool = True) -> dict:
+           budget: dict | None = None, start: bool = True, force_approval: bool = False) -> dict:
     """A new run. It goes CREATED → PLANNED → (APPROVAL_PENDING | RUNNING) immediately; nothing runs before approval."""
     if pipeline not in PIPELINES:
         raise AIWSError(f"pipeline must be one of {', '.join(PIPELINES)}")
@@ -254,11 +254,11 @@ def create(pipeline: str, title: str, goal: str = "", inputs: dict | None = None
         if key in b:
             b[key] = type(b[key])(val)
     from backend.core.config import active_project
-    r = {"id": rid, "schema": 1, "title": (title or pipeline)[:160], "pipeline": pipeline, "skill": skill, "goal": goal[:4000],
+    r = {"id": rid, "schema": 1, "title": (title or pipeline)[:160], "pipeline": pipeline, "skill": skill, "goal": goal,
          "inputs": inputs or {}, "status": "CREATED", "reason": "", "created": now(), "updated": now(),
          "project": active_project().get("name", ""), "session_id": session_id, "turn_id": turn_id,
          "synthetic": bool(synthetic), "risk": int(risk), "budget": b, "usage": {"active_s": 0.0, "retries": 0},
-         "approval": {"required": _needs_approval(risk), "status": "pending" if _needs_approval(risk) else "auto",
+         "approval": {"required": bool(force_approval) or _needs_approval(risk), "status": "pending" if force_approval or _needs_approval(risk) else "auto",
                       "by": "", "at": None},
          "steps": st, "current": "", "history": [{"ts": now(), "from": "", "to": "CREATED", "reason": "created"}],
          "outputs": [], "result": {}, "proposal": None, "next_decision": ""}
@@ -301,10 +301,11 @@ def approve(rid: str, by: str = "researcher") -> dict:
 
 
 def _check_engine_swap(step: dict, provider: str | None) -> None:
-    native = step.get("result", {}).get("engine_job_id")
-    if step.get("provider") == "openscience" and provider != "openscience" and native:
-        from backend.research_engines.openscience import require_settled
-        require_settled(native)
+    # Historical external jobs are never reattached to an executable retired adapter.
+    if provider in ('feynman', 'openscience', 'opencode', 'clearml'):
+        raise AIWSError('This research provider is retired. Select a supported native provider for a new run.')
+    if step.get('provider') in ('feynman', 'openscience') and step.get('result', {}).get('engine_job_id'):
+        raise AIWSError('Historical external execution has no verified settlement. Preserve it and start a distinct native run; automatic replay is forbidden.')
 
 
 def cancel(rid: str, by: str = "researcher") -> dict:
@@ -316,17 +317,10 @@ def cancel(rid: str, by: str = "researcher") -> dict:
     if d:
         d["cancel"].set()
     else:
-        # A native run can still be awaiting a decision while no local driver exists.
-        for step in r["steps"]:
-            native = step.get("result", {}).get("engine_job_id")
-            if step["provider"] == "openscience" and native and step["status"] != "done":
-                try:
-                    from backend.research_engines.openscience import cancel_job
-                    settlement = cancel_job(native)
-                except Exception as error:
-                    from backend.core.telemetry import redact
-                    settlement = {"state": "cancellation_unconfirmed", "detail": redact(str(error))[:500]}
-                update(rid, lambda x, sid=step["id"], value=settlement: next(s for s in x["steps"] if s["id"] == sid)["result"].update(external_cancellation=value))
+        for step in r['steps']:
+            if step.get('provider') in ('feynman', 'openscience') and step.get('result', {}).get('engine_job_id') and step.get('status') != 'done':
+                update(rid, lambda x, sid=step['id']: next(s for s in x['steps'] if s['id'] == sid)['result'].update(
+                    external_cancellation={'state': 'UNCONFIRMED', 'detail': 'Retired external runtime was not contacted; cancelling this local run does not prove external cancellation.'}))
     job = next((s.get("result", {}).get("job_id") for s in r["steps"] if s["status"] == "running"), None)
     if job:
         try:
@@ -363,9 +357,6 @@ def resume(rid: str, accept_proposal: bool = True, patch: dict | None = None, by
             if "provider" in allowed:
                 s["provider"] = str(allowed.pop("provider"))
             s["spec"].update(allowed)
-        if s["provider"] == "openscience":
-            x["risk"] = max(2, x["risk"])
-            x["approval"].update(required=True, status="approved", by=by, at=now())
         s.update(status="pending", error="")
         x["usage"]["retries"] += 1
         x["proposal"] = None
@@ -491,16 +482,13 @@ class Ctx:
 
 
 def _resource(r: dict, s: dict) -> str:
-    if s["provider"] == "openscience":
-        from backend.core.config import load_config
-        return "gpu" if load_config()["openscience"].get("allow_execution") else "cli"
     if s["kind"] == "experiment":
         return "gpu" if s["spec"].get("gpu", r["inputs"].get("gpu")) else "cpu"
     if s["kind"] == "synthetic":
         return "none"
-    if s["provider"] in ("feynman", "claude_code", "codex", "gemini_cli", "antigravity"):
+    if s["provider"] in ("claude_code", "codex", "gemini_cli", "antigravity", "hermes"):
         return "cli"
-    if s["provider"] == "app" and s["kind"] in ("research", "plan", "code", "review", "verify_claims"):
+    if s["provider"] in ("app", "phdlab") and s["kind"] in ("research", "plan", "code", "review", "verify_claims"):
         from backend.core.config import load_config
         from backend.providers.models import resolve_engine
         eng = resolve_engine(load_config(), "reviewer" if s["kind"] in ("review", "verify_claims") else "research")
@@ -511,14 +499,18 @@ def _resource(r: dict, s: dict) -> str:
 def _resolve_provider(rid: str, step: dict) -> dict:
     """A research / review / code step whose provider is not set up moves to the app model BEFORE it takes a resource
     slot — with the reason recorded on the step (shown in the timeline), never silently."""
+    if step['provider'] in ('feynman','openscience','opencode') or get(rid).get('skill') in ('feynman','openscience','opencode'):
+        _needs_user(rid,step['id'],'This historical software provider is retired; retained results are read-only. Create an explicitly approved native run.',
+                    {'kind':'provider','text':'Review preserved history and create a native run','patch':{}})
+        return step
     if step["kind"] not in ("research", "review", "code") or step["provider"] in ("app", "phdlab", "synthetic"):
         return step
     from backend.providers import research as RP
     pid, note = RP.pick(step["provider"])
     if pid == step["provider"]:
         return step
-    if step["provider"] == "openscience":
-        _needs_user(rid, step["id"], note + "; OpenScience is not automatically replaced",
+    if step["provider"] in ("feynman", "openscience") or get(rid).get("skill") in ("science", "opencode"):
+        _needs_user(rid, step["id"], note + "; explicitly selected engine is not automatically replaced",
                     {"kind": "provider", "text": "Configure the runtime or explicitly select another research engine", "patch": {}})
         return step
     from backend.core.config import load_config
@@ -898,12 +890,12 @@ def _research(ctx: Ctx) -> dict:
     if pid in engines.FACTORIES:
         from backend.research_engines.contracts import EngineTask, EngineFailure
         from backend.core.config import data_dir
-        capability = "review" if ctx.step["kind"] == "review" else "analysis" if ctx.run.get("skill") == "science" else "literature"
+        capability = "review" if ctx.step["kind"] == "review" else "prototype" if ctx.run.get("skill") == "opencode" else "analysis" if ctx.run.get("skill") == "science" else "literature"
         task = EngineTask(operation_id=f"{ctx.rid}:{ctx.step['id']}", attempt=ctx.step["attempt"],
                           project_id=data_dir().name, workflow_id=ctx.rid, step_id=ctx.step["id"], question=topic,
                           context=brief, capability=capability,
                           native_workflow=ctx.step["spec"].get("workflow") or ctx.run["inputs"].get("workflow") or "",
-                          output_dir=ctx.out / ("feynman" if pid == "feynman" else "phdlab" if pid == "phdlab" else "openscience-" + ctx.step["id"]),
+                          output_dir=ctx.out / (pid + "-" + ctx.step["id"]),
                           time_limit_s=max(1, min(7200, ctx.run["budget"]["max_minutes"] * 60 - _active_s(ctx.run))),
                           approved=ctx.run["approval"]["status"] == "approved", hypothesis_id=ctx.run["inputs"].get("hypothesis_id", ""),
                           experiment_id=ctx.run["inputs"].get("experiment_id", ""))
@@ -920,20 +912,18 @@ def _research(ctx: Ctx) -> dict:
         except EngineFailure as e:
             if e.job_id:
                 ctx.set(engine_job_id=e.job_id)
-            raise StepFailure(str(e), "provider" if pid == "feynman" else "engine_" + e.kind,
-                              recoverable=pid == "feynman", detail=e.job_id) from e
+            raise StepFailure(str(e), 'engine_' + e.kind, recoverable=e.kind in ('execution', 'transport'), detail=e.job_id) from e
         text, files = result.text, [ctx.rel(Path(f["path"])) for f in result.artifact_refs]
         ctx.set(engine_provenance=result.provenance, artifact_refs=result.artifact_refs,
                 native_session_id=result.native_session_id, native_run_id=result.native_run_id)
-        if pid == "openscience":
-            manifest = ctx.write(f"engine-evidence-{ctx.step['id']}.json", json.dumps({
-                "schema_version": "1.0", "research_run": ctx.rid, "step_id": ctx.step["id"],
-                "engine": pid, "native_session_id": result.native_session_id, "native_run_id": result.native_run_id,
-                "provenance": result.provenance, "artifact_refs": result.artifact_refs,
-                "scientific_review": "pending", "clearml_task_id": None,
-            }, ensure_ascii=False, indent=2))
-            files.append(manifest)
-            ctx.set(evidence_manifest=manifest)
+        manifest = ctx.write(f"engine-evidence-{ctx.step['id']}.json", json.dumps({
+            "schema_version": "1.0", "research_run": ctx.rid, "step_id": ctx.step["id"],
+            "engine": pid, "native_session_id": result.native_session_id, "native_run_id": result.native_run_id,
+            "provenance": result.provenance, "artifact_refs": result.artifact_refs,
+            "scientific_review": "pending", "clearml_task_id": None,
+        }, ensure_ascii=False, indent=2))
+        files.append(manifest)
+        ctx.set(evidence_manifest=manifest)
     elif pid in RP.CODING:
         try:
             res = RP.run_coding(f"{ctx.rid}-{ctx.step['id']}-{ctx.step['attempt']}", pid, topic, brief, ctx.out / pid,
@@ -1022,17 +1012,24 @@ def _verify_sources(ctx: Ctx) -> dict:
 
 def _plan(ctx: Ctx) -> dict:
     idea = ctx.run["inputs"].get("idea") or ctx.run["goal"]
-    folder = f"ideas/{ctx.rid}"
-    system = ("You are the research agent of PhD Research Lab. Turn the researcher's idea into a SMALL, quick experiment "
-              "that runs on one PC (RTX 3060 12 GB, 32 GB RAM) in minutes. Write: 1) a short plan (hypothesis, data, "
-              "metric, baseline); 2) the code as fenced blocks with a path, e.g. ```python path=" + folder + "/main.py; "
+    from backend.execution.code_projects import active, active_dir
+    bound=ctx.run["inputs"].get("code_project_id")
+    if bound and (not active() or active()["id"]!=bound):
+        raise StepFailure("active code project changed; reopen the approved project before continuing", "permission")
+    root = active_dir() if active() else None
+    folder = f"ideas/{ctx.rid}" if root is not None and (root / "ideas" / ctx.rid).is_dir() else f"experiments/{ctx.rid}"
+    system = ("You are the research agent of PhD Research Lab. Plan the requested coding/research task using the "
+              "researcher's objective, available evidence and granted resource limits. Choose an appropriate method; "
+              "do not assume a fixed GPU, dataset, scientific result or experiment duration. Distinguish planned tests "
+              "from executed tests and state missing inputs. Write: 1) the implementation/experiment plan; "
+              "2) code as fenced blocks with a path, e.g. ```python path=" + folder + "/main.py; "
               "the script must write its final metrics as JSON to os.environ['RUN_DIR']/metrics.json; 3) one fenced block "
               "```phdlab-run\\n<command run from the code project root>\\n``` (expose --batch-size if it trains). "
-              "Use only packages likely installed (numpy, torch if needed). Do not download large datasets.\n\n"
+              "Declare required packages, data and compute explicitly; missing resources are not successful execution.\n\n"
               + _skill_text(ctx) + "\n\n# Project context\n" + project_brief(6000))
     text = _llm("research", system, idea)
     ref = ctx.write("plan.md", text)
-    return {"outputs": [ref], "result": {"text": text[:40000], "summary_line": "đã lập kế hoạch thí nghiệm"}}
+    return {"outputs": [ref], "result": {"text": text, "summary_line": "đã lập kế hoạch thí nghiệm"}}
 
 
 FILE_RE = re.compile(r"```[\w+-]*\s+path=([^\s`]+)\s*\n(.*?)```", re.S)
@@ -1040,7 +1037,7 @@ RUN_RE = re.compile(r"```phdlab-run\s*\n(.*?)```", re.S)
 
 
 def _code(ctx: Ctx) -> dict:
-    """Materialise code into the active code project, only inside the run's own folder ideas/<run> (files outside it are
+    """Materialise code into the active code project, only inside the run's own experiments/<run> folder (files outside it are
     never touched; a retry of this step rewrites the same folder)."""
     if ctx.run["approval"]["status"] != "approved":
         raise StepFailure("writing code needs the researcher's approval of this run", "permission")
@@ -1049,12 +1046,17 @@ def _code(ctx: Ctx) -> dict:
         root = active_dir()
     except NoCodeProject:
         raise StepFailure("no code project is open — create one (Experiment → VS Code) first", "no_code_project")
-    folder = f"ideas/{ctx.rid}"
+    from backend.execution.code_projects import active
+    bound=ctx.run["inputs"].get("code_project_id")
+    if bound and (not active() or active()["id"]!=bound):
+        raise StepFailure("active code project changed; reopen the approved project before continuing", "permission")
+    folder = f"ideas/{ctx.rid}" if (root / "ideas" / ctx.rid).is_dir() else f"experiments/{ctx.rid}"
     source = ctx.prior("plan").get("text") or ""
+    collected_bytes = {}
     pid = ctx.step["provider"]
     if pid != "app" or not FILE_RE.search(source):
         from backend.providers import research as RP
-        task = (ctx.run["inputs"].get("task") or ctx.run["goal"]) + "\n\n" + source[:20000]
+        task = (ctx.run["inputs"].get("task") or ctx.run["goal"]) + "\n\n" + source
         if pid in RP.CODING:
             pid2, note = RP.pick(pid)
             if pid2 == pid:
@@ -1064,28 +1066,50 @@ def _code(ctx: Ctx) -> dict:
                                         ctx.out / pid, ctx.cancelled)
                 except RP.ProviderUnavailable as e:
                     raise StepFailure(str(e), "provider", recoverable=True)
-                source = res["text"] + "\n" + "\n".join(
-                    f"```text path={folder}/{f}\n{(ctx.out / pid / f).read_text('utf-8', 'replace')}\n```"
-                    for f in res["files"] if (ctx.out / pid / f).suffix in (".py", ".txt", ".yaml", ".yml", ".json", ".md"))
+                # Materialized provider files own their bytes. A narrated code fence
+                # can be stale and must not overwrite the actual collected output.
+                for name in res['files']:
+                    path=ctx.out/pid/name
+                    if path.suffix in ('.py','.txt','.yaml','.yml','.json','.md','.sh','.toml','.ipynb','.cfg','.ini'):
+                        raw=path.read_bytes()
+                        raw.decode('utf-8')  # source must be text; never silently replace undecodable bytes
+                        rel=name if name.startswith(folder+'/') else folder+'/'+name
+                        collected_bytes[rel.casefold()]=raw
+                source = (FILE_RE.sub('',res['text']) if res['files'] else res['text']) + "\n" + "\n".join(
+                    f"```text path={f if f.startswith(folder + '/') else folder + '/' + f}\n{(ctx.out / pid / f).read_text('utf-8')}\n```"
+                    for f in res["files"] if (ctx.out / pid / f).suffix in (".py", ".txt", ".yaml", ".yml", ".json", ".md", ".sh", ".toml", ".ipynb", ".cfg", ".ini"))
             else:
-                ctx.log(note)
+                raise StepFailure(note or 'Selected coding provider is unavailable; choose another provider explicitly', 'provider', recoverable=True)
+            if not FILE_RE.search(source):
+                raise StepFailure('Selected coding provider completed without materialized source files; no model fallback was invoked', 'no_code', recoverable=True)
         if not FILE_RE.search(source):
             source = _llm("research", "Write the code for this experiment as fenced blocks with path= under " + folder +
                           "/ and one ```phdlab-run``` block. The script writes metrics JSON to $RUN_DIR/metrics.json.\n\n"
                           + _skill_text(ctx), task)
-    written = []
-    for path, body in FILE_RE.findall(source):
+    from backend.knowledge.research_store import safe_child
+    import hashlib
+    blocks = FILE_RE.findall(source)
+    if len(blocks)>200 or sum(len(body.encode('utf-8')) for _,body in blocks)>64*1024*1024:
+        raise StepFailure('Generated source exceeds 200 files / 64 MiB; narrow the coding task', 'resource')
+    planned = {}
+    for path, body in blocks:
         rel = path.strip().lstrip("./").replace("\\", "/")
         if not rel.startswith(folder + "/"):
             rel = f"{folder}/{rel.split('/')[-1]}"
-        if ".." in rel.split("/"):
-            continue
-        dst = (root / rel).resolve()
-        if root.resolve() not in dst.parents:
-            continue
+        try:
+            dst = safe_child(root, rel)
+        except ValueError as exc:
+            raise StepFailure('Generated source path refused: '+rel, 'permission') from exc
+        key = rel.casefold()
+        if key in planned:
+            raise StepFailure('Duplicate/colliding generated file path: '+rel, 'no_code')
+        planned[key] = (rel,dst,collected_bytes.get(key,body.encode('utf-8')))
+    written, hashes = [], {}
+    for rel,dst,body in planned.values():
         dst.parent.mkdir(parents=True, exist_ok=True)
-        dst.write_text(body, "utf-8")
+        dst.write_bytes(body)
         written.append(rel)
+        hashes[rel] = hashlib.sha256(dst.read_bytes()).hexdigest()
     if not written:
         raise StepFailure("no code file was produced", "no_code", recoverable=True)
     cmd = (RUN_RE.findall(source) or [""])[-1].strip().splitlines()
@@ -1101,14 +1125,14 @@ def _code(ctx: Ctx) -> dict:
         hit = next((w for w in written if w.rsplit("/", 1)[-1] == tok.replace("\\", "/").rsplit("/", 1)[-1]), "")
         return hit or tok
     command = re.sub(r"[\w./\\-]+\.py\b", fix, command)
-    ref = ctx.write("code_files.json", json.dumps({"folder": folder, "written": written, "command": command},
+    ref = ctx.write("code_files.json", json.dumps({"folder": folder, "written": written, "sha256":hashes, "command": command},
                                                   indent=1))
     try:
         from backend.execution import gitops
         gitops.commit(f"research run {ctx.rid}: code for '{ctx.run['title'][:60]}'", written)
     except Exception as e:
         ctx.log(f"git commit skipped: {e}"[:200])
-    return {"outputs": [ref], "result": {"files": written, "command": command, "folder": folder,
+    return {"outputs": [ref], "result": {"files": written, "sha256":hashes, "command": command, "folder": folder,
                                          "summary_line": f"{len(written)} file trong {folder}/"}}
 
 

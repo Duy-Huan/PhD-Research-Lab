@@ -51,7 +51,7 @@ const CAMERA_PRESETS: Array<{
   },
   {
     id: 'hpc',
-    labelVi: 'HPC & OpenCode',
+    labelVi: 'Code native & GPU',
     labelEn: 'HPC Rack',
     pos: [-4.5, 4.2, -1.2],
     target: [-9.5, 1.6, -7.8],
@@ -195,6 +195,7 @@ export const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
           <button
             key={preset.id}
             type="button"
+            aria-pressed={activePreset === preset.id}
             onClick={() => applyCameraPreset(preset.id)}
             style={{
               border: 'none',
@@ -253,6 +254,7 @@ export const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
         <button
           type="button"
           onClick={() => setLightingMode('biophilic_green')}
+          aria-pressed={lightingMode === 'biophilic_green'}
           title={t('Không gian Phòng Lab Xanh', 'Biophilic Green Lab')}
           style={{
             border: 'none',
@@ -273,6 +275,8 @@ export const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
         <button
           type="button"
           onClick={() => setLightingMode('daylight')}
+          aria-label={t('Ánh sáng Ban ngày', 'Daylight')}
+          aria-pressed={lightingMode === 'daylight'}
           title={t('Ánh sáng Ban ngày', 'Daylight')}
           style={{
             border: 'none',
@@ -293,6 +297,8 @@ export const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
         <button
           type="button"
           onClick={() => setLightingMode('night_lab')}
+          aria-label={t('Phòng Lab Đêm', 'Night Lab')}
+          aria-pressed={lightingMode === 'night_lab'}
           title={t('Phòng Lab Đêm', 'Night Lab')}
           style={{
             border: 'none',
@@ -313,6 +319,8 @@ export const OfficeCanvas: React.FC<OfficeCanvasProps> = ({
         <button
           type="button"
           onClick={() => setLightingMode('cyber_science')}
+          aria-label="Cyber Lab"
+          aria-pressed={lightingMode === 'cyber_science'}
           title="Cyber Lab"
           style={{
             border: 'none',

@@ -1,0 +1,54 @@
+{
+  "browser": "156.0.8078.4",
+  "events": [
+    {
+      "kind": "http",
+      "method": "GET",
+      "url": "http://127.0.0.1:50300/api/events/stream?after=0",
+      "status": 200
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "url": "http://127.0.0.1:50300/api/config",
+      "status": 200
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "url": "http://127.0.0.1:50300/api/projects",
+      "status": 200
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "url": "http://127.0.0.1:50300/api/skills",
+      "status": 200
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "url": "http://127.0.0.1:50300/api/chat/sessions",
+      "status": 200
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "url": "http://127.0.0.1:50300/api/chat/projects",
+      "status": 200
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "url": "http://127.0.0.1:50300/api/models",
+      "status": 200
+    },
+    {
+      "kind": "http",
+      "method": "GET",
+      "url": "http://127.0.0.1:50300/api/models/connections",
+      "status": 200
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,858 @@
+{
+  "mode": "REAL_LOCAL",
+  "scope": "Workspace and Settings rendered baseline; not full system acceptance",
+  "browser": "Chromium",
+  "axe_version": "4.14.0",
+  "visual_baseline_review": "PENDING",
+  "records": [
+    {
+      "surface": "workspace",
+      "width": 375,
+      "metrics": {
+        "documentWidth": 375,
+        "viewport": 375,
+        "unnamedButtons": [],
+        "dialogs": []
+      },
+      "tabs": [
+        {
+          "tag": "TEXTAREA",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "SELECT",
+          "name": "Reasoning Effort",
+          "id": ""
+        },
+        {
+          "tag": "SELECT",
+          "name": "(Default)",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Open right menu",
+          "id": "floating-drawer-toggle"
+        },
+        {
+          "tag": "BODY",
+          "name": "PTopic SKBChatLibrary3D LabHarnessEN100%Tools panelPhD Research Lab · v6.5.0Wher",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Open sidebar",
+          "id": "side-open"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Topic SKB",
+          "id": "topic-btn"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Chat",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Library",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "3D Lab",
+          "id": ""
+        }
+      ],
+      "screenshot": "workspace-375.png",
+      "axe_file": "workspace-375-axe.json",
+      "violations": [
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "help": "Elements must have their visible text as part of their accessible name",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                "button[title=\"Switch language VI / ENG\"]"
+              ],
+              "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Switch language VI / ENG\" aria-label=\"Switch language VI / ENG\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 1px solid var(--line); flex-shrink: 0; min-height: 26px; min-width: 32px;\">EN</button>",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "button[title=\"UI Display Scale\"]"
+              ],
+              "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"UI Display Scale\" aria-label=\"UI Display Scale\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#panel-btn"
+              ],
+              "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Open right tools pan...\" aria-label=\"Inspector Drawer\" style=\"display: flex; align...\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        }
+      ],
+      "incomplete_count": 0
+    },
+    {
+      "surface": "settings",
+      "width": 375,
+      "metrics": {
+        "documentWidth": 375,
+        "viewport": 375,
+        "unnamedButtons": [],
+        "dialogs": []
+      },
+      "tabs": [
+        {
+          "tag": "BUTTON",
+          "name": "Topic SKB",
+          "id": "topic-btn"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Chat",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Library",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "3D Lab",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Harness",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        }
+      ],
+      "screenshot": "settings-375.png",
+      "axe_file": "settings-375-axe.json",
+      "violations": [
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "help": "Elements must have their visible text as part of their accessible name",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                "button[title=\"Switch language VI / ENG\"]"
+              ],
+              "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Switch language VI / ENG\" aria-label=\"Switch language VI / ENG\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 1px solid var(--line); flex-shrink: 0; min-height: 26px; min-width: 32px;\">EN</button>",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                ".ghost[title=\"UI Display Scale\"][aria-label=\"UI Display Scale\"]"
+              ],
+              "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"UI Display Scale\" aria-label=\"UI Display Scale\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#panel-btn"
+              ],
+              "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Open right tools pan...\" aria-label=\"Inspector Drawer\" style=\"display: flex; align...\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        }
+      ],
+      "incomplete_count": 1
+    },
+    {
+      "surface": "workspace",
+      "width": 768,
+      "metrics": {
+        "documentWidth": 768,
+        "viewport": 768,
+        "unnamedButtons": [],
+        "dialogs": []
+      },
+      "tabs": [
+        {
+          "tag": "TEXTAREA",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "SELECT",
+          "name": "Reasoning Effort",
+          "id": ""
+        },
+        {
+          "tag": "SELECT",
+          "name": "Local AI (LM Studio / configured local engine) (Default)spark-x2.5-4b",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Open right menu",
+          "id": "floating-drawer-toggle"
+        },
+        {
+          "tag": "BODY",
+          "name": "PTopic SKBChatLibrary3D LabHarnessEN100%Tools panelPhD Research Lab · v6.5.0Wher",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Open sidebar",
+          "id": "side-open"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Topic SKB",
+          "id": "topic-btn"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Chat",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Library",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "3D Lab",
+          "id": ""
+        }
+      ],
+      "screenshot": "workspace-768.png",
+      "axe_file": "workspace-768-axe.json",
+      "violations": [
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "help": "Elements must have their visible text as part of their accessible name",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                "button[title=\"Switch language VI / ENG\"]"
+              ],
+              "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Switch language VI / ENG\" aria-label=\"Switch language VI / ENG\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 1px solid var(--line); flex-shrink: 0; min-height: 26px; min-width: 32px;\">EN</button>",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "button[title=\"UI Display Scale\"]"
+              ],
+              "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"UI Display Scale\" aria-label=\"UI Display Scale\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#panel-btn"
+              ],
+              "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Open right tools pan...\" aria-label=\"Inspector Drawer\" style=\"display: flex; align...\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        }
+      ],
+      "incomplete_count": 0
+    },
+    {
+      "surface": "settings",
+      "width": 768,
+      "metrics": {
+        "documentWidth": 768,
+        "viewport": 768,
+        "unnamedButtons": [],
+        "dialogs": []
+      },
+      "tabs": [
+        {
+          "tag": "BUTTON",
+          "name": "Topic SKB",
+          "id": "topic-btn"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Chat",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Library",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "3D Lab",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Harness",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        }
+      ],
+      "screenshot": "settings-768.png",
+      "axe_file": "settings-768-axe.json",
+      "violations": [
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "help": "Elements must have their visible text as part of their accessible name",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                "button[title=\"Switch language VI / ENG\"]"
+              ],
+              "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Switch language VI / ENG\" aria-label=\"Switch language VI / ENG\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 1px solid var(--line); flex-shrink: 0; min-height: 26px; min-width: 32px;\">EN</button>",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                ".ghost[title=\"UI Display Scale\"][aria-label=\"UI Display Scale\"]"
+              ],
+              "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"UI Display Scale\" aria-label=\"UI Display Scale\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#panel-btn"
+              ],
+              "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Open right tools pan...\" aria-label=\"Inspector Drawer\" style=\"display: flex; align...\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        }
+      ],
+      "incomplete_count": 0
+    },
+    {
+      "surface": "workspace",
+      "width": 1280,
+      "metrics": {
+        "documentWidth": 1280,
+        "viewport": 1280,
+        "unnamedButtons": [],
+        "dialogs": []
+      },
+      "tabs": [
+        {
+          "tag": "TEXTAREA",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "SELECT",
+          "name": "Reasoning Effort",
+          "id": ""
+        },
+        {
+          "tag": "SELECT",
+          "name": "Local AI (LM Studio / configured local engine) (Default)spark-x2.5-4b",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Open right menu",
+          "id": "floating-drawer-toggle"
+        },
+        {
+          "tag": "BODY",
+          "name": "PhD Research LabNew chat3D University LabPaper LibraryAutonomous MissionsHarness",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": "side-toggle"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "New chat",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "3D University Lab",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Paper Library",
+          "id": ""
+        }
+      ],
+      "screenshot": "workspace-1280.png",
+      "axe_file": "workspace-1280-axe.json",
+      "violations": [
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "help": "Elements must have their visible text as part of their accessible name",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                "button[title=\"Switch language VI / ENG\"]"
+              ],
+              "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Switch language VI / ENG\" aria-label=\"Switch language VI / ENG\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 1px solid var(--line); flex-shrink: 0; min-height: 26px; min-width: 32px;\">EN</button>",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "button[title=\"UI Display Scale\"]"
+              ],
+              "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"UI Display Scale\" aria-label=\"UI Display Scale\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#panel-btn"
+              ],
+              "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Open right tools pan...\" aria-label=\"Inspector Drawer\" style=\"display: flex; align...\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        }
+      ],
+      "incomplete_count": 0
+    },
+    {
+      "surface": "settings",
+      "width": 1280,
+      "metrics": {
+        "documentWidth": 1280,
+        "viewport": 1280,
+        "unnamedButtons": [],
+        "dialogs": []
+      },
+      "tabs": [
+        {
+          "tag": "DIV",
+          "name": "",
+          "id": "_r_2_"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Topic SKB",
+          "id": "topic-btn"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Chat",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Library",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "3D Lab",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Harness",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        }
+      ],
+      "screenshot": "settings-1280.png",
+      "axe_file": "settings-1280-axe.json",
+      "violations": [
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "help": "Elements must have their visible text as part of their accessible name",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                "button[title=\"Switch language VI / ENG\"]"
+              ],
+              "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Switch language VI / ENG\" aria-label=\"Switch language VI / ENG\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 1px solid var(--line); flex-shrink: 0; min-height: 26px; min-width: 32px;\">EN</button>",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                ".ghost[title=\"UI Display Scale\"][aria-label=\"UI Display Scale\"]"
+              ],
+              "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"UI Display Scale\" aria-label=\"UI Display Scale\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#panel-btn"
+              ],
+              "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Open right tools pan...\" aria-label=\"Inspector Drawer\" style=\"display: flex; align...\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        }
+      ],
+      "incomplete_count": 0
+    },
+    {
+      "surface": "workspace",
+      "width": 1920,
+      "metrics": {
+        "documentWidth": 1920,
+        "viewport": 1920,
+        "unnamedButtons": [],
+        "dialogs": []
+      },
+      "tabs": [
+        {
+          "tag": "TEXTAREA",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "SELECT",
+          "name": "Reasoning Effort",
+          "id": ""
+        },
+        {
+          "tag": "SELECT",
+          "name": "Local AI (LM Studio / configured local engine) (Default)spark-x2.5-4b",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Open right menu",
+          "id": "floating-drawer-toggle"
+        },
+        {
+          "tag": "BODY",
+          "name": "PhD Research LabNew chat3D University LabPaper LibraryAutonomous MissionsHarness",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": "side-toggle"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "New chat",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "3D University Lab",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Paper Library",
+          "id": ""
+        }
+      ],
+      "screenshot": "workspace-1920.png",
+      "axe_file": "workspace-1920-axe.json",
+      "violations": [
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "help": "Elements must have their visible text as part of their accessible name",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                "button[title=\"Switch language VI / ENG\"]"
+              ],
+              "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Switch language VI / ENG\" aria-label=\"Switch language VI / ENG\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 1px solid var(--line); flex-shrink: 0; min-height: 26px; min-width: 32px;\">EN</button>",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "button[title=\"UI Display Scale\"]"
+              ],
+              "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"UI Display Scale\" aria-label=\"UI Display Scale\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#panel-btn"
+              ],
+              "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Open right tools pan...\" aria-label=\"Inspector Drawer\" style=\"display: flex; align...\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        }
+      ],
+      "incomplete_count": 0
+    },
+    {
+      "surface": "settings",
+      "width": 1920,
+      "metrics": {
+        "documentWidth": 1920,
+        "viewport": 1920,
+        "unnamedButtons": [],
+        "dialogs": []
+      },
+      "tabs": [
+        {
+          "tag": "DIV",
+          "name": "",
+          "id": "_r_2_"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Topic SKB",
+          "id": "topic-btn"
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Chat",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Library",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "3D Lab",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "Harness",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        },
+        {
+          "tag": "BUTTON",
+          "name": "",
+          "id": ""
+        }
+      ],
+      "screenshot": "settings-1920.png",
+      "axe_file": "settings-1920-axe.json",
+      "violations": [
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "help": "Elements must have their visible text as part of their accessible name",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                "button[title=\"Switch language VI / ENG\"]"
+              ],
+              "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"Switch language VI / ENG\" aria-label=\"Switch language VI / ENG\" style=\"border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; border: 1px solid var(--line); flex-shrink: 0; min-height: 26px; min-width: 32px;\">EN</button>",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                ".ghost[title=\"UI Display Scale\"][aria-label=\"UI Display Scale\"]"
+              ],
+              "html": "<button type=\"button\" class=\"btn sm ghost\" title=\"UI Display Scale\" aria-label=\"UI Display Scale\" style=\"border-radius: 999px; padding: 4px 8px; font-size: 11px; border: 1px solid var(--line); gap: 3px; flex-shrink: 0; min-height: 26px; min-width: 44px;\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            },
+            {
+              "target": [
+                "#panel-btn"
+              ],
+              "html": "<button class=\"btn sm ghost\" id=\"panel-btn\" title=\"Open right tools pan...\" aria-label=\"Inspector Drawer\" style=\"display: flex; align...\">",
+              "failureSummary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+            }
+          ]
+        }
+      ],
+      "incomplete_count": 0
+    }
+  ],
+  "errors": []
+}

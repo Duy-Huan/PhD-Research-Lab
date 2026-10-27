@@ -1,0 +1,71 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_context_cache.ContextCache.test_empty_project_reuses_context_after_reads_and_manifest_event_writes",
+      "status": "PASS",
+      "duration": 0.1389,
+      "details": null
+    },
+    {
+      "id": "test_context_cache.ContextCache.test_legacy_knowledge_file_changes_retrieval_version",
+      "status": "PASS",
+      "duration": 0.0189,
+      "details": null
+    },
+    {
+      "id": "test_context_cache.ContextCache.test_memory_compilation_keeps_starting_project_during_project_switch",
+      "status": "PASS",
+      "duration": 0.0453,
+      "details": null
+    },
+    {
+      "id": "test_context_cache.ContextCache.test_pins_and_outline_invalidate_context",
+      "status": "PASS",
+      "duration": 0.0893,
+      "details": null
+    },
+    {
+      "id": "test_context_cache.ContextCache.test_research_runs_and_other_conversation_summaries_invalidate_context",
+      "status": "PASS",
+      "duration": 0.1414,
+      "details": null
+    },
+    {
+      "id": "test_context_cache.ContextCache.test_updating_an_existing_experiment_refreshes_metrics",
+      "status": "PASS",
+      "duration": 0.0545,
+      "details": null
+    },
+    {
+      "id": "test_verification_process_timeout.TimeoutContainment.test_current_case_progress_names_actual_running_test",
+      "status": "PASS",
+      "duration": 0.0012,
+      "details": null
+    },
+    {
+      "id": "test_verification_process_timeout.TimeoutContainment.test_deadline_stops_owned_descendant_and_preserves_unrelated_process",
+      "status": "PASS",
+      "duration": 2.0051,
+      "details": null
+    },
+    {
+      "id": "test_verification_process_timeout.TimeoutContainment.test_reparented_descendants_are_reaped_before_cleanup_is_reported",
+      "status": "PASS",
+      "duration": 2.0503,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 9,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "/tmp/phdlab-verify-skpyps03",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

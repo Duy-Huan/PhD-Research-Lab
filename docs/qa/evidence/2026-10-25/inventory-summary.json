@@ -1,0 +1,1962 @@
+{
+  "scope": "registered templates and disposable-profile workflows; private user workflows are not copied",
+  "node_types": [
+    "agent_task",
+    "artifact_transformation",
+    "bounded_loop",
+    "checkpoint",
+    "condition",
+    "end",
+    "error_handler",
+    "evaluation_gate",
+    "harnessNode",
+    "human_approval",
+    "input",
+    "join",
+    "mcp_tool",
+    "memory_read",
+    "memory_write",
+    "multi_agent_team",
+    "output",
+    "parallel_branch",
+    "research_engine",
+    "start",
+    "tool_skill"
+  ],
+  "cloud_providers": [
+    "anthropic",
+    "cohere",
+    "custom",
+    "deepinfra",
+    "deepseek",
+    "gemini",
+    "groq",
+    "mistral",
+    "moonshot",
+    "ninerouter",
+    "omniroute",
+    "openai",
+    "openrouter",
+    "perplexity",
+    "qwen",
+    "together",
+    "xai"
+  ],
+  "research_engines": [
+    "feynman",
+    "opencode",
+    "openscience",
+    "paperorchestra",
+    "phdlab"
+  ],
+  "api_operations": [
+    {
+      "method": "GET",
+      "path": "/api/version",
+      "operation_id": "version_api_version_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/config",
+      "operation_id": "get_config_api_config_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/config",
+      "operation_id": "set_config_api_config_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/models/cli/codex",
+      "operation_id": "codex_catalog_api_models_cli_codex_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models",
+      "operation_id": "models_api_models_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/models/test",
+      "operation_id": "test_model_api_models_test_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/models/list",
+      "operation_id": "provider_models_api_models_list_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/models/local",
+      "operation_id": "local_status_api_models_local_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/models/unload",
+      "operation_id": "unload_models_api_models_unload_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers",
+      "operation_id": "providers_api_providers_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/providers/{pid}/auth-status",
+      "operation_id": "provider_auth_status_api_providers__pid__auth_status_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/providers/{pid}/connect",
+      "operation_id": "provider_connect_api_providers__pid__connect_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/providers/{pid}/launch",
+      "operation_id": "provider_launch_api_providers__pid__launch_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/providers/{pid}/sync",
+      "operation_id": "provider_sync_api_providers__pid__sync_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/dashboard",
+      "operation_id": "dashboard_api_dashboard_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/events",
+      "operation_id": "events_api_events_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/events/stream",
+      "operation_id": "events_stream_api_events_stream_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/system/pick-folder",
+      "operation_id": "pick_folder_api_system_pick_folder_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/system/fs-browse",
+      "operation_id": "fs_browse_api_system_fs_browse_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/system/fs-mkdir",
+      "operation_id": "fs_mkdir_api_system_fs_mkdir_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects",
+      "operation_id": "projects_api_projects_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects",
+      "operation_id": "projects_create_api_projects_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/projects",
+      "operation_id": "projects_delete_api_projects_delete",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/conversations",
+      "operation_id": "project_conversations_api_projects_conversations_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/open",
+      "operation_id": "projects_open_api_projects_open_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/activate",
+      "operation_id": "projects_activate_api_projects_activate_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/projects/rename",
+      "operation_id": "projects_rename_api_projects_rename_put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/forget",
+      "operation_id": "projects_forget_api_projects_forget_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/reveal",
+      "operation_id": "projects_reveal_api_projects_reveal_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/outline",
+      "operation_id": "outline_get_api_outline_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/outline",
+      "operation_id": "outline_put_api_outline_put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/outline/restore",
+      "operation_id": "outline_restore_api_outline_restore_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/outline/attach",
+      "operation_id": "outline_attach_api_outline_attach_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/outline/attach/{aid}",
+      "operation_id": "outline_attachment_api_outline_attach__aid__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/outline/attach/{aid}",
+      "operation_id": "outline_detach_api_outline_attach__aid__delete",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/files",
+      "operation_id": "project_file_api_files_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/chat/projects",
+      "operation_id": "chat_projects_api_chat_projects_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/chat/projects",
+      "operation_id": "chat_project_create_api_chat_projects_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/chat/projects/{gid}",
+      "operation_id": "chat_project_update_api_chat_projects__gid__put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/chat/projects/{gid}",
+      "operation_id": "chat_project_delete_api_chat_projects__gid__delete",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/chat/sessions",
+      "operation_id": "sessions_api_chat_sessions_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/chat/sessions",
+      "operation_id": "create_api_chat_sessions_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/chat/sessions/{sid}",
+      "operation_id": "get_api_chat_sessions__sid__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/chat/sessions/{sid}",
+      "operation_id": "update_api_chat_sessions__sid__put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/chat/sessions/{sid}",
+      "operation_id": "delete_api_chat_sessions__sid__delete",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/chat/sessions/{sid}/effective",
+      "operation_id": "effective_api_chat_sessions__sid__effective_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/chat/sessions/{sid}/fork",
+      "operation_id": "fork_api_chat_sessions__sid__fork_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/chat/sessions/{sid}/messages/{mid}/pin",
+      "operation_id": "pin_message_api_chat_sessions__sid__messages__mid__pin_put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/chat/sessions/{sid}/turns",
+      "operation_id": "turn_api_chat_sessions__sid__turns_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/chat/sessions/{sid}/retry",
+      "operation_id": "retry_api_chat_sessions__sid__retry_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/chat/sessions/{sid}/turns/{tid}/cancel",
+      "operation_id": "cancel_api_chat_sessions__sid__turns__tid__cancel_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/chat/sessions/{sid}/cancel",
+      "operation_id": "cancel_session_turns_api_chat_sessions__sid__cancel_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/chat/sessions/{sid}/turns/{tid}/launch",
+      "operation_id": "launch_api_chat_sessions__sid__turns__tid__launch_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/chat/sessions/{sid}/turns/{tid}/context",
+      "operation_id": "turn_context_api_chat_sessions__sid__turns__tid__context_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/chat/sessions/{sid}/events",
+      "operation_id": "events_api_chat_sessions__sid__events_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/chat/sessions/{sid}/stream",
+      "operation_id": "events_stream_api_chat_sessions__sid__stream_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/chat/sessions/{sid}/approvals/{aid}",
+      "operation_id": "decide_api_chat_sessions__sid__approvals__aid__post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/chat/attachments",
+      "operation_id": "attach_api_chat_attachments_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/chat/attachments/{att_id}/file",
+      "operation_id": "attachment_file_api_chat_attachments__att_id__file_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/chat/attachments/{att_id}",
+      "operation_id": "attachment_meta_api_chat_attachments__att_id__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/chat/attachments/{att_id}/analyze",
+      "operation_id": "attachment_analyze_api_chat_attachments__att_id__analyze_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/chat/sessions/{sid}/artifacts/{aid}",
+      "operation_id": "artifact_api_chat_sessions__sid__artifacts__aid__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/chat/sessions/{sid}/artifacts/{aid}/diff",
+      "operation_id": "artifact_diff_api_chat_sessions__sid__artifacts__aid__diff_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/chat/sessions/{sid}/artifacts/{aid}/download",
+      "operation_id": "artifact_download_api_chat_sessions__sid__artifacts__aid__download_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/chat/sessions/{sid}/artifacts/{aid}/apply",
+      "operation_id": "artifact_apply_api_chat_sessions__sid__artifacts__aid__apply_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/chat/sessions/{sid}/artifacts/{aid}/reject",
+      "operation_id": "artifact_reject_api_chat_sessions__sid__artifacts__aid__reject_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/chat/sessions/{sid}/memory",
+      "operation_id": "remember_api_chat_sessions__sid__memory_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/chat/sessions/{sid}/notes",
+      "operation_id": "notes_list_api_chat_sessions__sid__notes_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/chat/sessions/{sid}/notes",
+      "operation_id": "notes_add_api_chat_sessions__sid__notes_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/chat/sessions/{sid}/notes/{nid}",
+      "operation_id": "notes_update_api_chat_sessions__sid__notes__nid__put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/chat/sessions/{sid}/notes/{nid}",
+      "operation_id": "notes_delete_api_chat_sessions__sid__notes__nid__delete",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/skills",
+      "operation_id": "skills_list_api_skills_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/skills",
+      "operation_id": "skill_save_api_skills_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/skills/{name}",
+      "operation_id": "skill_get_api_skills__name__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/skills/{name}",
+      "operation_id": "skill_delete_api_skills__name__delete",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/runs",
+      "operation_id": "runs_list_api_runs_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/runs",
+      "operation_id": "runs_create_api_runs_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/runs/{rid}",
+      "operation_id": "runs_get_api_runs__rid__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/runs/{rid}/approve",
+      "operation_id": "runs_approve_api_runs__rid__approve_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/runs/{rid}/cancel",
+      "operation_id": "runs_cancel_api_runs__rid__cancel_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/runs/{rid}/resume",
+      "operation_id": "runs_resume_api_runs__rid__resume_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/runs/{rid}/provider",
+      "operation_id": "runs_provider_api_runs__rid__provider_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/runs/{rid}/events",
+      "operation_id": "runs_events_api_runs__rid__events_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/runs/{rid}/stream",
+      "operation_id": "runs_stream_api_runs__rid__stream_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/acceptance",
+      "operation_id": "acceptance_api_acceptance_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/memory/candidates",
+      "operation_id": "candidates_api_memory_candidates_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/memory/candidates/{cid}/approve",
+      "operation_id": "approve_api_memory_candidates__cid__approve_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/memory/candidates/{cid}/reject",
+      "operation_id": "reject_api_memory_candidates__cid__reject_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/memory/sensitivity",
+      "operation_id": "sensitivity_api_memory_sensitivity_put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research",
+      "operation_id": "research_state_api_research_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/pins",
+      "operation_id": "pins_list_api_pins_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/pins",
+      "operation_id": "pins_add_api_pins_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/pins/{pid}",
+      "operation_id": "pins_update_api_pins__pid__put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/pins/{pid}",
+      "operation_id": "pins_delete_api_pins__pid__delete",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/code",
+      "operation_id": "code_list_api_code_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/code",
+      "operation_id": "code_create_api_code_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/code/open",
+      "operation_id": "code_open_api_code_open_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/code/close",
+      "operation_id": "code_close_api_code_close_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/code/delete",
+      "operation_id": "code_delete_api_code_delete_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/code/environment",
+      "operation_id": "code_env_api_code_environment_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/code/vscode",
+      "operation_id": "code_vscode_api_code_vscode_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/code/sync",
+      "operation_id": "code_sync_api_code_sync_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/code/scan",
+      "operation_id": "code_scan_api_code_scan_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/jobs",
+      "operation_id": "jobs_api_jobs_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/jobs/{job_id}",
+      "operation_id": "job_api_jobs__job_id__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/jobs/{job_id}/stop",
+      "operation_id": "job_stop_api_jobs__job_id__stop_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/jobs/{job_id}/file",
+      "operation_id": "job_file_api_jobs__job_id__file_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/jobs/{job_id}/stream",
+      "operation_id": "job_stream_api_jobs__job_id__stream_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/search",
+      "operation_id": "search_api_search_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/journals/import",
+      "operation_id": "import_rankings_api_journals_import_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/library/save",
+      "operation_id": "save_paper_api_library_save_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/library",
+      "operation_id": "library_api_library_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/papers",
+      "operation_id": "library_api_papers_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/library/upload",
+      "operation_id": "upload_api_library_upload_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/library/refine",
+      "operation_id": "refine_api_library_refine_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/library/{name}",
+      "operation_id": "update_api_library__name__put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/library/{name}",
+      "operation_id": "delete_api_library__name__delete",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/library/file/{name}",
+      "operation_id": "file_api_library_file__name__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/library/bib",
+      "operation_id": "bib_api_library_bib_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/library/{name}/citation",
+      "operation_id": "citation_api_library__name__citation_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/paper",
+      "operation_id": "paper_api_paper_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/paper",
+      "operation_id": "paper_update_api_paper_put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/paper/section",
+      "operation_id": "section_api_paper_section_put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/paper/engines",
+      "operation_id": "paper_engines_api_paper_engines_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/paper/engines/online",
+      "operation_id": "toggle_online_compilation_api_paper_engines_online_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/paper/compile",
+      "operation_id": "compile_pdf_api_paper_compile_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/paper/tex",
+      "operation_id": "tex_api_paper_tex_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/paper/pdf",
+      "operation_id": "pdf_api_paper_pdf_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/paper/log",
+      "operation_id": "log_api_paper_log_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/paper/latex.zip",
+      "operation_id": "export_zip_api_paper_latex_zip_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/review",
+      "operation_id": "review_list_api_review_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/review/upload",
+      "operation_id": "review_upload_api_review_upload_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/review/{rid}",
+      "operation_id": "review_get_api_review__rid__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/review/{rid}",
+      "operation_id": "review_delete_api_review__rid__delete",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/review/{rid}/settings",
+      "operation_id": "review_settings_api_review__rid__settings_put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/review/{rid}/source",
+      "operation_id": "review_source_api_review__rid__source_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/review/{rid}/text",
+      "operation_id": "review_text_api_review__rid__text_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/review/{rid}/original",
+      "operation_id": "review_original_api_review__rid__original_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/review/{rid}/stage",
+      "operation_id": "review_stage_api_review__rid__stage_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/review/{rid}/fix",
+      "operation_id": "review_fix_api_review__rid__fix_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/review/{rid}/issue/{iid}",
+      "operation_id": "review_issue_api_review__rid__issue__iid__put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/review/{rid}/apply",
+      "operation_id": "review_apply_api_review__rid__apply_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/review/{rid}/download/{kind}",
+      "operation_id": "review_download_api_review__rid__download__kind__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/mcp",
+      "operation_id": "mcp_get_mcp_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/mcp",
+      "operation_id": "mcp_mcp_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/plugins",
+      "operation_id": "plugins_list_api_plugins_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/plugins",
+      "operation_id": "plugins_install_api_plugins_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/plugins/catalog",
+      "operation_id": "plugins_catalog_api_plugins_catalog_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/plugins/{pid}/update",
+      "operation_id": "plugins_update_api_plugins__pid__update_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/plugins/{pid}",
+      "operation_id": "plugins_toggle_api_plugins__pid__put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/plugins/{pid}",
+      "operation_id": "plugins_remove_api_plugins__pid__delete",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/plugins/skills/{name}",
+      "operation_id": "plugins_skill_toggle_api_plugins_skills__name__put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ranking",
+      "operation_id": "ranking_status_api_ranking_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ranking/lookup",
+      "operation_id": "ranking_lookup_api_ranking_lookup_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/library/rank",
+      "operation_id": "library_rank_api_library_rank_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/paper/ais",
+      "operation_id": "ais_status_api_paper_ais_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/paper/ais/install",
+      "operation_id": "ais_install_api_paper_ais_install_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/paper/ais/writeup",
+      "operation_id": "ais_writeup_api_paper_ais_writeup_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/paper/ais/compile",
+      "operation_id": "ais_compile_api_paper_ais_compile_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/paper/ais/download/{kind}",
+      "operation_id": "ais_download_api_paper_ais_download__kind__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/export/capabilities",
+      "operation_id": "export_caps_api_export_capabilities_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/export",
+      "operation_id": "export_api_export_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/compute/runs",
+      "operation_id": "listing_api_compute_runs_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/compute/runs",
+      "operation_id": "create_api_compute_runs_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/compute/runs/{rid}",
+      "operation_id": "get_api_compute_runs__rid__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/compute/runs/{rid}/approve",
+      "operation_id": "approve_api_compute_runs__rid__approve_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/compute/runs/{rid}/bundle",
+      "operation_id": "bundle_api_compute_runs__rid__bundle_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/compute/runs/{rid}/sync",
+      "operation_id": "sync_api_compute_runs__rid__sync_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research-engines",
+      "operation_id": "engines_api_research_engines_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research-engines/jobs/{job_id}",
+      "operation_id": "job_api_research_engines_jobs__job_id__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research-engines/jobs/{job_id}/decisions",
+      "operation_id": "decision_api_research_engines_jobs__job_id__decisions_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research-engines/jobs/{job_id}/recover-admission",
+      "operation_id": "recover_api_research_engines_jobs__job_id__recover_admission_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research-engines/jobs/{job_id}/cancel",
+      "operation_id": "cancel_api_research_engines_jobs__job_id__cancel_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/os-settings",
+      "operation_id": "os_settings_api_research_os_settings_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/research/os-settings",
+      "operation_id": "os_settings_update_api_research_os_settings_put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/charters",
+      "operation_id": "charter_list_api_research_charters_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/charters",
+      "operation_id": "charter_create_api_research_charters_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/missions/{mid}/request-approval",
+      "operation_id": "mission_request_api_research_topics__tid__missions__mid__request_approval_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/missions/{mid}/pause",
+      "operation_id": "mission_pause_api_research_topics__tid__missions__mid__pause_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/missions/{mid}/review",
+      "operation_id": "mission_review_api_research_topics__tid__missions__mid__review_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/missions/{mid}/report",
+      "operation_id": "mission_bundle_api_research_topics__tid__missions__mid__report_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/missions/{mid}/artifacts/{task_id}/{index}",
+      "operation_id": "mission_artifact_api_research_topics__tid__missions__mid__artifacts__task_id___index__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/team-capabilities",
+      "operation_id": "team_capabilities_api_research_team_capabilities_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/teams/propose",
+      "operation_id": "team_propose_api_research_teams_propose_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/missions/{mid}/team",
+      "operation_id": "team_monitor_api_research_topics__tid__missions__mid__team_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/missions/{mid}/replan",
+      "operation_id": "team_replan_api_research_topics__tid__missions__mid__replan_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/workstreams/propose",
+      "operation_id": "workstream_propose_api_research_workstreams_propose_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/missions/{mid}/workstreams",
+      "operation_id": "workstream_monitor_api_research_topics__tid__missions__mid__workstreams_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/missions/{mid}/handoffs",
+      "operation_id": "workstream_publish_api_research_topics__tid__missions__mid__handoffs_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/missions/{mid}/handoffs/{hid}/ack",
+      "operation_id": "workstream_receive_api_research_topics__tid__missions__mid__handoffs__hid__ack_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/missions/{mid}/outputs",
+      "operation_id": "workstream_output_api_research_topics__tid__missions__mid__outputs_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/missions/{mid}/disputes",
+      "operation_id": "workstream_dispute_api_research_topics__tid__missions__mid__disputes_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/missions/{mid}/disputes/{did}/resolve",
+      "operation_id": "workstream_resolve_api_research_topics__tid__missions__mid__disputes__did__resolve_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/missions/{mid}/findings",
+      "operation_id": "workstream_finding_api_research_topics__tid__missions__mid__findings_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/claims",
+      "operation_id": "claims_api_research_topics__tid__claims_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/claims",
+      "operation_id": "claim_create_api_research_topics__tid__claims_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/claims/{cid}/check",
+      "operation_id": "claim_check_api_research_topics__tid__claims__cid__check_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/claims/{cid}/decision",
+      "operation_id": "claim_decide_api_research_topics__tid__claims__cid__decision_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/citations/resolve",
+      "operation_id": "citation_resolve_api_research_topics__tid__citations_resolve_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/audit",
+      "operation_id": "audit_api_research_topics__tid__audit_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/ledger",
+      "operation_id": "audit_api_research_topics__tid__ledger_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/claims/export",
+      "operation_id": "claim_export_api_research_topics__tid__claims_export_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/prior-art",
+      "operation_id": "prior_art_api_research_topics__tid__prior_art_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/experiments/{rid}/verification",
+      "operation_id": "experiment_verification_api_research_topics__tid__experiments__rid__verification_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/protocols",
+      "operation_id": "protocol_list_api_research_topics__tid__protocols_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/protocols",
+      "operation_id": "protocol_create_api_research_topics__tid__protocols_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/protocols/{pid}/approve",
+      "operation_id": "protocol_approve_api_research_topics__tid__protocols__pid__approve_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/protocols/{pid}/mission",
+      "operation_id": "protocol_mission_api_research_topics__tid__protocols__pid__mission_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/mission-capabilities",
+      "operation_id": "mission_capabilities_api_research_mission_capabilities_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/missions/{mid}/steps/{task_id}/review",
+      "operation_id": "mission_step_review_api_research_topics__tid__missions__mid__steps__task_id__review_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/missions",
+      "operation_id": "mission_list_api_research_topics__tid__missions_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/missions",
+      "operation_id": "mission_create_api_research_topics__tid__missions_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/missions/plan",
+      "operation_id": "mission_plan_api_research_topics__tid__missions_plan_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/missions/{mid}/approve",
+      "operation_id": "mission_approve_api_research_topics__tid__missions__mid__approve_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/missions/{mid}/cancel",
+      "operation_id": "mission_cancel_api_research_topics__tid__missions__mid__cancel_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/missions/{mid}/retry",
+      "operation_id": "mission_retry_api_research_topics__tid__missions__mid__retry_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/capabilities",
+      "operation_id": "capabilities_api_research_capabilities_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/sources",
+      "operation_id": "source_catalog_api_research_sources_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/zotero/import",
+      "operation_id": "zotero_import_api_research_topics__tid__zotero_import_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/zotero/sync",
+      "operation_id": "zotero_sync_api_research_topics__tid__zotero_sync_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics",
+      "operation_id": "topics_api_research_topics_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics",
+      "operation_id": "create_topic_api_research_topics_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}",
+      "operation_id": "topic_api_research_topics__tid__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/research/topics/{tid}",
+      "operation_id": "update_topic_api_research_topics__tid__put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/papers",
+      "operation_id": "papers_api_research_topics__tid__papers_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/papers/import",
+      "operation_id": "import_papers_api_research_topics__tid__papers_import_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/papers/import-library",
+      "operation_id": "import_library_api_research_topics__tid__papers_import_library_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/papers/bulk",
+      "operation_id": "bulk_api_research_topics__tid__papers_bulk_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/papers/{pid}",
+      "operation_id": "paper_api_research_topics__tid__papers__pid__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/papers/{pid}/pdf/{vid}",
+      "operation_id": "pdf_api_research_topics__tid__papers__pid__pdf__vid__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/evidence",
+      "operation_id": "evidence_api_research_topics__tid__evidence_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/bibliography",
+      "operation_id": "bibliography_api_research_topics__tid__bibliography_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/citation-graph",
+      "operation_id": "citation_graph_api_research_topics__tid__citation_graph_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/discover",
+      "operation_id": "discover_api_research_topics__tid__discover_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/jobs",
+      "operation_id": "jobs_api_research_jobs_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/jobs/{jid}/cancel",
+      "operation_id": "cancel_api_research_jobs__jid__cancel_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/jobs/{jid}/retry",
+      "operation_id": "retry_api_research_jobs__jid__retry_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/workspaces",
+      "operation_id": "workspaces_api_research_topics__tid__workspaces_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/workspaces",
+      "operation_id": "link_workspace_api_research_topics__tid__workspaces_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/workspaces/{wid}/open",
+      "operation_id": "open_workspace_api_research_workspaces__wid__open_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/workspaces/{wid}/editor",
+      "operation_id": "workspace_editor_api_research_workspaces__wid__editor_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/research/workspaces/{wid}",
+      "operation_id": "relink_workspace_api_research_workspaces__wid__put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/workspaces/{wid}/sync",
+      "operation_id": "sync_workspace_api_research_workspaces__wid__sync_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/workspaces/{wid}/sync-status",
+      "operation_id": "sync_status_api_research_workspaces__wid__sync_status_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/artifacts",
+      "operation_id": "artifacts_api_research_topics__tid__artifacts_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/artifacts/{aid}",
+      "operation_id": "artifact_detail_api_research_topics__tid__artifacts__aid__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/provenance",
+      "operation_id": "provenance_api_research_topics__tid__provenance_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/findings",
+      "operation_id": "findings_api_research_topics__tid__findings_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/findings",
+      "operation_id": "propose_finding_api_research_topics__tid__findings_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/findings/{fid}/review",
+      "operation_id": "review_finding_api_research_topics__tid__findings__fid__review_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/research-state",
+      "operation_id": "state_api_research_topics__tid__research_state_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/figures/capabilities",
+      "operation_id": "figure_capabilities_api_figures_capabilities_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/figures",
+      "operation_id": "list_topic_figures_api_research_topics__tid__figures_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/figures",
+      "operation_id": "create_topic_figure_api_research_topics__tid__figures_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/figures/{fid}",
+      "operation_id": "get_topic_figure_api_research_topics__tid__figures__fid__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/research/topics/{tid}/figures/{fid}/style",
+      "operation_id": "update_figure_style_api_research_topics__tid__figures__fid__style_put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/figures/{fid}/regenerate",
+      "operation_id": "regenerate_topic_figure_api_research_topics__tid__figures__fid__regenerate_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/figures/{fid}/validate",
+      "operation_id": "validate_topic_figure_api_research_topics__tid__figures__fid__validate_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/figures/{fid}/validate",
+      "operation_id": "validate_figure_direct_api_figures__fid__validate_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/figures/{fid}/approve",
+      "operation_id": "approve_topic_figure_api_research_topics__tid__figures__fid__approve_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/figures/{fid}/attach-paper",
+      "operation_id": "attach_figure_to_paper_api_research_topics__tid__figures__fid__attach_paper_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/figures/{fid}/export/{fmt}",
+      "operation_id": "export_topic_figure_api_research_topics__tid__figures__fid__export__fmt__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/harness/tools",
+      "operation_id": "get_harness_tools_api_harness_tools_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/harness/nodes",
+      "operation_id": "get_workflow_nodes_api_harness_nodes_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/harness/templates",
+      "operation_id": "get_workflow_templates_api_harness_templates_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/harness/agents",
+      "operation_id": "get_agents_api_harness_agents_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/harness/agents",
+      "operation_id": "create_or_update_agent_api_harness_agents_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/harness/architect/team",
+      "operation_id": "build_dynamic_team_api_harness_architect_team_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/harness/architect/generate",
+      "operation_id": "architect_generate_workflow_api_harness_architect_generate_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/harness/validate",
+      "operation_id": "validate_workflow_api_harness_validate_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/harness/workflows",
+      "operation_id": "get_workflows_api_harness_workflows_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/harness/workflows",
+      "operation_id": "create_or_save_workflow_api_harness_workflows_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/harness/workflows/{wid}",
+      "operation_id": "get_single_workflow_api_harness_workflows__wid__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/harness/workflows/{wid}",
+      "operation_id": "update_workflow_api_harness_workflows__wid__put",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/harness/workflows/{wid}",
+      "operation_id": "delete_workflow_api_harness_workflows__wid__delete",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/harness/execute",
+      "operation_id": "run_workflow_api_harness_execute_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/harness/execute/action",
+      "operation_id": "workflow_execution_action_api_harness_execute_action_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/harness/executions",
+      "operation_id": "get_executions_api_harness_executions_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/harness/executions/{eid}",
+      "operation_id": "get_single_execution_api_harness_executions__eid__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/opencode/status",
+      "operation_id": "opencode_status_api_opencode_status_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/opencode/server/launch",
+      "operation_id": "launch_opencode_server_api_opencode_server_launch_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/opencode/workspace",
+      "operation_id": "ensure_opencode_workspace_api_research_topics__tid__opencode_workspace_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/opencode/sessions",
+      "operation_id": "list_opencode_sessions_api_research_topics__tid__opencode_sessions_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/opencode/sessions",
+      "operation_id": "create_opencode_session_api_research_topics__tid__opencode_sessions_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/opencode/sessions/{sid}",
+      "operation_id": "get_opencode_session_api_research_topics__tid__opencode_sessions__sid__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/opencode/sessions/{sid}/events",
+      "operation_id": "post_opencode_event_api_research_topics__tid__opencode_sessions__sid__events_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/opencode/sessions/{sid}/approvals",
+      "operation_id": "request_opencode_approval_api_research_topics__tid__opencode_sessions__sid__approvals_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/opencode/sessions/{sid}/approvals/{aid}",
+      "operation_id": "decide_opencode_approval_api_research_topics__tid__opencode_sessions__sid__approvals__aid__post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/opencode/sessions/{sid}/cancel",
+      "operation_id": "cancel_opencode_session_api_research_topics__tid__opencode_sessions__sid__cancel_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/opencode/sessions/{sid}/reconcile",
+      "operation_id": "reconcile_opencode_session_api_research_topics__tid__opencode_sessions__sid__reconcile_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/urap/artifacts",
+      "operation_id": "api_register_topic_artifact_api_research_topics__tid__urap_artifacts_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/urap/artifacts",
+      "operation_id": "api_list_topic_urap_artifacts_api_research_topics__tid__urap_artifacts_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/research/topics/{tid}/artifacts-urap",
+      "operation_id": "api_register_topic_artifact_api_research_topics__tid__artifacts_urap_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/artifacts-urap",
+      "operation_id": "api_list_topic_urap_artifacts_api_research_topics__tid__artifacts_urap_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/artifacts",
+      "operation_id": "api_register_artifact_root_api_artifacts_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/artifacts",
+      "operation_id": "api_list_artifacts_root_api_artifacts_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/artifacts/{aid}",
+      "operation_id": "api_get_artifact_api_artifacts__aid__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/artifacts/{aid}/lineage",
+      "operation_id": "api_get_artifact_lineage_api_artifacts__aid__lineage_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/artifacts/{aid}/verify-integrity",
+      "operation_id": "api_verify_artifact_integrity_api_artifacts__aid__verify_integrity_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/missions/{mid}/trace",
+      "operation_id": "api_get_mission_trace_api_missions__mid__trace_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/missions/{mid}/trace",
+      "operation_id": "api_emit_mission_trace_api_missions__mid__trace_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/research/topics/{tid}/missions/{mid}/trace",
+      "operation_id": "api_get_topic_mission_trace_api_research_topics__tid__missions__mid__trace_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tasks/{task_id}/context-pack",
+      "operation_id": "api_build_task_context_pack_api_tasks__task_id__context_pack_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tasks/{task_id}/context-pack",
+      "operation_id": "api_get_task_context_pack_api_tasks__task_id__context_pack_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tasks/{task_id}/route-preview",
+      "operation_id": "api_preview_task_route_api_tasks__task_id__route_preview_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/missions/{mid}/reproducibility-export",
+      "operation_id": "api_export_reproducibility_api_missions__mid__reproducibility_export_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/missions/{mid}/reproducibility-export/download",
+      "operation_id": "api_download_reproducibility_api_missions__mid__reproducibility_export_download_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/missions/{mid}/reproducibility-replay",
+      "operation_id": "api_replay_reproducibility_api_missions__mid__reproducibility_replay_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/missions/{mid}/report-manifest",
+      "operation_id": "api_compose_report_manifest_api_missions__mid__report_manifest_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/paperorchestra/health",
+      "operation_id": "health_api_paperorchestra_health_get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/paperorchestra/artifacts/{topic_id}",
+      "operation_id": "get_artifacts_api_paperorchestra_artifacts__topic_id__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "GET",
+      "path": "/api/paperorchestra/artifacts/{topic_id}/{artifact_id}",
+      "operation_id": "get_single_artifact_api_paperorchestra_artifacts__topic_id___artifact_id__get",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/paperorchestra/verify-citations",
+      "operation_id": "api_verify_citations_api_paperorchestra_verify_citations_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/paperorchestra/verify-figures",
+      "operation_id": "api_verify_figures_api_paperorchestra_verify_figures_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/paperorchestra/verify-provenance",
+      "operation_id": "api_verify_provenance_api_paperorchestra_verify_provenance_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/paperorchestra/quality-gates",
+      "operation_id": "api_quality_gates_api_paperorchestra_quality_gates_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/paperorchestra/independent-review",
+      "operation_id": "api_independent_review_api_paperorchestra_independent_review_post",
+      "status": "UNVERIFIED"
+    },
+    {
+      "method": "POST",
+      "path": "/api/paperorchestra/plan-mission",
+      "operation_id": "api_plan_mission_api_paperorchestra_plan_mission_post",
+      "status": "UNVERIFIED"
+    }
+  ]
+}

@@ -76,10 +76,14 @@ CORE_MODULES = [
     "test_harness_verification",
 ]
 
+AUTONOMY_MODULES = ["test_autonomy", "test_workflow_worker", "test_qwen_local", "test_quality_evidence", "test_xml_search_security"]
+SMOKE_MODULES += AUTONOMY_MODULES
+CORE_MODULES += AUTONOMY_MODULES
+
 
 def get_git_commit() -> str:
     try:
-        out = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, stderr=subprocess.DEVNULL)
+        out = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, stderr=subprocess.DEVNULL, timeout=30)
         return out.strip()
     except Exception:
         return "unknown"
@@ -87,7 +91,7 @@ def get_git_commit() -> str:
 
 def get_git_dirty() -> bool:
     try:
-        out = subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT, text=True, stderr=subprocess.DEVNULL)
+        out = subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT, text=True, stderr=subprocess.DEVNULL, timeout=30)
         return bool(out.strip())
     except Exception:
         return False
@@ -97,10 +101,19 @@ class QualityGateTestResult(unittest.TextTestResult):
     def __init__(self, stream, descriptions, verbosity):
         super().__init__(stream, descriptions, verbosity)
         self.test_cases_recorded = []
+        self.subtests = []
 
     def startTest(self, test):
         super().startTest(test)
         self._test_start_time = time.perf_counter()
+        target = os.environ.get('PHDLAB_VERIFY_PROGRESS')
+        if target:
+            path = Path(target)
+            temporary = path.with_suffix('.partial-' + str(os.getpid()) + '-' + str(time.time_ns()))
+            temporary.write_text(json.dumps({'test': test.id(), 'status': 'RUNNING',
+                'completed_cases': len(self.test_cases_recorded), 'timestamp': datetime.datetime.now(datetime.timezone.utc).isoformat()}), 'utf-8')
+            from backend.memory.store import replace_retry
+            replace_retry(temporary, path)
 
     def addSuccess(self, test):
         super().addSuccess(test)
@@ -142,6 +155,19 @@ class QualityGateTestResult(unittest.TextTestResult):
             "details": reason,
         })
 
+    def addSubTest(self, test, subtest, err):
+        super().addSubTest(test, subtest, err)
+        self.subtests.append({'parent': test.id(), 'id': subtest.id(), 'status': 'PASS' if err is None else 'FAIL' if issubclass(err[0], test.failureException) else 'ERROR',
+                              'details': None if err is None else self._exc_info_to_string(err, subtest)})
+
+    def stopTest(self, test):
+        if not any(case['id'] == test.id() for case in self.test_cases_recorded):
+            failed = [case for case in self.subtests if case['parent'] == test.id() and case['status'] in ('FAIL', 'ERROR')]
+            self.test_cases_recorded.append({'id': test.id(), 'status': 'ERROR' if any(c['status'] == 'ERROR' for c in failed) else 'FAIL' if failed else 'UNVERIFIED',
+                'duration': round(time.perf_counter() - self._test_start_time, 4),
+                'details': '\n'.join(case['details'] for case in failed) or 'No success assertion outcome was recorded'})
+        super().stopTest(test)
+
 
 class TeeStream:
     def __init__(self, *streams):
@@ -162,8 +188,10 @@ def run_gate(
     coverage_enabled: bool = True,
     output_dir: Path | None = None,
     allow_full: bool = False,
+    require_complete: bool = False,
+    layer: str = 'software',
 ) -> int:
-    output_dir = output_dir or DEFAULT_OUTPUT_DIR
+    output_dir = (output_dir or DEFAULT_OUTPUT_DIR).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
     if profile == "full" and not allow_full:
@@ -188,9 +216,8 @@ def run_gate(
     if str(ROOT / "tests") not in sys.path:
         sys.path.insert(0, str(ROOT / "tests"))
 
-    # Import environment setup
-    import _env  # noqa: F401
-
+    from tools.qa_harness import source_hashes
+    before_hashes = {k: v for k, v in source_hashes().items() if k.startswith('backend/')}
     start_time = datetime.datetime.now(datetime.timezone.utc)
     log_file_path = output_dir / "unittest.log"
     report_file_path = output_dir / "report.json"
@@ -203,28 +230,39 @@ def run_gate(
             cov = coverage.Coverage(
                 config_file=str(ROOT / ".coveragerc") if (ROOT / ".coveragerc").exists() else True,
                 branch=True,
-                source=["backend"],
+                source=["backend", str(ROOT / 'tools' / 'hermes_runtime')],
+                data_file=str(output_dir / ".coverage"),
             )
             cov.start()
         except Exception as e:
             print(f"Warning: Coverage collection could not start: {e}")
             cov = None
 
+    # Begin tracing before application imports, including module-level declarations.
+    import _env  # noqa: F401
+
     log_buffer = io.StringIO()
     tee_stream = TeeStream(sys.stderr, log_buffer)
 
     loader = unittest.defaultTestLoader
+    from devtools.verification.layers import load_modules,EmptyTestModule
     if profile == "smoke":
         modules = [m for m in SMOKE_MODULES if (ROOT / "tests" / f"{m}.py").exists()]
-        suite = loader.loadTestsFromNames(modules)
+        suite = load_modules(loader,modules)
     elif profile == "core":
         modules = [m for m in CORE_MODULES if (ROOT / "tests" / f"{m}.py").exists()]
-        suite = loader.loadTestsFromNames(modules)
+        suite = load_modules(loader,modules)
     elif profile == "full":
-        suite = loader.discover(str(ROOT / "tests"), pattern="test_*.py")
+        from devtools.verification.selection import select
+        discovered=select(ROOT,[],'pr')
+        suite=load_modules(loader,discovered['backend_tests'])
+        for name in discovered['blocked_tests']:
+            suite.addTest(EmptyTestModule(name+' (unpackaged test directory)'))
     else:
-        suite = loader.loadTestsFromNames([profile])
+        suite = load_modules(loader,[profile])
 
+    from devtools.verification.layers import partition
+    suite, deferred_tests = partition(suite, layer)
     runner = unittest.TextTestRunner(
         stream=tee_stream,
         verbosity=2,
@@ -232,7 +270,11 @@ def run_gate(
     )
 
     t0 = time.perf_counter()
-    result = runner.run(suite)
+    from devtools.verification.diagnostics import periodic_stacks
+    with periodic_stacks(output_dir / 'stall-stacks.log'):
+        result = runner.run(suite)
+    after_hashes = {k: v for k, v in source_hashes().items() if k.startswith('backend/')}
+    source_stable = before_hashes == after_hashes
     elapsed = time.perf_counter() - t0
     end_time = datetime.datetime.now(datetime.timezone.utc)
 
@@ -286,12 +328,25 @@ def run_gate(
         "G6_Security_ASVS": "PASS" if passed_all else "FAIL",
         "G7_Multi_Provider": "PASS" if passed_all else "FAIL",
         "G8_Resource_Guard": "PASS" if passed_all else "FAIL",
-        "G9_Coverage": "PASS" if coverage_summary.get("percent_covered", 0) > 0 else "PASS",
+        "G9_Coverage": "INFORMATIONAL" if coverage_summary else "UNAVAILABLE",
         "G10_Performance": "PASS" if elapsed < 600 else "FAIL",
         "G11_Observability": "PASS" if passed_all else "FAIL",
-        "G12_Cross_Platform": "PASS",
+        "G12_Cross_Platform": "BLOCKED",
         "G13_Offline_Integration": "PASS" if passed_all else "FAIL",
     }
+
+    # Passing a selected test suite cannot establish unexecuted production/security gates.
+    for name in ("G1_Data_Safety", "G3_Recovery", "G6_Security_ASVS", "G7_Multi_Provider", "G10_Performance", "G11_Observability"):
+        gates[name] = "CONDITIONAL" if passed_all else "FAIL"
+    if result.skipped:
+        gates["G0_Test_Integrity"] = "BLOCKED"
+    from tools.quality_evidence import assess
+    decision = assess({'total_run': result.testsRun,
+                       'passed': sum(c['status']=='PASS' for c in result.test_cases_recorded),
+                       'unverified': sum(c['status']=='UNVERIFIED' for c in result.test_cases_recorded),
+                       'failures': len(result.failures), 'errors': len(result.errors), 'skipped': len(result.skipped)}, coverage_summary)
+    if not source_stable and decision != 'FAIL':
+        decision = 'BLOCKED'
 
     report = {
         "metadata": {
@@ -304,20 +359,29 @@ def run_gate(
             "platform": platform.platform(),
             "python_version": sys.version,
             "data_dir_isolated": temp_data_dir,
-            "release_scope": "v6.4.2",
+            "release_scope": 'v' + sys.modules['backend.core.config'].APP_VERSION,
+            "source_stable": source_stable,
+            "test_layer": layer,
+            "source_files_sha256": before_hashes,
         },
         "summary": {
             "total_run": result.testsRun,
-            "passed": result.testsRun - len(result.failures) - len(result.errors) - len(result.skipped),
-            "failures": len(result.failures),
-            "errors": len(result.errors),
+            "passed": sum(case['status'] == 'PASS' for case in result.test_cases_recorded),
+            "failures": sum(case['status'] == 'FAIL' for case in result.test_cases_recorded),
+            "errors": sum(case['status'] == 'ERROR' for case in result.test_cases_recorded),
+            "failure_events": len(result.failures),
+            "error_events": len(result.errors),
             "skipped": len(result.skipped),
             "was_successful": passed_all,
-            "overall_decision": "PASS" if passed_all else "FAIL",
+            "overall_decision": decision,
         },
         "coverage": coverage_summary,
+        "coverage_policy": {'mode':'INFORMATIONAL','percentage_gate':False},
+        "deferred_tests": deferred_tests,
         "quality_gates": gates,
         "cases": getattr(result, "test_cases_recorded", []),
+        "subtests": result.subtests,
+        "limitations": ["Per-test success is scoped to executed cases; no blanket security or platform certification", "Required skipped/unexecuted regression cases block; coverage percentages are informational", "Declared live-provider cases are NOT_RUN in software and required at QA/main"],
     }
 
     with open(report_file_path, "w", encoding="utf-8") as rf:
@@ -331,21 +395,24 @@ def run_gate(
 
     print("\n" + "=" * 60)
     print(f"Backend Quality Gate [{profile.upper()}]: {'PASS' if passed_all else 'FAIL'}")
+    print(f"Release assessment: {decision}")
     print(f"Tests Run: {result.testsRun} | Passed: {report['summary']['passed']} | Failures: {len(result.failures)} | Errors: {len(result.errors)} | Skipped: {len(result.skipped)}")
     print(f"Duration: {elapsed:.2f}s")
     if coverage_summary:
-        print(f"Coverage: {coverage_summary.get('percent_covered')}% ({coverage_summary.get('covered_lines')}/{coverage_summary.get('num_statements')} lines)")
+        print(f"Coverage combined: {coverage_summary.get('percent_covered')}%; lines {coverage_summary.get('covered_lines')}/{coverage_summary.get('num_statements')}; branches {coverage_summary.get('covered_branches')}/{coverage_summary.get('num_branches')}")
     print(f"Report: {report_file_path}")
     print(f"Log: {log_file_path}")
     print("=" * 60)
 
-    return 0 if passed_all else 1
+    return 0 if passed_all and source_stable and (not require_complete or decision == 'CONDITIONAL') else 1
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="PhD Research Lab Backend Quality Gate Orchestrator")
     parser.add_argument("--profile", choices=["smoke", "core", "full"], default="smoke", help="Execution profile")
     parser.add_argument("--no-coverage", action="store_true", help="Disable coverage instrumentation")
+    parser.add_argument('--require-complete', action='store_true', help='Require every selected regression to execute and pass; coverage is informational')
+    parser.add_argument('--layer', choices=['software','live','all'], default='software')
     parser.add_argument("--i-understand-full-suite", action="store_true", help="Confirm execution of the full test suite")
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR, help="Directory to save report and logs")
     args = parser.parse_args()
@@ -355,6 +422,8 @@ def main() -> int:
         coverage_enabled=not args.no_coverage,
         output_dir=args.output_dir,
         allow_full=args.i_understand_full_suite,
+        require_complete=args.require_complete,
+        layer=args.layer,
     )
 
 

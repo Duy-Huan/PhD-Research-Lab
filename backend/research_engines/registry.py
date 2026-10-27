@@ -1,10 +1,10 @@
 """Lazy adapter registration. Core dispatch depends on the research-engine port."""
 from backend.research_engines.contracts import EngineFailure
 
-FACTORIES = {"feynman": ("backend.research_engines.feynman", "FeynmanEngine"),
-             "openscience": ("backend.research_engines.openscience", "OpenScienceEngine"),
-             "opencode": ("backend.research_engines.opencode", "OpenCodeEngine"),
-             "phdlab": ("backend.research_engines.phdlab", "PhDLabEngine")}
+FACTORIES = {
+    "phdlab": ("backend.research_engines.phdlab", "PhDLabEngine"),
+    "paperorchestra": ("backend.research_engines.paperorchestra.engine", "PaperOrchestraEngine"),
+}
 
 
 def get(engine_id: str):
@@ -15,35 +15,13 @@ def get(engine_id: str):
     return getattr(import_module(module), name)()
 
 
-def plan(mode: str, capability: str, preferred: str = "feynman") -> list[str]:
-    from backend.core.config import load_config
-    cfg = load_config()
-    if mode == "collaborative":
-        return ["openscience", "feynman"] if capability in ("analysis", "prototype") else ["feynman", "openscience"]
-    if mode in ("phdlab", "app", "native"):
-        return ["phdlab"]
-    if mode in FACTORIES:
-        return [mode]
-    if mode != "auto":
-        raise EngineFailure("Unknown research engine mode", "capability")
-    if preferred in ("phdlab", "app"):
-        return ["phdlab"]
-    if preferred == "openscience":  # explicit /science delegation never silently changes engine
-        return ["openscience"]
-    if preferred == "opencode":
-        return ["opencode"]
-    settings = cfg.get("openscience") or {}
-    qualified = capability in settings.get("qualified_tasks", []) and bool(settings.get("model_provider") and settings.get("model_id"))
-    for candidate in cfg["research_providers"].get("engine_priority", ["feynman", "openscience", "opencode"]):
+def plan(mode: str, capability: str, preferred: str = "phdlab") -> list[str]:
+    """Native by default; explicit supported runtimes remain explicit, never renamed."""
+    if mode in ("auto", "phdlab", "app", "native"):
+        candidate = preferred if mode == "auto" else "phdlab"
+        if candidate == "app": candidate = "phdlab"
         if candidate not in FACTORIES:
-            continue
-        engine = get(candidate)
-        if capability not in engine.descriptor.capabilities:
-            continue
-        if candidate == "openscience" and not qualified:
-            continue
-        if candidate == "openscience" and capability in ("analysis", "prototype") and not settings.get("allow_execution"):
-            continue
-        if engine.health().get("ready"):
-            return [candidate]
-    return [preferred]  # existing fail-closed preflight presents a provider decision
+            raise EngineFailure("Requested research engine is retired or unsupported", "capability")
+        return [candidate]
+    if mode in FACTORIES: return [mode]
+    raise EngineFailure("Requested research engine is retired or unsupported", "capability")

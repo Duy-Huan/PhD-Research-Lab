@@ -94,6 +94,11 @@ TOOLS = [
      "inputSchema": _obj({"root": {"type": "string", "enum": ["data", "references"]},
                           "path": {"type": "string", "minLength": 1, "maxLength": 400},
                           "max_chars": {"type": "integer", "minimum": 200, "maximum": 200000}}, ["root", "path"])},
+    {"name": "research_analyze_image", "group": "read",
+     "description": "Inspect, read, and extract structured scientific information from an uploaded image attachment "
+                    "(e.g. plot, curve, architecture diagram, screenshot, equation, table) by its attachment ID or filename.",
+     "inputSchema": _obj({"attachment_id": {"type": "string", "minLength": 1, "maxLength": 100},
+                          "focus": {"type": "string", "maxLength": 500}}, ["attachment_id"])},
     {"name": "research_record_observation", "group": "write",
      "description": "Propose an observation to the researcher's memory. It becomes a REVIEW CANDIDATE, not memory.",
      "inputSchema": _obj({"text": {"type": "string", "minLength": 3, "maxLength": 4000}, "experiment_id": {"type": "string", "pattern": r"^EXP-\d{3,6}$"},
@@ -188,6 +193,8 @@ def _clean(obj, cfg):
 
 
 def call(name: str, args: dict, client: dict | None = None) -> dict:
+    if name in ("analyze_image", "image_analyze"):
+        name = "research_analyze_image"
     name = name.replace(".", "_") if name and name.startswith("research.") else name
     if name not in BY_NAME:
         raise KeyError(name)
@@ -416,3 +423,11 @@ def _files_read(a, blocked, client):
     else:
         text = p.read_text("utf-8", "replace")[:limit]
     return {"root": a["root"], "path": a["path"], "chars": len(text), "text": text}, set()
+
+
+def _research_analyze_image(a, blocked, client):
+    from backend.knowledge import attachments as AT
+    att_id = str(a.get("attachment_id", "")).strip()
+    focus = str(a.get("focus", "")).strip()
+    res = AT.analyze_image_attachment(att_id, focus)
+    return res, set()

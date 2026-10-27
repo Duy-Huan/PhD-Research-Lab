@@ -1,0 +1,45 @@
+{
+  "before": {
+    "394955699": {
+      "id": 394955699,
+      "name": "Backend Production Quality Gate",
+      "path": ".github/workflows/backend-quality-gate.yml",
+      "state": "active"
+    },
+    "395288466": {
+      "id": 395288466,
+      "name": "Full Harness Regression",
+      "path": ".github/workflows/full-harness-regression.yml",
+      "state": "active"
+    }
+  },
+  "after": {
+    "394955699": {
+      "id": 394955699,
+      "name": "Backend Production Quality Gate",
+      "path": ".github/workflows/backend-quality-gate.yml",
+      "state": "disabled_manually"
+    },
+    "395288466": {
+      "id": 395288466,
+      "name": "Full Harness Regression",
+      "path": ".github/workflows/full-harness-regression.yml",
+      "state": "disabled_manually"
+    }
+  },
+  "retained_active_quality": {
+    "id": 395459438,
+    "name": "Quality Gates",
+    "path": ".github/workflows/quality.yml",
+    "state": "active"
+  },
+  "history_deleted": false,
+  "protected_branch_history_changed": false,
+  "migration": {
+    "legacy_smoke": "quality backend full regression on Ubuntu/Windows3.11/3.12 with require-complete/100% coverage",
+    "legacy_integrity": "quality policy audit/generate/protected resources plus all canonical backend tests",
+    "legacy_frontend": "quality frontend types, all four100% V8 thresholds and build",
+    "additional_checks": "pinned actions, security, real offline browser, required AI-UAT and QA live qualification"
+  },
+  "note": "Legacy workflow files are deleted in candidate history; protected main retains its old source until a qualified PR is merged. Only duplicate workflows disabled, no test assertions or new mandatory gates disabled."
+}

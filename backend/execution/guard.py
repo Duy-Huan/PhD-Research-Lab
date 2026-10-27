@@ -6,7 +6,7 @@ cannot get a slot waits (the run shows BLOCKED with the reason) instead of start
     gpu        1   training / evaluation on the GPU — never two at once (VRAM)
     cpu        1   CPU-only experiment processes (one at a time keeps the UI responsive)
     local_llm  1   a local model answering (LM Studio / Ollama share the same VRAM)
-    cli        2   CLI providers (Feynman, Claude Code, Codex, Gemini, Antigravity) — subprocesses, little memory
+    cli        2   CLI providers (Claude Code, Codex, Gemini, supported native apps) — subprocesses, little memory
     cloud      3   cloud API calls (network bound)
     none       ∞   bookkeeping steps (verification, reports)
 

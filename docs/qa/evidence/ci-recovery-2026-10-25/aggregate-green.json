@@ -1,0 +1,328 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_ci_recovery.GateAccounting.test_failed_dependency_remains_fail_instead_of_blocked",
+      "status": "PASS",
+      "duration": 0.0745,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_malformed_result_preserves_fail_closed_behavior",
+      "status": "PASS",
+      "duration": 0.0788,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_missing_dependency_cannot_be_masked_by_other_successes",
+      "status": "PASS",
+      "duration": 0.0675,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_only_complete_success_passes",
+      "status": "PASS",
+      "duration": 0.0678,
+      "details": null
+    },
+    {
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "status": "PASS",
+      "duration": 0.3419,
+      "details": null
+    },
+    {
+      "id": "test_verification_reporting.FailureReporting.test_live_opt_in_inventory_stays_separate_and_unknown_tests_block",
+      "status": "PASS",
+      "duration": 0.0042,
+      "details": null
+    },
+    {
+      "id": "test_verification_reporting.FailureReporting.test_nested_test_packages_are_included_in_broad_and_incremental_selection",
+      "status": "PASS",
+      "duration": 0.0053,
+      "details": null
+    },
+    {
+      "id": "test_verification_reporting.FailureReporting.test_skip_volume_does_not_hide_an_actual_failure",
+      "status": "PASS",
+      "duration": 0.0006,
+      "details": null
+    },
+    {
+      "id": "test_verification_reporting.FailureReporting.test_wrapped_database_failures_group_by_original_exception",
+      "status": "PASS",
+      "duration": 0.0003,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Contracts.test_branch_promotion_direction_and_human_release",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Contracts.test_invalid_risk_and_unreviewed_contract_block",
+      "status": "PASS",
+      "duration": 0.03,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "status": "PASS",
+      "duration": 0.0109,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block",
+      "status": "PASS",
+      "duration": 0.0301,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Contracts.test_valid_contract_has_executable_traceability",
+      "status": "PASS",
+      "duration": 0.0101,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_corrupt_repair_state_fails_closed",
+      "status": "PASS",
+      "duration": 0.0015,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_distinct_assertion_causes_remain_distinct",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_fifty_database_errors_have_one_fingerprint",
+      "status": "PASS",
+      "duration": 0.0003,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "status": "PASS",
+      "duration": 0.0002,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_repair_budget_is_persistent_and_bounded",
+      "status": "PASS",
+      "duration": 0.0039,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_success_does_not_reset_prior_failed_repair_cycles",
+      "status": "PASS",
+      "duration": 0.0026,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_frontend_changes_select_frontend_without_python",
+      "status": "PASS",
+      "duration": 0.0005,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_pr_and_full_never_use_incremental_selection",
+      "status": "PASS",
+      "duration": 0.0019,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope",
+      "status": "PASS",
+      "duration": 0.002,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_transitive_python_dependency",
+      "status": "PASS",
+      "duration": 0.0043,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens",
+      "status": "PASS",
+      "duration": 0.0043,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_unmapped_python_source_never_produces_empty_suite",
+      "status": "PASS",
+      "duration": 0.0026,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='skipped')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='cancelled')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='queued')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status='timed_out')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass",
+      "id": "test_ci_recovery.GateAccounting.test_unexecuted_dependencies_never_pass (status=None)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing (field='requirements', value=17)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing (field='requirements', value=[17])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing (field='scenarios', value=17)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing (field='risk', value=[])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing (field='mode', value=[])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block",
+      "id": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block (mutate=<function Contracts.test_missing_requirements_traceability_and_security_block.<locals>.<lambda> at 0x00000256D56E6160>)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block",
+      "id": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block (mutate=<function Contracts.test_missing_requirements_traceability_and_security_block.<locals>.<lambda> at 0x00000256D56E5580>)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block",
+      "id": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block (mutate=<function Contracts.test_missing_requirements_traceability_and_security_block.<locals>.<lambda> at 0x00000256D56E54E0>)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block",
+      "id": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block (mutate=<function Contracts.test_missing_requirements_traceability_and_security_block.<locals>.<lambda> at 0x00000256D56E5440>)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='MISSING')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='SKIP')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='NOT_RUN')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='CANCELLED')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='BLOCKED')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='FAIL')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope",
+      "id": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope (name='backend/api/chat.py')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope",
+      "id": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope (name='backend/agent/context.py')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope",
+      "id": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope (name='.github/workflows/ci.yml')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens",
+      "id": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens (path='requirements.txt')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens",
+      "id": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens (path='backend/deleted.py')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens",
+      "id": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens (path='new_source.rs')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "total": 26,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-ourntirj",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

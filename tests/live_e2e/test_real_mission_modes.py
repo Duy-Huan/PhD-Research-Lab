@@ -76,7 +76,7 @@ class TestRealMissionModes(unittest.TestCase):
             asyncio.run(M.tick())
 
         m_fin = M.get(mid)
-        self.assertEqual(m_fin["tasks"][0]["status"], "completed")
+        self.assertEqual(m_fin["tasks"][0]["status"], "completed", m_fin["tasks"][0]["payload"].get("result"))
 
     def test_mode_fixed_team(self):
         """Fixed team plan mode with owner and verifier roles."""
@@ -97,7 +97,7 @@ class TestRealMissionModes(unittest.TestCase):
             asyncio.run(M.tick())
 
         m_fin = M.get(mid)
-        self.assertEqual(m_fin["tasks"][0]["status"], "completed")
+        self.assertEqual(m_fin["tasks"][0]["status"], "completed", m_fin["tasks"][0]["payload"].get("result"))
 
     def test_mode_adaptive_team(self):
         """Adaptive team plan mode with dynamic specialization."""
@@ -118,7 +118,7 @@ class TestRealMissionModes(unittest.TestCase):
             asyncio.run(M.tick())
 
         m_fin = M.get(mid)
-        self.assertEqual(m_fin["tasks"][0]["status"], "completed")
+        self.assertEqual(m_fin["tasks"][0]["status"], "completed", m_fin["tasks"][0]["payload"].get("result"))
 
     def test_mode_multi_workstream_partition(self):
         """Multi-workstream partition across multiple teams with handoff."""

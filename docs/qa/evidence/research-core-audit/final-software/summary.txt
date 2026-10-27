@@ -1,0 +1,6 @@
+VERIFY: PASS
+Profile: pr / all
+Tests: {"PASS": 1189, "FAIL": 0, "ERROR": 0, "SKIP": 0, "NOT_RUN": 0, "BLOCKED": 0, "UNVERIFIED": 0}
+Affected: 159 files; risk CRITICAL
+Evidence: D:\git-repo\PhD-Research-Lab-worktrees\dev\output\playwright\hermes-core-audit\pr-all-final\report.json
+Next action: Use independent CI before merge; full qualification before promotion

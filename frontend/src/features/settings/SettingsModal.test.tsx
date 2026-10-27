@@ -145,32 +145,74 @@ describe('SettingsModal', () => {
     expect(useUIStore.getState().mainView).toBe('chat');
   });
 
-  it('triggers provider launch and data synchronization back to PhD Lab', async () => {
-    useUIStore.setState({ mainView: 'settings', settingsTab: 'engines' });
-    const postSpy = vi.spyOn(api, 'post').mockResolvedValue({
-      ok: true,
-      total_changed: 3,
-      total_observed: 12,
+  it('keeps PaperOrchestra integrated and opens native tools without third-party launches', async () => {
+    useUIStore.setState({mainView:'settings',settingsTab:'engines'});
+    const post=vi.spyOn(api,'post').mockResolvedValue({});
+    vi.spyOn(api,'get').mockImplementation(async url => {
+      if(url.includes('/api/providers')) return {providers:[
+        {id:'paperorchestra',label:'PaperOrchestra',kind:'embedded_engine',state:'READY',ready:true},
+        {id:'tracking',label:'Native tracking',kind:'native_tool',state:'READY',ready:true},
+      ]};
+      if(url==='/api/models') return {providers:[],agent_catalog:{}};
+      return mockConfig;
     });
+    renderWithProviders(<SettingsModal />);
+    fireEvent.click(await screen.findByRole('button',{name:'PaperOrchestra Studio'}));
+    expect(useUIStore.getState().drawerKind).toBe('paper');
+    fireEvent.click(screen.getByRole('button',{name:/Mở workspace native|Open native workspace/}));
+    expect(useUIStore.getState().drawerKind).toBe('code');
+    expect(post).not.toHaveBeenCalled();
+  });
+
+  it('renders optional plugins catalog and allows installing AI-Scientist-v2 via GitHub plugin mechanism', async () => {
+    useUIStore.setState({ mainView: 'settings', settingsTab: 'skills' });
+    const postSpy = vi.spyOn(api, 'post').mockResolvedValue({ id: 'sakanaai-ai-scientist-v2', skills: [] });
     vi.spyOn(api, 'get').mockImplementation(async (url: string) => {
-      if (url.includes('/api/providers')) {
+      if (url.includes('/api/plugins')) {
         return {
-          providers: [
-            { id: 'opencode', label: 'OpenCode Sandbox', category: 'coding', ready: true, state: 'READY', detail: 'Ready' },
+          plugins: [],
+          optional_plugins: [
+            {
+              id: 'sakanaai-ai-scientist-v2',
+              name: 'AI-Scientist-v2',
+              title: 'The AI Scientist v2 (Sakana AI)',
+              url: 'https://github.com/SakanaAI/AI-Scientist-v2',
+              category: 'writing',
+              description: 'Sinh ý tưởng nghiên cứu, viết nháp bài báo theo template ICML/NeurIPS',
+              skills: ['/ais-idea', '/ais-review', '/ais-write'],
+              installed: false,
+              enabled: false,
+            },
           ],
         };
+      }
+      if (url.includes('/api/skills')) {
+        return { skills: [] };
       }
       return mockConfig;
     });
 
     renderWithProviders(<SettingsModal />);
 
-    const launchBtn = await screen.findByRole('button', { name: /Mở Ứng dụng|Open App/i });
-    fireEvent.click(launchBtn);
-    expect(postSpy).toHaveBeenCalledWith('/api/providers/opencode/launch', {});
+    // 1. Verify Optional GitHub Plugins Catalog title is rendered
+    await waitFor(() => {
+      expect(screen.getByText(/Danh mục Plugin Tùy chọn|Optional GitHub Plugins/i)).toBeInTheDocument();
+      expect(screen.getByText(/The AI Scientist v2 \(Sakana AI\)/i)).toBeInTheDocument();
+      expect(screen.getByText(/\/ais-idea/i)).toBeInTheDocument();
+      expect(screen.getByText(/\/ais-review/i)).toBeInTheDocument();
+      expect(screen.getByText(/\/ais-write/i)).toBeInTheDocument();
+    });
 
-    const syncBtn = await screen.findByRole('button', { name: /Đồng bộ về Lab|Sync to Lab/i });
-    fireEvent.click(syncBtn);
-    expect(postSpy).toHaveBeenCalledWith('/api/providers/opencode/sync', {});
+    // 2. Click "Cài qua GitHub" button on AI-Scientist-v2 card
+    const installBtn = screen.getByTitle(/Cài đặt The AI Scientist v2 \(Sakana AI\) qua cơ chế GitHub plugin/i);
+    expect(installBtn).toBeInTheDocument();
+    fireEvent.click(installBtn);
+
+    await waitFor(() => {
+      expect(postSpy).toHaveBeenCalledWith('/api/plugins', {
+        url: 'https://github.com/SakanaAI/AI-Scientist-v2',
+        enable: true,
+      });
+    });
   });
 });

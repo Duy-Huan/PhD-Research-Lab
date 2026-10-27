@@ -1,7 +1,7 @@
 """Module A — Unified Research Artifact Protocol (URAP v6.4.2).
 
-Normalizes and traces research outputs across OpenScience, Feynman, OpenCode,
-Claude Code/Codex, Python/Docker/ClearML, and Figure Studio with content-addressed
+Normalizes and traces research outputs across native research roles, historical software outputs,
+Claude Code/Codex, Python/Docker, and Figure Studio with content-addressed
 SHA-256 verification and cross-engine lineage graphs.
 """
 from __future__ import annotations

@@ -1,0 +1,19 @@
+{
+  "result": {
+    "data": {
+      "disablePullRequestAutoMerge": {
+        "pullRequest": {
+          "number": 8,
+          "autoMergeRequest": null
+        }
+      }
+    }
+  },
+  "verified": {
+    "number": 8,
+    "auto_merge": null,
+    "merged": false,
+    "head": "e6e945ae84b67a639d7566b6e40d1c80642e0e8e",
+    "base": "main"
+  }
+}

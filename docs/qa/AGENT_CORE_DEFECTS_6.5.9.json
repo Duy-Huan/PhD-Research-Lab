@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "scope": "Two measured6.5.8 defects plus one newly introduced6.5.9 test-infrastructure defect; all locally repaired, fresh exact-head CI still required",
+  "source_sha256": "b2b35a188e3eba19323c7c9eb51bf99b993c8f1018262787f974aff8baa47ac1",
+  "local_software_counts": {
+    "PASS": 1199,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "NOT_RUN": 0,
+    "BLOCKED": 0,
+    "UNVERIFIED": 0
+  },
+  "independent_ci": "Must match exact publication HEAD; see shared.git/ci-observations/6.5.9-dev/",
+  "exceptions": [],
+  "defects": [
+    {
+      "id": "BUG-CLI-RUNTIME-CLEANUP-001",
+      "module": "backend/providers/cli.py; backend/providers/isolated_cli.py",
+      "severity": "P2",
+      "release_blocking": true,
+      "first_known_affected_commit": "b3080ab0f89715b207c7e2004d84968954eef5e5",
+      "introduced_commit": "NOT_DETERMINED",
+      "classification": "Existing application resource defect beyond passing smoke scope",
+      "reproduction": [
+        "Execute real subscription/native CLI smoke",
+        "Observe terminal response",
+        "Inspect owned Docker labels and IPC volumes after completion"
+      ],
+      "expected": "Invocation resources are released; concurrent invocation stays alive",
+      "actual": "Three probe-owned proxy containers remained after completed requests",
+      "root_cause": "Terminal shutdown can kill wrapper before its Docker finally cleanup completes",
+      "regression_test_ids": [
+        "test_cli_runtime_cleanup.RuntimeCleanup.test_completed_turn_releases_owned_runtime_before_reporting_completion",
+        "test_cli_runtime_cleanup.RuntimeCleanup.test_consumer_close_releases_its_runtime_without_touching_other_requests",
+        "test_cli_runtime_cleanup.RuntimeCleanup.test_cleanup_failure_cannot_be_reported_as_a_successful_request",
+        "test_cli_runtime_cleanup.RuntimeCleanup.test_native_launch_shares_a_fresh_owner_with_the_runtime_wrapper",
+        "test_cli_runtime_cleanup.RuntimeCleanup.test_docker_cleanup_uses_exact_owned_label_and_volume_only",
+        "test_cli_runtime_cleanup.RuntimeCleanup.test_invalid_owner_cannot_start_docker_operations",
+        "test_cli_runtime_cleanup.RuntimeCleanup.test_remaining_owned_resource_is_a_cleanup_failure",
+        "test_cli_runtime_cleanup.RuntimeCleanup.test_unexpected_resource_count_is_bounded_and_never_bulk_deleted"
+      ],
+      "evidence": [
+        "evidence/cli-runtime-cleanup-6.5.9/runtime-cleanup-red-observation.json",
+        "evidence/cli-runtime-cleanup-6.5.9/runtime-cleanup-red.json",
+        "evidence/cli-runtime-cleanup-6.5.9/runtime-cleanup-contract-green.json",
+        "evidence/cli-runtime-cleanup-6.5.9/actual-frozen-runtime.json"
+      ],
+      "owner": "Core reliability / SDET",
+      "repair_status": "FIXED_LOCAL_VERIFIED; latest-head CI must be observed independently",
+      "residual_risk": "Host-crash recovery and every concurrent startup/cancel race not qualified"
+    },
+    {
+      "id": "BUG-VERIFY-EOL-001",
+      "module": "devtools/verification/runner.py",
+      "severity": "P2",
+      "release_blocking": true,
+      "first_known_affected_commit": "b3080ab0f89715b207c7e2004d84968954eef5e5",
+      "introduced_commit": "NOT_DETERMINED",
+      "classification": "CI evidence infrastructure defect",
+      "reproduction": [
+        "Read actual source files maps from6.5.8 matrix artifacts",
+        "Compare identical commit on Windows/Linux",
+        "Observe only three declared Apache license file hashes differ with line endings"
+      ],
+      "expected": "Declared text line endings normalize without hiding content changes",
+      "actual": "Linux6e6167c... differed from Windows504a99f... only on three license file hashes",
+      "root_cause": "New license filename was absent from the declared text normalization names",
+      "regression_test_ids": [
+        "test_verification_source_identity.SourceIdentity.test_declared_upstream_license_line_endings_do_not_change_identity"
+      ],
+      "evidence": [
+        "evidence/cli-runtime-cleanup-6.5.9/prior-658-remote-matrix.json",
+        "evidence/cli-runtime-cleanup-6.5.9/license-eol-red.json",
+        "evidence/cli-runtime-cleanup-6.5.9/license-eol-green.json"
+      ],
+      "owner": "Development verification / SDET",
+      "repair_status": "FIXED_LOCAL_VERIFIED; confirm identical corrected fingerprints in fresh four-platform CI artifacts"
+    },
+    {
+      "id": "BUG-TEST-RUNTIME-CACHE-001",
+      "module": "tests/test_cli_runtime_cleanup.py",
+      "severity": "P2",
+      "classification": "NEW_TEST_INFRASTRUCTURE_REGRESSION",
+      "first_known_affected_commit": "2a5ee141a1d06291eb65589045f0c5a35b711526",
+      "introduced_commit": "0c75cd30ca1cf80fd801a269e7ae2605bad547c0",
+      "release_blocking": true,
+      "reproduction": [
+        "Make real vendor CLI discovery unavailable",
+        "Seed real gw:codex:None health cache with UNAVAILABLE",
+        "Execute the controlled Python protocol fixture"
+      ],
+      "expected": "Independent fixture uses Python and executes cleanup assertions without installed/signed-in vendor CLI",
+      "actual": "Inherited discovery reused missing-vendor cached health, so3cases ERROR on each actual CI matrix job",
+      "root_cause": "Fixture transport identity was not isolated from production executable discovery/cache",
+      "regression_test_ids": [
+        "test_cli_runtime_cleanup.RuntimeCleanup.test_protocol_fixture_does_not_require_a_vendor_cli_on_path"
+      ],
+      "repair_status": "FIXED_LOCAL_VERIFIED; independent latest-head CI must be observed",
+      "repair_attempt": 1,
+      "max_attempts": 3,
+      "evidence": [
+        "evidence/cli-runtime-cleanup-6.5.9/ci-fixture-repair-r1/actual-ci-failure.json",
+        "evidence/cli-runtime-cleanup-6.5.9/ci-fixture-repair-r1/first-run-matrix.json",
+        "evidence/cli-runtime-cleanup-6.5.9/ci-fixture-repair-r1/red.json",
+        "evidence/cli-runtime-cleanup-6.5.9/ci-fixture-repair-r1/green.json"
+      ],
+      "owner": "Development verification/SDET",
+      "assertions_weakened": false,
+      "tests_skipped": false
+    }
+  ]
+}

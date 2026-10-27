@@ -1,0 +1,56 @@
+{
+  "mode": "REAL_LOCAL",
+  "scope": "Actual isolated Docker processes and IPC volumes, no model inference or mocks",
+  "head_sha": "b3080ab0f89715b207c7e2004d84968954eef5e5",
+  "source_sha256": "a41e7172a060aa329a1d90cbc0d9e5de7773917e8c0c2da95fa8275869b34e63",
+  "started_utc": 1792951944.132914,
+  "owners": [
+    "d2485a329963a07281872790592b46ab",
+    "39428291722d64b0540be7bf07195a8e"
+  ],
+  "data_root": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\data\\runtime-verification\\3c85394e05dc",
+  "passed": true,
+  "before_kill": {
+    "d2485a329963a07281872790592b46ab": {
+      "containers": [
+        "98fef18fe49a",
+        "5ee28f08f309"
+      ],
+      "volumes": [
+        "phdlab-cli-ipc-d2485a329963a07281872790592b46ab"
+      ]
+    },
+    "39428291722d64b0540be7bf07195a8e": {
+      "containers": [
+        "3046dada357f",
+        "ea144f256455"
+      ],
+      "volumes": [
+        "phdlab-cli-ipc-39428291722d64b0540be7bf07195a8e"
+      ]
+    }
+  },
+  "after_forced_wrapper_exit": [
+    "98fef18fe49a",
+    "5ee28f08f309"
+  ],
+  "after_first_cleanup": {
+    "d2485a329963a07281872790592b46ab": {
+      "containers": [],
+      "volumes": []
+    },
+    "39428291722d64b0540be7bf07195a8e": {
+      "containers": [
+        "3046dada357f",
+        "ea144f256455"
+      ],
+      "volumes": [
+        "phdlab-cli-ipc-39428291722d64b0540be7bf07195a8e"
+      ]
+    }
+  },
+  "assertions_passed": true,
+  "cleanup_errors": [],
+  "finished_utc": 1792951960.2754648,
+  "source_stable": true
+}

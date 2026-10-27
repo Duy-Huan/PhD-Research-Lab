@@ -1,0 +1,182 @@
+name: Quality Gates
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [qa, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONIOENCODING: utf-8
+  PYTHONFAULTHANDLER: '1'
+  PHDLAB_QA_OFFLINE: '1'
+  NO_PROXY: localhost,127.0.0.1,::1
+  # Binaries are shared within this job; each test still owns its private profile/cache.
+  # Isolating XDG_CACHE_HOME must not change the install/runtime binary lookup.
+  PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/output/playwright/browser-binaries
+
+jobs:
+  policy:
+    name: Contract and workflow policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: {node-version: '24'}
+      - run: python -m pip install --require-hashes -r requirements-ci.lock
+      - run: python scripts/quality_gate.py policy
+      - name: Discover every software regression suite without executing model calls
+        run: python scripts/discover_tests.py --out output/playwright/ci/test-inventory.json
+      - name: Require actual current-source complete local verification before promotion
+        run: python scripts/check_local_verification.py
+      - run: python scripts/check_workflows.py
+      - name: Critical recovery accounting regressions (no live AI calls)
+        run: python -m devtools.verification.unittest_worker output/playwright/ci/critical-recovery.json test_ci_recovery test_baseline_accounting test_ci_repair_supervisor test_ci_workflow_contract
+      - run: python tools/qa_harness.py audit --out output/playwright/ci/integrity.json
+      - run: python tools/qa_harness.py generate --seed 20261024 --count 100 --out output/playwright/ci/generated-graphs.json
+      - name: Preserve skills and agent files throughout the commit range
+        env:
+          DIFF_BASE: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+        run: python tools/protect_agent_resources.py --base "$DIFF_BASE"
+      - run: node --test .github/scripts/automerge.test.cjs .github/scripts/release_provenance.test.cjs .github/scripts/publish_release.test.cjs
+
+  backend:
+    name: Backend (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: python -m pip install --require-hashes -r requirements-ci.lock
+      - run: python -m pip check
+      - run: python -m compileall -q backend devtools scripts tools tests
+      - name: Complete software regression; informational production coverage
+        env:
+          VERIFY_BASE: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+        run: python scripts/verify.py --profile pr --component backend --base "$env:VERIFY_BASE" --out output/playwright/ci/backend
+        shell: pwsh
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: backend-${{ matrix.os }}-${{ matrix.python }}
+          path: output/playwright/ci/backend/
+          retention-days: 14
+
+  frontend:
+    name: Frontend types, whole-source coverage and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with: {python-version: '3.12'}
+      - run: python -m pip install --require-hashes -r requirements-ci.lock
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: {node-version: '24', cache: npm, cache-dependency-path: frontend/package-lock.json}
+      - run: npm ci
+        working-directory: frontend
+      - run: npm audit --audit-level=high
+        working-directory: frontend
+      - name: Frontend mandatory gate
+        env:
+          VERIFY_BASE: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+        run: python scripts/verify.py --profile pr --component frontend --base "$VERIFY_BASE" --out output/playwright/ci/frontend
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: frontend
+          path: |
+            output/playwright/ci/frontend/
+            frontend/coverage/
+          retention-days: 14
+
+  security:
+    name: Dependency and high-confidence security checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with: {python-version: '3.12'}
+      - run: python -m pip install --require-hashes -r requirements-ci.lock
+      - run: python -m pip_audit -r requirements-ci.lock --strict --progress-spinner off
+      - run: python -m bandit -r backend devtools scripts -lll -iii
+
+  browser:
+    name: Real offline browser smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: {node-version: '24', cache: npm, cache-dependency-path: frontend/package-lock.json}
+      - run: python -m pip install --require-hashes -r requirements-ci.lock
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
+      - run: npx --no-install playwright install --with-deps chromium
+        working-directory: frontend
+      - env:
+          VERIFY_BASE: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
+        run: python -m devtools.verification.browser --profile pr --offline-all --base "$VERIFY_BASE"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: browser
+          path: |
+            output/playwright/ci/browser/
+            output/playwright/browser-lease-selftest/
+            output/playwright/capability-selftest/
+          retention-days: 14
+
+  development-gate:
+    name: Development gate
+    if: always()
+    needs: [policy, backend, frontend, security, browser]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {persist-credentials: false}
+      - env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: python scripts/quality_gate.py aggregate --phase development
+
+  # Owner2026-10-26: all forward promotions require complete software regression.
+  # Live-provider/AI-UAT qualification is separately dispatched, never called PASS here.
+  qa-gate:
+    # Never satisfy a protected PR context with the skipped dev-push phase.
+    name: ${{ github.event_name == 'pull_request' && 'QA gate' || 'QA not requested on dev push' }}
+    if: always() && (github.base_ref == 'qa' || github.base_ref == 'main' || github.ref == 'refs/heads/qa')
+    needs: [development-gate]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {persist-credentials: false}
+      - env: {NEEDS_JSON: '${{ toJSON(needs) }}'}
+        run: python scripts/quality_gate.py aggregate --phase qa

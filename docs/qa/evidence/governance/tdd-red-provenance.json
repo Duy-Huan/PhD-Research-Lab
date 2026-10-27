@@ -1,0 +1,7 @@
+{
+  "test_sha256": "2cb3cb7d64c33b553288031020867c26544216246b1bf92abe94ecb4856beb0e",
+  "implementation_sha256": "4b246a7d968e83abbc54f26496193947260b5aa7d0576bff37bb0db74c810f4b",
+  "observed_exit_code": 1,
+  "case_count": 17,
+  "note": "Functional RED observed before malformed-field fix; full raw cases retained."
+}

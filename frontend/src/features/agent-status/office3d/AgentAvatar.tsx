@@ -28,7 +28,7 @@ function getCharacterAppearance(archetype?: string, index = 0) {
         eyewear: 'gold_glasses' as const,
         hat: 'none' as const,
       };
-    case 'feynman':
+    case 'literature':
       return {
         coatColor: '#78350f', // Warm Oxford Tweed Jacket
         shirtColor: '#fef3c7',
@@ -39,7 +39,7 @@ function getCharacterAppearance(archetype?: string, index = 0) {
         eyewear: 'round_glasses' as const,
         hat: 'beret' as const,
       };
-    case 'openscience':
+    case 'experiment':
       return {
         coatColor: '#ffffff', // Crisp White Lab Coat
         shirtColor: '#06b6d4',
@@ -515,6 +515,8 @@ export const AgentAvatar: React.FC<AgentAvatarProps> = ({
 
             {/* Character Badge */}
             <div
+              role="img"
+              aria-label={`3D agent ${agent.displayName}: ${agent.engine}, ${agent.presence}`}
               style={{
                 background: isSelected
                   ? 'rgba(6, 78, 59, 0.96)'

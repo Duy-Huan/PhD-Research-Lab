@@ -6,7 +6,7 @@ external systems that hold the raw data (Target §10/§14):
                              metrics summary, observation, interpretation, decision, conclusion, next_action, verdict
     failures     FAIL-001 …  validated failures / refuted hypotheses (never proposed again)
 
-ClearML keeps the run tables, logs, checkpoints; this store keeps only IDs + research meaning. Nothing here is written
+Native process journals keep run logs and checkpoints; legacy tracker references remain readable; this store keeps only IDs + research meaning. Nothing here is written
 by an AI agent on its own: records are created by explicit researcher actions (or synced from the plan's hypotheses).
 """
 from __future__ import annotations

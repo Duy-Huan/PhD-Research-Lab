@@ -8,6 +8,8 @@ import { api } from '../../shared/api/client';
 
 describe('AgentStatusView', () => {
   const mockConfig = {
+    projects: [{ name: 'Default', data_dir: '/path/data' }],
+    active_project: { name: 'Default', data_dir: '/path/data' },
     agent_modes: {
       assistant: 'cloud:google',
       research: 'claude_code',
@@ -21,6 +23,7 @@ describe('AgentStatusView', () => {
     const s = useUIStore.getState();
     s.setLanguage('vi');
     s.setProject({ name: 'Default', data_dir: '/path/data' });
+    s.setActiveTopic(null);
     s.setOfficeFullscreen(false);
     s.setOfficeChatOpen(true);
     s.setSelectedLabObject(null);
@@ -65,7 +68,7 @@ describe('AgentStatusView', () => {
     expect(useUIStore.getState().officeChatOpen).toBe(true);
 
     // Click HPC button
-    const hpcBtn = screen.getByTitle('HPC Server & OpenCode');
+    const hpcBtn = screen.getByTitle('Native Code & GPU Experiments');
     fireEvent.click(hpcBtn);
     expect(useUIStore.getState().selectedLabObject).toBe('hpc_opencode');
 
@@ -147,7 +150,7 @@ describe('AgentStatusView', () => {
     });
 
     // Find custom profile buttons in floating roster
-    const customizeBtns = screen.getAllByTitle(/Tùy biến hồ sơ & Đặt tên/i);
+    const customizeBtns = await screen.findAllByTitle(/Tùy biến hồ sơ & Đặt tên/i);
     expect(customizeBtns.length).toBeGreaterThanOrEqual(1);
 
     // Click customize for first agent

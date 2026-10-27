@@ -37,12 +37,23 @@ class ReviewNote(G.Contract):
     note:str=Field(min_length=1,max_length=4000)
 
 
+@router.get('/project-layout')
+async def paper_project_layout():
+    return await call(S.paper_project_layout)
+
+
+@router.post('/project-layout/adopt')
+async def paper_project_adopt(body: dict = Body(...)):
+    if set(body) != {'plan_sha256'} or not isinstance(body.get('plan_sha256'), str):
+        raise HTTPException(400, 'Provide the exact reviewed migration plan digest')
+    return await call(S.adopt_paper_project, body['plan_sha256'])
+
+
 @router.get("/os-settings")
 async def os_settings():
     from backend.agent import teams,collaboration
-    from backend.core.config import load_config
-    slots = (load_config().get("runs") or {}).get("slot_cloud", 4)
-    return {"enabled":OS.enabled(),"team_enabled":teams.enabled(),"multi_team_enabled":collaboration.enabled(),"experimental":True,"max_parallel_tasks":max(4, int(slots))}
+    from backend.agent.autonomy import MAX_WORKFLOWS
+    return {"enabled":OS.enabled(),"team_enabled":teams.enabled(),"multi_team_enabled":collaboration.enabled(),"experimental":True,"max_parallel_tasks":1,"max_independent_workflows":MAX_WORKFLOWS}
 
 
 @router.put("/os-settings")
@@ -221,6 +232,7 @@ async def citation_resolve(tid:str,body:dict=Body(...)):
     except Exception as exc:raise HTTPException(400,"Citation unresolved: "+type(exc).__name__)
 
 
+@router.get("/topics/{tid}/ledger")
 @router.get("/topics/{tid}/audit")
 async def audit(tid:str):
     from backend.agent.decision_ledger import export
@@ -263,7 +275,22 @@ async def protocol_mission(tid:str,pid:str):return await call(protocols.mission_
 @router.get("/mission-capabilities")
 async def mission_capabilities():
     from backend.agent.capabilities import catalog
-    return {"capabilities":catalog(),"max_concurrency":1,"automatic_delegation":False}
+    from backend.agent.autonomy import LEVELS, MAX_WORKFLOWS
+    return {"capabilities":catalog(),"max_concurrency":1,"max_independent_workflows":MAX_WORKFLOWS,"autonomy_levels":LEVELS,"automatic_delegation":False}
+
+
+class StepReviewInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    plan_digest: str = Field(pattern=r"^[a-f0-9]{64}$")
+    result_digest: str = Field(pattern=r"^[a-f0-9]{64}$")
+    accept: bool
+    note: str = Field(min_length=1, max_length=4000)
+
+
+@router.post("/topics/{tid}/missions/{mid}/steps/{task_id}/review")
+async def mission_step_review(tid: str, mid: str, task_id: str, body: StepReviewInput):
+    from backend.agent.autonomy import step_review
+    return await call(step_review, tid, mid, task_id, **body.model_dump())
 
 
 @router.get("/topics/{tid}/missions")
@@ -497,7 +524,7 @@ async def workspace_editor(wid: str):
 
 
 @router.put("/workspaces/{wid}")
-async def relink_workspace(wid: str, body: W.WorkspaceInput):
+async def relink_workspace(wid: str, body: W.WorkspaceRelinkInput):
     return await call(W.relink, wid, body)
 
 

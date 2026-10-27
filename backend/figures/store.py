@@ -9,6 +9,17 @@ from backend.figures import renderers, verifier
 from backend.figures.contracts import FigureProvenance, FigureSpec, FigureStyle
 from backend.knowledge import research_store as S
 
+LEGACY_RASTER_WARNING = 'Legacy PNG/PDF exports used placeholder graphics. Regenerate this figure before validation, approval, paper use or raster/PDF export.'
+
+
+def _legacy_raster(provenance: dict) -> bool:
+    return provenance.get('renderer_used') != 'builtin-svg' and bool({'png', 'pdf'} & set(provenance.get('exports') or {}))
+
+
+def _require_real_raster(provenance: dict) -> None:
+    if _legacy_raster(provenance):
+        raise ValueError(LEGACY_RASTER_WARNING)
+
 
 def _figure_dir(tid: str, fid: str, version: int) -> Path:
     return S.safe_child(S.store_dir(), "topics", tid, "artifacts", "figures", fid, "versions", f"v{version:04d}")
@@ -18,7 +29,7 @@ def _hydrate_experiment_source(tid: str, spec: FigureSpec) -> FigureSpec:
     if spec.source.kind == "experiment_artifact" and spec.source.experiment_id and not spec.source.series:
         series, x_labels, digest = verifier.extract_experiment_metrics(tid, spec.source.experiment_id)
         spec = spec.model_copy(deep=True)
-        spec.source.series = {"Validation Mean PSNR (dB)": series["mean_psnr_db"]}
+        spec.source.series = {'mean_psnr_db': series['mean_psnr_db']}
         spec.source.x_values = x_labels
         if not spec.source.expected_sha256:
             spec.source.expected_sha256 = digest
@@ -93,6 +104,10 @@ def create_or_regenerate(spec: FigureSpec, figure_id: str = "") -> dict:
             "latest_verification": qa.model_dump(mode="json"),
         }
         if existing:
+            old_payload = json.loads(existing['payload'])
+            fig_payload['approvals'] = old_payload.get('approvals') or {}
+            if old_payload.get('approval'):
+                fig_payload['approval'] = old_payload['approval']
             c.execute(
                 "UPDATE figures SET title=?,category=?,current_version=?,status=?,payload=?,updated=? WHERE id=?",
                 (spec.title, spec.category, version, qa.overall_status, S.dumps(fig_payload), at, fid),
@@ -147,7 +162,12 @@ def list_figures(tid: str) -> list[dict]:
         out = []
         for r in rows:
             p = json.loads(r["payload"])
-            out.append({**dict(r), "payload": p})
+            legacy = _legacy_raster(p.get('latest_provenance') or {})
+            if legacy:
+                p['latest_verification']['overall_status'] = 'needs_review'
+                p['latest_verification'].setdefault('warnings', []).append(LEGACY_RASTER_WARNING)
+                p['latest_provenance']['scientific_review'] = 'pending'
+            out.append({**dict(r), 'status': 'needs_review' if legacy else r['status'], "payload": p})
         return out
 
 
@@ -172,6 +192,16 @@ def get_figure(tid: str, fid: str, version: int = 0) -> dict:
             for r in c.execute("SELECT version,spec_sha256,script_sha256,data_sha256,created FROM figure_versions WHERE figure_id=? ORDER BY version DESC", (fid,))
         ]
         vp = json.loads(vrow["payload"])
+        figure_payload = json.loads(fig['payload'])
+        approval = (figure_payload.get('approvals') or {}).get(str(ver_num)) or figure_payload.get('approval') or {}
+        approval_bound = (approval.get('version') == ver_num and approval.get('spec_sha256') == vrow['spec_sha256']
+                          and approval.get('data_sha256') == vrow['data_sha256']
+                          and approval.get('exports') == {key: value.get('sha256') for key, value in vp['provenance'].get('exports', {}).items()})
+        legacy = _legacy_raster(vp['provenance'])
+        if legacy:
+            vp['verification']['overall_status'] = 'needs_review'
+            vp['verification'].setdefault('warnings', []).append(LEGACY_RASTER_WARNING)
+            vp['provenance']['scientific_review'] = 'pending'
         return {
             "id": fig["id"],
             "topic_id": fig["topic_id"],
@@ -180,7 +210,8 @@ def get_figure(tid: str, fid: str, version: int = 0) -> dict:
             "category": fig["category"],
             "current_version": fig["current_version"],
             "selected_version": ver_num,
-            "status": fig["status"],
+            'status': 'needs_review' if legacy else 'approved' if approval_bound and fig['status'] != 'failed' else 'needs_review' if fig['status'] == 'approved' else fig['status'],
+            'approval': approval if approval_bound else None,
             "created": fig["created"],
             "updated": fig["updated"],
             "spec": vp["spec"],
@@ -208,6 +239,7 @@ def update_style(tid: str, fid: str, style_patch: dict, title: str = "", caption
 def validate_figure_version(tid: str, fid: str, version: int = 0) -> dict:
     """Re-verify figure integrity against current source data and disk files."""
     cur = get_figure(tid, fid, version)
+    _require_real_raster(cur['provenance'])
     ver_num = cur["selected_version"]
     spec = FigureSpec.model_validate(cur["spec"])
     recorded_sha = cur["provenance"]["data_sha256"]
@@ -218,7 +250,8 @@ def validate_figure_version(tid: str, fid: str, version: int = 0) -> dict:
             "INSERT INTO figure_verifications VALUES(?,?,?,?,?,?)",
             (S.uid(), fid, ver_num, report.overall_status, S.dumps(report.model_dump(mode="json")), S.now()),
         )
-        c.execute("UPDATE figures SET status=?,updated=? WHERE id=?", (report.overall_status, S.now(), fid))
+        c.execute('UPDATE figures SET status=CASE WHEN current_version=? THEN ? ELSE status END,updated=? WHERE id=?',
+                  (ver_num, report.overall_status, S.now(), fid))
         L.append(c, tid, fid, "figure.validated", {"version": ver_num, "overall_status": report.overall_status, "tests": report.tests})
     return report.model_dump(mode="json")
 
@@ -226,6 +259,7 @@ def validate_figure_version(tid: str, fid: str, version: int = 0) -> dict:
 def approve_figure(tid: str, fid: str, version: int, note: str) -> dict:
     if not note.strip():
         raise ValueError("Human scientific approval requires a review note")
+    if len(note) > 4000: raise ValueError('Scientific approval note exceeds its explicit4000character limit')
     cur = get_figure(tid, fid, version)
     ver_num = cur["selected_version"]
     check = validate_figure_version(tid, fid, ver_num)
@@ -234,9 +268,14 @@ def approve_figure(tid: str, fid: str, version: int, note: str) -> dict:
     with S.db() as c:
         fig = c.execute("SELECT payload FROM figures WHERE id=? AND topic_id=?", (fid, tid)).fetchone()
         p = json.loads(fig[0])
-        p.setdefault("latest_provenance", {})["scientific_review"] = "approved"
-        p["approval"] = {"by": "researcher", "version": ver_num, "note": note[:2000], "at": S.now()}
-        c.execute("UPDATE figures SET status='approved',payload=?,updated=? WHERE id=?", (S.dumps(p), S.now(), fid))
+        if ver_num == cur['current_version']:
+            p.setdefault('latest_provenance', {})['scientific_review'] = 'approved'
+        p['approval'] = {'by': 'researcher', 'version': ver_num, 'note': note, 'at': S.now(),
+                         'spec_sha256': cur['provenance']['spec_sha256'], 'data_sha256': cur['provenance']['data_sha256'],
+                         'exports': {key: value.get('sha256') for key, value in cur['provenance'].get('exports', {}).items()}}
+        p.setdefault('approvals', {})[str(ver_num)] = p['approval']
+        c.execute("UPDATE figures SET status=CASE WHEN current_version=? THEN 'approved' ELSE status END,payload=?,updated=? WHERE id=?",
+                  (ver_num, S.dumps(p), S.now(), fid))
         L.append(c, tid, fid, "figure.approved", p["approval"])
     return get_figure(tid, fid, ver_num)
 
@@ -244,19 +283,24 @@ def approve_figure(tid: str, fid: str, version: int, note: str) -> dict:
 def attach_to_paper(tid: str, fid: str, section: str = "results", version: int = 0) -> dict:
     """Insert a verified LaTeX \\includegraphics + provenance comment block into the Paper manuscript."""
     from backend.paper import writer as PW
+    from backend.paper.export import tex_escape
 
     cur = get_figure(tid, fid, version)
+    _require_real_raster(cur['provenance'])
     ver_num = cur["selected_version"]
     spec = cur["spec"]
     prov = cur["provenance"]
-    if spec.get("require_approval_before_paper_use") and cur["status"] != "approved" and prov.get("scientific_review") != "approved":
+    check = validate_figure_version(tid, fid, ver_num)
+    if check['overall_status'] == 'failed': raise ValueError('Figure data or exported files changed; manuscript use is blocked')
+    if spec.get('require_approval_before_paper_use') and not cur.get('approval'):
         raise ValueError("Figure requires human scientific approval before attaching to manuscript")
+    export_file_path(tid, fid, 'pdf', ver_num)  # No dangling includegraphics reference.
     snippet = (
         f"\n% PhD Lab Figure Provenance: id={fid} v{ver_num:04d} spec_sha256={prov['spec_sha256'][:16]} data_sha256={prov['data_sha256'][:16]}\n"
         "\\begin{figure}[htbp]\n"
         "  \\centering\n"
         f"  \\includegraphics[width=\\columnwidth]{{figures/{fid}_v{ver_num:04d}.pdf}}\n"
-        f"  \\caption{{{spec.get('caption') or spec['title']}}}\n"
+        f"  \\caption{{{tex_escape(spec.get('caption') or spec['title'])}}}\n"
         f"  \\label{{fig:{fid}}}\n"
         "\\end{figure}\n"
     )
@@ -270,6 +314,8 @@ def attach_to_paper(tid: str, fid: str, section: str = "results", version: int =
 
 def export_file_path(tid: str, fid: str, fmt: str, version: int = 0) -> Path:
     cur = get_figure(tid, fid, version)
+    if fmt in ('png', 'pdf'):
+        _require_real_raster(cur['provenance'])
     ver_num = cur["selected_version"]
     out_dir = _figure_dir(tid, fid, ver_num)
     if fmt == "script":
@@ -285,6 +331,8 @@ def export_file_path(tid: str, fid: str, fmt: str, version: int = 0) -> Path:
         p = Path(exports[fmt]["path"])
     if not p.is_file():
         raise ValueError("Requested figure file is missing on disk")
+    if p.resolve() != S.safe_child(out_dir, p.name).resolve():
+        raise ValueError('Figure export escaped its immutable version directory')
     # Verify integrity on export
     if fmt in (cur["provenance"].get("exports") or {}):
         expected = cur["provenance"]["exports"][fmt]["sha256"]

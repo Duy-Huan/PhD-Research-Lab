@@ -1,0 +1,35 @@
+name: Trusted qualified promotion auto-merge
+on:
+  workflow_run:
+    workflows: [Quality Gates]
+    types: [completed]
+permissions: {}
+jobs:
+  enable:
+    # Local-first scripts/promote.py is the default. Enable this optional hosted
+    # controller only after protected main adopts it and read-only policy auth exists.
+    if: vars.PHDLAB_HOSTED_AUTO_PROMOTION == 'enabled' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: read
+      actions: read
+    steps:
+      # Privileged workflow: load only protected main code, never PR code/artifacts.
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {ref: main, persist-credentials: false}
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          AUTOMERGE_POLICY_READ_TOKEN: ${{ secrets.AUTOMERGE_POLICY_READ_TOKEN }}
+        with:
+          script: |
+            const {run} = require('./.github/scripts/automerge.cjs');
+            for (const pr of context.payload.workflow_run.pull_requests || []) {
+              // Owner authorization,2026-10-25: native main promotion only after
+              // every mandatory software regression and protected check truly succeeds.
+              // Live-provider/AI-UAT qualification is separate under owner2026-10-26 policy.
+              const result = await run({github, context, core}, pr.number, true, {allowMain:true});
+              core.info(JSON.stringify(result));
+            }

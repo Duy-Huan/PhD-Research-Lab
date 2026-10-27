@@ -1,0 +1,47 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_model_cli_streaming.StreamingAuthority.test_closing_reader_cancels_only_its_owned_cli_request",
+      "status": "PASS",
+      "duration": 0.0183,
+      "details": null
+    },
+    {
+      "id": "test_model_cli_streaming.StreamingAuthority.test_completed_stream_does_not_cancel_an_already_finished_request",
+      "status": "PASS",
+      "duration": 0.038,
+      "details": null
+    },
+    {
+      "id": "test_model_cli_streaming.StreamingAuthority.test_connector_startup_failure_is_reported_without_waiting_for_a_delta",
+      "status": "PASS",
+      "duration": 0.0107,
+      "details": null
+    },
+    {
+      "id": "test_model_cli_streaming.StreamingAuthority.test_first_delta_arrives_before_cli_finishes",
+      "status": "PASS",
+      "duration": 0.0146,
+      "details": null
+    },
+    {
+      "id": "test_model_cli_streaming.StreamingAuthority.test_partial_delta_is_delivered_before_later_provider_failure",
+      "status": "PASS",
+      "duration": 0.0125,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 5,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-k0omdlpm",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

@@ -10,20 +10,14 @@ describe('TopicView', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     useUIStore.getState().setActiveTopic(null);
+    useUIStore.getState().setLanguage('vi');
   });
 
-  it('renders topic list, creates a new topic, and selects it', async () => {
+  it('creates the first paper topic in an empty project', async () => {
     vi.spyOn(api, 'get').mockImplementation(async (url: string) => {
       if (url.includes('/api/research/topics')) {
         return {
-          topics: [
-            {
-              id: 'top-1',
-              title: 'Efficient Attention Benchmarking',
-              description: 'Analyzing linear and sparse attention',
-              keywords: ['attention', 'transformer'],
-            },
-          ],
+          topics: [],
         };
       }
       return {};
@@ -38,12 +32,10 @@ describe('TopicView', () => {
 
     renderWithProviders(<TopicView />);
 
-    await waitFor(() => {
-      expect(screen.getByText('Efficient Attention Benchmarking')).toBeInTheDocument();
-    });
+    await screen.findByText(/Xác định chủ đề bài báo/);
 
     // Create topic
-    const newBtn = screen.getByText(/Tạo Topic mới/i);
+    const newBtn = screen.getByText(/Xác định chủ đề bài báo/i);
     fireEvent.click(newBtn);
 
     const titleInput = screen.getByPlaceholderText(/Diffusion models/i);
@@ -61,4 +53,13 @@ describe('TopicView', () => {
       );
     });
   });
+  it('preserves an existing paper and prevents adding a second topic to the same project', async () => {
+    vi.spyOn(api,'get').mockResolvedValue({topics:[{id:'top-1',title:'Existing paper',keywords:[]}]});
+    const post=vi.spyOn(api,'post').mockResolvedValue({});
+    renderWithProviders(<TopicView />);
+    expect(await screen.findByText('Existing paper')).toBeInTheDocument();
+    expect(screen.getByRole('button',{name:/Xác định chủ đề bài báo/})).toBeDisabled();
+    expect(post).not.toHaveBeenCalled();
+  });
+
 });

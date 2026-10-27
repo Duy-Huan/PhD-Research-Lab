@@ -7,6 +7,7 @@ import { MissionDAG } from './MissionDAG';
 import { TaskInspector } from './TaskInspector';
 import { MissionBuilder } from './MissionBuilder';
 import { CustomHarnessStudio } from '../harness/CustomHarnessStudio';
+import { AutonomyPanel } from './AutonomyPanel';
 import {
   Layers,
   Plus,
@@ -25,7 +26,7 @@ export const MissionLiveWorkspace: React.FC = () => {
   const { activeTopicId } = useUIStore();
 
   // Mode: 'automated' (agent teams) vs 'manual' (drag-drop custom harness)
-  const [harnessMode, setHarnessMode] = useState<'automated' | 'manual'>('automated');
+  const [harnessMode, setHarnessMode] = useState<'automated' | 'manual' | 'autonomy'>('automated');
   const [showBuilder, setShowBuilder] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [selectedMissionId, setSelectedMissionId] = useState<string | null>(null);
@@ -96,7 +97,6 @@ export const MissionLiveWorkspace: React.FC = () => {
   const reviewMutation = useMutation({
     mutationFn: ({ mid, decision }: { mid: string; decision: 'accept' | 'reject' }) =>
       api.post(`/api/research/topics/${activeTopicId}/missions/${mid}/review`, {
-        decision,
         note: `Reviewed (${decision}) via React UI`,
       }),
     onSuccess: () => {
@@ -113,6 +113,7 @@ export const MissionLiveWorkspace: React.FC = () => {
   }
 
   // If in manual custom harness studio mode, render drag-and-drop workspace
+  if (harnessMode === 'autonomy') return <><button className="btn" onClick={() => setHarnessMode('automated')}>{t('Quay lại Missions', 'Back to Missions')}</button><AutonomyPanel key={activeTopicId} /></>;
   if (harnessMode === 'manual') {
     return (
       <CustomHarnessStudio
@@ -174,6 +175,7 @@ export const MissionLiveWorkspace: React.FC = () => {
         </button>
       </div>
 
+      <button className="btn accent" onClick={() => setHarnessMode('autonomy')}>Workflows L1–L4</button>
       {showBuilder && (
         <MissionBuilder
           topicId={activeTopicId}

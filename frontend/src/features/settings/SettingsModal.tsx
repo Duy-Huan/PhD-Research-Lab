@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUIStore, useI18n } from '../../shared/state/uiStore';
 import { api } from '../../shared/api/client';
-import type { AppConfig, SkillItem } from '../../shared/api/types';
+import { GatewayConnections } from './GatewayConnections';
+import type { AppConfig, SkillItem, ModelsResponse } from '../../shared/api/types';
 import {
   Settings,
   Cpu,
@@ -52,8 +53,8 @@ const BUILTIN_THEMES = [
     swatch: { bg: '#1d1c1a', panel: '#252422', ink: '#ecebe6', accent: '#e7783f' },
   },
   {
-    id: 'openscience-indigo',
-    name: 'OpenScience Studio (Indigo)',
+    id: 'research-indigo',
+    name: 'Research Studio (Indigo)',
     base: 'dark',
     swatch: { bg: '#0f1420', panel: '#171f30', ink: '#edf2ff', accent: '#4f8cff' },
     colors: {
@@ -137,6 +138,7 @@ export function applyFontById(id: string) {
 }
 
 export function applyThemeById(id: string) {
+  if (id === 'openscience-indigo') id = 'research-indigo'; // Preserve saved appearance, retire vendor branding.
   const root = document.documentElement;
   const customTokens = [
     'bg', 'panel', 'side', 'raise', 'ink', 'ink-2', 'muted', 'faint',
@@ -172,7 +174,7 @@ export function applyThemeById(id: string) {
 
 export const SettingsModal: React.FC = () => {
   const queryClient = useQueryClient();
-  const { settingsTab, openSettings, setMainView, language, setLanguage, uiScale, setUiScale } = useUIStore();
+  const { settingsTab, openSettings, setMainView, language, setLanguage, uiScale, setUiScale, openDrawer } = useUIStore();
   const { t } = useI18n();
 
   const tabs = [
@@ -186,7 +188,7 @@ export const SettingsModal: React.FC = () => {
       id: 'engines',
       label: t('Công cụ Nghiên cứu', 'Research Engines'),
       icon: Terminal,
-      desc: t('OpenScience, Feynman, OpenCode & Giao diện dòng lệnh', 'OpenScience, Feynman, OpenCode & CLI'),
+      desc: t('Công cụ native và engine tích hợp', 'Native tools & integrated engines'),
     },
     {
       id: 'search',
@@ -198,7 +200,7 @@ export const SettingsModal: React.FC = () => {
       id: 'hardware',
       label: t('Thí nghiệm & Phần cứng', 'Experiments & Hardware'),
       icon: HardDrive,
-      desc: t('Bảo vệ GPU, Chạy ngầm, ClearML & VS Code', 'GPU Guard, Background Runs, ClearML & VS Code'),
+      desc: t('Bảo vệ GPU, tracking native & VS Code', 'GPU Guard, Native Tracking & VS Code'),
     },
     {
       id: 'memory',
@@ -244,13 +246,22 @@ export const SettingsModal: React.FC = () => {
     queryKey: ['config'],
     queryFn: () => api.get<AppConfig>('/api/config'),
   });
+  const { data: gatewayModels, error: catalogError } = useQuery({ queryKey: ['models'], queryFn: async () => {
+    const data = await api.get<ModelsResponse>('/api/models');
+    if (!Array.isArray(data.providers) || !data.agent_catalog || typeof data.agent_catalog !== 'object')
+      throw new Error(t('Danh mục model không hợp lệ. Hãy làm mới kết nối.', 'Invalid model catalog. Refresh the connections.'));
+    return data;
+  } });
+  const [pendingCloudPreconnect, setPendingCloudPreconnect] = useState<boolean | null>(null);
 
   // Save config mutation (POST /api/config — exact backend route)
   const saveConfigMutation = useMutation({
     mutationFn: (patch: Record<string, unknown>) => api.post<AppConfig>('/api/config', patch),
-    onSuccess: () => {
+    onSuccess: (saved) => {
+      queryClient.setQueryData(['config'], saved);
       queryClient.invalidateQueries({ queryKey: ['config'] });
       queryClient.invalidateQueries({ queryKey: ['models'] });
+      queryClient.invalidateQueries({ queryKey: ['model-connections'] });
       notify(t('Đã lưu cấu hình thành công!', 'Configuration saved successfully!'));
     },
     onError: (err: Error) => {
@@ -267,6 +278,13 @@ export const SettingsModal: React.FC = () => {
     queryKey: ['models-local'],
     queryFn: () => api.get('/api/models/local'),
     enabled: activeTab === 'models',
+  });
+
+  const { data: connectionData } = useQuery<{ connections: Array<{ provider: string; model: string; state: string }> }>({
+    queryKey: ['model-connections'],
+    queryFn: () => api.get('/api/models/connections'),
+    enabled: activeTab === 'models',
+    refetchInterval: activeTab === 'models' ? 5000 : false,
   });
 
   const { data: researchProvidersData, refetch: refetchProviders } = useQuery<{ providers: any[] }>({
@@ -287,7 +305,7 @@ export const SettingsModal: React.FC = () => {
     enabled: activeTab === 'skills',
   });
 
-  const { data: pluginsData, refetch: refetchPlugins } = useQuery<{ plugins: any[]; root: string }>({
+  const { data: pluginsData, refetch: refetchPlugins } = useQuery<{ plugins: any[]; optional_plugins?: any[]; root: string }>({
     queryKey: ['plugins'],
     queryFn: () => api.get('/api/plugins'),
     enabled: activeTab === 'skills',
@@ -303,8 +321,6 @@ export const SettingsModal: React.FC = () => {
   const [syncingProvider, setSyncingProvider] = useState<string | null>(null);
   const [syncResults, setSyncResults] = useState<Record<string, { at: string; changed: number; observed: number }>>({});
 
-  // OpenScience token state
-  const [osciToken, setOsciToken] = useState('');
   // Search keys state
   const [searchKeyInputs, setSearchKeyInputs] = useState<Record<string, string>>({});
   // Venue lookup test
@@ -321,7 +337,8 @@ export const SettingsModal: React.FC = () => {
   // Theme state
   const [selectedTheme, setSelectedTheme] = useState<string>(() => {
     try {
-      return localStorage.getItem('pl.theme') || 'system';
+      const saved = localStorage.getItem('pl.theme');
+      return saved === 'openscience-indigo' ? 'research-indigo' : saved || 'system';
     } catch {
       return 'system';
     }
@@ -363,7 +380,7 @@ export const SettingsModal: React.FC = () => {
   // List models from provider API
   const handleFetchModels = async (pid: string) => {
     try {
-      const res = await api.post<{ models: string[] }>('/api/models/list', { provider: pid });
+      const res = await api.post<{ models: string[] }>(pid === 'codex' ? '/api/models/cli/codex' : '/api/models/list', { provider: pid });
       setFetchedProviderModels((prev) => ({ ...prev, [pid]: res.models || [] }));
       notify(t(`Đã tải ${(res.models || []).length} model từ ${pid}`, `Loaded ${(res.models || []).length} models from ${pid}`));
     } catch (err) {
@@ -424,38 +441,20 @@ export const SettingsModal: React.FC = () => {
     }
   };
 
-  // Engine options for the 4 agents (includes Subscriptions, CLIs, Local, and all 17 Cloud Providers)
   const agentEngineOptions = [
-    ['auto', t('Tự động điều phối thông minh', 'Auto (Smart Router: Local → Cloud)')],
-    ['codex', t('Gói trả phí ChatGPT dòng lệnh', 'ChatGPT Subscription (Codex CLI)')],
-    ['claude_code', t('Gói trả phí Claude dòng lệnh', 'Claude Subscription (Claude Code CLI)')],
-    ['antigravity', t('Google Antigravity và công cụ agy', 'Google Antigravity (IDE + agy CLI)')],
-    ['gemini_cli', t('Gói trả phí Google Gemini dòng lệnh', 'Google Gemini Subscription (Gemini CLI)')],
-    ['claude', t('Anthropic Claude có khóa API', 'Anthropic Claude (API key preferred)')],
-    ['cloud', `${t('Đám mây mặc định', 'Default Cloud')} (${config.default_cloud})`],
-    ['local', t('LM Studio trên bộ nhớ cục bộ', 'LM Studio (Local VRAM)')],
-    ['ollama', t('Ollama trên bộ nhớ cục bộ', 'Ollama (Local VRAM)')],
-    ['mcp', t('Công cụ Suy luận MCP', 'MCP Inference Tool')],
-    ...Object.entries(providerSpecs).map(([k, v]) => [k, `${v.label} (${t('API Đám mây', 'Cloud API')})`]),
+    ...(gatewayModels?.providers || []).map(provider => [provider.id, provider.label]),
+    ['mcp', t('Công cụ suy luận MCP', 'MCP inference tool')],
   ];
-
-  const CLI_DEFAULT_MODELS: Record<string, string[]> = {
-    codex: ['gpt-5', 'gpt-5-codex', 'gpt-5-mini', 'o3', 'o4-mini', 'gpt-4.1'],
-    chatgpt_sub: ['gpt-5', 'gpt-5-codex', 'gpt-5-mini', 'o3', 'o4-mini', 'gpt-4.1'],
-    claude_code: ['sonnet', 'opus', 'haiku', 'claude-sonnet-4-6', 'claude-opus-4-6'],
-    gemini_cli: ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.0-flash'],
-    antigravity: ['gemini-2.5-pro', 'gemini-2.5-flash', 'claude-sonnet-4-6'],
-  };
 
   // Strict provider-scoped model list for any selected agent engine/provider
   const getModelsForEngine = (mode: string): string[] => {
-    const clean = (mode || '').replace(/^cli:/, '').replace(/^app:/, '');
+    const clean = (mode || '').replace(/^cli:/, '').replace(/^app:/, '').replace(/^runtime:/, '');
     if (clean === 'auto') return [];
     const targetPid =
       clean === 'cloud'
         ? config.default_cloud
         : clean === 'claude'
-        ? 'anthropic'
+        ? (config.providers?.anthropic?.has_key ? 'anthropic' : config.default_cloud)
         : clean;
 
     if (targetPid === 'local') {
@@ -473,9 +472,9 @@ export const SettingsModal: React.FC = () => {
     if (targetPid === 'mcp') {
       return config.mcp_agent?.models || [];
     }
-    if (CLI_DEFAULT_MODELS[targetPid]) {
+    if (['codex', 'claude_code', 'gemini_cli', 'antigravity', 'hermes'].includes(targetPid)) {
       const cliSaved = config.gateway?.cli_models?.[targetPid] || [];
-      return Array.from(new Set([...cliSaved, ...CLI_DEFAULT_MODELS[targetPid]]));
+      return Array.from(new Set([...(fetchedProviderModels[targetPid] || []), ...cliSaved, ...(gatewayModels?.providers.find(provider => provider.id === 'cli:' + targetPid || provider.id === 'runtime:' + targetPid)?.models || [])]));
     }
     if (providerSpecs[targetPid]) {
       const fetched = fetchedProviderModels[targetPid] || [];
@@ -488,6 +487,7 @@ export const SettingsModal: React.FC = () => {
 
   return (
     <div
+      className="settings-studio"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -499,11 +499,12 @@ export const SettingsModal: React.FC = () => {
     >
       {/* Top Studio Header Bar */}
       <div
+        className="settings-studio-header"
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '14px 24px',
+          padding: '14px 110px 14px 24px',
           background: 'var(--panel)',
           borderBottom: '1px solid var(--line)',
           flexShrink: 0,
@@ -557,6 +558,7 @@ export const SettingsModal: React.FC = () => {
           >
             <span className="muted">{t('Tỉ lệ:', 'Scale:')}</span>
             <select
+              aria-label={t('Tỉ lệ thu phóng giao diện', 'UI Display Scale')}
               value={String(uiScale)}
               onChange={(e) => setUiScale(Number(e.target.value))}
               style={{
@@ -580,17 +582,15 @@ export const SettingsModal: React.FC = () => {
           <div
             style={{
               display: 'inline-flex',
-              borderRadius: 8,
-              border: '1px solid var(--line-2)',
-              overflow: 'hidden',
-              background: 'var(--bg-2)',
+              alignItems: 'center',
+              gap: 6,
             }}
             title={t('Chuyển đổi ngôn ngữ Tiếng Việt / English', 'Switch Language Vietnamese / English')}
           >
             <button
               type="button"
               className={`btn sm ${(config.ui?.language || language) === 'vi' ? 'accent' : 'ghost'}`}
-              style={{ borderRadius: 0, padding: '4px 10px', fontWeight: 700 }}
+              style={{ borderRadius: 6, minWidth: 38, height: 28, fontWeight: 700 }}
               onClick={() => {
                 setLanguage('vi');
                 savePatch({ ui: { language: 'vi' } });
@@ -601,7 +601,7 @@ export const SettingsModal: React.FC = () => {
             <button
               type="button"
               className={`btn sm ${(config.ui?.language || language) === 'en' ? 'accent' : 'ghost'}`}
-              style={{ borderRadius: 0, padding: '4px 10px', fontWeight: 700 }}
+              style={{ borderRadius: 6, minWidth: 38, height: 28, fontWeight: 700 }}
               onClick={() => {
                 setLanguage('en');
                 savePatch({ ui: { language: 'en' } });
@@ -614,9 +614,10 @@ export const SettingsModal: React.FC = () => {
       </div>
 
       {/* Main Split View: Left Navigation Rail + Right Settings Content */}
-      <div style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+      <div className="settings-studio-body" style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
         {/* Left Navigation Rail */}
         <nav
+          aria-label={t('Mục cài đặt', 'Settings sections')}
           style={{
             width: 280,
             borderRight: '1px solid var(--line)',
@@ -696,6 +697,7 @@ export const SettingsModal: React.FC = () => {
 
         {/* Right Scrollable Settings Content */}
         <div
+          className="settings-studio-content"
           style={{
             flex: 1,
             overflowY: 'auto',
@@ -703,6 +705,7 @@ export const SettingsModal: React.FC = () => {
             maxWidth: 1080,
           }}
         >
+          {catalogError && <p role="alert">{catalogError.message}</p>}
           {/* ================================================================
               TAB 1: MODELS & AI AGENTS
              ================================================================ */}
@@ -749,17 +752,17 @@ export const SettingsModal: React.FC = () => {
                     </thead>
                     <tbody>
                       {Object.entries(config.agents || {}).map(([agentId, spec]) => {
-                        const mode = config.agent_modes?.[agentId] || spec.default;
+                        const mode = gatewayModels?.agent_catalog?.[agentId]?.provider_id || config.agent_modes?.[agentId] || spec.default;
                         const currentModel = config.agent_models?.[agentId] || '';
                         const supportedModels = getModelsForEngine(mode);
-                        const cleanMode = mode.replace(/^cli:/, '').replace(/^app:/, '');
+                        const cleanMode = mode.replace(/^cli:/, '').replace(/^app:/, '').replace(/^runtime:/, '');
                         const targetPid =
                           cleanMode === 'cloud'
                             ? config.default_cloud
                             : cleanMode === 'claude'
-                            ? 'anthropic'
+                            ? (config.providers?.anthropic?.has_key ? 'anthropic' : config.default_cloud)
                             : cleanMode;
-                        const canFetch = Boolean(providerSpecs[targetPid]);
+                        const canFetch = targetPid === 'codex' || Boolean(providerSpecs[targetPid]);
 
                         return (
                           <tr key={agentId}>
@@ -769,6 +772,7 @@ export const SettingsModal: React.FC = () => {
                             </td>
                             <td>
                               <select
+                                aria-label={`${agentId} ${t('Nhà cung cấp', 'provider')}`}
                                 className="input"
                                 value={mode}
                                 onChange={(e) => {
@@ -776,7 +780,7 @@ export const SettingsModal: React.FC = () => {
                                   const nextModels = getModelsForEngine(nextMode);
                                   savePatch({
                                     agent_modes: { [agentId]: nextMode },
-                                    agent_models: { [agentId]: nextModels[0] || '' },
+                                    agent_models: { [agentId]: nextMode.startsWith('cli:') || nextMode.startsWith('runtime:') ? '' : nextModels[0] || '' },
                                   });
                                 }}
                               >
@@ -788,21 +792,22 @@ export const SettingsModal: React.FC = () => {
                               </select>
                             </td>
                             <td>
-                              {mode === 'auto' ? (
+                              {mode === 'auto' || mode === 'app:auto' ? (
                                 <span className="muted" style={{ fontSize: 12.5 }}>
                                   {t('Tự động điều phối theo Router Thông minh', 'Auto-routed by Smart Router')}
                                 </span>
                               ) : (
                                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                                   <select
+                                    aria-label={`${agentId} ${t('Mô hình', 'model')}`}
                                     className="input"
                                     style={{ flex: 1 }}
-                                    value={currentModel || supportedModels[0] || ''}
+                                    value={currentModel}
                                     onChange={(e) =>
                                       savePatch({ agent_models: { [agentId]: e.target.value } })
                                     }
                                   >
-                                    {supportedModels.length === 0 && (
+                                    {(
                                       <option value="">({t('Mặc định của', 'Default for')} {targetPid})</option>
                                     )}
                                     {supportedModels.map((m) => (
@@ -844,6 +849,7 @@ export const SettingsModal: React.FC = () => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span className="muted" style={{ fontSize: 12.5 }}>{t('Đám mây mặc định:', 'Default Cloud:')}</span>
                     <select
+                      aria-label={t('Đám mây mặc định', 'Default Cloud')}
                       className="input"
                       style={{ width: 210, padding: '4px 8px' }}
                       value={config.default_cloud}
@@ -1115,6 +1121,7 @@ export const SettingsModal: React.FC = () => {
                     <span style={{ fontSize: 13 }}>{t('Tự gỡ mô hình khỏi VRAM khi rảnh sau (phút):', 'Idle VRAM unload timeout (minutes):')}</span>
                     <input
                       type="number"
+                      aria-label={t('Tự gỡ mô hình khỏi VRAM khi rảnh sau (phút)', 'Idle VRAM unload timeout (minutes)')}
                       className="input"
                       style={{ width: 90 }}
                       min={1}
@@ -1126,6 +1133,65 @@ export const SettingsModal: React.FC = () => {
                     />
                   </div>
                 </div>
+              </section>
+
+              <section className="panelbox" style={{ padding: 20 }}>
+                <h3>{t('Quy tắc kết nối mô hình', 'Model connection rules')}</h3>
+                <label className="switch">
+                  <input type="checkbox" checked={pendingCloudPreconnect ?? config.lifecycle?.cloud_preconnect !== false}
+                    disabled={saveConfigMutation.isPending}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setPendingCloudPreconnect(checked);
+                      saveConfigMutation.mutate({ lifecycle: { cloud_preconnect: checked } }, {
+                        onSettled: () => setPendingCloudPreconnect(null),
+                      });
+                    }} />
+                  <span>{t('Kết nối sẵn Cloud khi lưu mô hình', 'Preconnect Cloud when saving a model')}</span>
+                </label>
+                <p className="muted">{t('Cloud tái sử dụng kết nối HTTPS, không load/unload trọng số và không tự sinh câu trả lời khi kiểm tra kết nối. Máy chủ có thể đóng kết nối khi rảnh.', 'Cloud reuses HTTPS connections, never loads/unloads weights, and does not generate answers during preconnection. Servers may close idle connections.')}</p>
+                <div role="status" aria-live="polite">
+                  {(connectionData?.connections || []).map((item) => (
+                    <p key={item.provider} style={{ fontSize: 12 }}>
+                      {item.provider} · {item.model}: {({
+                        connecting: t('Đang kết nối', 'Connecting'), connected: t('Đã kết nối; chưa kiểm chứng suy luận', 'Connected; inference not verified'),
+                        auth_required: t('Cần xác thực', 'Authentication required'), rate_limited: t('Đã chạm hạn mức', 'Rate limited'),
+                        model_unconfirmed: t('Đã kết nối; chưa xác nhận model', 'Connected; model unconfirmed'),
+                        reachable: t('Đã tới máy chủ; chưa xác nhận quyền/model', 'Reachable; auth/model unconfirmed'),
+                        error: t('Kết nối thất bại', 'Connection failed'),
+                      } as Record<string, string>)[item.state] || item.state}
+                    </p>
+                  ))}
+                </div>
+                <label className="field">
+                  <span>{t('Ngân sách lịch sử chat (token ước tính)', 'Chat history budget (estimated tokens)')}</span>
+                  <input className="input" type="number" min={400} max={32000}
+                    defaultValue={config.aiws?.history_budget_tokens || 4000}
+                    onBlur={(e) => {
+                      const value = Math.max(400, Math.min(32000, Number(e.target.value) || 4000));
+                      e.target.value = String(value);
+                      savePatch({ aiws: { history_budget_tokens: value } });
+                    }} />
+                </label>
+                <label className="field">
+                  <span>{t('Ngân sách ngữ cảnh nguồn (token ước tính)', 'Source context budget (estimated tokens)')}</span>
+                  <input className="input" type="number" min={400} max={32000}
+                    defaultValue={config.aiws?.context_budget_tokens || 6000}
+                    onBlur={(e) => {
+                      const value = Math.max(400, Math.min(32000, Number(e.target.value) || 6000));
+                      e.target.value = String(value);
+                      savePatch({ aiws: { context_budget_tokens: value } });
+                    }} />
+                </label>
+                <label className="field">
+                  <span>{t('Quy tắc model Local cho chat', 'Local model policy for chat')}</span>
+                  <select className="select" value={config.lifecycle?.local_interactive || 'idle_unload'}
+                    onChange={(e) => savePatch({ lifecycle: { local_interactive: e.target.value } })}>
+                    <option value="idle_unload">{t('Giải phóng khi rảnh', 'Unload when idle')}</option>
+                    <option value="unload_after_task">{t('Giải phóng sau mỗi tác vụ', 'Unload after each task')}</option>
+                    <option value="keep_loaded">{t('Giữ model trong bộ nhớ', 'Keep model loaded')}</option>
+                  </select>
+                </label>
               </section>
 
               {/* 1D. Capability-Aware Failover & Routing */}
@@ -1148,14 +1214,14 @@ export const SettingsModal: React.FC = () => {
           )}
 
           {/* ================================================================
-              TAB 2: RESEARCH ENGINES (OpenScience · Feynman · OpenCode · CLI)
+              TAB 2: NATIVE RESEARCH TOOLS
              ================================================================ */}
           {activeTab === 'engines' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {/* 2A. Engine Mode & Priority */}
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>
-                  {t('Chế độ Điều phối Research Engines', 'Research Engines Orchestration Mode (Feynman · OpenScience · OpenCode)')}
+                  {t('Điều phối công cụ nghiên cứu', 'Native research tool routing')}
                 </h3>
                 <p className="muted" style={{ fontSize: 13, margin: '0 0 14px' }}>
                   {t('PhD Lab quản lý trạng thái nghiên cứu tập trung và ủy quyền từng tác vụ có phạm vi kiểm soát cho các Runtime Engine chuyên biệt.', 'PhD Lab maintains centralized research state while delegating scoped workloads to specialized runtime engines.')}
@@ -1172,10 +1238,7 @@ export const SettingsModal: React.FC = () => {
                       }
                     >
                       <option value="auto">{t('Router Thông minh (Tự động chọn theo năng lực)', 'Auto Smart Router (Capability-based dynamic routing)')}</option>
-                      <option value="feynman">{t('Chỉ dùng Feynman (Tổng quan văn hiến & phản biện)', 'Feynman Only (Literature review & peer critique)')}</option>
-                      <option value="openscience">{t('Chỉ dùng OpenScience (Thực nghiệm khoa học)', 'OpenScience Only (Scientific experimentation loop)')}</option>
-                      <option value="opencode">{t('Chỉ dùng OpenCode (Lập trình & bản mẫu song song)', 'OpenCode Only (Parallel code prototyping & runtime)')}</option>
-                      <option value="collaborative">{t('Phối hợp Đa giai đoạn', 'Collaborative Multi-Engine Pipeline')}</option>
+                      <option value="paperorchestra">PaperOrchestra</option>
                       <option value="phdlab">{t('Chỉ dùng PhD Lab Cốt lõi (Toàn bộ Agent nội bộ)', 'PhD Lab Native Only (Run all agents natively via PhD Lab)')}</option>
                     </select>
                   </label>
@@ -1199,225 +1262,15 @@ export const SettingsModal: React.FC = () => {
                 </div>
               </section>
 
-              {/* 2B. OpenScience Runtime Adapter (:4096) */}
-              <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <h3 style={{ margin: 0, fontSize: 16 }}>
-                    {t('OpenScience Runtime Adapter (v6.0+ · Loopback :4096)', 'OpenScience Runtime Adapter (v6.0+ · Loopback :4096)')}
-                  </h3>
-                  <span className={`chip ${config.openscience?.enabled ? 'ok' : ''}`}>
-                    {config.openscience?.enabled ? t('Đang bật', 'Enabled') : t('Đang tắt', 'Disabled')}
-                  </span>
-                </div>
-                <p className="muted" style={{ fontSize: 13, margin: '0 0 14px' }}>
-                  {t('Kết nối tới OpenScience Studio cục bộ để thực thi các nhiệm vụ nghiên cứu tự hành, kiểm định giả thuyết và thu thập artifacts.', 'Connect to local OpenScience Studio to execute autonomous research workflows, test hypotheses, and harvest artifacts.')}
-                </p>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={!!config.openscience?.enabled}
-                      onChange={(e) => savePatch({ openscience: { enabled: e.target.checked } })}
-                    />
-                    <span>{t('Bật OpenScience Runtime Adapter', 'Enable OpenScience Runtime Adapter')}</span>
-                  </label>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={!!config.openscience?.policy_confirmed}
-                      onChange={(e) =>
-                        savePatch({ openscience: { policy_confirmed: e.target.checked } })
-                      }
-                    />
-                    <span>{t('Tôi xác nhận đã xem xét quyền runtime và chính sách chia sẻ trace cục bộ', 'I confirm review of runtime permissions and local trace sharing policy')}</span>
-                  </label>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={!!config.openscience?.allow_execution}
-                      onChange={(e) =>
-                        savePatch({ openscience: { allow_execution: e.target.checked } })
-                      }
-                    />
-                    <span>{t('Cho phép thực thi mã nguồn đề xuất trong Workspace cô lập', 'Allow execution of proposed code within isolated workspace')}</span>
-                  </label>
-                </div>
-
-                <div className="grid2">
-                  <label className="field">
-                    <span>OpenScience Loopback URL</span>
-                    <input
-                      className="input"
-                      defaultValue={config.openscience?.base_url || 'http://127.0.0.1:4096'}
-                      onBlur={(e) => savePatch({ openscience: { base_url: e.target.value } })}
-                    />
-                  </label>
-                  <label className="field">
-                    <span>Deployment Token</span>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      <input
-                        type="password"
-                        className="input"
-                        placeholder={
-                          config.openscience?.has_token
-                            ? t('•••••• (Đã lưu token)', '•••••• (Token saved)')
-                            : t('Nhập OpenScience token…', 'Enter OpenScience token…')
-                        }
-                        value={osciToken}
-                        onChange={(e) => setOsciToken(e.target.value)}
-                      />
-                      <button
-                        type="button"
-                        className="btn sm accent"
-                        onClick={() => {
-                          if (osciToken.trim()) {
-                            savePatch({ openscience: { token: osciToken.trim() } });
-                            setOsciToken('');
-                          }
-                        }}
-                      >
-                        {t('Lưu Token', 'Save Token')}
-                      </button>
-                    </div>
-                  </label>
-                  <label className="field">
-                    <span>{t('Giới hạn thời gian (giây)', 'Timeout (seconds)')}</span>
-                    <input
-                      type="number"
-                      className="input"
-                      defaultValue={config.openscience?.timeout_s || 600}
-                      onBlur={(e) =>
-                        savePatch({ openscience: { timeout_s: Number(e.target.value) || 600 } })
-                      }
-                    />
-                  </label>
-                  <label className="field">
-                    <span>{t('Ngân sách Tệp kết quả tối đa theo MB', 'Max Artifact Budget (MB)')}</span>
-                    <input
-                      type="number"
-                      className="input"
-                      defaultValue={config.openscience?.max_artifact_mb || 64}
-                      onBlur={(e) =>
-                        savePatch({ openscience: { max_artifact_mb: Number(e.target.value) || 64 } })
-                      }
-                    />
-                  </label>
-                  <label className="field">
-                    <span>{t('Nhà cung cấp Model của OpenScience', 'OpenScience Model Provider')}</span>
-                    <input
-                      className="input"
-                      placeholder="vd: anthropic, openai…"
-                      defaultValue={config.openscience?.model_provider || ''}
-                      onBlur={(e) =>
-                        savePatch({ openscience: { model_provider: e.target.value } })
-                      }
-                    />
-                  </label>
-                  <label className="field">
-                    <span>{t('Mã định danh Model của OpenScience', 'OpenScience Model ID')}</span>
-                    <input
-                      className="input"
-                      placeholder="vd: claude-sonnet-4-20250514…"
-                      defaultValue={config.openscience?.model_id || ''}
-                      onBlur={(e) => savePatch({ openscience: { model_id: e.target.value } })}
-                    />
-                  </label>
-                </div>
-              </section>
-
-              {/* 2C. OpenCode Parallel Core (v6.4.1 · Loopback :4097) */}
-              <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                  <h3 style={{ margin: 0, fontSize: 16 }}>
-                    {t('Tích hợp OpenCode Parallel Core (v6.4.1 · Loopback :4097)', 'OpenCode Parallel Core Integration (v6.4.1 · Loopback :4097)')}
-                  </h3>
-                  <span className={`chip ${config.opencode?.enabled !== false ? 'ok' : ''}`}>
-                    {config.opencode?.enabled !== false ? t('Đang bật', 'Enabled') : t('Đang tắt', 'Disabled')}
-                  </span>
-                </div>
-                <p className="muted" style={{ fontSize: 13, margin: '0 0 14px' }}>
-                  {t('Thực thi kỹ thuật phần mềm và bản mẫu song song trong không gian cô lập <topic>/opencode_prj/ với luồng sự kiện SHA-256 deduplicated.', 'Executes parallel software engineering and prototyping inside isolated <topic>/opencode_prj/ with deduplicated SHA-256 event streams.')}
-                </p>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={config.opencode?.enabled !== false}
-                      onChange={(e) => savePatch({ opencode: { enabled: e.target.checked } })}
-                    />
-                    <span>{t('Bật OpenCode Parallel Core Runtime', 'Enable OpenCode Parallel Core Runtime')}</span>
-                  </label>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={!!config.opencode?.allow_metered_api}
-                      onChange={(e) =>
-                        savePatch({ opencode: { allow_metered_api: e.target.checked } })
-                      }
-                    />
-                    <span>{t('Cho phép dùng Metered API (vẫn yêu cầu cổng phê duyệt từng phiên)', 'Allow metered API calls (still requires per-session risk approval)')}</span>
-                  </label>
-                </div>
-
-                <div className="grid2">
-                  <label className="field">
-                    <span>OpenCode Server URL (Loopback)</span>
-                    <input
-                      className="input"
-                      defaultValue={config.opencode?.base_url || 'http://127.0.0.1:4097'}
-                      onBlur={(e) => savePatch({ opencode: { base_url: e.target.value } })}
-                    />
-                  </label>
-                  <label className="field">
-                    <span>{t('Timeout mỗi phiên OpenCode (giây)', 'OpenCode Turn Timeout (seconds)')}</span>
-                    <input
-                      type="number"
-                      className="input"
-                      defaultValue={config.opencode?.timeout_s || 600}
-                      onBlur={(e) =>
-                        savePatch({ opencode: { timeout_s: Number(e.target.value) || 600 } })
-                      }
-                    />
-                  </label>
-                </div>
-              </section>
-
-              {/* 2D. Feynman & Live CLI Providers */}
+              {/* Native research/computation/publication tools */}
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                   <h3 style={{ margin: 0, fontSize: 16 }}>
-                    {t('Nhà Cung Cấp Ứng Dụng & Điều Hướng Nhanh Kèm Đồng Bộ', 'App Providers, Quick Launch & 2-Way Data Sync')}
+                    {t('Công cụ native và engine nghiên cứu tích hợp', 'Native tools & integrated research engines')}
                   </h3>
                   <button type="button" className="btn sm ghost" onClick={() => refetchProviders()}>
-                    <RefreshCw size={13} /> {t('Làm mới trạng thái CLI', 'Refresh CLI Status')}
+                    <RefreshCw size={13} /> {t('Làm mới trạng thái', 'Refresh status')}
                   </button>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={config.research_providers?.feynman_enabled !== false}
-                      onChange={(e) =>
-                        savePatch({ research_providers: { feynman_enabled: e.target.checked } })
-                      }
-                    />
-                    <span>{t('Dùng Feynman cho /lit, /deepresearch, /compare và /review', 'Use Feynman for /lit, /deepresearch, /compare and /review')}</span>
-                  </label>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={!!config.research_providers?.feynman_share_app_key}
-                      onChange={(e) =>
-                        savePatch({
-                          research_providers: { feynman_share_app_key: e.target.checked },
-                        })
-                      }
-                    />
-                    <span>{t('Cho phép Feynman dùng chung khóa Anthropic/OpenAI của ứng dụng', 'Allow Feynman to share in-app Anthropic/OpenAI keys')}</span>
-                  </label>
                 </div>
 
                 <div className="list">
@@ -1457,44 +1310,15 @@ export const SettingsModal: React.FC = () => {
                         </div>
                       )}
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
-                        <button
-                          type="button"
-                          className="btn sm ghost"
-                          onClick={() => handleLaunchProvider(p.id, p.label)}
-                          title={t('Mở nhanh ứng dụng hoặc trang quản trị nhà cung cấp', 'Directly open app or provider web')}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', fontSize: 11.5, borderRadius: 6 }}
-                        >
-                          <ExternalLink size={12} />
-                          <span>{t('Mở Ứng dụng', 'Open App')}</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="btn sm accent"
-                          disabled={syncingProvider === p.id}
-                          onClick={() => handleSyncProvider(p.id, p.label)}
-                          title={t('Quét và đồng bộ tệp tin, dữ liệu từ ứng dụng về PhD Lab', 'Scan and sync files from app back into PhD Lab')}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', fontSize: 11.5, borderRadius: 6 }}
-                        >
-                          <RefreshCw size={12} className={syncingProvider === p.id ? 'spin' : ''} />
-                          <span>{syncingProvider === p.id ? t('Đang đồng bộ...', 'Syncing...') : t('Đồng bộ về Lab', 'Sync to Lab')}</span>
-                        </button>
-
-                        {!p.ready &&
-                          ['feynman', 'claude_code', 'codex', 'gemini_cli', 'antigravity'].includes(p.id) && (
-                            <button
-                              type="button"
-                              className="btn sm"
-                              onClick={async () => {
-                                await api.post(`/api/providers/${p.id}/connect`, {});
-                                notify(t('Đã mở cửa sổ đăng nhập cho ', 'Opened login window for ') + p.label);
-                              }}
-                              style={{ padding: '4px 10px', fontSize: 11.5, borderRadius: 6 }}
-                            >
-                              {t('Đăng nhập CLI', 'CLI Login')}
-                            </button>
-                          )}
+                      <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+                        {p.id === 'vscode' && <button type="button" className="btn sm" onClick={async () => {
+                          try { await api.post('/api/code/vscode', {}); }
+                          catch (err) { notify((err as Error).message); }
+                        }}>{t('Mở trong VS Code', 'Open in VS Code')}</button>}
+                        {['phdlab', 'tracking'].includes(p.id) && <button type="button" className="btn sm" onClick={() => openDrawer('code')}>
+                          {t('Mở workspace native', 'Open native workspace')}
+                        </button>}
+                        {p.id === 'paperorchestra' && <button type="button" className="btn sm" onClick={() => openDrawer('paper')}>PaperOrchestra Studio</button>}
                       </div>
                     </div>
                   ))}
@@ -1856,17 +1680,10 @@ export const SettingsModal: React.FC = () => {
 
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>
-                  ClearML Tracking, VS Code & Research OS Mode
+                  {t('Tracking native, VS Code và Research OS', 'Native Tracking, VS Code & Research OS')}
                 </h3>
                 <div className="grid2">
-                  <label className="field">
-                    <span>ClearML Web Server URL</span>
-                    <input
-                      className="input"
-                      defaultValue={config.clearml?.web_url || 'http://localhost:8080'}
-                      onBlur={(e) => savePatch({ clearml: { web_url: e.target.value } })}
-                    />
-                  </label>
+                  <p className="muted">{t('Kết quả được lưu cùng nhật ký chạy, metrics và artifact trong project; không cần máy chủ tracking riêng.', 'Results stay with project run journals, metrics and artifacts; no tracking server is required.')}</p>
                   <label className="field">
                     <span>{t('Đường dẫn thực thi VS Code (để trống = tự động tìm)', 'VS Code Executable Path (empty = auto-detect)')}</span>
                     <input
@@ -1879,16 +1696,6 @@ export const SettingsModal: React.FC = () => {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={!!config.clearml?.server_enabled}
-                      onChange={(e) =>
-                        savePatch({ clearml: { server_enabled: e.target.checked } })
-                      }
-                    />
-                    <span>{t('Đồng bộ trực tuyến với ClearML Server', 'Sync online with ClearML Server')}</span>
-                  </label>
                   <label className="switch">
                     <input
                       type="checkbox"
@@ -2099,23 +1906,180 @@ export const SettingsModal: React.FC = () => {
                   </button>
                 </div>
 
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', marginBottom: 14 }}>
-                  <span className="muted" style={{ fontSize: 12 }}>{t('Gợi ý cài nhanh:', 'Quick install suggestions:')}</span>
-                  {[
-                    ['SakanaAI/AI-Scientist-v2', 'https://github.com/SakanaAI/AI-Scientist-v2'],
-                    ['K-Dense Scientific Skills', 'https://github.com/K-Dense-AI/scientific-agent-skills'],
-                    ['Anthropic Skills', 'https://github.com/anthropics/skills'],
-                  ].map(([label, u]) => (
-                    <button
-                      key={u}
-                      type="button"
-                      className="chip"
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => setPluginUrl(u)}
-                    >
-                      + {label}
-                    </button>
-                  ))}
+                {/* Optional GitHub Plugins Catalog (Tùy chọn: AI-Scientist-v2, v.v.) */}
+                <div style={{ marginBottom: 18 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--fg)' }}>
+                      {t('Danh mục Plugin Tùy chọn (Optional GitHub Plugins)', 'Optional GitHub Plugins Catalog')}
+                    </span>
+                    <span className="badge" style={{ fontSize: 11, background: 'var(--bg-2)', color: 'var(--muted)' }}>
+                      {t('Động cơ chính: PaperOrchestra', 'Primary Engine: PaperOrchestra')}
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 10 }}>
+                    {(pluginsData?.optional_plugins || [
+                      {
+                        id: 'sakanaai-ai-scientist-v2',
+                        name: 'AI-Scientist-v2',
+                        title: 'The AI Scientist v2 (Sakana AI)',
+                        url: 'https://github.com/SakanaAI/AI-Scientist-v2',
+                        category: 'writing',
+                        description: 'Sinh ý tưởng nghiên cứu, viết nháp bài báo theo template ICML/NeurIPS và biểu mẫu phản biện từ Sakana AI. Tùy chọn độc lập sau PaperOrchestra.',
+                        skills: ['/ais-idea', '/ais-review', '/ais-write'],
+                        installed: false,
+                        enabled: false,
+                      },
+                      {
+                        id: 'k-dense-scientific-skills',
+                        name: 'K-Dense Scientific Skills',
+                        title: 'Scientific Agent Skills (K-Dense AI)',
+                        url: 'https://github.com/K-Dense-AI/scientific-agent-skills',
+                        category: 'research',
+                        description: 'Tập hợp các kỹ năng chuyên sâu cho tác nhân nghiên cứu khoa học, mô phỏng và phân tích dữ liệu.',
+                        skills: ['scientific-analysis'],
+                        installed: false,
+                        enabled: false,
+                      },
+                      {
+                        id: 'anthropics-skills',
+                        name: 'Anthropic Agent Skills',
+                        title: 'Official Agent Skills (Anthropic)',
+                        url: 'https://github.com/anthropics/skills',
+                        category: 'general',
+                        description: 'Bộ kỹ năng tác nhân chuẩn từ Anthropic dành cho Claude và hệ thống tác nhân đa năng.',
+                        skills: ['general-skills'],
+                        installed: false,
+                        enabled: false,
+                      },
+                    ]).map((opt: any) => {
+                      const isInstalled = !!opt.installed || (pluginsData?.plugins || []).some((p: any) => p.id === opt.id);
+                      const installedPlugin = (pluginsData?.plugins || []).find((p: any) => p.id === opt.id);
+                      const isEnabled = installedPlugin ? !!installedPlugin.enabled : false;
+
+                      return (
+                        <div
+                          key={opt.id}
+                          style={{
+                            border: opt.id === 'sakanaai-ai-scientist-v2' ? '1px solid var(--accent)' : '1px solid var(--line)',
+                            borderRadius: 10,
+                            padding: 12,
+                            background: 'var(--bg-2)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            gap: 10,
+                          }}
+                        >
+                          <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 6, marginBottom: 4 }}>
+                              <b style={{ fontSize: 13, color: 'var(--fg)' }}>{opt.title}</b>
+                              <span
+                                style={{
+                                  fontSize: 10,
+                                  padding: '1px 6px',
+                                  borderRadius: 4,
+                                  background: isInstalled ? '#10b98122' : 'var(--panel)',
+                                  color: isInstalled ? '#10b981' : 'var(--muted)',
+                                  fontWeight: 600,
+                                  border: '1px solid var(--line)',
+                                }}
+                              >
+                                {isInstalled ? t('Đã cài đặt', 'Installed') : t('Tùy chọn', 'Optional')}
+                              </span>
+                            </div>
+                            <p style={{ margin: '0 0 8px', fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.4 }}>
+                              {opt.description}
+                            </p>
+                            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                              {(opt.skills || []).map((sk: string) => (
+                                <span
+                                  key={sk}
+                                  style={{
+                                    fontSize: 10,
+                                    fontFamily: 'monospace',
+                                    padding: '1px 5px',
+                                    borderRadius: 4,
+                                    background: 'var(--panel)',
+                                    color: 'var(--accent)',
+                                    border: '1px solid var(--line)',
+                                  }}
+                                >
+                                  {sk}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 6, borderTop: '1px solid var(--line)' }}>
+                            <a
+                              href={opt.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{ fontSize: 11, color: 'var(--accent)', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                            >
+                              <span>GitHub</span>
+                              <ExternalLink size={11} />
+                            </a>
+
+                            {!isInstalled ? (
+                              <button
+                                type="button"
+                                className="btn xs accent"
+                                disabled={installingPlugin}
+                                onClick={async () => {
+                                  setInstallingPlugin(true);
+                                  try {
+                                    await api.post('/api/plugins', { url: opt.url, enable: true });
+                                    refetchPlugins();
+                                    refetchSkills();
+                                    notify(t('Đã cài đặt plugin thành công từ GitHub: ', 'Successfully installed plugin from GitHub: ') + opt.title);
+                                  } catch (err) {
+                                    notify(t('Lỗi cài plugin: ', 'Failed to install plugin: ') + (err as Error).message, 'err');
+                                  } finally {
+                                    setInstallingPlugin(false);
+                                  }
+                                }}
+                                style={{ gap: 4 }}
+                                title={t(`Cài đặt ${opt.title} qua cơ chế GitHub plugin`, `Install ${opt.title} via GitHub plugin mechanism`)}
+                              >
+                                <Plus size={11} />
+                                <span>{t('Cài qua GitHub', 'Get via GitHub')}</span>
+                              </button>
+                            ) : (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <label className="switch" style={{ fontSize: 11 }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={isEnabled}
+                                    onChange={async (e) => {
+                                      await api.put(`/api/plugins/${opt.id}`, { enabled: e.target.checked });
+                                      refetchPlugins();
+                                      refetchSkills();
+                                    }}
+                                  />
+                                  <span>{t('Bật', 'On')}</span>
+                                </label>
+                                <button
+                                  type="button"
+                                  className="btn xs ghost danger"
+                                  onClick={async () => {
+                                    await api.delete(`/api/plugins/${opt.id}`);
+                                    refetchPlugins();
+                                    refetchSkills();
+                                    notify(t('Đã gỡ plugin: ', 'Uninstalled plugin: ') + opt.title);
+                                  }}
+                                  title={t('Gỡ plugin', 'Uninstall plugin')}
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Installed plugins */}
@@ -2244,6 +2208,7 @@ export const SettingsModal: React.FC = () => {
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
                   <select
+                    aria-label={t('Phạm vi lưu kỹ năng', 'Skill save scope')}
                     className="input"
                     style={{ width: 220 }}
                     value={newSkillScope}
@@ -2282,7 +2247,7 @@ export const SettingsModal: React.FC = () => {
                   {t('Chủ đề Giao diện', 'Color Themes & Appearance')}
                 </h3>
                 <p className="muted" style={{ fontSize: 13, margin: '0 0 14px' }}>
-                  {t('Chọn bảng màu phù hợp với không gian làm việc của bạn. Hỗ trợ đầy đủ cả chế độ Sáng học thuật lẫn chế độ Tối OpenScience Studio.', 'Select the color palette for your research workspace. Fully supports Academic Light and OpenScience Studio Dark modes.')}
+                  {t('Chọn bảng màu cho không gian nghiên cứu, với chế độ sáng và tối.', 'Choose a research workspace palette, with light and dark modes.')}
                 </p>
 
                 <div

@@ -1,0 +1,5 @@
+# Measured defect inventory ? 6.5.9 CI repair1
+
+Local pre-publication snapshot for CI fixture repair1/3, source `b2b35a188e3eba19323c7c9eb51bf99b993c8f1018262787f974aff8baa47ac1`, stable. Baseline HEAD2a5ee141a1d06291eb65589045f0c5a35b711526. Actual latest publication/CI must be read from GitHub and shared.git/ci-observations/6.5.9-dev/receipt.json; no future remote result is presumed.
+
+Two earlier P2 corrections cover actual CLI resource leakage and cross-platform source identity. A third P2 is a newly introduced test-infrastructure/cache-isolation regression, observed as3ERROR per job in realCI40221840300. The repair retains actual provider unavailability while isolating the controlled Python transport; local full1199PASS. [Machine registry with reproduction, evidence and exact regression IDs](AGENT_CORE_DEFECTS_6.5.9.json). No baseline exception or test waiver. This is a scoped inventory, not proof of zero remaining defects; fresh independent CI and full research/UAT acceptance remain separate. Historical inventories remain preserved.

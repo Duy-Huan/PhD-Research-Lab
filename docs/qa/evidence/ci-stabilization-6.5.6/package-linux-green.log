@@ -1,0 +1,11 @@
+test_archive_is_reproducible_and_does_not_overwrite_a_prior_output (test_release_packaging.ReleasePackaging.test_archive_is_reproducible_and_does_not_overwrite_a_prior_output) ... ok
+test_new_compiled_assets_and_exact_digests_are_packaged_without_private_data (test_release_packaging.ReleasePackaging.test_new_compiled_assets_and_exact_digests_are_packaged_without_private_data) ... ok
+test_source_archive_preserves_git_executable_permissions (test_release_packaging.ReleasePackaging.test_source_archive_preserves_git_executable_permissions) ... ok
+test_uncommitted_source_cannot_be_labeled_with_the_committed_sha (test_release_packaging.ReleasePackaging.test_uncommitted_source_cannot_be_labeled_with_the_committed_sha) ... ok
+test_version_mismatch_and_missing_build_are_rejected (test_release_packaging.ReleasePackaging.test_version_mismatch_and_missing_build_are_rejected) ... ok
+test_wrong_commit_and_unsafe_output_are_rejected (test_release_packaging.ReleasePackaging.test_wrong_commit_and_unsafe_output_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.228s
+
+OK

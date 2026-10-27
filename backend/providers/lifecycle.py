@@ -94,6 +94,8 @@ def purpose_for(agent: str) -> str:
 
 def policy_for(kind: str, purpose: str = "interactive", cfg: dict | None = None) -> str:
     s = settings(cfg)
+    if kind == "cloud":
+        return KEEP  # Cloud connections have no local model weights to unload.
     if kind == "local":
         return s.get("local_background" if purpose == "background" else "local_interactive", IDLE)
     return s.get(kind, IDLE)
@@ -132,6 +134,19 @@ def _run(coro):
     if "e" in box:
         raise box["e"]
     return box.get("v")
+
+
+def run_on_app_loop(coro):
+    """Worker chat turns share the application loop's warm HTTPS pool."""
+    loop = _main.get('loop')
+    if loop is not None and loop.is_running() and not loop.is_closed():
+        try:
+            same = asyncio.get_running_loop() is loop
+        except RuntimeError:
+            same = False
+        if not same:
+            return asyncio.run_coroutine_threadsafe(coro, loop).result()
+    return _run(coro)
 
 
 # ------------------------------------------------------------------ local model residency
@@ -388,6 +403,8 @@ async def reaper(stop: asyncio.Event) -> None:
 async def unload(engine: str, model: str = "", force: bool = False) -> dict:
     """Manual unload (Settings → Local AI). Works for any resident model, also those PhD-Lab did not load.
     A model that is answering right now is skipped unless force=True."""
+    if engine not in ('local', 'ollama'):
+        raise ValueError('Only local LM Studio/Ollama models can be unloaded')
     from backend.providers import local as local_ai
     cfg = load_config()
     resident = await resident_local(cfg, max_age=0)
@@ -468,14 +485,14 @@ async def http_client(timeout):
     unload_after_task; a fresh client — closed at the end — everywhere else (worker threads, tests, lifecycle off)."""
     cfg = load_config()
     loop = asyncio.get_running_loop()
-    pooled = enabled(cfg) and policy_for("cloud", cfg=cfg) != UNLOAD and loop is _main["loop"]
+    pooled = loop is _main["loop"]
     if not pooled:
         async with httpx.AsyncClient(timeout=timeout) as c:
             yield c
         return
     if _pool["client"] is None or _pool["client"].is_closed:
-        _pool.update(client=httpx.AsyncClient(timeout=timeout, limits=httpx.Limits(max_keepalive_connections=8,
-                                                                                    keepalive_expiry=60)), loop=loop)
+        _pool.update(client=httpx.AsyncClient(timeout=httpx.Timeout(900, connect=20), limits=httpx.Limits(max_keepalive_connections=8,
+                                                                                    keepalive_expiry=None)), loop=loop)
     res = await acquire("cloud", "http", "pool", cfg=cfg)
     try:
         yield _pool["client"]

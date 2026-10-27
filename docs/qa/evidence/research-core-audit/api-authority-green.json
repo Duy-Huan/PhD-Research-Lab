@@ -1,0 +1,131 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_api.Api.test_approvals_and_artifacts",
+      "status": "PASS",
+      "duration": 7.6498,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_chat",
+      "status": "PASS",
+      "duration": 1.9119,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_code_and_jobs",
+      "status": "PASS",
+      "duration": 7.894,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_library_and_paper",
+      "status": "PASS",
+      "duration": 0.3978,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_mcp",
+      "status": "PASS",
+      "duration": 0.1114,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_projects_outline_files",
+      "status": "PASS",
+      "duration": 0.3316,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_review",
+      "status": "PASS",
+      "duration": 0.4727,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_runs_and_memory",
+      "status": "PASS",
+      "duration": 2.5915,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_security_middlewares",
+      "status": "PASS",
+      "duration": 0.1017,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_skills",
+      "status": "PASS",
+      "duration": 0.1069,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_system",
+      "status": "PASS",
+      "duration": 9.1814,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_cancel_a_running_cli_turn",
+      "status": "PASS",
+      "duration": 1.2203,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_cli_partial_answer_keeps_the_text_with_the_error",
+      "status": "PASS",
+      "duration": 0.3971,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_cli_provider_answer_tools_usage_and_workspace",
+      "status": "PASS",
+      "duration": 0.5445,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_cli_provider_errors_and_refusals",
+      "status": "PASS",
+      "duration": 0.7767,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_decisions_validation_edits_and_failures",
+      "status": "PASS",
+      "duration": 0.1243,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_history_off_no_artifacts_no_summary_and_provider_notes",
+      "status": "PASS",
+      "duration": 0.2972,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_input_validation",
+      "status": "PASS",
+      "duration": 0.1249,
+      "details": null
+    },
+    {
+      "id": "test_orchestrator.Orchestrator.test_manual_mode_plan_for_cli_and_http_then_launch_and_cancel",
+      "status": "PASS",
+      "duration": 0.758,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 19,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-zzssdu3l",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

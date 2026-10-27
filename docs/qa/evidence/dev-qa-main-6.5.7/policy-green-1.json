@@ -1,0 +1,714 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "status": "PASS",
+      "duration": 0.0012,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_declared_live_ids_are_exact_and_do_not_hide_new_software_tests",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_live_cases_remain_registered_and_never_execute_in_software_layer",
+      "status": "PASS",
+      "duration": 0.0002,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.LayersAndFlow.test_pr_and_dev_workflow_target_the_three_branch_flow",
+      "status": "PASS",
+      "duration": 0.0259,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_frontend_command_collects_coverage_without_percentage_thresholds",
+      "status": "PASS",
+      "duration": 0.0061,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_old_minimum_argument_cannot_reintroduce_a_coverage_gate",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_quality_evidence.EvidenceTests.test_complete_regression_is_independent_of_coverage_percentages",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_quality_evidence.EvidenceTests.test_failures_skips_and_zero_collection_never_pass",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.GatewayIntegration.test_prepare_refuses_weaker_profile_without_consent",
+      "status": "PASS",
+      "duration": 0.1688,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Launch.test_consumer_abort_kills_the_process",
+      "status": "PASS",
+      "duration": 0.3803,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Launch.test_foreign_cwd_is_refused",
+      "status": "PASS",
+      "duration": 0.0277,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Launch.test_time_limit_kills_the_process_tree",
+      "status": "PASS",
+      "duration": 1.0765,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Launch.test_two_sessions_two_workspaces",
+      "status": "PASS",
+      "duration": 0.0552,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Launch.test_unsupported_profile_is_refused_before_launch",
+      "status": "PASS",
+      "duration": 0.027,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Paths.test_inner_symlink_is_allowed",
+      "status": "PASS",
+      "duration": 0.2256,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Paths.test_resolved_escape",
+      "status": "PASS",
+      "duration": 0.0018,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Paths.test_safe_join_and_traversal",
+      "status": "PASS",
+      "duration": 0.0032,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Paths.test_symlink_checks_without_os_symlinks",
+      "status": "PASS",
+      "duration": 0.003,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Paths.test_symlink_escape_is_refused",
+      "status": "PASS",
+      "duration": 0.2061,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Profiles.test_argv_follows_the_profile",
+      "status": "PASS",
+      "duration": 0.004,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Profiles.test_env_allowlist",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Profiles.test_fail_closed",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Sessions.test_context_is_staged_read_only_with_hashes",
+      "status": "PASS",
+      "duration": 0.0383,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Sessions.test_custom_root",
+      "status": "PASS",
+      "duration": 0.0359,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Sessions.test_invalid_ids_and_forbidden_roots",
+      "status": "PASS",
+      "duration": 0.0306,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Sessions.test_layout_meta_and_reopen",
+      "status": "PASS",
+      "duration": 0.0435,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Sessions.test_list_and_prune",
+      "status": "PASS",
+      "duration": 0.0894,
+      "details": null
+    },
+    {
+      "id": "test_cli_workspace.Sessions.test_output_and_redacted_logs",
+      "status": "PASS",
+      "duration": 0.0359,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_api_scopes_validation_and_no_ai_quick_action",
+      "status": "PASS",
+      "duration": 1.5472,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_crossref_and_unpaywall_official_response_contracts",
+      "status": "PASS",
+      "duration": 0.3102,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_discovery_failure_isolated_and_topic_exclusions_apply",
+      "status": "PASS",
+      "duration": 0.3099,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_docling_requires_explicit_local_models",
+      "status": "PASS",
+      "duration": 0.3097,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_duplicate_conflicts_and_no_title_fuzzy_merge",
+      "status": "PASS",
+      "duration": 0.367,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_jobs_dry_run_cancel_retry_failures_and_quota",
+      "status": "PASS",
+      "duration": 0.6868,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_metadata_dedup_versions_topics_and_curation",
+      "status": "PASS",
+      "duration": 0.4589,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_native_launch_argv_duplicate_detection_and_no_api_keys",
+      "status": "PASS",
+      "duration": 0.4578,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_new_oa_version_does_not_create_another_paper",
+      "status": "PASS",
+      "duration": 0.3468,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_new_version_resets_review_without_losing_prior_attestation",
+      "status": "PASS",
+      "duration": 0.3322,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_no_oa_no_download_no_memory_promotion",
+      "status": "PASS",
+      "duration": 0.5639,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_pagination_100_papers_no_ai",
+      "status": "PASS",
+      "duration": 0.4011,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_parser_failure_keeps_file_and_metadata",
+      "status": "PASS",
+      "duration": 0.6507,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_partial_sync_does_not_tombstone_and_large_files_are_metadata_only",
+      "status": "PASS",
+      "duration": 0.6027,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_pdf_parse_exact_evidence_reprocess_and_checksum",
+      "status": "PASS",
+      "duration": 0.898,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_real_optuna_bounded_resume",
+      "status": "PASS",
+      "duration": 3.3726,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_relink_and_snapshot_search_preserve_identity_history",
+      "status": "PASS",
+      "duration": 0.5767,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_reparse_keeps_historical_citation_ids",
+      "status": "PASS",
+      "duration": 0.7133,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_schedules_disabled_and_restart_recovery",
+      "status": "PASS",
+      "duration": 0.6154,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_server_side_storage_budget_and_content_dedup",
+      "status": "PASS",
+      "duration": 0.4866,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_topic_context_no_leak_and_api_references",
+      "status": "PASS",
+      "duration": 0.426,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_windows_engine_opens_independent_terminal_and_editor_uses_registered_root",
+      "status": "PASS",
+      "duration": 0.5065,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_workspace_offline_sync_versions_tombstones_idempotency",
+      "status": "PASS",
+      "duration": 0.744,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_workspace_paths_symlinks_missing_cli_no_model",
+      "status": "PASS",
+      "duration": 0.735,
+      "details": null
+    },
+    {
+      "id": "test_research_workspace.ResearchWorkspace.test_zotero_readonly_import_and_optional_adapters",
+      "status": "PASS",
+      "duration": 0.3596,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Contracts.test_branch_promotion_direction_and_human_release",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Contracts.test_invalid_risk_and_unreviewed_contract_block",
+      "status": "PASS",
+      "duration": 0.0457,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "status": "PASS",
+      "duration": 0.0991,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block",
+      "status": "PASS",
+      "duration": 0.046,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Contracts.test_valid_contract_has_executable_traceability",
+      "status": "PASS",
+      "duration": 0.017,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_corrupt_repair_state_fails_closed",
+      "status": "PASS",
+      "duration": 0.002,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_distinct_assertion_causes_remain_distinct",
+      "status": "PASS",
+      "duration": 0.0004,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_fifty_database_errors_have_one_fingerprint",
+      "status": "PASS",
+      "duration": 0.0007,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "status": "PASS",
+      "duration": 0.0002,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_repair_budget_is_persistent_and_bounded",
+      "status": "PASS",
+      "duration": 0.0069,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Evidence.test_success_does_not_reset_prior_failed_repair_cycles",
+      "status": "PASS",
+      "duration": 0.0041,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_frontend_changes_select_frontend_without_python",
+      "status": "PASS",
+      "duration": 0.001,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_pr_and_full_never_use_incremental_selection",
+      "status": "PASS",
+      "duration": 0.0059,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope",
+      "status": "PASS",
+      "duration": 0.0044,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_transitive_python_dependency",
+      "status": "PASS",
+      "duration": 0.0091,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens",
+      "status": "PASS",
+      "duration": 0.0072,
+      "details": null
+    },
+    {
+      "id": "test_verification_harness.Selection.test_unmapped_python_source_never_produces_empty_suite",
+      "status": "PASS",
+      "duration": 0.005,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='main')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='qa')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='feature/new')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='fix/bug')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='HEAD')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward",
+      "id": "test_quality_policy.LayersAndFlow.test_ai_development_guard_only_accepts_dev_and_promotion_is_forward (branch='')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'failures': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'errors': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'skipped': 1, 'passed': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'passed': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'unverified': 1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_full_coverage_never_masks_failed_or_incomplete_regression (patch={'total_run': 0, 'passed': 0})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage=None)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage={})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage={'num_statements': 10})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_measured_low_or_missing_coverage_does_not_fail_complete_regression (coverage={'num_statements': 10, 'covered_lines': 1, 'num_branches': 8, 'covered_branches': 0})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'total_run': -1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'total_run': True})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'passed': -1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'passed': 3})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'errors': -1})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed",
+      "id": "test_quality_policy.RegressionOnlyPolicy.test_missing_or_invalid_execution_counts_fail_closed (patch={'skipped': '0'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing (field='requirements', value=17)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing (field='requirements', value=[17])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing (field='scenarios', value=17)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing (field='risk', value=[])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing",
+      "id": "test_verification_harness.Contracts.test_malformed_contract_fields_return_errors_without_crashing (field='mode', value=[])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block",
+      "id": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block (mutate=<function Contracts.test_missing_requirements_traceability_and_security_block.<locals>.<lambda> at 0x00000208A4D33C40>)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block",
+      "id": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block (mutate=<function Contracts.test_missing_requirements_traceability_and_security_block.<locals>.<lambda> at 0x00000208A4DA0F40>)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block",
+      "id": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block (mutate=<function Contracts.test_missing_requirements_traceability_and_security_block.<locals>.<lambda> at 0x00000208C5689440>)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block",
+      "id": "test_verification_harness.Contracts.test_missing_requirements_traceability_and_security_block (mutate=<function Contracts.test_missing_requirements_traceability_and_security_block.<locals>.<lambda> at 0x00000208C591D080>)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='MISSING')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='SKIP')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='NOT_RUN')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='CANCELLED')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='BLOCKED')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass",
+      "id": "test_verification_harness.Evidence.test_missing_skipped_failed_and_cancelled_never_pass (state='FAIL')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope",
+      "id": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope (name='backend/api/chat.py')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope",
+      "id": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope (name='backend/agent/context.py')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope",
+      "id": "test_verification_harness.Selection.test_shared_api_and_risk_force_broad_scope (name='.github/workflows/ci.yml')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens",
+      "id": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens (path='requirements.txt')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens",
+      "id": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens (path='backend/deleted.py')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens",
+      "id": "test_verification_harness.Selection.test_unknown_or_deleted_dependency_broadens (path='new_source.rs')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 73,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-eqcs1az2",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

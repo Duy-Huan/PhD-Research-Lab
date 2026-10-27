@@ -52,7 +52,7 @@ describe('Header', () => {
     expect(useUIStore.getState().uiScale).toBe(1.08);
   });
 
-  it('opens inspector drawers for library, outline, figures, opencode, and intelligence', () => {
+  it('opens inspector drawers for library, outline, figures, native code, and intelligence', () => {
     renderWithProviders(<Header isLive={true} />);
 
     const outlineBtn = screen.getByTitle(/Đề cương/i);
@@ -67,9 +67,9 @@ describe('Header', () => {
     fireEvent.click(figuresBtn);
     expect(useUIStore.getState().drawerKind).toBe('figures');
 
-    const opencodeBtn = screen.getByTitle(/Nhân Thực nghiệm|OpenCode Parallel Core/i);
-    fireEvent.click(opencodeBtn);
-    expect(useUIStore.getState().drawerKind).toBe('opencode');
+    const codeBtn = screen.getByTitle(/Mã nguồn & thí nghiệm native|Native code & experiments/i);
+    fireEvent.click(codeBtn);
+    expect(useUIStore.getState().drawerKind).toBe('code');
 
     const intelBtn = screen.getByTitle(/Trung tâm Phân tích|Unified Research Intelligence/i);
     fireEvent.click(intelBtn);
@@ -78,6 +78,16 @@ describe('Header', () => {
     const guideBtn = screen.getByTitle(/Hướng dẫn Người (mới|dùng)|User Guide/i);
     fireEvent.click(guideBtn);
     expect(useUIStore.getState().drawerKind).toBe('guide');
+  });
+
+  it('keeps native code navigation unbranded by retired software in both languages', () => {
+    renderWithProviders(<Header isLive={true} />);
+    expect(screen.queryByTitle(/OpenCode|ClearML|Feynman|OpenScience/i)).toBeNull();
+    expect(screen.getByTitle('Mã nguồn & thí nghiệm native')).toBeTruthy();
+    fireEvent.click(screen.getByText('VI'));
+    fireEvent.click(screen.getByTitle('Native code & experiments'));
+    expect(useUIStore.getState().drawerKind).toBe('code');
+    expect(screen.queryByTitle(/OpenCode|ClearML|Feynman|OpenScience/i)).toBeNull();
   });
 
   it('toggles right inspector drawer using dedicated corner panel-btn', () => {

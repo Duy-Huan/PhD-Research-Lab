@@ -1,0 +1,113 @@
+{
+  "captured_utc": "2026-10-25T07:59:34.588100+00:00",
+  "branches": {
+    "main": "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+    "dev": "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2",
+    "qa": "6725975261fe6a4d8a5cb3e10208e31c3e24f0e2"
+  },
+  "protections": {
+    "main": {
+      "required_status_checks": {
+        "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/main/protection/required_status_checks",
+        "strict": true,
+        "contexts": [
+          "QA gate"
+        ],
+        "contexts_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/main/protection/required_status_checks/contexts",
+        "checks": [
+          {
+            "context": "QA gate",
+            "app_id": 15368
+          }
+        ]
+      },
+      "enforce_admins": true,
+      "allow_force_pushes": false,
+      "allow_deletions": false,
+      "approving_reviews": 0
+    },
+    "dev": {
+      "required_status_checks": {
+        "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/dev/protection/required_status_checks",
+        "strict": true,
+        "contexts": [
+          "Development gate"
+        ],
+        "contexts_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/dev/protection/required_status_checks/contexts",
+        "checks": [
+          {
+            "context": "Development gate",
+            "app_id": 15368
+          }
+        ]
+      },
+      "enforce_admins": true,
+      "allow_force_pushes": false,
+      "allow_deletions": false,
+      "approving_reviews": 0
+    },
+    "qa": {
+      "required_status_checks": {
+        "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/qa/protection/required_status_checks",
+        "strict": true,
+        "contexts": [
+          "QA gate"
+        ],
+        "contexts_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/branches/qa/protection/required_status_checks/contexts",
+        "checks": [
+          {
+            "context": "QA gate",
+            "app_id": 15368
+          }
+        ]
+      },
+      "enforce_admins": true,
+      "allow_force_pushes": false,
+      "allow_deletions": false,
+      "approving_reviews": 0
+    }
+  },
+  "allow_auto_merge": false,
+  "workflows": [
+    {
+      "id": 394955699,
+      "name": "Backend Production Quality Gate",
+      "path": ".github/workflows/backend-quality-gate.yml",
+      "state": "disabled_manually"
+    },
+    {
+      "id": 395288466,
+      "name": "Full Harness Regression",
+      "path": ".github/workflows/full-harness-regression.yml",
+      "state": "disabled_manually"
+    },
+    {
+      "id": 395459438,
+      "name": "Quality Gates",
+      "path": ".github/workflows/quality.yml",
+      "state": "active"
+    },
+    {
+      "id": 395556730,
+      "name": "Dependency Graph",
+      "path": "dynamic/dependabot/update-graph",
+      "state": "active"
+    }
+  ],
+  "action_secret_count": 0,
+  "self_hosted_runner_count": 0,
+  "open_prs": [
+    {
+      "number": 11,
+      "base": "dev",
+      "head": "b1dcf4b33179317d735238662d71c366c30b3513",
+      "draft": true
+    },
+    {
+      "number": 10,
+      "base": "dev",
+      "head": "87703f74963ff40527edde35f19567219eec22c2",
+      "draft": false
+    }
+  ]
+}

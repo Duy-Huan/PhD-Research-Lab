@@ -1,0 +1,96 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_development_guard.DevelopmentGuard.test_complete_source_bound_regression_is_required_for_push",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "status": "FAIL",
+      "duration": 0.7909,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch feature/forbidden\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch fix/forbidden\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch backup/forbidden\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch arbitrary\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch qa\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch main\n"
+    },
+    {
+      "id": "test_development_guard.DevelopmentGuard.test_latest_failure_replaces_a_previous_green_receipt",
+      "status": "PASS",
+      "duration": 0.1336,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.DevelopmentGuard.test_push_cannot_target_another_repository_or_remote",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.LiveEvidencePolicy.test_deferred_live_ids_require_real_complete_non_skipped_evidence",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.PinnedSDK.test_reviewed_inventory_is_exact_and_unknown_output_is_preserved",
+      "status": "PASS",
+      "duration": 0.0042,
+      "details": null
+    },
+    {
+      "id": "test_development_guard.PinnedSDK.test_wrong_digest_and_escaping_archive_never_write_files",
+      "status": "PASS",
+      "duration": 0.0007,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='feature/forbidden')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch feature/forbidden\n"
+    },
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='fix/forbidden')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch fix/forbidden\n"
+    },
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='backup/forbidden')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch backup/forbidden\n"
+    },
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='arbitrary')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch arbitrary\n"
+    },
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='qa')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch qa\n"
+    },
+    {
+      "parent": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches (branch='main')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch main\n"
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 7,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-9n3rd4hl",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

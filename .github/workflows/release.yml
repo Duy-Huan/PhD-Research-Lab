@@ -1,0 +1,125 @@
+name: Release qualified main
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: Exact qualified main merge commit
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ inputs.commit_sha || github.sha }}
+  cancel-in-progress: false
+jobs:
+  release-gate:
+    name: Release gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+      checks: read
+      actions: read
+    outputs:
+      sha: ${{ steps.provenance.outputs.sha }}
+    steps:
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        id: provenance
+        env:
+          REQUESTED_SHA: ${{ inputs.commit_sha || github.sha }}
+        with:
+          script: |
+            'use strict';
+
+            async function qualify({github,context},requested) {
+              const {owner,repo}=context.repo;
+              if (context.ref!=='refs/heads/main') throw new Error('CD executes only from main');
+              const main=(await github.rest.repos.getBranch({owner,repo,branch:'main'})).data;
+              const sha=requested || context.sha;
+              if (!/^[a-f0-9]{40}$/.test(sha) || sha!==main.commit.sha || main.protected!==true) throw new Error('Requested release is not the current protected main commit');
+              const prs=await github.paginate(github.rest.repos.listPullRequestsAssociatedWithCommit,{owner,repo,commit_sha:sha,per_page:100});
+              const pr=prs.find(p=>p.merged_at && p.merge_commit_sha===sha && p.base.ref==='main' && p.head.ref==='qa' && p.head.repo?.full_name===`${owner}/${repo}`);
+              if (!pr) throw new Error('No confirmed qa -> main protected promotion for this commit');
+              const workflow=(await github.rest.actions.getWorkflow({owner,repo,workflow_id:'quality.yml'})).data;
+              const runs=await github.paginate(github.rest.actions.listWorkflowRuns,{owner,repo,workflow_id:workflow.id,head_sha:pr.head.sha,event:'pull_request',per_page:100});
+              const run=runs.filter(r=>r.workflow_id===workflow.id && r.path==='.github/workflows/quality.yml' && r.event==='pull_request' && r.head_sha===pr.head.sha && r.head_branch==='qa' && r.head_repository?.full_name===`${owner}/${repo}`)
+                .sort((a,b)=>b.id-a.id || (b.run_attempt||1)-(a.run_attempt||1))[0];
+              if (!run || run.status!=='completed' || run.conclusion!=='success' || !run.check_suite_id) throw new Error('Latest exact-source QA PR run has not succeeded');
+              const checks=await github.paginate(github.rest.checks.listForRef,{owner,repo,ref:pr.head.sha,filter:'latest',per_page:100});
+              for (const name of ['Development gate','QA gate']) {
+                const matches=checks.filter(c=>c.name===name && c.head_sha===pr.head.sha && c.app?.id===15368 && c.check_suite?.id===run.check_suite_id);
+                if (!matches.length || matches.some(c=>c.status!=='completed' || c.conclusion!=='success')) throw new Error('Qualified QA check is absent: '+name);
+              }
+              const head=(await github.rest.repos.getCommit({owner,repo,ref:pr.head.sha})).data;
+              const merged=(await github.rest.repos.getCommit({owner,repo,ref:sha})).data;
+              if (head.commit.tree.sha!==merged.commit.tree.sha) throw new Error('Merged tree differs from tested QA source');
+              return {sha,qa_head:pr.head.sha,pr:pr.number,mode:'GITHUB_NATIVE_PROVENANCE',scope:'Qualified software source, not scientific correctness'};
+            }
+            const result=await qualify({github,context},process.env.REQUESTED_SHA);
+            core.setOutput('sha',result.sha);
+            core.info(JSON.stringify(result));
+
+  build:
+    name: Package validated software source and web distribution
+    needs: [release-gate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      version: ${{ steps.package.outputs.version }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.release-gate.outputs.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: {node-version: '24', cache: npm, cache-dependency-path: frontend/package-lock.json}
+      - run: python -m pip install --require-hashes -r requirements-ci.lock
+      - run: python -m pip check
+      - run: python -m compileall -q backend devtools scripts tools
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run typecheck
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
+      - id: package
+        env:
+          RELEASE_SHA: ${{ needs.release-gate.outputs.sha }}
+        run: python scripts/package_release.py --sha "$RELEASE_SHA" --out output/release/assets
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: qualified-release
+          path: output/release/assets/
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    name: Publish verified GitHub Release
+    needs: [release-gate, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: read
+      checks: read
+      actions: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.release-gate.outputs.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with: {name: qualified-release, path: output/release/assets}
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          RELEASE_SHA: ${{ needs.release-gate.outputs.sha }}
+        with:
+          script: |
+            const {publish}=require('./.github/scripts/publish_release.cjs');
+            const result=await publish({github,context},'output/release/assets',process.env.RELEASE_SHA);
+            core.info(JSON.stringify(result));

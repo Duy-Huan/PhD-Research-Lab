@@ -1,0 +1,4 @@
+#!/bin/sh
+repository=$(git rev-parse --show-toplevel) || exit 1
+interpreter=$(git config --get phdlab.verifyPython) || exit 1
+exec "$interpreter" "$(dirname "$0")/../scripts/development_guard.py" pre-push --root "$repository" --remote-name "$1" --remote-url "$2"

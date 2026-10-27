@@ -11,7 +11,7 @@ from backend.agent.mission_contracts import MissionSpec
 class Missions(unittest.TestCase):
     def setUp(self):
         _env.isolate_config(self);_env.fresh_project("mission tests",code_project=None)
-        self.tid=S.save_topic(S.TopicInput(title="Mission fixture"))["id"]
+        self.tid=_env.legacy_topic(S.TopicInput(title="Mission fixture"))["id"]
 
     def spec(self,**patches):
         return MissionSpec.model_validate({"topic_id":self.tid,"objective":"Inspect and report","permissions":["workspace_write"],"tasks":[{"id":"inspect","capability":"paper.inspect","args":{}},{"id":"report","capability":"mission.report","depends_on":["inspect"]}],**patches})
@@ -35,7 +35,7 @@ class Missions(unittest.TestCase):
         with self.assertRaises(ValueError):M.create(self.spec(tasks=[{"id":"x","capability":"paper.inspect","preferred_engine":"app"}]))
 
     def test_topic_scope_and_source_dependencies(self):
-        other=S.save_topic(S.TopicInput(title="Other"))["id"]
+        other=_env.legacy_topic(S.TopicInput(title="Other"))["id"]
         pid=corpus.ingest(other,[{"title":"private other topic","doi":"10.1234/other","source":"fixture"}])["added"][0]
         with self.assertRaises(ValueError):M.create(self.spec(inputs=["paper:"+pid]))
         with self.assertRaises(ValueError):M.create(self.spec(tasks=[{"id":"x","capability":"paper.inspect","args":{"from_task":"missing"}}]))
@@ -65,8 +65,8 @@ class Missions(unittest.TestCase):
         from types import SimpleNamespace
         fake=SimpleNamespace(descriptor=SimpleNamespace(capabilities=["literature"]),health=lambda:{"ready":False})
         with patch("backend.research_engines.registry.get",return_value=fake):
-            with self.assertRaises(ValueError):C.route(Task(id="x",capability="paper.compare",preferred_engine="feynman"))
-            self.assertEqual(C.route(Task(id="x",capability="paper.compare",preferred_engine="feynman",fallback_engines=["app"]))["engine"],"app")
+            with self.assertRaises(ValueError):C.route(Task(id="x",capability="paper.compare",preferred_engine="phdlab"))
+            self.assertEqual(C.route(Task(id="x",capability="paper.compare",preferred_engine="phdlab",fallback_engines=["app"]))["engine"],"app")
 
     def test_delegation_limits_and_append_only_audit(self):
         m=M.create(self.spec(limits={"max_depth":0}))

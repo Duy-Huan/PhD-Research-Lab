@@ -1,0 +1,24 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_verification_reporting.FailureReporting.test_skip_volume_does_not_hide_an_actual_failure",
+      "status": "FAIL",
+      "duration": 0.0011,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_verification_reporting.py\", line 20, in test_skip_volume_does_not_hide_an_actual_failure\n    self.assertIn('AssertionError',groups[0]['cause'])\n    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'AssertionError' not found in 'Optional SDK unavailable'\n"
+    },
+    {
+      "id": "test_verification_reporting.FailureReporting.test_wrapped_database_failures_group_by_original_exception",
+      "status": "FAIL",
+      "duration": 0.0005,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\tests\\test_verification_reporting.py\", line 12, in test_wrapped_database_failures_group_by_original_exception\n    self.assertEqual(len(groups),1)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^\nAssertionError: 50 != 1\n"
+    }
+  ],
+  "subtests": [],
+  "total": 2,
+  "passed": false,
+  "skipped": 0,
+  "limitations": [
+    "Hermetic offline scope; skips remain unqualified and block full release"
+  ]
+}

@@ -19,8 +19,8 @@ class ResearchWorkspace(unittest.TestCase):
     def setUp(self):
         _env.isolate_config(self)
         _env.fresh_project("federated acceptance", code_project=None)
-        self.a = S.save_topic(S.TopicInput(title="Topic A", keywords=["denoising"]))["id"]
-        self.b = S.save_topic(S.TopicInput(title="Topic B"))["id"]
+        self.a = _env.legacy_topic(S.TopicInput(title="Topic A", keywords=["denoising"]))["id"]
+        self.b = _env.legacy_topic(S.TopicInput(title="Topic B"))["id"]
 
     def record(self, **patches):
         return {"title": "MRI denoising", "doi": "https://doi.org/10.1234/TEST", "authors": ["A. Author"], "year": 2024,
@@ -105,8 +105,8 @@ class ResearchWorkspace(unittest.TestCase):
         self.assertEqual(K.paper(self.a, pid)["versions"][0]["document"]["status"], "parse_failed")
 
     def test_workspace_offline_sync_versions_tombstones_idempotency(self):
-        a = W.link(self.a, W.WorkspaceInput(engine="openscience"))
-        b = W.link(self.b, W.WorkspaceInput(engine="openscience"))
+        a = W.link(self.a, W.WorkspaceInput(engine="phdlab"))
+        b = W.link(self.b, W.WorkspaceInput(engine="phdlab"))
         self.assertNotEqual(a["path"], b["path"])
         path = self.stable_file(a["path"], "paper notes.md")
         self.assertEqual(W.sync(a["id"])["changed"], 1)
@@ -127,7 +127,7 @@ class ResearchWorkspace(unittest.TestCase):
         self.assertEqual(W.sync(a["id"])["deleted"], 0)
 
     def test_partial_sync_does_not_tombstone_and_large_files_are_metadata_only(self):
-        w = W.link(self.a, W.WorkspaceInput(engine="feynman"))
+        w = W.link(self.a, W.WorkspaceInput(engine="phdlab"))
         path = self.stable_file(w["path"], "result.md")
         W.sync(w["id"])
         with patch.object(W, "_inventory", return_value=([], {"complete": False, "errors": [], "unstable": ["result.md"]})):
@@ -143,28 +143,31 @@ class ResearchWorkspace(unittest.TestCase):
         self.assertEqual(result["skipped"][0]["reason"], "metadata_only: hash/copy budget")
 
     def test_workspace_paths_symlinks_missing_cli_no_model(self):
-        w = W.link(self.a, W.WorkspaceInput(engine="feynman"))
+        w = W.link(self.a, W.WorkspaceInput(engine="phdlab"))
         with self.assertRaises(ValueError):
-            W.link(self.b, W.WorkspaceInput(engine="openscience", path=w["path"]))
+            W.link(self.b, W.WorkspaceInput(engine="phdlab", path=w["path"]))
         with self.assertRaises(ValueError):
-            W.link(self.a, W.WorkspaceInput(engine="feynman", path="../bad"))
+            W.link(self.a, W.WorkspaceInput(engine="phdlab", path="../bad"))
         with self.assertRaises(ValueError):
-            W.link(self.a, W.WorkspaceInput(engine="feynman", path=str(config.data_dir())))
+            W.link(self.a, W.WorkspaceInput(engine="phdlab", path=str(config.data_dir())))
         with patch("backend.execution.tools.which", return_value=None):
-            self.assertEqual(W.open_workspace(w["id"])["status"], "unavailable")
+            self.assertEqual(W.open_workspace(w["id"])["status"], "available")
         with patch.object(W, "IS_WIN", False), patch("backend.execution.tools.which", return_value="/usr/bin/feynman"), patch("subprocess.Popen", side_effect=AssertionError("No hidden interactive launch")):
-            self.assertEqual(W.open_workspace(w["id"])["status"], "terminal_required")
+            self.assertEqual(W.open_workspace(w["id"])["status"], "available")
         self.assertFalse(W.get(w["id"])["capabilities"]["external_session_enumeration"])
-        outside = config.data_dir() / "secret.md"
-        outside.write_text("private")
-        link = Path(w["path"]) / "leak.md"
-        try:
-            link.symlink_to(outside)
-        except OSError:
-            self.skipTest("Symlink creation needs Windows Developer Mode/admin; traversal and overlap checks executed")
-        report = W.sync(w["id"])
-        self.assertTrue(report["errors"])
-        self.assertFalse(W.artifacts(self.a))
+        # Execute the real reparse escape oracle on unprivileged Windows too.
+        with _env.tempfile.TemporaryDirectory(prefix='phdlab-private-link-') as private:
+            outside = Path(private) / 'secret.md'
+            outside.write_text('private')
+            link = Path(w['path']) / 'leak.md'
+            try:
+                link.symlink_to(outside)
+            except OSError:
+                if os.name != 'nt': raise
+                _env.directory_link(outside.parent, Path(w['path']) / 'leak-directory')
+            report = W.sync(w['id'])
+            self.assertTrue(report['errors'])
+            self.assertFalse(W.artifacts(self.a))
 
     def test_jobs_dry_run_cancel_retry_failures_and_quota(self):
         job = J.enqueue(self.a, "discover", {"dry_run": True})
@@ -261,7 +264,7 @@ class ResearchWorkspace(unittest.TestCase):
         profile = S.get_topic(self.a)
         for key in ("id", "created", "updated"):
             profile.pop(key)
-        S.save_topic(S.TopicInput(**{**profile, "storage_mb": 1, "max_pdf_mb": 1}), self.a)
+        _env.legacy_topic(S.TopicInput(**{**profile, "storage_mb": 1, "max_pdf_mb": 1}), self.a)
         pid = self.ingest()
         vid = K.paper(self.a, pid)["versions"][0]["id"]
         with self.assertRaisesRegex(ValueError, "file-size"):
@@ -281,50 +284,13 @@ class ResearchWorkspace(unittest.TestCase):
         self.assertEqual(K.search(self.a)["total"], 1)
         self.assertEqual(K.paper(self.a, pid)["versions"][-1]["id"], vid)
 
-    def test_native_launch_argv_duplicate_detection_and_no_api_keys(self):
-        import subprocess
-        from unittest.mock import MagicMock
-        w = W.link(self.a, W.WorkspaceInput(engine="openscience"))
-        proc = MagicMock(pid=1234)
-        proc.wait.side_effect = subprocess.TimeoutExpired("openscience", 0.5)
-        proc.poll.return_value = None
-        with patch.object(W, "IS_WIN", False), patch("backend.execution.tools.which", return_value="C:/Program Files/Engine/openscience.exe"), \
-             patch("backend.execution.tools.node_argv", return_value=["C:/Program Files/Engine/openscience.exe"]), \
-             patch("subprocess.Popen", return_value=proc) as launch:
-            result = W.open_workspace(w["id"])
-            self.assertEqual(result["status"], "started")
-            self.assertEqual(launch.call_args.args[0], ["C:/Program Files/Engine/openscience.exe", "web", w["path"]])
-            self.assertFalse(launch.call_args.kwargs["shell"])
-            self.assertNotIn("OPENAI_API_KEY", launch.call_args.kwargs["env"])
-            self.assertEqual(W.open_workspace(w["id"])["status"], "already_running")
-            self.assertEqual(launch.call_count, 1)
-        W._processes.pop((str(config.data_dir()), w["id"]), None)
-
-    def test_windows_engine_opens_independent_terminal_and_editor_uses_registered_root(self):
-        import base64
-        import subprocess
-        from unittest.mock import MagicMock
-        w = W.link(self.a, W.WorkspaceInput(engine="feynman"))
-        proc = MagicMock(pid=4321)
-        proc.wait.side_effect = subprocess.TimeoutExpired("powershell", 0.5)
-        proc.poll.return_value = None
-        argv = ["C:/Program Files/node.exe", "D:/engine's files/feynman.js"]
-        with patch.object(W, "IS_WIN", True), patch("backend.execution.tools.node_argv", return_value=argv), patch("subprocess.Popen", return_value=proc) as launch:
-            result = W.open_workspace(w["id"])
-            self.assertEqual(result["status"], "started")
-            args = launch.call_args.args[0]
-            self.assertEqual(args[:4], ["powershell.exe", "-NoLogo", "-NoProfile", "-NoExit"])
-            command = base64.b64decode(args[-1]).decode("utf-16le")
-            self.assertIn("engine''s files", command)
-            self.assertIn("'--cwd'", command)
-            self.assertNotIn("--prompt", command)
-            self.assertEqual(launch.call_args.kwargs["cwd"], w["path"])
-            self.assertFalse(launch.call_args.kwargs["shell"])
-            self.assertNotIn("OPENAI_API_KEY", launch.call_args.kwargs["env"])
-            self.assertEqual(result["log"], "")
-            self.assertEqual(W.open_workspace(w["id"])["status"], "already_running")
-            self.assertEqual(launch.call_count, 1)
-        W._processes.pop((str(config.data_dir()), w["id"]), None)
+    def test_native_workspace_never_starts_retired_software_and_editor_uses_registered_root(self):
+        w=W.link(self.a,W.WorkspaceInput(engine='phdlab'))
+        with patch('subprocess.Popen',side_effect=AssertionError('No external runtime')):
+            result=W.open_workspace(w['id'])
+            self.assertEqual(result['status'],'available')
+            self.assertEqual(result['cwd'],w['path'])
+            self.assertEqual(W.open_workspace(w['id'])['status'],'available')
         with patch("backend.execution.vscode.vscode_cli", return_value="code.exe"), patch("backend.execution.tools.run_cli", return_value=(0, "")) as run:
             self.assertEqual(W.open_editor(w["id"])["status"], "started")
             self.assertEqual(run.call_args.args[0], ["code.exe", "--new-window", w["path"]])
@@ -338,13 +304,13 @@ class ResearchWorkspace(unittest.TestCase):
             W.open_editor("unknown-workspace")
 
     def test_relink_and_snapshot_search_preserve_identity_history(self):
-        w = W.link(self.a, W.WorkspaceInput(engine="openscience"))
+        w = W.link(self.a, W.WorkspaceInput(engine="phdlab"))
         self.stable_file(w["path"], "offline.md", b"Denoising offline result: unverified")
         W.sync(w["id"])
         newpath = Path(w["path"]).parent / "Relocated workspace with spaces"
         newpath.mkdir()
         self.stable_file(newpath, "offline.md", b"Denoising offline result: unverified")
-        relinked = W.relink(w["id"], W.WorkspaceInput(engine="openscience", path=str(newpath), sync_interval_minutes=60))
+        relinked = W.relink(w["id"], W.WorkspaceInput(engine="phdlab", path=str(newpath), sync_interval_minutes=60))
         self.assertEqual(relinked["id"], w["id"])
         self.assertTrue((Path(w["path"])/"offline.md").exists())
         self.assertEqual(W.sync(w["id"])["changed"], 0)

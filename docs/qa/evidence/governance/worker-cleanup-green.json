@@ -1,0 +1,21 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_verification_worker_cleanup.WorkerCleanup.test_process_exit_releases_database_before_owned_directory_cleanup",
+      "status": "PASS",
+      "duration": 0.2122,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "total": 1,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-_hs7qe5h",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

@@ -1,0 +1,64 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_baseline_accounting.BaselineAccounting.test_changed_missing_or_escaping_evidence_is_rejected",
+      "status": "ERROR",
+      "duration": 0.003,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 41, in test_changed_missing_or_escaping_evidence_is_rejected\n    self.assertTrue(self.validate(data, root))\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 19, in validate\n    from devtools.verification.baseline import validate_baseline\nModuleNotFoundError: No module named 'devtools.verification.baseline'\n"
+    },
+    {
+      "id": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception",
+      "status": "ERROR",
+      "duration": 0.0031,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 35, in test_claimed_approval_cannot_authorize_any_exception\n    self.assertTrue(self.validate(data, root))\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 19, in validate\n    from devtools.verification.baseline import validate_baseline\nModuleNotFoundError: No module named 'devtools.verification.baseline'\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 35, in test_claimed_approval_cannot_authorize_any_exception\n    self.assertTrue(self.validate(data, root))\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 19, in validate\n    from devtools.verification.baseline import validate_baseline\nModuleNotFoundError: No module named 'devtools.verification.baseline'\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 35, in test_claimed_approval_cannot_authorize_any_exception\n    self.assertTrue(self.validate(data, root))\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 19, in validate\n    from devtools.verification.baseline import validate_baseline\nModuleNotFoundError: No module named 'devtools.verification.baseline'\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 35, in test_claimed_approval_cannot_authorize_any_exception\n    self.assertTrue(self.validate(data, root))\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 19, in validate\n    from devtools.verification.baseline import validate_baseline\nModuleNotFoundError: No module named 'devtools.verification.baseline'\n"
+    },
+    {
+      "id": "test_baseline_accounting.BaselineAccounting.test_malformed_duplicate_and_unowned_records_are_rejected",
+      "status": "ERROR",
+      "duration": 0.0015,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 50, in test_malformed_duplicate_and_unowned_records_are_rejected\n    self.assertTrue(self.validate(data, root))\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 19, in validate\n    from devtools.verification.baseline import validate_baseline\nModuleNotFoundError: No module named 'devtools.verification.baseline'\n"
+    },
+    {
+      "id": "test_baseline_accounting.BaselineAccounting.test_verified_open_issue_is_accounted_without_becoming_a_waiver",
+      "status": "ERROR",
+      "duration": 0.0012,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 26, in test_verified_open_issue_is_accounted_without_becoming_a_waiver\n    self.assertEqual(self.validate(data, root), [])\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 19, in validate\n    from devtools.verification.baseline import validate_baseline\nModuleNotFoundError: No module named 'devtools.verification.baseline'\n"
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception",
+      "id": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception (value=[{'test_id': 'test.exact', 'approved': True}])",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 35, in test_claimed_approval_cannot_authorize_any_exception\n    self.assertTrue(self.validate(data, root))\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 19, in validate\n    from devtools.verification.baseline import validate_baseline\nModuleNotFoundError: No module named 'devtools.verification.baseline'\n"
+    },
+    {
+      "parent": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception",
+      "id": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception (value=['*'])",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 35, in test_claimed_approval_cannot_authorize_any_exception\n    self.assertTrue(self.validate(data, root))\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 19, in validate\n    from devtools.verification.baseline import validate_baseline\nModuleNotFoundError: No module named 'devtools.verification.baseline'\n"
+    },
+    {
+      "parent": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception",
+      "id": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception (value=None)",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 35, in test_claimed_approval_cannot_authorize_any_exception\n    self.assertTrue(self.validate(data, root))\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 19, in validate\n    from devtools.verification.baseline import validate_baseline\nModuleNotFoundError: No module named 'devtools.verification.baseline'\n"
+    },
+    {
+      "parent": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception",
+      "id": "test_baseline_accounting.BaselineAccounting.test_claimed_approval_cannot_authorize_any_exception (value={})",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 35, in test_claimed_approval_cannot_authorize_any_exception\n    self.assertTrue(self.validate(data, root))\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\ci-recovery-baseline\\tests\\test_baseline_accounting.py\", line 19, in validate\n    from devtools.verification.baseline import validate_baseline\nModuleNotFoundError: No module named 'devtools.verification.baseline'\n"
+    }
+  ],
+  "total": 4,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-7093i8sr",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

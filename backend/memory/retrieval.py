@@ -88,14 +88,25 @@ def graph_scores(nodes: list, seeds: dict, hops: int = 2, decay: float = 0.5) ->
     return {k: v for k, v in act.items() if k in ids and k not in seeds}
 
 
-def _age_days(ts: str) -> float:
+def _timestamp(ts: str) -> float | None:
     try:
         t = datetime.fromisoformat((ts or "").replace("Z", "+00:00"))
         if t.tzinfo is None:
             t = t.replace(tzinfo=timezone.utc)
-        return max(0.0, (datetime.now(timezone.utc) - t).total_seconds() / 86400)
+        return t.timestamp()
     except ValueError:
-        return 365.0
+        return None
+
+
+def newest_first(node) -> tuple[float, str]:
+    """Order stored instants directly; sampling the clock per node breaks ties."""
+    stamp = _timestamp(node.ts)
+    return (-stamp if stamp is not None else float('inf'), node.id)
+
+
+def _age_days(ts: str) -> float:
+    stamp = _timestamp(ts)
+    return max(0.0, (datetime.now(timezone.utc).timestamp() - stamp) / 86400) if stamp is not None else 365.0
 
 
 def heuristic_rerank(query: str, nodes: list, fused: dict) -> dict:

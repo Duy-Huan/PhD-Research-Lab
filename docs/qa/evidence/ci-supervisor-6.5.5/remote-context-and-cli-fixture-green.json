@@ -1,0 +1,208 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_latest_integration_regressions.LatestIntegration.test_remote_compute_context_preserves_record_identity_and_unverified_status",
+      "status": "PASS",
+      "duration": 6.9282,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_approvals_and_artifacts",
+      "status": "PASS",
+      "duration": 0.332,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_chat",
+      "status": "PASS",
+      "duration": 1.6371,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_code_and_jobs",
+      "status": "PASS",
+      "duration": 5.1335,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_library_and_paper",
+      "status": "PASS",
+      "duration": 0.3895,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_mcp",
+      "status": "PASS",
+      "duration": 0.0953,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_projects_outline_files",
+      "status": "PASS",
+      "duration": 0.1932,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_review",
+      "status": "PASS",
+      "duration": 0.3825,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_runs_and_memory",
+      "status": "PASS",
+      "duration": 26.8577,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_security_middlewares",
+      "status": "PASS",
+      "duration": 0.0781,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_skills",
+      "status": "PASS",
+      "duration": 0.0822,
+      "details": null
+    },
+    {
+      "id": "test_api.Api.test_system",
+      "status": "PASS",
+      "duration": 11.5577,
+      "details": null
+    },
+    {
+      "id": "test_firewall.Launch.test_missing_container_blocks_headless_cli_before_process_start",
+      "status": "PASS",
+      "duration": 0.0796,
+      "details": null
+    },
+    {
+      "id": "test_firewall.Launch.test_tool_call_on_app_source_stops_the_agent",
+      "status": "PASS",
+      "duration": 0.4749,
+      "details": null
+    },
+    {
+      "id": "test_firewall.Roots.test_allowed_and_denied",
+      "status": "PASS",
+      "duration": 0.0583,
+      "details": null
+    },
+    {
+      "id": "test_firewall.Roots.test_check",
+      "status": "PASS",
+      "duration": 0.1975,
+      "details": null
+    },
+    {
+      "id": "test_firewall.Roots.test_denied_roots_survive_unreadable_folders",
+      "status": "PASS",
+      "duration": 0.0326,
+      "details": null
+    },
+    {
+      "id": "test_firewall.Roots.test_violation_audit",
+      "status": "PASS",
+      "duration": 0.1795,
+      "details": null
+    },
+    {
+      "id": "test_firewall.Tools.test_file_tools",
+      "status": "PASS",
+      "duration": 0.2505,
+      "details": null
+    },
+    {
+      "id": "test_firewall.Tools.test_grants_cover_read_tools_only",
+      "status": "PASS",
+      "duration": 0.0277,
+      "details": null
+    },
+    {
+      "id": "test_firewall.Tools.test_web_tools",
+      "status": "PASS",
+      "duration": 0.096,
+      "details": null
+    },
+    {
+      "id": "test_firewall.Web.test_public_url",
+      "status": "PASS",
+      "duration": 0.0009,
+      "details": null
+    },
+    {
+      "id": "test_firewall.Workspace.test_per_cli_rules",
+      "status": "PASS",
+      "duration": 0.1625,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_firewall.Roots.test_check",
+      "id": "test_firewall.Roots.test_check [x]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_firewall.Roots.test_check",
+      "id": "test_firewall.Roots.test_check [../x]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_firewall.Roots.test_check",
+      "id": "test_firewall.Roots.test_check [C:/x]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_firewall.Roots.test_check",
+      "id": "test_firewall.Roots.test_check [config.json]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_firewall.Roots.test_check",
+      "id": "test_firewall.Roots.test_check [cli-space/a]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_firewall.Web.test_public_url",
+      "id": "test_firewall.Web.test_public_url [ftp://x]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_firewall.Web.test_public_url",
+      "id": "test_firewall.Web.test_public_url [http://localhost:8765]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_firewall.Web.test_public_url",
+      "id": "test_firewall.Web.test_public_url [http://a.local]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_firewall.Web.test_public_url",
+      "id": "test_firewall.Web.test_public_url [https://]",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "total": 23,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-cuwhn8w0",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

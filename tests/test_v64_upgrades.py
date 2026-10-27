@@ -15,6 +15,8 @@ Covers:
 """
 from __future__ import annotations
 
+import _env  # isolate data before importing the application
+
 import json
 import unittest
 from pathlib import Path
@@ -27,6 +29,8 @@ from backend.knowledge import corpus as K, research_store as S
 
 class V64UpgradesTestSuite(unittest.TestCase):
     def setUp(self):
+        _env.isolate_config(self)
+        _env.fresh_project('v64-acceptance')
         self.client = TestClient(app)
         t_res = self.client.post(
             "/api/research/topics",
@@ -213,103 +217,18 @@ class V64UpgradesTestSuite(unittest.TestCase):
 
     # ── v6.4.1: OpenCode Parallel Core Integration ─────────────────────────
 
-    def test_v641_opencode_workspace_sessions_dedup_approvals_quota_and_reconcile(self):
-        # 1. Runtime health
-        st = self.client.get("/api/opencode/status")
-        self.assertEqual(st.status_code, 200)
-        self.assertEqual(st.json()["engine"], "opencode")
-
-        # 2. Topic-isolated workspace initialization
-        ws = self.client.post(
-            f"/api/research/topics/{self.tid}/opencode/workspace",
-            json={"enable_bridge_plugin": True},
-        )
-        self.assertEqual(ws.status_code, 200, ws.text)
-        ws_root = Path(ws.json()["path"])
-        self.assertTrue((ws_root / "AGENTS.md").is_file())
-        self.assertTrue((ws_root / "opencode.json").is_file())
-        self.assertTrue((ws_root / ".opencode" / "plugins" / "phdlab-opencode-bridge.js").is_file())
-
-        # 3. Delegation loop prevention (OpenCode cannot delegate back to PhD Lab -> OpenCode)
-        loop_res = self.client.post(
-            f"/api/research/topics/{self.tid}/opencode/sessions",
-            json={
-                "goal": "Recursive delegation attempt",
-                "delegation_path": ["phdlab", "opencode"],
-            },
-        )
-        self.assertEqual(loop_res.status_code, 400)
-        self.assertIn("cycle", loop_res.text.lower())
-
-        # 4. Quota exhaustion pauses cleanly without metered API fallback
-        quota_res = self.client.post(
-            f"/api/research/topics/{self.tid}/opencode/sessions",
-            json={
-                "goal": "Implement benchmark harness (quota_exhausted simulation)",
-                "allow_metered_api": False,
-            },
-        )
-        self.assertEqual(quota_res.status_code, 200, quota_res.text)
-        self.assertEqual(quota_res.json()["status"], "blocked_by_quota")
-        self.assertFalse(quota_res.json()["payload"]["spec"]["allow_metered_api"])
-
-        # 5. Normal session + SHA-256 event deduplication across server stream & plugin
-        sess_res = self.client.post(
-            f"/api/research/topics/{self.tid}/opencode/sessions",
-            json={"goal": "Write unit tests for wavelet shrinkage"},
-        )
-        self.assertEqual(sess_res.status_code, 200, sess_res.text)
-        sid = sess_res.json()["id"]
-
-        ev1 = self.client.post(
-            f"/api/research/topics/{self.tid}/opencode/sessions/{sid}/events",
-            json={
-                "event_type": "file.edited",
-                "payload": {"path": "src/shrinkage.py", "lines": 42},
-                "seq": 10,
-                "key_hint": "edit-shrinkage-v1",
-            },
-        )
-        ev2 = self.client.post(
-            f"/api/research/topics/{self.tid}/opencode/sessions/{sid}/events",
-            json={
-                "event_type": "file.edited",
-                "payload": {"path": "src/shrinkage.py", "lines": 42},
-                "seq": 10,
-                "key_hint": "edit-shrinkage-v1",
-            },
-        )
-        self.assertEqual(ev1.status_code, 200)
-        self.assertEqual(ev2.status_code, 200)
-        self.assertFalse(ev1.json()["deduplicated"])
-        self.assertTrue(ev2.json()["deduplicated"])
-        self.assertEqual(ev1.json()["id"], ev2.json()["id"])
-
-        # 6. High-risk approval workflow
-        ap_req = self.client.post(
-            f"/api/research/topics/{self.tid}/opencode/sessions/{sid}/approvals",
-            json={"action": "shell_execution", "scope": "pytest tests/", "risk": "high"},
-        )
-        self.assertEqual(ap_req.status_code, 200)
-        self.assertEqual(ap_req.json()["status"], "awaiting_approval")
-        aid = ap_req.json()["approvals"][0]["id"]
-
-        ap_dec = self.client.post(
-            f"/api/research/topics/{self.tid}/opencode/sessions/{sid}/approvals/{aid}",
-            json={"decision": "approve", "note": "Safe local pytest execution"},
-        )
-        self.assertEqual(ap_dec.status_code, 200)
-        self.assertEqual(ap_dec.json()["approvals"][0]["status"], "approved")
-        self.assertEqual(ap_dec.json()["status"], "running")
-
-        # 7. Crash / stream gap reconciliation
-        rec_res = self.client.post(
-            f"/api/research/topics/{self.tid}/opencode/sessions/{sid}/reconcile",
-            json={"simulate_gap": True},
-        )
-        self.assertEqual(rec_res.status_code, 200)
-        self.assertEqual(rec_res.json()["status"], "reconciled_with_gap")
-        self.assertTrue(rec_res.json()["payload"]["sync_gap"])
+    def test_retired_opencode_mutations_never_claim_new_execution(self):
+        status=self.client.get('/api/opencode/status')
+        self.assertEqual(status.status_code,200,status.text)
+        self.assertEqual(status.json()['state'],'RETIRED')
+        self.assertFalse(status.json()['ready'])
+        base=f'/api/research/topics/{self.tid}/opencode'
+        for endpoint,body in (('/workspace',{}),('/sessions',{'goal':'Never launch retired software'}),
+                              ('/sessions/old-session/events',{'event_type':'file.edited'}),
+                              ('/sessions/old-session/approvals',{})):
+            result=self.client.post(base+endpoint,json=body)
+            self.assertEqual(result.status_code,410,result.text)
+        self.assertEqual(self.client.get(base+'/sessions').json()['sessions'],[])
 
     # ── v6.4.2: Unified Research Intelligence & Integration Layer ──────────
 
@@ -451,8 +370,8 @@ class V64UpgradesTestSuite(unittest.TestCase):
             json={
                 "topic_id": self.tid,
                 "mission_id": mid,
-                "capability": "opencode.implement",
-                "preferred_engine": "opencode",
+                "capability": "paper.compare",
+                "preferred_engine": "phdlab",
                 "simulate_quota_exhausted": True,
                 "allow_metered_api": False,
             },
@@ -481,8 +400,9 @@ class V64UpgradesTestSuite(unittest.TestCase):
             json={"topic_id": self.tid, "tolerance": 1e-6},
         )
         self.assertEqual(rep_ok.status_code, 200, rep_ok.text)
-        self.assertTrue(rep_ok.json()["passed"])
-        self.assertEqual(rep_ok.json()["status"], "verified")
+        self.assertFalse(rep_ok.json()["passed"])
+        self.assertEqual(rep_ok.json()["status"], "unverified")
+        self.assertFalse(rep_ok.json()["execution"]["executed"])
 
         # 6. Module H: Unified Research Report Composer (flags stale/unverified artifacts & preprints)
         rep_man = self.client.post(

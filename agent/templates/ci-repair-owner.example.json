@@ -1,0 +1,27 @@
+{
+  "repository": "Duy-Huan/PhD-Research-Lab",
+  "owner": "Duy-Huan",
+  "pr": 123,
+  "branch": "dev",
+  "worktree": "D:/git-repo/PhD-Research-Lab-worktrees/dev",
+  "authorized": true,
+  "exclusive_worktree": true,
+  "allow_native_auto_merge": false,
+  "allowed_paths": [
+    "backend/example.py"
+  ],
+  "repair_test_ids": [
+    "test_example.Example.test_requirement"
+  ],
+  "targets": [
+    "test_example"
+  ],
+  "python": "C:/trusted-toolchain/Scripts/python.exe",
+  "agent": {
+    "kind": "codex",
+    "executable": "C:/trusted-tools/codex.exe",
+    "executable_sha256": "REPLACE_WITH_REVIEWED_EXECUTABLE_SHA256",
+    "billing": "subscription",
+    "model": "gpt-6.1-sol"
+  }
+}

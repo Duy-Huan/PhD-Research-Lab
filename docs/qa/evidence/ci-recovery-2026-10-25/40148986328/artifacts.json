@@ -1,0 +1,142 @@
+[
+  {
+    "id": 12582201663,
+    "node_id": "MDg6QXJ0aWZhY3QxMjU4MjIwMTY2Mw==",
+    "name": "browser",
+    "size_in_bytes": 76888963,
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582201663",
+    "archive_download_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582201663/zip",
+    "expired": false,
+    "digest": "sha256:2ce3a405f457f82b58950fe31214be60e507bfadfe1e93f2885d193150ef0e77",
+    "created_at": "2026-10-25T01:03:49Z",
+    "updated_at": "2026-10-25T01:03:49Z",
+    "expires_at": "2026-11-08T01:03:46Z",
+    "workflow_run": {
+      "id": 40148986328,
+      "repository_id": 1423087330,
+      "head_repository_id": 1423087330,
+      "head_branch": "feature/development-governance",
+      "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d"
+    }
+  },
+  {
+    "id": 12582197102,
+    "node_id": "MDg6QXJ0aWZhY3QxMjU4MjE5NzEwMg==",
+    "name": "backend-ubuntu-latest-3.12",
+    "size_in_bytes": 320454,
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582197102",
+    "archive_download_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582197102/zip",
+    "expired": false,
+    "digest": "sha256:942eb14bdb3e1cf11ff75c6aac199a26ccb18f7e7b404e50fa5064860388fa77",
+    "created_at": "2026-10-25T01:07:24Z",
+    "updated_at": "2026-10-25T01:07:24Z",
+    "expires_at": "2026-11-08T01:07:23Z",
+    "workflow_run": {
+      "id": 40148986328,
+      "repository_id": 1423087330,
+      "head_repository_id": 1423087330,
+      "head_branch": "feature/development-governance",
+      "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d"
+    }
+  },
+  {
+    "id": 12582171152,
+    "node_id": "MDg6QXJ0aWZhY3QxMjU4MjE3MTE1Mg==",
+    "name": "backend-ubuntu-latest-3.11",
+    "size_in_bytes": 320057,
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582171152",
+    "archive_download_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582171152/zip",
+    "expired": false,
+    "digest": "sha256:7c65c708601373d1c4212be789846b98344a0df84deb31d18529dc712860b84a",
+    "created_at": "2026-10-25T01:06:42Z",
+    "updated_at": "2026-10-25T01:06:42Z",
+    "expires_at": "2026-11-08T01:06:41Z",
+    "workflow_run": {
+      "id": 40148986328,
+      "repository_id": 1423087330,
+      "head_repository_id": 1423087330,
+      "head_branch": "feature/development-governance",
+      "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d"
+    }
+  },
+  {
+    "id": 12582078245,
+    "node_id": "MDg6QXJ0aWZhY3QxMjU4MjA3ODI0NQ==",
+    "name": "backend-windows-latest-3.12",
+    "size_in_bytes": 321290,
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582078245",
+    "archive_download_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582078245/zip",
+    "expired": false,
+    "digest": "sha256:18c9e350accf6f7377d58d8db94aae3bc36ed391fab5c258a44f9f18b1d3969c",
+    "created_at": "2026-10-25T01:16:08Z",
+    "updated_at": "2026-10-25T01:16:08Z",
+    "expires_at": "2026-11-08T01:16:07Z",
+    "workflow_run": {
+      "id": 40148986328,
+      "repository_id": 1423087330,
+      "head_repository_id": 1423087330,
+      "head_branch": "feature/development-governance",
+      "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d"
+    }
+  },
+  {
+    "id": 12582000848,
+    "node_id": "MDg6QXJ0aWZhY3QxMjU4MjAwMDg0OA==",
+    "name": "uat-policy",
+    "size_in_bytes": 740,
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582000848",
+    "archive_download_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12582000848/zip",
+    "expired": false,
+    "digest": "sha256:f540845ccde2cbfa6579bbee3bf8c7776dd8cbaf828026a6f35418234304bb05",
+    "created_at": "2026-10-25T01:01:39Z",
+    "updated_at": "2026-10-25T01:01:39Z",
+    "expires_at": "2026-11-08T01:01:38Z",
+    "workflow_run": {
+      "id": 40148986328,
+      "repository_id": 1423087330,
+      "head_repository_id": 1423087330,
+      "head_branch": "feature/development-governance",
+      "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d"
+    }
+  },
+  {
+    "id": 12581801078,
+    "node_id": "MDg6QXJ0aWZhY3QxMjU4MTgwMTA3OA==",
+    "name": "frontend",
+    "size_in_bytes": 1788467,
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12581801078",
+    "archive_download_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12581801078/zip",
+    "expired": false,
+    "digest": "sha256:30c9d5b2935f2c84cf6fb2951dd9b8e6b3e1a71abf3446605cca0be0b8b4c919",
+    "created_at": "2026-10-25T01:02:54Z",
+    "updated_at": "2026-10-25T01:02:54Z",
+    "expires_at": "2026-11-08T01:02:52Z",
+    "workflow_run": {
+      "id": 40148986328,
+      "repository_id": 1423087330,
+      "head_repository_id": 1423087330,
+      "head_branch": "feature/development-governance",
+      "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d"
+    }
+  },
+  {
+    "id": 12581692609,
+    "node_id": "MDg6QXJ0aWZhY3QxMjU4MTY5MjYwOQ==",
+    "name": "backend-windows-latest-3.11",
+    "size_in_bytes": 321459,
+    "url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12581692609",
+    "archive_download_url": "https://api.github.com/repos/Duy-Huan/PhD-Research-Lab/actions/artifacts/12581692609/zip",
+    "expired": false,
+    "digest": "sha256:974084bc8b254f56b54a6183ba6db9db255e40abc060cd5a5b78d8162536a9d7",
+    "created_at": "2026-10-25T01:19:03Z",
+    "updated_at": "2026-10-25T01:19:03Z",
+    "expires_at": "2026-11-08T01:19:02Z",
+    "workflow_run": {
+      "id": 40148986328,
+      "repository_id": 1423087330,
+      "head_repository_id": 1423087330,
+      "head_branch": "feature/development-governance",
+      "head_sha": "1a7e494080e6d3509609770e08d6ce5706aa6e4d"
+    }
+  }
+]

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "tests": [
+    "ci_smoke.spec.ts",
+    "uat_harness.spec.ts",
+    "ui_quality.spec.ts",
+    "navigation.spec.ts",
+    "office3d.spec.ts"
+  ],
+  "journeys": {
+    "failure-recovery": "NOT_IMPLEMENTED",
+    "navigation-layout": "NOT_IMPLEMENTED",
+    "project-and-chat": "NOT_IMPLEMENTED",
+    "settings-language": "NOT_RUN",
+    "three-dimensional-office": "NOT_IMPLEMENTED",
+    "workflow-operations": "NOT_IMPLEMENTED"
+  },
+  "exploration": {
+    "required": true,
+    "risk": "CRITICAL",
+    "ui_changed": true,
+    "journeys": [
+      "settings-language"
+    ],
+    "independent_review": true,
+    "reason": "Contract/affected high-risk UI requires exploration"
+  },
+  "errors": [],
+  "calls_model": false,
+  "status": "NOT_RUN",
+  "scope": "Selection only; deterministic execution and exploratory qualification are separate",
+  "selection_mode": "ALL_NON_MODEL",
+  "personas": {
+    "first-time": [
+      "settings-language",
+      "project-and-chat"
+    ],
+    "researcher": [],
+    "operator": [
+      "workflow-operations"
+    ],
+    "recovery": [
+      "failure-recovery"
+    ],
+    "frontend-quality": [
+      "navigation-layout",
+      "three-dimensional-office"
+    ]
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUIStore, useI18n } from '../../shared/state/uiStore';
 import { api } from '../../shared/api/client';
@@ -8,7 +8,7 @@ import { Plus, Check, Brain, Folder, Search, ShieldCheck, BookOpen } from 'lucid
 export const TopicView: React.FC = () => {
   const queryClient = useQueryClient();
   const { t } = useI18n();
-  const { activeTopicId, setActiveTopic, openDrawer } = useUIStore();
+  const { project, activeTopicId, setActiveTopic, openDrawer } = useUIStore();
   const [showCreate, setShowCreate] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -16,11 +16,14 @@ export const TopicView: React.FC = () => {
   const [subTab, setSubTab] = useState<'list' | 'papers' | 'ledger'>('list');
 
   const { data: topicData, isLoading } = useQuery<{ topics: Topic[] }>({
-    queryKey: ['topics'],
+    queryKey: ['topics', project?.data_dir],
     queryFn: () => api.get<{ topics: Topic[] }>('/api/research/topics'),
   });
 
   const topics = topicData?.topics || [];
+  useEffect(() => {
+    if (topics.length === 1 && activeTopicId !== topics[0].id) setActiveTopic(topics[0]);
+  }, [topicData, activeTopicId, setActiveTopic]);
 
   // Topic papers
   const { data: papersData } = useQuery<{ papers: LibraryPaper[] }>({
@@ -74,25 +77,29 @@ export const TopicView: React.FC = () => {
   });
 
   return (
-    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="topic-view" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'space-between', alignItems: 'center' }}>
         <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Brain size={18} color="var(--accent)" />
-          <span>Chủ đề nghiên cứu & SKB (Topics)</span>
+          <span>{t('Bài báo và kho tri thức của project', 'Project paper and knowledge base')}</span>
         </h4>
         <button
           className="btn sm accent"
           type="button"
+          disabled={topics.length > 0}
+          title={topics.length ? t('Tạo project khác cho bài báo mới.', 'Create another project for a new paper.') : undefined}
           onClick={() => setShowCreate(!showCreate)}
         >
           <Plus size={14} style={{ marginRight: 4 }} />
-          <span>Tạo Topic mới</span>
+          <span>{t('Xác định chủ đề bài báo', 'Define the paper topic')}</span>
         </button>
       </div>
+      {topics.length > 0 && <p className="muted">{t('Mỗi project dành cho một bài báo/chủ đề; giữ nhiều thí nghiệm trong code/. Tạo project khác để nghiên cứu chủ đề mới.', 'Each project represents one paper/topic, with multiple experiments in code/. Create another project for a new topic.')}</p>}
+      {topics.length > 1 && <p role="alert">{t('Project cũ chứa nhiều chủ đề. Dữ liệu được giữ nguyên; cần xem xét mapping trước khi tách project.', 'This legacy project contains multiple topics. Data is preserved; review ownership mapping before splitting the project.')}</p>}
 
       {/* Sub-tabs when a topic is active */}
       {activeTopicId && (
-        <div style={{ display: 'flex', gap: 6, borderBottom: '1px solid var(--line)', paddingBottom: 8 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, borderBottom: '1px solid var(--line)', paddingBottom: 8 }}>
           <button className={`btn sm ${subTab === 'list' ? 'accent' : 'ghost'}`} onClick={() => setSubTab('list')}>
             Danh sách Topics
           </button>
@@ -293,7 +300,7 @@ export const TopicView: React.FC = () => {
             </span>
           </div>
           <div style={{ maxHeight: 280, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {ledgerData?.entries?.map((en: any) => (
+            {((ledgerData as any)?.events || ledgerData?.entries)?.map((en: any) => (
               <div
                 key={en.seq}
                 style={{

@@ -1,0 +1,120 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_explicit_slash_command_retains_its_existing_execution_contract",
+      "status": "PASS",
+      "duration": 0.1485,
+      "details": null
+    },
+    {
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_long_research_request_is_not_rewritten_or_cut_into_keyword_run_arguments",
+      "status": "PASS",
+      "duration": 0.0946,
+      "details": null
+    },
+    {
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_model_proposed_research_action_waits_for_real_approval",
+      "status": "PASS",
+      "duration": 0.1505,
+      "details": null
+    },
+    {
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "status": "PASS",
+      "duration": 0.3333,
+      "details": null
+    },
+    {
+      "id": "test_agent_native_reasoning.AgentProfileFidelity.test_scientific_prompt_and_purpose_survive_save_and_reload_without_clipping",
+      "status": "PASS",
+      "duration": 0.0526,
+      "details": null
+    },
+    {
+      "id": "test_harness_workflow_ide.HarnessWorkflowIDETestSuite.test_ai_workflow_architect",
+      "status": "PASS",
+      "duration": 0.0003,
+      "details": null
+    },
+    {
+      "id": "test_harness_workflow_ide.HarnessWorkflowIDETestSuite.test_dynamic_agent_team_builder",
+      "status": "PASS",
+      "duration": 0.0056,
+      "details": null
+    },
+    {
+      "id": "test_harness_workflow_ide.HarnessWorkflowIDETestSuite.test_graph_validation_errors",
+      "status": "PASS",
+      "duration": 0.0002,
+      "details": null
+    },
+    {
+      "id": "test_harness_workflow_ide.HarnessWorkflowIDETestSuite.test_harness_api_endpoints",
+      "status": "PASS",
+      "duration": 0.1755,
+      "details": null
+    },
+    {
+      "id": "test_harness_workflow_ide.HarnessWorkflowIDETestSuite.test_node_registry_17_types",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_harness_workflow_ide.HarnessWorkflowIDETestSuite.test_research_templates_validity",
+      "status": "PASS",
+      "duration": 0.0002,
+      "details": null
+    },
+    {
+      "id": "test_harness_workflow_ide.HarnessWorkflowIDETestSuite.test_workflow_runtime_execution",
+      "status": "PASS",
+      "duration": 0.0207,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='How can I run an experiment that would falsify this hypothesis?')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='Explain how to find papers that contradict the result.')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='T\u00ecm t\u00e0i li\u1ec7u v\u1ec1 pruning, r\u1ed3i c\u00e2n nh\u1eafc c\u00f3 c\u1ea7n thay \u0111\u1ed5i h\u01b0\u1edbng nghi\u00ean c\u1ee9u kh\u00f4ng.')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='Why did the literature review fail? Do not start a new workflow.')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception",
+      "id": "test_agent_native_reasoning.AgentDecisionAuthority.test_plain_language_reaches_agent_without_keyword_workflow_interception (question='Ch\u1ea1y th\u1eed \u00fd t\u01b0\u1edfng n\u00e0y c\u00f3 gi\u00fap ki\u1ec3m tra gi\u1ea3 thuy\u1ebft kh\u00f4ng?')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 12,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-46vutupu",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

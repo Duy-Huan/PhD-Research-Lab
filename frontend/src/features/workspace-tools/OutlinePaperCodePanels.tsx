@@ -23,6 +23,11 @@ import {
   FileDown,
 } from 'lucide-react';
 import { LatexEnginesInfo, PaperProject, CompilePaperResponse } from '../../shared/api/types';
+import { PaperOrchestraStudio } from '../paper/PaperOrchestraStudio';
+import { Sparkles } from 'lucide-react';
+import { ChatRunCard } from '../chat/ChatRunCard';
+import { OpenCodePanel } from '../opencode/OpenCodePanel';
+import { NativeExperimentTracking } from './NativeExperimentTracking';
 
 // ── 1. Outline Panel (/api/outline) ────────────────────────────────────────
 
@@ -120,7 +125,7 @@ export const PaperPanel: React.FC = () => {
   const [engineMode, setEngineMode] = useState<'local' | 'online'>('local');
   const [selectedLocalEngine, setSelectedLocalEngine] = useState<string>('auto');
   const [layoutMode, setLayoutMode] = useState<'template' | 'simple'>('template');
-  const [activeView, setActiveView] = useState<'editor' | 'preview' | 'split' | 'log'>('preview');
+  const [activeView, setActiveView] = useState<'editor' | 'preview' | 'split' | 'log' | 'orchestra'>('preview');
   const [lastCompiledTime, setLastCompiledTime] = useState<number>(Date.now());
   const [compileResult, setCompileResult] = useState<CompilePaperResponse | null>(null);
   const [logContent, setLogContent] = useState<string>('');
@@ -377,6 +382,15 @@ export const PaperPanel: React.FC = () => {
 
       {/* Segmented View Tabs */}
       <div style={{ display: 'flex', gap: 6, borderBottom: '1px solid var(--line)', paddingBottom: 6 }}>
+        <button
+          type="button"
+          className={`btn sm ${activeView === 'orchestra' ? 'accent' : 'ghost'}`}
+          onClick={() => setActiveView('orchestra')}
+          style={{ display: 'flex', alignItems: 'center', gap: 5 }}
+        >
+          <Sparkles size={13} color={activeView === 'orchestra' ? '#fff' : 'var(--accent)'} />
+          <span>PaperOrchestra</span>
+        </button>
         <button
           type="button"
           className={`btn sm ${activeView === 'preview' ? 'accent' : 'ghost'}`}
@@ -665,6 +679,9 @@ export const PaperPanel: React.FC = () => {
         </div>
       )}
 
+      {/* View 5: PaperOrchestra Studio */}
+      {activeView === 'orchestra' && <PaperOrchestraStudio />}
+
       {/* View 4: Build Log Viewer */}
       {activeView === 'log' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -708,6 +725,22 @@ export const CodePanel: React.FC = () => {
   const queryClient = useQueryClient();
   const { t } = useI18n();
   const [newProjectName, setNewProjectName] = useState('');
+  const [goal, setGoal] = useState('');
+  const codeRuns = useQuery<{runs: {id: string; pipeline: string}[]}>({
+    queryKey: ['native-code-runs'], queryFn: async () => {
+      const data = await api.get<{runs: {id: string; pipeline: string}[]}>('/api/runs');
+      if (!Array.isArray(data.runs)) throw new Error(t('Danh sách coding run không hợp lệ.', 'Invalid coding run response.'));
+      return data;
+    }, refetchInterval: 5000,
+  });
+  const startCode = useMutation({
+    mutationFn: () => api.post('/api/runs', {skill: 'code', input: goal}),
+    onSuccess: () => { setGoal(''); void queryClient.invalidateQueries({queryKey: ['native-code-runs']}); },
+  });
+  const openCode = useMutation({
+    mutationFn: (name: string) => api.post('/api/code/open', {name}),
+    onSuccess: () => { void queryClient.invalidateQueries({queryKey: ['code-projects']}); },
+  });
 
   const { data: codeData, isLoading } = useQuery<any>({
     queryKey: ['code-projects'],
@@ -743,7 +776,7 @@ export const CodePanel: React.FC = () => {
           <Code size={18} color="var(--accent)" />
           <span>{t('Dự án Mã nguồn và VS Code', 'Code Workspace & VS Code')}</span>
         </h4>
-        <button className="btn sm accent" onClick={() => vscodeMutation.mutate()}>
+        <button className="btn sm accent" disabled={!codeData?.active || vscodeMutation.isPending} onClick={() => vscodeMutation.mutate()}>
           <ExternalLink size={13} style={{ marginRight: 4 }} /> {t('Mở trong VS Code', 'Open in VS Code')}
         </button>
       </div>
@@ -762,12 +795,15 @@ export const CodePanel: React.FC = () => {
           value={newProjectName}
           onChange={(e) => setNewProjectName(e.target.value)}
         />
-        <button type="submit" className="btn sm ghost" disabled={createMutation.isPending}>
+        <button type="submit" className="btn sm ghost" disabled={createMutation.isPending || !newProjectName.trim()}>
           <Plus size={13} style={{ marginRight: 4 }} /> {t('Tạo Repo', 'Create Repo')}
         </button>
       </form>
 
       {isLoading && <p className="muted">{t('Đang tải danh sách dự án code…', 'Loading code projects…')}</p>}
+      {(createMutation.error || openCode.error || startCode.error || codeRuns.error) && <p role="alert">
+        {(createMutation.error || openCode.error || startCode.error || codeRuns.error)?.message}
+      </p>}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {projects.map((p: any) => (
           <div
@@ -789,9 +825,22 @@ export const CodePanel: React.FC = () => {
             {codeData?.active === p.name && (
               <span className="chip ok" style={{ fontSize: 11 }}>{t('Đang mở', 'Active')}</span>
             )}
+            {codeData?.active !== p.name && <button className="btn sm" disabled={openCode.isPending} onClick={() => openCode.mutate(p.name)}>
+              {t('Mở workspace', 'Open workspace')}
+            </button>}
           </div>
         ))}
       </div>
+      <form onSubmit={event => { event.preventDefault(); if (goal.trim()) startCode.mutate(); }} style={{display: 'grid', gap: 8}}>
+        <label>{t('Tác vụ coding cho AI đã cấu hình trong Models', 'Coding task for the AI configured in Models')}
+          <textarea className="input" value={goal} onChange={event => setGoal(event.target.value)} required disabled={!codeData?.active} />
+        </label>
+        <p className="muted">{t('Mỗi run tạo file trong experiments/. Hãy duyệt kế hoạch trước khi ghi code; kiểm thử và thí nghiệm là các bước riêng.', 'Each run writes into experiments/. Approve the plan before writing code; tests and experiments are separate steps.')}</p>
+        <button className="btn sm" disabled={!codeData?.active || !goal.trim() || startCode.isPending}>{t('Tạo kế hoạch coding', 'Create coding plan')}</button>
+      </form>
+      {codeRuns.data?.runs.filter(run => run.pipeline === 'code').map(run => <ChatRunCard id={run.id} key={run.id} />)}
+      <NativeExperimentTracking />
+      <OpenCodePanel />
     </div>
   );
 };

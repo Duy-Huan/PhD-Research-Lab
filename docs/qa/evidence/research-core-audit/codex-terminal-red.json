@@ -1,0 +1,192 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "status": "PASS",
+      "duration": 0.1001,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_antigravity_print_flag_cannot_consume_output_format",
+      "status": "PASS",
+      "duration": 0.0446,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_cli_connection_test_uses_real_connector_path_without_api_fallback",
+      "status": "PASS",
+      "duration": 0.08,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_cli_default_does_not_force_an_api_model",
+      "status": "PASS",
+      "duration": 0.058,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_codex_assistant_message_is_not_terminal_and_real_usage_event_is_retained",
+      "status": "FAIL",
+      "duration": 0.1603,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_cli_connectivity_regressions.py\", line 149, in test_codex_assistant_message_is_not_terminal_and_real_usage_event_is_retained\n    self.assertEqual([e['text'] for e in events if e['type']=='text_delta'],\nAssertionError: Lists differ: ['I will check the result.'] != ['I will check the result.', 'The checked result is121.']\n\nSecond list contains 1 additional elements.\nFirst extra element 1:\n'The checked result is121.'\n\n- ['I will check the result.']\n+ ['I will check the result.', 'The checked result is121.']\n"
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_codex_failure_after_partial_assistant_text_is_not_hidden_as_success",
+      "status": "FAIL",
+      "duration": 0.1479,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_cli_connectivity_regressions.py\", line 158, in test_codex_failure_after_partial_assistant_text_is_not_hidden_as_success\n    self.assertTrue(any(e['type']=='error' and 'Controlled provider failure' in e['message'] for e in events))\nAssertionError: False is not true\n"
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval",
+      "status": "PASS",
+      "duration": 0.3671,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_opencode_does_not_claim_manifest_creation_is_model_execution",
+      "status": "PASS",
+      "duration": 0.0613,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_opencode_html_fallback_is_not_api_readiness",
+      "status": "PASS",
+      "duration": 0.056,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_opencode_v2_npm_shim_resolves_to_native_executable",
+      "status": "PASS",
+      "duration": 0.0489,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_openscience_chat_endpoint_accepts_the_exact_ui_command",
+      "status": "PASS",
+      "duration": 0.2641,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_real_cli_failures_are_classified",
+      "status": "PASS",
+      "duration": 0.0513,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_refresh_auth_does_not_hide_a_weekly_limit",
+      "status": "PASS",
+      "duration": 0.0618,
+      "details": null
+    },
+    {
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_result_only_stream_still_produces_an_answer_and_empty_exit_is_error",
+      "status": "PASS",
+      "duration": 0.2422,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='Composer.tsx', command='status')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='Composer.tsx', command='opencode')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='Composer.tsx', command='phdlab')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='Composer.tsx', command='search')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='Composer.tsx', command='openscience')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='Composer.tsx', command='paperorchestra')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='Composer.tsx', command='outline')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='Composer.tsx', command='feynman')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='MessageList.tsx', command='outline')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='MessageList.tsx', command='openscience')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_advertised_chat_commands_are_registered (file='MessageList.tsx', command='feynman')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval (command='openscience')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval (command='science')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval (command='feynman')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval",
+      "id": "test_cli_connectivity_regressions.ConnectivityRegressions.test_external_commands_preserve_requested_engine_and_approval (command='opencode')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 14,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-15lus07s",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

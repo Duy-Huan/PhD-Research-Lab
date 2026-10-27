@@ -22,6 +22,28 @@ class ContextCache(unittest.TestCase):
         session = sessions.get(self.s["id"])
         return context.compile(session, "what is the research state?", policy.effective(session))
 
+    def test_memory_compilation_keeps_starting_project_during_project_switch(self):
+        from backend import memory
+        from backend.memory import compiler, engine
+
+        first = config.data_dir()
+        memory.set_tier3({"goals": ["PROJECT_A_KEEP_THIS_RESEARCH_GOAL"]})
+        second = _env.fresh_project("context-switch-other")
+        memory.set_tier3({"goals": ["PROJECT_B_PRIVATE_RESEARCH_GOAL"]})
+        config.activate_project(str(first))
+        original = engine.build_context
+
+        def switch_then_build(*args, **kwargs):
+            config.activate_project(second["data_dir"])
+            return original(*args, **kwargs)
+
+        # Only the concurrent UI selection is controlled; memory reads and retrieval are real.
+        with mock.patch.object(engine, "build_context", side_effect=switch_then_build):
+            result = compiler.compile_context(query="research goal", budget_tokens=3500)
+        self.assertIn("PROJECT_A_KEEP_THIS_RESEARCH_GOAL", result["text"])
+        self.assertNotIn("PROJECT_B_PRIVATE_RESEARCH_GOAL", result["text"])
+        self.assertEqual(str(config.data_dir()), second["data_dir"])
+
     def test_empty_project_reuses_context_after_reads_and_manifest_event_writes(self):
         first = self.compile()
         self.assertEqual(first["manifest"]["cache"], "miss")
@@ -71,6 +93,9 @@ class ContextCache(unittest.TestCase):
         self.assertIn("NEEDS_USER_ACTION", self.compile()["text"])
         other = sessions.create("Earlier work")
         sessions.update(other["id"], lambda s: s.update(summary="Three seeds were required for each comparison."))
+        folder = sessions.create_chat_project('Explicit shared research')
+        sessions.organize(self.s['id'], chat_project=folder['id'])
+        sessions.organize(other['id'], chat_project=folder['id'])
         summary = self.compile()
         self.assertIn("Three seeds", summary["text"])
         sessions.update(other["id"], lambda s: s.update(summary="Five seeds were required for each comparison."))

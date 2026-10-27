@@ -142,3 +142,20 @@ Run `phdlab <command> --help` or `phdlab <group> <command> --help` for flags. `p
 If the server is unreachable, start the backend and verify the URL. If a provider is unavailable, inspect `phdlab providers` and its sign-in/configuration detail. If a code action returns `NO_CODE_PROJECT`, run `phdlab code list`, then create or open a code project. Journal/search API keys and imported rankings are configured in the browser Settings page; paper search is also reachable through `phdlab api POST /api/search --data @query.json`.
 
 For scripted JSON requests use `--data @file.json` instead of embedding complex JSON in shell arguments. Never include actual API keys in a command saved to shell history.
+
+## L1–L4 workflows through the shared API
+
+For sign-in versus actual chat connectivity, see the [real CLI repair report](testing/cli-connectivity-report.md). `/openscience` aliases `/science`; `/feynman` and `/opencode` preserve the selected external engine. The chat displays pending runs with approve/cancel actions. A disabled runtime, quota limit and missing login are reported separately. OpenCode native prompt dispatch remains unavailable; use its native runtime and synchronize artifacts.
+
+The guided option is **Missions → Workflows L1–L4** in the browser. For terminal automation, the existing `api` command uses the identical Mission API and approvals:
+
+```text
+phdlab api GET /api/research/mission-capabilities
+phdlab api POST /api/research/topics/TOPIC/missions --data @mission.json
+phdlab api POST /api/research/topics/TOPIC/missions/MISSION/approve --data @approval.json
+phdlab api GET /api/research/topics/TOPIC/missions
+phdlab api POST /api/research/topics/TOPIC/missions/MISSION/steps/TASK/review --data @step-review.json
+phdlab api POST /api/research/topics/TOPIC/missions/MISSION/cancel
+```
+
+`mission.json` is a normal MissionSpec with `autonomy: {"level":"L2","max_output_tokens":512}` and explicit `control`, provider, deadline, permissions, tasks and budgets. Copy the exact generated draft from the browser's **Plan and results** disclosure; the backend rejects incomplete specifications. `approval.json` contains the current `plan_digest` and a human `note`. A step review contains `plan_digest`, the task's persisted `result_digest`, `accept` and `note`. L1/L2 stop at each result; L3 stops for final review; L4 technical closure leaves scientific review pending. See [the policy and recovery contract](architecture/autonomy-workflows.md).

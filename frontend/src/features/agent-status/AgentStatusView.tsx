@@ -26,7 +26,7 @@ import { AgentProfileModal } from './AgentProfileModal';
 import { ChatCenter } from '../chat/ChatCenter';
 import { LibraryPanel } from '../library/LibraryPanel';
 import { OutlinePanel } from '../workspace-tools/OutlinePaperCodePanels';
-import { OpenCodePanel } from '../opencode/OpenCodePanel';
+import { CodePanel } from '../workspace-tools/OutlinePaperCodePanels';
 import { ReviewView } from '../review/ReviewView';
 import { FigureStudioPanel } from '../figures/FigureStudioPanel';
 import { MissionLiveWorkspace } from '../missions/MissionLiveWorkspace';
@@ -78,7 +78,7 @@ export const AgentStatusView: React.FC = () => {
     activeChatProjectId,
     agentProfiles,
   } = useUIStore();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
 
   const [selectedAgent, setSelectedAgent] = useState<AgentOfficeViewModel | null>(null);
   const [editingProfileAgent, setEditingProfileAgent] = useState<AgentOfficeViewModel | null>(null);
@@ -132,7 +132,9 @@ export const AgentStatusView: React.FC = () => {
     liveAgents,
     project?.data_dir || '',
     activeTopicId || undefined,
-    config?.agent_modes
+    config?.agent_modes,
+    language,
+    config?.agents
   );
   const agents = useMemo(() => applyAgentProfiles(baseAgents, agentProfiles), [baseAgents, agentProfiles]);
 
@@ -204,7 +206,7 @@ export const AgentStatusView: React.FC = () => {
       case 'outline':
         return <OutlinePanel />;
       case 'hpc_opencode':
-        return <OpenCodePanel />;
+        return <CodePanel />;
       case 'roundtable_review':
         return <ReviewView />;
       case 'figure_studio':
@@ -255,6 +257,7 @@ export const AgentStatusView: React.FC = () => {
               setOfficeFullscreen(false);
               setMainView('chat');
             }}
+            aria-label={t('Quay lại giao diện thường', 'Back to standard view')}
             title={t('Quay lại giao diện thường', 'Back to standard view')}
             style={{
               display: 'inline-flex',
@@ -359,7 +362,7 @@ export const AgentStatusView: React.FC = () => {
               gap: 4,
               cursor: 'pointer',
             }}
-            title="HPC Server & OpenCode"
+            title="Native Code & GPU Experiments"
           >
             <Terminal size={12} />
             <span>HPC</span>
@@ -919,7 +922,7 @@ export const AgentStatusView: React.FC = () => {
                           : selectedLabObject === 'outline'
                           ? t('Bảng Đề cương', '3D Outline')
                           : selectedLabObject === 'hpc_opencode'
-                          ? 'HPC OpenCode'
+                          ? 'Native Experiments'
                           : selectedLabObject === 'roundtable_review'
                           ? 'Peer Review'
                           : selectedLabObject === 'figure_studio'

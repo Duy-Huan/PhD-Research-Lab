@@ -14,11 +14,18 @@ def fake(pid: str, mode: str = "ok"):
     base = type(C.CONNECTORS[pid])
 
     class Fake(base):
+        def process_argv(self, args, context):
+            return args  # Explicit fixture subprocess, never an OS-containment/live-provider claim.
         def binary(self):
             return sys.executable
 
         def _probe(self):
             return {"bin": sys.executable, "ok": True, "version": "fake 1.0", "login_code": 0, "login": "Logged in using ChatGPT"}
+
+        def auth_state(self, probe):
+            # The isolated vendor home belongs to live qualification. This
+            # Python protocol fixture must never inspect the owner's login.
+            return 'CONNECTED', 'Controlled subprocess fixture; no live authentication'
 
         def argv(self, context):
             super().argv(context)  # the real argument builder must not fail

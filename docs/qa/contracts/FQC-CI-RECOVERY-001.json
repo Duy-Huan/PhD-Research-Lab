@@ -1,0 +1,115 @@
+{
+  "id": "FQC-CI-RECOVERY-001",
+  "title": "Preserve real upstream failure classifications",
+  "risk": "MEDIUM",
+  "mode": "MOCKED",
+  "user_story": "Repository owner can distinguish confirmed failures from unavailable execution without accepting a false green gate.",
+  "requirements": [
+    {
+      "id": "REQ-ACCOUNTING",
+      "description": "Preserve results and bind auditable evidence without waivers"
+    }
+  ],
+  "nonfunctional": [
+    "No live or paid model calls",
+    "No threshold relaxation",
+    "Preserve protected branches"
+  ],
+  "inputs": [
+    "Explicit upstream state fixtures",
+    "Hash-bound issue evidence"
+  ],
+  "outputs": [
+    "Honest fail-closed reports"
+  ],
+  "preconditions": [
+    "Preserved worktrees and actual CI artifacts"
+  ],
+  "postconditions": [
+    "Existing failures remain blocking"
+  ],
+  "dependencies": [
+    "Python3.11/3.12",
+    "Existing verification harness"
+  ],
+  "affected_modules": [
+    "scripts/quality_gate.py",
+    "devtools/verification/baseline.py",
+    "devtools/verification/runner.py",
+    ".github/workflows/quality.yml"
+  ],
+  "acceptance_criteria": [
+    "Named regressions pass",
+    "Missing/skipped/failed evidence never becomes PASS"
+  ],
+  "scenarios": [
+    {
+      "id": "0",
+      "requirement": "REQ-ACCOUNTING",
+      "kind": "positive",
+      "expected": "Preserve fail-closed accounting for GateAccounting.test_only_complete_success_passes",
+      "test": "tests/test_ci_recovery.py::GateAccounting.test_only_complete_success_passes"
+    },
+    {
+      "id": "1",
+      "requirement": "REQ-ACCOUNTING",
+      "kind": "negative",
+      "expected": "Preserve fail-closed accounting for GateAccounting.test_unexecuted_dependencies_never_pass",
+      "test": "tests/test_ci_recovery.py::GateAccounting.test_unexecuted_dependencies_never_pass"
+    },
+    {
+      "id": "2",
+      "requirement": "REQ-ACCOUNTING",
+      "kind": "boundary",
+      "expected": "Preserve fail-closed accounting for GateAccounting.test_missing_dependency_cannot_be_masked_by_other_successes",
+      "test": "tests/test_ci_recovery.py::GateAccounting.test_missing_dependency_cannot_be_masked_by_other_successes"
+    },
+    {
+      "id": "3",
+      "requirement": "REQ-ACCOUNTING",
+      "kind": "failure",
+      "expected": "Preserve fail-closed accounting for GateAccounting.test_failed_dependency_remains_fail_instead_of_blocked",
+      "test": "tests/test_ci_recovery.py::GateAccounting.test_failed_dependency_remains_fail_instead_of_blocked"
+    }
+  ],
+  "recovery": "Preserve raw failure. At most3 repair attempts per stable defect group. No waiver has been approved.",
+  "test_environment": "Disposable local subprocess and file fixtures. Not live merge or AI acceptance.",
+  "skill_sources": [
+    "skills/gh-fix-ci/SKILL.md",
+    "skills/github-actions-hardening/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent adversarial review, not independent approval"
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "test_sha256": "36962967c3053d54adbde43460b50bdc66cd4c27b16546509743d9e6e863b9e9",
+    "scope": "Actual same-test functional RED/GREEN. Baseline initial missing-module RED separately retained; no live acceptance claimed.",
+    "red": {
+      "path": "docs/qa/evidence/ci-recovery-2026-10-25/aggregate-red.json",
+      "sha256": "29d74704f2da154ff3db177572bd74983f6579876cb059118c0bcbe8e93a610d",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/ci-recovery-2026-10-25/final-targeted-green.json",
+      "sha256": "0ea243b6d1daac12c9785a5544a335b0a1138924e436006112203e93706d99b9",
+      "exit_code": 0
+    }
+  },
+  "diagnostics_followup": {
+    "id": "REQ-GIL-SNAPSHOTS",
+    "risk": "MEDIUM",
+    "review": "Same-agent adversarial review; independent hosted matrix required, not yet PASS",
+    "behavior": "Capture bounded periodic Python stacks without native no-GIL frame traversal; preserve original suite failures and parent hard deadlines; join the owned diagnostic worker. Do not dump frame locals.",
+    "tests": [
+      "tests/test_verification_diagnostics.py::StackDiagnostics.test_snapshots_survive_churning_frames_without_dumping_local_values",
+      "tests/test_verification_diagnostics.py::StackDiagnostics.test_test_failure_propagates_and_diagnostic_thread_is_joined",
+      "tests/test_verification_diagnostics.py::StackDiagnostics.test_invalid_interval_cannot_start_an_unbounded_worker"
+    ],
+    "red": "Actual GitHub 40344069655 Windows Python3.11/3.12 fatal access violations; incomplete suites remain FAIL. No deterministic same-test native crash reproduction claimed.",
+    "green": "output/playwright/ci-automerge-recovery/diagnostics-green/report.json (3/3 REAL_LOCAL assertions; remote matrix still required)",
+    "provenance": "Existing uncommitted prototype preserved and reviewed. Reuse pinned gh-fix-ci/github-actions-hardening/playwright from skills/SOURCES.json, searched on GitHub 2026-10-26. No additional upstream installation required."
+  }
+}

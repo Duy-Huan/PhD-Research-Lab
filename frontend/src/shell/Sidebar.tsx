@@ -36,6 +36,7 @@ import {
   HelpCircle,
   MessageSquare,
   Sliders,
+  Play,
   ExternalLink,
   RefreshCw,
 } from 'lucide-react';
@@ -74,8 +75,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
   const [newFolderName, setNewFolderName] = useState('');
   const [newFolderInstructions, setNewFolderInstructions] = useState('');
   const [editingFolder, setEditingFolder] = useState<ChatProject | null>(null);
+
+  // CLI Providers list & 1-click launch state
   const [assigningSessionId, setAssigningSessionId] = useState<string | null>(null);
   const [sessionMenuOpenId, setSessionMenuOpenId] = useState<string | null>(null);
+  const [folderMenuOpenId, setFolderMenuOpenId] = useState<string | null>(null);
   const [renamingSessionId, setRenamingSessionId] = useState<string | null>(null);
   const [renameTitle, setRenameTitle] = useState('');
 
@@ -954,34 +958,34 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
         <button
           type="button"
           className="btn sm ghost"
-          onClick={() => openDrawer('harness')}
+          onClick={() => {
+            setMainView('harness');
+            if (window.matchMedia('(max-width: 820px)').matches && sidebarOpen) toggleSidebar();
+          }}
           style={{
             justifyContent: 'flex-start',
             padding: '6px 10px',
             borderRadius: 8,
             gap: 8,
-            color: drawerKind === 'harness' ? 'var(--accent)' : undefined,
+            color: mainView === 'harness' ? 'var(--accent)' : undefined,
+            background: mainView === 'harness' ? 'var(--panel)' : 'transparent',
           }}
         >
           <Sliders size={15} />
-          <span>{t('Harness Kéo thả', 'Harness Studio')}</span>
+          <span>{t('Harness Studio', 'Harness Studio')}</span>
         </button>
 
-        <button
-          type="button"
-          className="btn sm ghost"
-          onClick={() => openDrawer('cli')}
-          style={{
-            justifyContent: 'flex-start',
-            padding: '6px 10px',
-            borderRadius: 8,
-            gap: 8,
-            color: drawerKind === 'cli' ? 'var(--accent)' : undefined,
-          }}
-          title={t('Mở Giao diện Dòng lệnh Claude CLI Học thuật', 'Open Academic Claude CLI Terminal Studio')}
-        >
-          <Terminal size={15} />
-          <span>{t('Claude CLI Học thuật', 'Claude CLI Terminal')}</span>
+        <button className="btn sm ghost" onClick={() => openSettings('models')}>
+          <Cpu size={14} /> {t('Mô hình & kết nối AI', 'Models & AI connections')}
+        </button>
+        <button className="btn sm ghost" onClick={() => openDrawer('code')}>
+          <Terminal size={14} /> {t('Code và thí nghiệm native', 'Native code & experiments')}
+        </button>
+        <button className="btn sm ghost" onClick={() => openDrawer('paper')}>
+          <FileText size={14} /> PaperOrchestra Studio
+        </button>
+        <button className="btn sm ghost" onClick={() => openDrawer('cli')}>
+          <Terminal size={14} /> {t('Chat CLI', 'CLI chat')}
         </button>
 
         {/* Active Workspace switcher pill */}
@@ -1003,92 +1007,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
           <ChevronDown size={13} />
         </button>
 
-        {/* Quick App Providers & Sync Strip */}
-        <div
-          style={{
-            padding: '7px 9px',
-            borderRadius: 8,
-            background: 'var(--bg-2)',
-            border: '1px solid var(--line)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 5,
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 10.5, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-              {t('Ứng dụng Nhanh & Đồng bộ', 'Quick Apps & Sync')}
-            </span>
-            <button
-              type="button"
-              className="btn sm ghost"
-              onClick={() => openSettings('models')}
-              title={t('Mở Cài đặt Nhà cung cấp', 'Open Provider Settings')}
-              style={{ fontSize: 10.5, padding: '1px 6px', height: 'auto', borderRadius: 4 }}
-            >
-              {t('Tất cả', 'All')}
-            </button>
-          </div>
-          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-            {[
-              { id: 'chatgpt', label: 'ChatGPT', title: 'OpenAI ChatGPT' },
-              { id: 'claude', label: 'Claude', title: 'Anthropic Claude' },
-              { id: 'opencode', label: 'OpenCode', title: 'OpenCode' },
-              { id: 'antigravity', label: 'Antigravity', title: 'Google Antigravity' },
-              { id: 'feynman', label: 'Feynman', title: 'Feynman AI' },
-              { id: 'lmstudio', label: 'LM Studio', title: 'LM Studio' },
-            ].map((app) => (
-              <div
-                key={app.id}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  background: 'var(--panel)',
-                  border: '1px solid var(--line)',
-                  borderRadius: 6,
-                  overflow: 'hidden',
-                  fontSize: 11,
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => api.post(`/api/providers/${app.id}/launch`, {})}
-                  title={t('Mở trực tiếp ', 'Open directly ') + app.title}
-                  style={{
-                    padding: '3px 6px',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: 'var(--fg)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 3,
-                  }}
-                >
-                  <ExternalLink size={10} />
-                  <span>{app.label}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => api.post(`/api/providers/${app.id}/sync`, {})}
-                  title={t('Đồng bộ dữ liệu từ ', 'Sync data from ') + app.title}
-                  style={{
-                    padding: '3px 5px',
-                    background: 'var(--bg-2)',
-                    border: 'none',
-                    borderLeft: '1px solid var(--line)',
-                    cursor: 'pointer',
-                    color: 'var(--accent)',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <RefreshCw size={10} />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Scrollable Pinned + Projects (Chat Folders) + Recents */}
@@ -1498,12 +1416,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
             <button
               className="btn sm ghost"
               onClick={() => {
-                openDrawer('opencode');
+                openDrawer('code');
                 setMenuOpen(false);
               }}
               style={{ justifyContent: 'flex-start' }}
             >
-              <Terminal size={14} style={{ marginRight: 6 }} /> {t('Môi trường OpenCode', 'OpenCode Runtime')}
+              <Terminal size={14} style={{ marginRight: 6 }} /> {t('Môi trường code native', 'Native code workspace')}
             </button>
             <button
               className="btn sm ghost"

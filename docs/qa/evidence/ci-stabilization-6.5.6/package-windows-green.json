@@ -1,0 +1,64 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_release_packaging.ReleasePackaging.test_archive_is_reproducible_and_does_not_overwrite_a_prior_output",
+      "status": "PASS",
+      "duration": 0.7215,
+      "details": null
+    },
+    {
+      "id": "test_release_packaging.ReleasePackaging.test_new_compiled_assets_and_exact_digests_are_packaged_without_private_data",
+      "status": "PASS",
+      "duration": 0.4435,
+      "details": null
+    },
+    {
+      "id": "test_release_packaging.ReleasePackaging.test_source_archive_preserves_git_executable_permissions",
+      "status": "PASS",
+      "duration": 0.5228,
+      "details": null
+    },
+    {
+      "id": "test_release_packaging.ReleasePackaging.test_uncommitted_source_cannot_be_labeled_with_the_committed_sha",
+      "status": "PASS",
+      "duration": 0.2237,
+      "details": null
+    },
+    {
+      "id": "test_release_packaging.ReleasePackaging.test_version_mismatch_and_missing_build_are_rejected",
+      "status": "PASS",
+      "duration": 0.2777,
+      "details": null
+    },
+    {
+      "id": "test_release_packaging.ReleasePackaging.test_wrong_commit_and_unsafe_output_are_rejected",
+      "status": "PASS",
+      "duration": 0.2018,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_release_packaging.ReleasePackaging.test_wrong_commit_and_unsafe_output_are_rejected",
+      "id": "test_release_packaging.ReleasePackaging.test_wrong_commit_and_unsafe_output_are_rejected (target=WindowsPath('C:/Users/win/AppData/Local/Temp/phdlab-release-fixture-mr824es6/output/release/x'))",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_release_packaging.ReleasePackaging.test_wrong_commit_and_unsafe_output_are_rejected",
+      "id": "test_release_packaging.ReleasePackaging.test_wrong_commit_and_unsafe_output_are_rejected (target=WindowsPath('C:/Users/win/AppData/Local/Temp/phdlab-release-fixture-mr824es6/outside'))",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "total": 6,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-s8j2_bcu",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

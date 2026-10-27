@@ -246,20 +246,25 @@ describe('Sidebar', () => {
     expect(useUIStore.getState().mainView).toBe('settings');
   });
 
-  it('renders quick apps & sync strip and triggers launch and sync', async () => {
-    vi.spyOn(api, 'get').mockResolvedValue({ sessions: [], projects: [] });
-    const postSpy = vi.spyOn(api, 'post').mockResolvedValue({ ok: true, total_changed: 1, total_observed: 5 });
-
+  it('routes model management to Models without launching retired software', () => {
+    vi.spyOn(api, 'get').mockResolvedValue({sessions: [], projects: []});
+    const post = vi.spyOn(api, 'post').mockResolvedValue({});
     renderWithProviders(<Sidebar collapsed={false} />);
+    fireEvent.click(screen.getByRole('button', {name: /Mô hình & kết nối AI|Models & AI connections/i}));
+    expect(useUIStore.getState().mainView).toBe('settings');
+    expect(useUIStore.getState().settingsTab).toBe('models');
+    expect(screen.queryByText(/^OpenCode$/i)).not.toBeInTheDocument();
+    expect(post).not.toHaveBeenCalled();
+  });
 
-    const opencodeLaunchBtn = screen.getByRole('button', { name: /^OpenCode$/i });
-    expect(opencodeLaunchBtn).toBeInTheDocument();
-    fireEvent.click(opencodeLaunchBtn);
-    expect(postSpy).toHaveBeenCalledWith('/api/providers/opencode/launch', {});
-
-    const opencodeSyncBtn = screen.getByTitle(/Đồng bộ dữ liệu từ OpenCode|Sync data from OpenCode/i);
-    expect(opencodeSyncBtn).toBeInTheDocument();
-    fireEvent.click(opencodeSyncBtn);
-    expect(postSpy).toHaveBeenCalledWith('/api/providers/opencode/sync', {});
+  it('keeps integrated PaperOrchestra Studio and native code workspace accessible', () => {
+    vi.spyOn(api, 'get').mockResolvedValue({sessions: [], projects: []});
+    const post = vi.spyOn(api, 'post').mockResolvedValue({});
+    renderWithProviders(<Sidebar collapsed={false} />);
+    fireEvent.click(screen.getByRole('button', {name:'PaperOrchestra Studio'}));
+    expect(useUIStore.getState().drawerKind).toBe('paper');
+    fireEvent.click(screen.getByRole('button', {name:/Code và thí nghiệm native|Native code & experiments/i}));
+    expect(useUIStore.getState().drawerKind).toBe('code');
+    expect(post).not.toHaveBeenCalled();
   });
 });

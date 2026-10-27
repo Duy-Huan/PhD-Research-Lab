@@ -1,0 +1,167 @@
+{
+  "scope": "Historical and current nonpass accounting; no baseline exceptions or waivers",
+  "records": [
+    {
+      "run": "controller-red.json",
+      "id": "test_promotion_controller.PromotionController.test_explicit_owner_policy_and_unchanged_trusted_controller_are_required",
+      "status": "ERROR",
+      "reason": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_promotion_controller.py\", line 23, in test_explicit_owner_policy_and_unchanged_trusted_controller_are_required\n    from devtools.verification.promotion import policy_errors,code_digests\nModuleNotFoundError: No module named 'devtools.verification.promotion'\n",
+      "evidence": "output/playwright/three-branch-658/controller-red.json",
+      "classification": "Historical RED or development failure; not final qualification"
+    },
+    {
+      "run": "controller-red.json",
+      "id": "test_promotion_controller.PromotionController.test_latest_matching_run_cannot_fall_back_to_an_older_success",
+      "status": "ERROR",
+      "reason": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_promotion_controller.py\", line 12, in test_latest_matching_run_cannot_fall_back_to_an_older_success\n    from devtools.verification.promotion import latest_run\nModuleNotFoundError: No module named 'devtools.verification.promotion'\n",
+      "evidence": "output/playwright/three-branch-658/controller-red.json",
+      "classification": "Historical RED or development failure; not final qualification"
+    },
+    {
+      "run": "controller-red.json",
+      "id": "test_promotion_controller.PromotionController.test_persistent_state_is_atomic_and_corruption_never_resets_authority",
+      "status": "ERROR",
+      "reason": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_promotion_controller.py\", line 32, in test_persistent_state_is_atomic_and_corruption_never_resets_authority\n    from devtools.verification.promotion import save_state,read_state\nModuleNotFoundError: No module named 'devtools.verification.promotion'\n",
+      "evidence": "output/playwright/three-branch-658/controller-red.json",
+      "classification": "Historical RED or development failure; not final qualification"
+    },
+    {
+      "run": "controller-red.json",
+      "id": "test_promotion_controller.PromotionController.test_shared_node_policy_never_qualifies_a_merged_flag_or_skipped_qa",
+      "status": "ERROR",
+      "reason": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_promotion_controller.py\", line 41, in test_shared_node_policy_never_qualifies_a_merged_flag_or_skipped_qa\n    from devtools.verification.promotion import assess\nModuleNotFoundError: No module named 'devtools.verification.promotion'\n",
+      "evidence": "output/playwright/three-branch-658/controller-red.json",
+      "classification": "Historical RED or development failure; not final qualification"
+    },
+    {
+      "run": "discovery-red.json",
+      "id": "test_dynamic_discovery.DynamicDiscovery.test_2d_and_3d_are_executed_as_separate_ordered_groups",
+      "status": "ERROR",
+      "reason": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_dynamic_discovery.py\", line 44, in test_2d_and_3d_are_executed_as_separate_ordered_groups\n    from devtools.verification.journeys import execution_groups\nImportError: cannot import name 'execution_groups' from 'devtools.verification.journeys' (D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\devtools\\verification\\journeys.py)\n",
+      "evidence": "output/playwright/three-branch-658/discovery-red.json",
+      "classification": "Historical RED or development failure; not final qualification"
+    },
+    {
+      "run": "discovery-red.json",
+      "id": "test_dynamic_discovery.DynamicDiscovery.test_new_e2e_is_automatically_included_without_enabling_live_suites",
+      "status": "FAIL",
+      "reason": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_dynamic_discovery.py\", line 25, in test_new_e2e_is_automatically_included_without_enabling_live_suites\n    self.assertIn('new_feature.spec.ts',plan['tests'])\nAssertionError: 'new_feature.spec.ts' not found in ['ci_smoke.spec.ts', 'uat_harness.spec.ts', 'ui_quality.spec.ts', 'navigation.spec.ts', 'office3d.spec.ts']\n",
+      "evidence": "output/playwright/three-branch-658/discovery-red.json",
+      "classification": "Historical RED or development failure; not final qualification"
+    },
+    {
+      "run": "empty-discovery-red.json",
+      "id": "test_dynamic_discovery.DynamicDiscovery.test_empty_test_module_cannot_hide_behind_another_passing_module",
+      "status": "ERROR",
+      "reason": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_dynamic_discovery.py\", line 17, in test_empty_test_module_cannot_hide_behind_another_passing_module\n    from devtools.verification.layers import load_modules\nImportError: cannot import name 'load_modules' from 'devtools.verification.layers' (D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\devtools\\verification\\layers.py)\n",
+      "evidence": "output/playwright/three-branch-658/empty-discovery-red.json",
+      "classification": "Historical RED or development failure; not final qualification"
+    },
+    {
+      "run": "qa-context-red.json",
+      "id": "test_ci_workflow_contract.WorkflowContract.test_dev_push_cannot_emit_a_skipped_required_qa_context",
+      "status": "FAIL",
+      "reason": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_ci_workflow_contract.py\", line 35, in test_dev_push_cannot_emit_a_skipped_required_qa_context\n    self.assertEqual(job['name'], \"${{ github.event_name == 'pull_request' && 'QA gate' || 'QA not requested on dev push' }}\")\nAssertionError: 'QA gate' != \"${{ github.event_name == 'pull_request' [45 chars]' }}\"\n- QA gate\n+ ${{ github.event_name == 'pull_request' && 'QA gate' || 'QA not requested on dev push' }}\n\n",
+      "evidence": "output/playwright/three-branch-658/qa-context-red.json",
+      "classification": "Historical RED or development failure; not final qualification"
+    },
+    {
+      "run": "reference-green.json",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "status": "FAIL",
+      "reason": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 29, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertEqual(initial.returncode,0,initial.stderr)\nAssertionError: 128 != 0 : {\"decision\": \"PASS\", \"branch\": \"dev\", \"errors\": []}\nusage: development_guard.py [-h] [--root ROOT] [--remote-name REMOTE_NAME]\n                            [--remote-url REMOTE_URL]\n                            [--transaction-phase {prepared,committed,aborted}]\n                            {install,pre-commit,pre-push,reference-transaction,check}\ndevelopment_guard.py: error: argument --transaction-phase: invalid choice: 'preparing' (choose from prepared, committed, aborted)\n{\"decision\": \"PASS\", \"branch\": \"dev\", \"errors\": []}\nfatal: in 'preparing' phase, update aborted by the reference-transaction hook\n\n",
+      "evidence": "output/playwright/three-branch-658/reference-green.json",
+      "classification": "Historical RED or development failure; not final qualification"
+    },
+    {
+      "run": "reference-red.json",
+      "id": "test_development_guard.DevelopmentGuard.test_installed_reference_hook_rejects_new_development_branches",
+      "status": "FAIL",
+      "reason": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch feature/forbidden\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch fix/forbidden\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch backup/forbidden\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch arbitrary\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch qa\n\nTraceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_development_guard.py\", line 34, in test_installed_reference_hook_rejects_new_development_branches\n    self.assertNotEqual(result.returncode,0,'Installed hook allowed new branch '+branch)\nAssertionError: 0 == 0 : Installed hook allowed new branch main\n",
+      "evidence": "output/playwright/three-branch-658/reference-red.json",
+      "classification": "Historical RED or development failure; not final qualification"
+    },
+    {
+      "run": "targeted-final-green-2.json",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "status": "FAIL",
+      "reason": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_live_publisher.py\", line 41, in test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced\n    self.assertFalse(out.exists())\nAssertionError: True is not false\n",
+      "evidence": "output/playwright/three-branch-658/targeted-final-green-2.json",
+      "classification": "Historical RED or development failure; not final qualification"
+    },
+    {
+      "run": "targeted-final-green-3.json",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "status": "FAIL",
+      "reason": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_live_publisher.py\", line 44, in test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced\n    self.assertFalse(out.exists())\nAssertionError: True is not false\n",
+      "evidence": "output/playwright/three-branch-658/targeted-final-green-3.json",
+      "classification": "Historical RED or development failure; not final qualification"
+    },
+    {
+      "run": "targeted-final-green.json",
+      "id": "test_live_publisher.LivePublisher.test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced",
+      "status": "FAIL",
+      "reason": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_live_publisher.py\", line 41, in test_archive_hash_paths_duplicates_and_existing_evidence_are_enforced\n    self.assertFalse(out.exists())\nAssertionError: True is not false\n",
+      "evidence": "output/playwright/three-branch-658/targeted-final-green.json",
+      "classification": "Historical RED or development failure; not final qualification"
+    },
+    {
+      "id": "CI-QA-CONTEXT-001",
+      "status": "FIXED_TARGETED",
+      "severity": "P1",
+      "classification": "CI infrastructure defect",
+      "reason": "Dev push emitted skipped QA gate at2026-10-25T11:05:32Z for4cfa0c0; PR12 merged11:06:14Z; real QA run failed11:21:26Z. Context collision is a confirmed unsafe configuration; exact native merge decision cause not independently proven.",
+      "repair": "Dev push uses distinct nonrequired name; release/controller bind actual latest PR run/check-suite. Targeted workflow5/5 and Node48/48 PASS; new remote run pending.",
+      "reference": "https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks"
+    },
+    {
+      "id": "UI-PAPER-SIGNOFF-001",
+      "status": "FIXED_TARGETED",
+      "severity": "P1",
+      "classification": "Existing application integrity defect",
+      "reason": "Sign-Off only changed local state and displayed false approval without durable backend verification.",
+      "repair": "Disabled unsupported signoff and display truthful local-draft limitations. Five paper tests PASS; actual new E2E pending."
+    },
+    {
+      "id": "UI-PAPER-LAUNCH-002",
+      "status": "FIXED_TARGETED",
+      "severity": "P2",
+      "classification": "Existing application defect",
+      "reason": "Launch could announce initiation with no active topic and no persisted mission.",
+      "repair": "Require active topic and returned research spec; await persisted mission; surface failures. Five paper tests PASS."
+    },
+    {
+      "id": "TEST-ZIP-WINDOWS-001",
+      "status": "FIXED_TARGETED",
+      "severity": "P2",
+      "classification": "Test specification and archive validation portability",
+      "reason": "Windows ZipInfo normalized backslashes on archive write AND read. Earlier fixture failed to reproduce original malicious filename; validation now rejects changed orig_filename and tests construct raw headers.",
+      "repair": "38/38 targeted final PASS, child_exit_code0 cleanup_complete true. All earlier failed records retained."
+    },
+    {
+      "id": "LOCAL-PS-STDERR-001",
+      "status": "EXPLAINED",
+      "classification": "Shell diagnostic wrapper",
+      "reason": "PowerShell redirection wraps unittest stderr as NativeCommandError; test truth comes from worker actual child_exit_code0/case statuses/cleanup_complete, not shell presentation."
+    },
+    {
+      "id": "LIVE-QUALIFICATION-001",
+      "status": "BLOCKED",
+      "severity": "P1",
+      "classification": "Unavailable current-source qualification",
+      "reason": "Actual QA40187464241 and mainPR40187495602 failed: research-live workflow404 and missing verified UAT. New publisher source implemented/tested locally but not pushed/registered; no actual current-head all-provider/research/scientific-reviewed bundle exists."
+    },
+    {
+      "id": "UAT-ORIGINAL-THREE",
+      "status": "FAIL",
+      "classification": "Preserved real historical AI-UAT failures",
+      "reason": "Original ledger retains3failures; final old run timed out180seconds after settings/VI. Owner separately authorized exactlyONE localSpark600second/six-step execution, not yet consumed at this checkpoint."
+    },
+    {
+      "id": "COVERAGE-TARGET-100",
+      "status": "NOT_ACHIEVED",
+      "classification": "Measured coverage gap, nonblocking goal",
+      "reason": "Backend prior6.5.7combined87.62%; frontend intermediate6.5.8lines65.97%(2521/3821),branches64.92%(2679/4126),functions51.39%(754/1467),statements64.42%(2655/4121). Desired100% production line/branch not achieved; >95% was only estimate. Final current-source measurements pending."
+    }
+  ]
+}

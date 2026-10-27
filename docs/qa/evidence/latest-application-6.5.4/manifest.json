@@ -1,0 +1,22 @@
+{
+  "latest-context-red.json": {
+    "path": "docs/qa/evidence/latest-application-6.5.4/latest-context-red.json",
+    "sha256": "27cb55b073834531ff9c83f629f69fb3381e0e3dc29f6b26e97c8603a21a7378"
+  },
+  "latest-application-green.json": {
+    "path": "docs/qa/evidence/latest-application-6.5.4/latest-application-green.json",
+    "sha256": "81c950f0b08963598dce1fb57e3b76611d35eeb3c5992247280dc914a7dda2d1"
+  },
+  "conflicts/resolution.json": {
+    "path": "docs/qa/evidence/latest-application-6.5.4/conflicts/resolution.json",
+    "sha256": "623bf3c105dc09dff1bcf989b4b2be6ba1e3343bb838cce38a7a075e93ff70d2"
+  },
+  "latest-browser-first/results.json": {
+    "path": "docs/qa/evidence/latest-application-6.5.4/latest-browser-first/results.json",
+    "sha256": "6b6ed7d47eba03146f5de8fbdf411a26ef22a038a5c6691b8df7102b46158cf9"
+  },
+  "latest-browser-fixed-confirmed/results.json": {
+    "path": "docs/qa/evidence/latest-application-6.5.4/latest-browser-fixed-confirmed/results.json",
+    "sha256": "0db1950934f6f6a43b16959ce738fe741eb1af3c5a74e6416d509629c2b20880"
+  }
+}

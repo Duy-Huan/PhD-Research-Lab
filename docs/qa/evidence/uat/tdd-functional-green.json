@@ -1,0 +1,139 @@
+{
+  "mode": "MOCKED",
+  "cases": [
+    {
+      "id": "test_uat_harness.UATPolicy.test_ai_success_is_unverified_until_reproduced",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    },
+    {
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "status": "PASS",
+      "duration": 0.0003,
+      "details": null
+    },
+    {
+      "id": "test_uat_harness.UATPolicy.test_profiles_are_unique_and_inside_disposable_root",
+      "status": "PASS",
+      "duration": 0.0028,
+      "details": null
+    },
+    {
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "status": "PASS",
+      "duration": 0.0002,
+      "details": null
+    },
+    {
+      "id": "test_uat_harness.UATPolicy.test_risk_policy_preserves_optional_low_risk_exploration",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_uat_harness.UATPolicy.test_unavailable_adapter_never_passes",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=0, deadline=120)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=99, deadline=120)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=3, deadline=0)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=3, deadline=3600)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=3.5, deadline=120)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=3, deadline=2.5)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps='3', deadline=120)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines",
+      "id": "test_uat_harness.UATPolicy.test_bounds_steps_and_deadlines (steps=True, deadline=120)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='https://example.com')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='file:///C:/Windows/system.ini')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='http://127.0.0.1.evil:8765')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='http://user:pass@127.0.0.1:8765')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='http://192.168.1.1:8765')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='http://127.0.0.1:0')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls",
+      "id": "test_uat_harness.UATPolicy.test_reject_non_loopback_or_credentialed_urls (url='http://localhost')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "total": 6,
+  "passed": true,
+  "skipped": 0,
+  "limitations": [
+    "Hermetic offline scope; skips remain unqualified and block full release"
+  ]
+}

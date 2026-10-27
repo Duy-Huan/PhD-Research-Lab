@@ -40,18 +40,16 @@ PROFILES = {
 #   level: os-sandbox (the vendor's OS-level sandbox) · provider-permission (the CLI's own permission rules in headless
 #   mode, no OS isolation) · none
 ISOLATION = {
+    ('hermes', 'review'): (True, 'os-container', True, 'Independent Hermes container; read-only authorized workspace, persistent project memory/skills, unrestricted Internet and scoped PhD tools'),
+    ('hermes', 'assisted'): (True, 'os-container', True, 'Independent Hermes container; own authorized workspace/home only, unrestricted Internet and scoped PhD tools'),
     ("codex", "review"): (True, "os-sandbox", True, "codex exec --sandbox read-only (Codex OS sandbox)"),
     ("codex", "assisted"): (True, "os-sandbox", True, "codex exec --sandbox workspace-write, cwd = session workspace"),
-    ("claude_code", "review"): (True, "provider-permission", True,
-                                "claude -p: only the read-only PhD-Lab MCP tools allowed; Bash/Edit/Write disallowed"),
-    ("claude_code", "assisted"): (True, "provider-permission", False,
-                                  "claude -p --permission-mode acceptEdits: edits limited to the working directory by "
-                                  "Claude Code's permission rules (no OS sandbox on Windows) — needs your consent"),
+    ('claude_code', 'review'): (True, 'os-container', True,
+                                'Pinned official Claude Code in a container; read-only workspace, own vendor home, filtered network and scoped tools'),
+    ('claude_code', 'assisted'): (True, 'os-container', True,
+                                  'Pinned official Claude Code in a container; only own workspace/home writable; host source unmounted'),
     ("antigravity", "review"): (True, "provider-permission", True, "agy -p --sandbox (headless: approvals are soft-denied)"),
     ("gemini_cli", "review"): (True, "provider-permission", True, "gemini -p (headless: tool approvals are denied)"),
-    ("feynman", "assisted"): (True, "provider-permission", False,
-                              "feynman runs one research workflow with cwd = its session workspace; the files it writes stay "
-                              "there until you accept them (no OS sandbox on Windows)"),
 }
 ENV_ALLOW = {
     # Windows system
@@ -77,9 +75,12 @@ class WorkspaceError(ValueError):
 
 
 def root(cfg: dict | None = None) -> Path:
-    from backend.core.config import GLOBAL_DIR, load_config
+    from backend.core.config import data_dir, load_config
+    project = data_dir().resolve()
     d = ((cfg or load_config())["gateway"].get("cli_space_dir") or "").strip()
-    r = Path(d).expanduser() if d else GLOBAL_DIR / "cli-space"
+    r = (Path(d).expanduser() if d else project / "cli-space").resolve()
+    if not r.is_relative_to(project) or r == project:
+        raise WorkspaceError('CLI workspace root must be a dedicated folder inside the active project data directory')
     r.mkdir(parents=True, exist_ok=True)
     return r.resolve()
 
@@ -148,7 +149,7 @@ def open_session(provider: str, session_id: str, profile: str = "review", iso: d
         if base == fr or base in fr.parents:  # a session folder may never BE (or contain) the app or project folder
             raise WorkspaceError("the CLI space must not be the app or project folder")
     for sub in SUBDIRS:
-        (base / sub).mkdir(parents=True, exist_ok=True)
+        safe_path(base, sub).mkdir(parents=True, exist_ok=True)
     meta_f = base / "session.json"
     meta = {}
     if meta_f.exists():

@@ -10,7 +10,6 @@ import { DashboardView } from '../features/dashboard/DashboardView';
 import { SettingsModal } from '../features/settings/SettingsModal';
 import { ProjectSwitcher } from '../features/projects/ProjectSwitcher';
 import { FigureStudioPanel } from '../features/figures/FigureStudioPanel';
-import { OpenCodePanel } from '../features/opencode/OpenCodePanel';
 import { IntelligenceHubPanel } from '../features/intelligence/IntelligenceHubPanel';
 import { ReviewView } from '../features/review/ReviewView';
 import {
@@ -55,8 +54,8 @@ export const ContextualDrawer: React.FC = () => {
       content = <FigureStudioPanel />;
       break;
     case 'opencode':
-      title = t('Nhân Thực nghiệm Tính toán OpenCode', 'OpenCode Parallel Core');
-      content = <OpenCodePanel />;
+      title = t('Mã nguồn và thí nghiệm native', 'Native code & experiments');
+      content = <CodePanel />;
       break;
     case 'intelligence':
       title = t('Trung tâm Phân tích Tri thức', 'Research Intelligence Hub');

@@ -30,19 +30,13 @@ class Paths(unittest.TestCase):
     def test_symlink_escape_is_refused(self):
         outside = Path(tempfile.mkdtemp())
         link = self.base / "link"
-        try:
-            os.symlink(outside, link, target_is_directory=True)
-        except OSError:
-            self.skipTest("symlinks need developer mode / admin on Windows")
+        _env.directory_link(outside, link)
         with self.assertRaises(W.WorkspaceError):
             W.safe_path(self.base, "link", "x.txt")
 
     def test_inner_symlink_is_allowed(self):
         (self.base / "real").mkdir()
-        try:
-            os.symlink(self.base / "real", self.base / "alias", target_is_directory=True)
-        except OSError:
-            self.skipTest("symlinks need developer mode / admin on Windows")
+        _env.directory_link(self.base / "real", self.base / "alias")
         self.assertTrue(str(W.safe_path(self.base, "alias", "f")).startswith(str(self.base.resolve())))
 
     def test_symlink_checks_without_os_symlinks(self):
@@ -101,7 +95,11 @@ class Sessions(unittest.TestCase):
     def test_custom_root(self):
         d = tempfile.mkdtemp()
         config.save_config({"gateway": {"cli_space_dir": d}})
-        self.assertEqual(W.root(), Path(d).resolve())
+        with self.assertRaises(W.WorkspaceError):
+            W.root()
+        dedicated = config.data_dir() / 'approved-cli'
+        config.save_config({'gateway': {'cli_space_dir': str(dedicated)}})
+        self.assertEqual(W.root(), dedicated.resolve())
         config.save_config({"gateway": {"cli_space_dir": ""}})
 
     def test_context_is_staged_read_only_with_hashes(self):
@@ -153,10 +151,13 @@ class Profiles(unittest.TestCase):
             W.check_profile("codex", "root-access")
         with self.assertRaises(W.WorkspaceError):
             W.check_profile("gemini_cli", "assisted")  # not supported → refused, never silently weaker
-        with self.assertRaises(W.WorkspaceError):
-            W.check_profile("claude_code", "assisted")  # weaker → needs consent
-        iso = W.check_profile("claude_code", "assisted", allow_weaker=True)
-        self.assertTrue(iso["consented_weaker"])
+        iso = W.check_profile('claude_code', 'assisted')
+        self.assertEqual(iso['level'], 'os-container')
+        self.assertFalse(iso['consented_weaker'])
+        with mock.patch.dict(W.ISOLATION, {('claude_code','assisted'): (True,'provider-permission',False,'Controlled weaker fixture')}):
+            with self.assertRaises(W.WorkspaceError):
+                W.check_profile('claude_code','assisted')
+            self.assertTrue(W.check_profile('claude_code','assisted',allow_weaker=True)['consented_weaker'])
         self.assertEqual(W.isolation("nope", "review")["level"], "none")
 
     def test_env_allowlist(self):
@@ -234,7 +235,7 @@ class GatewayIntegration(unittest.TestCase):
         return mock.patch.dict(C.CONNECTORS, {pid: f})
 
     def test_prepare_refuses_weaker_profile_without_consent(self):
-        with self._fake_conn():
+        with self._fake_conn(), mock.patch.dict(W.ISOLATION, {('claude_code','assisted'): (True,'provider-permission',False,'Controlled weaker fixture')}):
             with self.assertRaises(GS.GatewayError):
                 GS.prepare("question", "claude_code", profile="assisted")
             r = GS.prepare("question", "claude_code", profile="assisted", allow_weaker=True)

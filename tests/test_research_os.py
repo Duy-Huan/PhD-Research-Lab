@@ -14,8 +14,8 @@ class ResearchOS(unittest.TestCase):
     def setUp(self):
         _env.isolate_config(self);_env.fresh_project("Research OS",code_project=None)
         config.save_config({"research_os":{"enabled":True}})
-        self.tid=S.save_topic(S.TopicInput(title="MRI"))["id"]
-        self.other=S.save_topic(S.TopicInput(title="CT"))["id"]
+        self.tid=_env.legacy_topic(S.TopicInput(title="MRI"))["id"]
+        self.other=_env.legacy_topic(S.TopicInput(title="CT"))["id"]
 
     def spec(self,**values):
         data={"topic_id":self.tid,"objective":"Inspect and report","permissions":["workspace_write"],"control":{"success_criteria":["Hashed report"],"end_date":(datetime.now(timezone.utc)+timedelta(hours=1)).isoformat()},"tasks":[{"id":"inspect","capability":"paper.inspect"},{"id":"report","capability":"mission.report","depends_on":["inspect"]}]}

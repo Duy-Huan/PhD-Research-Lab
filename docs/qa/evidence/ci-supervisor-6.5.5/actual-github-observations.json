@@ -1,0 +1,990 @@
+[
+  {
+    "observation_folder": "run-40154407248-1-8f1a1bd6",
+    "archive_sha256": "774d0fac1cd0b75dc0cdbd4bdb2d2313a45c3d740f26fcbb284072b9710f004e",
+    "member": "report.json",
+    "component": "backend",
+    "head_sha": "60e97fd9feac2b7e0e4c9ee378791cb12d2253d9",
+    "source_sha256": "10373aced59d9274385d05801ce6c9be5b9dece9d0936eb8b1d1968c141a4a1d",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 873,
+      "FAIL": 3,
+      "ERROR": 0,
+      "SKIP": 5,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "backend": {
+        "percent_covered": 87.14,
+        "covered_lines": 23720,
+        "num_statements": 26524,
+        "covered_branches": 7066,
+        "num_branches": 8804
+      }
+    },
+    "fixture_cases": [
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_cancellation",
+        "status": "FAIL",
+        "duration": 0.0005,
+        "details": "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_ci_repair_fixture.py\", line 11, in test_cancellation\n    self.assertEqual(add(-7, 7), 0)\nAssertionError: 1 != 0\n"
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_positive_sum",
+        "status": "FAIL",
+        "duration": 0.0001,
+        "details": "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_ci_repair_fixture.py\", line 8, in test_positive_sum\n    self.assertEqual(add(19, 23), 42)\nAssertionError: 43 != 42\n"
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_zero_identity",
+        "status": "FAIL",
+        "duration": 0.0001,
+        "details": "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_ci_repair_fixture.py\", line 14, in test_zero_identity\n    self.assertEqual(add(0, 0), 0)\nAssertionError: 1 != 0\n"
+      }
+    ],
+    "failed_test_ids": [
+      "test_ci_repair_fixture.Arithmetic.test_cancellation",
+      "test_ci_repair_fixture.Arithmetic.test_positive_sum",
+      "test_ci_repair_fixture.Arithmetic.test_zero_identity"
+    ]
+  },
+  {
+    "observation_folder": "run-40154407248-1-8f1a1bd6",
+    "archive_sha256": "06c833d2a456a87d27be124b3665fd30615d980aaf0f1a1521da5a96ac2e1cc6",
+    "member": "report.json",
+    "component": "backend",
+    "head_sha": "60e97fd9feac2b7e0e4c9ee378791cb12d2253d9",
+    "source_sha256": "10373aced59d9274385d05801ce6c9be5b9dece9d0936eb8b1d1968c141a4a1d",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 873,
+      "FAIL": 3,
+      "ERROR": 0,
+      "SKIP": 5,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "backend": {
+        "percent_covered": 87.09,
+        "covered_lines": 23705,
+        "num_statements": 26524,
+        "covered_branches": 7063,
+        "num_branches": 8804
+      }
+    },
+    "fixture_cases": [
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_cancellation",
+        "status": "FAIL",
+        "duration": 0.0005,
+        "details": "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_ci_repair_fixture.py\", line 11, in test_cancellation\n    self.assertEqual(add(-7, 7), 0)\nAssertionError: 1 != 0\n"
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_positive_sum",
+        "status": "FAIL",
+        "duration": 0.0002,
+        "details": "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_ci_repair_fixture.py\", line 8, in test_positive_sum\n    self.assertEqual(add(19, 23), 42)\nAssertionError: 43 != 42\n"
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_zero_identity",
+        "status": "FAIL",
+        "duration": 0.0002,
+        "details": "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_ci_repair_fixture.py\", line 14, in test_zero_identity\n    self.assertEqual(add(0, 0), 0)\nAssertionError: 1 != 0\n"
+      }
+    ],
+    "failed_test_ids": [
+      "test_ci_repair_fixture.Arithmetic.test_cancellation",
+      "test_ci_repair_fixture.Arithmetic.test_positive_sum",
+      "test_ci_repair_fixture.Arithmetic.test_zero_identity"
+    ]
+  },
+  {
+    "observation_folder": "run-40154407248-1-8f1a1bd6",
+    "archive_sha256": "2ac4e70694c87b8c4e75d9d9a4c46c637ee02225388adaddab11fc50e4d79157",
+    "member": "output/playwright/ci/frontend/report.json",
+    "component": "frontend",
+    "head_sha": "60e97fd9feac2b7e0e4c9ee378791cb12d2253d9",
+    "source_sha256": "10373aced59d9274385d05801ce6c9be5b9dece9d0936eb8b1d1968c141a4a1d",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 174,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "frontend": {
+        "lines": {
+          "total": 3820,
+          "covered": 2445,
+          "skipped": 0,
+          "pct": 64
+        },
+        "statements": {
+          "total": 4117,
+          "covered": 2574,
+          "skipped": 0,
+          "pct": 62.52
+        },
+        "functions": {
+          "total": 1467,
+          "covered": 733,
+          "skipped": 0,
+          "pct": 49.96
+        },
+        "branches": {
+          "total": 4125,
+          "covered": 2611,
+          "skipped": 0,
+          "pct": 63.29
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      }
+    },
+    "fixture_cases": [],
+    "failed_test_ids": []
+  },
+  {
+    "observation_folder": "run-40154407248-1-db6b6847",
+    "archive_sha256": "774d0fac1cd0b75dc0cdbd4bdb2d2313a45c3d740f26fcbb284072b9710f004e",
+    "member": "report.json",
+    "component": "backend",
+    "head_sha": "60e97fd9feac2b7e0e4c9ee378791cb12d2253d9",
+    "source_sha256": "10373aced59d9274385d05801ce6c9be5b9dece9d0936eb8b1d1968c141a4a1d",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 873,
+      "FAIL": 3,
+      "ERROR": 0,
+      "SKIP": 5,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "backend": {
+        "percent_covered": 87.14,
+        "covered_lines": 23720,
+        "num_statements": 26524,
+        "covered_branches": 7066,
+        "num_branches": 8804
+      }
+    },
+    "fixture_cases": [
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_cancellation",
+        "status": "FAIL",
+        "duration": 0.0005,
+        "details": "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_ci_repair_fixture.py\", line 11, in test_cancellation\n    self.assertEqual(add(-7, 7), 0)\nAssertionError: 1 != 0\n"
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_positive_sum",
+        "status": "FAIL",
+        "duration": 0.0001,
+        "details": "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_ci_repair_fixture.py\", line 8, in test_positive_sum\n    self.assertEqual(add(19, 23), 42)\nAssertionError: 43 != 42\n"
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_zero_identity",
+        "status": "FAIL",
+        "duration": 0.0001,
+        "details": "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_ci_repair_fixture.py\", line 14, in test_zero_identity\n    self.assertEqual(add(0, 0), 0)\nAssertionError: 1 != 0\n"
+      }
+    ],
+    "failed_test_ids": [
+      "test_ci_repair_fixture.Arithmetic.test_cancellation",
+      "test_ci_repair_fixture.Arithmetic.test_positive_sum",
+      "test_ci_repair_fixture.Arithmetic.test_zero_identity"
+    ]
+  },
+  {
+    "observation_folder": "run-40154407248-1-db6b6847",
+    "archive_sha256": "06c833d2a456a87d27be124b3665fd30615d980aaf0f1a1521da5a96ac2e1cc6",
+    "member": "report.json",
+    "component": "backend",
+    "head_sha": "60e97fd9feac2b7e0e4c9ee378791cb12d2253d9",
+    "source_sha256": "10373aced59d9274385d05801ce6c9be5b9dece9d0936eb8b1d1968c141a4a1d",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 873,
+      "FAIL": 3,
+      "ERROR": 0,
+      "SKIP": 5,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "backend": {
+        "percent_covered": 87.09,
+        "covered_lines": 23705,
+        "num_statements": 26524,
+        "covered_branches": 7063,
+        "num_branches": 8804
+      }
+    },
+    "fixture_cases": [
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_cancellation",
+        "status": "FAIL",
+        "duration": 0.0005,
+        "details": "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_ci_repair_fixture.py\", line 11, in test_cancellation\n    self.assertEqual(add(-7, 7), 0)\nAssertionError: 1 != 0\n"
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_positive_sum",
+        "status": "FAIL",
+        "duration": 0.0002,
+        "details": "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_ci_repair_fixture.py\", line 8, in test_positive_sum\n    self.assertEqual(add(19, 23), 42)\nAssertionError: 43 != 42\n"
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_zero_identity",
+        "status": "FAIL",
+        "duration": 0.0002,
+        "details": "Traceback (most recent call last):\n  File \"/home/runner/work/PhD-Research-Lab/PhD-Research-Lab/tests/test_ci_repair_fixture.py\", line 14, in test_zero_identity\n    self.assertEqual(add(0, 0), 0)\nAssertionError: 1 != 0\n"
+      }
+    ],
+    "failed_test_ids": [
+      "test_ci_repair_fixture.Arithmetic.test_cancellation",
+      "test_ci_repair_fixture.Arithmetic.test_positive_sum",
+      "test_ci_repair_fixture.Arithmetic.test_zero_identity"
+    ]
+  },
+  {
+    "observation_folder": "run-40154407248-1-db6b6847",
+    "archive_sha256": "2ac4e70694c87b8c4e75d9d9a4c46c637ee02225388adaddab11fc50e4d79157",
+    "member": "output/playwright/ci/frontend/report.json",
+    "component": "frontend",
+    "head_sha": "60e97fd9feac2b7e0e4c9ee378791cb12d2253d9",
+    "source_sha256": "10373aced59d9274385d05801ce6c9be5b9dece9d0936eb8b1d1968c141a4a1d",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 174,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "frontend": {
+        "lines": {
+          "total": 3820,
+          "covered": 2445,
+          "skipped": 0,
+          "pct": 64
+        },
+        "statements": {
+          "total": 4117,
+          "covered": 2574,
+          "skipped": 0,
+          "pct": 62.52
+        },
+        "functions": {
+          "total": 1467,
+          "covered": 733,
+          "skipped": 0,
+          "pct": 49.96
+        },
+        "branches": {
+          "total": 4125,
+          "covered": 2611,
+          "skipped": 0,
+          "pct": 63.29
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      }
+    },
+    "fixture_cases": [],
+    "failed_test_ids": []
+  },
+  {
+    "observation_folder": "run-40155743019-1-1718cda4",
+    "archive_sha256": "99f846999bbe6dc642c83db3c9f48dc1d61914f505ce80eb0002270333b799af",
+    "member": "report.json",
+    "component": "backend",
+    "head_sha": "4b5a849681b9aeab904ff24a66a267ca83f0f7ff",
+    "source_sha256": "ca65859fff7e38398b4cc8b075f51a21ccebd94d6be4ded42897fcf73ade9ba4",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 876,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 5,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "backend": {
+        "percent_covered": 87.09,
+        "covered_lines": 23704,
+        "num_statements": 26524,
+        "covered_branches": 7062,
+        "num_branches": 8804
+      }
+    },
+    "fixture_cases": [
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_cancellation",
+        "status": "PASS",
+        "duration": 0.0001,
+        "details": null
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_positive_sum",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": null
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_zero_identity",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": null
+      }
+    ],
+    "failed_test_ids": []
+  },
+  {
+    "observation_folder": "run-40155743019-1-1718cda4",
+    "archive_sha256": "e8370fc1bc157113d2bdf9dbb87b66ca2b852d7efe928fcc9b8c07b02d0b9be7",
+    "member": "output/playwright/ci/frontend/report.json",
+    "component": "frontend",
+    "head_sha": "4b5a849681b9aeab904ff24a66a267ca83f0f7ff",
+    "source_sha256": "ca65859fff7e38398b4cc8b075f51a21ccebd94d6be4ded42897fcf73ade9ba4",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 174,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "frontend": {
+        "lines": {
+          "total": 3820,
+          "covered": 2445,
+          "skipped": 0,
+          "pct": 64
+        },
+        "statements": {
+          "total": 4117,
+          "covered": 2574,
+          "skipped": 0,
+          "pct": 62.52
+        },
+        "functions": {
+          "total": 1467,
+          "covered": 733,
+          "skipped": 0,
+          "pct": 49.96
+        },
+        "branches": {
+          "total": 4125,
+          "covered": 2611,
+          "skipped": 0,
+          "pct": 63.29
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      }
+    },
+    "fixture_cases": [],
+    "failed_test_ids": []
+  },
+  {
+    "observation_folder": "run-40155743019-1-679b550a",
+    "archive_sha256": "e8370fc1bc157113d2bdf9dbb87b66ca2b852d7efe928fcc9b8c07b02d0b9be7",
+    "member": "output/playwright/ci/frontend/report.json",
+    "component": "frontend",
+    "head_sha": "4b5a849681b9aeab904ff24a66a267ca83f0f7ff",
+    "source_sha256": "ca65859fff7e38398b4cc8b075f51a21ccebd94d6be4ded42897fcf73ade9ba4",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 174,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "frontend": {
+        "lines": {
+          "total": 3820,
+          "covered": 2445,
+          "skipped": 0,
+          "pct": 64
+        },
+        "statements": {
+          "total": 4117,
+          "covered": 2574,
+          "skipped": 0,
+          "pct": 62.52
+        },
+        "functions": {
+          "total": 1467,
+          "covered": 733,
+          "skipped": 0,
+          "pct": 49.96
+        },
+        "branches": {
+          "total": 4125,
+          "covered": 2611,
+          "skipped": 0,
+          "pct": 63.29
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      }
+    },
+    "fixture_cases": [],
+    "failed_test_ids": []
+  },
+  {
+    "observation_folder": "run-40155743019-1-79d233fb",
+    "archive_sha256": "99f846999bbe6dc642c83db3c9f48dc1d61914f505ce80eb0002270333b799af",
+    "member": "report.json",
+    "component": "backend",
+    "head_sha": "4b5a849681b9aeab904ff24a66a267ca83f0f7ff",
+    "source_sha256": "ca65859fff7e38398b4cc8b075f51a21ccebd94d6be4ded42897fcf73ade9ba4",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 876,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 5,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "backend": {
+        "percent_covered": 87.09,
+        "covered_lines": 23704,
+        "num_statements": 26524,
+        "covered_branches": 7062,
+        "num_branches": 8804
+      }
+    },
+    "fixture_cases": [
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_cancellation",
+        "status": "PASS",
+        "duration": 0.0001,
+        "details": null
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_positive_sum",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": null
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_zero_identity",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": null
+      }
+    ],
+    "failed_test_ids": []
+  },
+  {
+    "observation_folder": "run-40155743019-1-79d233fb",
+    "archive_sha256": "da4ca39445e0af7f9be1690baefbceac8624ae405f600b00e046741ef2107965",
+    "member": "report.json",
+    "component": "backend",
+    "head_sha": "4b5a849681b9aeab904ff24a66a267ca83f0f7ff",
+    "source_sha256": "ca65859fff7e38398b4cc8b075f51a21ccebd94d6be4ded42897fcf73ade9ba4",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 876,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 5,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "backend": {
+        "percent_covered": 87.15,
+        "covered_lines": 23723,
+        "num_statements": 26524,
+        "covered_branches": 7066,
+        "num_branches": 8804
+      }
+    },
+    "fixture_cases": [
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_cancellation",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": null
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_positive_sum",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": null
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_zero_identity",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": null
+      }
+    ],
+    "failed_test_ids": []
+  },
+  {
+    "observation_folder": "run-40155743019-1-79d233fb",
+    "archive_sha256": "e8370fc1bc157113d2bdf9dbb87b66ca2b852d7efe928fcc9b8c07b02d0b9be7",
+    "member": "output/playwright/ci/frontend/report.json",
+    "component": "frontend",
+    "head_sha": "4b5a849681b9aeab904ff24a66a267ca83f0f7ff",
+    "source_sha256": "ca65859fff7e38398b4cc8b075f51a21ccebd94d6be4ded42897fcf73ade9ba4",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 174,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "frontend": {
+        "lines": {
+          "total": 3820,
+          "covered": 2445,
+          "skipped": 0,
+          "pct": 64
+        },
+        "statements": {
+          "total": 4117,
+          "covered": 2574,
+          "skipped": 0,
+          "pct": 62.52
+        },
+        "functions": {
+          "total": 1467,
+          "covered": 733,
+          "skipped": 0,
+          "pct": 49.96
+        },
+        "branches": {
+          "total": 4125,
+          "covered": 2611,
+          "skipped": 0,
+          "pct": 63.29
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      }
+    },
+    "fixture_cases": [],
+    "failed_test_ids": []
+  },
+  {
+    "observation_folder": "run-40155743019-1-79d233fb",
+    "archive_sha256": "7e86a0d3d2027963e886fa46967acd0fb608af65db3c558be7951842efbb0adc",
+    "member": "report.json",
+    "component": "backend",
+    "head_sha": "4b5a849681b9aeab904ff24a66a267ca83f0f7ff",
+    "source_sha256": "ca65859fff7e38398b4cc8b075f51a21ccebd94d6be4ded42897fcf73ade9ba4",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 876,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 5,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "backend": {
+        "percent_covered": 87.47,
+        "covered_lines": 23799,
+        "num_statements": 26524,
+        "covered_branches": 7104,
+        "num_branches": 8804
+      }
+    },
+    "fixture_cases": [
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_cancellation",
+        "status": "PASS",
+        "duration": 0.0001,
+        "details": null
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_positive_sum",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": null
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_zero_identity",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": null
+      }
+    ],
+    "failed_test_ids": []
+  },
+  {
+    "observation_folder": "run-40155743019-1-79d233fb",
+    "archive_sha256": "e69a7d4119373a5c6338058cafa9cfb32978a796f35e73c3a2301c4ce4413636",
+    "member": "report.json",
+    "component": "backend",
+    "head_sha": "4b5a849681b9aeab904ff24a66a267ca83f0f7ff",
+    "source_sha256": "ca65859fff7e38398b4cc8b075f51a21ccebd94d6be4ded42897fcf73ade9ba4",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 876,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 5,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "backend": {
+        "percent_covered": 87.42,
+        "covered_lines": 23783,
+        "num_statements": 26524,
+        "covered_branches": 7100,
+        "num_branches": 8804
+      }
+    },
+    "fixture_cases": [
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_cancellation",
+        "status": "PASS",
+        "duration": 0.0001,
+        "details": null
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_positive_sum",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": null
+      },
+      {
+        "id": "test_ci_repair_fixture.Arithmetic.test_zero_identity",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": null
+      }
+    ],
+    "failed_test_ids": []
+  },
+  {
+    "observation_folder": "run-40155743019-1-7ec23cb7",
+    "archive_sha256": "e8370fc1bc157113d2bdf9dbb87b66ca2b852d7efe928fcc9b8c07b02d0b9be7",
+    "member": "output/playwright/ci/frontend/report.json",
+    "component": "frontend",
+    "head_sha": "4b5a849681b9aeab904ff24a66a267ca83f0f7ff",
+    "source_sha256": "ca65859fff7e38398b4cc8b075f51a21ccebd94d6be4ded42897fcf73ade9ba4",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 174,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "frontend": {
+        "lines": {
+          "total": 3820,
+          "covered": 2445,
+          "skipped": 0,
+          "pct": 64
+        },
+        "statements": {
+          "total": 4117,
+          "covered": 2574,
+          "skipped": 0,
+          "pct": 62.52
+        },
+        "functions": {
+          "total": 1467,
+          "covered": 733,
+          "skipped": 0,
+          "pct": 49.96
+        },
+        "branches": {
+          "total": 4125,
+          "covered": 2611,
+          "skipped": 0,
+          "pct": 63.29
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      }
+    },
+    "fixture_cases": [],
+    "failed_test_ids": []
+  },
+  {
+    "observation_folder": "run-40155743019-1-8e2efa80",
+    "archive_sha256": "e8370fc1bc157113d2bdf9dbb87b66ca2b852d7efe928fcc9b8c07b02d0b9be7",
+    "member": "output/playwright/ci/frontend/report.json",
+    "component": "frontend",
+    "head_sha": "4b5a849681b9aeab904ff24a66a267ca83f0f7ff",
+    "source_sha256": "ca65859fff7e38398b4cc8b075f51a21ccebd94d6be4ded42897fcf73ade9ba4",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 174,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "frontend": {
+        "lines": {
+          "total": 3820,
+          "covered": 2445,
+          "skipped": 0,
+          "pct": 64
+        },
+        "statements": {
+          "total": 4117,
+          "covered": 2574,
+          "skipped": 0,
+          "pct": 62.52
+        },
+        "functions": {
+          "total": 1467,
+          "covered": 733,
+          "skipped": 0,
+          "pct": 49.96
+        },
+        "branches": {
+          "total": 4125,
+          "covered": 2611,
+          "skipped": 0,
+          "pct": 63.29
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      }
+    },
+    "fixture_cases": [],
+    "failed_test_ids": []
+  },
+  {
+    "observation_folder": "run-40155743019-1-ae0f0ed6",
+    "archive_sha256": "e8370fc1bc157113d2bdf9dbb87b66ca2b852d7efe928fcc9b8c07b02d0b9be7",
+    "member": "output/playwright/ci/frontend/report.json",
+    "component": "frontend",
+    "head_sha": "4b5a849681b9aeab904ff24a66a267ca83f0f7ff",
+    "source_sha256": "ca65859fff7e38398b4cc8b075f51a21ccebd94d6be4ded42897fcf73ade9ba4",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 174,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "frontend": {
+        "lines": {
+          "total": 3820,
+          "covered": 2445,
+          "skipped": 0,
+          "pct": 64
+        },
+        "statements": {
+          "total": 4117,
+          "covered": 2574,
+          "skipped": 0,
+          "pct": 62.52
+        },
+        "functions": {
+          "total": 1467,
+          "covered": 733,
+          "skipped": 0,
+          "pct": 49.96
+        },
+        "branches": {
+          "total": 4125,
+          "covered": 2611,
+          "skipped": 0,
+          "pct": 63.29
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      }
+    },
+    "fixture_cases": [],
+    "failed_test_ids": []
+  },
+  {
+    "observation_folder": "run-40155743019-1-d56fc55d",
+    "archive_sha256": "e8370fc1bc157113d2bdf9dbb87b66ca2b852d7efe928fcc9b8c07b02d0b9be7",
+    "member": "output/playwright/ci/frontend/report.json",
+    "component": "frontend",
+    "head_sha": "4b5a849681b9aeab904ff24a66a267ca83f0f7ff",
+    "source_sha256": "ca65859fff7e38398b4cc8b075f51a21ccebd94d6be4ded42897fcf73ade9ba4",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 174,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "frontend": {
+        "lines": {
+          "total": 3820,
+          "covered": 2445,
+          "skipped": 0,
+          "pct": 64
+        },
+        "statements": {
+          "total": 4117,
+          "covered": 2574,
+          "skipped": 0,
+          "pct": 62.52
+        },
+        "functions": {
+          "total": 1467,
+          "covered": 733,
+          "skipped": 0,
+          "pct": 49.96
+        },
+        "branches": {
+          "total": 4125,
+          "covered": 2611,
+          "skipped": 0,
+          "pct": 63.29
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      }
+    },
+    "fixture_cases": [],
+    "failed_test_ids": []
+  },
+  {
+    "observation_folder": "run-40155743019-1-edaa2eb9",
+    "archive_sha256": "e8370fc1bc157113d2bdf9dbb87b66ca2b852d7efe928fcc9b8c07b02d0b9be7",
+    "member": "output/playwright/ci/frontend/report.json",
+    "component": "frontend",
+    "head_sha": "4b5a849681b9aeab904ff24a66a267ca83f0f7ff",
+    "source_sha256": "ca65859fff7e38398b4cc8b075f51a21ccebd94d6be4ded42897fcf73ade9ba4",
+    "decision": "FAIL",
+    "counts": {
+      "PASS": 174,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "NOT_RUN": 0,
+      "BLOCKED": 0,
+      "UNVERIFIED": 0
+    },
+    "coverage": {
+      "frontend": {
+        "lines": {
+          "total": 3820,
+          "covered": 2445,
+          "skipped": 0,
+          "pct": 64
+        },
+        "statements": {
+          "total": 4117,
+          "covered": 2574,
+          "skipped": 0,
+          "pct": 62.52
+        },
+        "functions": {
+          "total": 1467,
+          "covered": 733,
+          "skipped": 0,
+          "pct": 49.96
+        },
+        "branches": {
+          "total": 4125,
+          "covered": 2611,
+          "skipped": 0,
+          "pct": 63.29
+        },
+        "branchesTrue": {
+          "total": 0,
+          "covered": 0,
+          "skipped": 0,
+          "pct": 100
+        }
+      }
+    },
+    "fixture_cases": [],
+    "failed_test_ids": []
+  }
+]

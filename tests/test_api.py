@@ -49,6 +49,7 @@ class Api(unittest.TestCase):
     def setUp(self):
         _env.isolate_config(self)
         _env.fresh_project("api-" + self._testMethodName[:28])
+        # Hermetic API fixtures never probe installed model CLI/auth.
         config.save_config({"runs": {"web_search": False}})
         for p in (mock.patch.object(llm, "stream_agent", fake_stream),
                   mock.patch.object(RP, "app_complete", return_value="text (Doe, 2020)")):
@@ -102,11 +103,13 @@ class Api(unittest.TestCase):
         self.bad("POST", "/api/models/unload", json={"engine": "tpu"})
         with mock.patch.object(RP, "describe_all", return_value=[{"id": "app"}]):
             self.assertEqual(self.ok("GET", "/api/providers?fresh=1")["providers"], [{"id": "app"}])
-        with mock.patch("subprocess.Popen"):
-            self.assertEqual(self.ok("POST", "/api/providers/feynman/connect")["command"], "feynman model login")
+        with mock.patch("backend.providers.native.launch_provider") as launch:
+            for retired in ('feynman', 'openscience', 'opencode', 'clearml'):
+                self.bad("POST", f"/api/providers/{retired}/connect")
+            launch.assert_not_called()
         self.bad("POST", "/api/providers/nope/connect")
         from backend.providers import cli as C
-        with mock.patch.object(C.CONNECTORS["codex"], "connect", return_value={"provider": "codex"}):
+        with mock.patch("backend.providers.native.launch_provider", return_value={'launched': True}):
             self.assertEqual(self.ok("POST", "/api/providers/codex/connect")["provider"], "codex")
         self.assertEqual(self.ok("GET", "/api/dashboard")["status"], "idle")
         self.assertIn("resources", self.ok("GET", "/api/dashboard?advanced=1"))
@@ -201,7 +204,12 @@ class Api(unittest.TestCase):
     def test_approvals_and_artifacts(self):
         s = sessions.create("t")
         from backend.agent import artifacts, orchestrator
-        orchestrator.start(s["id"], "chạy thử ý tưởng MLP")
+        async def propose(agent,system,messages,**kwargs):
+            yield ('delta','```phdlab-action\n'+json.dumps({'action':'start_run','args':{
+                'skill':'idea','input':'MLP fixture'}})+'\n```')
+        with mock.patch.object(llm,'stream_agent',propose):
+            orchestrator.start(s["id"], "chạy thử ý tưởng MLP")
+            self.wait_chat(s['id'])
         ap = next(a for a in sessions.get(s["id"])["approvals"] if a["name"] == "start_run")
         self.bad("POST", f"/api/chat/sessions/{s['id']}/approvals/{ap['id']}", json={"decision": "maybe"})
         self.assertEqual(self.ok("POST", f"/api/chat/sessions/{s['id']}/approvals/{ap['id']}", json={"decision": "reject"})["status"],
@@ -228,8 +236,11 @@ class Api(unittest.TestCase):
     # ------------------------------------------------------------------ runs + memory + pins
     def test_runs_and_memory(self):
         s = sessions.create("t")
-        r = self.ok("POST", "/api/runs", json={"skill": "lit", "input": "vit", "session_id": s["id"]})
-        self.assertEqual(runs.wait(r["id"], 30)["status"], "NEEDS_USER_ACTION")
+        # Inject an actual native model boundary failure, then exercise the same
+        # recovery API; retirement must not remove outage/resume coverage.
+        with mock.patch.object(RP, 'app_complete', side_effect=RuntimeError('AUTH_EXPIRED: controlled fixture')):
+            r = self.ok("POST", "/api/runs", json={"skill": "lit", "input": "vit", "session_id": s["id"]})
+            self.assertEqual(runs.wait(r["id"], 30)["status"], "NEEDS_USER_ACTION")
         self.ok("POST", f"/api/runs/{r['id']}/provider", json={"step": "S1", "provider": "app"})
         self.ok("POST", f"/api/runs/{r['id']}/resume", json={"accept": False})
         self.assertEqual(runs.wait(r["id"], 30)["status"], "COMPLETED")

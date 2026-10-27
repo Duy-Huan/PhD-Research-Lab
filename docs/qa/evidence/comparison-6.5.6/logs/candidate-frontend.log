@@ -1,0 +1,7 @@
+VERIFY: FAIL
+Profile: pr / frontend
+Tests: {"PASS": 174, "FAIL": 0, "ERROR": 0, "SKIP": 0, "NOT_RUN": 0, "BLOCKED": 0, "UNVERIFIED": 0}
+Affected: 729 files; risk CRITICAL
+Gate: frontend-tests FAIL 
+Evidence: D:\git-repo\PhD-Research-Lab-worktrees\candidate-shared-verification-656\output\playwright\same-suite\frontend\report.json
+Next action: Read the first relevant raw log; repair at most three cycles

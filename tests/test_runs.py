@@ -24,7 +24,7 @@ SLOW = "import time\ntime.sleep(30)\n"
 
 
 def fake_llm(agent, system, user, max_tokens=6000):
-    if "experiment that runs on one PC" in system:
+    if "code as fenced blocks with a path" in system:
         return ("Plan.\n```python path=x/main.py\n" + OK + "```\n```phdlab-run\npython other/main.py\n```")
     if "Write the code for this experiment" in system:
         return "```python path=main.py\n" + OK + "```"
@@ -371,15 +371,16 @@ class Providers(RunsBase):
             "id": pid, "ready": pid in ids, "state": "READY" if pid in ids else "NOT_CONFIGURED", "detail": "d", "label": pid,
             "setup": [], "category": "research"})
 
-    def test_an_unconfigured_provider_falls_back_visibly(self):
+    def test_retired_provider_never_falls_back_even_with_legacy_opt_out(self):
         _env.isolate_config(self)
-        config.save_config({"routing": {"capability_aware": False}})  # explicit legacy opt-out
-        with self.ready(set()):
-            r = self.wait(runs.create("research", "lit", "x", {"topic": "x", "workflow": "lit"}, risk=0, provider="feynman")["id"])
-        s = r["steps"][0]
-        self.assertEqual((r["status"], s["provider"], s["resource"]), ("COMPLETED", "app", "cloud"))
-        self.assertIn("NOT_CONFIGURED", s["notes"][0])
-        self.assertTrue(any(e["type"] == "step.provider" for e in runs.events(r["id"])))
+        config.save_config({'routing':{'capability_aware':False}})
+        with mock.patch.object(RP,'app_complete') as call:
+            r=self.wait(runs.create('research','lit','x',{'topic':'x'},risk=0,provider='feynman')['id'])
+            call.assert_not_called()
+        self.assertEqual(r['status'],'NEEDS_USER_ACTION')
+        self.assertEqual(r['steps'][0]['provider'],'feynman')
+        self.assertEqual(r['steps'][0]['attempt'],0)
+        self.assertIn('retired',r['next_decision'])
 
     def test_unconfigured_provider_waits_without_changing_the_step(self):
         _env.isolate_config(self)
@@ -391,28 +392,27 @@ class Providers(RunsBase):
         self.assertEqual(r["steps"][0]["attempt"], 0)
 
     def test_quota_does_not_consume_automatic_retries(self):
-        with self.ready({"feynman"}), mock.patch.object(RP, "run_feynman", side_effect=RP.ProviderUnavailable("quota exceeded")) as run:
-            r = self.wait(runs.create("research", "lit", "x", {"topic": "x"}, risk=0, provider="feynman",
-                                      budget={"auto_recover": True, "max_retries": 4})["id"])
-        self.assertEqual(r["status"], "NEEDS_USER_ACTION")
-        self.assertEqual(run.call_count, 1)
-        self.assertEqual(r["usage"]["retries"], 0)
+        with mock.patch.object(RP,'app_complete',side_effect=RP.ProviderUnavailable('quota exceeded')) as call:
+            r=self.wait(runs.create('research','lit','x',{'topic':'x'},risk=0,provider='app',budget={'auto_recover':True,'max_retries':4})['id'])
+        self.assertEqual(r['status'],'NEEDS_USER_ACTION')
+        self.assertEqual(call.call_count,1)
+        self.assertEqual(r['usage']['retries'],0)
 
-    def test_feynman_runs_the_workflow(self):
-        def fake_feynman(task, workflow, prompt, ctx, outdir, cancelled=None, timeout_s=0):
-            outdir.mkdir(parents=True, exist_ok=True)
-            (outdir / "brief.md").write_text("brief", "utf-8")
-            self.assertEqual(workflow, "lit")
-            self.assertIn("Research outline", ctx)
-            return {"text": "Feynman says (Doe, 2022)", "files": ["brief.md"]}
-        with self.ready({"feynman"}), mock.patch.object(RP, "run_feynman", side_effect=fake_feynman):
-            r = self.wait(runs.create("research", "lit", "x", {"topic": "x", "workflow": "lit"}, risk=0, provider="feynman")["id"])
-        self.assertEqual((r["status"], r["steps"][0]["provider"], r["steps"][0]["resource"]), ("COMPLETED", "feynman", "cli"))
-        self.assertTrue(any(o["path"].endswith("feynman/brief.md") for o in r["outputs"]))
+    def test_configured_cli_model_runs_research_with_scoped_context(self):
+        def controlled(task,provider,prompt,context,outdir,cancelled=None,**kwargs):
+            self.assertEqual(provider,'codex')
+            self.assertIn('Research outline',context)
+            self.assertTrue(str(outdir).startswith(str(config.data_dir())))
+            return {'text':'Controlled fixture says (Doe, 2022)','files':[]}
+        with self.ready({'codex'}),mock.patch.object(RP,'run_coding',side_effect=controlled):
+            r=self.wait(runs.create('research','lit','x',{'topic':'x'},risk=0,provider='codex')['id'])
+        self.assertEqual(r['status'],'COMPLETED')
+        self.assertEqual(r['steps'][0]['provider'],'codex')
+        self.assertTrue(any(o['path'].endswith('research_report.md') for o in r['outputs']))
 
     def test_swap_provider_keeps_completed_work(self):
-        with self.ready({"feynman"}), mock.patch.object(RP, "run_feynman", side_effect=RP.ProviderUnavailable("quota")):
-            rid = runs.create("research", "lit", "x", {"topic": "x"}, risk=0, provider="feynman", budget={"max_retries": 0})["id"]
+        with mock.patch.object(RP, "app_complete", side_effect=RP.ProviderUnavailable("quota exceeded")):
+            rid = runs.create("research", "lit", "x", {"topic": "x"}, risk=0, provider="app", budget={"max_retries": 0})["id"]
             r = self.wait(rid)
         self.assertEqual(r["status"], "NEEDS_USER_ACTION")
         with self.assertRaises(AIWSError):
@@ -424,7 +424,7 @@ class Providers(RunsBase):
         r = self.wait(runs.resume(rid, accept_proposal=False)["id"])
         self.assertEqual(r["status"], "COMPLETED")
         with self.assertRaisesRegex(AIWSError, "only a pending or failed"):
-            runs.swap_provider(rid, "S1", "feynman")
+            runs.swap_provider(rid, "S1", "codex")
 
     def test_resume_with_a_patch(self):
         self.script("bad.py", "raise SystemExit(2)\n")
@@ -441,8 +441,8 @@ class Pipelines(RunsBase):
         r = self.wait(rid, timeout=90)
         self.assertEqual(r["status"], "COMPLETED", r["reason"])
         code = next(s for s in r["steps"] if s["kind"] == "code")["result"]
-        self.assertEqual(code["files"], [f"ideas/{rid}/main.py"])
-        self.assertEqual(code["command"], f"python ideas/{rid}/main.py")  # path rewritten to the file actually written
+        self.assertEqual(code["files"], [f"experiments/{rid}/main.py"])
+        self.assertEqual(code["command"], f"python experiments/{rid}/main.py")  # path rewritten to the file actually written
         self.assertTrue((sandbox.code_dir() / code["files"][0]).exists())
 
     def test_code_with_a_coding_provider_and_with_the_app_model(self):
@@ -456,10 +456,10 @@ class Pipelines(RunsBase):
             runs.approve(rid)
             r = self.wait(rid)
         self.assertEqual(r["status"], "COMPLETED")
-        self.assertEqual(r["steps"][0]["result"]["files"], [f"ideas/{rid}/train.py"])
+        self.assertEqual(r["steps"][0]["result"]["files"], [f"experiments/{rid}/train.py"])
         rid = runs.create("code", "/code y", "y", {"task": "y"}, risk=2)["id"]
         runs.approve(rid)
-        self.assertEqual(self.wait(rid)["steps"][0]["result"]["command"], f"python ideas/{rid}/main.py")
+        self.assertEqual(self.wait(rid)["steps"][0]["result"]["command"], f"python experiments/{rid}/main.py")
 
     def test_code_errors(self):
         with mock.patch.object(RP, "app_complete", return_value="no files here"):
@@ -502,11 +502,15 @@ class Pipelines(RunsBase):
         save_project(p)
         self.assertEqual(self.wait(runs.create("review", "r", "", {}, risk=0)["id"])["status"], "COMPLETED")
 
-    def test_review_on_feynman(self):
-        with mock.patch.object(RP, "pick", return_value=("feynman", "")), \
-                mock.patch.object(RP, "run_feynman", return_value={"text": "critique", "files": []}):
-            r = self.wait(runs.create("review", "r", "", {"text": "paper"}, risk=0, provider="feynman")["id"])
-        self.assertEqual(r["status"], "COMPLETED")
+    def test_review_uses_selected_native_model(self):
+        path=config.data_dir()/'draft.md'
+        path.write_text('Controlled draft, not a scientific claim','utf-8')
+        with mock.patch.object(RP,'app_complete',return_value='Controlled critique') as call:
+            r=self.wait(runs.create('review','review','draft',{'path':'draft.md'},risk=0,provider='app')['id'])
+        self.assertEqual(r['status'],'COMPLETED')
+        self.assertEqual(r['steps'][0]['provider'],'app')
+        self.assertTrue(call.called)
+        self.assertTrue(any(o['path'].endswith('review_report.md') for o in r['outputs']))
 
 
 class ChatLink(RunsBase):

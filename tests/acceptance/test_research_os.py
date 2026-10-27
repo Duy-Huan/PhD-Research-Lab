@@ -44,8 +44,8 @@ def criterion(key: str):
     return deco
 
 
-def fake_llm(agent, system, user, max_tokens=6000):
-    if "experiment that runs on one PC" in system:
+def fake_llm(agent, system, user, max_tokens=6000, **kwargs):
+    if "code as fenced blocks with a path" in system:
         return "Plan.\n```python path=main.py\n" + OK + "```\n```phdlab-run\npython main.py\n```"
     return "Findings with a source (Doe, 2020) and [S1]."
 
@@ -194,25 +194,36 @@ class P0_Recovery(Base):
 
 class P1_Prompt(Base):
     @criterion("prompt_workflow")
-    def test_plain_prompts_trigger_workflows(self):
-        s = sessions.create("t")
-        orchestrator.start(s["id"], "tìm tài liệu về token pruning cho ViT")
-        m = [x for x in sessions.get(s["id"])["messages"] if x.get("run_id")]
-        self.assertTrue(m)
-        self.assertEqual(runs.wait(m[-1]["run_id"], 30)["status"], "COMPLETED")
-        orchestrator.start(s["id"], "chạy thử ý tưởng MLP nhỏ trên dữ liệu tổng hợp")
-        ap = [a for a in sessions.get(s["id"])["approvals"] if a["name"] == "start_run"]
-        self.assertEqual(ap[0]["args"]["skill"], "idea")
-        self.assertEqual(launch.route("viết phần results theo văn phong IEEE")["skill"], "write")
-        return {"read_only": "auto-started /lit", "risky": "proposal /idea awaiting approval", "tool_chosen_by_user": False}
+    def test_plain_requests_use_agent_proposals_before_workflow_execution(self):
+        s=sessions.create('Agent-led fixture',settings={'mcp_auto':False,'mcp_tools':['-']})
+        question='Tìm tài liệu về token pruning cho ViT, rồi cân nhắc hướng tiếp theo.'
+        async def propose(agent,system,messages,**kwargs):
+            self.assertEqual(messages[-1]['content'],question)
+            yield ('delta','```phdlab-action\n'+json.dumps({'action':'start_run','args':{
+                'skill':'lit','input':'token pruning cho ViT'}})+'\n```')
+        with mock.patch.object(llm,'stream_agent',propose):
+            turn=orchestrator.start(s['id'],question)
+            deadline=time.monotonic()+15
+            while time.monotonic()<deadline:
+                current=next(t for t in sessions.get(s['id'])['turns'] if t['id']==turn['id'])
+                if current['status'] not in ('queued','running'):break
+                time.sleep(.03)
+        self.assertEqual(current['status'],'completed')
+        saved=sessions.get(s['id'])
+        self.assertFalse(any(m.get('run_id') for m in saved['messages']))
+        ap=next(a for a in saved['approvals'] if a['name']=='start_run')
+        self.assertEqual((ap['args']['skill'],ap['status']),('lit','pending'))
+        approved=orchestrator.decide(s['id'],ap['id'],'approve')
+        self.assertEqual(runs.wait(approved['result']['run'],30)['status'],'COMPLETED')
+        return {'mode':'MOCKED_MODEL_REAL_BACKEND','strategy_authority':'agent proposal',
+                'execution':'real research run after explicit approval','tool_chosen_by_user':False}
 
 
 class P1_Providers(Base):
     @criterion("provider_swap")
     def test_swapping_providers_keeps_the_state(self):
-        with mock.patch.object(RP, "pick", return_value=("feynman", "")), \
-                mock.patch.object(RP, "run_feynman", side_effect=RP.ProviderUnavailable("quota exceeded")):
-            rid = runs.create("research", "lit", "x", {"topic": "x"}, risk=0, provider="feynman", budget={"max_retries": 0})["id"]
+        with mock.patch.object(RP, "app_complete", side_effect=RP.ProviderUnavailable("quota exceeded")):
+            rid = runs.create("research", "lit", "x", {"topic": "x"}, risk=0, provider="app", budget={"max_retries": 0})["id"]
             r = runs.wait(rid, 30)
         self.assertEqual(r["status"], "NEEDS_USER_ACTION")
         runs.swap_provider(rid, "S1", "app")
@@ -238,7 +249,7 @@ class P1_Providers(Base):
         msgs = sessions.get(s["id"])["messages"]
         self.assertEqual([m["role"] for m in msgs], ["user", "assistant", "user", "assistant"])
         self.assertIn("3 messages", msgs[-1]["content"])  # the new provider received the whole conversation
-        return {"run_provider": "feynman → app", "conversation_messages_kept": len(msgs)}
+        return {"run_provider": "app outage → explicitly resumed app", "conversation_messages_kept": len(msgs)}
 
 
 class P1_Evidence(Base):

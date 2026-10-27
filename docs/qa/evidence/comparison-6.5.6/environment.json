@@ -1,0 +1,383 @@
+{
+  "sha256": "64bbb7421694ee612e5aeabe8e3a2e51756b0dc512edc01d2c86eb8f7aac78c8",
+  "python": "3.12.15 (main, Oct 21 2026, 17:48:33) [MSC v.1944 64 bit (AMD64)]",
+  "python_executable": "D:\\git-repo\\PhD-Research-Lab-worktrees\\development-governance\\output\\playwright\\clean-install\\py312\\Scripts\\python.exe",
+  "python311": "Python 3.11.17",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "node": "v24.22.0",
+  "npm": "11.19.1",
+  "packages": [
+    {
+      "name": "alembic",
+      "version": "1.20.1"
+    },
+    {
+      "name": "annotated-doc",
+      "version": "0.0.5"
+    },
+    {
+      "name": "annotated-types",
+      "version": "0.8.0"
+    },
+    {
+      "name": "anyio",
+      "version": "4.15.1"
+    },
+    {
+      "name": "bandit",
+      "version": "1.9.4"
+    },
+    {
+      "name": "boolean.py",
+      "version": "5.0"
+    },
+    {
+      "name": "CacheControl",
+      "version": "0.14.4"
+    },
+    {
+      "name": "certifi",
+      "version": "2026.10.23"
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.5.2"
+    },
+    {
+      "name": "click",
+      "version": "8.5.0"
+    },
+    {
+      "name": "colorama",
+      "version": "0.4.6"
+    },
+    {
+      "name": "colorlog",
+      "version": "6.12.0"
+    },
+    {
+      "name": "coverage",
+      "version": "7.17.0"
+    },
+    {
+      "name": "cssselect2",
+      "version": "0.10.1"
+    },
+    {
+      "name": "cyclonedx-python-lib",
+      "version": "11.12.0"
+    },
+    {
+      "name": "defusedxml",
+      "version": "0.7.1"
+    },
+    {
+      "name": "fastapi",
+      "version": "0.162.0"
+    },
+    {
+      "name": "filelock",
+      "version": "4.2.4"
+    },
+    {
+      "name": "gitdb",
+      "version": "4.0.12"
+    },
+    {
+      "name": "GitPython",
+      "version": "3.2.1"
+    },
+    {
+      "name": "h11",
+      "version": "0.16.0"
+    },
+    {
+      "name": "httpcore",
+      "version": "1.0.9"
+    },
+    {
+      "name": "httpx",
+      "version": "0.28.1"
+    },
+    {
+      "name": "idna",
+      "version": "3.20"
+    },
+    {
+      "name": "license-expression",
+      "version": "30.4.4"
+    },
+    {
+      "name": "lxml",
+      "version": "6.1.3"
+    },
+    {
+      "name": "Mako",
+      "version": "1.4.3"
+    },
+    {
+      "name": "markdown-it-py",
+      "version": "4.2.0"
+    },
+    {
+      "name": "MarkupSafe",
+      "version": "3.0.4"
+    },
+    {
+      "name": "mdurl",
+      "version": "0.1.2"
+    },
+    {
+      "name": "msgpack",
+      "version": "1.2.3"
+    },
+    {
+      "name": "numpy",
+      "version": "2.5.4"
+    },
+    {
+      "name": "opentelemetry-api",
+      "version": "1.45.1"
+    },
+    {
+      "name": "optuna",
+      "version": "5.0.0"
+    },
+    {
+      "name": "packageurl-python",
+      "version": "0.17.6"
+    },
+    {
+      "name": "packaging",
+      "version": "26.3"
+    },
+    {
+      "name": "pillow",
+      "version": "13.0.0"
+    },
+    {
+      "name": "pip",
+      "version": "26.2.2"
+    },
+    {
+      "name": "pip_api",
+      "version": "0.0.35"
+    },
+    {
+      "name": "pip_audit",
+      "version": "2.10.1"
+    },
+    {
+      "name": "pip-requirements-parser",
+      "version": "32.0.1"
+    },
+    {
+      "name": "platformdirs",
+      "version": "4.13.5"
+    },
+    {
+      "name": "prompt_toolkit",
+      "version": "3.0.53"
+    },
+    {
+      "name": "py-serializable",
+      "version": "2.1.0"
+    },
+    {
+      "name": "pydantic",
+      "version": "2.14.1"
+    },
+    {
+      "name": "pydantic_core",
+      "version": "2.50.1"
+    },
+    {
+      "name": "Pygments",
+      "version": "2.21.0"
+    },
+    {
+      "name": "pyparsing",
+      "version": "3.3.3"
+    },
+    {
+      "name": "pypdf",
+      "version": "6.21.2"
+    },
+    {
+      "name": "pypdfium2",
+      "version": "5.14.0"
+    },
+    {
+      "name": "python-multipart",
+      "version": "0.0.32"
+    },
+    {
+      "name": "PyYAML",
+      "version": "6.0.3"
+    },
+    {
+      "name": "reportlab",
+      "version": "5.1.0"
+    },
+    {
+      "name": "requests",
+      "version": "2.34.2"
+    },
+    {
+      "name": "rich",
+      "version": "15.0.0"
+    },
+    {
+      "name": "ruff",
+      "version": "0.17.2"
+    },
+    {
+      "name": "smmap",
+      "version": "5.0.3"
+    },
+    {
+      "name": "sortedcontainers",
+      "version": "2.4.0"
+    },
+    {
+      "name": "SQLAlchemy",
+      "version": "2.1.6"
+    },
+    {
+      "name": "starlette",
+      "version": "1.10.0"
+    },
+    {
+      "name": "stevedore",
+      "version": "5.9.1"
+    },
+    {
+      "name": "svglib",
+      "version": "2.3.2"
+    },
+    {
+      "name": "tinycss2",
+      "version": "1.5.1"
+    },
+    {
+      "name": "tomli",
+      "version": "2.5.0"
+    },
+    {
+      "name": "tomli_w",
+      "version": "1.2.0"
+    },
+    {
+      "name": "tqdm",
+      "version": "4.70.1"
+    },
+    {
+      "name": "typing_extensions",
+      "version": "4.16.0"
+    },
+    {
+      "name": "typing-inspection",
+      "version": "0.4.4"
+    },
+    {
+      "name": "urllib3",
+      "version": "2.8.0"
+    },
+    {
+      "name": "uvicorn",
+      "version": "0.54.0"
+    },
+    {
+      "name": "wcwidth",
+      "version": "0.9.4"
+    },
+    {
+      "name": "webencodings",
+      "version": "0.6.1"
+    }
+  ],
+  "node_modules": "D:/git-repo/PhD-Research-Lab-worktrees/local-ci-repair-supervisor/frontend/node_modules",
+  "offline": "PHDLAB_QA_OFFLINE=1",
+  "execution": "Serial on the same host; no live model calls",
+  "commands": [
+    [
+      "scripts/verify.py",
+      "--profile",
+      "full",
+      "--component",
+      "backend"
+    ],
+    [
+      "scripts/verify.py",
+      "--profile",
+      "pr",
+      "--component",
+      "frontend"
+    ],
+    [
+      "-m",
+      "devtools.verification.browser",
+      "--profile",
+      "pr",
+      "--offline-all"
+    ]
+  ],
+  "chromium": {
+    "executable": "C:\\Users\\win\\AppData\\Local\\ms-playwright\\chromium-1247\\chrome-win64\\chrome.exe",
+    "browserRevisions": {
+      "comment": "Do not edit this file, use utils/roll_browser.js",
+      "browsers": [
+        {
+          "name": "chromium",
+          "revision": "1248",
+          "installByDefault": true,
+          "browserVersion": "156.0.8078.4",
+          "title": "Chrome for Testing"
+        },
+        {
+          "name": "chromium-headless-shell",
+          "revision": "1248",
+          "installByDefault": true,
+          "browserVersion": "156.0.8078.4",
+          "title": "Chrome Headless Shell"
+        },
+        {
+          "name": "firefox",
+          "revision": "1555",
+          "installByDefault": true,
+          "browserVersion": "157.0",
+          "title": "Firefox"
+        },
+        {
+          "name": "webkit",
+          "revision": "2370",
+          "installByDefault": true,
+          "revisionOverrides": {
+            "mac14": "2251",
+            "mac14-arm64": "2251"
+          },
+          "browserVersion": "27.2",
+          "title": "WebKit"
+        },
+        {
+          "name": "ffmpeg",
+          "revision": "1013",
+          "installByDefault": true
+        },
+        {
+          "name": "winldd",
+          "revision": "1007",
+          "installByDefault": false
+        },
+        {
+          "name": "android",
+          "revision": "1001",
+          "installByDefault": false
+        }
+      ]
+    },
+    "executable_sha256": "74222067d9e6a3ab417a6b1ba00688baded1c7807bb6ef8d1fdf8b6e74d725b8"
+  },
+  "diagnostic_build": "npx --no-install vite build; node postbuild.js, same on both, never changes original mandatory build result",
+  "uat": "Canonical uat with unchanged exhausted task budget; no model invocation permitted"
+}

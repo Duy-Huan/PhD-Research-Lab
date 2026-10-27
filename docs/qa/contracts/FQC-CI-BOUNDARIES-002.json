@@ -1,0 +1,134 @@
+{
+  "id": "FQC-CI-BOUNDARIES-002",
+  "title": "Fresh owned-process cleanup and unchanged memory latency/quality budgets",
+  "risk": "MEDIUM",
+  "mode": "REAL_LOCAL",
+  "user_story": "Owner gets trustworthy complete cross-platform CI without orphan workers, stale survivor metadata or slowed research context.",
+  "requirements": [
+    {
+      "id": "REQ-POST-REAP",
+      "description": "Stop/reap the exact owned process tree before reporting fresh terminal cleanup; preserve unrelated processes."
+    },
+    {
+      "id": "REQ-MEMORY-BUDGET",
+      "description": "Retain the300ms context/500ms retrieval budget and golden retrieval/fidelity oracles; optimize actual redundant work without changing data or measured timers."
+    }
+  ],
+  "nonfunctional": [
+    "No skipped mandatory cases or relaxed assertions",
+    "No process-name killing or host-global subreaper state",
+    "No changed benchmark thresholds/corpus or mocked latency",
+    "Original failure history retained; exactly one owner-granted additional cycle"
+  ],
+  "inputs": [
+    "Owned real child processes",
+    "Existing golden memory corpus",
+    "Actual GitHub40370816116 failures"
+  ],
+  "outputs": [
+    "Truthful FAIL124 cleanup and stopped owned descendants",
+    "Identical golden context/retrieval behavior within unchanged measured budget"
+  ],
+  "preconditions": [
+    "Existingdev branch",
+    "OWNER-20261027-ONE-CI-CYCLE IN_PROGRESS, original3failed cycles retained"
+  ],
+  "postconditions": [
+    "Fresh independent full software CI still required",
+    "No scientific/live qualification inferred"
+  ],
+  "dependencies": [
+    "Existing verification runner",
+    "psutil hash-locked dependency",
+    "Existing memory compiler/cache and golden suite"
+  ],
+  "affected_modules": [
+    "devtools/verification/runner.py",
+    "tests/test_verification_process_timeout.py",
+    "backend/memory/",
+    "backend/core/config.py",
+    "tests/test_context_cache.py"
+  ],
+  "acceptance_criteria": [
+    "Existing and private-reaping real process oracles execute/PASS without skips",
+    "Original300ms/500ms and all golden factual/retrieval assertions remain unchanged",
+    "Full feature/pr and4matrix CI must pass current source"
+  ],
+  "scenarios": [
+    {
+      "id": "real-owned-tree",
+      "requirement": "REQ-POST-REAP",
+      "kind": "security",
+      "expected": "Actual owned descendants stop while an unrelated same-interpreter process survives; cleanup reports none alive.",
+      "test": "tests/test_verification_process_timeout.py::TimeoutContainment.test_deadline_stops_owned_descendant_and_preserves_unrelated_process"
+    },
+    {
+      "id": "private-reparenting",
+      "requirement": "REQ-POST-REAP",
+      "kind": "failure",
+      "expected": "A private Linux helper reaps adopted descendants before terminal cleanup; Windows executes actual owned-tree assertions without a skip.",
+      "test": "tests/test_verification_process_timeout.py::TimeoutContainment.test_reparented_descendants_are_reaped_before_cleanup_is_reported"
+    },
+    {
+      "id": "unchanged-latency",
+      "requirement": "REQ-MEMORY-BUDGET",
+      "kind": "performance",
+      "expected": "Original measured compile_ms<300 and retrieve_ms<500.",
+      "test": "tests/memory_eval/test_golden.py::GoldenTasks.test_latency_budget"
+    },
+    {
+      "id": "unchanged-heldout",
+      "requirement": "REQ-MEMORY-BUDGET",
+      "kind": "positive",
+      "expected": "Original held-out retrieval/fact fidelity assertions remain passing.",
+      "test": "tests/memory_eval/test_golden.py::GoldenTasks.test_held_out_tasks_beat_v32"
+    },
+    {
+      "id": "project-switch-isolation",
+      "requirement": "REQ-MEMORY-BUDGET",
+      "kind": "security",
+      "expected": "Compilation retains the starting research project when a concurrent UI selection changes; the global new selection remains after compilation.",
+      "test": "tests/test_context_cache.py::ContextCache.test_memory_compilation_keeps_starting_project_during_project_switch"
+    },
+    {
+      "id": "timeout-is-failure",
+      "requirement": "REQ-POST-REAP",
+      "kind": "negative",
+      "expected": "An owned timeout returns FAIL124 and never becomes a successful verification.",
+      "test": "tests/test_verification_process_timeout.py::TimeoutContainment.test_deadline_stops_owned_descendant_and_preserves_unrelated_process"
+    },
+    {
+      "id": "original-time-budget",
+      "requirement": "REQ-MEMORY-BUDGET",
+      "kind": "boundary",
+      "expected": "At the existing300ms/500ms boundaries the original strict less-than assertions apply, with measured elapsed time and unchanged corpus.",
+      "test": "tests/memory_eval/test_golden.py::GoldenTasks.test_latency_budget"
+    }
+  ],
+  "recovery": "At most the one explicitly authorized additional correction cycle. A new failed correction stops; no counter reset or unchanged-source CI retry.",
+  "test_environment": "Disposable actual Windows/Linux process fixtures, private Linux subreaper helper, existing hashing-backed golden memory corpus; no model/scientific execution.",
+  "skill_sources": [
+    "skills/gh-fix-ci/SKILL.md",
+    "skills/test-gap-audit/SKILL.md",
+    "skills/verify/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent adversarial source review, not independent approval. Preserve PID absence, unrelated survival, source hashes and all original memory quality/timing assertions."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "Actual identical9case Linux test suite, private helper subreaper and disposable project data. Windows9case RED and13case GREEN including unchanged golden suite are retained. No provider inference/scientific qualification.",
+    "red": {
+      "path": "docs/qa/evidence/ci-boundaries-6.5.12/linux-red.json",
+      "sha256": "2da172d6dd9f559ad72020c75c424b1b32d28029a551b8b1629b5de55463d5e4",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/ci-boundaries-6.5.12/linux-green.json",
+      "sha256": "c6f9f77b23e04ce3b6bf50efa3d91acd7c47536e25fbd984c35963b018d36b98",
+      "exit_code": 0
+    }
+  }
+}

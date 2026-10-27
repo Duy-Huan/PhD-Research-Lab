@@ -1,6 +1,7 @@
 """The orchestrator's provider paths: a CLI provider through the gateway (fake vendor CLIs, real connectors, firewall and
 MCP grant), manual launch plans, cancellation, input validation, history and artifact settings."""
 import _env  # noqa: F401  (must be first)
+from contextlib import contextmanager
 import time
 import unittest
 from unittest import mock
@@ -26,8 +27,15 @@ def wait(sid, tid=None, n=600):
     raise AssertionError("turn stuck")
 
 
+@contextmanager
 def fakes(**modes):
-    return mock.patch.dict(C.CONNECTORS, {p: fake(p, modes.get(p, "ok")) for p in ("codex", "claude_code", "antigravity", "gemini_cli")})
+    # This fixture executes a Python protocol peer, not a vendor container.
+    # Host Docker availability must neither admit nor deny that fixture.
+    runtime={'state':'CONTROLLED_PROTOCOL_FIXTURE','verified':True,
+             'detail':'Python subprocess fixture only; not OS isolation or live provider qualification'}
+    with mock.patch.dict(C.CONNECTORS, {p: fake(p, modes.get(p, "ok")) for p in ("codex", "claude_code", "antigravity", "gemini_cli")}), \
+         mock.patch('backend.providers.isolated_cli.runtime_status',return_value=runtime):
+        yield
 
 
 class Orchestrator(unittest.TestCase):
@@ -44,6 +52,18 @@ class Orchestrator(unittest.TestCase):
 
     def cli(self, name, **settings):
         store.update(self.sid, lambda x: x["settings"].update(provider="cli:" + name, **settings))
+
+    def test_protocol_fixture_does_not_require_or_certify_a_vendor_container(self):
+        from backend.providers import registry
+        blocked={'state':'UNAVAILABLE','verified':False,'detail':'Controlled absent host runtime'}
+        self.cli('codex')
+        with mock.patch('backend.providers.isolated_cli.runtime_status',return_value=blocked):
+            with fakes():
+                turn=wait(self.sid,O.start(self.sid,'Controlled Python protocol, not live inference')['id'])
+                self.assertEqual(turn['status'],'completed',turn.get('error'))
+            # The test-owned transport must not relax production readiness.
+            with mock.patch.dict(C.CONNECTORS,{'codex':fake('codex')}):
+                self.assertFalse(registry.describe('cli:codex')['available'])
 
     def test_cli_provider_answer_tools_usage_and_workspace(self):
         self.cli("claude_code")
@@ -149,8 +169,10 @@ class Orchestrator(unittest.TestCase):
         with self.assertRaises(AIWSError):
             O.retry(self.sid)
         store.update(self.sid, lambda x: x["turns"].append({"id": "t-busy", "status": "running"}))
+        O._running['t-busy'] = {'cancel': mock.Mock(), 'rid': ''}
         with self.assertRaises(AIWSError):
             O.start(self.sid, "again")
+        O._running.pop('t-busy', None)
         store.update(self.sid, lambda x: x["turns"].pop())
         with self.assertRaises(AIWSError):
             O.start(self.sid, "x", replace_from="m-missing")
