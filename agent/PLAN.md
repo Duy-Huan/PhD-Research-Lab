@@ -1,3 +1,15 @@
+# Active 2026-10-27: 6.6.2 owner-approved native environment + UI + installers
+
+6.6.0/6.6.1 are on main (e061361, release v6.6.1). Owner approved the whole 6.6.2 scope in chat; work in phases on dev, watcher stopped until the release candidate is complete (one version tag per main merge).
+
+A. Native core: owner-configured agent profile replaces hardcoded grants (read, compute, network, workspace_write inside the project; whole registry visible); NO step/call/wall budgets (Stop, per-tool hang timeouts, no-progress hint only); default tool_mode=agent (legacy fallback); mission capabilities in the registry; Codex/Claude CLI as delegate tools; per-MCP-client permissions.
+B. Hermes: one per project (memory/history/workspace per project), shared Nous login and reviewed shared skill library, same agent profile (workspace_write -> writable), always the phdlab_tools_* registry tools, no deadline/iteration/token caps (heartbeat liveness), dedicated Hermes chat session; clarify PHDLAB_ALLOWED_DOMAINS.
+C. ChatGPT MCP (chatgpt.com Developer Mode connector, not Codex CLI): off by default, HTTPS tunnel exposing only /mcp, all six layers on: container execution of compute/write tools, OAuth 2.1+PKCE one-click approval, OpenAI egress IP allowlist (auto-refresh), per-client rate limit, tunnel only while enabled + kill switch, audit/alerts; provenance actor chatgpt.
+D. Unified agent roster API + SSE: configured roles, every Harness-created agent, Hermes, connected MCP clients; real states from runtime/session events; 3D Lab, Harness and status views share it.
+E. Frontend: one entry point per feature, icon-first with tooltip/aria-label, "Công cụ AI" settings tab (agent profile, provider pool, registry search, external connections), Hermes chat, folder picker + default projects root, i18next for all new UI (catalogs + check), Motion micro-interactions honouring prefers-reduced-motion and a Settings toggle; before/after screenshots for the owner.
+F. Installers: Windows .exe (embedded Python + Inno Setup, per-user) and Linux .deb (/opt, bundled venv, phdlab launcher), PhD Lab logo icons derived from frontend/img/logo-192.png (owner has no larger master), user data in %LOCALAPPDATA%/~/.local/share, CI install-start-health-uninstall smoke, release assets + SHA256, version bump enforced per main merge.
+G. Coverage: diff >=95% hard gate, backend total >=90% hard gate, frontend ratchet toward 90%; behavioural assertions only, no exclusions.
+
 # Active 2026-10-27: publish 6.6.0 (includes unpublished 6.5.13) through dev -> qa -> main
 
 1. Frozen-source quick/feature/pr for 6.6.0 + CI diagnosability fix; guarded dev push; resume promote watcher; verify exact-SHA CI, PR merges and main CD in browser/API. If the Windows hang recurs, read the uploaded current-test/stall-stack evidence before any repair (TASK-CI-WIN-HANG-6513, max 3).

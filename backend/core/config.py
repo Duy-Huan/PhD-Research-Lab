@@ -208,7 +208,7 @@ DEFAULTS = {
              "context_mode": "relevant", "memory_mode": "suggest", "auto_memory_types": ["open_question"],
              "mcp_auto": True, "mcp_tools": [], "security_profile": "review", "keep_history": True, "summaries": True,
              "collect_artifacts": True, "context_budget_tokens": 6000, "history_budget_tokens": 4000, "module_defaults": {}, "max_turn_s": 900,
-             "tool_mode": "legacy"},  # v6.6.0: "agent" = model-driven tool loop instead of keyword pre-selection
+             "tool_mode": "agent"},  # v6.6.2 default (owner): model-driven tool loop; "legacy" = keyword pre-selection
 }
 # v5 research runs (backend/agent/runs.py) and research providers (backend/providers/research.py)
 DEFAULTS["runs"] = {
@@ -238,7 +238,10 @@ DEFAULTS['hermes'] = {'enabled': False, 'model': '', 'deadline_s': 600, 'max_ite
 # the owner explicitly allows host validation; external MCP agent clients reach the registry with mcp_permissions.
 DEFAULTS["tools"] = {"allow_host_validation": False, "validation_image": "python:3.12-slim",
                      "mcp_registry": True, "mcp_permissions": ["read", "compute"],
-                     "provider_pool": [], "pool_cooldown_s": 3600}  # v6.6.1: ordered DIFFERENT providers, empty = off
+                     "provider_pool": [], "pool_cooldown_s": 3600,  # v6.6.1: ordered DIFFERENT providers, empty = off
+                     # v6.6.2: agents are bounded by these permissions only (no step/call/time budgets)
+                     "agent_profile": {"permissions": ["read", "compute", "network", "workspace_write"], "tools": ["*"]},
+                     "client_profiles": {"chatgpt": "agent", "hermes": "agent", "antigravity": "agent"}}
 # exports cannot be fetched automatically (bot protection), so a scimagojr*.csv saved in Downloads is imported by itself.
 DEFAULTS["ranking"] = {"auto": True, "core_source": "ICORE2026", "watch_downloads": True, "refresh_days": 30}
 SECTIONS_V32 = ("runs", "research_providers", "memory", "resources", "codex", "workspace", "routing", "provenance",
@@ -318,6 +321,14 @@ def _merge_section(sec: str, target: dict, patch: dict, masked_ok: bool) -> None
                 raise
             target["provider_pool"] = []  # a malformed saved pool disables failover instead of breaking startup
         target["pool_cooldown_s"] = max(60, min(86400, target["pool_cooldown_s"]))
+        from backend.tools.profiles import normalize_clients, normalize_profile, DEFAULT_PROFILE, DEFAULT_CLIENTS
+        try:  # unknown permissions are refused on save; a malformed saved profile falls back to the default
+            target["agent_profile"] = normalize_profile(target["agent_profile"])
+            target["client_profiles"] = {**DEFAULT_CLIENTS, **normalize_clients(target["client_profiles"])}
+        except ValueError:
+            if masked_ok:
+                raise
+            target["agent_profile"], target["client_profiles"] = dict(DEFAULT_PROFILE), dict(DEFAULT_CLIENTS)
     if sec == "mcp_agent":
         from backend.providers.mcp_agent import endpoint
         if target["url"] or target["enabled"]:

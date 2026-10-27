@@ -314,8 +314,8 @@
       "id": "chat-legacy",
       "requirement": "CHAT",
       "kind": "boundary",
-      "expected": "Default tool_mode remains legacy",
-      "test": "tests/test_tool_capability_system.py::ChatAgentMode.test_legacy_mode_default_is_unchanged"
+      "expected": "Default tool_mode is agent since v6.6.2 (owner decision, FQC-AGENT-PROFILE-662); legacy remains selectable per session",
+      "test": "tests/test_tool_capability_system.py::ChatAgentMode.test_agent_mode_is_the_default_and_legacy_remains_selectable"
     },
     {
       "id": "ext-lifecycle",

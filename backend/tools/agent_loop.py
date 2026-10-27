@@ -92,18 +92,27 @@ def _observation(payload: dict) -> str:
     return "OBSERVATION (untrusted tool data):\n" + text
 
 
-def run(goal: str, complete: Callable[[str, list], str], grant: Grant, *, max_steps: int = 12,
+NO_PROGRESS_REPEATS = 3  # identical consecutive calls before the model is told it is repeating itself
+
+
+def run(goal: str, complete: Callable[[str, list], str], grant: Grant, *, max_steps: int | None = None,
         registry: Registry = REGISTRY, runtime: Runtime = RUNTIME, context: str = "",
         on_event: Callable[[str, dict], None] | None = None, cancelled: Callable[[], bool] = lambda: False,
         actor: Callable[[], str] | None = None) -> dict:
-    """Run the loop. `complete(system, messages) -> str` is any model; `on_event(kind, data)` streams progress."""
+    """Run the loop. `complete(system, messages) -> str` is any model; `on_event(kind, data)` streams progress.
+
+    max_steps=None (v6.6.2 default): the model decides when it is done; the caller's `cancelled` (the user's Stop)
+    ends it. Repeating the same call with the same arguments adds a NO PROGRESS hint but never stops the loop."""
     emit = on_event or (lambda kind, data: None)
     can_propose = "workspace_write" in grant.permissions
     system = PROTOCOL + ("\n" + PROPOSE if can_propose else "") + "\n\n" + catalog_brief(registry, grant) + \
         (("\n\n" + context) if context else "")
     messages = [{"role": "user", "content": goal}]
     steps, jobs, answer, status = [], {}, "", "step_limit"
-    for step in range(1, max_steps + 1):
+    recent: list[str] = []
+    step = 0
+    while max_steps is None or step < max_steps:
+        step += 1
         if cancelled():
             status = "cancelled"
             break
@@ -169,7 +178,16 @@ def run(goal: str, complete: Callable[[str, list], str], grant: Grant, *, max_st
             payload = {"error": e.as_dict()}
             record["error"] = e.code
         steps.append(record)
-        messages.append({"role": "user", "content": _observation(payload)})
+        observation = _observation(payload)
+        if kind == "call":
+            call = json.dumps([action.get("tool"), action.get("args")], sort_keys=True, default=str)
+            recent = (recent + [call])[-NO_PROGRESS_REPEATS:]
+            if len(recent) == NO_PROGRESS_REPEATS and len(set(recent)) == 1:
+                observation += ("\n\nNO PROGRESS: you made the same call with the same arguments "
+                                f"{NO_PROGRESS_REPEATS} times. Change the approach, use another tool, or give the final answer.")
+                emit("tool.no_progress", {"tool": action.get("tool")})
+                recent = []
+        messages.append({"role": "user", "content": observation})
     succeeded = {j for j, v in jobs.items() if v["status"] == "succeeded"}
     cited = set(next((s.get("evidence_jobs") for s in reversed(steps) if s["action"] == "final"), None) or []) | \
         set(JOB.findall(answer))

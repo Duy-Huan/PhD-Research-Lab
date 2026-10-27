@@ -40,9 +40,11 @@ class Grant(BaseModel):
     tools: list[str] = Field(default_factory=lambda: ["*"], max_length=200)
     permissions: list[str] = Field(default_factory=lambda: ["read"])
     allow_mutation: bool = False
-    max_calls: int = Field(default=50, ge=0, le=10_000)
-    max_wall_s: float = Field(default=1800, gt=0, le=7 * 86400)
-    max_output_bytes: int = Field(default=8_000_000, ge=1, le=512_000_000)
+    # None = no budget (v6.6.2 agent profiles: the owner bounds agents by permissions, not by counts or time).
+    # Each tool's own manifest budget (hang timeout, output cap) still applies to every call.
+    max_calls: int | None = Field(default=50, ge=0, le=10_000)
+    max_wall_s: float | None = Field(default=1800, gt=0, le=7 * 86400)
+    max_output_bytes: int | None = Field(default=8_000_000, ge=1, le=512_000_000)
     expires_at: float = Field(default_factory=lambda: time.time() + 86400)
 
     def model_post_init(self, _):
@@ -154,11 +156,11 @@ class Runtime:
         if spec.mutates and not grant.allow_mutation:
             raise ToolError("permission_denied", f"{spec.id} changes state; this grant is read-only")
         use = self.usage.setdefault(grant.id, Usage())
-        if use.calls >= grant.max_calls:
+        if grant.max_calls is not None and use.calls >= grant.max_calls:
             raise ToolError("budget_exceeded", f"Call budget of {grant.max_calls} tool calls is exhausted")
-        if use.wall_s >= grant.max_wall_s:
+        if grant.max_wall_s is not None and use.wall_s >= grant.max_wall_s:
             raise ToolError("budget_exceeded", f"Execution time budget of {grant.max_wall_s:g}s is exhausted")
-        if use.output_bytes >= grant.max_output_bytes:
+        if grant.max_output_bytes is not None and use.output_bytes >= grant.max_output_bytes:
             raise ToolError("budget_exceeded", "Tool output byte budget is exhausted")
 
     # -------------------------------------------------------------- job records
@@ -274,10 +276,12 @@ class Runtime:
         cancelled = self.cancels[job_id]
         result, error, status = None, None, "failed"
         for attempt in range(spec.max_retries + 1):
-            budget = min(spec.budget.timeout_s, max(0.0, grant.max_wall_s - use.wall_s - (time.monotonic() - started)))
+            budget = spec.budget.timeout_s if grant.max_wall_s is None else min(
+                spec.budget.timeout_s, max(0.0, grant.max_wall_s - use.wall_s - (time.monotonic() - started)))
             ctx = ExecContext(job_id=job_id, principal=grant.principal, workdir=workdir,
                               deadline=time.monotonic() + budget, cancelled=cancelled,
-                              max_output_bytes=min(spec.budget.max_output_bytes, grant.max_output_bytes - use.output_bytes),
+                              max_output_bytes=spec.budget.max_output_bytes if grant.max_output_bytes is None else
+                              min(spec.budget.max_output_bytes, grant.max_output_bytes - use.output_bytes),
                               observe=lambda kind, text: self._observe(job_id, kind, text))
             t0 = time.time()
             try:

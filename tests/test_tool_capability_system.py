@@ -560,10 +560,13 @@ class ChatAgentMode(Base):
         self.assertEqual(loop["status"], "completed")
         self.assertIn("not permitted", saved["messages"][-1]["content"])
 
-    def test_legacy_mode_default_is_unchanged(self):
+    def test_agent_mode_is_the_default_and_legacy_remains_selectable(self):
+        # v6.6.2 owner decision: tool_mode defaults to "agent"; "legacy" stays a per-session fallback.
         from backend.agent import policy, sessions
-        s = sessions.create("Legacy", settings={"provider": "app:local"})
-        self.assertEqual(policy.values(policy.effective(sessions.get(s["id"])))["tool_mode"], "legacy")
+        s = sessions.create("Default", settings={"provider": "app:local"})
+        self.assertEqual(policy.values(policy.effective(sessions.get(s["id"])))["tool_mode"], "agent")
+        legacy = sessions.create("Legacy", settings={"provider": "app:local", "tool_mode": "legacy"})
+        self.assertEqual(policy.values(policy.effective(sessions.get(legacy["id"])))["tool_mode"], "legacy")
 
 
 class McpRegistryBridge(Base):
