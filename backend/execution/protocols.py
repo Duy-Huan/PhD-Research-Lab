@@ -36,10 +36,10 @@ def listing(tid):
         return [_get(c,r[0],tid) for r in c.execute("SELECT id FROM experiment_protocols WHERE topic_id=? ORDER BY rowid DESC",(tid,))]
 
 
-def create(spec:ExperimentProtocol|AgentCodeProtocol,parent_id=""):
+def create(spec:ExperimentProtocol|AgentCodeProtocol,parent_id="",by="researcher"):
     if isinstance(spec,AgentCodeProtocol):
         from backend.execution import agent_protocols
-        return agent_protocols.create(spec,parent_id)
+        return agent_protocols.create(spec,parent_id,by)
     data=spec.model_dump();recipe=data["dataset"]
     splits={k:[k+":"+str(i) for i in range(recipe[k+"_count"])] for k in ("train","validation","test")}
     fingerprint=L.digest({"recipe":recipe,"splits":splits,"generator_sha256":worker_hash()})
@@ -52,7 +52,7 @@ def create(spec:ExperimentProtocol|AgentCodeProtocol,parent_id=""):
         snapshot={"spec":data,"dataset_id":did,"dataset_fingerprint":fingerprint,"splits":splits,"worker_sha256":worker_hash(),"baseline_locked":"noisy_input","training":"No learning; train split unused by non-parametric fixed filters"}
         pid=S.uid();digest=L.digest(snapshot)
         c.execute("INSERT INTO experiment_protocols VALUES(?,?,?,?,?,?,?)",(pid,spec.topic_id,parent_id or None,revision,digest,S.dumps(snapshot),None))
-        L.append(c,spec.topic_id,pid,"protocol.created",{"digest":digest,"revision":revision,"parent_id":parent_id})
+        L.append(c,spec.topic_id,pid,"protocol.created",{"digest":digest,"revision":revision,"parent_id":parent_id,"by":by[:100]})
         return _get(c,pid,spec.topic_id)
 
 

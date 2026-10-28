@@ -1,0 +1,78 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_interventions_664.Interventions.test_a_recorded_intervention_cannot_be_edited_away",
+      "status": "ERROR",
+      "duration": 0.3002,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 87, in test_a_recorded_intervention_cannot_be_edited_away\n    self.scenario()\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 40, in scenario\n    p = P.create(ExperimentProtocol(topic_id=self.tid, hypothesis=\"Smoothing lowers MSE\"), by=AGENT)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: create() got an unexpected keyword argument 'by'\n"
+    },
+    {
+      "id": "test_interventions_664.Interventions.test_a_researcher_branch_and_a_step_rejection_count_as_human",
+      "status": "ERROR",
+      "duration": 0.2274,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 65, in test_a_researcher_branch_and_a_step_rejection_count_as_human\n    r = I.report(self.tid)\n        ^^^^^^^^\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 24, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.interventions'\n"
+    },
+    {
+      "id": "test_interventions_664.Interventions.test_an_event_without_an_actor_is_unknown_not_guessed",
+      "status": "ERROR",
+      "duration": 0.2125,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 73, in test_an_event_without_an_actor_is_unknown_not_guessed\n    r = I.report(self.tid)\n        ^^^^^^^^\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 24, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.interventions'\n"
+    },
+    {
+      "id": "test_interventions_664.Interventions.test_bad_records_are_refused",
+      "status": "ERROR",
+      "duration": 0.2077,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 83, in test_bad_records_are_refused\n    I.record(\"no-such-topic\", \"risk_exception\", \"x\")\n    ^^^^^^^^\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 24, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.interventions'\n"
+    },
+    {
+      "id": "test_interventions_664.Interventions.test_decisions_and_interventions_are_attributed",
+      "status": "ERROR",
+      "duration": 0.2248,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 47, in test_decisions_and_interventions_are_attributed\n    self.scenario()\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 40, in scenario\n    p = P.create(ExperimentProtocol(topic_id=self.tid, hypothesis=\"Smoothing lowers MSE\"), by=AGENT)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: create() got an unexpected keyword argument 'by'\n"
+    },
+    {
+      "id": "test_interventions_664.Interventions.test_the_api_reports_and_records",
+      "status": "FAIL",
+      "duration": 1.8397,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 101, in test_the_api_reports_and_records\n    self.assertEqual(made.status_code, 200, made.text)\nAssertionError: 404 != 200 : {\"detail\":\"Not Found\"}\n"
+    },
+    {
+      "id": "test_interventions_664.Interventions.test_the_report_is_quick_on_a_long_ledger",
+      "status": "ERROR",
+      "duration": 0.3391,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 111, in test_the_report_is_quick_on_a_long_ledger\n    r = I.report(self.tid)\n        ^^^^^^^^\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 24, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.interventions'\n"
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_interventions_664.Interventions.test_bad_records_are_refused",
+      "id": "test_interventions_664.Interventions.test_bad_records_are_refused (args=('magic', 'x'))",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 81, in test_bad_records_are_refused\n    I.record(self.tid, *args)\n    ^^^^^^^^\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 24, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.interventions'\n"
+    },
+    {
+      "parent": "test_interventions_664.Interventions.test_bad_records_are_refused",
+      "id": "test_interventions_664.Interventions.test_bad_records_are_refused (args=('risk_exception', '  '))",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 81, in test_bad_records_are_refused\n    I.record(self.tid, *args)\n    ^^^^^^^^\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 24, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.interventions'\n"
+    },
+    {
+      "parent": "test_interventions_664.Interventions.test_bad_records_are_refused",
+      "id": "test_interventions_664.Interventions.test_bad_records_are_refused (args=('risk_exception', 'x', 'guess'))",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 81, in test_bad_records_are_refused\n    I.record(self.tid, *args)\n    ^^^^^^^^\n  File \"D:\\r664red-test_interventions_664\\tests\\test_interventions_664.py\", line 24, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.interventions'\n"
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 7,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-xn7hiewv",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

@@ -1,0 +1,121 @@
+{
+  "id": "FQC-INTERVENTIONS-664",
+  "title": "The intervention ledger reports who decided each hypothesis, branch, rejection, replan and stop, and every human intervention by category",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want an autonomy claim to count human rescue honestly: the first live run needed a hand-applied fix and a QA-written approval that the app never counted (agent/PLAN_6.6.4_L3.md B2; RQ-14).",
+  "requirements": [
+    {
+      "id": "REPORT",
+      "description": "GET /api/research/topics/{tid}/interventions classifies the topic's hash-linked ledger into the five intervention categories and attributes hypothesis, branch, rejection, replan and stop decisions to human, agent or unknown (never guessed), with each entry's ledger hash and the agent decision share."
+    },
+    {
+      "id": "RECORD",
+      "description": "POST records an intervention the app cannot see (category, note, optional decision), append-only and attributed to the researcher; protocols record who proposed them."
+    }
+  ],
+  "nonfunctional": [
+    "The ledger stays append-only",
+    "A 2000-event ledger reports in under 5 s"
+  ],
+  "inputs": [
+    "topic decision ledger",
+    "recorded interventions"
+  ],
+  "outputs": [
+    "{counts, interventions, decided_by, agent_decision_share, unknown_decisions, ledger_ok}"
+  ],
+  "preconditions": [
+    "None"
+  ],
+  "postconditions": [
+    "tests/test_interventions_664.py 7/7; RED on 8f0516a"
+  ],
+  "dependencies": [
+    "backend/agent/decision_ledger.py"
+  ],
+  "affected_modules": [
+    "backend/agent/interventions.py",
+    "backend/api/research.py",
+    "backend/execution/protocols.py",
+    "backend/execution/agent_protocols.py",
+    "backend/tools/mission_tools.py"
+  ],
+  "acceptance_criteria": [
+    "tests/test_interventions_664.py 7/7; RED on 8f0516a"
+  ],
+  "scenarios": [
+    {
+      "id": "attributed",
+      "requirement": "REPORT",
+      "kind": "positive",
+      "expected": "Agent branch and hypothesis, human stop and replan, two authorizations, one recorded rescue, one risk exception",
+      "test": "tests/test_interventions_664.py::Interventions.test_decisions_and_interventions_are_attributed"
+    },
+    {
+      "id": "human",
+      "requirement": "REPORT",
+      "kind": "negative",
+      "expected": "A researcher branch and a rejected step count as human",
+      "test": "tests/test_interventions_664.py::Interventions.test_a_researcher_branch_and_a_step_rejection_count_as_human"
+    },
+    {
+      "id": "unknown",
+      "requirement": "REPORT",
+      "kind": "boundary",
+      "expected": "An event without an actor is unknown and excluded from the share",
+      "test": "tests/test_interventions_664.py::Interventions.test_an_event_without_an_actor_is_unknown_not_guessed"
+    },
+    {
+      "id": "bad",
+      "requirement": "RECORD",
+      "kind": "failure",
+      "expected": "Unknown category, empty note, unknown decision or topic are refused",
+      "test": "tests/test_interventions_664.py::Interventions.test_bad_records_are_refused"
+    },
+    {
+      "id": "append-only",
+      "requirement": "RECORD",
+      "kind": "security",
+      "expected": "A recorded intervention cannot be edited away; the report is unchanged",
+      "test": "tests/test_interventions_664.py::Interventions.test_a_recorded_intervention_cannot_be_edited_away"
+    },
+    {
+      "id": "fast",
+      "requirement": "REPORT",
+      "kind": "performance",
+      "expected": "2000 events in under 5 s",
+      "test": "tests/test_interventions_664.py::Interventions.test_the_report_is_quick_on_a_long_ledger"
+    },
+    {
+      "id": "api",
+      "requirement": "RECORD",
+      "kind": "positive",
+      "expected": "Report and record through the API; 400 on a bad category",
+      "test": "tests/test_interventions_664.py::Interventions.test_the_api_reports_and_records"
+    }
+  ],
+  "recovery": "Fix at interventions; never infer an actor the ledger does not state. TASK-INTERVENTIONS-664, max three cycles.",
+  "test_environment": "Disposable PHDLAB_DATA_DIR with real missions, protocols and ledger (tests/_env.py); evidence in docs/qa/evidence/interventions-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 7 tests on 8f0516a, all failing (no intervention report or route; protocols record no proposer). GREEN: 7/7.",
+    "red": {
+      "path": "docs/qa/evidence/interventions-664/red.json",
+      "sha256": "defa1be9c22d2dbd249f6b786e2acfe6db8ad53533f5cb2f94604e5b9123c3dd",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/interventions-664/green.json",
+      "sha256": "a90ae3044cf2032e5902d76af2c13f3c02097a5c75f3a4136a2ff752e89a7649",
+      "exit_code": 0
+    }
+  }
+}

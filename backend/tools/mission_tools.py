@@ -59,7 +59,8 @@ def propose_protocol(args: dict, ctx) -> dict:
     from backend.execution import code_projects, protocols
     from backend.execution.protocol_contracts import AgentCodeProtocol
     try:
-        p = protocols.create(AgentCodeProtocol.model_validate({**args, "kind": "agent_code_v1"}))
+        p = protocols.create(AgentCodeProtocol.model_validate({**args, "kind": "agent_code_v1"}),
+                             by=getattr(ctx, "principal", "") or "agent:unknown")  # B2: the ledger records who proposed it
     except code_projects.NoCodeProject as e:
         raise ToolError("unavailable", str(e), hint="Ask the researcher to create or open a code project") from e
     except KeyError as e:

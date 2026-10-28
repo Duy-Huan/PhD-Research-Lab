@@ -63,6 +63,10 @@ Progress 2026-10-28:
 - CI on Linux (13000d6) found the narrow-drawer squeeze the live run reported: the sidebar's header icons shrank below the
   20 px tap target at 1024 px. They now keep their size and have accessible names; the Topic "Explore" button is
   translated (it was Vietnamese in English mode) and no longer wraps.
+- Phase B: B2 is done locally (FQC-INTERVENTIONS-664): intervention ledger by category and decision ownership, with a
+  record route for interventions the app cannot see. B5 (FQC-QUALIFICATION-664): per-criterion scoring from measured
+  campaign evidence; the objectives file changes only through it. B1 (frozen case suite) waits for the owner's domain;
+  B3 (fault injection) and B4 (continuity) are next.
 
 | ID | Change | Criteria |
 |---|---|---|

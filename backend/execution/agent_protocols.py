@@ -136,7 +136,7 @@ def environment(spec: dict) -> dict:
     return {**env, "digest": L.digest(env)}
 
 
-def create(spec: AgentCodeProtocol, parent_id: str = ""):
+def create(spec: AgentCodeProtocol, parent_id: str = "", by: str = "researcher"):
     from backend.execution import code_projects
     from backend.execution.protocols import _get
     data = spec.model_dump()
@@ -157,7 +157,8 @@ def create(spec: AgentCodeProtocol, parent_id: str = ""):
         c.execute("INSERT INTO experiment_protocols VALUES(?,?,?,?,?,?,?)",
                   (pid, spec.topic_id, parent_id or None, revision, digest, S.dumps(snapshot), None))
         L.append(c, spec.topic_id, pid, "protocol.created",
-                 {"digest": digest, "revision": revision, "parent_id": parent_id, "kind": KIND, "code_digest": code_digest})
+                 {"digest": digest, "revision": revision, "parent_id": parent_id, "kind": KIND, "code_digest": code_digest,
+                  "by": by[:100]})
         return _get(c, pid, spec.topic_id)
 
 

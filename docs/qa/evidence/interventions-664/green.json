@@ -1,0 +1,78 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_interventions_664.Interventions.test_a_recorded_intervention_cannot_be_edited_away",
+      "status": "PASS",
+      "duration": 0.301,
+      "details": null
+    },
+    {
+      "id": "test_interventions_664.Interventions.test_a_researcher_branch_and_a_step_rejection_count_as_human",
+      "status": "PASS",
+      "duration": 0.2302,
+      "details": null
+    },
+    {
+      "id": "test_interventions_664.Interventions.test_an_event_without_an_actor_is_unknown_not_guessed",
+      "status": "PASS",
+      "duration": 0.214,
+      "details": null
+    },
+    {
+      "id": "test_interventions_664.Interventions.test_bad_records_are_refused",
+      "status": "PASS",
+      "duration": 0.2111,
+      "details": null
+    },
+    {
+      "id": "test_interventions_664.Interventions.test_decisions_and_interventions_are_attributed",
+      "status": "PASS",
+      "duration": 0.2897,
+      "details": null
+    },
+    {
+      "id": "test_interventions_664.Interventions.test_the_api_reports_and_records",
+      "status": "PASS",
+      "duration": 0.7886,
+      "details": null
+    },
+    {
+      "id": "test_interventions_664.Interventions.test_the_report_is_quick_on_a_long_ledger",
+      "status": "PASS",
+      "duration": 0.2874,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_interventions_664.Interventions.test_bad_records_are_refused",
+      "id": "test_interventions_664.Interventions.test_bad_records_are_refused (args=('magic', 'x'))",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_interventions_664.Interventions.test_bad_records_are_refused",
+      "id": "test_interventions_664.Interventions.test_bad_records_are_refused (args=('risk_exception', '  '))",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_interventions_664.Interventions.test_bad_records_are_refused",
+      "id": "test_interventions_664.Interventions.test_bad_records_are_refused (args=('risk_exception', 'x', 'guess'))",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 7,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-szw3om7g",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}
