@@ -1,0 +1,41 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_delegate_tools.DelegateTools.test_delegation_needs_compute_and_workspace_write",
+      "status": "ERROR",
+      "duration": 0.0004,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_delegate_tools.py\", line 22, in setUp\n    raise MISSING\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_delegate_tools.py\", line 13, in <module>\n    from backend.tools import delegate_tools\nImportError: cannot import name 'delegate_tools' from 'backend.tools' (D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\backend\\tools\\__init__.py)\n"
+    },
+    {
+      "id": "test_delegate_tools.DelegateTools.test_delegation_runs_through_the_gateway_and_returns_real_files",
+      "status": "ERROR",
+      "duration": 0.0007,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_delegate_tools.py\", line 22, in setUp\n    raise MISSING\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 58, in testPartExecutor\n    yield\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 630, in run\n    self._callSetUp()\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 586, in _callSetUp\n    self.setUp()\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_delegate_tools.py\", line 22, in setUp\n    raise MISSING\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_delegate_tools.py\", line 13, in <module>\n    from backend.tools import delegate_tools\nImportError: cannot import name 'delegate_tools' from 'backend.tools' (D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\backend\\tools\\__init__.py)\n"
+    },
+    {
+      "id": "test_delegate_tools.DelegateTools.test_only_terms_compatible_cli_agents_are_delegates",
+      "status": "ERROR",
+      "duration": 0.0003,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_delegate_tools.py\", line 22, in setUp\n    raise MISSING\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 58, in testPartExecutor\n    yield\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 630, in run\n    self._callSetUp()\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 586, in _callSetUp\n    self.setUp()\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_delegate_tools.py\", line 22, in setUp\n    raise MISSING\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 58, in testPartExecutor\n    yield\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 630, in run\n    self._callSetUp()\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 586, in _callSetUp\n    self.setUp()\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_delegate_tools.py\", line 22, in setUp\n    raise MISSING\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_delegate_tools.py\", line 13, in <module>\n    from backend.tools import delegate_tools\nImportError: cannot import name 'delegate_tools' from 'backend.tools' (D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\backend\\tools\\__init__.py)\n"
+    },
+    {
+      "id": "test_delegate_tools.DelegateTools.test_unavailable_cli_is_reported_not_faked",
+      "status": "ERROR",
+      "duration": 0.0004,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_delegate_tools.py\", line 22, in setUp\n    raise MISSING\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 58, in testPartExecutor\n    yield\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 630, in run\n    self._callSetUp()\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 586, in _callSetUp\n    self.setUp()\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_delegate_tools.py\", line 22, in setUp\n    raise MISSING\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 58, in testPartExecutor\n    yield\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 630, in run\n    self._callSetUp()\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 586, in _callSetUp\n    self.setUp()\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_delegate_tools.py\", line 22, in setUp\n    raise MISSING\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 58, in testPartExecutor\n    yield\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 630, in run\n    self._callSetUp()\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 586, in _callSetUp\n    self.setUp()\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_delegate_tools.py\", line 22, in setUp\n    raise MISSING\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_delegate_tools.py\", line 13, in <module>\n    from backend.tools import delegate_tools\nImportError: cannot import name 'delegate_tools' from 'backend.tools' (D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\backend\\tools\\__init__.py)\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 4,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-zr6l6rfj",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

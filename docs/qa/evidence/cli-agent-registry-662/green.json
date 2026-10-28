@@ -1,0 +1,107 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_cli_agent_registry.CliAgentGrant.test_agent_mode_adds_the_registry_under_the_agent_profile",
+      "status": "PASS",
+      "duration": 0.0457,
+      "details": null
+    },
+    {
+      "id": "test_cli_agent_registry.CliAgentGrant.test_agent_profile_without_workspace_write_keeps_the_review_workspace",
+      "status": "PASS",
+      "duration": 0.0739,
+      "details": null
+    },
+    {
+      "id": "test_cli_agent_registry.CliAgentGrant.test_app_agent_in_a_topic_gets_the_same_registry_scope",
+      "status": "PASS",
+      "duration": 0.0907,
+      "details": null
+    },
+    {
+      "id": "test_cli_agent_registry.CliAgentGrant.test_explicit_no_tools_still_removes_everything",
+      "status": "PASS",
+      "duration": 0.0551,
+      "details": null
+    },
+    {
+      "id": "test_cli_agent_registry.CliAgentGrant.test_legacy_mode_keeps_the_read_only_allowlist",
+      "status": "PASS",
+      "duration": 0.05,
+      "details": null
+    },
+    {
+      "id": "test_cli_agent_registry.CliAgentGrant.test_provider_without_an_enforced_writable_profile_keeps_review",
+      "status": "PASS",
+      "duration": 0.0546,
+      "details": null
+    },
+    {
+      "id": "test_cli_agent_registry.CliAgentGrant.test_topic_hides_project_scope_tools_but_not_the_registry",
+      "status": "PASS",
+      "duration": 0.0733,
+      "details": null
+    },
+    {
+      "id": "test_cli_agent_registry.CliAgentGrant.test_topic_scope_never_probes_tool_availability",
+      "status": "PASS",
+      "duration": 0.066,
+      "details": null
+    },
+    {
+      "id": "test_cli_agent_registry.CodexInsideTheContainer.test_inner_bubblewrap_sandbox_is_replaced_by_the_container_boundary",
+      "status": "PASS",
+      "duration": 0.0066,
+      "details": null
+    },
+    {
+      "id": "test_cli_agent_registry.CodexInsideTheContainer.test_other_connectors_are_not_rewritten",
+      "status": "PASS",
+      "duration": 0.0061,
+      "details": null
+    },
+    {
+      "id": "test_cli_agent_registry.CodexInsideTheContainer.test_resume_form_is_rewritten_too",
+      "status": "PASS",
+      "duration": 0.0077,
+      "details": null
+    },
+    {
+      "id": "test_cli_agent_registry.EphemeralGrantOverMcp.test_agent_grant_lists_and_runs_registry_tools",
+      "status": "PASS",
+      "duration": 0.2043,
+      "details": null
+    },
+    {
+      "id": "test_cli_agent_registry.EphemeralGrantOverMcp.test_grant_without_registry_scope_keeps_its_own_tool_list",
+      "status": "PASS",
+      "duration": 0.051,
+      "details": null
+    },
+    {
+      "id": "test_cli_agent_registry.EphemeralGrantOverMcp.test_registry_scope_narrows_what_the_meta_tool_may_run",
+      "status": "PASS",
+      "duration": 0.0827,
+      "details": null
+    },
+    {
+      "id": "test_cli_agent_registry.PermissionsUi.test_ai_tools_tab_offers_every_backend_permission",
+      "status": "PASS",
+      "duration": 0.0003,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 15,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-sqe14jco",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

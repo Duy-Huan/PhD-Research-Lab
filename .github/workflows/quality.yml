@@ -161,10 +161,54 @@ jobs:
             output/playwright/capability-selftest/
           retention-days: 14
 
+  # v6.6.2 owner policy: every candidate builds its .exe/.deb from the exact checkout and proves
+  # install -> start -> health -> uninstall (data kept), so a release never ships stale installers.
+  installers:
+    name: Installers (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    defaults:
+      run: {shell: bash}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with: {persist-credentials: false}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with: {node-version: '24', cache: npm, cache-dependency-path: frontend/package-lock.json}
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
+      - name: Package the exact checkout
+        run: python scripts/package_release.py --sha "$(git rev-parse HEAD)" --out output/release/assets
+      - name: Build and smoke-test the Windows installer
+        if: runner.os == 'Windows'
+        run: |
+          command -v ISCC || test -f "/c/Program Files (x86)/Inno Setup 6/ISCC.exe" || choco install innosetup --no-progress -y
+          python scripts/build_installers.py windows --assets output/release/assets --out output/release/installers
+          python scripts/build_installers.py smoke-windows --installer output/release/installers/*.exe --version "$(python -c "import json;print(json.load(open('output/release/assets/manifest.json'))['version'])")"
+      - name: Build and smoke-test the Linux package
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          python scripts/build_installers.py deb --assets output/release/assets --out output/release/installers
+          python scripts/build_installers.py smoke-deb --deb output/release/installers/*.deb --version "$(python -c "import json;print(json.load(open('output/release/assets/manifest.json'))['version'])")"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: installers-${{ matrix.os }}
+          path: output/release/installers/
+          retention-days: 7
+
   development-gate:
     name: Development gate
     if: always()
-    needs: [policy, backend, frontend, security, browser]
+    needs: [policy, backend, frontend, security, browser, installers]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6

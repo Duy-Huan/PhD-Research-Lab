@@ -1,0 +1,35 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_projects_root.ProjectsRoot.test_explicit_folder_wins_and_unset_root_keeps_the_app_folder",
+      "status": "PASS",
+      "duration": 0.0448,
+      "details": null
+    },
+    {
+      "id": "test_projects_root.ProjectsRoot.test_new_projects_go_to_the_chosen_default_folder",
+      "status": "PASS",
+      "duration": 0.0402,
+      "details": null
+    },
+    {
+      "id": "test_projects_root.ProjectsRoot.test_relative_root_is_refused",
+      "status": "PASS",
+      "duration": 0.0031,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 3,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-dr2l4a5r",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

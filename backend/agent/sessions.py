@@ -25,7 +25,7 @@ EVENT_TYPES = (
     "turn.started", "turn.awaiting_launch", "turn.completed", "turn.failed", "turn.cancelled",
     "context.compiled", "message.started", "message.delta", "message.completed", "status.updated",
     "reasoning.summary", "tool.proposed", "tool.approval_required", "tool.started", "tool.stdout", "tool.stderr",
-    "tool.completed", "tool.failed", "action.proposed", "action.approval_required", "action.completed", "action.failed",
+    "tool.completed", "tool.failed", "tool.no_progress", "action.proposed", "action.approval_required", "action.completed", "action.failed",
     "artifact.discovered", "artifact.updated", "memory.candidate", "memory.saved", "usage.updated", "permission.denied",
     "run.updated", "error")
 MAX_MESSAGES = 2000

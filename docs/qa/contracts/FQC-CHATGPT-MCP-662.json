@@ -1,0 +1,190 @@
+{
+  "id": "FQC-CHATGPT-MCP-662",
+  "title": "ChatGPT connector through a public MCP gateway with six security layers",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the researcher I connect ChatGPT (Developer Mode connector) to PhD Lab once with a single approval, while strangers who learn the public URL cannot reach my computer or run code on it.",
+  "requirements": [
+    {
+      "id": "L1",
+      "description": "ChatGPT runs tools under a container-isolated grant: Python tools execute in the Docker sandbox, host-executing CLI/native compute tools are refused; only phdlab_tools_search/describe/call are exposed."
+    },
+    {
+      "id": "L2",
+      "description": "OAuth 2.1 code + PKCE S256, DCR restricted to ChatGPT redirect URIs, iss in responses, resource echoed into an audience-bound 1 h token, single-use codes, rotating single-use refresh tokens, and each authorization approved by the owner through the loopback API."
+    },
+    {
+      "id": "L3",
+      "description": "Server-to-server endpoints accept only OpenAI ChatGPT egress ranges (refreshed daily), failing closed when unavailable; the owner browser authorize step is exempt."
+    },
+    {
+      "id": "L4",
+      "description": "Per-client request rate limit and lockout of addresses presenting repeated invalid credentials."
+    },
+    {
+      "id": "L5",
+      "description": "Gateway serves only /mcp, /oauth/*, /.well-known/* and only while enabled; the kill switch stops tunnel and gateway and revokes all tokens and pending requests."
+    },
+    {
+      "id": "L6",
+      "description": "Every decision is audited without tokens or arguments; denials become alerts in status."
+    }
+  ],
+  "nonfunctional": [
+    "Main app never exposed",
+    "Only token hashes stored",
+    "Off by default",
+    "Requires cloudflared for the tunnel"
+  ],
+  "inputs": [
+    "ChatGPT OAuth and MCP requests",
+    "Owner approvals"
+  ],
+  "outputs": [
+    "Tokens",
+    "MCP results",
+    "Audit log"
+  ],
+  "preconditions": [
+    "6.6.2 agent profiles"
+  ],
+  "postconditions": [
+    "ChatGPT calls recorded with actor chatgpt"
+  ],
+  "dependencies": [
+    "OpenAI Apps SDK auth requirements (developers.openai.com/apps-sdk/build/auth)",
+    "https://openai.com/chatgpt-connectors.json",
+    "cloudflared quick tunnel"
+  ],
+  "affected_modules": [
+    "backend/tools/chatgpt_gateway.py",
+    "backend/tools/isolation.py",
+    "backend/tools/runtime.py",
+    "backend/tools/profiles.py",
+    "backend/providers/mcp_server.py",
+    "backend/api/tools.py"
+  ],
+  "acceptance_criteria": [
+    "Full owner-approved OAuth flow",
+    "Foreign IPs, bad tokens, floods refused",
+    "Kill switch revokes",
+    "Container-only execution"
+  ],
+  "scenarios": [
+    {
+      "id": "metadata",
+      "requirement": "L2",
+      "kind": "positive",
+      "expected": "Discovery metadata per ChatGPT requirements",
+      "test": "tests/test_chatgpt_mcp.py::OAuth.test_discovery_metadata_meets_chatgpt_requirements"
+    },
+    {
+      "id": "flow",
+      "requirement": "L2",
+      "kind": "positive",
+      "expected": "Owner-approved flow, audience-bound tokens, single-use codes",
+      "test": "tests/test_chatgpt_mcp.py::OAuth.test_owner_approved_flow_issues_audience_bound_tokens"
+    },
+    {
+      "id": "pkce",
+      "requirement": "L2",
+      "kind": "security",
+      "expected": "Redirect, S256 and verifier enforced",
+      "test": "tests/test_chatgpt_mcp.py::OAuth.test_pkce_redirect_and_resource_are_enforced"
+    },
+    {
+      "id": "deny",
+      "requirement": "L2",
+      "kind": "negative",
+      "expected": "Denied request yields access_denied",
+      "test": "tests/test_chatgpt_mcp.py::OAuth.test_denied_request_never_yields_a_code"
+    },
+    {
+      "id": "rotate",
+      "requirement": "L5",
+      "kind": "security",
+      "expected": "Refresh rotation and kill switch revoke",
+      "test": "tests/test_chatgpt_mcp.py::OAuth.test_refresh_rotates_and_kill_switch_revokes_everything"
+    },
+    {
+      "id": "paths",
+      "requirement": "L5",
+      "kind": "boundary",
+      "expected": "Only gateway paths served",
+      "test": "tests/test_chatgpt_mcp.py::Boundary.test_only_mcp_and_oauth_paths_are_served"
+    },
+    {
+      "id": "challenge",
+      "requirement": "L2",
+      "kind": "failure",
+      "expected": "Missing/foreign token gets a challenge",
+      "test": "tests/test_chatgpt_mcp.py::Boundary.test_missing_or_foreign_token_gets_a_challenge"
+    },
+    {
+      "id": "ip",
+      "requirement": "L3",
+      "kind": "security",
+      "expected": "Foreign IP denied, list missing fails closed",
+      "test": "tests/test_chatgpt_mcp.py::Boundary.test_ip_allowlist_applies_to_server_to_server_calls_not_the_owner_browser"
+    },
+    {
+      "id": "rate",
+      "requirement": "L4",
+      "kind": "performance",
+      "expected": "Per-client rate limit and lockout",
+      "test": "tests/test_chatgpt_mcp.py::Boundary.test_rate_limit_and_auth_failure_lockout"
+    },
+    {
+      "id": "audit",
+      "requirement": "L6",
+      "kind": "positive",
+      "expected": "Decisions audited without tokens; alerts raised",
+      "test": "tests/test_chatgpt_mcp.py::Boundary.test_audit_records_decisions_and_alerts"
+    },
+    {
+      "id": "isolation",
+      "requirement": "L1",
+      "kind": "security",
+      "expected": "Container execution; host execution refused",
+      "test": "tests/test_chatgpt_mcp.py::Isolation.test_chatgpt_compute_runs_in_a_container_and_host_execution_is_refused"
+    },
+    {
+      "id": "local",
+      "requirement": "L2",
+      "kind": "positive",
+      "expected": "Local API approval and daily range refresh",
+      "test": "tests/test_chatgpt_mcp.py::LocalControls.test_owner_approves_through_the_local_api_and_ranges_refresh_daily"
+    },
+    {
+      "id": "tunnel",
+      "requirement": "L5",
+      "kind": "negative",
+      "expected": "Tunnel URL parsing and kill switch",
+      "test": "tests/test_chatgpt_mcp.py::Tunnel.test_cloudflared_url_parsing_and_kill_switch_stops_everything"
+    }
+  ],
+  "recovery": "Kill switch (POST /api/tools/clients/chatgpt/kill) stops everything; revert the gateway module. TASK-CHATGPT-MCP-662, max three cycles.",
+  "test_environment": "Gateway ASGI exercised with a loopback TestClient (tunnel/cloudflared, Docker and chatgpt.com MOCKED); real download of the OpenAI ranges recorded in live-ranges.json. No live ChatGPT connection verified.",
+  "skill_sources": [
+    "skills/mcp-builder/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent) against the OpenAI Apps SDK auth page and the ranges documentation; owner-approved six layers."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: module missing 12/12 ERROR. GREEN: 13/13 PASS (local-controls scenario added).",
+    "red": {
+      "path": "docs/qa/evidence/chatgpt-mcp-662/red.json",
+      "sha256": "8fe85a83eb4c3ab75296f6fe71372b68f3319fd9d92a6335f37a17f8a81a3ffb",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/chatgpt-mcp-662/green.json",
+      "sha256": "02cf48c93e9537653d965964087e4e061912fc01567f613706fb84f8fac89727",
+      "exit_code": 0
+    }
+  }
+}

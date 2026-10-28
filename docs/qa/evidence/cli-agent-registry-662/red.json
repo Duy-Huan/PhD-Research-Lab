@@ -1,0 +1,107 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_cli_agent_registry.CliAgentGrant.test_agent_mode_adds_the_registry_under_the_agent_profile",
+      "status": "ERROR",
+      "duration": 0.0438,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662red\\tests\\test_cli_agent_registry.py\", line 43, in test_agent_mode_adds_the_registry_under_the_agent_profile\n    allow, registry, profile = orchestrator._cli_grant(\"s1\", t, v, \"codex\")\n                               ^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.agent.orchestrator' has no attribute '_cli_grant'\n"
+    },
+    {
+      "id": "test_cli_agent_registry.CliAgentGrant.test_agent_profile_without_workspace_write_keeps_the_review_workspace",
+      "status": "ERROR",
+      "duration": 0.0768,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662red\\tests\\test_cli_agent_registry.py\", line 51, in test_agent_profile_without_workspace_write_keeps_the_review_workspace\n    self.assertEqual(orchestrator._cli_grant(\"s1\", t, v, \"codex\")[2], \"review\")\n                     ^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.agent.orchestrator' has no attribute '_cli_grant'\n"
+    },
+    {
+      "id": "test_cli_agent_registry.CliAgentGrant.test_app_agent_in_a_topic_gets_the_same_registry_scope",
+      "status": "ERROR",
+      "duration": 0.0574,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662red\\tests\\test_cli_agent_registry.py\", line 83, in test_app_agent_in_a_topic_gets_the_same_registry_scope\n    scope = orchestrator._agent_tools(t, v)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.agent.orchestrator' has no attribute '_agent_tools'\n"
+    },
+    {
+      "id": "test_cli_agent_registry.CliAgentGrant.test_explicit_no_tools_still_removes_everything",
+      "status": "ERROR",
+      "duration": 0.0593,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662red\\tests\\test_cli_agent_registry.py\", line 78, in test_explicit_no_tools_still_removes_everything\n    allow, registry, profile = orchestrator._cli_grant(\"s1\", t, v, \"codex\")\n                               ^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.agent.orchestrator' has no attribute '_cli_grant'\n"
+    },
+    {
+      "id": "test_cli_agent_registry.CliAgentGrant.test_legacy_mode_keeps_the_read_only_allowlist",
+      "status": "ERROR",
+      "duration": 0.0435,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662red\\tests\\test_cli_agent_registry.py\", line 35, in test_legacy_mode_keeps_the_read_only_allowlist\n    allow, registry, profile = orchestrator._cli_grant(\"s1\", t, v, \"codex\")\n                               ^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.agent.orchestrator' has no attribute '_cli_grant'\n"
+    },
+    {
+      "id": "test_cli_agent_registry.CliAgentGrant.test_provider_without_an_enforced_writable_profile_keeps_review",
+      "status": "ERROR",
+      "duration": 0.0805,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662red\\tests\\test_cli_agent_registry.py\", line 56, in test_provider_without_an_enforced_writable_profile_keeps_review\n    allow, registry, profile = orchestrator._cli_grant(\"s1\", t, v, \"gemini_cli\")\n                               ^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.agent.orchestrator' has no attribute '_cli_grant'\n"
+    },
+    {
+      "id": "test_cli_agent_registry.CliAgentGrant.test_topic_hides_project_scope_tools_but_not_the_registry",
+      "status": "ERROR",
+      "duration": 0.0479,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662red\\tests\\test_cli_agent_registry.py\", line 63, in test_topic_hides_project_scope_tools_but_not_the_registry\n    allow, registry, _ = orchestrator._cli_grant(\"s1\", t, v, \"codex\")\n                         ^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.agent.orchestrator' has no attribute '_cli_grant'\n"
+    },
+    {
+      "id": "test_cli_agent_registry.CliAgentGrant.test_topic_scope_never_probes_tool_availability",
+      "status": "ERROR",
+      "duration": 0.0437,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662red\\tests\\test_cli_agent_registry.py\", line 74, in test_topic_scope_never_probes_tool_availability\n    self.assertIn(\"mission.paper.discover\", orchestrator._cli_grant(\"s1\", t, v, \"codex\")[1])\n                                            ^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.agent.orchestrator' has no attribute '_cli_grant'\n"
+    },
+    {
+      "id": "test_cli_agent_registry.CodexInsideTheContainer.test_inner_bubblewrap_sandbox_is_replaced_by_the_container_boundary",
+      "status": "FAIL",
+      "duration": 0.0127,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662red\\tests\\test_cli_agent_registry.py\", line 146, in test_inner_bubblewrap_sandbox_is_replaced_by_the_container_boundary\n    self.assertEqual(command[command.index(\"--sandbox\") + 1], \"danger-full-access\")\nAssertionError: 'read-only' != 'danger-full-access'\n- read-only\n+ danger-full-access\n\n"
+    },
+    {
+      "id": "test_cli_agent_registry.CodexInsideTheContainer.test_other_connectors_are_not_rewritten",
+      "status": "PASS",
+      "duration": 0.0065,
+      "details": null
+    },
+    {
+      "id": "test_cli_agent_registry.CodexInsideTheContainer.test_resume_form_is_rewritten_too",
+      "status": "FAIL",
+      "duration": 0.0114,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662red\\tests\\test_cli_agent_registry.py\", line 153, in test_resume_form_is_rewritten_too\n    self.assertIn(\"sandbox_mode=danger-full-access\", command)\nAssertionError: 'sandbox_mode=danger-full-access' not found in ['codex', 'exec', 'resume', '--json', '-c', 'sandbox_mode=workspace-write', 'abc123', '-']\n"
+    },
+    {
+      "id": "test_cli_agent_registry.EphemeralGrantOverMcp.test_agent_grant_lists_and_runs_registry_tools",
+      "status": "ERROR",
+      "duration": 0.0448,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662red\\tests\\test_cli_agent_registry.py\", line 101, in test_agent_grant_lists_and_runs_registry_tools\n    token = mcp_policy.issue(\"s1\", sorted(BRIDGE), registry=[\"*\"])\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: issue() got an unexpected keyword argument 'registry'\n"
+    },
+    {
+      "id": "test_cli_agent_registry.EphemeralGrantOverMcp.test_grant_without_registry_scope_keeps_its_own_tool_list",
+      "status": "PASS",
+      "duration": 0.0525,
+      "details": null
+    },
+    {
+      "id": "test_cli_agent_registry.EphemeralGrantOverMcp.test_registry_scope_narrows_what_the_meta_tool_may_run",
+      "status": "ERROR",
+      "duration": 0.0589,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662red\\tests\\test_cli_agent_registry.py\", line 111, in test_registry_scope_narrows_what_the_meta_tool_may_run\n    token = mcp_policy.issue(\"s1\", sorted(BRIDGE), registry=[\"stats_other\"])\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: issue() got an unexpected keyword argument 'registry'\n"
+    },
+    {
+      "id": "test_cli_agent_registry.PermissionsUi.test_ai_tools_tab_offers_every_backend_permission",
+      "status": "FAIL",
+      "duration": 0.0269,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662red\\tests\\test_cli_agent_registry.py\", line 127, in test_ai_tools_tab_offers_every_backend_permission\n    self.assertEqual(set(re.findall(r\"id: '(\\w+)'\", block)), set(PERMISSIONS),\nAssertionError: Items in the second set but not the first:\n'process'\n'reasoning' : a permission without a toggle can never be granted (sandbox_run_code needs process)\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 15,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-xkn4dxzu",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

@@ -1,7 +1,7 @@
 {
   "name": "phdlab-frontend",
   "private": true,
-  "version": "6.6.1",
+  "version": "6.6.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -20,6 +20,7 @@
     "clsx": "^2.1.1",
     "i18next": "^26.5.7",
     "lucide-react": "^1.16.0",
+    "motion": "14.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-i18next": "^17.1.5",

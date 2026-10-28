@@ -1,0 +1,161 @@
+{
+  "id": "FQC-HERMES-NATIVE-662",
+  "title": "Hermes per project under the agent profile, shared login and skill library, no work budgets",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the researcher I get one Hermes per project that keeps its own memory, signs in to Nous once for all projects, can use skills I approved for sharing, and works as long as it needs.",
+  "requirements": [
+    {
+      "id": "PROFILE",
+      "description": "Workspace mode follows tools.client_profiles.hermes (workspace_write gives a writable workspace); Hermes always gets phdlab_tools_search/describe/call."
+    },
+    {
+      "id": "SHARED",
+      "description": "Runtime mounts the app-wide hermes-shared/auth (HERMES_SHARED_AUTH_DIR) and hermes-shared/skills read-only (skills.external_dirs in a newly created project config; an existing config is never rewritten); share_skill copies one reviewed skill and records the approver."
+    },
+    {
+      "id": "NOBUDGET",
+      "description": "Jobs carry no deadline/iteration/token limit unless the owner sets one; the service passes none to AIAgent (its defaults are unlimited) and the supervisor waits without a deadline; observation has no deadline but fails when the runtime is unreachable for 120 s."
+    },
+    {
+      "id": "ONEPROJECT",
+      "description": "Starting the open project stops (never removes) other projects Hermes containers; the unused proxy domain allowlist variable is removed."
+    }
+  ],
+  "nonfunctional": [
+    "Free-only Nous models unchanged",
+    "No host source, Docker socket or PhD credentials mounted",
+    "Owner limits remain optional (0 = none)"
+  ],
+  "inputs": [
+    "agent/client profiles",
+    "hermes config"
+  ],
+  "outputs": [
+    "Runtime containers",
+    "Job records",
+    "Shared skills"
+  ],
+  "preconditions": [
+    "Pinned Hermes adapter image rebuilt"
+  ],
+  "postconditions": [
+    "Per-project data preserved on stop"
+  ],
+  "dependencies": [
+    "nousresearch/hermes-agent@sha256:9c5561579f3f (HERMES_SHARED_AUTH_DIR and skills.external_dirs verified in the image)"
+  ],
+  "affected_modules": [
+    "backend/providers/hermes.py",
+    "tools/hermes_runtime/service.py",
+    "backend/api/system.py",
+    "backend/core/config.py"
+  ],
+  "acceptance_criteria": [
+    "Real container READY with the expected mounts",
+    "Hermes resolves the shared skill directory",
+    "No budgets sent"
+  ],
+  "scenarios": [
+    {
+      "id": "profile",
+      "requirement": "PROFILE",
+      "kind": "positive",
+      "expected": "assisted by default, review without workspace_write",
+      "test": "tests/test_hermes_native.py::ProfileAndShared.test_workspace_mode_follows_the_agent_profile"
+    },
+    {
+      "id": "start",
+      "requirement": "SHARED",
+      "kind": "positive",
+      "expected": "Shared mounts, other project paused, config linked",
+      "test": "tests/test_hermes_native.py::ProfileAndShared.test_start_shares_login_and_skills_mounts_project_data_and_stops_other_projects"
+    },
+    {
+      "id": "pause",
+      "requirement": "ONEPROJECT",
+      "kind": "negative",
+      "expected": "Other project containers stopped, own kept, proxy env removed",
+      "test": "tests/test_hermes_native.py::ProfileAndShared.test_start_shares_login_and_skills_mounts_project_data_and_stops_other_projects"
+    },
+    {
+      "id": "config",
+      "requirement": "SHARED",
+      "kind": "boundary",
+      "expected": "Existing Hermes config untouched",
+      "test": "tests/test_hermes_native.py::ProfileAndShared.test_existing_hermes_config_is_never_rewritten"
+    },
+    {
+      "id": "share",
+      "requirement": "SHARED",
+      "kind": "security",
+      "expected": "Traversal and missing approver refused",
+      "test": "tests/test_hermes_native.py::ProfileAndShared.test_skill_sharing_copies_one_reviewed_skill_and_refuses_traversal"
+    },
+    {
+      "id": "api",
+      "requirement": "SHARED",
+      "kind": "positive",
+      "expected": "List and share through the API",
+      "test": "tests/test_hermes_native.py::SkillsApi.test_skills_listing_and_sharing_through_the_api"
+    },
+    {
+      "id": "job",
+      "requirement": "NOBUDGET",
+      "kind": "positive",
+      "expected": "No budgets, registry tools included",
+      "test": "tests/test_hermes_native.py::NoBudgets.test_job_has_no_budgets_and_always_includes_the_registry_tools"
+    },
+    {
+      "id": "long",
+      "requirement": "NOBUDGET",
+      "kind": "performance",
+      "expected": "Long job and transient RPC errors survive",
+      "test": "tests/test_hermes_native.py::NoBudgets.test_observation_survives_transient_rpc_errors_and_long_jobs"
+    },
+    {
+      "id": "liveness",
+      "requirement": "NOBUDGET",
+      "kind": "failure",
+      "expected": "Unreachable runtime is an error",
+      "test": "tests/test_hermes_native.py::NoBudgets.test_runtime_unreachable_for_long_is_an_error_not_a_hang"
+    },
+    {
+      "id": "service",
+      "requirement": "NOBUDGET",
+      "kind": "boundary",
+      "expected": "Service admits budget-free jobs; AIAgent gets defaults",
+      "test": "tests/test_hermes_native.py::ServiceUnbounded.test_job_without_budgets_is_admitted_and_agent_gets_hermes_defaults"
+    },
+    {
+      "id": "supervisor",
+      "requirement": "NOBUDGET",
+      "kind": "negative",
+      "expected": "Supervisor waits without deadline",
+      "test": "tests/test_hermes_native.py::ServiceUnbounded.test_supervisor_waits_for_the_worker_without_a_deadline"
+    }
+  ],
+  "recovery": "Set hermes deadline_s/max_iterations/max_tokens above 0 for an owner limit; narrow tools.client_profiles.hermes; revert hermes.py/service.py and rebuild the adapter image. TASK-HERMES-NATIVE-662, max three cycles.",
+  "test_environment": "Docker/vendor MOCKED in unit tests; additional REAL_LOCAL_DOCKER smoke (start/health/mounts/stop, shared skill discovery) in live-docker-smoke.json; no Nous sign-in or inference.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent); upstream API facts checked inside the pinned image (AIAgent defaults, shared auth dir, external_dirs)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 9 FAIL/ERROR before implementation. GREEN: 10/10 PASS (API scenario added during implementation).",
+    "red": {
+      "path": "docs/qa/evidence/hermes-native-662/red.json",
+      "sha256": "3a8442e08df48dfac51c61ab300a717397ab04473e7b526e28af743267a71dcd",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/hermes-native-662/green.json",
+      "sha256": "7396e24a324aa4ab1a42adc6b6165d9493df1a2b6e3f316963937412814d5b36",
+      "exit_code": 0
+    }
+  }
+}

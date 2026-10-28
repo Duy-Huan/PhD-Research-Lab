@@ -1,0 +1,90 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_agent_roster.Api.test_snapshot_and_stream_endpoints",
+      "status": "PASS",
+      "duration": 5.5255,
+      "details": null
+    },
+    {
+      "id": "test_agent_roster.LiveStates.test_digest_changes_only_when_something_changes",
+      "status": "PASS",
+      "duration": 0.0738,
+      "details": null
+    },
+    {
+      "id": "test_agent_roster.LiveStates.test_harness_execution_drives_node_agent_states",
+      "status": "PASS",
+      "duration": 0.0798,
+      "details": null
+    },
+    {
+      "id": "test_agent_roster.LiveStates.test_running_chat_turn_makes_the_assistant_think",
+      "status": "PASS",
+      "duration": 0.0526,
+      "details": null
+    },
+    {
+      "id": "test_agent_roster.LiveStates.test_tool_jobs_mark_the_requesting_agent_busy_with_the_tool",
+      "status": "PASS",
+      "duration": 0.0488,
+      "details": null
+    },
+    {
+      "id": "test_agent_roster.Sources.test_configured_roles_are_always_present_and_idle",
+      "status": "PASS",
+      "duration": 0.0512,
+      "details": null
+    },
+    {
+      "id": "test_agent_roster.Sources.test_connected_mcp_clients_and_hermes_are_listed",
+      "status": "PASS",
+      "duration": 0.049,
+      "details": null
+    },
+    {
+      "id": "test_agent_roster.Sources.test_every_agent_the_harness_created_appears_and_presets_do_not",
+      "status": "PASS",
+      "duration": 0.1078,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_agent_roster.Sources.test_configured_roles_are_always_present_and_idle",
+      "id": "test_agent_roster.Sources.test_configured_roles_are_always_present_and_idle (role='assistant')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_roster.Sources.test_configured_roles_are_always_present_and_idle",
+      "id": "test_agent_roster.Sources.test_configured_roles_are_always_present_and_idle (role='research')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_roster.Sources.test_configured_roles_are_always_present_and_idle",
+      "id": "test_agent_roster.Sources.test_configured_roles_are_always_present_and_idle (role='reviewer')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_roster.Sources.test_configured_roles_are_always_present_and_idle",
+      "id": "test_agent_roster.Sources.test_configured_roles_are_always_present_and_idle (role='utility')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 8,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-3qe5dwrz",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

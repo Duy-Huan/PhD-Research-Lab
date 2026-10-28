@@ -27,6 +27,8 @@ export default defineConfig({
       include: ['src/**/*.{ts,tsx}'],
       reporter: ['text', 'json', 'json-summary', 'html', 'lcov'],
       exclude: ['node_modules/', 'dist/', 'src/test/', 'src/**/*.test.{ts,tsx}'],
+      // v6.6.2 owner policy: a hard ratchet toward 100% (raise as coverage grows, never lower).
+      thresholds: { lines: 66, branches: 65, functions: 53, statements: 65 },
     },
   },
   server: {

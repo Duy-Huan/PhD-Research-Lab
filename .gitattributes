@@ -1,0 +1,2 @@
+# Linux package scripts must keep LF endings on every checkout (a CRLF postinst breaks dpkg).
+packaging/linux/* text eol=lf

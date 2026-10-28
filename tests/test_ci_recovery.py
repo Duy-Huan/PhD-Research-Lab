@@ -19,7 +19,7 @@ class GateAccounting(unittest.TestCase):
 
     def fixture(self):
         return {name: {'result': 'success'} for name in
-                ['policy', 'backend', 'frontend', 'security', 'browser']}
+                ['policy', 'backend', 'frontend', 'security', 'browser', 'installers']}
 
     def test_qa_requires_executed_software_gate_without_optional_live_jobs(self):
         self.assertEqual(self.invoke({'development-gate':{'result':'success'}},'qa')[0],0)

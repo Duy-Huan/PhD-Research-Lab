@@ -1,0 +1,100 @@
+{
+  "mode": "REAL_LOCAL",
+  "nonfunctional": [
+    "No new dependency"
+  ],
+  "preconditions": [
+    "6.6.0 registry/runtime"
+  ],
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "id": "FQC-MISSION-TOOLS-662",
+  "title": "Mission capabilities as registry tools",
+  "risk": "MEDIUM",
+  "user_story": "As an agent I find and use mission capabilities through the same registry as every other tool, while mission plans stay approved by the researcher.",
+  "requirements": [
+    {
+      "id": "REG",
+      "description": "Every capability is mission.<capability> with its real schema and permissions (+workspace_write) and is found by capability search."
+    },
+    {
+      "id": "GOV",
+      "description": "A call creates a governed single-task mission through missions.create and reports awaiting_approval; invalid input and missing permissions are structured errors/denials."
+    }
+  ],
+  "inputs": [
+    "topic_id",
+    "objective",
+    "capability args"
+  ],
+  "outputs": [
+    "mission id and status"
+  ],
+  "postconditions": [
+    "Mission awaits researcher approval"
+  ],
+  "dependencies": [
+    "backend.agent.capabilities",
+    "backend.agent.missions"
+  ],
+  "affected_modules": [
+    "backend/tools/mission_tools.py",
+    "backend/tools/registry.py",
+    "backend/tools/adapters.py"
+  ],
+  "acceptance_criteria": [
+    "All capabilities discoverable",
+    "Mission created, not claimed complete"
+  ],
+  "scenarios": [
+    {
+      "id": "discover",
+      "requirement": "REG",
+      "kind": "positive",
+      "expected": "All capabilities listed and searchable",
+      "test": "tests/test_mission_tools.py::MissionTools.test_every_capability_is_a_discoverable_registry_tool"
+    },
+    {
+      "id": "create",
+      "requirement": "GOV",
+      "kind": "boundary",
+      "expected": "Governed mission awaiting approval",
+      "test": "tests/test_mission_tools.py::MissionTools.test_call_creates_a_governed_mission_awaiting_researcher_approval"
+    },
+    {
+      "id": "invalid",
+      "requirement": "GOV",
+      "kind": "failure",
+      "expected": "Unknown topic is a structured error",
+      "test": "tests/test_mission_tools.py::MissionTools.test_invalid_capability_arguments_are_structured_errors"
+    },
+    {
+      "id": "readonly",
+      "requirement": "GOV",
+      "kind": "negative",
+      "expected": "Read-only grant denied",
+      "test": "tests/test_mission_tools.py::MissionTools.test_read_only_grant_cannot_create_missions"
+    }
+  ],
+  "recovery": "Remove mission_tools from builtin_specs. TASK-MISSION-TOOLS-662, max three cycles.",
+  "test_environment": "Real registry, runtime, research store and mission engine in disposable data; no model.",
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: module missing 4/4 ERROR. GREEN: 4/4 PASS.",
+    "red": {
+      "path": "docs/qa/evidence/mission-tools-662/red.json",
+      "sha256": "7e5bee42788a0da6f8856172659d6126fdaeedb1a86e9f79945cd6228df5876b",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/mission-tools-662/green.json",
+      "sha256": "8a8c12ca602cbec7390d7be0e7a6e455a08a8057838db1b4647bcaae813d9ac8",
+      "exit_code": 0
+    }
+  }
+}

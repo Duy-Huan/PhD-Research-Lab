@@ -267,4 +267,14 @@ describe('Sidebar', () => {
     expect(useUIStore.getState().drawerKind).toBe('code');
     expect(post).not.toHaveBeenCalled();
   });
+  it('opens a dedicated Hermes chat session for the open project (v6.6.2)', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue({ sessions: [], projects: [] } as any);
+    const post = vi.spyOn(api, 'post').mockResolvedValue({ id: 'as-hermes' } as any);
+    useUIStore.setState({ language: 'en', activeSessionId: null, mainView: 'office3d' as any });
+    renderWithProviders(<Sidebar />);
+    fireEvent.click(await screen.findByTestId('hermes-chat'));
+    await waitFor(() => expect(post).toHaveBeenCalledWith('/api/chat/sessions', { title: 'Hermes', settings: { provider: 'runtime:hermes' } }));
+    await waitFor(() => expect(useUIStore.getState().activeSessionId).toBe('as-hermes'));
+    expect(useUIStore.getState().mainView).toBe('chat');
+  });
 });

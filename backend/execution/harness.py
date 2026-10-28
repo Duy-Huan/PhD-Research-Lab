@@ -448,6 +448,9 @@ def execute_workflow(workflow: dict[str, Any], topic_id: str = "") -> dict[str, 
     """Execute all nodes in the custom harness workflow respecting DAG dependencies."""
     nodes = workflow.get("nodes", [])
     edges = workflow.get("edges", [])
+    if (not isinstance(nodes, list) or not isinstance(edges, list)
+            or not all(isinstance(n, dict) and "id" in n for n in nodes) or not all(isinstance(e, dict) for e in edges)):
+        nodes, edges = [], []  # malformed graph: reported as invalid below, never a server error
     t_start = time.perf_counter()
 
     # Build adjacency and compute in-degrees

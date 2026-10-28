@@ -80,6 +80,7 @@ interface UIState {
   // Language & UI Scale
   language: 'vi' | 'en';
   uiScale: number;
+  motionEnabled: boolean; // v6.6.2 interaction animations (the OS reduced-motion setting still wins)
 
   // Layout & navigation
   sidebarOpen: boolean;
@@ -116,6 +117,7 @@ interface UIState {
   setActiveChatProjectId: (id: string | null) => void;
   setLanguage: (lang: 'vi' | 'en') => void;
   setUiScale: (scale: number) => void;
+  setMotionEnabled: (on: boolean) => void;
   toggleSidebar: () => void;
   setMainView: (view: MainViewMode) => void;
   setAgentStatusView: (view: AgentStatusViewMode) => void;
@@ -148,6 +150,13 @@ export const useUIStore = create<UIState>((set) => ({
   activeChatProjectId: null,
   language: defaultLanguage,
   uiScale: 1,
+  motionEnabled: (() => {
+    try {
+      return localStorage.getItem('phdlab_motion') !== 'off';
+    } catch {
+      return true;
+    }
+  })(),
   sidebarOpen: true,
   mainView: 'chat',
   agentStatusView: 'office3d',
@@ -183,6 +192,12 @@ export const useUIStore = create<UIState>((set) => ({
   setTopics: (topics) => set({ topics }),
   setActiveSessionId: (activeSessionId) => set({ activeSessionId }),
   setActiveChatProjectId: (activeChatProjectId) => set({ activeChatProjectId }),
+  setMotionEnabled: (motionEnabled) => {
+    try {
+      localStorage.setItem('phdlab_motion', motionEnabled ? 'on' : 'off');
+    } catch {}
+    set({ motionEnabled });
+  },
   setLanguage: (language) => {
     i18n.changeLanguage(language);
     try {
@@ -317,7 +332,7 @@ export function useI18n() {
     if (typeof en === 'string') {
       return language === 'en' ? en : viOrKey;
     }
-    const translated = translate(viOrKey);
+    const translated = translate(viOrKey, { lng: language }); // the store language is the source of truth
     return translated !== viOrKey ? translated : viOrKey;
   };
 

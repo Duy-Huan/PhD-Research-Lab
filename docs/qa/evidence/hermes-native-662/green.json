@@ -1,0 +1,102 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_hermes_native.NoBudgets.test_job_has_no_budgets_and_always_includes_the_registry_tools",
+      "status": "PASS",
+      "duration": 0.071,
+      "details": null
+    },
+    {
+      "id": "test_hermes_native.NoBudgets.test_observation_survives_transient_rpc_errors_and_long_jobs",
+      "status": "PASS",
+      "duration": 0.0675,
+      "details": null
+    },
+    {
+      "id": "test_hermes_native.NoBudgets.test_runtime_unreachable_for_long_is_an_error_not_a_hang",
+      "status": "PASS",
+      "duration": 0.0588,
+      "details": null
+    },
+    {
+      "id": "test_hermes_native.ProfileAndShared.test_existing_hermes_config_is_never_rewritten",
+      "status": "PASS",
+      "duration": 0.0534,
+      "details": null
+    },
+    {
+      "id": "test_hermes_native.ProfileAndShared.test_skill_sharing_copies_one_reviewed_skill_and_refuses_traversal",
+      "status": "PASS",
+      "duration": 0.0674,
+      "details": null
+    },
+    {
+      "id": "test_hermes_native.ProfileAndShared.test_start_shares_login_and_skills_mounts_project_data_and_stops_other_projects",
+      "status": "PASS",
+      "duration": 0.0758,
+      "details": null
+    },
+    {
+      "id": "test_hermes_native.ProfileAndShared.test_workspace_mode_follows_the_agent_profile",
+      "status": "PASS",
+      "duration": 0.0617,
+      "details": null
+    },
+    {
+      "id": "test_hermes_native.ServiceUnbounded.test_job_without_budgets_is_admitted_and_agent_gets_hermes_defaults",
+      "status": "PASS",
+      "duration": 0.5732,
+      "details": null
+    },
+    {
+      "id": "test_hermes_native.ServiceUnbounded.test_supervisor_waits_for_the_worker_without_a_deadline",
+      "status": "PASS",
+      "duration": 0.0469,
+      "details": null
+    },
+    {
+      "id": "test_hermes_native.SkillsApi.test_skills_listing_and_sharing_through_the_api",
+      "status": "PASS",
+      "duration": 5.4921,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_hermes_native.ProfileAndShared.test_skill_sharing_copies_one_reviewed_skill_and_refuses_traversal",
+      "id": "test_hermes_native.ProfileAndShared.test_skill_sharing_copies_one_reviewed_skill_and_refuses_traversal (bad='../x')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_hermes_native.ProfileAndShared.test_skill_sharing_copies_one_reviewed_skill_and_refuses_traversal",
+      "id": "test_hermes_native.ProfileAndShared.test_skill_sharing_copies_one_reviewed_skill_and_refuses_traversal (bad='a/b')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_hermes_native.ProfileAndShared.test_skill_sharing_copies_one_reviewed_skill_and_refuses_traversal",
+      "id": "test_hermes_native.ProfileAndShared.test_skill_sharing_copies_one_reviewed_skill_and_refuses_traversal (bad='')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_hermes_native.ProfileAndShared.test_skill_sharing_copies_one_reviewed_skill_and_refuses_traversal",
+      "id": "test_hermes_native.ProfileAndShared.test_skill_sharing_copies_one_reviewed_skill_and_refuses_traversal (bad='missing')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 10,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-q1scx_oo",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

@@ -301,8 +301,9 @@ def run(sid: str, tid: str, stage: str) -> None:
             except W.WorkspaceError as e:
                 return _fail(sid, tid, str(e), "denied")
             _set(sid, tid, isolation=iso)
-        # tool_mode=agent: no keyword pre-selection; the model chooses tools itself inside its loop (_app_agent)
-        if v.get("tool_mode") != "agent" and not _tools(sid, tid, v):
+        # tool_mode=agent: no keyword pre-selection (the model chooses tools inside its loop, _app_agent); tools the
+        # user explicitly requested for this turn and attached-image analysis still go through approval as before.
+        if not _tools(sid, tid, v, keyword=v.get("tool_mode") != "agent"):
             return
         stage = "after_tools"
     if stage == "after_tools":
@@ -329,12 +330,13 @@ def run(sid: str, tid: str, stage: str) -> None:
     _dispatch(sid, tid)
 
 
-def _tools(sid: str, tid: str, v: dict) -> bool:
-    """True when the turn may continue now; False when it waits for tool approvals."""
+def _tools(sid: str, tid: str, v: dict, keyword: bool = True) -> bool:
+    """True when the turn may continue now; False when it waits for tool approvals.
+    keyword=False (agent mode): no keyword pre-selection, only user-requested tools and attached-image analysis."""
     s = store.get(sid)
     t = _turn(s, tid)
     allow = mcp_policy.allowed(v["mcp_tools"])
-    wanted = mcp_policy.propose(t["question"], allow) if v["mcp_auto"] else []
+    wanted = mcp_policy.propose(t["question"], allow) if v["mcp_auto"] and keyword else []
     if _history(s, tid):
         wanted = [item for item in wanted if item.get('reason') != 'general research question']
     wanted += [{"tool": x["tool"], "args": x.get("args") or {}, "reason": "requested for this turn"}
@@ -620,13 +622,12 @@ def _app(sid, tid, s, t, v):
 
 
 def _app_agent(sid, tid, t, v, system, msgs, limit):
-    """v6.6.0 tool_mode=agent: the model itself discovers, selects, chains and recovers from registry tools.
-    Authority is the session's MCP allowlist (topic isolation keeps it empty), read-only, bounded calls/time."""
-    from backend.tools import agent_loop
-    from backend.tools.runtime import Grant
-    started = time.monotonic()
-    grant = Grant(principal=f"session:{sid}", tools=mcp_policy.allowed(v["mcp_tools"]), permissions=["read", "network"],
-                  allow_mutation=False, max_calls=12, max_wall_s=max(1.0, limit))
+    """tool_mode=agent (default since v6.6.2): the model discovers, selects, chains and recovers from registry tools.
+    Authority is the owner's agent profile (tools.agent_profile); a session's explicit tool list narrows it, an explicit
+    ["-"] removes all tools and a Topic hides only the project-scope tools. No step, call or time budget: the user's Stop
+    ends the work."""
+    from backend.tools import agent_loop, profiles
+    grant = profiles.agent_grant(f"session:{sid}", session_tools=_agent_tools(t, v))
     errors = []
     from backend.core.config import load_config
     tools_cfg = load_config().get("tools") or {}
@@ -636,16 +637,32 @@ def _app_agent(sid, tid, t, v, system, msgs, limit):
         pool = ProviderPool(tools_cfg["provider_pool"], default_call(load_config()),
                             cooldown_s=float(tools_cfg.get("pool_cooldown_s") or 3600))
 
+    live = {"buf": "", "shown": False, "tool": False, "err": ""}
+
+    def stream(chunk):
+        """Show a reply as it arrives unless it is a tool-protocol block (those become tool events instead)."""
+        live["buf"] += chunk
+        if live["tool"]:
+            return
+        if "```phdlab-tool" in live["buf"] or (not live["shown"] and live["buf"].lstrip().startswith("```")):
+            live["tool"] = True
+            return
+        if not live["shown"]:
+            if len(live["buf"].strip()) < 24:
+                return  # too early to tell whether a tool block follows
+            live["shown"], chunk = True, live["buf"]
+        store.emit(sid, "message.delta", tid, v["provider"], text=chunk)
+
     def complete(system_text, messages):
-        remaining = limit - (time.monotonic() - started)
-        if remaining <= 0:
-            raise TimeoutError(f"stopped after {limit:g} s (aiws.max_turn_s)")
+        live.update(buf="", shown=False, tool=False, err="")
         if pool:
             return pool.complete(system + "\n\n" + system_text, msgs[:-1] + messages)
-        text, err = _model_text(tid, v, t, system + "\n\n" + system_text, msgs[:-1] + messages, remaining, None)
+        # aiws.max_turn_s still bounds one model reply as a transport timeout; the loop itself is unbounded.
+        text, err = _model_text(tid, v, t, system + "\n\n" + system_text, msgs[:-1] + messages, limit, stream)
         if err and not text:
             errors.append(err)
             raise RuntimeError(err)
+        live["err"] = err  # a reply cut short is kept but reported as partial
         return text
 
     def on_event(kind, data):
@@ -659,9 +676,14 @@ def _app_agent(sid, tid, t, v, system, msgs, limit):
     text = out["answer"]
     if out["unsupported_claims"]:
         text += "\n\n> Unverified: " + "; ".join(out["unsupported_claims"])
-    if text:
-        store.emit(sid, "message.delta", tid, v["provider"], text=text)
-    err = "" if out["status"] in ("completed", "cancelled") else (errors[-1] if errors else f"tool loop ended: {out['status']}")
+    if text and not (live["shown"] and not live["tool"]):
+        store.emit(sid, "message.delta", tid, v["provider"], text=text)  # the final answer was not streamed live
+    if out["status"] == "completed":
+        err = live["err"]  # non-empty when the final reply was cut short: the message is stored as partial
+    elif out["status"] == "cancelled":
+        err = ""
+    else:
+        err = errors[-1] if errors else f"tool loop ended: {out['status']}"
     return text.strip(), err, _cancelled(tid)
 
 
@@ -729,9 +751,38 @@ async def _engine_stream(llm, cfg, eng, system, msgs, model):
             emitted = len(vis)
 
 
+def _agent_tools(t, v) -> list:
+    """Registry scope of the agent for this turn. Topic isolation hides the project-scope MCP tools (memory, files,
+    sandbox) but not the owner's agent profile; an explicit ["-"] from the session or module still removes every tool."""
+    if ((t.get("effective") or {}).get("mcp_tools") or {}).get("source") != "topic isolation":
+        return v["mcp_tools"]
+    from backend.tools.registry import REGISTRY
+    project = {x["name"] for x in mcp_policy.catalog()}
+    return [i for i in REGISTRY.ids() if i not in project] or ["-"]
+
+
+def _cli_grant(sid, t, v, provider: str) -> tuple[list, list | None, str]:
+    """(MCP tools, registry scope, security profile) of a CLI or runtime agent turn. In agent mode the CLI reaches the
+    registry through the phdlab_tools_* meta-tools under the agent profile, and writes its own session workspace when
+    the profile grants workspace_write and the provider enforces that isolation (as Hermes does); legacy mode keeps
+    the read-only MCP allowlist."""
+    allow = mcp_policy.allowed(v["mcp_tools"])
+    if v.get("tool_mode") != "agent":
+        return allow, None, v["security_profile"]
+    from backend.providers import cli_space as W
+    from backend.tools import mcp_bridge, profiles
+    grant = profiles.agent_grant(f"session:{sid}", session_tools=_agent_tools(t, v))
+    if not grant.tools:
+        return allow, None, v["security_profile"]
+    iso = W.isolation(provider, "assisted")
+    profile = "assisted" if grant.allow_mutation and iso["supported"] and iso["enforced"] else v["security_profile"]
+    return sorted(set(allow) | mcp_bridge.NAMES), list(grant.tools), profile
+
+
 def _cli(sid, tid, s, t, v):
     from backend.providers import gateway as GS
     name = v["provider"].split(':', 1)[1]
+    allow, registry, profile = _cli_grant(sid, t, v, name)
     hist, history_manifest = _history_packet(s, tid)
     _set(sid, tid, history_manifest=history_manifest)
     hist_text = ""
@@ -740,14 +791,13 @@ def _cli(sid, tid, s, t, v):
         hist_text = "\n\n# RECENT CONVERSATION IN THIS SESSION\n" + "\n\n".join(hist_lines)
     ctx_text = instructions(s["binding"]["module"], t.get("skill", "")) + "\n" + (t.get("context_text") or "") + hist_text
     try:
-        r = GS.prepare(t["question"], name, session_id=s["gateway_session"], profile=v["security_profile"],
+        r = GS.prepare(t["question"], name, session_id=s["gateway_session"], profile=profile,
                        allow_weaker=bool(v.get("consent_weaker")), module_context=ctx_text,
                        memory=False)  # upstream context.compile already selected/versioned the memory for this turn
     except GS.GatewayError as e:
         return "", None, str(e), False
     store.update(sid, lambda x: x.update(gateway_session=r["session_id"]))
-    allow = mcp_policy.allowed(v["mcp_tools"])
-    mcp = {"token": mcp_policy.issue(sid, allow), "tools": allow}  # every CLI: scoped grant (providers/firewall.py)
+    mcp = {"token": mcp_policy.issue(sid, allow, registry=registry), "tools": allow}  # every CLI: scoped grant (providers/firewall.py)
     with _lock:
         _running.setdefault(tid, {"cancel": threading.Event(), "rid": ""})["rid"] = r["id"]
     _set(sid, tid, gateway_request=r["id"])

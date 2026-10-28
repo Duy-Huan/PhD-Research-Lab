@@ -1,0 +1,22 @@
+{
+ "mode": "LIVE_NETWORK",
+ "date": "2026-10-27",
+ "url": "https://openai.com/chatgpt-connectors.json",
+ "observed": {
+  "keys": [
+   "creationTime",
+   "prefixes"
+  ],
+  "creationTime": "2026-10-26T17:19:02.710717",
+  "prefixes": 287,
+  "entry_format": {
+   "ipv4Prefix": "100.31.168.162/32"
+  },
+  "refresh_ranges": {
+   "ok": true,
+   "count": 287
+  }
+ },
+ "scope": "Range download/parse only. No ChatGPT connection, tunnel or OAuth with chatgpt.com was exercised.",
+ "note": "OpenAI documents these ranges as best effort; the gateway fails closed for /mcp when the list is unavailable."
+}

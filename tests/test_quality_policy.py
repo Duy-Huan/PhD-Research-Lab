@@ -90,7 +90,7 @@ class LayersAndFlow(unittest.TestCase):
         event = workflow.get('on', workflow.get(True))
         self.assertEqual(event['pull_request']['branches'], ['qa', 'main'])
         self.assertEqual(event['push']['branches'], ['dev'])
-        self.assertEqual(set(workflow['jobs']['development-gate']['needs']), {'policy', 'backend', 'frontend', 'security', 'browser'})
+        self.assertEqual(set(workflow['jobs']['development-gate']['needs']), {'policy', 'backend', 'frontend', 'security', 'browser', 'installers'})
         self.assertEqual(workflow['jobs']['qa-gate']['needs'], ['development-gate'])
         self.assertNotIn('uat-policy',workflow['jobs'])
         self.assertNotIn('live-qualification',workflow['jobs'])

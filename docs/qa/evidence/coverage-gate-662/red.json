@@ -1,0 +1,35 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_coverage_gate.CoverageGate.test_backend_verdict_fails_below_the_minimum_and_without_data",
+      "status": "ERROR",
+      "duration": 0.0004,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662\\tests\\test_coverage_gate.py\", line 16, in test_backend_verdict_fails_below_the_minimum_and_without_data\n    from tools.backend_quality_gate import coverage_verdict\nImportError: cannot import name 'coverage_verdict' from 'tools.backend_quality_gate' (D:\\r662\\tools\\backend_quality_gate.py)\n"
+    },
+    {
+      "id": "test_coverage_gate.CoverageGate.test_frontend_thresholds_exist_and_never_drop_below_the_6_6_2_baseline",
+      "status": "FAIL",
+      "duration": 0.001,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662\\tests\\test_coverage_gate.py\", line 37, in test_frontend_thresholds_exist_and_never_drop_below_the_6_6_2_baseline\n    self.assertIsNotNone(match, \"frontend coverage thresholds are configured\")\nAssertionError: unexpectedly None : frontend coverage thresholds are configured\n"
+    },
+    {
+      "id": "test_coverage_gate.CoverageGate.test_runner_always_enforces_the_backend_minimum",
+      "status": "FAIL",
+      "duration": 0.0001,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662\\tests\\test_coverage_gate.py\", line 24, in test_runner_always_enforces_the_backend_minimum\n    self.assertGreaterEqual(getattr(runner, \"BACKEND_COVERAGE_MIN\", 0), 90.0)\nAssertionError: 0 not greater than or equal to 90.0\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 3,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-htw3qfjo",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

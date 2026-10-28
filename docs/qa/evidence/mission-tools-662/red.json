@@ -1,0 +1,41 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_mission_tools.MissionTools.test_call_creates_a_governed_mission_awaiting_researcher_approval",
+      "status": "ERROR",
+      "duration": 0.0005,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_mission_tools.py\", line 21, in setUp\n    raise MISSING\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_mission_tools.py\", line 12, in <module>\n    from backend.tools import mission_tools\nImportError: cannot import name 'mission_tools' from 'backend.tools' (D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\backend\\tools\\__init__.py)\n"
+    },
+    {
+      "id": "test_mission_tools.MissionTools.test_every_capability_is_a_discoverable_registry_tool",
+      "status": "ERROR",
+      "duration": 0.0007,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_mission_tools.py\", line 21, in setUp\n    raise MISSING\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 58, in testPartExecutor\n    yield\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 630, in run\n    self._callSetUp()\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 586, in _callSetUp\n    self.setUp()\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_mission_tools.py\", line 21, in setUp\n    raise MISSING\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_mission_tools.py\", line 12, in <module>\n    from backend.tools import mission_tools\nImportError: cannot import name 'mission_tools' from 'backend.tools' (D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\backend\\tools\\__init__.py)\n"
+    },
+    {
+      "id": "test_mission_tools.MissionTools.test_invalid_capability_arguments_are_structured_errors",
+      "status": "ERROR",
+      "duration": 0.0004,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_mission_tools.py\", line 21, in setUp\n    raise MISSING\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 58, in testPartExecutor\n    yield\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 630, in run\n    self._callSetUp()\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 586, in _callSetUp\n    self.setUp()\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_mission_tools.py\", line 21, in setUp\n    raise MISSING\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 58, in testPartExecutor\n    yield\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 630, in run\n    self._callSetUp()\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 586, in _callSetUp\n    self.setUp()\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_mission_tools.py\", line 21, in setUp\n    raise MISSING\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_mission_tools.py\", line 12, in <module>\n    from backend.tools import mission_tools\nImportError: cannot import name 'mission_tools' from 'backend.tools' (D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\backend\\tools\\__init__.py)\n"
+    },
+    {
+      "id": "test_mission_tools.MissionTools.test_read_only_grant_cannot_create_missions",
+      "status": "ERROR",
+      "duration": 0.0004,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_mission_tools.py\", line 21, in setUp\n    raise MISSING\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 58, in testPartExecutor\n    yield\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 630, in run\n    self._callSetUp()\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 586, in _callSetUp\n    self.setUp()\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_mission_tools.py\", line 21, in setUp\n    raise MISSING\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 58, in testPartExecutor\n    yield\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 630, in run\n    self._callSetUp()\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 586, in _callSetUp\n    self.setUp()\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_mission_tools.py\", line 21, in setUp\n    raise MISSING\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 58, in testPartExecutor\n    yield\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 630, in run\n    self._callSetUp()\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\case.py\", line 586, in _callSetUp\n    self.setUp()\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_mission_tools.py\", line 21, in setUp\n    raise MISSING\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_mission_tools.py\", line 12, in <module>\n    from backend.tools import mission_tools\nImportError: cannot import name 'mission_tools' from 'backend.tools' (D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\backend\\tools\\__init__.py)\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 4,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-zc8xvtsr",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

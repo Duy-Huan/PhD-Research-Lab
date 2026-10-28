@@ -21,6 +21,7 @@ import {
   buildUniversityLabRoster,
 } from '../../shared/events/eventAdapter';
 import { AgentStatusList } from './AgentStatusList';
+import { rosterToOffice, useAgentRoster } from '../../shared/events/useAgentRoster';
 import { OfficeCanvas } from './office3d/OfficeCanvas';
 import { AgentProfileModal } from './AgentProfileModal';
 import { ChatCenter } from '../chat/ChatCenter';
@@ -127,15 +128,20 @@ export const AgentStatusView: React.FC = () => {
     opencodeSessions
   );
 
-  // Build full University Lab roster with user custom personal profiles applied
-  const baseAgents = buildUniversityLabRoster(
-    liveAgents,
-    project?.data_dir || '',
-    activeTopicId || undefined,
-    config?.agent_modes,
-    language,
-    config?.agents
-  );
+  // v6.6.2: the backend roster (roles, every Harness-created agent, Hermes, MCP clients with real states) replaces the
+  // locally configured stations; mission/OpenCode agents observed here are appended. Without the roster (older
+  // backend or offline) the previous configured-station view is kept.
+  const roster = useAgentRoster();
+  const baseAgents = roster
+    ? [...rosterToOffice(roster, project?.data_dir || '', activeTopicId || undefined), ...liveAgents]
+    : buildUniversityLabRoster(
+        liveAgents,
+        project?.data_dir || '',
+        activeTopicId || undefined,
+        config?.agent_modes,
+        language,
+        config?.agents
+      );
   const agents = useMemo(() => applyAgentProfiles(baseAgents, agentProfiles), [baseAgents, agentProfiles]);
 
   const activeSelectedAgent = useMemo(() => {

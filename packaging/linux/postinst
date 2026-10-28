@@ -1,0 +1,12 @@
+#!/bin/sh
+# Create the private runtime from the bundled, hash-pinned wheels (no network).
+set -e
+if [ "$1" = "configure" ]; then
+    rm -rf /opt/phdlab/venv
+    python3 -m venv /opt/phdlab/venv
+    /opt/phdlab/venv/bin/python -m pip install --quiet --no-index --find-links /opt/phdlab/wheels \
+        --require-hashes -r /opt/phdlab/requirements-runtime.lock
+    command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database -q /usr/share/applications || true
+    command -v gtk-update-icon-cache >/dev/null 2>&1 && gtk-update-icon-cache -q -t /usr/share/icons/hicolor || true
+fi
+exit 0

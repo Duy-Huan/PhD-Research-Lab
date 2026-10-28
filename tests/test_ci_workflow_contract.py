@@ -39,7 +39,7 @@ class WorkflowContract(unittest.TestCase):
         self.assertEqual(REQUIRED['qa'],['development-gate'])
         workflow=self.load('quality.yml')
         self.assertEqual(workflow['jobs']['qa-gate']['needs'],['development-gate'])
-        self.assertEqual(set(workflow['jobs']['development-gate']['needs']),{'policy','backend','frontend','security','browser'})
+        self.assertEqual(set(workflow['jobs']['development-gate']['needs']),{'policy','backend','frontend','security','browser','installers'})
         optional={'Matching-source live research qualification','Risk-triggered verified AI-UAT evidence'}
         import json
         required=json.loads((ROOT/'.github/required-ci-jobs.json').read_text('utf-8'))['qa']

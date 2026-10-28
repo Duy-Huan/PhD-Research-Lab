@@ -25,7 +25,7 @@ from backend.tools.spec import ToolError, ToolSpec, parse_version, satisfies
 
 _lock = threading.Lock()
 _probe_cache: dict = {}
-APP_ONLY_EXECUTION = ("home", "python", "callable", "mcp_tool", "stdio", "auth", "guard")  # only application code sets these
+APP_ONLY_EXECUTION = ("home", "python", "callable", "probe", "pass_spec", "mcp_tool", "stdio", "auth", "guard")  # only application code sets these
 PROBE_TTL = 10.0
 WORD = re.compile(r"[a-z0-9]+")
 
@@ -64,6 +64,8 @@ def builtin_specs() -> list[ToolSpec]:
                             capabilities=["sandbox", "compute", "experiment", "code"], input_schema=t["inputSchema"],
                             mutates=mutates, idempotent=not mutates, permissions=_builtin_permissions(t["name"], ""),
                             budget={"timeout_s": 3700}, source="builtin", execution={"mcp_tool": t["name"]}))
+    from backend.tools import delegate_tools, mission_tools  # v6.6.2: missions and CLI delegates are registry tools
+    out += mission_tools.specs() + delegate_tools.specs()
     return out
 
 
@@ -201,6 +203,10 @@ class Registry:
         with _lock:
             _probe_cache[key] = (time.monotonic(), state)
         return state
+
+    def ids(self) -> list[str]:
+        """Every registered tool id, without probing availability."""
+        return sorted(self._all()[0])
 
     def listing(self, *, kind: str = "", capability: str = "", include_unavailable: bool = True) -> dict:
         by_id, active, problems = self._all()

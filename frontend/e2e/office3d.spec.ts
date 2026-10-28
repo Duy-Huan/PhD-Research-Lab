@@ -7,8 +7,8 @@ test('3D real WebGL renders, camera and lighting change pixels, dock returns to 
   await page.getByTitle('Full-Screen 3D University Research Lab', { exact: true }).click();
   const viewport = page.locator('#office3d-viewport');
   await expect(viewport.getByText('🖥️ Native code & GPU · Open workspace', { exact: true })).toBeAttached();
-  await expect(viewport.getByRole('img', { name: /^3D agent Research agent:/ })).toBeAttached();
-  await expect(page.getByRole('button', { name: /^Research agent .* research$/ })).toBeVisible();
+  await expect(viewport.getByRole('img', { name: /^3D agent Research:/ })).toBeAttached();
+  await expect(page.getByRole('button', { name: /^Research .* research$/ })).toBeVisible();
   await expect(viewport.getByText(/Click mở Runtime/)).toHaveCount(0);
   const canvas = viewport.locator('canvas');
   await expect(canvas).toBeVisible();

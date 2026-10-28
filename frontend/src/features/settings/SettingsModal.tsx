@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUIStore, useI18n } from '../../shared/state/uiStore';
 import { api } from '../../shared/api/client';
 import { GatewayConnections } from './GatewayConnections';
+import { AiToolsSettings } from './AiToolsSettings';
 import type { AppConfig, SkillItem, ModelsResponse } from '../../shared/api/types';
 import {
   Settings,
@@ -175,6 +176,8 @@ export function applyThemeById(id: string) {
 export const SettingsModal: React.FC = () => {
   const queryClient = useQueryClient();
   const { settingsTab, openSettings, setMainView, language, setLanguage, uiScale, setUiScale, openDrawer } = useUIStore();
+  const motionEnabled = useUIStore((st) => st.motionEnabled);
+  const setMotionEnabled = useUIStore((st) => st.setMotionEnabled);
   const { t } = useI18n();
 
   const tabs = [
@@ -183,6 +186,12 @@ export const SettingsModal: React.FC = () => {
       label: t('Mô hình & Tác nhân AI', 'Models & AI Agents'),
       icon: Cpu,
       desc: t('Khóa API đám mây, 4 Tác nhân, VRAM cục bộ & Điều phối', 'Cloud API keys, 4 Agents, Local VRAM & Routing'),
+    },
+    {
+      id: 'ai-tools',
+      label: t('aiTools.tab'),
+      icon: Bot,
+      desc: t('aiTools.tabDesc'),
     },
     {
       id: 'engines',
@@ -1216,6 +1225,8 @@ export const SettingsModal: React.FC = () => {
           {/* ================================================================
               TAB 2: NATIVE RESEARCH TOOLS
              ================================================================ */}
+          {activeTab === 'ai-tools' && <AiToolsSettings />}
+
           {activeTab === 'engines' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {/* 2A. Engine Mode & Priority */}
@@ -2242,6 +2253,12 @@ export const SettingsModal: React.FC = () => {
              ================================================================ */}
           {activeTab === 'look' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              <label className="panelbox" style={{ marginTop: 0, padding: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+                <input type="checkbox" data-testid="motion-toggle" checked={motionEnabled}
+                  onChange={(e) => setMotionEnabled(e.target.checked)} />
+                <span>{t('motion.toggle')}</span>
+                <span className="muted" style={{ fontSize: 12 }}>{t('motion.hint')}</span>
+              </label>
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
                 <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>
                   {t('Chủ đề Giao diện', 'Color Themes & Appearance')}

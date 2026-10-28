@@ -1,0 +1,35 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_projects_root.ProjectsRoot.test_explicit_folder_wins_and_unset_root_keeps_the_app_folder",
+      "status": "PASS",
+      "duration": 0.0449,
+      "details": null
+    },
+    {
+      "id": "test_projects_root.ProjectsRoot.test_new_projects_go_to_the_chosen_default_folder",
+      "status": "FAIL",
+      "duration": 0.0098,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_projects_root.py\", line 24, in test_new_projects_go_to_the_chosen_default_folder\n    self.assertEqual(Path(info[\"data_dir\"]).resolve().parent, root.resolve())\nAssertionError: Windo[17 chars]win/AppData/Local/Temp/phdlab-verify-a8lqskmj/projects') != Windo[17 chars]win/AppData/Local/Temp/phdlab-projects-root-20l_91zh/Research')\n"
+    },
+    {
+      "id": "test_projects_root.ProjectsRoot.test_relative_root_is_refused",
+      "status": "FAIL",
+      "duration": 0.0035,
+      "details": "Traceback (most recent call last):\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\tests\\test_projects_root.py\", line 37, in test_relative_root_is_refused\n    with self.assertRaises(ValueError):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: ValueError not raised\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 3,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-a8lqskmj",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

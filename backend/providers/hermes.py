@@ -60,6 +60,79 @@ def _owner(profile) -> str:
     return hashlib.sha256(str(folder(profile).resolve()).encode()).hexdigest()[:24]
 
 
+# ------------------------------------------------------------------ v6.6.2 native environment
+SHARED_SKILLS_IN_RUNTIME = '/opt/shared-skills'
+SKILL_NAME = re.compile(r'^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$')
+REGISTRY_TOOLS = ('phdlab_tools_search', 'phdlab_tools_describe', 'phdlab_tools_call')
+LIVENESS_S = 120  # the runtime must answer at least once in this window; the job itself has no deadline
+
+
+def runtime_profile() -> str:
+    """The owner's profile for Hermes (tools.client_profiles.hermes): workspace_write -> writable workspace."""
+    from backend.tools import profiles
+    return 'assisted' if 'workspace_write' in profiles.client_grant('hermes', 'hermes').permissions else 'review'
+
+
+def shared_root() -> Path:
+    """App-wide Hermes data shared by every project: the Nous sign-in and the reviewed skill library."""
+    from backend.core.config import GLOBAL_DIR
+    root = GLOBAL_DIR / 'hermes-shared'
+    for name in ('auth', 'skills'):
+        (root / name).mkdir(parents=True, exist_ok=True)
+    if ',' in str(root.resolve()): raise ProviderError('Unsafe Hermes shared data mount')
+    return root
+
+
+def link_shared_skills(home: Path) -> dict:
+    """Create the project Hermes config with skills.external_dirs (Hermes' read-only skill sources). An existing
+    config is never rewritten; the result says whether the shared library is linked."""
+    path = home / 'config.yaml'
+    if path.exists():
+        return {'linked': SHARED_SKILLS_IN_RUNTIME in path.read_text('utf-8', 'replace'), 'config': str(path)}
+    home.mkdir(parents=True, exist_ok=True)
+    path.write_text('skills:\n  external_dirs:\n    - ' + SHARED_SKILLS_IN_RUNTIME + '\n', 'utf-8')
+    return {'linked': True, 'config': str(path)}
+
+
+def share_skill(name: str, approved_by: str) -> dict:
+    """Copy one skill the open project's Hermes learned into the shared library after the owner reviewed it."""
+    from backend.providers.cli_space import safe_path
+    if not (approved_by or '').strip(): raise ProviderError('Sharing a skill needs the reviewing owner')
+    if not SKILL_NAME.fullmatch(name or '') or name in ('.', '..'): raise ProviderError('Invalid skill name')
+    source = safe_path(folder(runtime_profile()), 'home', 'skills', name)
+    if not source.is_dir() or not (source / 'SKILL.md').is_file(): raise ProviderError('Skill not found in this project')
+    target = shared_root() / 'skills' / name
+    staging = target.with_name(name + '.partial-' + secrets.token_hex(4))
+    shutil.copytree(source, staging, symlinks=False)
+    if target.exists(): shutil.rmtree(target)
+    staging.rename(target)
+    record = {'skill': name, 'approved_by': approved_by.strip()[:100], 'shared': time.time(),
+              'source_project': str(folder(runtime_profile()).parent.parent.parent)}
+    (target / '.phdlab-share.json').write_text(json.dumps(record), 'utf-8')
+    return record
+
+
+def skills() -> dict:
+    """Skill names in the open project's Hermes home and in the shared library (names only, no contents)."""
+    def names(root: Path) -> list[str]:
+        return sorted(p.name for p in root.iterdir() if p.is_dir() and (p / 'SKILL.md').is_file()) if root.is_dir() else []
+    project = names(folder(runtime_profile()) / 'home' / 'skills')
+    shared = names(shared_root() / 'skills')
+    return {'project': project, 'shared': shared, 'shareable': [n for n in project if n not in shared]}
+
+
+def _pause_other_projects(owner: str) -> list[str]:
+    """Only the open project's Hermes runs; others are stopped (never removed), keeping their memory and data."""
+    paused = []
+    listing = docker('ps', '--filter', 'label=phdlab.hermes.owner', '--format', '{{.ID}} {{.Label "phdlab.hermes.owner"}}')
+    for line in listing.splitlines():
+        cid, _, other = line.strip().partition(' ')
+        if cid and other and other != owner:
+            docker('stop', '--time', '10', cid, timeout=25)
+            paused.append(cid)
+    return paused
+
+
 def _read(profile) -> dict:
     path = folder(profile) / 'runtime.json'
     return json.loads(path.read_text('utf-8')) if path.is_file() else {}
@@ -137,8 +210,9 @@ def status(profile='review') -> dict:
     except (ProviderError, OSError, ValueError, KeyError, subprocess.SubprocessError): return result
 
 
-def start(profile='review') -> dict:
+def start(profile=None) -> dict:
     from backend.providers.cli_space import safe_path
+    profile = profile or runtime_profile()
     with _lock:
         current = status(profile)
         if current['ready']: return current
@@ -163,6 +237,8 @@ def start(profile='review') -> dict:
                     docker('rm', '-f', container)
         home = safe_path(root, 'home'); home.mkdir(exist_ok=True)
         workspace = safe_path(root, 'workspace'); workspace.mkdir(exist_ok=True)
+        shared = shared_root(); link_shared_skills(home)
+        _pause_other_projects(owner)
         volume = 'phdlab-hermes-ipc-' + owner
         docker('volume', 'create', '--label', 'phdlab.hermes.owner=' + owner, volume)
         token = secrets.token_hex(32)
@@ -172,7 +248,7 @@ def start(profile='review') -> dict:
                   '--label', 'phdlab.hermes.owner=' + owner]
         proxy = docker('run', *common, '--memory=256m', '--user=0:0', '--tmpfs=/opt/data:rw,nosuid,noexec,size=16m',
                        '--label', 'phdlab.hermes.role=proxy',
-                       '--env-file', str(env_file), '--env', 'PHDLAB_ALLOWED_DOMAINS=portal.nousresearch.com,inference-api.nousresearch.com',
+                       '--env-file', str(env_file),
                        '--publish', '127.0.0.1::8080', '--mount', f'type=volume,source={volume},target=/ipc',
                        '--entrypoint', 'node', image['Id'], '/opt/phdlab-runtime/proxy.mjs')
         plan = {'owner': owner, 'proxy': proxy, 'image': image['Id'], 'rpc_token': token,
@@ -182,6 +258,11 @@ def start(profile='review') -> dict:
             runtime = docker('run', *common, '--memory=2g', '--network=bridge', '--label', 'phdlab.hermes.role=runtime',
                          '--tmpfs=/tmp:rw,nosuid,noexec,size=256m', '--mount', f'type=volume,source={volume},target=/ipc',
                          '--mount', f'type=bind,source={home.resolve()},target=/opt/data',
+                         # v6.6.2: one Nous sign-in for all projects (Hermes' own shared auth store) and the
+                         # owner-reviewed skill library, read-only (skills.external_dirs in the project config).
+                         '--mount', f"type=bind,source={(shared / 'auth').resolve()},target=/opt/shared-auth",
+                         '--env', 'HERMES_SHARED_AUTH_DIR=/opt/shared-auth',
+                         '--mount', f"type=bind,source={(shared / 'skills').resolve()},target={SHARED_SKILLS_IN_RUNTIME},readonly",
                          '--mount', f'type=bind,source={workspace.resolve()},target=/workspace' + (',readonly' if profile == 'review' else ''),
                          image['Id'])
             plan['runtime'] = runtime; _write(profile, plan)
@@ -217,7 +298,7 @@ def refresh_models(profile='review') -> dict:
 
 def describe(cfg: dict | None = None) -> dict:
     from backend.core.config import load_config
-    cfg = cfg or load_config(); profile = cfg.get('gateway', {}).get('cli_profile', 'review')
+    cfg = cfg or load_config(); profile = runtime_profile()
     health = status(profile); plan = _read(profile); catalog = plan.get('catalog') or {}
     models = [row['id'] for row in catalog.get('models', []) if row.get('free') is True]
     return {'id': 'runtime:hermes', 'provider_id': 'runtime:hermes', 'label': 'Hermes Agent (Nous free models)',
@@ -244,13 +325,13 @@ class HermesConnector(ProviderConnector):
 
     def health(self, fresh=False):
         from backend.core.config import load_config
-        cfg = load_config(); value = status(cfg['gateway'].get('cli_profile', 'review'))
+        value = status(runtime_profile())
         return {'provider': 'hermes', 'state': 'UNKNOWN' if value['ready'] else 'UNAVAILABLE',
                 'detail': value['detail'], 'billing': 'Nous free-only, independently verified before each job'}
 
     def connect(self, launch=False):
         from backend.core.config import load_config
-        profile = load_config()['gateway'].get('cli_profile', 'review'); start(profile)
+        profile = runtime_profile(); start(profile)
         plan = _read(profile)
         args = ['exec', '-it', plan['runtime'], '/opt/hermes/.venv/bin/hermes', 'auth', 'add', 'nous', '--type', 'oauth']
         result = {'action': 'official_nous_sign_in', 'command': ['docker', *args],
@@ -263,7 +344,7 @@ class HermesConnector(ProviderConnector):
     def stream_message(self, message, context):
         from backend.core.config import load_config
         from backend.providers.events import ev
-        cfg = load_config().get('hermes') or {}; profile = context.get('profile', 'review')
+        cfg = load_config().get('hermes') or {}; profile = runtime_profile()  # owner's profile, not the CLI one
         if not cfg.get('enabled'): raise ProviderError('Hermes runtime is disabled', 'DISCONNECTED')
         context.setdefault('request_id', 'req-' + secrets.token_hex(6))
         jid = context.get('runtime_job_id') or secrets.token_hex(16)
@@ -271,14 +352,15 @@ class HermesConnector(ProviderConnector):
         session = resume if re.fullmatch(r'[a-f0-9]{32}', resume) else hashlib.sha256(str(context.get('cwd') or jid).encode()).hexdigest()[:32]
         model = str(context.get('model') or cfg.get('model') or '').strip()
         if not model: raise ProviderError('Select a currently free Nous model first')
-        job = {'id': jid, 'session': session, 'model': model, 'prompt': message,
-               'deadline_s': int(cfg.get('deadline_s', 600)), 'max_iterations': int(cfg.get('max_iterations', 16)),
-               'max_tokens': int(cfg.get('max_tokens', 4096))}
+        job = {'id': jid, 'session': session, 'model': model, 'prompt': message}
+        # v6.6.2: no work budget by default; a positive value is an explicit owner limit.
+        job.update({k: int(cfg[k]) for k in ('deadline_s', 'max_iterations', 'max_tokens') if int(cfg.get(k) or 0) > 0})
         if context.get('mcp_url') and context.get('mcp_token'):
             url = urlsplit(context['mcp_url'])
             if url.scheme != 'http' or url.hostname not in ('localhost', '127.0.0.1', '::1') or url.path != '/mcp' or url.query or url.fragment:
                 raise ProviderError('Hermes tools must use the scoped local PhD Lab MCP endpoint')
-            job['mcp'] = {'port': url.port or 80, 'token': context['mcp_token'], 'tools': context.get('mcp_tools') or []}
+            tools = sorted(set(context.get('mcp_tools') or []) | set(REGISTRY_TOOLS))  # Hermes always sees the registry
+            job['mcp'] = {'port': url.port or 80, 'token': context['mcp_token'], 'tools': tools}
         # Persist correlation before POST, so a backend restart can inspect the same id without replay.
         correlation = folder(profile) / 'requests' / (jid + '.json'); correlation.parent.mkdir(exist_ok=True)
         correlation.write_text(json.dumps({'job': jid, 'session': session, 'profile': profile, 'model': model,
@@ -289,13 +371,19 @@ class HermesConnector(ProviderConnector):
         value = rpc('/v1/jobs', job, profile=profile)
         yield ev('status', state='session', session_id=session, runtime_job_id=jid, model=model)
         yield ev('request_started', provider='hermes', runtime_job_id=jid)
-        deadline = time.monotonic() + job['deadline_s'] + 30
+        # No observation deadline: Hermes works as long as it needs. Only a runtime that stops answering for
+        # LIVENESS_S is an error (the durable job is kept for inspection; nothing is replayed).
+        last_seen = time.monotonic()
         while value.get('status') == 'running':
             if context.get('_cancel') and context['_cancel'].is_set():
                 rpc('/v1/jobs/' + jid + '/cancel', {}, profile=profile)
                 yield ev('request_cancelled', runtime_job_id=jid); return
-            if time.monotonic() > deadline: raise ProviderError('Hermes observation deadline exceeded; inspect durable job before resuming')
-            time.sleep(.25); value = rpc('/v1/jobs/' + jid, profile=profile)
+            time.sleep(.25)
+            try:
+                value = rpc('/v1/jobs/' + jid, profile=profile); last_seen = time.monotonic()
+            except ProviderError:
+                if time.monotonic() - last_seen > LIVENESS_S:
+                    raise ProviderError('Hermes runtime is not responding; the durable job is retained for inspection')
         if value.get('status') != 'completed':
             raise ProviderError(value.get('error') or 'Hermes job did not complete; no automatic replay occurred')
         yield ev('text_delta', text=value['answer'], final=True)
@@ -305,7 +393,7 @@ class HermesConnector(ProviderConnector):
     def cancel(self, request_id: str) -> dict:
         from backend.core.config import load_config
         key = hashlib.sha256(request_id.encode()).hexdigest()
-        configured = load_config()['gateway'].get('cli_profile', 'review')
+        configured = runtime_profile()
         for profile in (configured, 'assisted' if configured == 'review' else 'review'):
             path = folder(profile) / 'requests' / ('request-' + key + '.json')
             if path.is_file():
