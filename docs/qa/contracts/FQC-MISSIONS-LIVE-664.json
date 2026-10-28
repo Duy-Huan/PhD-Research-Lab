@@ -1,0 +1,110 @@
+{
+  "id": "FQC-MISSIONS-LIVE-664",
+  "title": "Mission changes reach open views live; the Topic survives a reload; the narrow Missions header stays readable",
+  "risk": "MEDIUM",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want a mission an agent creates to appear without a reload, the selected Topic to survive a reload, and the Missions header to stay readable in a narrow drawer (live run 2026-10-28; agent/PLAN_6.6.4_L3.md A8).",
+  "requirements": [
+    {
+      "id": "PUBLISH",
+      "description": "Creation, approval, cancellation, retry and step review publish research.mission {mission_id, topic_id, status} after the write; a refused change publishes nothing; the UI bus also refreshes the Workflows L1–L4 panel."
+    }
+  ],
+  "nonfunctional": [
+    "Bus events carry ids and status only"
+  ],
+  "inputs": [
+    "mission state changes"
+  ],
+  "outputs": [
+    "research.mission events"
+  ],
+  "preconditions": [
+    "None"
+  ],
+  "postconditions": [
+    "tests/test_missions_live_664.py 5/5; RED on 981b7fc"
+  ],
+  "dependencies": [
+    "backend/core/bus.py"
+  ],
+  "affected_modules": [
+    "backend/agent/missions.py",
+    "backend/agent/autonomy.py",
+    "frontend/src/shared/events/useAppBus.ts",
+    "frontend/src/shared/state/uiStore.ts",
+    "frontend/src/shell/AppShell.tsx",
+    "frontend/src/features/missions/MissionLiveWorkspace.tsx"
+  ],
+  "acceptance_criteria": [
+    "tests/test_missions_live_664.py 5/5; RED on 981b7fc",
+    "UI (Topic remembered per project folder and restored only if it still exists; Missions header wraps its mode switch below the title): missions_live.spec.ts 4/4 (live mission, Topic reload, narrow drawers at 1024/1280 px); topicMemory.test.ts and useAppBus.test.tsx pass"
+  ],
+  "scenarios": [
+    {
+      "id": "published",
+      "requirement": "PUBLISH",
+      "kind": "positive",
+      "expected": "draft, queued and cancelled are published with mission and topic id",
+      "test": "tests/test_missions_live_664.py::MissionEvents.test_creation_approval_and_cancellation_are_published"
+    },
+    {
+      "id": "refused",
+      "requirement": "PUBLISH",
+      "kind": "negative",
+      "expected": "A refused approval publishes nothing",
+      "test": "tests/test_missions_live_664.py::MissionEvents.test_a_failed_change_publishes_nothing"
+    },
+    {
+      "id": "review",
+      "requirement": "PUBLISH",
+      "kind": "boundary",
+      "expected": "A step review is published",
+      "test": "tests/test_missions_live_664.py::MissionEvents.test_a_step_review_is_published"
+    },
+    {
+      "id": "failure",
+      "requirement": "PUBLISH",
+      "kind": "failure",
+      "expected": "No event for a change that did not happen",
+      "test": "tests/test_missions_live_664.py::MissionEvents.test_a_failed_change_publishes_nothing"
+    },
+    {
+      "id": "metadata",
+      "requirement": "PUBLISH",
+      "kind": "security",
+      "expected": "Events carry ids and status only",
+      "test": "tests/test_missions_live_664.py::MissionEvents.test_events_carry_ids_and_status_only"
+    },
+    {
+      "id": "cheap",
+      "requirement": "PUBLISH",
+      "kind": "performance",
+      "expected": "50 creations in under 5 s",
+      "test": "tests/test_missions_live_664.py::MissionEvents.test_publishing_is_cheap"
+    }
+  ],
+  "recovery": "Fix at missions._announce / the UI store; never publish mission content on the bus. TASK-MISSIONS-LIVE-664, max three cycles.",
+  "test_environment": "Disposable PHDLAB_DATA_DIR (tests/_env.py) for the backend; disposable QA server and Playwright for the UI; evidence in docs/qa/evidence/missions-live-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 5 tests on 981b7fc, 3 failing (no event on create/approve/cancel/review) and the content test erroring; the refusal and timing checks pass on both. GREEN: 5/5.",
+    "red": {
+      "path": "docs/qa/evidence/missions-live-664/red.json",
+      "sha256": "0130d0067d1c4929bfdf975abc800f5d7e839a738ad5b95b1fffee5b8426c9fa",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/missions-live-664/green.json",
+      "sha256": "16de260615a2929ab4b4f18233b386c2feae3dcc4e5e553d66051f4984bb08e0",
+      "exit_code": 0
+    }
+  }
+}

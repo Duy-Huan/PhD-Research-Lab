@@ -73,7 +73,7 @@ def step_review(tid, mid, task_id, plan_digest, result_digest, accept, note):
         state = "queued" if accept else "cancelled"
         c.execute("UPDATE missions SET status=?,updated=? WHERE id=?", (state, S.now(), mid))
         L.append(c, tid, mid, "workflow.step_reviewed", {"task_id": task_id, **task["payload"]["human_review"]})
-    return M.get(mid, tid)
+    return M._announce(M.get(mid, tid))
 
 
 def completion_state(c, m):

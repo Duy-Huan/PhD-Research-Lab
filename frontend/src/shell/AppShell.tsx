@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import { MotionConfig } from 'motion/react';
-import { useUIStore, useI18n } from '../shared/state/uiStore';
+import { useUIStore, useI18n, rememberTopic, rememberedTopic } from '../shared/state/uiStore';
 import { useAppBus } from '../shared/events/useAppBus';
 import { api } from '../shared/api/client';
-import type { AppConfig, Project } from '../shared/api/types';
+import type { AppConfig, Project, Topic } from '../shared/api/types';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { ChatCenter } from '../features/chat/ChatCenter';
@@ -67,6 +67,16 @@ export const AppShell: React.FC = () => {
   useEffect(() => {
     if (config?.project) {
       setProject(config.project);
+      const stored = rememberedTopic(config.project.data_dir);
+      if (stored && !useUIStore.getState().activeTopicId) {
+        // Restore only a Topic that still exists in this project; a stale id is forgotten.
+        api.get<{ topics: Topic[] }>('/api/research/topics').then((res) => {
+          const topic = (res.topics || []).find((x) => x.id === stored);
+          if (useUIStore.getState().activeTopicId) return;
+          if (topic) useUIStore.getState().setActiveTopic(topic);
+          else rememberTopic(config.project?.data_dir, null);
+        }).catch(() => undefined);
+      }
     }
     if (config?.ui?.theme) {
       applyThemeById(config.ui.theme);

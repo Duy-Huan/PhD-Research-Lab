@@ -53,6 +53,10 @@ Progress 2026-10-28:
   0.02 s). A10 (FQC-LONG-PATHS-664): the system scan and startup warn about long Windows data paths. A11
   (FQC-LINE-ENDINGS-664): approvals are canonical-JSON digests over frozen bytes since A2; regression tests show a
   line-ending conversion of the working copy keeps the approved run, and a converted frozen or result file is refused.
+- A7 is done locally (FQC-DISCOVERY-PARTIAL-664): a rate-limited provider no longer fails a discovery step that found
+  papers; the step is partial and names the provider. A8 (FQC-MISSIONS-LIVE-664): mission changes are published on
+  the bus (agent-created missions appear live), the selected Topic survives a reload, the Missions header wraps in a
+  narrow drawer (missions_live.spec.ts in the offline CI run).
 
 | ID | Change | Criteria |
 |---|---|---|
