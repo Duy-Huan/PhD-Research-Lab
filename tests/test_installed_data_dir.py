@@ -115,26 +115,31 @@ class Staging(unittest.TestCase):
 
     def test_smoke_stops_every_process_started_from_the_installation(self):
         # On Windows os.execv starts a new server process and exits, so terminating the launcher can leave the
-        # server running and the uninstaller cannot remove the locked files (CI run 40569790504).
-        install = self.tmp / "install"
+        # server running and the uninstaller cannot remove the locked files (CI run 40569790504). A process may
+        # report its executable under a short 8.3 path (C:\Users\RUNNER~1\..., CI run 40605425104).
+        install = self.tmp / "install folder"
         (install / "bin").mkdir(parents=True)
         if sys.platform.startswith("win"):
+            import ctypes
             import shutil
             import subprocess
             exe = install / "bin" / "ping.exe"
             shutil.copy(Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32" / "PING.EXE", exe)
+            buffer = ctypes.create_unicode_buffer(1024)
+            short = buffer.value if ctypes.windll.kernel32.GetShortPathNameW(str(exe), buffer, 1024) else str(exe)
             outside = subprocess.Popen(["ping", "-n", "60", "127.0.0.1"], stdout=subprocess.DEVNULL)
-            inside = subprocess.Popen([str(exe), "-n", "60", "127.0.0.1"], stdout=subprocess.DEVNULL)
+            inside = subprocess.Popen([short, "-n", "60", "127.0.0.1"], stdout=subprocess.DEVNULL)
             self.addCleanup(outside.kill)
             self.assertEqual(B.stop_installed_processes(install), [inside.pid])
             self.assertIsNotNone(inside.wait(timeout=20), "the installed process was stopped")
             self.assertIsNone(outside.poll(), "processes outside the installation are untouched")
         else:
             from unittest import mock
+            listing = f"101\t{install / 'bin' / 'python'}\n202\t/usr/bin/python3\nnoise\n"
             with mock.patch.object(B.subprocess, "run") as run, mock.patch.object(B.time, "sleep"):
-                run.return_value.stdout = "101\r\n202\r\n"
-                self.assertEqual(B.stop_installed_processes(install), [101, 202])
-            self.assertEqual(run.call_args.kwargs["env"]["PHDLAB_SMOKE_INSTALL"], str(install.resolve()))
+                run.return_value.stdout = listing
+                self.assertEqual(B.stop_installed_processes(install), [101])
+            self.assertEqual(run.call_args.args[0], ["taskkill", "/F", "/PID", "101"])
 
 
 if __name__ == "__main__":

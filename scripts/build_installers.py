@@ -236,14 +236,25 @@ def run_installed(command: list[str], env: dict, expect_version: str, data_dir: 
 
 def stop_installed_processes(install_dir: Path) -> list[int]:
     """Stop every process started from the installation. On Windows os.execv starts a new process and exits, so the
-    server can outlive the launcher the smoke test terminated and keep the installed files locked."""
-    script = ("Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -and $_.ExecutablePath.StartsWith("
-              "$env:PHDLAB_SMOKE_INSTALL, [StringComparison]::OrdinalIgnoreCase) } | "
-              "ForEach-Object { Stop-Process -Id $_.ProcessId -Force; $_.ProcessId }")
-    out = subprocess.run(["powershell", "-NoProfile", "-Command", script], capture_output=True, text=True, timeout=60,
-                         env={**os.environ, "PHDLAB_SMOKE_INSTALL": str(install_dir.resolve())}).stdout
+    server can outlive the launcher the smoke test terminated and keep the installed files locked. Paths are compared
+    after resolving them, because a process may report a short 8.3 path (C:\\Users\\RUNNER~1\\...)."""
+    script = ("Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath } | "
+              "ForEach-Object { \"$($_.ProcessId)`t$($_.ExecutablePath)\" }")
+    out = subprocess.run(["powershell", "-NoProfile", "-Command", script], capture_output=True, text=True,
+                         timeout=60).stdout
+    root = install_dir.resolve()
+    stopped = []
+    for line in out.splitlines():
+        pid, _, exe = line.strip().partition("\t")
+        try:
+            inside = pid.isdigit() and exe and Path(exe).resolve().is_relative_to(root)
+        except OSError:
+            inside = False
+        if inside:
+            subprocess.run(["taskkill", "/F", "/PID", pid], capture_output=True, timeout=60)
+            stopped.append(int(pid))
     time.sleep(2)
-    return [int(x) for x in out.split() if x.isdigit()]
+    return stopped
 
 
 def smoke_windows(installer: Path, version: str) -> dict:
