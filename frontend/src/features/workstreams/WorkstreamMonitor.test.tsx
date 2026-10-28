@@ -15,7 +15,7 @@ describe('WorkstreamMonitor', () => {
     useUIStore.getState().setActiveTopicId(null);
     renderWithProviders(<WorkstreamMonitor />);
     expect(
-      screen.getByText(/Vui lòng chọn một Topic để xem phân luồng Workstreams/i)
+      screen.getByText(/Vui lòng chọn một Topic để xem các luồng công việc/i)
     ).toBeInTheDocument();
   });
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useUIStore } from '../../shared/state/uiStore';
+import { useI18n, useUIStore } from '../../shared/state/uiStore';
 import { api } from '../../shared/api/client';
 import type { FigurePreset, FigureRecord } from '../../shared/api/types';
 import {
@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 
 export const FigureStudioPanel: React.FC = () => {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const { activeTopicId } = useUIStore();
   const [selectedFigureId, setSelectedFigureId] = useState<string | null>(null);
@@ -197,7 +198,7 @@ export const FigureStudioPanel: React.FC = () => {
   if (!activeTopicId) {
     return (
       <div style={{ padding: 16 }}>
-        <p className="muted">Vui lòng chọn một Topic để mở Figure Studio (v6.4.0).</p>
+        <p className="muted">{t('Vui lòng chọn một Topic để mở Figure Studio.', 'Select a topic to open Figure Studio.')}</p>
       </div>
     );
   }
@@ -208,15 +209,15 @@ export const FigureStudioPanel: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
           <BarChart3 size={18} color="var(--accent)" />
-          <span>Figure Studio & Kiểm định Đồ thị (v6.4.0)</span>
+          <span>{t('Figure Studio & kiểm định đồ thị', 'Figure Studio & figure checks')}</span>
         </h4>
         <button className="btn sm accent" onClick={() => setShowCreate(!showCreate)}>
-          <Plus size={14} style={{ marginRight: 4 }} /> Tạo Figure mới
+          <Plus size={14} style={{ marginRight: 4 }} /> {t('Tạo Figure mới', 'New figure')}
         </button>
       </div>
 
       <p className="muted" style={{ fontSize: 12.5, margin: 0 }}>
-        Biểu đồ chuẩn xuất bản (IEEE / ACM / Thesis), kiểm tra chéo mã băm SHA-256 với dữ liệu gốc, lưu trữ mã nguồn tái lập <code>source-script.py</code>.
+        {t('Biểu đồ chuẩn xuất bản (IEEE / ACM / luận văn), kiểm tra chéo mã băm SHA-256 với dữ liệu gốc, lưu mã nguồn tái lập', 'Publication-ready figures (IEEE / ACM / thesis), SHA-256 cross-checked against the source data, with the reproducible script')} <code>source-script.py</code>.
       </p>
 
       {/* Create Form */}
@@ -544,7 +545,7 @@ export const FigureStudioPanel: React.FC = () => {
 
       {figures.length === 0 && !isLoading && !showCreate && (
         <p className="muted" style={{ fontSize: 13 }}>
-          Chưa có biểu đồ nào trong Topic này. Bấm "Tạo Figure mới" để khởi tạo đồ thị chuẩn IEEE/ACM.
+          {t('Chưa có biểu đồ nào trong Topic này. Bấm "Tạo Figure mới" để tạo đồ thị chuẩn IEEE/ACM.', 'No figures in this topic yet. Press "New figure" to create an IEEE/ACM-ready figure.')}
         </p>
       )}
     </div>

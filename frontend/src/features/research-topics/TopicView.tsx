@@ -7,7 +7,7 @@ import { Plus, Check, Brain, Folder, Search, ShieldCheck, BookOpen } from 'lucid
 
 export const TopicView: React.FC = () => {
   const queryClient = useQueryClient();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { project, activeTopicId, setActiveTopic, openDrawer } = useUIStore();
   const [showCreate, setShowCreate] = useState(false);
   const [title, setTitle] = useState('');
@@ -104,10 +104,10 @@ export const TopicView: React.FC = () => {
             Danh sách Topics
           </button>
           <button className={`btn sm ${subTab === 'papers' ? 'accent' : 'ghost'}`} onClick={() => setSubTab('papers')}>
-            <BookOpen size={13} style={{ marginRight: 4 }} /> Tài liệu SKB
+            <BookOpen size={13} style={{ marginRight: 4 }} /> {t('Tài liệu SKB', 'SKB documents')}
           </button>
           <button className={`btn sm ${subTab === 'ledger' ? 'accent' : 'ghost'}`} onClick={() => setSubTab('ledger')}>
-            <ShieldCheck size={13} style={{ marginRight: 4 }} /> Sổ cái Bất biến (Ledger)
+            <ShieldCheck size={13} style={{ marginRight: 4 }} /> {t('Sổ cái bất biến', 'Immutable ledger')}
           </button>
         </div>
       )}
@@ -206,13 +206,13 @@ export const TopicView: React.FC = () => {
                   <div>
                     <div style={{ fontWeight: 600, fontSize: 13.5 }}>{displayTitle}</div>
                     {t.description && (
-                      <div className="muted" style={{ fontSize: 12 }}>
+                      <div className="muted" style={{ fontSize: 12, color: isSelected ? 'var(--ink-2)' : undefined }}>
                         {t.description}
                       </div>
                     )}
                     {t.keywords && t.keywords.length > 0 && (
-                      <div className="muted" style={{ fontSize: 11, marginTop: 2 }}>
-                        Từ khóa: {t.keywords.join(', ')}
+                      <div className="muted" style={{ fontSize: 11, marginTop: 2, color: isSelected ? 'var(--ink-2)' : undefined }}>
+                        {language === 'en' ? 'Keywords' : 'Từ khóa'}: {t.keywords.join(', ')}
                       </div>
                     )}
                   </div>
@@ -237,7 +237,7 @@ export const TopicView: React.FC = () => {
           })}
           {topics.length === 0 && !isLoading && (
             <p className="muted" style={{ fontSize: 13 }}>
-              Chưa có Topic nào trong dự án hiện tại.
+              {t('Chưa có Topic nào trong dự án hiện tại.', 'No topics in this project yet.')}
             </p>
           )}
         </div>

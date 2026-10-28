@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useUIStore } from '../../shared/state/uiStore';
+import { useI18n, useUIStore } from '../../shared/state/uiStore';
 import { api } from '../../shared/api/client';
 import type { Claim } from '../../shared/api/types';
 import { FileText, Plus, ShieldCheck, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
 
 export const EvidenceReview: React.FC = () => {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const { activeTopicId } = useUIStore();
   const [showCreate, setShowCreate] = useState(false);
@@ -68,7 +69,7 @@ export const EvidenceReview: React.FC = () => {
   if (!activeTopicId) {
     return (
       <div style={{ padding: 16 }}>
-        <p className="muted">Vui lòng chọn một Topic để xem và kiểm định bằng chứng khoa học.</p>
+        <p className="muted">{t('Vui lòng chọn một Topic để xem và kiểm định bằng chứng khoa học.', 'Select a topic to review and verify its scientific evidence.')}</p>
       </div>
     );
   }
@@ -78,15 +79,15 @@ export const EvidenceReview: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
           <ShieldCheck size={18} color="var(--accent)" />
-          <span>Bằng chứng & Kiểm định (Claims)</span>
+          <span>{t('Bằng chứng & kiểm định', 'Claims & evidence')}</span>
         </h4>
         <button className="btn sm accent" onClick={() => setShowCreate(!showCreate)}>
-          <Plus size={14} style={{ marginRight: 4 }} /> Đề xuất Claim
+          <Plus size={14} style={{ marginRight: 4 }} /> {t('Đề xuất claim', 'Propose a claim')}
         </button>
       </div>
 
       <p className="muted" style={{ fontSize: 13, margin: 0 }}>
-        Khẳng định nguồn (Source claim) ≠ Đo lường (Measurement) ≠ Quyết định nhân lực. Mỗi claim phải được kiểm chứng cơ học và xác nhận bởi nhà nghiên cứu.
+        {t('Khẳng định nguồn (Source claim) ≠ Đo lường (Measurement) ≠ Quyết định nhân lực. Mỗi claim phải được kiểm chứng cơ học và xác nhận bởi nhà nghiên cứu.', 'A source claim is not a measurement, and neither is a human decision. Every claim is checked mechanically and confirmed by the researcher.')}
       </p>
 
       {showCreate && (
@@ -221,7 +222,7 @@ export const EvidenceReview: React.FC = () => {
 
         {claims.length === 0 && !isLoading && !showCreate && (
           <p className="muted" style={{ fontSize: 13 }}>
-            Chưa có Claim nào được đề xuất trong Topic này.
+            {t('Chưa có Claim nào được đề xuất trong Topic này.', 'No claims proposed in this topic yet.')}
           </p>
         )}
       </div>

@@ -164,7 +164,7 @@ export const AiToolsSettings: React.FC = () => {
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t('aiTools.searchTools')}
             aria-label={t('aiTools.searchTools')} style={{ flex: 1 }} data-testid="tool-search" />
         </div>
-        <motion.ul layout style={{ listStyle: 'none', padding: 0, margin: 0, maxHeight: 280, overflowY: 'auto' }}>
+        <motion.ul layout tabIndex={0} aria-label={t('aiTools.registry')} style={{ listStyle: 'none', padding: 0, margin: 0, maxHeight: 280, overflowY: 'auto' }}>
           <AnimatePresence initial={false}>
             {(tools || []).slice(0, 60).map((tool) => {
               const Icon = KIND_ICON[tool.kind] || Sparkles;
@@ -172,10 +172,12 @@ export const AiToolsSettings: React.FC = () => {
                 <motion.li key={tool.id} layout initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                   title={tool.available ? tool.description : tool.unavailable_reason || t('aiTools.unavailable')}
                   style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 0', borderBottom: '1px solid var(--line)' }}>
-                  <span aria-label={tool.available ? t('aiTools.available') : t('aiTools.unavailable')}
+                  <span role="img" aria-label={tool.available ? t('aiTools.available') : t('aiTools.unavailable')}
                     style={{ width: 8, height: 8, borderRadius: 8, background: tool.available ? '#16a34a' : '#9ca3af' }} />
                   <Icon size={14} aria-label={tool.kind} />
-                  <span style={{ fontFamily: 'monospace', fontSize: 12, flex: 1 }}>{tool.id}</span>
+                  <code style={{ fontSize: 12, flexShrink: 0 }}>{tool.id}</code>
+                  <span style={{ flex: 1, minWidth: 0, fontSize: 12, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {tool.description}</span>
                 </motion.li>
               );
             })}

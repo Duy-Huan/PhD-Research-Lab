@@ -331,6 +331,7 @@ export const PaperPanel: React.FC = () => {
             </span>
             <select
               className="input sm"
+              aria-label={t('Bố cục', 'Layout')}
               style={{ padding: '3px 8px', fontSize: 12 }}
               value={layoutMode}
               onChange={(e) => setLayoutMode(e.target.value as 'template' | 'simple')}
@@ -347,6 +348,7 @@ export const PaperPanel: React.FC = () => {
             <span style={{ color: 'var(--muted)' }}>{t('Trình biên dịch cục bộ:', 'Local Compiler:')}</span>
             <select
               className="input sm"
+              aria-label={t('Trình biên dịch cục bộ', 'Local Compiler')}
               style={{ flex: 1, minWidth: 160 }}
               value={selectedLocalEngine}
               onChange={(e) => setSelectedLocalEngine(e.target.value)}
@@ -361,7 +363,7 @@ export const PaperPanel: React.FC = () => {
               ))}
             </select>
             {availableEngines.length === 0 && (
-              <span style={{ color: 'var(--amber, #f59e0b)', fontSize: 11.5, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ color: 'var(--warn)', fontSize: 11.5, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <AlertTriangle size={12} />
                 {t('Chưa phát hiện trình biên dịch TeX cục bộ như Tectonic hoặc TeX Live. Bạn có thể chọn chế độ Trực tuyến.', 'No local TeX found such as Tectonic or TeX Live. You can switch to Online mode.')}
               </span>
@@ -380,8 +382,8 @@ export const PaperPanel: React.FC = () => {
         )}
       </div>
 
-      {/* Segmented View Tabs */}
-      <div style={{ display: 'flex', gap: 6, borderBottom: '1px solid var(--line)', paddingBottom: 6 }}>
+      {/* Segmented View Tabs (wrap: five tabs do not fit a narrow drawer on one line) */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, borderBottom: '1px solid var(--line)', paddingBottom: 6 }}>
         <button
           type="button"
           className={`btn sm ${activeView === 'orchestra' ? 'accent' : 'ghost'}`}
@@ -459,7 +461,7 @@ export const PaperPanel: React.FC = () => {
 
           {/* Notes or warnings */}
           {compileResult.notes && compileResult.notes.length > 0 && (
-            <div style={{ color: 'var(--amber, #f59e0b)', fontSize: 11.5 }}>
+            <div style={{ color: 'var(--warn)', fontSize: 11.5 }}>
               {compileResult.notes.map((n, i) => (
                 <div key={i}>• {n}</div>
               ))}

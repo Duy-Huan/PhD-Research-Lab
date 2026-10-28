@@ -49,10 +49,36 @@ Library and is now icon-only. Settings never rendered the CLI connections panel 
 Models & AI Agents with the Claude long-lived token (`claude setup-token`). Still open: the first `/api/models` call
 takes several seconds.
 
+## 6.6.3 QA run record
+
+Evidence: `docs/qa/evidence/ui-qa-663/`, `docs/qa/evidence/cli-studio-663/` and `docs/qa/evidence/claude-signin-663/`. Contracts: `FQC-UI-QA-663`, `FQC-CLI-STUDIO-663`, `FQC-CLAUDE-SIGNIN-663` and `FQC-SOURCE-POLICY-663`.
+
+Ran (with evidence):
+
+- Sections 0–2: disposable data folder, port and browser. Audit rules in `frontend/e2e/uiAudit.ts`. Matrix: en and vi, light and dark, 1440 and 390 px; 1024 and 360 px for the CLI and the shell.
+- Section 4: every main view, Settings tab and drawer panel, without and with a topic (`qa_screens.spec.ts`, 181 tests); the CLI studio (19 tests); the shell (20 tests).
+- Section 6: axe WCAG 2.1 AA (serious and critical) on every screen in both languages.
+- Section 5 J12 (live): Codex and Claude Code CLI turns completed; "Open in cmd" was checked in a real `cmd.exe`.
+- Existing deterministic journeys (`journeys`, `workflows`, `navigation` and the other specs) run inside `verify.py --profile pr`.
+
+Not run in 6.6.3 (left for the next pass; none of these is claimed to pass):
+
+- Firefox and WebKit.
+- 125–200 % zoom and minimum font size.
+- Keyboard-only versions of J1 and J6.
+- Offline and slow-network journeys (J9).
+- Two-tab concurrency (J10).
+- Performance budgets (section 7).
+- XSS probes through the UI (section 8).
+- Visual baselines (VIS-SNAPSHOT).
+
 ## 0. Run setup
 
 - [ ] Fresh worktree at the exact SHA under test; `git status` clean; SHA recorded in the run report.
 - [ ] Frontend built from that SHA (`npm run build`); bundle hash recorded.
+- [ ] Server restarted after the last backend change. `GET /api/version` returns the version under test before any
+      run counts. In 6.6.3, two repeated runs went to a server started before the version bump: the backend fixes,
+      such as `label_en`, were not loaded, and Settings showed "v6.6.2".
 - [ ] Disposable `PHDLAB_DATA_DIR` (short path, e.g. `D:/qa-<run>` on Windows); never the real `data/` or `projects/`.
 - [ ] Own loopback port and own Playwright browser context; never personal Chrome, cookies or accounts.
 - [ ] `NO_PROXY=localhost,127.0.0.1,::1` set; the server log is captured to the run folder.

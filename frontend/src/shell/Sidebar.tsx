@@ -1280,11 +1280,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
           id="nav-toggle"
           type="button"
           onClick={() => setMenuOpen(!menuOpen)}
-          title={t('Công cụ Nghiên cứu', 'Research Studios')}
+          title={t('Xưởng nghiên cứu', 'Research Studios')}
           style={{ flex: 1, minWidth: 0, justifyContent: 'flex-start', gap: 6 }}
         >
           {menuOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-          <span className="ellipsis" style={{ fontSize: 12 }}>{t('Công cụ Nghiên cứu', 'Research Studios')}</span>
+          <span className="ellipsis" style={{ fontSize: 12 }}>{t('Xưởng nghiên cứu', 'Research Studios')}</span>
           {pendingCount > 0 && <span className="count">{pendingCount}</span>}
         </button>
 

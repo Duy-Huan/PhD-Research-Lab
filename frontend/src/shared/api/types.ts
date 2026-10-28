@@ -56,7 +56,7 @@ export interface AppConfig {
   references_dir: string;
   providers: Record<string, ProviderConfig>;
   provider_specs: Record<string, ProviderSpec>;
-  agents: Record<string, { label: string; default: string }>;
+  agents: Record<string, { label: string; label_en?: string; default: string }>;
   agent_modes: Record<string, string>;
   agent_models: Record<string, string>;
   search: {

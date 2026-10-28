@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "6.6.2"
+APP_VERSION = "6.6.3"
 
 ROOT = Path(__file__).resolve().parents[2]
 INSTALL_MARKER = "phdlab-installed.json"  # written by the .exe/.deb installers next to the application
@@ -115,10 +115,14 @@ PROVIDERS = {
 # "local", "ollama" or a provider id. What an agent does is decided by the SKILL it runs (backend/agent/skills/*.md),
 # not by a separate agent per tool.
 AGENTS = {
-    "assistant": {"label": "Trợ lý chat — hội thoại thường ngày, độc lập với agent nghiên cứu", "default": "auto"},
-    "research": {"label": "Research agent — điều phối, nghiên cứu, thiết kế, code, viết bài", "default": "auto"},
-    "reviewer": {"label": "Reviewer agent — phản biện, kiểm chứng claim / evidence", "default": "claude"},
-    "utility":  {"label": "Tiện ích chạy nền — tóm tắt bộ nhớ, trích xuất PDF/BibTeX, truy vấn tìm kiếm", "default": "auto"},
+    "assistant": {"label": "Trợ lý chat — hội thoại thường ngày, độc lập với agent nghiên cứu",
+                  "label_en": "Chat assistant — everyday conversation, separate from the research agent", "default": "auto"},
+    "research": {"label": "Research agent — điều phối, nghiên cứu, thiết kế, code, viết bài",
+                 "label_en": "Research agent — orchestration, research, design, code, writing", "default": "auto"},
+    "reviewer": {"label": "Reviewer agent — phản biện, kiểm chứng claim / evidence",
+                 "label_en": "Reviewer agent — critique, checks claims and evidence", "default": "claude"},
+    "utility":  {"label": "Tiện ích chạy nền — tóm tắt bộ nhớ, trích xuất PDF/BibTeX, truy vấn tìm kiếm",
+                 "label_en": "Background utility — memory summaries, PDF/BibTeX extraction, search queries", "default": "auto"},
 }
 # v1–v4 agent names → the v5 agent that now does their job (old call sites and saved settings keep working)
 AGENT_ALIASES = {

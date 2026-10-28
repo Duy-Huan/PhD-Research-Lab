@@ -727,7 +727,7 @@ export const ProjectSwitcher: React.FC = () => {
                     style={{
                       fontWeight: 600,
                       fontSize: 13.5,
-                      color: isSelected ? 'var(--accent)' : 'var(--fg)',
+                      color: 'var(--fg)',
                     }}
                     title={p.name}
                   >
