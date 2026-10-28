@@ -36,6 +36,9 @@ Progress 2026-10-28:
 - A5 is done locally (FQC-TOOL-SHELL-664). `sandbox_run_code` names cmd.exe or POSIX sh.
 - A2 is done locally (FQC-AGENT-PROTOCOL-664). `experiment.propose_protocol` freezes agent code with a pinned environment;
   after approval it runs as `experiment.run` and is checked by `experiment.verify` (agent-code-recompute-v1).
+- A3 is done locally (FQC-CODE-TOOLS-664). `code.create_project` / `code.open_project` and `code.apply_patch`
+  (sha256-bound, git-committed or journalled) replace the new-folder-per-run limit.
+- CI on Windows found a CLI chat race (text written just before a turn ends was dropped); fixed in `02d0517`.
 - Live confirmation with Codex comes with the A9/live run.
 
 | ID | Change | Criteria |

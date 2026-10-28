@@ -66,6 +66,8 @@ def builtin_specs() -> list[ToolSpec]:
                             budget={"timeout_s": 3700}, source="builtin", execution={"mcp_tool": t["name"]}))
     from backend.tools import delegate_tools, mission_tools  # v6.6.2: missions and CLI delegates are registry tools
     out += mission_tools.specs() + delegate_tools.specs()
+    from backend.tools import code_tools  # v6.6.4: code projects and versioned patches
+    out += code_tools.specs()
     return out
 
 

@@ -102,3 +102,14 @@ hint. The client then calls `phdlab_tools_job` with `{job, wait_s}` to wait for 
 stop the tool. Only the principal that started a job can read or cancel it; any other job id answers `not_found`. A long
 sandbox run through the Codex container proxy therefore no longer ends in HTTP 502 while the run continues.
 Hermes and ChatGPT see `phdlab_tools_job` together with the other three meta-tools. Contract: FQC-TOOL-JOBS-664.
+
+## Code projects and versioned patches (v6.6.4)
+
+`code.projects`, `code.create_project` and `code.open_project` let an agent find, create or open its code project; it no
+longer waits for the researcher to do it. `code.apply_patch` edits an existing UTF-8 file in place. The agent passes the
+file's current sha256 (from `code.file_version`, which returns no content) and exact replacements. Each replacement must
+occur once; all are applied or none. The file keeps its line endings.
+
+Each patch is written to `patches.jsonl` in the project's sandbox folder, outside the code. In a git repository it is
+also committed on its own with only that file, so the researcher's other uncommitted work is untouched. Mutating tools
+need `workspace_write`. Contract: FQC-CODE-TOOLS-664.
