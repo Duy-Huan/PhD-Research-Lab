@@ -172,8 +172,13 @@ class Registry:
         return sorted(by_id.get(tool_id, {}), key=parse_version)
 
     def resolve(self, tool_id: str, constraint: str = "") -> ToolSpec:
-        from backend.core.config import APP_VERSION
         by_id, active, _ = self._all()
+        return self._resolve_in(by_id, active, tool_id, constraint)
+
+    def _resolve_in(self, by_id: dict, active: dict, tool_id: str, constraint: str = "") -> ToolSpec:
+        """resolve() against one snapshot of the index. v6.6.4 (A12): listing and search resolved every tool against a
+        freshly rebuilt index (about 1.3 s per /api/tools); they now share one."""
+        from backend.core.config import APP_VERSION
         versions = by_id.get(tool_id)
         if not versions:
             near = [s["id"] for s in self.search(tool_id.replace(".", " ").replace("_", " "), limit=3)]
@@ -215,7 +220,7 @@ class Registry:
         tools = []
         for tool_id in sorted(by_id):
             try:
-                spec = self.resolve(tool_id)
+                spec = self._resolve_in(by_id, active, tool_id)
             except ToolError:
                 continue
             if (kind and spec.kind != kind) or (capability and capability.lower() not in spec.capabilities):
@@ -242,11 +247,11 @@ class Registry:
     def search(self, query: str, *, capability: str = "", kind: str = "", permissions: list | None = None,
                available_only: bool = False, limit: int = 10) -> list:
         """Rank tools by lexical relevance (BM25-style over id/title/description/capabilities)."""
-        by_id, _, _ = self._all()
+        by_id, active, _ = self._all()
         docs = []
         for tool_id in by_id:
             try:
-                spec = self.resolve(tool_id)
+                spec = self._resolve_in(by_id, active, tool_id)
             except ToolError:
                 continue
             if (capability and capability.lower() not in spec.capabilities) or (kind and spec.kind != kind):

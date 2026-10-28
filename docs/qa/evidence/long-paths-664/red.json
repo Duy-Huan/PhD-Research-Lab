@@ -1,0 +1,47 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_long_paths_664.LongPaths.test_a_long_folder_without_long_paths_is_warned_with_the_fix",
+      "status": "ERROR",
+      "duration": 0.001,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_long_paths_664\\tests\\test_long_paths_664.py\", line 29, in test_a_long_folder_without_long_paths_is_warned_with_the_fix\n    lp = self.check(\"D:/\" + \"research-data-\" * 7, enabled=False)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red-test_long_paths_664\\tests\\test_long_paths_664.py\", line 25, in check\n    with patch.object(sys, \"platform\", platform), patch.object(I, \"_long_paths_enabled\", return_value=enabled):\n                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 1467, in __enter__\n    original, local = self.get_original()\n                      ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 1437, in get_original\n    raise AttributeError(\nAttributeError: <module 'backend.execution.sysinfo' from 'D:\\\\r664red-test_long_paths_664\\\\backend\\\\execution\\\\sysinfo.py'> does not have the attribute '_long_paths_enabled'\n"
+    },
+    {
+      "id": "test_long_paths_664.LongPaths.test_an_unreadable_setting_counts_as_off",
+      "status": "ERROR",
+      "duration": 0.0022,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_long_paths_664\\tests\\test_long_paths_664.py\", line 52, in test_an_unreadable_setting_counts_as_off\n    self.assertFalse(I._long_paths_enabled())\n                     ^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.execution.sysinfo' has no attribute '_long_paths_enabled'\n"
+    },
+    {
+      "id": "test_long_paths_664.LongPaths.test_no_warning_when_long_paths_are_on_or_the_folder_is_short",
+      "status": "ERROR",
+      "duration": 0.0011,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_long_paths_664\\tests\\test_long_paths_664.py\", line 38, in test_no_warning_when_long_paths_are_on_or_the_folder_is_short\n    for lp in (self.check(\"D:/\" + \"research-data-\" * 7, enabled=True), self.check(\"D:/PhDLab\", enabled=False)):\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red-test_long_paths_664\\tests\\test_long_paths_664.py\", line 25, in check\n    with patch.object(sys, \"platform\", platform), patch.object(I, \"_long_paths_enabled\", return_value=enabled):\n                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 1467, in __enter__\n    original, local = self.get_original()\n                      ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 1437, in get_original\n    raise AttributeError(\nAttributeError: <module 'backend.execution.sysinfo' from 'D:\\\\r664red-test_long_paths_664\\\\backend\\\\execution\\\\sysinfo.py'> does not have the attribute '_long_paths_enabled'\n"
+    },
+    {
+      "id": "test_long_paths_664.LongPaths.test_other_systems_are_not_affected",
+      "status": "ERROR",
+      "duration": 0.001,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_long_paths_664\\tests\\test_long_paths_664.py\", line 44, in test_other_systems_are_not_affected\n    lp = self.check(\"/home/\" + \"x\" * 200, enabled=False, platform=\"linux\")\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red-test_long_paths_664\\tests\\test_long_paths_664.py\", line 25, in check\n    with patch.object(sys, \"platform\", platform), patch.object(I, \"_long_paths_enabled\", return_value=enabled):\n                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 1467, in __enter__\n    original, local = self.get_original()\n                      ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 1437, in get_original\n    raise AttributeError(\nAttributeError: <module 'backend.execution.sysinfo' from 'D:\\\\r664red-test_long_paths_664\\\\backend\\\\execution\\\\sysinfo.py'> does not have the attribute '_long_paths_enabled'\n"
+    },
+    {
+      "id": "test_long_paths_664.LongPaths.test_the_default_root_is_the_active_project",
+      "status": "ERROR",
+      "duration": 0.001,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_long_paths_664\\tests\\test_long_paths_664.py\", line 56, in test_the_default_root_is_the_active_project\n    with patch.object(sys, \"platform\", \"win32\"), patch.object(I, \"_long_paths_enabled\", return_value=True):\n                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 1467, in __enter__\n    original, local = self.get_original()\n                      ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 1437, in get_original\n    raise AttributeError(\nAttributeError: <module 'backend.execution.sysinfo' from 'D:\\\\r664red-test_long_paths_664\\\\backend\\\\execution\\\\sysinfo.py'> does not have the attribute '_long_paths_enabled'\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 5,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-zgz5b1dp",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

@@ -1,0 +1,47 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_line_endings_664.LineEndings.test_a_converted_result_file_fails_verification",
+      "status": "PASS",
+      "duration": 1.9638,
+      "details": null
+    },
+    {
+      "id": "test_line_endings_664.LineEndings.test_converting_the_frozen_copy_is_refused",
+      "status": "PASS",
+      "duration": 0.6771,
+      "details": null
+    },
+    {
+      "id": "test_line_endings_664.LineEndings.test_converting_the_working_copy_after_approval_keeps_the_approved_run",
+      "status": "PASS",
+      "duration": 1.8048,
+      "details": null
+    },
+    {
+      "id": "test_line_endings_664.LineEndings.test_mixed_line_endings_are_copied_byte_for_byte",
+      "status": "PASS",
+      "duration": 1.946,
+      "details": null
+    },
+    {
+      "id": "test_line_endings_664.LineEndings.test_the_approval_digest_is_canonical_json_and_new_bytes_need_a_new_protocol",
+      "status": "PASS",
+      "duration": 0.7975,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 5,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-xu_6kbt7",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

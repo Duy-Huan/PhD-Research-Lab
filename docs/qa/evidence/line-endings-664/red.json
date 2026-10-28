@@ -1,0 +1,47 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_line_endings_664.LineEndings.test_a_converted_result_file_fails_verification",
+      "status": "ERROR",
+      "duration": 0.2712,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_line_endings_664\\tests\\test_line_endings_664.py\", line 78, in test_a_converted_result_file_fails_verification\n    p = self.propose()\n        ^^^^^^^^^^^^^^\n  File \"D:\\r664red-test_line_endings_664\\tests\\test_line_endings_664.py\", line 32, in propose\n    made = mission_tools.propose_protocol({\"topic_id\": self.tid, \"hypothesis\": \"Method beats baseline\", \"entrypoint\": \"experiment.py\",\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.tools.mission_tools' has no attribute 'propose_protocol'\n"
+    },
+    {
+      "id": "test_line_endings_664.LineEndings.test_converting_the_frozen_copy_is_refused",
+      "status": "ERROR",
+      "duration": 0.2425,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_line_endings_664\\tests\\test_line_endings_664.py\", line 59, in test_converting_the_frozen_copy_is_refused\n    from backend.execution import agent_protocols as AP\nImportError: cannot import name 'agent_protocols' from 'backend.execution' (D:\\r664red-test_line_endings_664\\backend\\execution\\__init__.py)\n"
+    },
+    {
+      "id": "test_line_endings_664.LineEndings.test_converting_the_working_copy_after_approval_keeps_the_approved_run",
+      "status": "ERROR",
+      "duration": 0.237,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_line_endings_664\\tests\\test_line_endings_664.py\", line 38, in test_converting_the_working_copy_after_approval_keeps_the_approved_run\n    p = self.propose()\n        ^^^^^^^^^^^^^^\n  File \"D:\\r664red-test_line_endings_664\\tests\\test_line_endings_664.py\", line 32, in propose\n    made = mission_tools.propose_protocol({\"topic_id\": self.tid, \"hypothesis\": \"Method beats baseline\", \"entrypoint\": \"experiment.py\",\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.tools.mission_tools' has no attribute 'propose_protocol'\n"
+    },
+    {
+      "id": "test_line_endings_664.LineEndings.test_mixed_line_endings_are_copied_byte_for_byte",
+      "status": "ERROR",
+      "duration": 0.2927,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_line_endings_664\\tests\\test_line_endings_664.py\", line 71, in test_mixed_line_endings_are_copied_byte_for_byte\n    p = self.propose()\n        ^^^^^^^^^^^^^^\n  File \"D:\\r664red-test_line_endings_664\\tests\\test_line_endings_664.py\", line 32, in propose\n    made = mission_tools.propose_protocol({\"topic_id\": self.tid, \"hypothesis\": \"Method beats baseline\", \"entrypoint\": \"experiment.py\",\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.tools.mission_tools' has no attribute 'propose_protocol'\n"
+    },
+    {
+      "id": "test_line_endings_664.LineEndings.test_the_approval_digest_is_canonical_json_and_new_bytes_need_a_new_protocol",
+      "status": "ERROR",
+      "duration": 0.2423,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_line_endings_664\\tests\\test_line_endings_664.py\", line 88, in test_the_approval_digest_is_canonical_json_and_new_bytes_need_a_new_protocol\n    p = self.propose()\n        ^^^^^^^^^^^^^^\n  File \"D:\\r664red-test_line_endings_664\\tests\\test_line_endings_664.py\", line 32, in propose\n    made = mission_tools.propose_protocol({\"topic_id\": self.tid, \"hypothesis\": \"Method beats baseline\", \"entrypoint\": \"experiment.py\",\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.tools.mission_tools' has no attribute 'propose_protocol'\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 5,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-iqzzgqxu",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

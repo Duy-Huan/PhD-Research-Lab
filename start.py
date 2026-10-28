@@ -229,10 +229,23 @@ def report_tools() -> None:
             native = Path.home() / ".local" / "bin" / ("claude.exe" if sys.platform.startswith("win") else "claude")
             return str(native) if native.is_file() else None
         return found
+    def latex():  # v6.6.4: includes the Tectonic the installers ship in <install>/tools
+        try:
+            from backend.paper.latex import engines
+            return ", ".join(engines()["available"]) or None
+        except Exception:
+            return has("latexmk", "pdflatex", "tectonic", "xelatex")
     items = [("VS Code", has("code")), ("Git", has("git")), ("NVIDIA GPU", has("nvidia-smi")), ("Feynman", has("feynman")),
-             ("Claude Code", has("claude")), ("Codex", has("codex")), ("LaTeX", has("latexmk", "pdflatex", "tectonic", "xelatex")),
+             ("Claude Code", has("claude")), ("Codex", has("codex")), ("LaTeX", latex()),
              ("Docker", has("docker")), ("Ollama", has("ollama")), ("LM Studio CLI", has("lms"))]
     print("Tools   : " + ", ".join(f"{k} {'yes' if v else 'no'}" for k, v in items))
+    try:
+        from backend.execution.sysinfo import long_path_text, long_paths
+        lp = long_paths()
+        if lp.get("at_risk"):
+            print("WARNING : " + long_path_text(lp))
+    except Exception:
+        pass
 
 
 def main() -> None:

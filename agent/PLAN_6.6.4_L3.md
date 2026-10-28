@@ -49,6 +49,10 @@ Progress 2026-10-28:
   4-agent team and ran an agent task to a checkpoint; three findings fixed (local engines shown available unprobed,
   registry tools missing from CLI grants, session files returned as outputs). Owner decision still open: default of
   research_os.team_enabled (off).
+- A12 is done locally (FQC-TOOL-LISTING-664): /api/tools built the index 59 times per listing (1.29 s); now once (about
+  0.02 s). A10 (FQC-LONG-PATHS-664): the system scan and startup warn about long Windows data paths. A11
+  (FQC-LINE-ENDINGS-664): approvals are canonical-JSON digests over frozen bytes since A2; regression tests show a
+  line-ending conversion of the working copy keeps the approved run, and a converted frozen or result file is refused.
 
 | ID | Change | Criteria |
 |---|---|---|
