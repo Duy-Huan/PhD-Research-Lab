@@ -1,0 +1,102 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_paper_evidence_664.PaperEvidence.test_agent_text_is_rejected_and_chat_around_latex_is_removed",
+      "status": "PASS",
+      "duration": 0.283,
+      "details": null
+    },
+    {
+      "id": "test_paper_evidence_664.PaperEvidence.test_evidence_is_bounded_and_quick",
+      "status": "PASS",
+      "duration": 0.2455,
+      "details": null
+    },
+    {
+      "id": "test_paper_evidence_664.PaperEvidence.test_full_orchestration_gives_the_writer_the_library_and_measured_runs",
+      "status": "PASS",
+      "duration": 1.5814,
+      "details": null
+    },
+    {
+      "id": "test_paper_evidence_664.PaperEvidence.test_gates_reject_empty_agent_and_uncited_drafts",
+      "status": "PASS",
+      "duration": 0.4105,
+      "details": null
+    },
+    {
+      "id": "test_paper_evidence_664.PaperEvidence.test_library_tools_list_papers_and_passages_with_cite_keys",
+      "status": "PASS",
+      "duration": 0.4012,
+      "details": null
+    },
+    {
+      "id": "test_paper_evidence_664.PaperEvidence.test_without_a_model_the_writer_fails_instead_of_inventing_text",
+      "status": "PASS",
+      "duration": 0.272,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_paper_evidence_664.PaperEvidence.test_gates_reject_empty_agent_and_uncited_drafts",
+      "id": "test_paper_evidence_664.PaperEvidence.test_gates_reject_empty_agent_and_uncited_drafts (name='empty')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_paper_evidence_664.PaperEvidence.test_gates_reject_empty_agent_and_uncited_drafts",
+      "id": "test_paper_evidence_664.PaperEvidence.test_gates_reject_empty_agent_and_uncited_drafts (name='agent')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_paper_evidence_664.PaperEvidence.test_gates_reject_empty_agent_and_uncited_drafts",
+      "id": "test_paper_evidence_664.PaperEvidence.test_gates_reject_empty_agent_and_uncited_drafts (name='uncited')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_paper_evidence_664.PaperEvidence.test_gates_reject_empty_agent_and_uncited_drafts",
+      "id": "test_paper_evidence_664.PaperEvidence.test_gates_reject_empty_agent_and_uncited_drafts (name='nothing')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_paper_evidence_664.PaperEvidence.test_library_tools_list_papers_and_passages_with_cite_keys",
+      "id": "test_paper_evidence_664.PaperEvidence.test_library_tools_list_papers_and_passages_with_cite_keys (fn='search')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_paper_evidence_664.PaperEvidence.test_library_tools_list_papers_and_passages_with_cite_keys",
+      "id": "test_paper_evidence_664.PaperEvidence.test_library_tools_list_papers_and_passages_with_cite_keys (fn='passages')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_paper_evidence_664.PaperEvidence.test_without_a_model_the_writer_fails_instead_of_inventing_text",
+      "id": "test_paper_evidence_664.PaperEvidence.test_without_a_model_the_writer_fails_instead_of_inventing_text (capability='paperorchestra.section_write')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_paper_evidence_664.PaperEvidence.test_without_a_model_the_writer_fails_instead_of_inventing_text",
+      "id": "test_paper_evidence_664.PaperEvidence.test_without_a_model_the_writer_fails_instead_of_inventing_text (capability='paperorchestra.full_orchestration')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 6,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-h1nc_l4y",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

@@ -39,6 +39,9 @@ Progress 2026-10-28:
 - A3 is done locally (FQC-CODE-TOOLS-664). `code.create_project` / `code.open_project` and `code.apply_patch`
   (sha256-bound, git-committed or journalled) replace the new-folder-per-run limit.
 - CI on Windows found a CLI chat race (text written just before a turn ends was dropped); fixed in `02d0517`.
+- A6 part 1 is done locally (FQC-PAPER-EVIDENCE-664): writer evidence (library + verified runs), no template prose,
+  preamble stripping, manuscript gate, `library.search` / `library.passages`. Part 2, a bundled LaTeX engine for the
+  PDF, is the next step (packaging: .exe and .deb).
 - Live confirmation with Codex comes with the A9/live run.
 
 | ID | Change | Criteria |

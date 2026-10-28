@@ -172,6 +172,22 @@ The engine implements 7 quality gates prior to paper approval:
    - Computes weighted overall score; requires overall score $\ge 6.0$ to pass.
 7. **Human Approval Gate**:
    - Requires explicit human submission sign-off (`author_signoff: true`) before any paper is finalized or submitted.
+8. **Manuscript Gate (`check_manuscript`, v6.6.4)**:
+   - Fails on an empty or under-30-word section, on agent text (an approval plan, `/accept`, `phdlab-action`), on no
+     sections, and on a draft that cites nothing while the topic library has papers. Overall readiness requires it.
+
+### Writer evidence (v6.6.4)
+
+Section writing and full orchestration give the writer the topic library and the measured runs
+(`paperorchestra/evidence.py`). The library entries use `corpus.cite_key`, the same key `corpus.bibliography` writes, and
+papers not yet accepted into the bibliography are marked. The runs are the completed experiments with their independent
+verification status ("verified and reproduced", "verified, not reproduced" or "FAILED independent verification") and
+measured comparison. The writer is told that these are the only references and numbers it may use.
+
+The writer keeps only the LaTeX of the model's answer and rejects agent text. When no model answers, writing fails with
+a clear error. Before 6.6.4 it stored template prose that claimed confirmed hypotheses without any run. Agents can check
+citations themselves with `library.search` (papers and cite keys) and `library.passages` (ranked passages, untrusted).
+Contract: FQC-PAPER-EVIDENCE-664.
 
 ---
 

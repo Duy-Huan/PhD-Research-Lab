@@ -1,0 +1,133 @@
+{
+  "id": "FQC-PAPER-EVIDENCE-664",
+  "title": "The paper writer works from the topic library and measured runs, and the gates reject empty, agent or uncited drafts",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want a drafted paper to cite the topic library and report only measured, verified numbers, never template prose or an agent's approval plan, and the agent to be able to check its own citations (live run 2026-10-28; agent/PLAN_6.6.4_L3.md A6).",
+  "requirements": [
+    {
+      "id": "EVIDENCE",
+      "description": "Section writing and full orchestration give the writer the topic library (cite keys equal to the bibliography's, unaccepted papers marked) and the completed experiment runs with their independent verification status and measured comparison, bounded in size."
+    },
+    {
+      "id": "NO_FABRICATION",
+      "description": "When no model answers, writing fails with a clear error and stores nothing; there is no template fallback prose."
+    },
+    {
+      "id": "MANUSCRIPT_ONLY",
+      "description": "Chat before or after the LaTeX (greetings, 'Here is', 'Let me know', fences) is removed; an answer with agent text (approval plan, /accept, phdlab-action) or no usable text is rejected."
+    },
+    {
+      "id": "GATES",
+      "description": "The quality report has a manuscript gate that fails on empty or under-30-word sections, agent text, no sections, or zero citations when the topic library has papers; overall readiness requires it."
+    },
+    {
+      "id": "LIBRARY_TOOLS",
+      "description": "library.search lists topic papers with cite key, bibliography state and full-text availability; library.passages returns ranked passages marked untrusted; both are read-only and an unknown topic answers not_found."
+    }
+  ],
+  "nonfunctional": [
+    "Evidence at most 14000 characters and 40 papers, gathered in under 5 s",
+    "Unaccepted papers are visible as such to the writer"
+  ],
+  "inputs": [
+    "paperorchestra.section_write / full_orchestration mission tasks",
+    "library.search {topic_id, query, limit, offset}",
+    "library.passages {topic_id, query, paper_id, limit}"
+  ],
+  "outputs": [
+    "Manuscript sections citing library keys",
+    "VerificationQualityReport.manuscript"
+  ],
+  "preconditions": [
+    "A topic; a model for writing (none: an explicit failure)"
+  ],
+  "postconditions": [
+    "No stored section contains invented results or non-manuscript text"
+  ],
+  "dependencies": [
+    "backend/knowledge/corpus.py (search, retrieve, bibliography)",
+    "backend/knowledge/verification.py (verify_run)"
+  ],
+  "affected_modules": [
+    "backend/research_engines/paperorchestra/evidence.py",
+    "backend/research_engines/paperorchestra/backends/skill_backend.py",
+    "backend/research_engines/paperorchestra/modes.py",
+    "backend/research_engines/paperorchestra/quality_gates.py",
+    "backend/research_engines/paperorchestra/contracts.py",
+    "backend/knowledge/corpus.py",
+    "backend/tools/library_tools.py",
+    "backend/tools/registry.py"
+  ],
+  "acceptance_criteria": [
+    "tests/test_paper_evidence_664.py 6/6; RED on f358389",
+    "Existing PaperOrchestra, research engine and governance suites pass; three tests that relied on the template fallback now use a fixed model answer"
+  ],
+  "scenarios": [
+    {
+      "id": "evidence",
+      "requirement": "EVIDENCE",
+      "kind": "positive",
+      "expected": "The writer prompt holds the accepted paper's key, the candidate marked unaccepted and the verified run with its measured PSNR gain; the draft cites the bibliography key and passes the manuscript gate",
+      "test": "tests/test_paper_evidence_664.py::PaperEvidence.test_full_orchestration_gives_the_writer_the_library_and_measured_runs"
+    },
+    {
+      "id": "no-model",
+      "requirement": "NO_FABRICATION",
+      "kind": "failure",
+      "expected": "Section and full writing raise 'unavailable'; no section and no 'hypotheses hold' text is stored",
+      "test": "tests/test_paper_evidence_664.py::PaperEvidence.test_without_a_model_the_writer_fails_instead_of_inventing_text"
+    },
+    {
+      "id": "agent-text",
+      "requirement": "MANUSCRIPT_ONLY",
+      "kind": "negative",
+      "expected": "An approval plan is rejected; greetings, fences and follow-up questions are stripped",
+      "test": "tests/test_paper_evidence_664.py::PaperEvidence.test_agent_text_is_rejected_and_chat_around_latex_is_removed"
+    },
+    {
+      "id": "gates",
+      "requirement": "GATES",
+      "kind": "boundary",
+      "expected": "Empty, agent, uncited and missing drafts fail readiness; no library means no citation is required",
+      "test": "tests/test_paper_evidence_664.py::PaperEvidence.test_gates_reject_empty_agent_and_uncited_drafts"
+    },
+    {
+      "id": "library-tools",
+      "requirement": "LIBRARY_TOOLS",
+      "kind": "security",
+      "expected": "Papers and untrusted passages with cite keys; unknown topic not_found; read-only specs",
+      "test": "tests/test_paper_evidence_664.py::PaperEvidence.test_library_tools_list_papers_and_passages_with_cite_keys"
+    },
+    {
+      "id": "bounded",
+      "requirement": "EVIDENCE",
+      "kind": "performance",
+      "expected": "62 papers: 40 listed, text within the limit, under 5 s; unknown topic gives empty evidence",
+      "test": "tests/test_paper_evidence_664.py::PaperEvidence.test_evidence_is_bounded_and_quick"
+    }
+  ],
+  "recovery": "Fix at evidence/skill_backend/quality_gates; never reintroduce template prose or pass an uncited library-backed draft. TASK-PAPER-EVIDENCE-664, max three cycles.",
+  "test_environment": "Disposable PHDLAB_DATA_DIR with a real topic, papers, built-in protocol run and verification (tests/_env.py); the writing model is a fixed answer; evidence in docs/qa/evidence/paper-evidence-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 6 tests on f358389, all 6 failing (writer got no evidence, agent text accepted, template prose stored, no manuscript gate, no library tools, no evidence module). GREEN: 6/6.",
+    "red": {
+      "path": "docs/qa/evidence/paper-evidence-664/red.json",
+      "sha256": "6d05f1b216abd98bf0ef90bdf0ded54247e22c67da77114dcc8dcfac4e00acda",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/paper-evidence-664/green.json",
+      "sha256": "4109a4a0733693cb86db20ba86f2604c061439a812161eaaa333b5016fd8ed65",
+      "exit_code": 0
+    }
+  }
+}

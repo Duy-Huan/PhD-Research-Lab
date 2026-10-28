@@ -1,0 +1,66 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_paper_evidence_664.PaperEvidence.test_agent_text_is_rejected_and_chat_around_latex_is_removed",
+      "status": "FAIL",
+      "duration": 0.2489,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red8\\tests\\test_paper_evidence_664.py\", line 103, in test_agent_text_is_rejected_and_chat_around_latex_is_removed\n    self.assertRaisesRegex(ValueError, \"agent text\"):\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: ValueError not raised\n"
+    },
+    {
+      "id": "test_paper_evidence_664.PaperEvidence.test_evidence_is_bounded_and_quick",
+      "status": "ERROR",
+      "duration": 0.2112,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red8\\tests\\test_paper_evidence_664.py\", line 153, in test_evidence_is_bounded_and_quick\n    from backend.research_engines.paperorchestra.evidence import MAX_CHARS, gather\nModuleNotFoundError: No module named 'backend.research_engines.paperorchestra.evidence'\n"
+    },
+    {
+      "id": "test_paper_evidence_664.PaperEvidence.test_full_orchestration_gives_the_writer_the_library_and_measured_runs",
+      "status": "FAIL",
+      "duration": 1.6256,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red8\\tests\\test_paper_evidence_664.py\", line 78, in test_full_orchestration_gives_the_writer_the_library_and_measured_runs\n    self.assertTrue(writer_prompts)\nAssertionError: [] is not true\n"
+    },
+    {
+      "id": "test_paper_evidence_664.PaperEvidence.test_gates_reject_empty_agent_and_uncited_drafts",
+      "status": "ERROR",
+      "duration": 0.2376,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red8\\tests\\test_paper_evidence_664.py\", line 115, in test_gates_reject_empty_agent_and_uncited_drafts\n    from backend.research_engines.paperorchestra.quality_gates import check_manuscript, evaluate_quality_gates\nImportError: cannot import name 'check_manuscript' from 'backend.research_engines.paperorchestra.quality_gates' (D:\\r664red8\\backend\\research_engines\\paperorchestra\\quality_gates.py)\n"
+    },
+    {
+      "id": "test_paper_evidence_664.PaperEvidence.test_library_tools_list_papers_and_passages_with_cite_keys",
+      "status": "ERROR",
+      "duration": 0.2246,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red8\\tests\\test_paper_evidence_664.py\", line 134, in test_library_tools_list_papers_and_passages_with_cite_keys\n    from backend.tools import library_tools as LT\nImportError: cannot import name 'library_tools' from 'backend.tools' (D:\\r664red8\\backend\\tools\\__init__.py)\n"
+    },
+    {
+      "id": "test_paper_evidence_664.PaperEvidence.test_without_a_model_the_writer_fails_instead_of_inventing_text",
+      "status": "FAIL",
+      "duration": 0.3341,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red8\\tests\\test_paper_evidence_664.py\", line 98, in test_without_a_model_the_writer_fails_instead_of_inventing_text\n    self.assertFalse(any(\"hypotheses hold\" in text for text in sections.values()))\nAssertionError: True is not false\n"
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_paper_evidence_664.PaperEvidence.test_without_a_model_the_writer_fails_instead_of_inventing_text",
+      "id": "test_paper_evidence_664.PaperEvidence.test_without_a_model_the_writer_fails_instead_of_inventing_text (capability='paperorchestra.section_write')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red8\\tests\\test_paper_evidence_664.py\", line 95, in test_without_a_model_the_writer_fails_instead_of_inventing_text\n    self.assertRaisesRegex(ValueError, \"unavailable\"):\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: ValueError not raised\n"
+    },
+    {
+      "parent": "test_paper_evidence_664.PaperEvidence.test_without_a_model_the_writer_fails_instead_of_inventing_text",
+      "id": "test_paper_evidence_664.PaperEvidence.test_without_a_model_the_writer_fails_instead_of_inventing_text (capability='paperorchestra.full_orchestration')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red8\\tests\\test_paper_evidence_664.py\", line 95, in test_without_a_model_the_writer_fails_instead_of_inventing_text\n    self.assertRaisesRegex(ValueError, \"unavailable\"):\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: ValueError not raised\n"
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 6,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-uf9c8dmu",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

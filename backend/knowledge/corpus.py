@@ -411,10 +411,15 @@ def import_legacy(tid: str) -> dict:
     return ingest(tid, [{**r, "source": "legacy_library"} for r in load_library().values()])
 
 
+def cite_key(pid: str) -> str:
+    """The BibTeX key of a topic paper: the same in the bibliography, the writer's evidence and the citation check."""
+    return "skb_" + pid.replace("-", "")[:12]
+
+
 def bibliography(tid: str) -> str:
     from backend.knowledge.library import build_bibtex
     with S.db() as c:
         S.topic(c, tid)
         rows = c.execute("SELECT paper_id FROM paper_topics WHERE topic_id=? AND state='accepted'", (tid,))
-        entries = [{**_paper(c, tid, r[0]), "key": "skb_" + r[0].replace("-", "")[:12], "entry_type": "article"} for r in rows]
+        entries = [{**_paper(c, tid, r[0]), "key": cite_key(r[0]), "entry_type": "article"} for r in rows]
     return build_bibtex(entries)

@@ -89,6 +89,15 @@ from backend.research_engines.paperorchestra.quality_gates import (
 )
 
 
+# v6.6.4: the section writer no longer invents template prose when no model answers, so tests that run the writer
+# give it a model answer (with chat around the LaTeX, which the writer must strip).
+MODEL_SECTION = ("Here is the section you asked for:\n```latex\nSelf-attention relates every token to every other token "
+                 "and therefore costs quadratic time in the sequence length, which motivates the sparse variants studied "
+                 "in this survey \\cite{vaswani2017}. We compare them under one protocol and report only measured results.\n```\n"
+                 "Let me know if you want changes.")
+FAKE_MODEL = patch("backend.providers.research.app_complete", return_value=MODEL_SECTION)
+
+
 class TestPaperOrchestraIntegration(unittest.TestCase):
     def setUp(self):
         self.tmp_dir = tempfile.mkdtemp(prefix="phdlab_test_po_")
@@ -184,7 +193,8 @@ class TestPaperOrchestraIntegration(unittest.TestCase):
         self.assertTrue(any(a.artifact_id == saved.artifact_id for a in all_arts))
 
     # ── 3. Capability-based Skill Backend ────────────────────────────────────
-    def test_skill_backend_execution(self):
+    @FAKE_MODEL
+    def test_skill_backend_execution(self, _model):
         task = EngineTask(
             operation_id="RR-00000001:S1",
             attempt=1,
@@ -201,7 +211,8 @@ class TestPaperOrchestraIntegration(unittest.TestCase):
         result = execute_skill(task, emit=lambda e: events.append(e), cancelled=lambda: False)
 
         self.assertEqual(result.engine, "paperorchestra")
-        self.assertTrue(len(result.text) > 0)
+        self.assertIn("quadratic time", result.text)
+        self.assertNotIn("Here is the section", result.text)
         self.assertTrue(len(result.artifact_refs) > 0)
         self.assertEqual(result.provenance.get("backend"), "harness_skills")
         self.assertTrue(any(e.data.get("state") == "completed" for e in events))
@@ -330,7 +341,8 @@ class TestPaperOrchestraIntegration(unittest.TestCase):
         self.assertEqual(len(review_rep.scores), 4)
 
     # ── 10. L2 Mode Execution & Human Approval Checkpoint (§3) ───────────────
-    def test_l2_mode_execution_and_checkpoint(self):
+    @FAKE_MODEL
+    def test_l2_mode_execution_and_checkpoint(self, _model):
         spec = create_l2_paper_mission(
             topic_id="top-po",
             objective="Write paper abstract",
@@ -441,7 +453,8 @@ class TestPaperOrchestraIntegration(unittest.TestCase):
             self.assertTrue(Path(r.storage_path).exists())
 
     # ── 15. Provider Fallback (§6) ───────────────────────────────────────────
-    def test_provider_fallback_to_harness_skills(self):
+    @FAKE_MODEL
+    def test_provider_fallback_to_harness_skills(self, _model):
         engine = PaperOrchestraEngine()
         task = EngineTask(
             operation_id="RR-00000004:S1",
