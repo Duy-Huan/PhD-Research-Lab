@@ -133,7 +133,7 @@
     },
     "green": {
       "path": "docs/qa/evidence/cli-studio-663/green-backend.json",
-      "sha256": "cd18aa44ec700ec1d62c4ca4d0c86e7ea5f7d24cbf5c7199bdcd6d27879a64b8",
+      "sha256": "66d7ffe9e1248b27efd768edef2384cb9dbb94fc3178dd32bb427106fdafcafb",
       "exit_code": 0
     }
   }

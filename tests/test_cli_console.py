@@ -70,14 +70,18 @@ class OpenChatConsole(unittest.TestCase):
         self.assertEqual(opened.call_args.args[0], self.sid)
         self.assertIsInstance(opened.call_args.args[1], int)
 
-    @unittest.skipUnless(sys.platform.startswith("win"), "real cmd.exe quoting")
     def test_the_command_line_runs_in_a_real_cmd(self):
         # Same command line as the console window, with /c so it exits: proves cmd.exe parses the quoting.
+        # Mandatory gates count skips as blocked, so other platforms check the exact line instead of running it.
         line = native.console_command(sys.executable, ["-m", "backend.cli", "--help"], keep_open=False)
-        r = subprocess.run(line, cwd=str(_env.ROOT), env=dict(os.environ, PYTHONPATH=str(_env.ROOT), PYTHONIOENCODING="utf-8"),
-                           capture_output=True, timeout=120)
-        self.assertEqual(r.returncode, 0, r.stderr.decode("utf-8", "replace"))
-        self.assertIn("phdlab", r.stdout.decode("utf-8", "replace"))
+        if sys.platform.startswith("win"):
+            r = subprocess.run(line, cwd=str(_env.ROOT), env=dict(os.environ, PYTHONPATH=str(_env.ROOT), PYTHONIOENCODING="utf-8"),
+                               capture_output=True, timeout=120)
+            self.assertEqual(r.returncode, 0, r.stderr.decode("utf-8", "replace"))
+            self.assertIn("phdlab", r.stdout.decode("utf-8", "replace"))
+        else:
+            self.assertEqual(line, f'cmd.exe /d /c "chcp 65001 >nul & "{sys.executable}" -m backend.cli --help"')
+        self.assertTrue(native.console_command("python.exe", ["x"]).startswith('cmd.exe /d /k "'), "the console stays open")
 
 
 if __name__ == "__main__":
