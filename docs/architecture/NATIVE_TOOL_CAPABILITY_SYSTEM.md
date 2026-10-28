@@ -93,3 +93,12 @@ invalid JSON never overwritten, bearer header only if `mcp.token` is set). Resta
 and work in the same project; it reaches the registry through `phdlab_tools_search/describe/call` under
 `tools.mcp_permissions`. `POST /api/tools/clients/antigravity/unregister` removes only this entry.
 
+
+## Long registry calls return a job (v6.6.4)
+
+`phdlab_tools_call` waits at most `wait_s` seconds (default 45, maximum 300), which is below the 60 s MCP tool timeout of
+the CLI clients. A tool still running after that returns `status: "running"`, its job id, its latest observations and a
+hint. The client then calls `phdlab_tools_job` with `{job, wait_s}` to wait for the result, or with `action: "cancel"` to
+stop the tool. Only the principal that started a job can read or cancel it; any other job id answers `not_found`. A long
+sandbox run through the Codex container proxy therefore no longer ends in HTTP 502 while the run continues.
+Hermes and ChatGPT see `phdlab_tools_job` together with the other three meta-tools. Contract: FQC-TOOL-JOBS-664.

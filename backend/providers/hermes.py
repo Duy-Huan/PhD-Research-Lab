@@ -63,7 +63,7 @@ def _owner(profile) -> str:
 # ------------------------------------------------------------------ v6.6.2 native environment
 SHARED_SKILLS_IN_RUNTIME = '/opt/shared-skills'
 SKILL_NAME = re.compile(r'^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$')
-REGISTRY_TOOLS = ('phdlab_tools_search', 'phdlab_tools_describe', 'phdlab_tools_call')
+REGISTRY_TOOLS = ('phdlab_tools_search', 'phdlab_tools_describe', 'phdlab_tools_call', 'phdlab_tools_job')
 LIVENESS_S = 120  # the runtime must answer at least once in this window; the job itself has no deadline
 
 

@@ -41,7 +41,7 @@ RANGES_URL = "https://openai.com/chatgpt-connectors.json"
 REDIRECT_PATTERNS = (re.compile(r"^https://chatgpt\.com/connector_platform_oauth_redirect$"),
                      re.compile(r"^https://chatgpt\.com/connector/oauth/[A-Za-z0-9_-]{1,200}$"))
 ACCESS_TTL, REFRESH_TTL, CODE_TTL, PENDING_TTL = 3600, 30 * 86400, 300, 600
-EXPOSED_TOOLS = ["phdlab_tools_search", "phdlab_tools_describe", "phdlab_tools_call"]
+EXPOSED_TOOLS = ["phdlab_tools_search", "phdlab_tools_describe", "phdlab_tools_call", "phdlab_tools_job"]
 LOOPBACK = {"127.0.0.1", "::1", "localhost"}
 _lock = threading.RLock()
 

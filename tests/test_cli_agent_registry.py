@@ -18,7 +18,7 @@ from backend.core import config
 from backend.providers import cli, isolated_cli
 from backend.tools import mcp_bridge
 
-BRIDGE = {"phdlab_tools_search", "phdlab_tools_describe", "phdlab_tools_call"}
+BRIDGE = {"phdlab_tools_search", "phdlab_tools_describe", "phdlab_tools_call", "phdlab_tools_job"}  # job: 6.6.4 A1
 
 
 def turn(settings, topic_id=""):

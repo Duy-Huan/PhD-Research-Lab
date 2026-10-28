@@ -31,6 +31,11 @@ Baseline at v6.6.3 (`66b7311`):
 
 ## Phase A: remove technical blockers (software, every item test-first)
 
+Progress 2026-10-28:
+- A1 is done locally (FQC-TOOL-JOBS-664). `phdlab_tools_call` waits at most 45 s, then `phdlab_tools_job` takes over.
+- A5 is done locally (FQC-TOOL-SHELL-664). `sandbox_run_code` names cmd.exe or POSIX sh.
+- Live confirmation with Codex comes with the A9/live run.
+
 | ID | Change | Criteria |
 |---|---|---|
 | A1 | Long tools return a job id and are polled (`sandbox_run_code`, experiments, discovery): no 502 through the CLI container proxy | RQ-10, RQ-07 |

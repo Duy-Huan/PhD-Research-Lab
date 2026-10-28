@@ -47,7 +47,7 @@ def _builtin_permissions(name: str, group: str) -> list:
 
 
 def builtin_specs() -> list[ToolSpec]:
-    from backend.providers.mcp_server import TOOLS as SANDBOX
+    from backend.providers.mcp_server import sandbox_tools
     from backend.providers.mcp_tools import TOOLS as RESEARCH
     out = []
     for t in RESEARCH:
@@ -58,7 +58,7 @@ def builtin_specs() -> list[ToolSpec]:
                             capabilities=caps, input_schema=t["inputSchema"], mutates=t["group"] == "write",
                             permissions=_builtin_permissions(t["name"], t["group"]), source="builtin",
                             execution={"mcp_tool": t["name"]}))
-    for t in SANDBOX:
+    for t in sandbox_tools():  # 6.6.4: sandbox_run_code says which shell runs commands
         mutates = t["name"] != "sandbox_get_metrics"
         out.append(ToolSpec(id=t["name"], version="1.0.0", kind="native", description=t["description"],
                             capabilities=["sandbox", "compute", "experiment", "code"], input_schema=t["inputSchema"],
