@@ -6,6 +6,7 @@ the console, and at its deadline writes diagnostics, stops the owned process tre
 always() artifact upload runs. It never turns a failing or hung command into PASS.
 """
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -79,9 +80,17 @@ class Watchdog(unittest.TestCase):
 
     def test_workflow_runs_backend_regression_under_the_watchdog_below_step_and_job_limits(self):
         text = (Path(__file__).resolve().parents[1] / '.github/workflows/quality.yml').read_text('utf-8')
-        self.assertIn('-m devtools.verification.ci_watchdog --deadline-s 1560', text)
-        self.assertIn('timeout-minutes: 28', text)
-        self.assertIn('timeout-minutes: 35', text)
+        # 6.6.3: the Windows 3.11 push run hit the 1500 s stage budget at case 1287 of 1313 with no stuck test, so every
+        # bound moved up by about 5 minutes and keeps its order: stage < watchdog < step < job.
+        self.assertIn('-m devtools.verification.ci_watchdog --deadline-s 1860', text)
+        self.assertIn('timeout-minutes: 33', text)
+        self.assertIn('timeout-minutes: 40', text)
+        runner = (Path(__file__).resolve().parents[1] / 'devtools/verification/runner.py').read_text('utf-8')
+        stage = int(re.search(r"timeout=(\d+)\)\s+# measured Windows", runner).group(1))
+        self.assertLess(stage, 1860)
+        self.assertLess(1860, 33 * 60)
+        self.assertLess(33, 40)
+        self.assertEqual(stage, 1800)
 
 
 if __name__ == '__main__':

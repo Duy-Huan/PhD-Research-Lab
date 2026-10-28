@@ -287,7 +287,7 @@ def main(argv: list[str] | None = None) -> int:
                         '--layer', 'all' if args.profile in ('full','release') else 'software',
                         '--i-understand-full-suite', '--require-complete', '--coverage-min', str(BACKEND_COVERAGE_MIN),
                         '--output-dir', str(out/'backend')],
-                        timeout=1500)  # measured Windows 3.12 CI 13.7-18.3m; 20m was hit by runner variance (6.6.0)
+                        timeout=1800)  # measured Windows CI 13.7-18.3m (6.6.0); 1500s hit at case 1287/1313, no stuck test (6.6.3)
                 report_path = out/'backend/report.json'
                 if report_path.is_file():
                     backend_report=json.loads(report_path.read_text(encoding='utf-8'))
