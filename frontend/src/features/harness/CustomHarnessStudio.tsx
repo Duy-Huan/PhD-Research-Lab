@@ -28,6 +28,7 @@ import {
   WorkflowNodeType,
 } from '../../shared/api/types';
 import { HarnessNodeComponent } from './HarnessNodeComponent';
+import { MissionTeamPanel } from './MissionTeamPanel';
 import {
   Play,
   Pause,
@@ -1267,6 +1268,16 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
               {/* TAB 3: DYNAMIC AGENT TEAM BUILDER */}
               {leftTab === 'agents' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <MissionTeamPanel
+                    workflow={() => ({
+                      name: workflowName,
+                      nodes: nodes.map((n) => ({ id: n.id, type: n.type || n.data.node_type, data: n.data })),
+                      edges: edges.map((e) => ({ id: e.id, source: e.source, target: e.target, sourceHandle: e.sourceHandle })),
+                    })}
+                    level={executionLevel}
+                    objective={architectObjective || workflowDesc}
+                    topicId={topicId}
+                  />
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>
                       {t('Đội ngũ chuyên gia', 'Expert team')} ({agents.length})

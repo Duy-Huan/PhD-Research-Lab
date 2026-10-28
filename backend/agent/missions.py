@@ -339,6 +339,14 @@ async def _dispatch(m,task,key) -> ExecutionResult:
         return ExecutionResult(status="completed", output={"figure_id": created["id"], "version": created["current_version"], "verification": created["verification"]}, artifacts=arts)
     if task.capability == 'code.implement':
         return await _native_code(m,task)
+    if task.capability == "review.checkpoint":  # v6.6.4: the mission then waits in awaiting_step_review
+        return ExecutionResult(status="completed",output={"checkpoint":task.args.get("title",""),"requires_human_review":True})
+    if task.capability == "agent.task":  # v6.6.4: a team agent on the model bound to it
+        from backend.agent import team_agents
+        done=await team_agents.run(m,task,lambda:is_stopped(mid))
+        return ExecutionResult(status="completed",engine="agent",output=done["output"],
+                               artifacts=[ArtifactManifest(**a) for a in done["artifacts"]],
+                               limitations=["Agent output is unverified until checked; scientific review pending"])
     if task.capability.startswith("paperorchestra."):
         from backend.research_engines.paperorchestra.modes import execute_mission_task
         return await execute_mission_task(m, task, key)
@@ -368,7 +376,7 @@ async def tick(mid: str = ""):
         return
     done={t["id"] for t in m["tasks"] if t["status"]=="completed"}
     from backend.agent import autonomy
-    if autonomy.level(m) in ("L1", "L2") and autonomy.pending_review(m):
+    if autonomy.pending_review(m):
         with S.db() as c:
             c.execute("UPDATE missions SET status='awaiting_step_review' WHERE id=? AND status IN ('queued','running')", (m["id"],))
         return
@@ -385,7 +393,7 @@ async def tick(mid: str = ""):
         return
     task=Task.model_validate(taskrow["payload"]["spec"])
     routing=None;gate_task=task
-    if task.capability=="paper.compare" and p["spec"].get("control"):
+    if (task.capability=="paper.compare" and p["spec"].get("control")) or task.preferred_engine=="agent":
         try:routing=CAP.route(task)
         except ValueError as exc:
             with S.db() as c:
@@ -400,7 +408,10 @@ async def tick(mid: str = ""):
         slot = "cpu"
     if task.capability.startswith("paperorchestra."):
         slot = "local_llm" if (p["spec"].get("control") or {}).get("app_backend") in ("local", "ollama") else "cloud"
-    if routing:
+    if routing and routing["engine"]=="agent":
+        from backend.agent import team_agents
+        slot=team_agents.slot(routing["model"])
+    elif routing:
         slot="cli" if routing["engine"]!="app" else "local_llm" if p["spec"]["control"]["app_backend"] in ("local","ollama") else "cloud"
     holder="mission:"+m["id"]+":"+S.uid()
     try: guard.try_acquire(slot,holder)
@@ -500,7 +511,7 @@ async def tick(mid: str = ""):
                     ancestor["payload"]["active_seconds"]+=elapsed
                     c.execute("UPDATE missions SET payload=? WHERE id=?",(S.dumps(ancestor["payload"]),ancestor["id"]))
                 state=current["status"] if current["status"] in ("cancelled","paused") else "running" if outcome=="completed" else outcome
-                if state == "running" and autonomy.level(current) in ("L1", "L2"):
+                if state == "running" and (autonomy.level(current) in ("L1", "L2") or task.capability == "review.checkpoint"):
                     state = "awaiting_step_review"
                 c.execute("UPDATE missions SET status=?,payload=?,updated=? WHERE id=?",(state,S.dumps(current["payload"]),S.now(),m["id"]))
                 L.append(c,m["topic_id"],m["id"],"task."+outcome,{"task_id":task.id,"result":tp["result"]})

@@ -44,7 +44,11 @@ Progress 2026-10-28:
   PDF, is done locally (FQC-LATEX-BUNDLE-664): Tectonic 0.17.0, SHA-256 pinned, in <install>/tools of the .exe and
   .deb; CI installer smoke runs it. A live PDF compile on the owner's machine needs the owner's permission to run the
   downloaded binary (the session's permission check blocked it); its first compile needs internet.
-- Live confirmation with Codex comes with the A9/live run.
+- A9 is done locally (FQC-HARNESS-TEAM-664): AI-proposed team bound to the model list, canvas → governed mission
+  (agent.task, review.checkpoint), Team tab UI, HARNESS-LEVELS-004 in CI. Live Codex runs (2026-10-29) proposed a
+  4-agent team and ran an agent task to a checkpoint; three findings fixed (local engines shown available unprobed,
+  registry tools missing from CLI grants, session files returned as outputs). Owner decision still open: default of
+  research_os.team_enabled (off).
 
 | ID | Change | Criteria |
 |---|---|---|

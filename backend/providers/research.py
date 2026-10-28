@@ -205,6 +205,11 @@ def _snapshot(d: Path) -> dict:
     return {str(f):f.stat().st_mtime_ns for f in _artifact_files(d)}
 
 
+# The gateway writes these into the session root when it sends the request (after the "before" snapshot); they are the
+# session's instructions, not the agent's work. Found in the 6.6.4 A9 live run, where they were returned as outputs.
+SCAFFOLD = {"AGENTS.md", "CLAUDE.md", "GEMINI.md", "FIREWALL.md", "PROJECT_CONTEXT.md"}
+
+
 def _collect(cwd: Path, before: dict, outdir: Path) -> list:
     from backend.core.config import data_dir
     from backend.knowledge.research_store import safe_child
@@ -213,7 +218,7 @@ def _collect(cwd: Path, before: dict, outdir: Path) -> list:
     pending=[];total=0
     for source in _artifact_files(cwd):
         stat=source.stat()
-        if before.get(str(source))==stat.st_mtime_ns:continue
+        if before.get(str(source))==stat.st_mtime_ns or (source.parent==cwd and source.name in SCAFFOLD):continue
         total+=stat.st_size
         if stat.st_size>32*1024*1024 or total>64*1024*1024:
             raise ProviderUnavailable('Coding artifact byte budget exceeded; original files are preserved in the provider workspace')
@@ -231,7 +236,8 @@ def _collect(cwd: Path, before: dict, outdir: Path) -> list:
     return files
 
 
-def run_coding(task_id: str, pid: str, prompt: str, context_text: str, outdir: Path, cancelled=None) -> dict:
+def run_coding(task_id: str, pid: str, prompt: str, context_text: str, outdir: Path, cancelled=None,
+               registry: list | None = None) -> dict:
     """An explicitly selected coding provider through the existing durable gateway."""
     from backend.providers import cli_space as W, gateway as G
     from backend.providers.cli import ProviderError
@@ -253,7 +259,7 @@ def run_coding(task_id: str, pid: str, prompt: str, context_text: str, outdir: P
         cwd=Path(session['cwd'])
         (cwd/'PROJECT_CONTEXT.md').write_text(safe_context,'utf-8')
         before=_snapshot(cwd)
-        grant=grant_for_cli('run:'+task_id)
+        grant=grant_for_cli('run:'+task_id,registry=registry)  # registry: the team agent's tools (v6.6.4)
         G.send(request['id'],base_url=grant['mcp_url'].removesuffix('/mcp'),
                mcp={'token':grant['mcp_token'],'tools':grant['mcp_tools']})
         deadline=time.monotonic()+600

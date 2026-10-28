@@ -1,0 +1,71 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_a_cli_agent_grant_carries_its_registry_tools_and_session_files_are_not_outputs",
+      "status": "ERROR",
+      "duration": 0.2878,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 55, in setUp\n    self.real_choices = TA.model_choices  # setUp replaces it with a fixed list\n                        ^^^^^^^^^^^^^^^^\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 30, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.team_agents'\n"
+    },
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_a_local_engine_counts_as_available_only_when_it_answers",
+      "status": "ERROR",
+      "duration": 0.23,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 55, in setUp\n    self.real_choices = TA.model_choices  # setUp replaces it with a fixed list\n                        ^^^^^^^^^^^^^^^^\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 30, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.team_agents'\n"
+    },
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_agent_tasks_run_on_the_bound_model_and_checkpoints_wait_for_the_researcher",
+      "status": "ERROR",
+      "duration": 0.2338,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 55, in setUp\n    self.real_choices = TA.model_choices  # setUp replaces it with a fixed list\n                        ^^^^^^^^^^^^^^^^\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 30, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.team_agents'\n"
+    },
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_an_unavailable_model_pauses_the_mission_and_nothing_else_runs",
+      "status": "ERROR",
+      "duration": 0.2279,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 55, in setUp\n    self.real_choices = TA.model_choices  # setUp replaces it with a fixed list\n                        ^^^^^^^^^^^^^^^^\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 30, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.team_agents'\n"
+    },
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_canvases_that_cannot_be_compiled_say_why",
+      "status": "ERROR",
+      "duration": 0.2385,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 55, in setUp\n    self.real_choices = TA.model_choices  # setUp replaces it with a fixed list\n                        ^^^^^^^^^^^^^^^^\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 30, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.team_agents'\n"
+    },
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_model_choices_exclude_providers_that_may_not_be_driven",
+      "status": "ERROR",
+      "duration": 0.2326,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 55, in setUp\n    self.real_choices = TA.model_choices  # setUp replaces it with a fixed list\n                        ^^^^^^^^^^^^^^^^\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 30, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.team_agents'\n"
+    },
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_the_api_lists_models_compiles_and_reports_errors",
+      "status": "ERROR",
+      "duration": 0.2276,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 55, in setUp\n    self.real_choices = TA.model_choices  # setUp replaces it with a fixed list\n                        ^^^^^^^^^^^^^^^^\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 30, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.team_agents'\n"
+    },
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_the_architect_model_proposes_and_the_app_validates_the_team",
+      "status": "ERROR",
+      "duration": 0.2371,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 55, in setUp\n    self.real_choices = TA.model_choices  # setUp replaces it with a fixed list\n                        ^^^^^^^^^^^^^^^^\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 30, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.team_agents'\n"
+    },
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_the_canvas_compiles_to_a_mission_draft_with_the_bound_models",
+      "status": "ERROR",
+      "duration": 0.249,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 55, in setUp\n    self.real_choices = TA.model_choices  # setUp replaces it with a fixed list\n                        ^^^^^^^^^^^^^^^^\n  File \"D:\\r664red11\\tests\\test_harness_team_664.py\", line 30, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.team_agents'\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 9,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-4kjxmr7k",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

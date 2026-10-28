@@ -51,7 +51,10 @@ def validate(spec):
 
 
 def pending_review(m):
-    return next((t for t in m["tasks"] if t["status"] == "completed" and not t["payload"].get("human_review")), None)
+    """L1/L2 review every result; at any level a completed review.checkpoint (v6.6.4) waits for the researcher."""
+    every = level(m) in ("L1", "L2")
+    return next((t for t in m["tasks"] if t["status"] == "completed" and not t["payload"].get("human_review")
+                 and (every or t["payload"]["spec"]["capability"] == "review.checkpoint")), None)
 
 
 def step_review(tid, mid, task_id, plan_digest, result_digest, accept, note):
@@ -61,7 +64,7 @@ def step_review(tid, mid, task_id, plan_digest, result_digest, accept, note):
     with S.db() as c:
         m = M._get(c, mid, tid)
         task = pending_review(m)
-        if level(m) not in ("L1", "L2") or m["status"] != "awaiting_step_review" or task is None or task["id"] != task_id:
+        if m["status"] != "awaiting_step_review" or task is None or task["id"] != task_id:
             raise ValueError("Workflow is not awaiting this step review")
         if plan_digest != L.digest(m["payload"]["spec"]) or plan_digest != m["payload"]["plan_digest"] or result_digest != L.digest(task["payload"]["result"]):
             raise ValueError("Stale plan or result digest")

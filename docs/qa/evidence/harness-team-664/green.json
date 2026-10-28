@@ -1,0 +1,120 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_a_cli_agent_grant_carries_its_registry_tools_and_session_files_are_not_outputs",
+      "status": "PASS",
+      "duration": 0.2572,
+      "details": null
+    },
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_a_local_engine_counts_as_available_only_when_it_answers",
+      "status": "PASS",
+      "duration": 0.2309,
+      "details": null
+    },
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_agent_tasks_run_on_the_bound_model_and_checkpoints_wait_for_the_researcher",
+      "status": "PASS",
+      "duration": 0.6714,
+      "details": null
+    },
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_an_unavailable_model_pauses_the_mission_and_nothing_else_runs",
+      "status": "PASS",
+      "duration": 0.3476,
+      "details": null
+    },
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_canvases_that_cannot_be_compiled_say_why",
+      "status": "PASS",
+      "duration": 0.2889,
+      "details": null
+    },
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_model_choices_exclude_providers_that_may_not_be_driven",
+      "status": "PASS",
+      "duration": 0.2374,
+      "details": null
+    },
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_the_api_lists_models_compiles_and_reports_errors",
+      "status": "PASS",
+      "duration": 0.9008,
+      "details": null
+    },
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_the_architect_model_proposes_and_the_app_validates_the_team",
+      "status": "PASS",
+      "duration": 0.492,
+      "details": null
+    },
+    {
+      "id": "test_harness_team_664.HarnessTeam.test_the_canvas_compiles_to_a_mission_draft_with_the_bound_models",
+      "status": "PASS",
+      "duration": 0.2869,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_harness_team_664.HarnessTeam.test_canvases_that_cannot_be_compiled_say_why",
+      "id": "test_harness_team_664.HarnessTeam.test_canvases_that_cannot_be_compiled_say_why (message='conditions and loops')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_harness_team_664.HarnessTeam.test_canvases_that_cannot_be_compiled_say_why",
+      "id": "test_harness_team_664.HarnessTeam.test_canvases_that_cannot_be_compiled_say_why (message='L2 or L3')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_harness_team_664.HarnessTeam.test_canvases_that_cannot_be_compiled_say_why",
+      "id": "test_harness_team_664.HarnessTeam.test_canvases_that_cannot_be_compiled_say_why (message=None)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_harness_team_664.HarnessTeam.test_canvases_that_cannot_be_compiled_say_why",
+      "id": "test_harness_team_664.HarnessTeam.test_canvases_that_cannot_be_compiled_say_why (message=\"no team agent has role 'coder'\")",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_harness_team_664.HarnessTeam.test_the_architect_model_proposes_and_the_app_validates_the_team",
+      "id": "test_harness_team_664.HarnessTeam.test_the_architect_model_proposes_and_the_app_validates_the_team (message='unknown tools')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_harness_team_664.HarnessTeam.test_the_architect_model_proposes_and_the_app_validates_the_team",
+      "id": "test_harness_team_664.HarnessTeam.test_the_architect_model_proposes_and_the_app_validates_the_team (message='not in the model list')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_harness_team_664.HarnessTeam.test_the_architect_model_proposes_and_the_app_validates_the_team",
+      "id": "test_harness_team_664.HarnessTeam.test_the_architect_model_proposes_and_the_app_validates_the_team (message='must be unique')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_harness_team_664.HarnessTeam.test_the_architect_model_proposes_and_the_app_validates_the_team",
+      "id": "test_harness_team_664.HarnessTeam.test_the_architect_model_proposes_and_the_app_validates_the_team (message='1 to 4 agents')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 9,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-_nn5cwdf",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

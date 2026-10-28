@@ -1,0 +1,363 @@
+{
+ "id": "5b7dc765-919b-4c58-b4b2-9621420024af",
+ "topic_id": "2d84fc5c-7cdc-4cae-9e60-744b5d3b6fda",
+ "status": "awaiting_review",
+ "payload": {
+  "active_seconds": 54.71899999998277,
+  "approval": {
+   "at": "2026-10-28T19:07:00.107992+00:00",
+   "by": "researcher",
+   "expires": "2026-10-28T20:07:00.107992+00:00",
+   "note": "QA operator approval in a disposable live-test project (A9)",
+   "plan_digest": "e05487a41a77a6b388ef424176fb70cfe8db051a8954c1b22b6be1eaa204430c"
+  },
+  "depth": 0,
+  "hops": 3,
+  "last_routing": {
+   "engine": "agent",
+   "model": "cli:codex",
+   "why": "The team bound this agent to this model; no other model is tried"
+  },
+  "plan_digest": "e05487a41a77a6b388ef424176fb70cfe8db051a8954c1b22b6be1eaa204430c",
+  "reasoning_calls": 1,
+  "spec": {
+   "autonomy": {
+    "level": "L3",
+    "max_output_tokens": 512,
+    "schema_version": "1.0"
+   },
+   "collaboration": null,
+   "control": {
+    "allow_api_billing": false,
+    "allowed_engines": [
+     "agent",
+     "deterministic"
+    ],
+    "app_backend": "local",
+    "app_model": "",
+    "charter_digest": "",
+    "charter_id": "",
+    "end_date": "2026-10-30T19:07:00.056883Z",
+    "exclusions": [],
+    "hypothesis_id": "",
+    "max_wall_seconds": 3600,
+    "not_before": null,
+    "predecessor_id": "",
+    "priority": 0,
+    "review_required": true,
+    "schema_version": "1.0",
+    "success_criteria": [
+     "Every canvas step completed with its evidence; scientific review pending"
+    ]
+   },
+   "expected_artifacts": [],
+   "inputs": [],
+   "limits": {
+    "max_artifact_mb": 32,
+    "max_attempts": 2,
+    "max_depth": 2,
+    "max_hops": 3,
+    "max_reasoning_calls": 1,
+    "max_seconds": 3600,
+    "max_tasks": 3,
+    "schema_version": "1.0"
+   },
+   "objective": "Can a fixed 3x3 smoothing filter reduce synthetic Gaussian image noise (PSNR)?",
+   "owner": "researcher",
+   "parent_mission_id": "",
+   "permissions": [
+    "reasoning",
+    "workspace_write"
+   ],
+   "questions": [],
+   "routing_mode": "manual",
+   "schema_version": "1.0",
+   "stop_conditions": [
+    "budget_exceeded",
+    "failed_dependency"
+   ],
+   "tasks": [
+    {
+     "args": {
+      "agent": "researcher",
+      "instructions": "Use library.search on topic 2d84fc5c-7cdc-4cae-9e60-744b5d3b6fda to see what the topic library holds (it may be empty; say so). Then write design.md with one testable hypothesis about a fixed 3x3 box filter and synthetic Gaussian noise (PSNR), the conditions (baseline = noisy input, method = filtered), 3 seeds and the metric. Do not run anything and do not claim results.",
+      "model": "cli:codex",
+      "tools": [
+       "library.search",
+       "library.passages"
+      ]
+     },
+     "capability": "agent.task",
+     "depends_on": [],
+     "fallback_engines": [],
+     "id": "node-hypothesis",
+     "preferred_engine": "agent",
+     "schema_version": "1.0"
+    },
+    {
+     "args": {
+      "title": "Review the design"
+     },
+     "capability": "review.checkpoint",
+     "depends_on": [
+      "node-hypothesis"
+     ],
+     "fallback_engines": [],
+     "id": "node-review",
+     "preferred_engine": "deterministic",
+     "schema_version": "1.0"
+    },
+    {
+     "args": {
+      "title": "Harness mission report"
+     },
+     "capability": "mission.report",
+     "depends_on": [
+      "node-review"
+     ],
+     "fallback_engines": [],
+     "id": "node-end",
+     "preferred_engine": "deterministic",
+     "schema_version": "1.0"
+    }
+   ],
+   "team": {
+    "agents": [
+     {
+      "capabilities": [
+       "agent.task"
+      ],
+      "engines": [
+       "agent"
+      ],
+      "expected_value": "Proposes a testable hypothesis and experiment design",
+      "id": "researcher",
+      "permissions": [
+       "reasoning",
+       "workspace_write"
+      ],
+      "purpose": "Proposes a testable hypothesis and experiment design",
+      "schema_version": "1.0",
+      "termination": "Assigned bounded tasks complete or admission stops"
+     },
+     {
+      "capabilities": [
+       "mission.report",
+       "review.checkpoint"
+      ],
+      "engines": [
+       "deterministic"
+      ],
+      "expected_value": "Canvas steps that are not agent work run as typed mission tasks",
+      "id": "coordinator",
+      "permissions": [
+       "workspace_write"
+      ],
+      "purpose": "Runs the deterministic and writing steps of the canvas",
+      "schema_version": "1.0",
+      "termination": "Assigned bounded tasks complete or admission stops"
+     }
+    ],
+    "assignments": [
+     {
+      "acceptance": [
+       "Result recorded with its artifacts"
+      ],
+      "output_contract": "ExecutionResult/1.0",
+      "owner": "researcher",
+      "schema_version": "1.0",
+      "task_id": "node-hypothesis",
+      "verifier": ""
+     },
+     {
+      "acceptance": [
+       "Researcher reviewed"
+      ],
+      "output_contract": "ExecutionResult/1.0",
+      "owner": "coordinator",
+      "schema_version": "1.0",
+      "task_id": "node-review",
+      "verifier": ""
+     },
+     {
+      "acceptance": [
+       "Result recorded with its artifacts"
+      ],
+      "output_contract": "ExecutionResult/1.0",
+      "owner": "coordinator",
+      "schema_version": "1.0",
+      "task_id": "node-end",
+      "verifier": ""
+     }
+    ],
+    "generation": 0,
+    "max_agents": 2,
+    "max_parallel_tasks": 1,
+    "max_replans": 2,
+    "mode": "fixed",
+    "schema_version": "1.0"
+   },
+   "topic_id": "2d84fc5c-7cdc-4cae-9e60-744b5d3b6fda"
+  },
+  "started_at": "2026-10-28T19:07:00.758451+00:00"
+ },
+ "created": "2026-10-28T19:07:00.061882+00:00",
+ "updated": "2026-10-28T19:08:02.196652+00:00",
+ "tasks": [
+  {
+   "mission_id": "5b7dc765-919b-4c58-b4b2-9621420024af",
+   "id": "node-hypothesis",
+   "status": "completed",
+   "payload": {
+    "attempts": 1,
+    "execution_record": {
+     "attempt_key": "5b7dc765-919b-4c58-b4b2-9621420024af:node-hypothesis:1",
+     "elapsed_seconds": 54.68699999997625,
+     "outcome": "completed",
+     "provider_usage": null,
+     "verification_status": "unverified"
+    },
+    "result": {
+     "artifacts": [
+      {
+       "bytes": 3296,
+       "path": "D:\\qa663\\projects\\a9-live-1793214416\\workspace\\research\\missions\\5b7dc765-919b-4c58-b4b2-9621420024af\\node-hypothesis\\codex\\design.md",
+       "schema_version": "1.0",
+       "scientific_review": "pending",
+       "sha256": "32253bc81626e6115d8290d0b5351de8bb98568cedddaef43f4f913bbd51c5e7"
+      }
+     ],
+     "engine": "agent",
+     "evidence": [],
+     "limitations": [
+      "Agent output is unverified until checked; scientific review pending"
+     ],
+     "output": {
+      "agent": "researcher",
+      "files": [
+       "design.md"
+      ],
+      "model": "cli:codex",
+      "text": "I’ll read the project context and firewall, check for the PhD-Lab registry tools, then search the topic library and write the experiment design without running it.Created [design.md](/workspace/design.md) with one testable hypothesis, noisy-input baseline, fixed 3×3 box-filter method, seeds 0/1/2, and paired PSNR evaluation.\n\n`library.search` found the topic library empty (job `tj-5320ab757296963b6268`). No research record ids were available to cite.\n\nNothing was run; there are no results. The researcher must review the design and approve a PhD-Lab protocol before execution."
+     },
+     "schema_version": "1.0",
+     "status": "completed"
+    },
+    "result_digest": "809c15d04a9e9483591542e0d5bf87efa85ed117e14255084c720ee4332aebed",
+    "spec": {
+     "args": {
+      "agent": "researcher",
+      "instructions": "Use library.search on topic 2d84fc5c-7cdc-4cae-9e60-744b5d3b6fda to see what the topic library holds (it may be empty; say so). Then write design.md with one testable hypothesis about a fixed 3x3 box filter and synthetic Gaussian noise (PSNR), the conditions (baseline = noisy input, method = filtered), 3 seeds and the metric. Do not run anything and do not claim results.",
+      "model": "cli:codex",
+      "tools": [
+       "library.search",
+       "library.passages"
+      ]
+     },
+     "capability": "agent.task",
+     "depends_on": [],
+     "fallback_engines": [],
+     "id": "node-hypothesis",
+     "preferred_engine": "agent",
+     "schema_version": "1.0"
+    }
+   }
+  },
+  {
+   "mission_id": "5b7dc765-919b-4c58-b4b2-9621420024af",
+   "id": "node-review",
+   "status": "completed",
+   "payload": {
+    "attempts": 1,
+    "execution_record": {
+     "attempt_key": "5b7dc765-919b-4c58-b4b2-9621420024af:node-review:1",
+     "elapsed_seconds": 0.01600000000325963,
+     "outcome": "completed",
+     "provider_usage": null,
+     "verification_status": "unverified"
+    },
+    "human_review": {
+     "accept": true,
+     "at": "2026-10-28T19:08:01.260224+00:00",
+     "by": "researcher",
+     "note": "QA operator: design reviewed",
+     "result_digest": "0235b01bd3d062bd3027597b68f11fc53bd2b0401a5718b928694f332482b83c"
+    },
+    "result": {
+     "artifacts": [],
+     "engine": "deterministic",
+     "evidence": [],
+     "limitations": [],
+     "output": {
+      "checkpoint": "Review the design",
+      "requires_human_review": true
+     },
+     "schema_version": "1.0",
+     "status": "completed"
+    },
+    "result_digest": "0235b01bd3d062bd3027597b68f11fc53bd2b0401a5718b928694f332482b83c",
+    "spec": {
+     "args": {
+      "title": "Review the design"
+     },
+     "capability": "review.checkpoint",
+     "depends_on": [
+      "node-hypothesis"
+     ],
+     "fallback_engines": [],
+     "id": "node-review",
+     "preferred_engine": "deterministic",
+     "schema_version": "1.0"
+    }
+   }
+  },
+  {
+   "mission_id": "5b7dc765-919b-4c58-b4b2-9621420024af",
+   "id": "node-end",
+   "status": "completed",
+   "payload": {
+    "attempts": 1,
+    "execution_record": {
+     "attempt_key": "5b7dc765-919b-4c58-b4b2-9621420024af:node-end:1",
+     "elapsed_seconds": 0.01600000000325963,
+     "outcome": "completed",
+     "provider_usage": null,
+     "verification_status": "unverified"
+    },
+    "result": {
+     "artifacts": [
+      {
+       "bytes": 3919,
+       "path": "D:\\qa663\\projects\\a9-live-1793214416\\workspace\\research\\missions\\5b7dc765-919b-4c58-b4b2-9621420024af\\node-end\\evidence-report.json",
+       "schema_version": "1.0",
+       "scientific_review": "pending",
+       "sha256": "e1bb0b2eb804873e8e314872c53bf86e20f5e44bdaffbe18dd4e9a6d18247409"
+      }
+     ],
+     "engine": "deterministic",
+     "evidence": [],
+     "limitations": [],
+     "output": {
+      "report": "D:\\qa663\\projects\\a9-live-1793214416\\workspace\\research\\missions\\5b7dc765-919b-4c58-b4b2-9621420024af\\node-end\\evidence-report.json"
+     },
+     "schema_version": "1.0",
+     "status": "completed"
+    },
+    "result_digest": "40d0e0cc2d7941e2e24cddc40cf40342903a8869c4d89177916fc4850b9ab66e",
+    "spec": {
+     "args": {
+      "title": "Harness mission report"
+     },
+     "capability": "mission.report",
+     "depends_on": [
+      "node-review"
+     ],
+     "fallback_engines": [],
+     "id": "node-end",
+     "preferred_engine": "deterministic",
+     "schema_version": "1.0"
+    }
+   }
+  }
+ ]
+}
