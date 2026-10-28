@@ -1,0 +1,2275 @@
+{
+ "config": {
+  "argv": [
+   "C:\\Program Files\\nodejs\\node.exe",
+   "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\frontend\\node_modules\\@playwright\\test\\cli.js",
+   "test",
+   "e2e/cli_studio.spec.ts",
+   "e2e/shell_layout.spec.ts"
+  ],
+  "configFile": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\frontend\\playwright.config.ts",
+  "rootDir": "D:/git-repo/PhD-Research-Lab-worktrees/dev/frontend/e2e",
+  "failOnFlakyTests": false,
+  "forbidOnly": false,
+  "fullyParallel": false,
+  "globalSetup": null,
+  "globalTeardown": null,
+  "globalTimeout": 0,
+  "grep": {},
+  "grepInvert": null,
+  "maxFailures": 0,
+  "metadata": {
+   "actualWorkers": 1
+  },
+  "preserveOutput": "always",
+  "projects": [
+   {
+    "outputDir": "D:/git-repo/PhD-Research-Lab-worktrees/dev/output/playwright/ui-663-final/results",
+    "repeatEach": 1,
+    "retries": 0,
+    "metadata": {
+     "actualWorkers": 1
+    },
+    "id": "",
+    "name": "",
+    "testDir": "D:/git-repo/PhD-Research-Lab-worktrees/dev/frontend/e2e",
+    "testIgnore": [],
+    "testMatch": [
+     "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+    ],
+    "timeout": 120000
+   }
+  ],
+  "filteredProjects": [
+   {
+    "grep": {},
+    "grepInvert": null,
+    "outputDir": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results",
+    "repeatEach": 1,
+    "retries": 0,
+    "metadata": {
+     "actualWorkers": 1
+    },
+    "name": "",
+    "testDir": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\frontend\\e2e",
+    "snapshotDir": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\frontend\\e2e",
+    "testIgnore": [],
+    "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+    "timeout": 120000,
+    "use": {
+     "baseURL": "http://127.0.0.1:8791",
+     "browserName": "chromium",
+     "headless": true,
+     "viewport": {
+      "width": 1440,
+      "height": 900
+     },
+     "trace": "on",
+     "screenshot": "on",
+     "video": "retain-on-failure",
+     "actionTimeout": 15000
+    },
+    "dependencies": [],
+    "ignoreSnapshots": false,
+    "__projectId": ""
+   }
+  ],
+  "quiet": false,
+  "reporter": [
+   [
+    "line",
+    null
+   ],
+   [
+    "html",
+    {
+     "outputFolder": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\html",
+     "open": "never"
+    }
+   ],
+   [
+    "json",
+    {
+     "outputFile": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results.json"
+    }
+   ]
+  ],
+  "reportSlowTests": {
+   "max": 5,
+   "threshold": 300000
+  },
+  "shard": null,
+  "tags": [],
+  "updateSnapshots": "default",
+  "updateSourceMethod": "patch",
+  "version": "1.64.1",
+  "workers": 1,
+  "webServer": null
+ },
+ "suites": [
+  {
+   "title": "cli_studio.spec.ts",
+   "file": "cli_studio.spec.ts",
+   "column": 0,
+   "line": 0,
+   "specs": [
+    {
+     "title": "UI-CLI-LAYOUT-001: 1440x900 vi light: prompt at the bottom, framed, nothing overlaps",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 689,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:31.461Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-1440-vi-light.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-357b0-tom-framed-nothing-overlaps\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-357b0-tom-framed-nothing-overlaps\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-7d555f2101806938d78c",
+     "file": "cli_studio.spec.ts",
+     "line": 106,
+     "column": 7
+    },
+    {
+     "title": "UI-CLI-LAYOUT-001: 1440x900 vi dark: prompt at the bottom, framed, nothing overlaps",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 717,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:32.346Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-1440-vi-dark.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-d5e78-tom-framed-nothing-overlaps\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-d5e78-tom-framed-nothing-overlaps\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-7cc2b378fcecaa3c2d04",
+     "file": "cli_studio.spec.ts",
+     "line": 106,
+     "column": 7
+    },
+    {
+     "title": "UI-CLI-LAYOUT-001: 1440x900 en light: prompt at the bottom, framed, nothing overlaps",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 627,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:33.106Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-1440-en-light.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-815da-tom-framed-nothing-overlaps\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-815da-tom-framed-nothing-overlaps\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-b3e3be14d2617ffc8e87",
+     "file": "cli_studio.spec.ts",
+     "line": 106,
+     "column": 7
+    },
+    {
+     "title": "UI-CLI-LAYOUT-001: 1440x900 en dark: prompt at the bottom, framed, nothing overlaps",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 657,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:33.771Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-1440-en-dark.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-268a5-tom-framed-nothing-overlaps\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-268a5-tom-framed-nothing-overlaps\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-ad773a7a1073b7689f3c",
+     "file": "cli_studio.spec.ts",
+     "line": 106,
+     "column": 7
+    },
+    {
+     "title": "UI-CLI-LAYOUT-001: 1024x768 vi light: prompt at the bottom, framed, nothing overlaps",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 648,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:34.472Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-1024-vi-light.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-fc395-tom-framed-nothing-overlaps\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-fc395-tom-framed-nothing-overlaps\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-2931e1f0ea26c901f735",
+     "file": "cli_studio.spec.ts",
+     "line": 106,
+     "column": 7
+    },
+    {
+     "title": "UI-CLI-LAYOUT-001: 1024x768 vi dark: prompt at the bottom, framed, nothing overlaps",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 691,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:35.159Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-1024-vi-dark.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-d3d7d-tom-framed-nothing-overlaps\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-d3d7d-tom-framed-nothing-overlaps\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-4253d82af2d30433f027",
+     "file": "cli_studio.spec.ts",
+     "line": 106,
+     "column": 7
+    },
+    {
+     "title": "UI-CLI-LAYOUT-001: 1024x768 en light: prompt at the bottom, framed, nothing overlaps",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 621,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:35.899Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-1024-en-light.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-9e648-tom-framed-nothing-overlaps\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-9e648-tom-framed-nothing-overlaps\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-2192d10763af7c6773bf",
+     "file": "cli_studio.spec.ts",
+     "line": 106,
+     "column": 7
+    },
+    {
+     "title": "UI-CLI-LAYOUT-001: 1024x768 en dark: prompt at the bottom, framed, nothing overlaps",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 896,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:36.560Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-1024-en-dark.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-94473-tom-framed-nothing-overlaps\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-94473-tom-framed-nothing-overlaps\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-b443dbf1f241883b1a0e",
+     "file": "cli_studio.spec.ts",
+     "line": 106,
+     "column": 7
+    },
+    {
+     "title": "UI-CLI-LAYOUT-001: 390x844 vi light: prompt at the bottom, framed, nothing overlaps",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 994,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:37.530Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-390-vi-light.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-e6111-tom-framed-nothing-overlaps\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-e6111-tom-framed-nothing-overlaps\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-64b3ae877a93561ba852",
+     "file": "cli_studio.spec.ts",
+     "line": 106,
+     "column": 7
+    },
+    {
+     "title": "UI-CLI-LAYOUT-001: 390x844 vi dark: prompt at the bottom, framed, nothing overlaps",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 1055,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:38.579Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-390-vi-dark.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-61e79-tom-framed-nothing-overlaps\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-61e79-tom-framed-nothing-overlaps\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-99f202da7d894bb420f6",
+     "file": "cli_studio.spec.ts",
+     "line": 106,
+     "column": 7
+    },
+    {
+     "title": "UI-CLI-LAYOUT-001: 390x844 en light: prompt at the bottom, framed, nothing overlaps",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 807,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:39.688Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-390-en-light.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-1504d-tom-framed-nothing-overlaps\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-1504d-tom-framed-nothing-overlaps\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-e922e39a332cc23c5749",
+     "file": "cli_studio.spec.ts",
+     "line": 106,
+     "column": 7
+    },
+    {
+     "title": "UI-CLI-LAYOUT-001: 390x844 en dark: prompt at the bottom, framed, nothing overlaps",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 693,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:40.538Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-390-en-dark.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-731af-tom-framed-nothing-overlaps\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-731af-tom-framed-nothing-overlaps\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-1ca939e1e525d82cd897",
+     "file": "cli_studio.spec.ts",
+     "line": 106,
+     "column": 7
+    },
+    {
+     "title": "UI-CLI-LAYOUT-001: 360x740 vi light: prompt at the bottom, framed, nothing overlaps",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 728,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:41.265Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-360-vi-light.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-9e147-tom-framed-nothing-overlaps\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-9e147-tom-framed-nothing-overlaps\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-6ceef91c6b0623a80cfb",
+     "file": "cli_studio.spec.ts",
+     "line": 106,
+     "column": 7
+    },
+    {
+     "title": "UI-CLI-LAYOUT-001: 360x740 vi dark: prompt at the bottom, framed, nothing overlaps",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 694,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:42.034Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-360-vi-dark.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-4a575-tom-framed-nothing-overlaps\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-4a575-tom-framed-nothing-overlaps\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-75f0c7c8877d3127f7ef",
+     "file": "cli_studio.spec.ts",
+     "line": 106,
+     "column": 7
+    },
+    {
+     "title": "UI-CLI-LAYOUT-001: 360x740 en light: prompt at the bottom, framed, nothing overlaps",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 680,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:42.765Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-360-en-light.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-92966-tom-framed-nothing-overlaps\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-92966-tom-framed-nothing-overlaps\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-3a5a5ce8062bd5ad4a0d",
+     "file": "cli_studio.spec.ts",
+     "line": 106,
+     "column": 7
+    },
+    {
+     "title": "UI-CLI-LAYOUT-001: 360x740 en dark: prompt at the bottom, framed, nothing overlaps",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 733,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:43.491Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-360-en-dark.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-5b3c2-tom-framed-nothing-overlaps\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-5b3c2-tom-framed-nothing-overlaps\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-6c41c666e4b655870d60",
+     "file": "cli_studio.spec.ts",
+     "line": 106,
+     "column": 7
+    },
+    {
+     "title": "UI-CLI-LAYOUT-002: 1440px with 100 messages keeps the prompt fixed and scrolls the transcript",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 858,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:44.270Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-100-1440.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-82811--and-scrolls-the-transcript\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-82811--and-scrolls-the-transcript\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-a5116f09e37ffd5b648c",
+     "file": "cli_studio.spec.ts",
+     "line": 119,
+     "column": 3
+    },
+    {
+     "title": "UI-CLI-LAYOUT-002: 390px with 100 messages keeps the prompt fixed and scrolls the transcript",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 842,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:45.214Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "cli-100-390.png",
+           "contentType": "image/png"
+          },
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-8b1c0--and-scrolls-the-transcript\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-LAYOUT-0-8b1c0--and-scrolls-the-transcript\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-080cfefb4396fc4d65ec",
+     "file": "cli_studio.spec.ts",
+     "line": 119,
+     "column": 3
+    },
+    {
+     "title": "UI-CLI-SUGGEST-001: command suggestions open above the prompt and stay on screen",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 740,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:46.115Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-SUGGEST--3ae24-e-prompt-and-stay-on-screen\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\cli_studio-UI-CLI-SUGGEST--3ae24-e-prompt-and-stay-on-screen\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "4863ce477640b204ac2f-b73b2d22c830ba958c12",
+     "file": "cli_studio.spec.ts",
+     "line": 132,
+     "column": 1
+    }
+   ]
+  },
+  {
+   "title": "shell_layout.spec.ts",
+   "file": "shell_layout.spec.ts",
+   "column": 0,
+   "line": 0,
+   "specs": [
+    {
+     "title": "UI-SHELL-SIDEBAR-001: 1024px vi: brand on one line, every icon full size, nothing clipped",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 551,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:46.925Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-SIDE-63b13-n-full-size-nothing-clipped\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-SIDE-63b13-n-full-size-nothing-clipped\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-9d32892b36262822bbf2",
+     "file": "shell_layout.spec.ts",
+     "line": 22,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-SIDEBAR-001: 1024px en: brand on one line, every icon full size, nothing clipped",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 533,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:47.541Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-SIDE-5b6a7-n-full-size-nothing-clipped\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-SIDE-5b6a7-n-full-size-nothing-clipped\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-22104942b6da32d9f809",
+     "file": "shell_layout.spec.ts",
+     "line": 22,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-SIDEBAR-001: 1280px vi: brand on one line, every icon full size, nothing clipped",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 532,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:48.115Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-SIDE-b22b9-n-full-size-nothing-clipped\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-SIDE-b22b9-n-full-size-nothing-clipped\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-38757107091bc0ed5a46",
+     "file": "shell_layout.spec.ts",
+     "line": 22,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-SIDEBAR-001: 1280px en: brand on one line, every icon full size, nothing clipped",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 542,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:48.681Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-SIDE-0d3a6-n-full-size-nothing-clipped\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-SIDE-0d3a6-n-full-size-nothing-clipped\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-39c191da7cf9b752e074",
+     "file": "shell_layout.spec.ts",
+     "line": 22,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-SIDEBAR-001: 1440px vi: brand on one line, every icon full size, nothing clipped",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 551,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:49.269Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-SIDE-432fc-n-full-size-nothing-clipped\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-SIDE-432fc-n-full-size-nothing-clipped\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-f24ad67be292b8838d3e",
+     "file": "shell_layout.spec.ts",
+     "line": 22,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-SIDEBAR-001: 1440px en: brand on one line, every icon full size, nothing clipped",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 559,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:49.854Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-SIDE-ad6fd-n-full-size-nothing-clipped\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-SIDE-ad6fd-n-full-size-nothing-clipped\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-3fef805299c25a3ed369",
+     "file": "shell_layout.spec.ts",
+     "line": 22,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-HANDLE-001: 1024px chat: the Right menu handle covers no control",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 890,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:50.455Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-e57dc-nu-handle-covers-no-control\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-e57dc-nu-handle-covers-no-control\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-b6e005b31be095cf8cac",
+     "file": "shell_layout.spec.ts",
+     "line": 60,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-HANDLE-001: 1024px library: the Right menu handle covers no control",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 981,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:51.390Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-db619-nu-handle-covers-no-control\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-db619-nu-handle-covers-no-control\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-97249a803d935ac1f62e",
+     "file": "shell_layout.spec.ts",
+     "line": 60,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-HANDLE-001: 1024px harness: the Right menu handle covers no control",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 1143,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:52.427Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-37aa4-nu-handle-covers-no-control\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-37aa4-nu-handle-covers-no-control\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-a7cd48b45f0ab50d3e37",
+     "file": "shell_layout.spec.ts",
+     "line": 60,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-HANDLE-001: 1024px review: the Right menu handle covers no control",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 961,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:53.653Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-ec218-nu-handle-covers-no-control\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-ec218-nu-handle-covers-no-control\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-632a6c669b738224ee73",
+     "file": "shell_layout.spec.ts",
+     "line": 60,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-HANDLE-001: 1024px dashboard: the Right menu handle covers no control",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 991,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:54.651Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-063e9-nu-handle-covers-no-control\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-063e9-nu-handle-covers-no-control\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-b6808af26fcb88863992",
+     "file": "shell_layout.spec.ts",
+     "line": 60,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-HANDLE-001: 1024px settings: the Right menu handle covers no control",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 1081,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:55.684Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-4b049-nu-handle-covers-no-control\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-4b049-nu-handle-covers-no-control\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-37c242518da257badd87",
+     "file": "shell_layout.spec.ts",
+     "line": 60,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-HANDLE-001: 1024px cli: the Right menu handle covers no control",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 1015,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:56.839Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-42160-nu-handle-covers-no-control\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-42160-nu-handle-covers-no-control\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-a1d5755b46d356955949",
+     "file": "shell_layout.spec.ts",
+     "line": 60,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-HANDLE-001: 1440px chat: the Right menu handle covers no control",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 981,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:57.902Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-11ba6-nu-handle-covers-no-control\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-11ba6-nu-handle-covers-no-control\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-f4c9bc4bd23b05424485",
+     "file": "shell_layout.spec.ts",
+     "line": 60,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-HANDLE-001: 1440px library: the Right menu handle covers no control",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 994,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:58.920Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-4e39e-nu-handle-covers-no-control\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-4e39e-nu-handle-covers-no-control\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-d82a6628d21d9ca544b0",
+     "file": "shell_layout.spec.ts",
+     "line": 60,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-HANDLE-001: 1440px harness: the Right menu handle covers no control",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 1148,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:50:59.951Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-c8517-nu-handle-covers-no-control\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-c8517-nu-handle-covers-no-control\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-50bf4e5f8bf6154a7556",
+     "file": "shell_layout.spec.ts",
+     "line": 60,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-HANDLE-001: 1440px review: the Right menu handle covers no control",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 976,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:51:01.199Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-1494a-nu-handle-covers-no-control\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-1494a-nu-handle-covers-no-control\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-275bdaf69f0f4a135621",
+     "file": "shell_layout.spec.ts",
+     "line": 60,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-HANDLE-001: 1440px dashboard: the Right menu handle covers no control",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 1038,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:51:02.213Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-f522a-nu-handle-covers-no-control\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-f522a-nu-handle-covers-no-control\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-24ae4fa1325b06b6a44d",
+     "file": "shell_layout.spec.ts",
+     "line": 60,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-HANDLE-001: 1440px settings: the Right menu handle covers no control",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 1088,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:51:03.306Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-1acbe-nu-handle-covers-no-control\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-1acbe-nu-handle-covers-no-control\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-17ab28cafa18e332ba3a",
+     "file": "shell_layout.spec.ts",
+     "line": 60,
+     "column": 5
+    },
+    {
+     "title": "UI-SHELL-HANDLE-001: 1440px cli: the Right menu handle covers no control",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 120000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 1055,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-28T03:51:04.477Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "screenshot",
+           "contentType": "image/png",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-ddf11-nu-handle-covers-no-control\\test-finished-1.png"
+          },
+          {
+           "name": "browser-and-network.json",
+           "contentType": "application/json"
+          },
+          {
+           "name": "rendered-ui.txt",
+           "contentType": "text/plain"
+          },
+          {
+           "name": "trace",
+           "contentType": "application/zip",
+           "path": "D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\ui-663-final\\results\\shell_layout-UI-SHELL-HAND-ddf11-nu-handle-covers-no-control\\trace.zip"
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "a3b73f64921ab22fa4ab-7bc157cd545f475db131",
+     "file": "shell_layout.spec.ts",
+     "line": 60,
+     "column": 5
+    }
+   ]
+  }
+ ],
+ "errors": [],
+ "stats": {
+  "startTime": "2026-10-28T03:50:31.069Z",
+  "duration": 34635.348,
+  "expected": 39,
+  "skipped": 0,
+  "unexpected": 0,
+  "flaky": 0
+ }
+}

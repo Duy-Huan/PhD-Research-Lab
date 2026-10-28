@@ -82,7 +82,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
   isFullSpace,
 }) => {
   const queryClient = useQueryClient();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { setMainView, open3DOffice, openHarnessStudio, mainView } = useUIStore();
   const fullSpaceActive = isFullSpace ?? mainView === 'harness';
 
@@ -349,7 +349,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
         position: pos,
         data: {
           node_type: nodeType,
-          label: (initialData?.label as string) || meta?.label || nodeType,
+          label: (initialData?.label as string) || (language === 'en' ? meta?.label_en : meta?.label) || meta?.label || nodeType,
           config: { ...(meta?.default_config || {}), ...(initialData?.config || {}) },
           params: { ...(initialData?.params || {}) },
           status: 'idle',
@@ -745,32 +745,32 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
   const paletteCategories = [
     {
       id: 'flow',
-      title: 'Điều phối & Luồng (Flow)',
+      title: t('Điều phối & luồng', 'Flow & control'),
       types: ['start', 'end', 'condition', 'bounded_loop', 'parallel_branch', 'join'],
     },
     {
       id: 'agent',
-      title: 'Agent & Đội ngũ (Agents & Teams)',
+      title: t('Agent & đội ngũ', 'Agents & teams'),
       types: ['agent_task', 'multi_agent_team'],
     },
     {
       id: 'engine',
-      title: 'Động cơ Nghiên cứu (Research Engines)',
+      title: t('Công cụ nghiên cứu', 'Research engines'),
       types: ['research_engine'],
     },
     {
       id: 'tool',
-      title: 'Công cụ & MCP (Skills & Tools)',
+      title: t('Kỹ năng & MCP', 'Skills & tools'),
       types: ['tool_skill', 'mcp_tool'],
     },
     {
       id: 'data',
-      title: 'Dữ liệu & Bộ nhớ (Data & Memory)',
+      title: t('Dữ liệu & bộ nhớ', 'Data & memory'),
       types: ['input', 'output', 'artifact_transformation', 'memory_read', 'memory_write'],
     },
     {
       id: 'governance',
-      title: 'Kiểm định & An toàn (Governance & Gates)',
+      title: t('Kiểm định & an toàn', 'Governance & gates'),
       types: ['human_approval', 'evaluation_gate', 'error_handler', 'checkpoint'],
     },
   ];
@@ -846,8 +846,8 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
               style={{ fontSize: 10.5, cursor: 'help' }}
             >
               {validation?.valid
-                ? `✓ DAG Hợp lệ (${nodes.length} nodes)`
-                : `⚠ ${(validation?.errors || []).length} lỗi`}
+                ? `✓ ${t('DAG hợp lệ', 'Valid DAG')} (${nodes.length} nodes)`
+                : `⚠ ${(validation?.errors || []).length} ${t('lỗi', 'errors')}`}
             </span>
           </div>
 
@@ -906,16 +906,17 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
             style={{ fontSize: 11, fontWeight: 600, color: 'var(--accent)', maxWidth: 120 }}
             value={executionLevel}
             onChange={(e) => setExecutionLevel(e.target.value as 'L2' | 'L3' | 'L4')}
-            title="Cấp độ tự chủ (L2: Thủ công, L3: Đội ngũ, L4: Tự chủ hoàn toàn)"
+            title={t('Cấp độ tự chủ (L2: Thủ công, L3: Đội ngũ, L4: Tự chủ hoàn toàn)', 'Autonomy level (L2: manual, L3: team, L4: fully autonomous)')}
           >
-            <option value="L2">Cấp độ L2</option>
-            <option value="L3">Cấp độ L3</option>
-            <option value="L4">Cấp độ L4</option>
+            <option value="L2">{t('Cấp độ L2', 'Level L2')}</option>
+            <option value="L3">{t('Cấp độ L3', 'Level L3')}</option>
+            <option value="L4">{t('Cấp độ L4', 'Level L4')}</option>
           </select>
 
           {/* Saved Workflows & Presets Selector */}
           <select
             className="input sm"
+            aria-label={t('Quy trình đã lưu', 'Saved workflows')}
             style={{ minWidth: 180, fontSize: 12 }}
             value={selectedWorkflowId}
             onChange={(e) => {
@@ -925,7 +926,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
           >
             {workflows.map((w) => (
               <option key={w.id} value={w.id}>
-                {w.name} {w.is_preset ? `(${t('Mẫu chuẩn', 'Preset')})` : ''}
+                {(language === 'en' && (w as { name_en?: string }).name_en) || w.name} {w.is_preset ? `(${t('Mẫu chuẩn', 'Preset')})` : ''}
               </option>
             ))}
           </select>
@@ -1074,7 +1075,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                 className={`btn xs ${leftTab === 'palette' ? 'accent' : 'ghost'}`}
                 onClick={() => setLeftTab('palette')}
                 style={{ flex: 1, borderRadius: 0, padding: '7px 4px', fontSize: 11 }}
-                title="Khối Node & Công cụ"
+                title={t('Khối Node & Công cụ', 'Nodes & tools')}
               >
                 Nodes
               </button>
@@ -1083,7 +1084,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                 className={`btn xs ${leftTab === 'templates' ? 'accent' : 'ghost'}`}
                 onClick={() => setLeftTab('templates')}
                 style={{ flex: 1, borderRadius: 0, padding: '7px 4px', fontSize: 11 }}
-                title="Thư viện Mẫu nghiên cứu"
+                title={t('Thư viện Mẫu nghiên cứu', 'Research template library')}
               >
                 Templates
               </button>
@@ -1092,7 +1093,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                 className={`btn xs ${leftTab === 'agents' ? 'accent' : 'ghost'}`}
                 onClick={() => setLeftTab('agents')}
                 style={{ flex: 1, borderRadius: 0, padding: '7px 4px', fontSize: 11 }}
-                title="Xây dựng Đội ngũ Agent"
+                title={t('Xây dựng Đội ngũ Agent', 'Build the agent team')}
               >
                 Team
               </button>
@@ -1113,7 +1114,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
               {leftTab === 'palette' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   <div style={{ fontSize: 11, color: 'var(--muted)' }}>
-                    Kéo thả hoặc bấm dấu cộng để thêm khối vào canvas quy trình:
+                    {t('Kéo thả hoặc bấm dấu cộng để thêm khối vào canvas quy trình:', 'Drag a block, or press +, to add it to the workflow canvas:')}
                   </div>
 
                   {paletteCategories.map((cat) => (
@@ -1133,7 +1134,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
                         {cat.types.map((typeKey) => {
                           const meta = nodeRegistry.find((n) => n.type === typeKey);
-                          const label = meta?.label || typeKey;
+                          const label = (language === 'en' ? meta?.label_en : meta?.label) || meta?.label || typeKey;
                           return (
                             <div
                               key={typeKey}
@@ -1203,7 +1204,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                             type="button"
                             className="icon xs"
                             onClick={() => addToolNodeAtPosition(tool.id, { x: 120 + nodes.length * 30, y: 80 + nodes.length * 30 })}
-                            title="Thêm vào canvas"
+                            title={t('Thêm vào canvas', 'Add to canvas')}
                             style={{ padding: 2 }}
                           >
                             <Plus size={12} color="var(--accent)" />
@@ -1222,7 +1223,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
               {leftTab === 'templates' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <div style={{ fontSize: 11, color: 'var(--muted)' }}>
-                    7 Mẫu quy trình nghiên cứu khoa học chuẩn có thể chỉnh sửa:
+                    {t('7 Mẫu quy trình nghiên cứu khoa học chuẩn có thể chỉnh sửa:', '7 editable standard research workflows:')}
                   </div>
 
                   {templates.map((tpl) => (
@@ -1239,11 +1240,11 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <b style={{ fontSize: 12, lineHeight: 1.3 }}>{tpl.name}</b>
+                        <b style={{ fontSize: 12, lineHeight: 1.3 }}>{(language === 'en' && (tpl as { name_en?: string }).name_en) || tpl.name}</b>
                         {tpl.badge && <span className="chip sm accent" style={{ fontSize: 9.5 }}>{tpl.badge}</span>}
                       </div>
                       <p className="muted" style={{ margin: 0, fontSize: 11, lineHeight: 1.4 }}>
-                        {tpl.description}
+                        {(language === 'en' && (tpl as { description_en?: string }).description_en) || tpl.description}
                       </p>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
                         <span style={{ fontSize: 10, color: 'var(--muted)' }}>
@@ -1268,7 +1269,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>
-                      Đội ngũ Chuyên gia ({agents.length})
+                      {t('Đội ngũ chuyên gia', 'Expert team')} ({agents.length})
                     </span>
                     <button
                       type="button"
@@ -1276,7 +1277,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                       onClick={() => setShowAgentModal(true)}
                       style={{ padding: '2px 7px', fontSize: 10.5 }}
                     >
-                      + Tạo Agent
+                      {t('+ Tạo Agent', '+ New agent')}
                     </button>
                   </div>
 
@@ -1308,7 +1309,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                               },
                             })
                           }
-                          title="Thêm Agent này thành Node Task"
+                          title={t('Thêm Agent này thành Node Task', 'Add this agent as a task node')}
                           style={{ padding: '1px 5px', fontSize: 10 }}
                         >
                           + Canvas
@@ -1338,31 +1339,31 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
               {leftTab === 'architect' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <div style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.4 }}>
-                    Thiết kế tự động toàn bộ quy trình DAG từ mục tiêu nghiên cứu tự nhiên:
+                    {t('Thiết kế tự động toàn bộ quy trình DAG từ mục tiêu nghiên cứu tự nhiên:', 'Design the whole DAG workflow from a research goal in plain language:')}
                   </div>
 
                   <label className="field" style={{ margin: 0 }}>
-                    <span style={{ fontSize: 11, fontWeight: 600 }}>Mục tiêu Nghiên cứu:</span>
+                    <span style={{ fontSize: 11, fontWeight: 600 }}>{t('Mục tiêu nghiên cứu:', 'Research goal:')}</span>
                     <textarea
                       className="input sm"
                       rows={4}
                       style={{ fontSize: 11.5, resize: 'vertical' }}
-                      placeholder="VD: Khảo sát và tối ưu hóa suy luận mô hình DeepSeek R1 trên phần cứng biên..."
+                      placeholder={t('VD: Khảo sát và tối ưu hóa suy luận mô hình DeepSeek R1 trên phần cứng biên...', 'e.g. Survey and optimise DeepSeek R1 inference on edge hardware...')}
                       value={architectObjective}
                       onChange={(e) => setArchitectObjective(e.target.value)}
                     />
                   </label>
 
                   <label className="field" style={{ margin: 0 }}>
-                    <span style={{ fontSize: 11, fontWeight: 600 }}>Cấp độ Thực thi:</span>
+                    <span style={{ fontSize: 11, fontWeight: 600 }}>{t('Cấp độ thực thi:', 'Execution level:')}</span>
                     <select
                       className="input sm"
                       value={architectLevel}
                       onChange={(e) => setArchitectLevel(e.target.value as 'L2' | 'L3' | 'L4')}
                     >
-                      <option value="L2">L2: Giám sát từng bước có phê duyệt</option>
-                      <option value="L3">L3: Điều phối Nhóm đa tác tử chuyên biệt</option>
-                      <option value="L4">L4: Tự chủ Toàn diện từ Ý tưởng đến Bài báo</option>
+                      <option value="L2">{t('L2: Giám sát từng bước có phê duyệt', 'L2: step-by-step with approval')}</option>
+                      <option value="L3">{t('L3: Điều phối nhóm đa tác tử chuyên biệt', 'L3: coordinated specialist agent team')}</option>
+                      <option value="L4">{t('L4: Tự chủ toàn diện từ ý tưởng đến bài báo', 'L4: fully autonomous from idea to paper')}</option>
                     </select>
                   </label>
 
@@ -1374,7 +1375,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                     style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                   >
                     <Sparkles size={13} />
-                    {isArchitectGenerating ? 'Đang phân tích & thiết kế…' : 'AI Thiết kế Quy trình'}
+                    {isArchitectGenerating ? t('Đang phân tích & thiết kế…', 'Analysing & designing…') : t('AI thiết kế quy trình', 'AI workflow design')}
                   </button>
 
                   {generatedWorkflow && (
@@ -1395,7 +1396,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                         {generatedWorkflow.description}
                       </p>
                       <div style={{ fontSize: 10.5, color: 'var(--ok)' }}>
-                        ✓ {generatedWorkflow.nodes?.length} nodes · {generatedWorkflow.edges?.length} edges (Hợp lệ)
+                        ✓ {generatedWorkflow.nodes?.length} nodes · {generatedWorkflow.edges?.length} edges ({t('hợp lệ', 'valid')})
                       </div>
                       <button
                         type="button"
@@ -1403,7 +1404,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                         onClick={() => loadWorkflowIntoCanvas(generatedWorkflow)}
                         style={{ marginTop: 4 }}
                       >
-                        Tải vào Canvas & Chỉnh sửa
+                        {t('Tải vào Canvas & Chỉnh sửa', 'Load into canvas & edit')}
                       </button>
                     </div>
                   )}
@@ -1473,7 +1474,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
               <div style={{ fontWeight: 600, fontSize: 14 }}>{t('Canvas Quy trình Trống', 'Empty Workflow Canvas')}</div>
               <p className="muted" style={{ fontSize: 12, marginTop: 4, lineHeight: 1.4 }}>
                 {t(
-                  'Chọn một mẫu nghiên cứu từ Thư viện (Templates), tạo tự động qua AI Architect, hoặc kéo thả các khối từ bảng bên trái.',
+                  t('Chọn một mẫu nghiên cứu từ Thư viện, tạo tự động bằng AI Architect, hoặc kéo thả các khối từ bảng bên trái.', 'Pick a research template from the library, generate one with AI Architect, or drag blocks from the left panel.'),
                   'Select a template, generate with AI Architect, or drag and drop blocks from the left palette.'
                 )}
               </p>
@@ -1503,7 +1504,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                 onClick={() => setRightTab('config')}
                 style={{ flex: 1, borderRadius: 0, padding: '7px 4px', fontSize: 11 }}
               >
-                Cấu hình Node
+                {t('Cấu hình Node', 'Node settings')}
               </button>
               <button
                 type="button"
@@ -1511,7 +1512,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                 onClick={() => setRightTab('debugger')}
                 style={{ flex: 1, borderRadius: 0, padding: '7px 4px', fontSize: 11 }}
               >
-                Gỡ lỗi & Logs
+                {t('Gỡ lỗi & Logs', 'Debug & logs')}
               </button>
             </div>
 
@@ -1525,7 +1526,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>
-                          Cấu hình ({String(selectedNode.type || selectedNode.data.node_type || '')})
+                          {t('Cấu hình', 'Settings')} ({String(selectedNode.type || selectedNode.data.node_type || '')})
                         </span>
                         <button
                           type="button"
@@ -1537,7 +1538,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                       </div>
 
                       <label className="field" style={{ margin: 0 }}>
-                        <span style={{ fontSize: 11, fontWeight: 600 }}>Tên hiển thị:</span>
+                        <span style={{ fontSize: 11, fontWeight: 600 }}>{t('Tên hiển thị:', 'Display name:')}</span>
                         <input
                           className="input sm"
                           value={String(selectedNode.data.label || '')}
@@ -1548,13 +1549,13 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                       {/* Engine Selection if research_engine */}
                       {selectedNode.type === 'research_engine' && (
                         <label className="field" style={{ margin: 0 }}>
-                          <span style={{ fontSize: 11, fontWeight: 600 }}>Động cơ Nghiên cứu:</span>
+                          <span style={{ fontSize: 11, fontWeight: 600 }}>{t('Công cụ nghiên cứu:', 'Research engine:')}</span>
                           <select
                             className="input sm"
                             value={String(nodeConfig.engine || 'phdlab')}
                             onChange={(e) => updateSelectedNodeConfig('engine', e.target.value)}
                           >
-                            <option value="paperorchestra">PaperOrchestra (Biên soạn Bài báo)</option>
+                            <option value="paperorchestra">{t('PaperOrchestra (biên soạn bài báo)', 'PaperOrchestra (paper writing)')}</option>
                           </select>
                         </label>
                       )}
@@ -1569,17 +1570,17 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                               value={String(nodeConfig.agent_role || 'researcher')}
                               onChange={(e) => updateSelectedNodeConfig('agent_role', e.target.value)}
                             >
-                              <option value="director">Giáo sư Hướng dẫn (PI)</option>
-                              <option value="literature">Chuyên viên Tổng quan Tài liệu</option>
-                              <option value="theorist">Lý thuyết gia Giả thuyết</option>
-                              <option value="coder">Kỹ sư Thực nghiệm & Code</option>
-                              <option value="reviewer">Phản biện Khoa học Độc lập</option>
-                              <option value="writer">Biên tập viên PaperOrchestra</option>
+                              <option value="director">{t('Giáo sư hướng dẫn (PI)', 'Principal investigator (PI)')}</option>
+                              <option value="literature">{t('Chuyên viên tổng quan tài liệu', 'Literature reviewer')}</option>
+                              <option value="theorist">{t('Lý thuyết gia giả thuyết', 'Hypothesis theorist')}</option>
+                              <option value="coder">{t('Kỹ sư thực nghiệm & code', 'Experiment & code engineer')}</option>
+                              <option value="reviewer">{t('Phản biện khoa học độc lập', 'Independent scientific reviewer')}</option>
+                              <option value="writer">{t('Biên tập viên PaperOrchestra', 'PaperOrchestra editor')}</option>
                             </select>
                           </label>
 
                           <label className="field" style={{ margin: 0 }}>
-                            <span style={{ fontSize: 11, fontWeight: 600 }}>Chỉ thị Nhiệm vụ (Prompt):</span>
+                            <span style={{ fontSize: 11, fontWeight: 600 }}>{t('Chỉ thị nhiệm vụ (prompt):', 'Task prompt:')}</span>
                             <textarea
                               className="input sm"
                               rows={3}
@@ -1594,7 +1595,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                       {/* Condition formula if condition */}
                       {selectedNode.type === 'condition' && (
                         <label className="field" style={{ margin: 0 }}>
-                          <span style={{ fontSize: 11, fontWeight: 600 }}>Biểu thức Điều kiện:</span>
+                          <span style={{ fontSize: 11, fontWeight: 600 }}>{t('Biểu thức điều kiện:', 'Condition expression:')}</span>
                           <input
                             className="input sm"
                             placeholder="acc >= 0.85 or pass_rate > 0.8"
@@ -1607,7 +1608,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                       {/* Bounded loop settings */}
                       {selectedNode.type === 'bounded_loop' && (
                         <label className="field" style={{ margin: 0 }}>
-                          <span style={{ fontSize: 11, fontWeight: 600 }}>Số lần lặp tối đa (Max Iterations):</span>
+                          <span style={{ fontSize: 11, fontWeight: 600 }}>{t('Số lần lặp tối đa:', 'Max iterations:')}</span>
                           <input
                             type="number"
                             className="input sm"
@@ -1620,7 +1621,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                       {/* Human approval title */}
                       {selectedNode.type === 'human_approval' && (
                         <label className="field" style={{ margin: 0 }}>
-                          <span style={{ fontSize: 11, fontWeight: 600 }}>Tiêu đề Checkpoint Duyệt:</span>
+                          <span style={{ fontSize: 11, fontWeight: 600 }}>{t('Tiêu đề checkpoint duyệt:', 'Approval checkpoint title:')}</span>
                           <input
                             className="input sm"
                             value={String(nodeConfig.checkpoint_title || '')}
@@ -1632,7 +1633,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                       {/* Benchmark Parameters if harnessNode */}
                       {selectedNodeTool && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
-                          <span style={{ fontSize: 11, fontWeight: 600 }}>Tham số Benchmark:</span>
+                          <span style={{ fontSize: 11, fontWeight: 600 }}>{t('Tham số benchmark:', 'Benchmark parameters:')}</span>
                           {Object.entries((selectedNode.data.params as Record<string, unknown>) || {}).map(
                             ([k, v]) => (
                               <label key={k} className="field" style={{ margin: 0 }}>
@@ -1656,13 +1657,13 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                         onClick={() => handleDeleteNode(selectedNode.id)}
                         style={{ color: 'var(--err)', marginTop: 10 }}
                       >
-                        Xóa Node này khỏi Canvas
+                        {t('Xóa Node này khỏi Canvas', 'Remove this node from the canvas')}
                       </button>
                     </div>
                     );
                   })() : (
                     <div style={{ textAlign: 'center', color: 'var(--muted)', marginTop: 40, fontSize: 12 }}>
-                      Bấm chọn một khối node trên canvas để xem và điều chỉnh thuộc tính chi tiết.
+                      {t('Bấm chọn một khối node trên canvas để xem và điều chỉnh thuộc tính chi tiết.', 'Select a node on the canvas to view and edit its properties.')}
                     </div>
                   )}
                 </div>
@@ -1673,7 +1674,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>
-                      Trạng thái Thực thi
+                      {t('Trạng thái Thực thi', 'Execution status')}
                     </span>
                     {executionState && (
                       <span className={`chip sm ${executionState.status === 'completed' ? 'ok' : executionState.status === 'failed' ? 'err' : 'accent'}`}>
@@ -1697,15 +1698,15 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#f43f5e', fontWeight: 600, fontSize: 12 }}>
                         <ShieldCheck size={15} />
-                        Yêu cầu Phê duyệt của Nhà nghiên cứu
+                        {t('Yêu cầu Phê duyệt của Nhà nghiên cứu', 'Researcher approval required')}
                       </div>
                       <p style={{ margin: 0, fontSize: 11, lineHeight: 1.35 }}>
-                        Quy trình đang tạm dừng tại điểm kiểm soát. Vui lòng xem xét các minh chứng trước khi tiếp tục.
+                        {t('Quy trình đang tạm dừng tại điểm kiểm soát. Vui lòng xem xét các minh chứng trước khi tiếp tục.', 'The workflow is paused at a checkpoint. Review the evidence before continuing.')}
                       </p>
                       <textarea
                         className="input sm"
                         rows={2}
-                        placeholder="Ghi chú phản biện hoặc hướng dẫn sửa đổi..."
+                        placeholder={t('Ghi chú phản biện hoặc hướng dẫn sửa đổi...', 'Review notes or revision instructions...')}
                         value={approvalFeedback}
                         onChange={(e) => setApprovalFeedback(e.target.value)}
                         style={{ fontSize: 11 }}
@@ -1717,7 +1718,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                           onClick={() => actionMutation.mutate({ action: 'approve' })}
                           style={{ flex: 1 }}
                         >
-                          ✓ Phê duyệt
+                          {t('✓ Phê duyệt', '✓ Approve')}
                         </button>
                         <button
                           type="button"
@@ -1725,7 +1726,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                           onClick={() => actionMutation.mutate({ action: 'reject' })}
                           style={{ color: 'var(--err)' }}
                         >
-                          ✕ Từ chối
+                          {t('✕ Từ chối', '✕ Reject')}
                         </button>
                       </div>
                     </div>
@@ -1734,7 +1735,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                   {/* Node Execution Steps Timeline */}
                   {executionState?.node_statuses ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      <span style={{ fontSize: 11, fontWeight: 600 }}>Tiến trình các bước ({executionState.node_statuses.length}):</span>
+                      <span style={{ fontSize: 11, fontWeight: 600 }}>{t('Tiến trình các bước', 'Step progress')} ({executionState.node_statuses.length}):</span>
                       {executionState.node_statuses.map((st) => (
                         <div
                           key={st.node_id}
@@ -1767,14 +1768,14 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                     </div>
                   ) : (
                     <div style={{ fontSize: 11.5, color: 'var(--muted)', textAlign: 'center', marginTop: 20 }}>
-                      Chưa có phiên thực thi nào. Bấm <b>Chạy Harness</b> hoặc <b>Bước</b> để theo dõi luồng dữ liệu thời gian thực.
+                      {t('Chưa có phiên thực thi nào. Bấm', 'No runs yet. Press')} <b>{t('Chạy Harness', 'Run Harness')}</b> {t('hoặc', 'or')} <b>{t('Bước', 'Step')}</b> {t('để theo dõi luồng dữ liệu thời gian thực.', 'to follow the data flow live.')}
                     </div>
                   )}
 
                   {/* Structured Logs */}
                   {executionState?.logs && executionState.logs.length > 0 && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
-                      <span style={{ fontSize: 11, fontWeight: 600 }}>Nhật ký Thực thi (Logs):</span>
+                      <span style={{ fontSize: 11, fontWeight: 600 }}>{t('Nhật ký thực thi:', 'Execution log:')}</span>
                       <div
                         style={{
                           background: 'var(--bg-2)',
@@ -1831,17 +1832,17 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: 14 }}>Tạo Chuyên gia AI Nghiên cứu Mới</h3>
+              <h3 style={{ margin: 0, fontSize: 14 }}>{t('Tạo chuyên gia AI nghiên cứu mới', 'New AI research expert')}</h3>
               <button type="button" className="icon xs" onClick={() => setShowAgentModal(false)}>
                 ✕
               </button>
             </div>
 
             <label className="field" style={{ margin: 0 }}>
-              <span style={{ fontSize: 11 }}>Tên Chuyên gia:</span>
+              <span style={{ fontSize: 11 }}>{t('Tên chuyên gia:', 'Expert name:')}</span>
               <input
                 className="input sm"
-                placeholder="VD: Chuyên gia Phân tích Thống kê"
+                placeholder={t('VD: Chuyên gia Phân tích Thống kê', 'e.g. Statistics analyst')}
                 value={newAgentName}
                 onChange={(e) => setNewAgentName(e.target.value)}
               />
@@ -1850,21 +1851,21 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
             <label className="field" style={{ margin: 0 }}>
               <span style={{ fontSize: 11 }}>Vai trò:</span>
               <select className="input sm" value={newAgentRole} onChange={(e) => setNewAgentRole(e.target.value)}>
-                <option value="researcher">Nghiên cứu viên Độc lập (Researcher)</option>
-                <option value="director">Giáo sư Hướng dẫn (Principal Investigator)</option>
-                <option value="theorist">Lý thuyết gia Giả thuyết (Theorist)</option>
-                <option value="coder">Kỹ sư Thực nghiệm & Code (Coder)</option>
-                <option value="reviewer">Phản biện Khoa học Độc lập (Reviewer)</option>
-                <option value="writer">Biên soạn Bài báo Học thuật (Writer)</option>
+                <option value="researcher">{t('Nghiên cứu viên độc lập', 'Independent researcher')}</option>
+                <option value="director">{t('Giáo sư hướng dẫn', 'Principal investigator')}</option>
+                <option value="theorist">{t('Lý thuyết gia giả thuyết', 'Theorist')}</option>
+                <option value="coder">{t('Kỹ sư thực nghiệm & code', 'Coder')}</option>
+                <option value="reviewer">{t('Phản biện khoa học độc lập', 'Reviewer')}</option>
+                <option value="writer">{t('Biên soạn bài báo học thuật', 'Academic writer')}</option>
               </select>
             </label>
 
             <label className="field" style={{ margin: 0 }}>
-              <span style={{ fontSize: 11 }}>Mục đích & Trách nhiệm:</span>
+              <span style={{ fontSize: 11 }}>{t('Mục đích & trách nhiệm:', 'Purpose & responsibilities:')}</span>
               <textarea
                 className="input sm"
                 rows={2}
-                placeholder="Mô tả phạm vi trách nhiệm của agent..."
+                placeholder={t('Mô tả phạm vi trách nhiệm của agent...', 'Describe what this agent is responsible for...')}
                 value={newAgentPurpose}
                 onChange={(e) => setNewAgentPurpose(e.target.value)}
               />
@@ -1891,7 +1892,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                 onClick={() => createAgentMutation.mutate()}
                 disabled={createAgentMutation.isPending || !newAgentName.trim()}
               >
-                Lưu Agent Profile
+                {t('Lưu Agent Profile', 'Save agent profile')}
               </button>
             </div>
           </div>

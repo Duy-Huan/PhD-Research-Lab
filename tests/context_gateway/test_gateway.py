@@ -110,7 +110,8 @@ class Gateway(unittest.TestCase):
         self.assertNotIn("Objective", raw)
 
     def test_sanitize(self):
-        t, notes = sanitize("key sk-abcdefghijklmnop1234 and\n```python\nsecret_code()\n```")
+        # The firewall is opt-in since 6.6.3 (FQC-SOURCE-POLICY-663); this checks it when the researcher enables it.
+        t, notes = sanitize("key sk-abcdefghijklmnop1234 and\n```python\nsecret_code()\n```", {"gateway": {"block_source_code": True}})
         self.assertNotIn("secret_code", t)
         self.assertNotIn("sk-abcdefghijklmnop1234", t)
         self.assertEqual(set(notes), {"credentials redacted", "source code withheld"})

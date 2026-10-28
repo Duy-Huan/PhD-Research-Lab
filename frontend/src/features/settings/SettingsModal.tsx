@@ -171,6 +171,16 @@ export function applyThemeById(id: string) {
   }
 }
 
+/** The theme lives only in this browser, so apply it at start-up; without this a reload fell back to the system theme. */
+export function restoreSavedTheme() {
+  try {
+    const saved = localStorage.getItem('pl.theme');
+    if (saved) applyThemeById(saved);
+  } catch {
+    // Storage can be unavailable (private window); the system theme applies.
+  }
+}
+
 // Tab definitions are generated dynamically inside SettingsModal using useI18n()
 
 export const SettingsModal: React.FC = () => {
@@ -450,8 +460,10 @@ export const SettingsModal: React.FC = () => {
     }
   };
 
+  // The ['models'] cache is shared with GatewayConnections and the CLI studio; never trust its shape here.
+  const catalogProviders = Array.isArray(gatewayModels?.providers) ? gatewayModels!.providers : [];
   const agentEngineOptions = [
-    ...(gatewayModels?.providers || []).map(provider => [provider.id, provider.label]),
+    ...catalogProviders.map(provider => [provider.id, provider.label]),
     ['mcp', t('Công cụ suy luận MCP', 'MCP inference tool')],
   ];
 
@@ -483,7 +495,7 @@ export const SettingsModal: React.FC = () => {
     }
     if (['codex', 'claude_code', 'gemini_cli', 'antigravity', 'hermes'].includes(targetPid)) {
       const cliSaved = config.gateway?.cli_models?.[targetPid] || [];
-      return Array.from(new Set([...(fetchedProviderModels[targetPid] || []), ...cliSaved, ...(gatewayModels?.providers.find(provider => provider.id === 'cli:' + targetPid || provider.id === 'runtime:' + targetPid)?.models || [])]));
+      return Array.from(new Set([...(fetchedProviderModels[targetPid] || []), ...cliSaved, ...(catalogProviders.find(provider => provider.id === 'cli:' + targetPid || provider.id === 'runtime:' + targetPid)?.models || [])]));
     }
     if (providerSpecs[targetPid]) {
       const fetched = fetchedProviderModels[targetPid] || [];
@@ -577,6 +589,7 @@ export const SettingsModal: React.FC = () => {
                 fontWeight: 600,
                 fontSize: 12,
                 cursor: 'pointer',
+                minHeight: 24,
               }}
             >
               <option value="0.85">85%</option>
@@ -777,7 +790,7 @@ export const SettingsModal: React.FC = () => {
                           <tr key={agentId}>
                             <td>
                               <b style={{ fontSize: 13.5, textTransform: 'capitalize' }}>{agentId}</b>
-                              <div className="muted" style={{ fontSize: 12 }}>{spec.label}</div>
+                              <div className="muted" style={{ fontSize: 12 }}>{(language === 'en' && spec.label_en) || spec.label}</div>
                             </td>
                             <td>
                               <select
@@ -845,6 +858,10 @@ export const SettingsModal: React.FC = () => {
                   </table>
                 </div>
               </section>
+
+              {/* 1A'. Subscription CLIs and agent runtimes: status, official sign-in, Claude long-lived token.
+                  Imported since 6.5.10 but never rendered, so these could not be reached (found in 6.6.3 QA). */}
+              <GatewayConnections config={config} />
 
               {/* 1B. Cloud API Providers */}
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
@@ -1833,7 +1850,7 @@ export const SettingsModal: React.FC = () => {
                   <label className="switch">
                     <input
                       type="checkbox"
-                      checked={config.gateway?.block_source_code !== false}
+                      checked={config.gateway?.block_source_code === true}
                       onChange={(e) =>
                         savePatch({ gateway: { block_source_code: e.target.checked } })
                       }
@@ -1948,6 +1965,7 @@ export const SettingsModal: React.FC = () => {
                         url: 'https://github.com/K-Dense-AI/scientific-agent-skills',
                         category: 'research',
                         description: 'Tập hợp các kỹ năng chuyên sâu cho tác nhân nghiên cứu khoa học, mô phỏng và phân tích dữ liệu.',
+                        description_en: 'Curated collection of deep scientific research agent skills, simulation and data analysis.',
                         skills: ['scientific-analysis'],
                         installed: false,
                         enabled: false,
@@ -1959,6 +1977,7 @@ export const SettingsModal: React.FC = () => {
                         url: 'https://github.com/anthropics/skills',
                         category: 'general',
                         description: 'Bộ kỹ năng tác nhân chuẩn từ Anthropic dành cho Claude và hệ thống tác nhân đa năng.',
+                        description_en: 'Official agent skills repository from Anthropic for Claude and multi-agent harnesses.',
                         skills: ['general-skills'],
                         installed: false,
                         enabled: false,
@@ -2000,7 +2019,7 @@ export const SettingsModal: React.FC = () => {
                               </span>
                             </div>
                             <p style={{ margin: '0 0 8px', fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.4 }}>
-                              {opt.description}
+                              {(language === 'en' && opt.description_en) || opt.description}
                             </p>
                             <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                               {(opt.skills || []).map((sk: string) => (
@@ -2165,7 +2184,7 @@ export const SettingsModal: React.FC = () => {
                 <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>
                   {t('Danh mục Kỹ năng Lệnh /', 'Slash Command Skills Directory')} ({skillsData?.skills?.length || 0} {t('kỹ năng', 'skills')})
                 </h3>
-                <div className="table-scroll" style={{ maxHeight: 320, overflowY: 'auto' }}>
+                <div className="table-scroll" tabIndex={0} role="region" aria-label={t('Danh sách kỹ năng', 'Skills list')} style={{ maxHeight: 320, overflowY: 'auto' }}>
                   <table className="grid">
                     <thead>
                       <tr>
@@ -2182,8 +2201,8 @@ export const SettingsModal: React.FC = () => {
                             /{s.name}
                           </td>
                           <td>
-                            <b>{s.title}</b>
-                            <div className="muted" style={{ fontSize: 12 }}>{s.description}</div>
+                            <b>{(language === 'en' && s.title_en) || s.title}</b>
+                            <div className="muted" style={{ fontSize: 12 }}>{(language === 'en' && s.description_en) || s.description}</div>
                           </td>
                           <td>
                             <span className="chip">{s.mode === 'run' ? t('Chạy nền', 'Background') : t('Hội thoại', 'Chat')}</span>{' '}
@@ -2213,6 +2232,7 @@ export const SettingsModal: React.FC = () => {
                 <h4 style={{ margin: '18px 0 8px', fontSize: 14 }}>{t('Tạo hoặc Cập nhật Kỹ năng Tùy chỉnh', 'Create or Update Custom Skill')}</h4>
                 <textarea
                   className="input mono"
+                  aria-label={t('Nội dung kỹ năng (SKILL.md)', 'Skill content (SKILL.md)')}
                   rows={8}
                   value={newSkillText}
                   onChange={(e) => setNewSkillText(e.target.value)}
@@ -2393,6 +2413,7 @@ export const SettingsModal: React.FC = () => {
                     <div>
                       <select
                         id="prose-font-select"
+                        aria-label={t('Font chữ Bài báo & Câu trả lời AI', 'Paper & AI Prose Typography')}
                         className="input"
                         value={config.ui?.prose_font || 'sans'}
                         onChange={(e) => {
@@ -2454,6 +2475,7 @@ export const SettingsModal: React.FC = () => {
                     <div>
                       <select
                         id="ui-language-select"
+                        aria-label={t('Ngôn ngữ Giao diện', 'User Interface Language')}
                         className="input"
                         value={config.ui?.language || language || 'vi'}
                         onChange={(e) => {
@@ -2499,6 +2521,7 @@ export const SettingsModal: React.FC = () => {
                     <div>
                       <select
                         id="ai-language-select"
+                        aria-label={t('Ngôn ngữ Phản hồi AI', 'AI Assistant Output Language')}
                         className="input"
                         value={config.ui?.ai_language || 'auto'}
                         onChange={(e) => savePatch({ ui: { ai_language: e.target.value } })}

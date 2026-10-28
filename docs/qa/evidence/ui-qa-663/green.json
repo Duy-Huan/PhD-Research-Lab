@@ -1,0 +1,114 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_ui_language_data.UiLanguageData.test_checking_the_catalog_is_fast",
+      "status": "PASS",
+      "duration": 0.3694,
+      "details": null
+    },
+    {
+      "id": "test_ui_language_data.UiLanguageData.test_engine_names_and_details_are_english_like_the_other_engines",
+      "status": "PASS",
+      "duration": 0.0026,
+      "details": null
+    },
+    {
+      "id": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description",
+      "status": "PASS",
+      "duration": 0.0023,
+      "details": null
+    },
+    {
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "status": "PASS",
+      "duration": 0.0001,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description",
+      "id": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description (agent='assistant')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description",
+      "id": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description (agent='research')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description",
+      "id": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description (agent='reviewer')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description",
+      "id": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description (agent='utility')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name (template='hw-preset-llm-eval', label='Thu n\u1ea1p D\u1eef li\u1ec7u Benchmark')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name (template='hw-preset-llm-eval', label='C\u1ed5ng Ki\u1ec3m \u0111\u1ecbnh Ch\u1ea5t l\u01b0\u1ee3ng')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name (template='hw-preset-rag-audit', label='\u0110\u00e1nh gi\u00e1 Truy h\u1ed3i & Grounding (Ragas)')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name (template='hw-preset-rag-audit', label='Ki\u1ec3m th\u1eed Ranh gi\u1edbi Promptfoo')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name (template='hw-preset-rag-audit', label='Ch\u1ee9ng ch\u1ec9 B\u1eb1ng ch\u1ee9ng Khoa h\u1ecdc')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name (template='hw-preset-code-swe', label='Ki\u1ec3m th\u1eed \u0110\u01a1n v\u1ecb & \u0110\u1ed9 bao ph\u1ee7 (Pytest)')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name (template='hw-preset-code-swe', label='X\u00e1c th\u1ef1c B\u1ea3n v\u00e1 SWE-Bench')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name (template='hw-preset-code-swe', label='Ki\u1ec3m tra S\u1ed5 c\u00e1i Minh ch\u1ee9ng')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 4,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-nne6po34",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

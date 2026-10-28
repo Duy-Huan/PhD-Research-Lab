@@ -102,7 +102,7 @@ describe('DashboardView', () => {
     fireEvent.click(openOutlineBtn);
     expect(useUIStore.getState().drawerKind).toBe('outline');
 
-    const openMissionsBtn = screen.getByText(/Mở Missions/i);
+    const openMissionsBtn = screen.getByText(/Mở Nhiệm vụ/i);
     fireEvent.click(openMissionsBtn);
     expect(useUIStore.getState().drawerKind).toBe('missions');
 
@@ -134,9 +134,9 @@ describe('DashboardView', () => {
     const unloadBtn = screen.getByTitle(/Giải phóng các mô hình cục bộ/i);
     fireEvent.click(unloadBtn);
 
-    await waitFor(() => {
-      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Không thể giải phóng VRAM'));
-    });
+    // 6.6.3 QA: the failure is shown on the page, not in a browser alert.
+    expect(await screen.findByRole('alert')).toHaveTextContent(/Không thể giải phóng VRAM: CUDA out of memory error/);
+    expect(alertSpy).not.toHaveBeenCalled();
   });
 
   it('renders CPU-only fallback and empty states gracefully', async () => {

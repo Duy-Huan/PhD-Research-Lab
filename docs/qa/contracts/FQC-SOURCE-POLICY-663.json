@@ -1,0 +1,124 @@
+{
+  "id": "FQC-SOURCE-POLICY-663",
+  "title": "Agents may read project source and experiment results by default",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I do not want PhD Lab to block source files or experiment results, so an agent can read the code it wrote and the numbers it measured and carry them into the paper.",
+  "requirements": [
+    {
+      "id": "DEFAULT_OPEN",
+      "description": "gateway.block_source_code defaults to false; a missing key means no blocking. Code blocks leave unchanged and sandbox_manage_files read works over MCP."
+    },
+    {
+      "id": "OPT_IN",
+      "description": "The researcher can still turn the firewall on in Settings > MCP & Security Firewall; when on, code blocks are withheld and the sandbox file read is refused. The toggle shows off unless the saved value is true (frontend/src/features/settings/SettingsContracts.test.tsx)."
+    },
+    {
+      "id": "CREDENTIALS",
+      "description": "Credential redaction stays on regardless of this setting."
+    }
+  ],
+  "nonfunctional": [
+    "Owner decision 2026-10-28",
+    "Saved configurations keep their stored value; only new or unset configurations change",
+    "Large results pass through without measurable delay"
+  ],
+  "inputs": [
+    "gateway.block_source_code",
+    "outgoing text",
+    "MCP sandbox_manage_files read"
+  ],
+  "outputs": [
+    "sanitized text and notes",
+    "file content or PermissionError",
+    "Settings toggle state"
+  ],
+  "preconditions": [
+    "mcp.expose_sandbox for the MCP read path"
+  ],
+  "postconditions": [
+    "Credentials never leave unredacted"
+  ],
+  "dependencies": [
+    "backend/core/telemetry.py"
+  ],
+  "affected_modules": [
+    "backend/core/config.py",
+    "backend/providers/privacy.py",
+    "backend/providers/mcp_server.py",
+    "frontend/src/features/settings/SettingsModal.tsx"
+  ],
+  "acceptance_criteria": [
+    "Default configuration lets agents read code and results",
+    "Explicit opt-in still blocks",
+    "Credentials always redacted",
+    "Settings toggle reflects the saved value"
+  ],
+  "scenarios": [
+    {
+      "id": "default-open",
+      "requirement": "DEFAULT_OPEN",
+      "kind": "positive",
+      "expected": "Code block unchanged; MCP read returns the file",
+      "test": "tests/test_source_code_policy.py::SourceCodePolicy.test_default_lets_agents_read_code_and_results"
+    },
+    {
+      "id": "opt-in-blocks",
+      "requirement": "OPT_IN",
+      "kind": "negative",
+      "expected": "Code withheld and MCP read refused when the researcher enabled the firewall",
+      "test": "tests/test_source_code_policy.py::SourceCodePolicy.test_explicit_opt_in_still_withholds_and_credentials_are_always_redacted"
+    },
+    {
+      "id": "credentials",
+      "requirement": "CREDENTIALS",
+      "kind": "security",
+      "expected": "API key redacted with the firewall off",
+      "test": "tests/test_source_code_policy.py::SourceCodePolicy.test_explicit_opt_in_still_withholds_and_credentials_are_always_redacted"
+    },
+    {
+      "id": "large-results",
+      "requirement": "DEFAULT_OPEN",
+      "kind": "performance",
+      "expected": "10 x 200 KB result blocks pass unchanged in under 1 s",
+      "test": "tests/test_source_code_policy.py::SourceCodePolicy.test_large_results_pass_through_without_delay"
+    },
+    {
+      "id": "missing-key",
+      "requirement": "DEFAULT_OPEN",
+      "kind": "boundary",
+      "expected": "An empty gateway section means no blocking",
+      "test": "tests/test_source_code_policy.py::SourceCodePolicy.test_default_lets_agents_read_code_and_results"
+    },
+    {
+      "id": "refused-read",
+      "requirement": "OPT_IN",
+      "kind": "failure",
+      "expected": "PermissionError names gateway.block_source_code",
+      "test": "tests/test_source_code_policy.py::SourceCodePolicy.test_explicit_opt_in_still_withholds_and_credentials_are_always_redacted"
+    }
+  ],
+  "recovery": "Restore the previous default only on owner request. TASK-SOURCE-POLICY-663, max three cycles.",
+  "test_environment": "Real config, privacy filter and MCP handler with a disposable PHDLAB_DATA_DIR; Settings toggle through vitest with explicit HTTP fixtures.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 2 FAIL on 19a1b3e (default and performance; the opt-in guard already passed). GREEN: 3/3 PASS. Vitest toggle test failed before and passes after.",
+    "red": {
+      "path": "docs/qa/evidence/source-policy-663/red.json",
+      "sha256": "5f7ed71b49dd38f7876f64afb57a9827f7acad513ce9f23028acb78d433a5594",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/source-policy-663/green.json",
+      "sha256": "2b07adfd3a80e6dc67335e047b300d10194f6a60969023ebb9c006fb6c9b8c7f",
+      "exit_code": 0
+    }
+  }
+}

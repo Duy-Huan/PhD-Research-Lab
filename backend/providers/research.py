@@ -41,7 +41,7 @@ CATALOG = {
     "python": ("experiment", "Native Python experiments"),
     "tracking": ("experiment", "Native experiment records"),
     "vscode": ("editor", "VS Code"),
-    "docker": ("experiment", "Docker (Linux, chạy ngầm khi cần)"),
+    "docker": ("experiment", "Docker (Linux, started only when needed)"),
     "latex": ("publication", "LaTeX → PDF"),
     "paperorchestra": ("publication", "PaperOrchestra (Multi-Agent Research Writing Engine)"),
 }
@@ -81,13 +81,13 @@ def _coding_health(pid: str, fresh: bool = False) -> dict:
 
 def _exec_health(pid: str, cfg: dict) -> dict:
     if pid == "python":
-        return {"state": "READY", "detail": "venv riêng của từng code project (mặc định)"}
+        return {"state": "READY", "detail": "a separate venv per code project (default)"}
     if pid == "docker":
         from backend.execution.sandbox import docker_exe, docker_running
         if not docker_exe():
-            return {"state": "UNAVAILABLE", "detail": "Docker chưa cài — chỉ cần khi tác vụ yêu cầu Linux"}
+            return {"state": "UNAVAILABLE", "detail": "Docker is not installed; it is needed only for tasks that require Linux"}
         return {"state": "READY" if docker_running() else "STOPPED",
-                "detail": "chỉ dùng khi tác vụ cần Linux" + ("" if docker_running() else " · Docker Desktop đang tắt")}
+                "detail": "used only when a task needs Linux" + ("" if docker_running() else " · Docker Desktop is stopped")}
     if pid == 'tracking':
         return {'state':'READY','detail':'Project-owned run records, metrics, raw artifacts and code/data provenance; scientific verification is separate.'}
     if pid == 'vscode':

@@ -954,6 +954,7 @@ export const Composer: React.FC<ComposerProps> = ({
                     outline: 'none',
                     cursor: 'pointer',
                     fontWeight: 500,
+                    minHeight: 24,  // WCAG 2.5.8 target size (6.6.3 QA)
                   }}
                 >
                   <option value="auto">{t('Tư duy: Tự động', 'Thinking: Auto')}</option>

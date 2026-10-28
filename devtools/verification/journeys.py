@@ -69,7 +69,10 @@ def browser_plan(root: Path, changed: list[str], contracts: list[dict], profile:
 
 
 def execution_groups(tests: list[str]) -> list[tuple[str,list[str]]]:
-    """Playwright sorts files internally; separate invocations enforce actual 2D -> 3D."""
+    """Playwright sorts files internally; separate invocations enforce actual 2D -> 3D. The full-app screen audit
+    has its own 2D invocation so it does not share one timeout with the other suites."""
     def three(name):return name=='office3d.spec.ts' or '.3d.' in name or name.startswith('3d/')
-    return [(phase,items) for phase,items in [('2d',[n for n in tests if not three(n)]),
+    audit={'qa_screens.spec.ts'}
+    return [(phase,items) for phase,items in [('2d',[n for n in tests if not three(n) and n not in audit]),
+                                              ('2d-audit',[n for n in tests if n in audit]),
                                               ('3d',[n for n in tests if three(n)])] if items]

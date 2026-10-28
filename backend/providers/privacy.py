@@ -7,8 +7,9 @@
 
 Applied BEFORE a provider request (Context Gateway) and to every MCP research-tool result (MCP clients are external
 models). Classification is per memory node (lod.MemoryNode.classification: type default or the researcher's override in
-the context-graph overlay). On top: credential redaction (telemetry.redact) and the "never send proprietary source code"
-project rule (gateway.block_source_code) which removes fenced code blocks and blocks the sandbox file-read MCP tools.
+the context-graph overlay). On top: credential redaction (telemetry.redact, always on) and the optional "never send
+proprietary source code" project rule (gateway.block_source_code, off by default since 6.6.3 so agents can read their
+own code and results) which removes fenced code blocks and blocks the sandbox file-read MCP tools.
 """
 from __future__ import annotations
 
@@ -41,7 +42,7 @@ def sanitize(text: str, cfg: dict | None = None) -> tuple[str, list]:
     t = redact(text or "")
     if t != (text or ""):
         notes.append("credentials redacted")
-    if gw(cfg).get("block_source_code", True):
+    if gw(cfg).get("block_source_code", False):
         t2 = CODE_FENCE.sub("[source code withheld by project policy]", t)
         if t2 != t:
             notes.append("source code withheld")

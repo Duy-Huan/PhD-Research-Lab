@@ -4,7 +4,21 @@ import { fireEvent,screen,waitFor,within } from '@testing-library/react';
 import { renderWithProviders } from '../../test/test-utils';
 import { api } from '../../shared/api/client';
 import { useUIStore } from '../../shared/state/uiStore';
-import { SettingsModal,applyFontById,applyThemeById } from './SettingsModal';
+import { SettingsModal,applyFontById,applyThemeById,restoreSavedTheme } from './SettingsModal';
+
+describe('saved theme on start (FQC-CLI-STUDIO-663 QA finding)',()=>{
+  it('applies the theme the researcher chose before the first render after a reload',()=>{
+    applyThemeById('lab-midnight');
+    document.documentElement.removeAttribute('data-theme');document.documentElement.removeAttribute('data-theme-package');
+    document.documentElement.style.removeProperty('--accent');
+    restoreSavedTheme();
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+    expect(document.documentElement.getAttribute('data-theme-package')).toBe('lab-midnight');
+    applyThemeById('system');document.documentElement.removeAttribute('data-theme');
+    restoreSavedTheme();
+    expect(document.documentElement.hasAttribute('data-theme')).toBe(false);
+  });
+});
 
 describe('settings persistence and provider isolation (explicit HTTP fixtures)',()=>{
   let config:any;
@@ -52,6 +66,27 @@ describe('settings persistence and provider isolation (explicit HTTP fixtures)',
     expect(within(select).queryByRole('option',{name:forbidden})).not.toBeInTheDocument();
     fireEvent.change(select,{target:{value:allowed[0]}});
     await waitFor(()=>expect(api.post).toHaveBeenCalledWith('/api/config',{agent_models:{assistant:allowed[0]}}));
+  });
+
+  it('shows the CLI connections with the Claude long-lived token in the models tab (was imported but never rendered)',async()=>{
+    const get=api.get as any;const fixture=get.getMockImplementation();
+    get.mockImplementation(async(url:string)=>url==='/api/models'?{agent_catalog:{assistant:{provider_id:'app:auto'}},providers:[
+      {id:'cli:claude_code',label:'Claude (Claude Code CLI)',transport:'cli',state:'CONNECTED',available:true,models:[],readiness:{}}]}:fixture(url));
+    renderWithProviders(<SettingsModal />);
+    const region=await screen.findByRole('region',{name:'Unified AI connections'});
+    expect(await within(region).findByLabelText(/Long-lived Claude token/)).toBeInTheDocument();
+  });
+
+  it('leaves the source-code firewall off unless the researcher turned it on',async()=>{
+    useUIStore.setState({settingsTab:'mcp'});
+    const view=renderWithProviders(<SettingsModal />);
+    const firewall=await screen.findByRole('checkbox',{name:/Context Firewall/});
+    expect(firewall).not.toBeChecked();
+    fireEvent.click(firewall);
+    await waitFor(()=>expect(api.post).toHaveBeenCalledWith('/api/config',{gateway:{block_source_code:true}}));
+    view.unmount();config.gateway.block_source_code=true;
+    renderWithProviders(<SettingsModal />);
+    expect(await screen.findByRole('checkbox',{name:/Context Firewall/})).toBeChecked();
   });
 
   it('selecting a provider resets the previous provider model before saving',async()=>{

@@ -199,5 +199,29 @@
     },
     "scope": "Reviewed MCP/tool design guidance for the v6.6.0 native tool capability system; owner policy takes precedence. Scripts not executed; no automatic external services.",
     "digest_normalization": "LF for text files; binary bytes unchanged"
+  },
+  {
+    "name": "playwright-explore-website",
+    "repository": "github/awesome-copilot",
+    "path": "skills/playwright-explore-website",
+    "revision": "98b45a78d3ed316e78f005b60594d5c4a50588e3",
+    "url": "https://github.com/github/awesome-copilot/tree/98b45a78d3ed316e78f005b60594d5c4a50588e3/skills/playwright-explore-website",
+    "license_file": "playwright-explore-website/UPSTREAM_LICENSE"
+  },
+  {
+    "name": "playwright-generate-test",
+    "repository": "github/awesome-copilot",
+    "path": "skills/playwright-generate-test",
+    "revision": "98b45a78d3ed316e78f005b60594d5c4a50588e3",
+    "url": "https://github.com/github/awesome-copilot/tree/98b45a78d3ed316e78f005b60594d5c4a50588e3/skills/playwright-generate-test",
+    "license_file": "playwright-generate-test/UPSTREAM_LICENSE"
+  },
+  {
+    "name": "bug-reproduction-brief",
+    "repository": "github/awesome-copilot",
+    "path": "skills/bug-reproduction-brief",
+    "revision": "98b45a78d3ed316e78f005b60594d5c4a50588e3",
+    "url": "https://github.com/github/awesome-copilot/tree/98b45a78d3ed316e78f005b60594d5c4a50588e3/skills/bug-reproduction-brief",
+    "license_file": "bug-reproduction-brief/UPSTREAM_LICENSE"
   }
 ]

@@ -50,7 +50,7 @@ export type DrawerKind =
   | 'cli'
   | null;
 
-export type MainViewMode = 'chat' | 'library' | 'office3d' | 'harness' | 'settings' | 'dashboard' | 'review' | 'guide';
+export type MainViewMode = 'chat' | 'library' | 'office3d' | 'harness' | 'settings' | 'dashboard' | 'review' | 'guide' | 'cli';
 export type AgentStatusViewMode = 'office3d' | 'list' | 'timeline';
 
 export type LabInteractiveObject =
@@ -237,13 +237,11 @@ export const useUIStore = create<UIState>((set) => ({
       if (drawerKind === 'harness') {
         return { mainView: 'harness', drawerKind: null };
       }
-      if (drawerKind === 'cli' && drawerTab !== 'default') {
-        return {
-          drawerKind,
-          drawerTab,
-          selectedCliProvider: drawerTab,
-          lastDrawerKind: 'cli',
-        };
+      if (drawerKind === 'cli') {
+        // The CLI studio is a full conversation, so it takes the main area like the chat (FQC-CLI-STUDIO-663).
+        return drawerTab !== 'default'
+          ? { mainView: 'cli', drawerKind: null, selectedCliProvider: drawerTab }
+          : { mainView: 'cli', drawerKind: null };
       }
       return {
         drawerKind,

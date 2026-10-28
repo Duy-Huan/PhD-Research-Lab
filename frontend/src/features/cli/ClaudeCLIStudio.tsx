@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useUIStore, useI18n } from '../../shared/state/uiStore';
 import { api } from '../../shared/api/client';
-import { APP_VERSION } from '../../shared/version';
+import { ChatRunCard } from '../chat/ChatRunCard';
 import { waitForChatTurn } from './waitForChatTurn';
 import {
   Terminal,
-  Send,
   Play,
   CheckCircle2,
   AlertTriangle,
@@ -20,282 +19,329 @@ import {
   Layers,
   X,
   CornerDownLeft,
-  ChevronRight,
-  Maximize2,
+  Eraser,
+  Plus,
 } from 'lucide-react';
+
+/** The CLI studio keeps its own conversation, separate from the main chat; the id survives a reload. */
+export const CLI_SESSION_KEY = 'phdlab_cli_session';
 
 interface CLICommandSuggestion {
   cmd: string;
   label: string;
   desc: string;
-  workflowId?: string;
 }
 
+interface CliProvider {
+  id: string;
+  label: string;
+  state?: string;
+  detail?: string;
+  available?: boolean;
+}
+
+type Approval = { id: string; name: string; text: string; decision?: 'approve' | 'reject' };
+type CliLog = {
+  id: string;
+  role: 'user' | 'assistant' | 'workflow' | 'system' | 'approval' | 'launch' | 'console';
+  title?: string;
+  text: string;
+  status?: 'running' | 'done' | 'failed';
+  runId?: string;
+  turnId?: string;
+  provider?: string;
+  approvals?: Approval[];
+};
+
+const WORKFLOWS = [
+  { vi: 'Khảo sát', en: 'Literature', cmd: '/lit ', icon: BookOpen },
+  { vi: 'Đề cương', en: 'Outline', cmd: '/outline', icon: FileText },
+  { vi: 'Thực nghiệm', en: 'Experiment', cmd: '/code', icon: Code },
+  { vi: 'Bài báo', en: 'Paper', cmd: '/paper', icon: FileText },
+  { vi: 'Phản biện', en: 'Review', cmd: '/review', icon: ShieldCheck },
+  { vi: 'Nghiên cứu sâu', en: 'Deep research', cmd: '/deepresearch ', icon: Sparkles },
+  { vi: 'Harness', en: 'Harness', cmd: '/harness list', icon: Sliders },
+  { vi: 'Tất cả lệnh', en: 'All commands', cmd: '/workflow list', icon: Layers },
+];
+
+const consoleName = typeof navigator !== 'undefined' && /Windows/i.test(navigator.userAgent) ? 'cmd' : 'terminal';
+const CLI_NAMES: Record<string, string> ={ claude_code: 'Claude Code', codex: 'Codex', gemini_cli: 'Gemini CLI', antigravity: 'Antigravity' };
+
+const frame: React.CSSProperties = { border: '1px solid var(--line)', borderRadius: 10, background: 'var(--panel)' };
+const chip: React.CSSProperties = {
+  display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 9px', fontSize: 12, borderRadius: 8,
+  border: '1px solid var(--line)', background: 'var(--bg)', color: 'var(--fg)', cursor: 'pointer', whiteSpace: 'nowrap',
+};
+
+function readSavedSession(): string {
+  try {
+    return localStorage.getItem(CLI_SESSION_KEY) || '';
+  } catch {
+    return '';
+  }
+}
+
+let logSeq = 0;
+const nextId = () => `cli-${Date.now()}-${++logSeq}`;
+
 export const ClaudeCLIStudio: React.FC = () => {
-  const queryClient = useQueryClient();
   const { t } = useI18n();
-  const { project, activeSessionId, setActiveSessionId, closeDrawer, openDrawer } = useUIStore();
-  const selectedCliProvider = useUIStore((s) => ['claude_code', 'codex', 'gemini_cli', 'antigravity'].includes(s.selectedCliProvider || '') ? s.selectedCliProvider : 'claude_code');
+  const { project, openDrawer } = useUIStore();
+  const selectedCliProvider = useUIStore((s) => s.selectedCliProvider || 'claude_code');
   const setSelectedCliProvider = useUIStore((s) => s.setSelectedCliProvider);
   const [launchingTerminal, setLaunchingTerminal] = useState(false);
   const [terminalLaunched, setTerminalLaunched] = useState(false);
-  const [launchError, setLaunchError] = useState('');
+  const [sessionId, setSessionIdState] = useState(readSavedSession);
+  const [inputVal, setInputVal] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedSuggestIdx, setSelectedSuggestIdx] = useState(0);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [cliLogs, setCliLogs] = useState<CliLog[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const mounted = useRef(true);
+  useEffect(() => () => { mounted.current = false; }, []);
 
-  const handleLaunchExternalTerminal = async (pidOverride?: string) => {
-    const pid = pidOverride || selectedCliProvider || 'claude_code';
-    setLaunchingTerminal(true);
-    setLaunchError('');
+  const setSessionId = (id: string) => {
+    setSessionIdState(id);
     try {
-      await api.post(`/api/providers/${pid}/launch`, { terminal: true });
-      setTerminalLaunched(true);
-      setTimeout(() => setTerminalLaunched(false), 3000);
+      if (id) localStorage.setItem(CLI_SESSION_KEY, id);
+      else localStorage.removeItem(CLI_SESSION_KEY);
+    } catch {
+      // Storage can be unavailable (private window); the session still works until reload.
+    }
+  };
+  const addLogs = (...logs: Array<Omit<CliLog, 'id'> & { id?: string }>) =>
+    setCliLogs((prev) => [...prev, ...logs.map((l) => ({ id: nextId(), ...l }))]);
+  const fail = (message: string) => addLogs({ role: 'system', text: message, status: 'failed' });
+
+  const { data: modelsData, isLoading: providersLoading } = useQuery<any>({ queryKey: ['models'], queryFn: () => api.get('/api/models') });
+  const providers: CliProvider[] = (Array.isArray(modelsData?.providers) ? modelsData.providers : []).filter((p: any) => p.transport === 'cli');
+  const labelOf = (id: string) => {
+    const bare = id.replace(/^cli:/, '');
+    return providers.find((p) => p.id === `cli:${bare}`)?.label || CLI_NAMES[bare] || id;
+  };
+  const providerLabel = labelOf(selectedCliProvider);
+
+  const { data: sessionData } = useQuery<any>({
+    queryKey: ['cli-session', sessionId],
+    queryFn: () => api.get(`/api/chat/sessions/${sessionId}`),
+    enabled: !!sessionId,
+  });
+
+  // Restore the saved conversation once; later turns append their own entries. The conversation's provider is shared
+  // with `phdlab chat` (its /model), so the web follows a choice made in cmd.
+  useEffect(() => {
+    const saved = sessionData?.settings?.provider;
+    if (typeof saved === 'string' && saved.startsWith('cli:')) setSelectedCliProvider(saved.slice(4));
+    if (!sessionData?.messages?.length) return;
+    setCliLogs((prev) => (prev.length ? prev : sessionData.messages.map((m: any) => ({
+      id: m.id || nextId(),
+      role: m.role === 'user' ? 'user' : 'assistant',
+      text: m.content || m.text || '',
+      runId: m.run_id,
+      provider: m.provider,
+    }))));
+  }, [sessionData?.id]);
+
+  const chooseProvider = async (id: string) => {
+    setSelectedCliProvider(id);
+    if (!sessionId) return;
+    try {
+      await api.put(`/api/chat/sessions/${sessionId}`, { settings: { provider: `cli:${id}` } });
     } catch (err: any) {
-      setLaunchError(t('Không mở được CLI: ', 'Could not launch CLI: ') + (err?.message || t('Không khả dụng', 'Unavailable')));
+      fail(`${t('Không lưu được công cụ cho phiên', 'Could not save the tool for this session')}: ${err.message}`);
+    }
+  };
+
+  // Stay on the latest entry while the reader is at the bottom, also when text reflows (fonts, narrow screens).
+  const stickToBottom = useRef(true);
+  const contentRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const follow = () => { if (stickToBottom.current) el.scrollTop = el.scrollHeight; };
+    follow();
+    const observer = new ResizeObserver(follow);
+    observer.observe(el);
+    if (contentRef.current) observer.observe(contentRef.current);
+    return () => observer.disconnect();
+  }, [cliLogs, isExecuting]);
+
+  const { data: commandCatalog } = useQuery<{ skills: Array<{ name: string; title?: string; description?: string }> }>({
+    queryKey: ['skills'], queryFn: () => api.get('/api/skills'),
+  });
+  const suggestions: CLICommandSuggestion[] = [
+    ...['workflow', 'new', 'accept', 'reject', 'clear'].map((name) => ({ cmd: `/${name}`, label: name, desc: '' })),
+    ...(commandCatalog?.skills || []).map((s) => ({ cmd: `/${s.name}`, label: s.title || s.name, desc: s.description || '' })),
+  ];
+  const filteredSuggestions = suggestions.filter((s) => s.cmd.toLowerCase().startsWith(inputVal.trim().toLowerCase()));
+
+  const handleLaunchExternalTerminal = async () => {
+    setLaunchingTerminal(true);
+    try {
+      await api.post(`/api/providers/${selectedCliProvider}/launch`, { terminal: true });
+      setTerminalLaunched(true);
+      setTimeout(() => mounted.current && setTerminalLaunched(false), 3000);
+    } catch (err: any) {
+      fail(t('Không mở được CLI: ', 'Could not launch CLI: ') + (err?.message || t('Không khả dụng', 'Unavailable')));
     } finally {
       setLaunchingTerminal(false);
     }
   };
 
-  const [inputVal, setInputVal] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [selectedSuggestIdx, setSelectedSuggestIdx] = useState(0);
-  const [isExecuting, setIsExecuting] = useState(false);
-  const [cliLogs, setCliLogs] = useState<Array<{
-    id: string;
-    role: 'user' | 'assistant' | 'tool' | 'workflow' | 'system' | 'approval';
-    title?: string;
-    text: string;
-    status?: 'running' | 'done' | 'failed';
-    approvals?: Array<{ id: string; name: string; text: string }>;
-  }>>([]);
+  const readSession = (sid: string) => () => {
+    if (!mounted.current) return Promise.reject(new Error('closed'));
+    return api.get<any>(`/api/chat/sessions/${sid}`);
+  };
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // 1. Fetch system config for version and assistant model
-  const { data: config } = useQuery<any>({
-    queryKey: ['config'],
-    queryFn: () => api.get('/api/config'),
-  });
-
-  const assistantModel = config?.agent_models?.assistant || 'tự động';
-  const { data: modelsData } = useQuery<any>({queryKey: ['models'], queryFn: () => api.get('/api/models')});
-  const labVersion = config?.version || APP_VERSION;
-
-  // 2. Fetch current session messages if activeSessionId exists
-  const { data: sessionData, refetch: refetchSession } = useQuery<any>({
-    queryKey: ['chat-session', activeSessionId],
-    queryFn: () => (activeSessionId ? api.get(`/api/chat/sessions/${activeSessionId}`) : null),
-    enabled: !!activeSessionId,
-  });
-
-  // Load existing messages into CLI logs on initial render or session change
-  useEffect(() => {
-    if (sessionData?.messages && sessionData.messages.length > 0) {
-      const initialLogs = sessionData.messages.map((m: any) => ({
-        id: m.id || Math.random().toString(),
-        role: (m.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
-        title: m.role === 'user' ? 'User' : 'PhD Research Lab',
-        text: m.content || m.text || '',
-      }));
-      setCliLogs(initialLogs);
+  // Show what a finished turn produced: the answer (with its run), a manual launch, or decisions to make.
+  const showTurnResult = (sid: string, tid: string, updated: any, status: string) => {
+    const answer = updated.messages?.filter((m: any) => m.role === 'assistant' && m.turn_id === tid).at(-1);
+    if (status === 'awaiting_launch') {
+      addLogs({ role: 'launch', turnId: tid, text: t('Chế độ thủ công: lượt này chờ bạn khởi chạy.', 'Manual mode: this turn waits for you to launch it.') });
     }
-  }, [sessionData?.id]);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (answer?.content) addLogs({ role: 'assistant', text: answer.content, runId: answer.run_id, provider: answer.provider });
+    const pending = (updated.approvals || []).filter((a: any) => a.status === 'pending');
+    if (pending.length) {
+      addLogs({ role: 'approval', text: '', approvals: pending.map((a: any) => ({ id: a.id, name: a.name, text: a.reason || a.id })) });
     }
-  }, [cliLogs, isExecuting]);
+  };
 
-  // Available workflows & slash commands
-  const { data: commandCatalog } = useQuery<{ skills: Array<{name: string; title?: string; description?: string}> }>({
-    queryKey: ['skills'], queryFn: () => api.get('/api/skills'),
-  });
-  const COMMAND_SUGGESTIONS: CLICommandSuggestion[] = [
-    ...['workflow', 'new', 'accept', 'reject', 'clear'].map(name => ({cmd: `/${name}`, label: name, desc: ''})),
-    ...(commandCatalog?.skills || []).map(s => ({cmd: `/${s.name}`, label: s.title || s.name, desc: s.description || ''})),
-  ];
+  const launchTurn = async (logId: string, tid: string) => {
+    try {
+      await api.post(`/api/chat/sessions/${sessionId}/turns/${tid}/launch`, {});
+      setCliLogs((prev) => prev.map((l) => (l.id === logId ? { ...l, status: 'done' } : l)));
+      const { session: updated, turn } = await waitForChatTurn(readSession(sessionId), tid, 900_000, 700, ['completed', 'waiting_approval']);
+      if (mounted.current) showTurnResult(sessionId, tid, updated, turn.status);
+    } catch (err: any) {
+      if (mounted.current && err?.message !== 'closed') fail(`${t('Lỗi', 'Error')}: ${err.message}`);
+    }
+  };
 
-  const filteredSuggestions = COMMAND_SUGGESTIONS.filter((s) =>
-    s.cmd.toLowerCase().startsWith(inputVal.trim().toLowerCase())
-  );
+  const decide = async (logId: string, approval: Approval, decision: 'approve' | 'reject') => {
+    try {
+      await api.post(`/api/chat/sessions/${sessionId}/approvals/${approval.id}`, { decision });
+      setCliLogs((prev) => prev.map((l) => (l.id !== logId ? l : {
+        ...l, approvals: l.approvals?.map((a) => (a.id === approval.id ? { ...a, decision } : a)),
+      })));
+    } catch (err: any) {
+      fail(`${t('Lỗi', 'Error')}: ${err.message}`);
+    }
+  };
 
-  // Send turn mutation
+  // The same conversation in the phdlab terminal chat; browser and console then share it.
+  const openConsole = async () => {
+    try {
+      const sid = await ensureSession();
+      const res = await api.post<{ launched: boolean; command: string; detail?: string }>(`/api/chat/sessions/${sid}/console`, {});
+      addLogs({
+        role: 'console',
+        text: res.launched
+          ? t(`Đã mở ${consoleName} trên phiên này. Lệnh để mở lại:`, `Opened ${consoleName} on this session. Command to reopen:`)
+          : t(`Không tự mở được ${consoleName}. Chạy lệnh này trong thư mục PhD Lab:`, `Could not open ${consoleName}. Run this in the PhD Lab folder:`),
+        title: res.command,
+      });
+    } catch (err: any) {
+      fail(`${t('Lỗi', 'Error')}: ${err.message}`);
+    }
+  };
+  const copy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      fail(t('Không sao chép được; hãy chọn và sao chép lệnh.', 'Could not copy; select the command and copy it.'));
+    }
+  };
+
+  const ensureSession = async () => {
+    if (sessionId) return sessionId;
+    const created = await api.post<{ id: string }>('/api/chat/sessions', { settings: { provider: `cli:${selectedCliProvider}` } });
+    setSessionId(created.id);
+    return created.id;
+  };
+
   const handleExecute = async (overridePrompt?: string) => {
     const raw = (overridePrompt !== undefined ? overridePrompt : inputVal).trim();
     if (!raw) return;
+    setInputVal('');
+    setShowSuggestions(false);
 
     if (raw.split(/\s+/)[0] === '/harness' || raw === '/model') {
       openDrawer(raw === '/model' ? 'settings' : 'harness');
       return;
     }
-
     if (raw === '/clear') {
       setCliLogs([]);
-      setInputVal('');
-      setShowSuggestions(false);
       return;
     }
-
     if (raw === '/new') {
       try {
-        const newSess = await api.post<{ id: string }>('/api/chat/sessions', {});
-        setActiveSessionId(newSess.id);
-        setCliLogs([]);
-        setInputVal('');
-        setShowSuggestions(false);
-      } catch (err: any) {
-        alert(err.message);
-      }
-      return;
-    }
-
-    // Handle /workflow list directly
-    if (raw === '/workflow' || raw === '/workflow list') {
-      setCliLogs((prev) => [
-        ...prev,
-        { id: Math.random().toString(), role: 'user', title: 'User', text: raw },
-        {
-          id: Math.random().toString(),
-          role: 'workflow',
-          title: t('Danh mục Quy trình Nghiên cứu PhD Lab', 'PhD Lab Research Workflows'),
-          text: (commandCatalog?.skills || []).map(s => `/${s.name} - ${s.title || s.name}: ${s.description || ''}`).join('\n'),
-        },
-      ]);
-      setInputVal('');
-      setShowSuggestions(false);
-      return;
-    }
-
-    // Add user turn to CLI logs
-    const userLogId = Math.random().toString();
-    setCliLogs((prev) => [
-      ...prev,
-      { id: userLogId, role: 'user', title: 'User', text: raw },
-    ]);
-    setInputVal('');
-    setShowSuggestions(false);
-    setIsExecuting(true);
-
-    try {
-      // Ensure session exists
-      let sid = activeSessionId;
-      if (!sid) {
         const created = await api.post<{ id: string }>('/api/chat/sessions', {});
-        sid = created.id;
-        setActiveSessionId(sid);
+        setSessionId(created.id);
+        setCliLogs([]);
+      } catch (err: any) {
+        fail(`${t('Không tạo được phiên mới', 'Could not start a new session')}: ${err.message}`);
       }
+      return;
+    }
+    if (raw === '/workflow' || raw === '/workflow list') {
+      addLogs(
+        { role: 'user', text: raw },
+        {
+          role: 'workflow',
+          title: t('Danh mục lệnh', 'Command catalog'),
+          text: (commandCatalog?.skills || []).map((s) => `/${s.name} - ${s.title || s.name}: ${s.description || ''}`).join('\n'),
+        },
+      );
+      return;
+    }
 
-      // Check if command is /accept or /reject
+    addLogs({ role: 'user', text: raw });
+    setIsExecuting(true);
+    try {
+      const sid = await ensureSession();
       if (/^\/(accept|reject)(?: all)?$/.test(raw)) {
         const isAccept = raw.startsWith('/accept');
-        const sess = await api.get<any>(`/api/chat/sessions/${sid}`);
-        const pendingApprovals = (sess.approvals || []).filter((a: any) => a.status === 'pending');
-        if (pendingApprovals.length === 0) {
-          setCliLogs((prev) => [
-            ...prev,
-            { id: Math.random().toString(), role: 'system', text: t('Không có gì chờ duyệt.', 'Nothing pending approval.') },
-          ]);
-        } else {
-          for (const a of pendingApprovals) {
-            await api.post(`/api/chat/sessions/${sid}/approvals/${a.id}`, {
-              decision: isAccept ? 'approve' : 'reject',
-            });
-          }
-          setCliLogs((prev) => [
-            ...prev,
-            {
-              id: Math.random().toString(),
-              role: 'system',
-              text: isAccept
-                ? t('Đã chấp thuận toàn bộ các đề xuất thành công.', 'Successfully approved all pending proposals.')
-                : t('Đã từ chối các đề xuất.', 'Rejected pending proposals.'),
-            },
-          ]);
+        const current = await api.get<any>(`/api/chat/sessions/${sid}`);
+        const pending = (current.approvals || []).filter((a: any) => a.status === 'pending');
+        for (const a of pending) {
+          await api.post(`/api/chat/sessions/${sid}/approvals/${a.id}`, { decision: isAccept ? 'approve' : 'reject' });
         }
-        setIsExecuting(false);
-        refetchSession();
+        const names = pending.map((a: any) => a.name).join(', ');
+        addLogs({
+          role: 'system',
+          text: !pending.length ? t('Không có gì chờ duyệt.', 'Nothing pending approval.')
+            : isAccept ? `${t('Đã duyệt', 'Approved')}: ${names}` : `${t('Đã từ chối', 'Rejected')}: ${names}`,
+        });
         return;
       }
 
-      // Post turn
-      const engine = modelsData?.agent_catalog?.assistant?.engine;
-      const provider = !engine ? undefined : /^(cli|app):/.test(engine) ? engine
-        : `${['codex', 'claude_code', 'gemini_cli', 'antigravity'].includes(engine) ? 'cli' : 'app'}:${engine}`;
       const turnRes = await api.post<any>(`/api/chat/sessions/${sid}/turns`, {
         text: raw,
-        overrides: { ...(provider ? { provider } : {}), model: modelsData?.agent_catalog?.assistant?.selected || '' },
+        overrides: { provider: `cli:${selectedCliProvider}` },
       });
-
-      // Wait for the actual turn; provider failures must be visible immediately.
-      const tid = turnRes.id;
-      const { session: updatedSess, turn } = await waitForChatTurn(
-        () => api.get(`/api/chat/sessions/${sid}`), tid,
-        (config?.aiws?.max_turn_s || 900) * 1000
-      );
-      const finalContent = updatedSess.messages?.filter(m => m.role === 'assistant' && m.turn_id === tid).at(-1)?.content || '';
-      const pendingDecisions = (updatedSess.approvals || []).filter(a => a.status === 'pending');
-      if (turn.status === 'awaiting_launch') {
-        setCliLogs(prev => [...prev, { id: tid, role: 'system', text: t('Chế độ thủ công: chờ khởi chạy trong cuộc hội thoại.', 'Manual mode: waiting for launch in the conversation.') }]);
-      }
-
-      if (finalContent) {
-        setCliLogs((prev) => [
-          ...prev,
-          {
-            id: Math.random().toString(),
-            role: 'assistant',
-            title: 'PhD Research Lab',
-            text: finalContent,
-          },
-        ]);
-      }
-
-      if (pendingDecisions.length > 0) {
-        setCliLogs((prev) => [
-          ...prev,
-          {
-            id: Math.random().toString(),
-            role: 'approval',
-            title: t('Quyết định & Chờ duyệt', 'Decisions & Approvals Needed'),
-            text: pendingDecisions.map((a: any, idx: number) => `[${idx + 1}] ${a.name} — ${a.reason || a.id}`).join('\n'),
-            approvals: pendingDecisions.map((a: any) => ({
-              id: a.id,
-              name: a.name,
-              text: a.reason || a.id,
-            })),
-          },
-        ]);
-      }
-
-      refetchSession();
+      const { session: updated, turn } = await waitForChatTurn(readSession(sid), turnRes.id, 900_000);
+      if (mounted.current) showTurnResult(sid, turnRes.id, updated, turn.status);
     } catch (err: any) {
-      setCliLogs((prev) => [
-        ...prev,
-        { id: Math.random().toString(), role: 'system', text: `✗ Lỗi: ${err.message}`, status: 'failed' },
-      ]);
+      if (mounted.current && err?.message !== 'closed') fail(`${t('Lỗi', 'Error')}: ${err.message}`);
     } finally {
-      setIsExecuting(false);
+      if (mounted.current) setIsExecuting(false);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (showSuggestions && filteredSuggestions.length > 0) {
-      if (e.key === 'ArrowDown') {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         e.preventDefault();
-        setSelectedSuggestIdx((prev) => (prev + 1) % filteredSuggestions.length);
-        return;
-      }
-      if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setSelectedSuggestIdx((prev) => (prev - 1 + filteredSuggestions.length) % filteredSuggestions.length);
+        const step = e.key === 'ArrowDown' ? 1 : -1;
+        setSelectedSuggestIdx((prev) => (prev + step + filteredSuggestions.length) % filteredSuggestions.length);
         return;
       }
       if (e.key === 'Tab' || (e.key === 'Enter' && !e.shiftKey)) {
-        e.preventDefault();
         const selected = filteredSuggestions[selectedSuggestIdx];
-        if (selected) {
+        if (selected && selected.cmd !== inputVal.trim()) {
+          e.preventDefault();
           setInputVal(selected.cmd + ' ');
           setShowSuggestions(false);
           return;
@@ -306,7 +352,6 @@ export const ClaudeCLIStudio: React.FC = () => {
         return;
       }
     }
-
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleExecute();
@@ -316,12 +361,100 @@ export const ClaudeCLIStudio: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setInputVal(val);
-    if (val.startsWith('/')) {
-      setShowSuggestions(true);
-      setSelectedSuggestIdx(0);
-    } else {
-      setShowSuggestions(false);
+    setShowSuggestions(val.startsWith('/') && !val.includes(' '));
+    setSelectedSuggestIdx(0);
+  };
+
+  const renderLog = (log: CliLog) => {
+    if (log.role === 'user') {
+      return (
+        <div key={log.id} style={{ display: 'flex', gap: 8, fontFamily: 'var(--mono)', fontSize: 13, color: 'var(--fg)' }}>
+          <span aria-hidden style={{ color: 'var(--accent)', fontWeight: 700 }}>❯</span>
+          <span style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{log.text}</span>
+        </div>
+      );
     }
+    if (log.role === 'assistant') {
+      return (
+        <article
+          key={log.id}
+          aria-label={t('Câu trả lời AI', 'AI answer')}
+          style={{ border: '1px solid var(--line)', boxShadow: 'inset 3px 0 0 var(--accent)', borderRadius: 10, padding: '10px 14px 10px 16px', background: 'var(--bg)' }}
+        >
+          <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--accent)', marginBottom: 6 }}>✦ {log.provider ? labelOf(log.provider) : 'AI'}</div>
+          <div style={{ lineHeight: 1.6, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', color: 'var(--fg)' }}>{log.text}</div>
+          {log.runId && <ChatRunCard id={log.runId} />}
+        </article>
+      );
+    }
+    if (log.role === 'workflow') {
+      return (
+        <section key={log.id} aria-label={log.title} style={{ ...frame, background: 'var(--bg)', padding: '10px 14px' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)', marginBottom: 6 }}>✦ {log.title}</div>
+          <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', lineHeight: 1.5, fontFamily: 'var(--mono)', fontSize: 12.5 }}>{log.text}</div>
+        </section>
+      );
+    }
+    if (log.role === 'console') {
+      return (
+        <div key={log.id} style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', fontSize: 13, color: 'var(--muted)' }}>
+          <span>{log.text}</span>
+          <code style={{ fontFamily: 'var(--mono)', color: 'var(--fg)', background: 'var(--bg-2)', padding: '2px 6px', borderRadius: 6,
+            overflowWrap: 'anywhere' }}>{log.title}</code>
+          <button type="button" className="btn sm ghost" onClick={() => copy(log.title || '')}>{t('Sao chép lệnh', 'Copy command')}</button>
+        </div>
+      );
+    }
+    if (log.role === 'launch') {
+      return (
+        <div key={log.id} style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', color: 'var(--muted)', fontSize: 13 }}>
+          <span>{log.text}</span>
+          {log.status === 'done' ? <span>{t('Đã khởi chạy.', 'Launched.')}</span> : (
+            <button type="button" className="btn sm" onClick={() => launchTurn(log.id, log.turnId || '')}>
+              <Play size={12} /> {t('Khởi chạy', 'Launch')}
+            </button>
+          )}
+        </div>
+      );
+    }
+    if (log.role === 'approval') {
+      return (
+        <section key={log.id} style={{ border: '1px solid var(--warn)', borderRadius: 10, padding: '10px 14px', background: 'var(--warn-soft, var(--bg))' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 12.5, marginBottom: 8 }}>
+            <AlertTriangle size={14} color="var(--warn)" /> {t('Quyết định cần duyệt', 'Decisions to review')}
+          </div>
+          <ul aria-label={t('Chờ duyệt', 'Pending approval')} style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 6 }}>
+            {log.approvals?.map((a) => (
+              <li key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <code style={{ fontFamily: 'var(--mono)' }}>{a.name}</code>
+                <span style={{ color: 'var(--muted)', flex: '1 1 160px', overflowWrap: 'anywhere' }}>{a.text}</span>
+                {a.decision ? (
+                  <span>{a.decision === 'approve' ? t('Đã duyệt', 'Approved') : t('Đã từ chối', 'Rejected')}</span>
+                ) : (
+                  <>
+                    <button type="button" className="btn sm" onClick={() => decide(log.id, a, 'approve')}>
+                      <CheckCircle2 size={12} /> {t('Duyệt', 'Approve')}
+                    </button>
+                    <button type="button" className="btn sm ghost" onClick={() => decide(log.id, a, 'reject')}>
+                      <X size={12} /> {t('Từ chối', 'Reject')}
+                    </button>
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      );
+    }
+    return (
+      <div
+        key={log.id}
+        role={log.status === 'failed' ? 'alert' : undefined}
+        style={{ color: log.status === 'failed' ? 'var(--err)' : 'var(--muted)', fontSize: 12.5, overflowWrap: 'anywhere' }}
+      >
+        {log.text}
+      </div>
+    );
   };
 
   return (
@@ -329,506 +462,170 @@ export const ClaudeCLIStudio: React.FC = () => {
       style={{
         display: 'flex',
         flexDirection: 'column',
+        gap: 10,
         width: '100%',
         height: '100%',
-        background: '#0d1117',
-        color: '#e6edf3',
-        fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-        fontSize: 12.5,
+        minHeight: 0,
+        boxSizing: 'border-box',
+        padding: '12px max(12px, calc((100% - 980px) / 2))',
+        background: 'var(--bg)',
+        color: 'var(--fg)',
+        fontSize: 13.5,
         overflow: 'hidden',
       }}
     >
-      {/* 1. Header Toolbar */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '8px 12px',
-          background: '#161b22',
-          borderBottom: '1px solid #30363d',
-          flexShrink: 0,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#f0883e', fontWeight: 700 }}>
-            <Terminal size={15} />
-            <span>Claude CLI Studio</span>
-          </div>
-          <span style={{ fontSize: 11, color: '#7d8590' }}>v{labVersion}</span>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#3fb950', display: 'inline-block' }} />
-          <span style={{ fontSize: 11, color: '#58a6ff' }}>{project?.name || t('Dự án Hiện tại', 'Current Project')}</span>
-          <span style={{ fontSize: 11, color: '#7d8590' }}>•</span>
-          <span style={{ fontSize: 11, color: '#a371f7' }}>{assistantModel}</span>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <button
-            type="button"
-            onClick={() => handleExecute('/clear')}
-            className="btn sm ghost"
-            style={{ fontSize: 11, color: '#8b949e', border: '1px solid #30363d', borderRadius: 4, padding: '2px 8px' }}
-          >
-            {t('Xoá màn hình', 'Clear')}
-          </button>
-          <button
-            type="button"
-            onClick={() => handleExecute('/new')}
-            className="btn sm ghost"
-            style={{ fontSize: 11, color: '#8b949e', border: '1px solid #30363d', borderRadius: 4, padding: '2px 8px' }}
-          >
-            {t('Đoạn chat mới', 'New Chat')}
-          </button>
-        </div>
-      </div>
-
-      {/* 1.5. Provider Switcher Strip & 1-Click Native Terminal Launcher */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '6px 12px',
-          background: '#13171f',
-          borderBottom: '1px solid #21262d',
-          flexShrink: 0,
-          gap: 8,
-          overflowX: 'auto',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, overflowX: 'auto', flex: 1 }}>
-          <span style={{ fontSize: 10, color: '#8b949e', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 0.5, flexShrink: 0 }}>
-            {t('Provider:', 'Provider:')}
+      {/* Narrow screens: one scrollable row per strip and icon-only header actions, so the transcript keeps its room. */}
+      <style>{`
+        .cli-strip { display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; min-width: 0; }
+        .cli-header { padding-right: 48px; }
+        @media (max-width: 640px) {
+          .cli-strip { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; padding-bottom: 2px; }
+          .cli-label { display: none; }
+        }
+      `}</style>
+      {/* .cli-header padding keeps the header clear of the shell's floating "Right menu" handle. */}
+      <header className="cli-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexShrink: 0, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+          <Terminal size={16} color="var(--accent)" style={{ flexShrink: 0 }} />
+          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>
+            {t('Chat CLI', 'CLI chat')}
+          </h2>
+          <span className="cli-label" style={{ color: 'var(--muted)', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}
+            title={project?.name || ''}>
+            {project?.name || t('Dự án hiện tại', 'Current project')}
           </span>
-          {[
-            { id: 'claude_code', label: 'Claude Code', color: '#d97706' },
-            { id: 'codex', label: 'OpenAI Codex', color: '#10b981' },
-            { id: 'antigravity', label: 'Antigravity (agy)', color: '#3b82f6' },
-            { id: 'gemini_cli', label: 'Gemini CLI', color: '#8b5cf6' },
-          ].map((p) => {
-            const isCur = selectedCliProvider === p.id;
+        </div>
+        <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+          <button type="button" className="btn sm ghost" onClick={openConsole} aria-label={t(`Mở trong ${consoleName}`, `Open in ${consoleName}`)}
+            title={t('Tiếp tục cuộc trò chuyện này trong cửa sổ lệnh (phdlab chat)', 'Continue this conversation in a console window (phdlab chat)')}>
+            <Terminal size={13} /> <span className="cli-label">{t(`Mở trong ${consoleName}`, `Open in ${consoleName}`)}</span>
+          </button>
+          <button type="button" className="btn sm ghost" onClick={() => handleExecute('/clear')} aria-label={t('Xóa màn hình', 'Clear screen')}
+            title={t('Xóa màn hình', 'Clear screen')}>
+            <Eraser size={13} /> <span className="cli-label">{t('Xóa màn hình', 'Clear screen')}</span>
+          </button>
+          <button type="button" className="btn sm ghost" onClick={() => handleExecute('/new')} aria-label={t('Phiên mới', 'New session')}
+            title={t('Phiên mới', 'New session')}>
+            <Plus size={13} /> <span className="cli-label">{t('Phiên mới', 'New session')}</span>
+          </button>
+        </div>
+      </header>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, minWidth: 0 }}>
+        <div role="radiogroup" aria-label={t('Công cụ CLI', 'CLI provider')} className="cli-strip" style={{ flex: '1 1 auto' }}>
+          {providersLoading && (
+            <span role="status" style={{ color: 'var(--muted)', fontSize: 12.5 }}>
+              {t('Đang kiểm tra các công cụ CLI…', 'Checking CLI tools…')}
+            </span>
+          )}
+          {providers.map((p) => {
+            const id = p.id.replace(/^cli:/, '');
+            const current = selectedCliProvider === id;
             return (
-              <button
+              <label
                 key={p.id}
-                type="button"
-                onClick={() => setSelectedCliProvider(p.id)}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 4,
-                  padding: '3px 8px',
-                  fontSize: 11,
-                  fontWeight: isCur ? 700 : 500,
-                  borderRadius: 6,
-                  background: isCur ? 'rgba(210, 96, 42, 0.18)' : '#161b22',
-                  border: isCur ? `1px solid ${p.color}` : '1px solid #30363d',
-                  color: isCur ? p.color : '#c9d1d9',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.15s ease',
-                }}
+                title={`${p.state || ''}${p.detail ? `: ${p.detail}` : ''}`}
+                style={{ ...chip, borderColor: current ? 'var(--accent)' : 'var(--line)', opacity: p.available === false ? 0.55 : 1,
+                  cursor: p.available === false ? 'not-allowed' : 'pointer' }}
               >
-                <span style={{ width: 5, height: 5, borderRadius: '50%', background: p.color }} />
+                <input type="radio" name="cli-provider" checked={current} disabled={p.available === false}
+                  onChange={() => chooseProvider(id)} style={{ margin: 0 }} />
                 <span>{p.label}</span>
-              </button>
+              </label>
             );
           })}
         </div>
-
-        {/* 1-Click Launch External Terminal Button */}
-        <button
-          type="button"
-          onClick={() => handleLaunchExternalTerminal()}
-          disabled={launchingTerminal}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 5,
-            padding: '3px 10px',
-            fontSize: 11,
-            fontWeight: 600,
-            borderRadius: 6,
-            background: terminalLaunched ? '#238636' : '#21262d',
-            border: '1px solid #388bfd',
-            color: '#ffffff',
-            cursor: 'pointer',
-            flexShrink: 0,
-            whiteSpace: 'nowrap',
-          }}
-          title={t('Mở trực tiếp cửa sổ Terminal ngoài máy tính bằng 1 click', '1-Click launch native external terminal window')}
-        >
-          {launchingTerminal ? (
-            <RefreshCw size={11} className="spin" />
-          ) : terminalLaunched ? (
-            <CheckCircle2 size={11} />
-          ) : (
-            <Play size={10} fill="currentColor" />
-          )}
-          <span>
-            {terminalLaunched
-              ? t('Đã mở Terminal ngoài!', 'External Terminal Opened!')
-              : t('1-Click Mở Terminal Ngoài', '1-Click Open Native Terminal')}
-          </span>
+        <button type="button" className="btn sm" onClick={handleLaunchExternalTerminal} disabled={launchingTerminal} style={{ flexShrink: 0 }}
+          aria-label={terminalLaunched ? t('Đã mở terminal', 'Terminal opened') : t('Mở terminal ngoài', 'Open external terminal')}
+          title={t('Mở CLI đã chọn trong một cửa sổ terminal riêng', 'Open the selected CLI in its own terminal window')}>
+          {launchingTerminal ? <RefreshCw size={12} className="spin" /> : terminalLaunched ? <CheckCircle2 size={12} /> : <Play size={12} />}
+          <span className="cli-label">{terminalLaunched ? t('Đã mở terminal', 'Terminal opened') : t('Mở terminal ngoài', 'Open external terminal')}</span>
         </button>
       </div>
 
-      {launchError && <p role="alert" style={{ margin: '6px 12px', overflowWrap: 'anywhere' }}>{launchError}</p>}
-      {/* 2. Quick Workflows Strip */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          padding: '6px 12px',
-          background: '#0d1117',
-          borderBottom: '1px solid #21262d',
-          overflowX: 'auto',
-          flexShrink: 0,
-        }}
-      >
-        <span style={{ fontSize: 10.5, color: '#8b949e', textTransform: 'uppercase', fontWeight: 600, letterSpacing: 0.5 }}>
-          {t('Quy trình', 'Workflows')}:
-        </span>
-        {[
-          { label: 'Khảo sát /lit', cmd: '/lit ', icon: BookOpen, color: '#58a6ff' },
-          { label: 'Đề cương /outline', cmd: '/outline', icon: FileText, color: '#3fb950' },
-          { label: 'Thực nghiệm /code', cmd: '/code', icon: Code, color: '#d29922' },
-          { label: 'Bài báo /paper', cmd: '/paper', icon: FileText, color: '#f0883e' },
-          { label: 'Phản biện /review', cmd: '/review', icon: ShieldCheck, color: '#bc8cff' },
-          { label: 'Nghiên cứu /deepresearch', cmd: '/deepresearch ', icon: Sparkles, color: '#79c0ff' },
-          { label: 'Harness /harness', cmd: '/harness list', icon: Sliders, color: '#ff7b72' },
-          { label: 'Tất cả /workflow', cmd: '/workflow list', icon: Layers, color: '#d2602a' },
-        ].map((w) => (
-          <button
-            key={w.cmd}
-            type="button"
-            onClick={() => {
-              setInputVal(w.cmd);
-              inputRef.current?.focus();
-            }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-              padding: '3px 7px',
-              fontSize: 11,
-              borderRadius: 6,
-              background: '#161b22',
-              border: '1px solid #30363d',
-              color: w.color,
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            <w.icon size={11} />
-            <span>{w.label}</span>
+      <div role="group" aria-label={t('Quy trình', 'Workflows')} className="cli-strip">
+        {WORKFLOWS.map((w) => (
+          <button key={w.cmd} type="button" style={chip} onClick={() => { setInputVal(w.cmd); inputRef.current?.focus(); }}>
+            <w.icon size={12} color="var(--accent)" />
+            <span>{t(w.vi, w.en)} <code style={{ fontFamily: 'var(--mono)', color: 'var(--muted)' }}>{w.cmd.trim()}</code></span>
           </button>
         ))}
       </div>
 
-      {/* 3. Terminal Body Output Feed */}
       <div
         ref={scrollRef}
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '14px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 12,
+        role="log"
+        aria-label={t('Hội thoại CLI', 'CLI conversation')}
+        onScroll={(e) => {
+          const el = e.currentTarget;
+          stickToBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
         }}
+        style={{ ...frame, flex: 1, minHeight: 96, overflowY: 'auto', padding: 14 }}
       >
-        {/* Claude CLI Welcome Banner */}
-        <div
-          style={{
-            border: '1px solid #d2602a',
-            borderRadius: 8,
-            padding: '10px 14px',
-            background: 'rgba(210, 96, 42, 0.05)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#d2602a', fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
-            <span>✦</span>
-            <span>PhD Research Lab — Claude CLI Terminal Mode</span>
-          </div>
-          <div style={{ color: '#8b949e', fontSize: 12, lineHeight: 1.5 }}>
-            {t('Hỗ trợ toàn diện mọi workflow: /lit (Tài liệu), /outline (Đề cương), /code (Mã nguồn), /paper (Bài báo LaTeX), /review (Phản biện), /harness (Kiểm định).',
-              'Full support for all workflows: /lit (Literature), /outline (Outline), /code (Code Sandbox), /paper (LaTeX Paper), /review (Peer Review), /harness (Harness Verification).')}
-          </div>
-          <div style={{ color: '#58a6ff', fontSize: 11.5, marginTop: 4 }}>
-            {t('Gõ / để mở danh mục lệnh hoặc chọn trực tiếp quy trình bên trên.', 'Type / to view command catalog or click workflows above.')}
-          </div>
-        </div>
-
-        {/* Message / Event Logs */}
-        {cliLogs.map((log) => {
-          if (log.role === 'user') {
-            return (
-              <div
-                key={log.id}
-                style={{
-                  border: '1px solid #30363d',
-                  borderRadius: 8,
-                  padding: '10px 12px',
-                  background: '#161b22',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#58a6ff', fontWeight: 600, fontSize: 11.5, marginBottom: 4 }}>
-                  <span>╭── 👤 User</span>
-                  <span style={{ color: '#8b949e' }}>────────────────────────────────</span>
-                </div>
-                <div style={{ color: '#e6edf3', display: 'flex', alignItems: 'flex-start', gap: 6, paddingLeft: 4 }}>
-                  <span style={{ color: '#d2602a', fontWeight: 700 }}>❯</span>
-                  <span style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{log.text}</span>
-                </div>
-              </div>
-            );
-          }
-
-          if (log.role === 'workflow') {
-            return (
-              <div
-                key={log.id}
-                style={{
-                  border: '1px solid #f0883e',
-                  borderRadius: 8,
-                  padding: '10px 12px',
-                  background: 'rgba(240, 136, 62, 0.04)',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#f0883e', fontWeight: 600, fontSize: 11.5, marginBottom: 6 }}>
-                  <span>╭── ✦ {log.title || 'Quy trình Nghiên cứu'}</span>
-                  <span style={{ color: '#8b949e' }}>────────────────────────────────</span>
-                </div>
-                <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.5, color: '#c9d1d9' }}>
-                  {log.text}
-                </div>
-              </div>
-            );
-          }
-
-          if (log.role === 'approval') {
-            return (
-              <div
-                key={log.id}
-                style={{
-                  border: '1px solid #d29922',
-                  borderRadius: 8,
-                  padding: '10px 12px',
-                  background: 'rgba(210, 153, 34, 0.08)',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#d29922', fontWeight: 700, fontSize: 12, marginBottom: 6 }}>
-                  <AlertTriangle size={14} />
-                  <span>{log.title || t('Quyết định & Chờ duyệt', 'Decisions Needed')}</span>
-                </div>
-                <div style={{ whiteSpace: 'pre-wrap', color: '#e6edf3', fontSize: 12, marginBottom: 10, lineHeight: 1.5 }}>
-                  {log.text}
-                </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button
-                    type="button"
-                    onClick={() => handleExecute('/accept all')}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 5,
-                      padding: '4px 10px',
-                      background: '#238636',
-                      border: 'none',
-                      borderRadius: 6,
-                      color: '#ffffff',
-                      fontSize: 11.5,
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <CheckCircle2 size={12} />
-                    <span>{t('Chấp nhận tất cả', 'Accept All')}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleExecute('/reject all')}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 5,
-                      padding: '4px 10px',
-                      background: '#21262d',
-                      border: '1px solid #30363d',
-                      borderRadius: 6,
-                      color: '#f85149',
-                      fontSize: 11.5,
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <X size={12} />
-                    <span>{t('Từ chối tất cả', 'Reject All')}</span>
-                  </button>
-                </div>
-              </div>
-            );
-          }
-
-          if (log.role === 'system') {
-            return (
-              <div key={log.id} style={{ color: log.status === 'failed' ? '#f85149' : '#8b949e', fontSize: 11.5, padding: '2px 4px' }}>
-                {log.text}
-              </div>
-            );
-          }
-
-          // Assistant response box
-          return (
-            <div
-              key={log.id}
-              style={{
-                border: '1px solid #30363d',
-                borderRadius: 8,
-                padding: '10px 14px',
-                background: '#161b22',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#f0883e', fontWeight: 700, fontSize: 12, marginBottom: 6 }}>
-                <span>╭── ✦ PhD Research Lab</span>
-                <span style={{ color: '#8b949e', fontWeight: 400 }}>──────────────────────────────</span>
-              </div>
-              <div style={{ color: '#c9d1d9', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                {log.text}
-              </div>
-            </div>
-          );
-        })}
-
-        {/* Live Running Spinner Box */}
-        {isExecuting && (
-          <div
-            style={{
-              border: '1px dashed #d2602a',
-              borderRadius: 8,
-              padding: '10px 14px',
-              background: 'rgba(210, 96, 42, 0.03)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              color: '#d2602a',
-              fontSize: 12,
-            }}
-          >
-            <RefreshCw size={13} className="spin" />
-            <span>{t('Đang điều phối tác nhân và thực thi quy trình...', 'Coordinating agents and executing workflow...')}</span>
+        <div ref={contentRef} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {cliLogs.length === 0 && !isExecuting && (
+          <div style={{ color: 'var(--muted)', lineHeight: 1.6 }}>
+            {t('Gõ câu hỏi, hoặc gõ / để xem danh sách lệnh (/lit, /outline, /code, /paper, /review…). Câu trả lời của AI hiện ở đây.',
+              'Type a question, or type / for the command list (/lit, /outline, /code, /paper, /review…). The AI answers appear here.')}
           </div>
         )}
+        {cliLogs.map(renderLog)}
+        {isExecuting && (
+          <div role="status" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--muted)' }}>
+            <RefreshCw size={13} className="spin" /> {t('Đang chạy…', 'Running…')} {providerLabel}
+          </div>
+        )}
+        </div>
       </div>
 
-      {/* 4. Autocomplete Popup */}
-      {showSuggestions && filteredSuggestions.length > 0 && (
-        <div
-          style={{
-            maxHeight: 180,
-            overflowY: 'auto',
-            background: '#161b22',
-            borderTop: '1px solid #30363d',
-            borderBottom: '1px solid #30363d',
-            padding: '4px',
-            flexShrink: 0,
-          }}
-        >
-          {filteredSuggestions.map((s, idx) => (
-            <div
-              key={s.cmd}
-              onClick={() => {
-                setInputVal(s.cmd + ' ');
-                setShowSuggestions(false);
-                inputRef.current?.focus();
-              }}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '5px 10px',
-                borderRadius: 4,
-                background: idx === selectedSuggestIdx ? '#21262d' : 'transparent',
-                cursor: 'pointer',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ color: '#d2602a', fontWeight: 700 }}>{s.cmd}</span>
-                <span style={{ color: '#e6edf3', fontWeight: 500 }}>{s.label}</span>
-              </div>
-              <span style={{ color: '#8b949e', fontSize: 11 }}>{s.desc}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* 5. Prompt Input Box */}
-      <div
-        style={{
-          padding: '10px 12px',
-          background: '#161b22',
-          borderTop: '1px solid #30363d',
-          flexShrink: 0,
-        }}
+      <form
+        aria-label={t('Lệnh CLI', 'CLI command')}
+        onSubmit={(e) => { e.preventDefault(); handleExecute(); }}
+        style={{ position: 'relative', flexShrink: 0 }}
       >
-        <div
-          style={{
-            border: '1px solid #30363d',
-            borderRadius: 8,
-            padding: '4px 10px',
-            background: '#0d1117',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <span style={{ color: '#d2602a', fontWeight: 700, fontSize: 14 }}>❯</span>
+        {showSuggestions && filteredSuggestions.length > 0 && (
+          <ul role="listbox" aria-label={t('Gợi ý lệnh', 'Command suggestions')}
+            style={{ ...frame, position: 'absolute', bottom: 'calc(100% + 6px)', left: 0, right: 0, maxHeight: 220, overflowY: 'auto',
+              margin: 0, padding: 4, listStyle: 'none', boxShadow: 'var(--shadow)', zIndex: 5 }}>
+            {filteredSuggestions.map((s, idx) => (
+              <li
+                key={s.cmd}
+                role="option"
+                aria-selected={idx === selectedSuggestIdx}
+                onMouseDown={(e) => { e.preventDefault(); setInputVal(s.cmd + ' '); setShowSuggestions(false); inputRef.current?.focus(); }}
+                style={{ display: 'flex', gap: 10, alignItems: 'baseline', padding: '6px 10px', borderRadius: 6, cursor: 'pointer',
+                  background: idx === selectedSuggestIdx ? 'var(--accent-soft, var(--bg))' : 'transparent' }}
+              >
+                <code style={{ fontFamily: 'var(--mono)', color: 'var(--accent)', fontWeight: 700 }}>{s.cmd}</code>
+                <span>{s.label}</span>
+                <span style={{ color: 'var(--muted)', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0, flex: 1 }}
+                  title={s.desc}>{s.desc}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div style={{ ...frame, display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px 6px 12px' }}>
+          <span aria-hidden style={{ color: 'var(--accent)', fontWeight: 700 }}>❯</span>
           <input
             ref={inputRef}
             type="text"
+            aria-label={t('Lệnh CLI', 'CLI command')}
             value={inputVal}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            placeholder={t('Nhập câu hỏi hoặc / để chọn quy trình/lệnh...', 'Enter prompt or / for workflows/commands...')}
+            placeholder={t('Hỏi hoặc gõ / để chọn lệnh…', 'Ask, or type / for commands…')}
             disabled={isExecuting}
-            style={{
-              flex: 1,
-              background: 'transparent',
-              border: 'none',
-              outline: 'none',
-              color: '#e6edf3',
-              fontSize: 12.5,
-              fontFamily: 'inherit',
-            }}
+            style={{ flex: 1, minWidth: 0, background: 'transparent', border: 'none', outline: 'none', color: 'var(--fg)',
+              fontSize: 14, fontFamily: 'var(--mono)', padding: '6px 0' }}
           />
-          <button
-            type="button"
-            onClick={() => handleExecute()}
-            disabled={isExecuting || !inputVal.trim()}
-            style={{
-              padding: '4px 8px',
-              background: inputVal.trim() ? '#d2602a' : '#21262d',
-              border: 'none',
-              borderRadius: 6,
-              color: '#ffffff',
-              cursor: inputVal.trim() ? 'pointer' : 'default',
-              display: 'flex',
-              alignItems: 'center',
-            }}
-            title={t('Thực thi lệnh', 'Execute command')}
-          >
-            <CornerDownLeft size={13} />
+          <button type="submit" className="btn sm" disabled={isExecuting || !inputVal.trim()} aria-label={t('Gửi', 'Send')}>
+            <CornerDownLeft size={14} />
           </button>
         </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5, fontSize: 10.5, color: '#8b949e' }}>
-          <span>{t('Enter gửi • Shift+Enter dòng mới • / danh sách lệnh', 'Enter to send • Shift+Enter new line • / commands list')}</span>
-          <span>{t('Giao diện Dòng lệnh Claude CLI Học thuật', 'Academic Claude CLI Terminal Studio')}</span>
+        <div style={{ marginTop: 4, fontSize: 11.5, color: 'var(--muted)' }}>
+          {t('Enter để gửi · / để xem lệnh · gửi tới', 'Enter to send · / for commands · sends to')} {providerLabel}
         </div>
-      </div>
+      </form>
     </div>
   );
 };

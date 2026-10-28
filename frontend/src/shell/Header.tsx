@@ -329,7 +329,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
             borderRadius: 8,
             border: drawerKind ? '1px solid var(--accent)' : '1px solid var(--line)',
             background: drawerKind ? 'var(--accent-soft, var(--bg-2))' : 'var(--bg-2)',
-            color: drawerKind ? 'var(--accent)' : 'var(--ink)',
+            color: 'var(--ink)',  // accent text on the accent-soft background failed WCAG contrast (6.6.3 QA)
             fontWeight: 600,
             fontSize: 12,
             flexShrink: 0,
@@ -337,7 +337,7 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
             transition: 'all 0.15s ease',
           }}
         >
-          {drawerKind ? <PanelRightClose size={15} /> : <PanelRightOpen size={15} />}
+          {drawerKind ? <PanelRightClose size={15} color="var(--accent)" /> : <PanelRightOpen size={15} />}
           <span>{drawerKind ? t('Ẩn bảng công cụ', 'Hide panel') : t('Bảng công cụ', 'Tools panel')}</span>
         </button>
       </div>

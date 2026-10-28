@@ -206,7 +206,14 @@ class Connectivity(unittest.TestCase):
                 mock.patch.object(C, "run_cli", side_effect=[(0, "1.0"), (0, json.dumps(status))]):
             probe = connector._probe()
         self.assertNotIn("email", probe["auth"])
-        self.assertEqual(connector.auth_state(probe)[0], "CONNECTED")
+        # 6.6.3 (FQC-CLAUDE-SIGNIN-663): CONNECTED also needs a sign-in the container can use; tests isolate
+        # CLAUDE_CONFIG_DIR, so provide a fresh host access token there instead of reading the real one.
+        import os, tempfile, time
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as home, mock.patch.dict(os.environ, {"CLAUDE_CONFIG_DIR": home}):
+            Path(home, ".credentials.json").write_text(json.dumps({"claudeAiOauth": {
+                "accessToken": "sk-ant-oat01-test", "expiresAt": int((time.time() + 3600) * 1000)}}), "utf-8")
+            self.assertEqual(connector.auth_state(probe)[0], "CONNECTED")
         self.assertEqual(connector.auth_state({"auth": {"loggedIn": False}})[0], "AUTH_EXPIRED")
         self.assertEqual(connector.auth_state({"auth": {"loggedIn": True, "authMethod": "api_key"}, "auth_code": 0})[0], "ERROR")
         self.assertEqual(connector.auth_state({})[0], "UNKNOWN")
