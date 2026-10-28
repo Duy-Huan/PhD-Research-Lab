@@ -41,7 +41,9 @@ Progress 2026-10-28:
 - CI on Windows found a CLI chat race (text written just before a turn ends was dropped); fixed in `02d0517`.
 - A6 part 1 is done locally (FQC-PAPER-EVIDENCE-664): writer evidence (library + verified runs), no template prose,
   preamble stripping, manuscript gate, `library.search` / `library.passages`. Part 2, a bundled LaTeX engine for the
-  PDF, is the next step (packaging: .exe and .deb).
+  PDF, is done locally (FQC-LATEX-BUNDLE-664): Tectonic 0.17.0, SHA-256 pinned, in <install>/tools of the .exe and
+  .deb; CI installer smoke runs it. A live PDF compile on the owner's machine needs the owner's permission to run the
+  downloaded binary (the session's permission check blocked it); its first compile needs internet.
 - Live confirmation with Codex comes with the A9/live run.
 
 | ID | Change | Criteria |
