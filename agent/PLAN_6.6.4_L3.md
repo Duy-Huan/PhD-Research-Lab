@@ -34,6 +34,8 @@ Baseline at v6.6.3 (`66b7311`):
 Progress 2026-10-28:
 - A1 is done locally (FQC-TOOL-JOBS-664). `phdlab_tools_call` waits at most 45 s, then `phdlab_tools_job` takes over.
 - A5 is done locally (FQC-TOOL-SHELL-664). `sandbox_run_code` names cmd.exe or POSIX sh.
+- A2 is done locally (FQC-AGENT-PROTOCOL-664). `experiment.propose_protocol` freezes agent code with a pinned environment;
+  after approval it runs as `experiment.run` and is checked by `experiment.verify` (agent-code-recompute-v1).
 - Live confirmation with Codex comes with the A9/live run.
 
 | ID | Change | Criteria |

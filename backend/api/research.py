@@ -22,7 +22,7 @@ router = APIRouter(prefix="/api/research", tags=["research-workspace"], dependen
 from backend.agent import missions
 from backend.agent.mission_contracts import MissionSpec
 from backend.execution import protocols
-from backend.execution.protocol_contracts import ExperimentProtocol
+from backend.execution.protocol_contracts import AgentCodeProtocol, ExperimentProtocol
 from backend.knowledge import governance as G
 from backend.agent import research_os as OS
 
@@ -258,7 +258,7 @@ async def protocol_list(tid:str):return {"protocols":await call(protocols.listin
 
 
 @router.post("/topics/{tid}/protocols")
-async def protocol_create(tid:str,body:ExperimentProtocol,parent_id:str=""):
+async def protocol_create(tid:str,body:AgentCodeProtocol|ExperimentProtocol,parent_id:str=""):
     if tid!=body.topic_id:raise HTTPException(400,"Topic mismatch")
     return await call(protocols.create,body,parent_id)
 

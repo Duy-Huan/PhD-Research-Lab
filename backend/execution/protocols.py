@@ -11,7 +11,7 @@ import time
 from pathlib import Path
 
 from backend.agent import decision_ledger as L
-from backend.execution.protocol_contracts import ExperimentProtocol
+from backend.execution.protocol_contracts import AgentCodeProtocol, ExperimentProtocol
 from backend.knowledge import research_store as S
 
 WORKER=Path(__file__).with_name("denoising_worker.py")
@@ -36,7 +36,10 @@ def listing(tid):
         return [_get(c,r[0],tid) for r in c.execute("SELECT id FROM experiment_protocols WHERE topic_id=? ORDER BY rowid DESC",(tid,))]
 
 
-def create(spec:ExperimentProtocol,parent_id=""):
+def create(spec:ExperimentProtocol|AgentCodeProtocol,parent_id=""):
+    if isinstance(spec,AgentCodeProtocol):
+        from backend.execution import agent_protocols
+        return agent_protocols.create(spec,parent_id)
     data=spec.model_dump();recipe=data["dataset"]
     splits={k:[k+":"+str(i) for i in range(recipe[k+"_count"])] for k in ("train","validation","test")}
     fingerprint=L.digest({"recipe":recipe,"splits":splits,"generator_sha256":worker_hash()})
@@ -155,6 +158,9 @@ async def execute(tid,pid,mission_id,expected_digest,expected_nonce,resource_hol
     m=missions.get(mission_id,tid);p=get(tid,pid)
     if m["status"]!='running' or not m["payload"].get("approval"):raise ValueError("An approved running mission is required")
     if p["digest"]!=expected_digest or L.digest(p["payload"])!=expected_digest or not p["approval"] or p["approval"]["nonce"]!=expected_nonce:raise ValueError("Protocol/approval drift; create a new version or reapprove exact plan")
+    if p["payload"].get("kind")=="agent_code_v1":
+        from backend.execution import agent_protocols
+        return await agent_protocols.execute(tid,p,mission_id,expected_nonce,resource_holder or "protocol:"+mission_id)
     if p["payload"]["worker_sha256"]!=worker_hash():raise ValueError("Runner revision changed; protocol reapproval requires a new snapshot")
     spec=ExperimentProtocol.model_validate(p["payload"]["spec"])
     sets=[set(v) for v in p["payload"]["splits"].values()]

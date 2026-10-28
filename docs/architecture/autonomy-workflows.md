@@ -41,3 +41,23 @@ Development and executed evidence will be appended here and in `docs/testing/aut
 - Final L4 closure also rejects truncated model output, rather than accepting the provider's nonempty warning marker. Result digests are computed after output-policy checks so they refer to the exact persisted result.
 - The initial legacy live run had two Team failures and one MCP timeout. All three passed in isolation and a fresh full repeat passed 70/71 with one CLI opt-in skip. Root cause of the initial intermittent behavior remains open; no retries are silently relabelled as first-attempt success.
 - Final UI audit found the legacy Mission form submitted `max_reasoning_calls=4`, beyond the backend's maximum of 3. A regression assertion reproduced the mismatch; the form now submits 3. The launcher also probes the new defusedxml dependency and the two required workflow modules before starting.
+
+## Agent-written experiment code (v6.6.4)
+
+Before 6.6.4, `experiment.run` only ran the built-in denoising protocol, so an agent's own experiment ran outside
+approval. An agent now calls `experiment.propose_protocol` with an entrypoint in the open code project, the conditions
+(one is the baseline), the seeds, the metrics and the primary metric. The app copies the selected files into a
+content-addressed store with a sha256 per file. It also pins the environment: the interpreter, its version and its
+installed packages, or a Docker image digest. The protocol digest covers all of this.
+
+The researcher reviews the frozen file list in Protocols and approves the digest. `experiment.protocol_status` then gives
+the agent the single-use reference for `mission.experiment.run`, and the mission plan still needs approval.
+
+The runner re-checks the frozen code and the environment, then runs every condition × seed once. Each run is a fresh
+process on a fresh copy, with `PHDLAB_CONDITION`, `PHDLAB_SEED` and `PHDLAB_OUT` set. The code writes
+`$PHDLAB_OUT/metrics.json` = `{"metrics": {...}}`. The runner never installs, edits, retries or re-plans.
+
+`experiment.verify` (verifier `agent-code-recompute-v1`) re-reads the raw files, checks hashes, registration, code and
+environment, and recomputes the paired comparison. It records a reproduction only from another separately approved run
+of the same digest with matching metrics. It does not check how the agent's code computes a metric, and the best
+condition is chosen on the same runs; both limits are stated in every report. Contract: FQC-AGENT-PROTOCOL-664.

@@ -1,0 +1,78 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_a_trial_over_its_budget_is_stopped",
+      "status": "ERROR",
+      "duration": 0.2735,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red4\\tests\\test_agent_protocol_664.py\", line 162, in test_a_trial_over_its_budget_is_stopped\n    p, _ = self.propose(trial_seconds=1)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red4\\tests\\test_agent_protocol_664.py\", line 51, in propose\n    made = mission_tools.propose_protocol(self.args(**extra), None)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.tools.mission_tools' has no attribute 'propose_protocol'\n"
+    },
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_agent_code_runs_frozen_and_verifies_with_a_reproduction",
+      "status": "ERROR",
+      "duration": 0.2427,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red4\\tests\\test_agent_protocol_664.py\", line 64, in test_agent_code_runs_frozen_and_verifies_with_a_reproduction\n    p, made = self.propose()\n              ^^^^^^^^^^^^^^\n  File \"D:\\r664red4\\tests\\test_agent_protocol_664.py\", line 51, in propose\n    made = mission_tools.propose_protocol(self.args(**extra), None)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.tools.mission_tools' has no attribute 'propose_protocol'\n"
+    },
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_failing_code_and_missing_metric_fail_the_run",
+      "status": "ERROR",
+      "duration": 0.2462,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red4\\tests\\test_agent_protocol_664.py\", line 107, in test_failing_code_and_missing_metric_fail_the_run\n    p, _ = self.propose()\n           ^^^^^^^^^^^^^^\n  File \"D:\\r664red4\\tests\\test_agent_protocol_664.py\", line 51, in propose\n    made = mission_tools.propose_protocol(self.args(**extra), None)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.tools.mission_tools' has no attribute 'propose_protocol'\n"
+    },
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_falsified_summary_or_metric_file_fails_verification",
+      "status": "ERROR",
+      "duration": 0.2343,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red4\\tests\\test_agent_protocol_664.py\", line 119, in test_falsified_summary_or_metric_file_fails_verification\n    run, _ = self.run_once(self.propose()[0])\n                           ^^^^^^^^^^^^^^\n  File \"D:\\r664red4\\tests\\test_agent_protocol_664.py\", line 51, in propose\n    made = mission_tools.propose_protocol(self.args(**extra), None)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.tools.mission_tools' has no attribute 'propose_protocol'\n"
+    },
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected",
+      "status": "ERROR",
+      "duration": 0.2322,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red4\\tests\\test_agent_protocol_664.py\", line 137, in test_invalid_protocols_are_rejected\n    self.assertEqual(e.exception.code, \"invalid_input\")\n                     ^^^^^^^^^^^\nAttributeError: '_AssertRaisesContext' object has no attribute 'exception'\n"
+    },
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_later_edits_never_change_the_frozen_code",
+      "status": "ERROR",
+      "duration": 0.2379,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red4\\tests\\test_agent_protocol_664.py\", line 82, in test_later_edits_never_change_the_frozen_code\n    p, _ = self.propose()\n           ^^^^^^^^^^^^^^\n  File \"D:\\r664red4\\tests\\test_agent_protocol_664.py\", line 51, in propose\n    made = mission_tools.propose_protocol(self.args(**extra), None)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.tools.mission_tools' has no attribute 'propose_protocol'\n"
+    },
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_status_tool_reveals_the_run_reference_only_after_approval",
+      "status": "ERROR",
+      "duration": 0.2343,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red4\\tests\\test_agent_protocol_664.py\", line 144, in test_status_tool_reveals_the_run_reference_only_after_approval\n    p, _ = self.propose()\n           ^^^^^^^^^^^^^^\n  File \"D:\\r664red4\\tests\\test_agent_protocol_664.py\", line 51, in propose\n    made = mission_tools.propose_protocol(self.args(**extra), None)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.tools.mission_tools' has no attribute 'propose_protocol'\n"
+    },
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_tampered_snapshot_or_environment_drift_refuses_to_run",
+      "status": "ERROR",
+      "duration": 0.2334,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red4\\tests\\test_agent_protocol_664.py\", line 90, in test_tampered_snapshot_or_environment_drift_refuses_to_run\n    from backend.execution import agent_protocols as AP\nImportError: cannot import name 'agent_protocols' from 'backend.execution' (D:\\r664red4\\backend\\execution\\__init__.py)\n"
+    },
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_the_api_accepts_an_agent_code_protocol",
+      "status": "FAIL",
+      "duration": 1.8841,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red4\\tests\\test_agent_protocol_664.py\", line 172, in test_the_api_accepts_an_agent_code_protocol\n    self.assertEqual(r.status_code, 200, r.text)\nAssertionError: 422 != 200 : {\"detail\":[{\"type\":\"literal_error\",\"loc\":[\"body\",\"baseline\"],\"msg\":\"Input should be 'noisy_input'\",\"input\":\"baseline\",\"ctx\":{\"expected\":\"'noisy_input'\"}},{\"type\":\"extra_forbidden\",\"loc\":[\"body\",\"entrypoint\"],\"msg\":\"Extra inputs are not permitted\",\"input\":\"experiment.py\"},{\"type\":\"extra_forbidden\",\"loc\":[\"body\",\"conditions\"],\"msg\":\"Extra inputs are not permitted\",\"input\":[\"baseline\",\"method\"]},{\"type\":\"extra_forbidden\",\"loc\":[\"body\",\"metrics\"],\"msg\":\"Extra inputs are not permitted\",\"input\":[\"accuracy\",\"loss\"]},{\"type\":\"extra_forbidden\",\"loc\":[\"body\",\"primary_metric\"],\"msg\":\"Extra inputs are not permitted\",\"input\":\"accuracy\"},{\"type\":\"extra_forbidden\",\"loc\":[\"body\",\"min_effect\"],\"msg\":\"Extra inputs are not permitted\",\"input\":0.05},{\"type\":\"extra_forbidden\",\"loc\":[\"body\",\"kind\"],\"msg\":\"Extra inputs are not permitted\",\"input\":\"agent_code_v1\"}]}\n"
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected",
+      "id": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected (bad={'baseline': 'other'})",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red4\\tests\\test_agent_protocol_664.py\", line 136, in test_invalid_protocols_are_rejected\n    mission_tools.propose_protocol(self.args(**bad), None)\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.tools.mission_tools' has no attribute 'propose_protocol'\n"
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 9,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-yk1f9wd0",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}
