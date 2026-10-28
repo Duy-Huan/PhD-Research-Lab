@@ -849,7 +849,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
           height="24"
           style={{ borderRadius: 6 }}
         />
-        <b style={{ fontSize: 13.5, letterSpacing: '-0.01em' }}>PhD Research Lab</b>
+        <b className="ellipsis" title="PhD Research Lab" style={{ fontSize: 13.5, letterSpacing: '-0.01em', minWidth: 0 }}>PhD Research Lab</b>
         <span className="grow" />
         <button
           className="icon sm"
@@ -949,24 +949,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
         </button>
 
 
-        <button className="btn sm ghost" onClick={() => openSettings('models')} style={{ justifyContent: 'flex-start', padding: '6px 10px', borderRadius: 8, gap: 8 }}>
-          <Cpu size={14} /> {t('Mô hình & kết nối AI', 'Models & AI connections')}
-        </button>
-        <button className="btn sm ghost" onClick={() => openDrawer('code')} style={{ justifyContent: 'flex-start', padding: '6px 10px', borderRadius: 8, gap: 8 }}>
-          <Terminal size={14} /> {t('Code và thí nghiệm native', 'Native code & experiments')}
-        </button>
-        <button className="btn sm ghost" onClick={() => openDrawer('paper')} style={{ justifyContent: 'flex-start', padding: '6px 10px', borderRadius: 8, gap: 8 }}>
-          <FileText size={14} /> PaperOrchestra Studio
-        </button>
-        <button className="btn sm ghost" onClick={() => openDrawer('cli')} style={{ justifyContent: 'flex-start', padding: '6px 10px', borderRadius: 8, gap: 8 }}>
-          <Terminal size={14} /> {t('Chat CLI', 'CLI chat')}
-        </button>
+        {[
+          { label: t('Mô hình & kết nối AI', 'Models & AI connections'), icon: Cpu, go: () => openSettings('models') },
+          { label: t('Code và thí nghiệm native', 'Native code & experiments'), icon: Terminal, go: () => openDrawer('code') },
+          { label: 'PaperOrchestra Studio', icon: FileText, go: () => openDrawer('paper') },
+          { label: t('Chat CLI', 'CLI chat'), icon: Terminal, go: () => openDrawer('cli') },
+        ].map(({ label, icon: Icon, go }) => (
+          // Label in its own ellipsis span with the full name as tooltip: a narrow sidebar shortens the text, not the icon.
+          <button key={label} className="btn sm ghost" onClick={go} title={label} aria-label={label}
+            style={{ justifyContent: 'flex-start', padding: '6px 10px', borderRadius: 8, gap: 8, minWidth: 0 }}>
+            <Icon size={14} /> <span className="ellipsis">{label}</span>
+          </button>
+        ))}
 
         {/* Active Workspace switcher pill */}
         <button
           type="button"
           className="btn sm ghost"
           onClick={() => openDrawer('projects')}
+          title={`${t('Không gian làm việc:', 'Workspace:')} ${project?.name || t('Mặc định', 'Default')}`}
           style={{
             justifyContent: 'space-between',
             padding: '5px 10px',
@@ -1279,10 +1280,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
           id="nav-toggle"
           type="button"
           onClick={() => setMenuOpen(!menuOpen)}
-          style={{ flex: 1, justifyContent: 'flex-start', gap: 6 }}
+          title={t('Công cụ Nghiên cứu', 'Research Studios')}
+          style={{ flex: 1, minWidth: 0, justifyContent: 'flex-start', gap: 6 }}
         >
           {menuOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-          <span style={{ fontSize: 12 }}>{t('Công cụ Nghiên cứu', 'Research Studios')}</span>
+          <span className="ellipsis" style={{ fontSize: 12 }}>{t('Công cụ Nghiên cứu', 'Research Studios')}</span>
           {pendingCount > 0 && <span className="count">{pendingCount}</span>}
         </button>
 

@@ -17,6 +17,7 @@ import { ReviewView } from '../features/review/ReviewView';
 import { LibraryPanel } from '../features/library/LibraryPanel';
 import { UserGuidePanel } from '../features/guide/UserGuidePanel';
 import { CustomHarnessStudio } from '../features/harness/CustomHarnessStudio';
+import { ClaudeCLIStudio } from '../features/cli/ClaudeCLIStudio';
 import { PanelRightOpen } from 'lucide-react';
 
 export const AppShell: React.FC = () => {
@@ -49,7 +50,7 @@ export const AppShell: React.FC = () => {
   }, [toggleSidebar]);
 
   useEffect(() => {
-    if ((drawerKind || mainView === 'settings') && window.matchMedia('(max-width: 820px)').matches && useUIStore.getState().sidebarOpen) toggleSidebar();
+    if ((drawerKind || mainView === 'settings' || mainView === 'cli') && window.matchMedia('(max-width: 820px)').matches && useUIStore.getState().sidebarOpen) toggleSidebar();
   }, [drawerKind, mainView, toggleSidebar]);
 
   // Load app config & projects on boot
@@ -145,6 +146,8 @@ export const AppShell: React.FC = () => {
             <UserGuidePanel />
           </div>
         );
+      case 'cli':
+        return <ClaudeCLIStudio />;
       case 'chat':
       default:
         return <ChatCenter />;
@@ -256,7 +259,7 @@ export const AppShell: React.FC = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 5,
-                    padding: '6px 10px 6px 12px',
+                    padding: '6px 8px 6px 10px',  // icon only (name in title/aria-label): covers no view's controls
                     background: 'var(--panel)',
                     border: '1px solid var(--line)',
                     borderRight: 'none',
@@ -272,16 +275,15 @@ export const AppShell: React.FC = () => {
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = 'var(--bg-2)';
                     e.currentTarget.style.color = 'var(--accent)';
-                    e.currentTarget.style.paddingLeft = '16px';
+                    e.currentTarget.style.paddingLeft = '14px';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = 'var(--panel)';
                     e.currentTarget.style.color = 'var(--ink)';
-                    e.currentTarget.style.paddingLeft = '12px';
+                    e.currentTarget.style.paddingLeft = '10px';
                   }}
                 >
                   <PanelRightOpen size={16} />
-                  <span>{t('Menu phải', 'Right Menu')}</span>
                 </button>
               )}
             </div>

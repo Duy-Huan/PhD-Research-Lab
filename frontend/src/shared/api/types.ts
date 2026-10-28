@@ -176,6 +176,8 @@ export interface AppConfig {
     allow_internal: boolean;
     allow_sensitive: boolean;
     block_source_code: boolean;
+    claude_code_oauth_token?: string;  // always masked by the backend
+    has_claude_code_oauth_token?: boolean;
     context_budget_tokens: number;
     provider_timeout_s: number;
     codex_app_server: boolean;

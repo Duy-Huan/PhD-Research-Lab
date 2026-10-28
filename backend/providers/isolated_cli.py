@@ -81,6 +81,54 @@ def shared_context() -> dict:
     return {'path': str(folder), 'sha256': digest}
 
 
+def host_claude_sign_in() -> dict | None:
+    """The OAuth record of this computer's Claude Code subscription sign-in, or None (no file, or kept in a keychain)."""
+    path = Path(os.environ.get('CLAUDE_CONFIG_DIR') or Path.home() / '.claude') / '.credentials.json'
+    try:
+        oauth = json.loads(path.read_text('utf-8')).get('claudeAiOauth')
+    except (OSError, ValueError, AttributeError):
+        return None
+    return oauth if isinstance(oauth, dict) and oauth.get('accessToken') else None
+
+
+def claude_long_lived_token() -> str:
+    """The researcher's `claude setup-token` token (about a year, no refresh needed), or '' when none or malformed."""
+    from backend.core.config import CLAUDE_OAUTH_TOKEN, load_config
+    token = str(load_config()['gateway'].get('claude_code_oauth_token') or '')
+    return token if CLAUDE_OAUTH_TOKEN.fullmatch(token) else ''
+
+
+def seed_claude_sign_in(home: Path) -> bool:
+    """Give the container this computer's current Claude access token, WITHOUT the refresh token: the container can
+    never rotate (and so sign out) the researcher's own sign-in. When the copy expires, the next prepare copies the
+    token the host has renewed meanwhile. Returns whether a sign-in was seeded."""
+    oauth = host_claude_sign_in()
+    if not oauth:
+        return False
+    record = {'claudeAiOauth': {k: v for k, v in oauth.items() if k not in ('refreshToken', 'refreshTokenExpiresAt')}}
+    target = W.safe_path(home, '.claude', '.credentials.json')
+    target.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        current = json.loads(target.read_text('utf-8'))
+        if current == record or (current.get('claudeAiOauth') or {}).get('refreshToken'):
+            return True  # unchanged, or a sign-in made inside the runtime (/login), which stays its own
+    except (OSError, ValueError, AttributeError):
+        pass
+    target.write_text(json.dumps(record), 'utf-8')
+    target.chmod(0o600)
+    return True
+
+
+def drop_seeded_claude_sign_in(home: Path) -> None:
+    """Remove a seeded copy (no refresh token); a sign-in made inside the runtime stays."""
+    target = W.safe_path(home, '.claude', '.credentials.json')
+    try:
+        if not (json.loads(target.read_text('utf-8')).get('claudeAiOauth') or {}).get('refreshToken'):
+            target.unlink()
+    except (OSError, ValueError, AttributeError):
+        pass
+
+
 def prepare(provider: str, login: bool = False, *, session_id: str = '', profile: str = 'assisted', mcp: dict | None = None) -> dict:
     if provider == 'antigravity':
         return {'launched': False, **runtime_status(provider)}
@@ -119,6 +167,10 @@ def prepare(provider: str, login: bool = False, *, session_id: str = '', profile
             if not (auth_dir / 'auth.json').exists(): shutil.copy2(auth, auth_dir / 'auth.json')
             (auth_dir / 'auth.json').chmod(0o600)
     elif provider == 'claude_code':
+        if claude_long_lived_token():
+            drop_seeded_claude_sign_in(home)  # the long-lived token replaces an earlier copy of the host's short one
+        else:
+            seed_claude_sign_in(home)
         settings = W.safe_path(home, '.claude', 'settings.json'); settings.parent.mkdir(exist_ok=True)
         # Official setting prevents a console/API login from silently turning subscription requests into paid API use.
         settings.write_text(json.dumps({'forceLoginMethod': 'claudeai'}), 'utf-8')
@@ -213,6 +265,19 @@ def run(plan_path: Path, *, interactive: bool = True, command: list[str] | None 
                 '--mount', f'type=bind,source={Path(plan["home"]).resolve()},target=/home/node',
                 '--mount', f'type=bind,source={Path(plan["context"]).resolve()},target=/context,readonly',
                 '--mount', f'type=volume,source={volume},target=/ipc,readonly', '--entrypoint=node']
+        claude_token = ''
+        if plan['provider'] == 'claude_code':
+            # Turns run this in tools/run_cli_container.py with a minimal environment and no project configuration,
+            # so the parent passes the token in this process's environment (ClaudeCodeConnector.env); never on disk.
+            from backend.core.config import CLAUDE_OAUTH_TOKEN
+            inherited = os.environ.get('CLAUDE_CODE_OAUTH_TOKEN', '')
+            claude_token = inherited if CLAUDE_OAUTH_TOKEN.fullmatch(inherited) else claude_long_lived_token()
+        if claude_token:
+            # Never on the command line or in the plan: a private env file that exists only for this run.
+            claude_env = W.safe_path(plan_path.parent, '.env.claude')
+            claude_env.write_text(f'CLAUDE_CODE_OAUTH_TOKEN={claude_token}\n', 'utf-8')
+            claude_env.chmod(0o600)
+            args += ['--env-file', str(claude_env)]
         if interactive:
             args += ['-it']
         else:
@@ -220,6 +285,7 @@ def run(plan_path: Path, *, interactive: bool = True, command: list[str] | None 
         args += [plan['image'], '/opt/phdlab/cli_network_forwarder.mjs', *(command or plan['command'])]
         return subprocess.call(args, timeout=None if interactive else max(5, min(3600, int(plan.get('timeout_s', 600)))))
     finally:
+        W.safe_path(plan_path.parent, '.env.claude').unlink(missing_ok=True)
         if re.fullmatch('[a-f0-9]{64}', proxy):
             try:
                 logs = subprocess.run(['docker', 'logs', proxy], text=True, capture_output=True, timeout=10, check=False)

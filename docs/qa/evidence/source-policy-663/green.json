@@ -1,0 +1,35 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_source_code_policy.SourceCodePolicy.test_default_lets_agents_read_code_and_results",
+      "status": "PASS",
+      "duration": 0.0994,
+      "details": null
+    },
+    {
+      "id": "test_source_code_policy.SourceCodePolicy.test_explicit_opt_in_still_withholds_and_credentials_are_always_redacted",
+      "status": "PASS",
+      "duration": 0.0635,
+      "details": null
+    },
+    {
+      "id": "test_source_code_policy.SourceCodePolicy.test_large_results_pass_through_without_delay",
+      "status": "PASS",
+      "duration": 0.1296,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 3,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-qtr2plqg",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

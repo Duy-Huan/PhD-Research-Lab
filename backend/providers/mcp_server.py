@@ -146,7 +146,7 @@ def call_tool(name: str, args: dict, client: dict | None = None) -> dict:
             return _text(ide_fs.tree())
         if a == "read":
             from backend.providers.privacy import gw
-            if gw().get("block_source_code", True):
+            if gw().get("block_source_code", False):
                 raise PermissionError("Source file reads are disabled by gateway.block_source_code")
             return _text(ide_fs.read(args.get("path", "")).get("content", "(binary file)"))
         if a == "write":

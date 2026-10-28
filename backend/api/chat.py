@@ -182,6 +182,15 @@ async def launch(sid: str, tid: str, body: dict = Body(default={})):
     return await call(orchestrator.launch, sid, tid, body.get("context"))
 
 
+@router.post("/api/chat/sessions/{sid}/console")
+async def open_console(sid: str, request: Request):
+    """Continue this conversation in the phdlab terminal chat (a new cmd window on Windows). The port is the one the
+    server socket listens on, never a request header."""
+    from backend.providers import native
+    port = (request.scope.get("server") or ("", 8765))[1]
+    return await call(native.open_chat_console, sid, port)
+
+
 @router.get("/api/chat/sessions/{sid}/turns/{tid}/context")
 async def turn_context(sid: str, tid: str):
     """What the model was given for this turn (manifest of sources with trust labels) — the 'Advanced details'."""

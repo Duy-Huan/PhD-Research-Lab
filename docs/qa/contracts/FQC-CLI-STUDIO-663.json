@@ -1,0 +1,140 @@
+{
+  "id": "FQC-CLI-STUDIO-663",
+  "title": "CLI studio in the main area, aligned with the backend, and continued in cmd",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want the CLI chat to look like a chat (prompt at the bottom, framed transcript and answers), to use the CLI tool I pick, and to continue the same conversation in a Windows cmd console.",
+  "requirements": [
+    {
+      "id": "CONSOLE",
+      "description": "POST /api/chat/sessions/{sid}/console opens phdlab chat --session <sid> in a new console (cmd.exe on Windows, x-terminal-emulator elsewhere) on the loopback port the server socket listens on, and returns the command to reopen it."
+    },
+    {
+      "id": "CONSOLE_SAFETY",
+      "description": "Only PhD Lab's own client starts with a fixed argument list; invalid or unknown session ids and invalid ports start nothing; API keys are not passed to the console."
+    },
+    {
+      "id": "CONSOLE_FALLBACK",
+      "description": "Without a terminal launcher the command is still returned so the researcher can run it."
+    }
+  ],
+  "nonfunctional": [
+    "UI acceptance (frontend CI): frontend/src/features/cli/ClaudeCLIStudio.test.tsx (main-area entry, framed transcript and answers, prompt last, providers from /api/models, provider sent and saved on the conversation, manual launch, inline errors, per-item approvals, language, reload, Open in cmd) and frontend/e2e/cli_studio.spec.ts (4 viewports x 2 languages x 2 themes, 100 messages, suggestions; overlap, occlusion, clipping, sideways scroll, title truncation); frontend/e2e/shell_layout.spec.ts (sidebar at 1024/1280/1440 px in both languages, Right-menu handle over chat, library, harness, review, dashboard, settings and CLI)",
+    "Saved theme applied at start-up (SettingsContracts.test.tsx)",
+    "Opening a console never waits for it"
+  ],
+  "inputs": [
+    "session id",
+    "server port",
+    "selected CLI provider"
+  ],
+  "outputs": [
+    "console process",
+    "command to reopen",
+    "turn with provider override and conversation provider"
+  ],
+  "preconditions": [
+    "Windows cmd.exe or an x-terminal-emulator for automatic opening"
+  ],
+  "postconditions": [
+    "Browser and console share one conversation and its provider"
+  ],
+  "dependencies": [
+    "backend/cli/repl.py",
+    "backend/agent/sessions.py",
+    "backend/providers/cli_space.py"
+  ],
+  "affected_modules": [
+    "backend/providers/native.py",
+    "backend/api/chat.py",
+    "frontend/src/features/cli/ClaudeCLIStudio.tsx",
+    "frontend/src/features/cli/waitForChatTurn.ts",
+    "frontend/src/shared/state/uiStore.ts",
+    "frontend/src/shell/AppShell.tsx",
+    "frontend/src/shell/ContextualDrawer.tsx",
+    "frontend/src/features/settings/SettingsModal.tsx",
+    "frontend/src/main.tsx",
+    "frontend/assets/app.css",
+    "frontend/src/shell/Sidebar.tsx"
+  ],
+  "acceptance_criteria": [
+    "Prompt is the bottom block at every tested viewport; transcript and answers are framed",
+    "The selected CLI provider is the one the turn and the conversation use",
+    "Open in cmd continues the same conversation in a real cmd console (live, 2026-10-28)",
+    "No overlap, occlusion, clipping or sideways scroll in the tested matrix"
+  ],
+  "scenarios": [
+    {
+      "id": "cmd-open",
+      "requirement": "CONSOLE",
+      "kind": "positive",
+      "expected": "cmd.exe /d /k with the session, PHDLAB_URL on the listening port, new console",
+      "test": "tests/test_cli_console.py::OpenChatConsole.test_windows_opens_cmd_on_this_conversation_with_a_clean_environment"
+    },
+    {
+      "id": "api-port",
+      "requirement": "CONSOLE",
+      "kind": "positive",
+      "expected": "The route passes the socket's port",
+      "test": "tests/test_cli_console.py::OpenChatConsole.test_api_uses_the_port_the_server_listens_on"
+    },
+    {
+      "id": "real-cmd",
+      "requirement": "CONSOLE",
+      "kind": "boundary",
+      "expected": "The same command line runs in a real cmd.exe",
+      "test": "tests/test_cli_console.py::OpenChatConsole.test_the_command_line_runs_in_a_real_cmd"
+    },
+    {
+      "id": "bad-ids",
+      "requirement": "CONSOLE_SAFETY",
+      "kind": "security",
+      "expected": "Injection-shaped, traversal and unknown ids, and port 0, start nothing",
+      "test": "tests/test_cli_console.py::OpenChatConsole.test_invalid_or_unknown_sessions_never_start_a_process"
+    },
+    {
+      "id": "no-keys",
+      "requirement": "CONSOLE_SAFETY",
+      "kind": "negative",
+      "expected": "OPENAI_API_KEY is not in the console environment",
+      "test": "tests/test_cli_console.py::OpenChatConsole.test_windows_opens_cmd_on_this_conversation_with_a_clean_environment"
+    },
+    {
+      "id": "no-terminal",
+      "requirement": "CONSOLE_FALLBACK",
+      "kind": "failure",
+      "expected": "launched false with the command to run",
+      "test": "tests/test_cli_console.py::OpenChatConsole.test_without_a_terminal_the_command_is_still_offered"
+    },
+    {
+      "id": "no-wait",
+      "requirement": "CONSOLE",
+      "kind": "performance",
+      "expected": "Returns in under 0.5 s and never waits for the console",
+      "test": "tests/test_cli_console.py::OpenChatConsole.test_opening_a_console_returns_at_once_without_waiting_for_it"
+    }
+  ],
+  "recovery": "Fix the launcher, never widen what it may start. TASK-CLI-STUDIO-663, max three cycles.",
+  "test_environment": "Real session store, API route and cmd.exe with a disposable PHDLAB_DATA_DIR; process creation mocked except the real cmd.exe quoting run. UI evidence in docs/qa/evidence/cli-studio-663/ (vitest, Playwright, live run with the owner's Codex and Claude Code).",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "Backend RED: 6 tests on 19a1b3e, 9 errors; GREEN 6/6. Frontend RED/GREEN in red-vitest.json, red-e2e-*.md, green-vitest.json (57/57), red-e2e-sidebar-1024-en.md, red-e2e-handle-library-1440.md, green-e2e.json (39/39, CLI and shell).",
+    "red": {
+      "path": "docs/qa/evidence/cli-studio-663/red-backend.json",
+      "sha256": "437de806f41a67ec029e2a48af0b5fbd078d1d83057e85960768b378a92a648e",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/cli-studio-663/green-backend.json",
+      "sha256": "cd18aa44ec700ec1d62c4ca4d0c86e7ea5f7d24cbf5c7199bdcd6d27879a64b8",
+      "exit_code": 0
+    }
+  }
+}

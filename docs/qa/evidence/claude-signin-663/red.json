@@ -1,0 +1,89 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_claude_sign_in.ClaudeSignIn.test_a_sign_in_made_inside_the_runtime_is_kept",
+      "status": "ERROR",
+      "duration": 0.0071,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_claude_sign_in.py\", line 78, in test_a_sign_in_made_inside_the_runtime_is_kept\n    I.seed_claude_sign_in(self.home)\n    ^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.isolated_cli' has no attribute 'seed_claude_sign_in'\n"
+    },
+    {
+      "id": "test_claude_sign_in.ClaudeSignIn.test_connected_only_when_the_container_can_sign_in",
+      "status": "FAIL",
+      "duration": 0.0127,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_claude_sign_in.py\", line 111, in test_connected_only_when_the_container_can_sign_in\n    self.assertEqual(state, \"AUTH_EXPIRED\")\nAssertionError: 'CONNECTED' != 'AUTH_EXPIRED'\n- CONNECTED\n+ AUTH_EXPIRED\n\n"
+    },
+    {
+      "id": "test_claude_sign_in.ClaudeSignIn.test_missing_or_malformed_host_sign_in_seeds_nothing",
+      "status": "ERROR",
+      "duration": 0.0043,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_claude_sign_in.py\", line 83, in test_missing_or_malformed_host_sign_in_seeds_nothing\n    self.assertFalse(I.seed_claude_sign_in(self.home))\n                     ^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.isolated_cli' has no attribute 'seed_claude_sign_in'\n"
+    },
+    {
+      "id": "test_claude_sign_in.ClaudeSignIn.test_prepare_seeds_the_container_home",
+      "status": "ERROR",
+      "duration": 7.757,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_claude_sign_in.py\", line 96, in test_prepare_seeds_the_container_home\n    oauth = json.loads(Path(plan[\"home\"], \".claude\", \".credentials.json\").read_text(\"utf-8\"))[\"claudeAiOauth\"]\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\pathlib.py\", line 1027, in read_text\n    with self.open(mode='r', encoding=encoding, errors=errors) as f:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\pathlib.py\", line 1013, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'C:\\\\Users\\\\win\\\\AppData\\\\Local\\\\Temp\\\\phdlab-verify-c90kzujx\\\\cli-space\\\\claude_code\\\\runtime-home\\\\.claude\\\\.credentials.json'\n"
+    },
+    {
+      "id": "test_claude_sign_in.ClaudeSignIn.test_seed_copies_the_access_token_without_the_refresh_token",
+      "status": "ERROR",
+      "duration": 0.0112,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_claude_sign_in.py\", line 50, in test_seed_copies_the_access_token_without_the_refresh_token\n    self.assertTrue(I.seed_claude_sign_in(self.home))\n                    ^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.isolated_cli' has no attribute 'seed_claude_sign_in'\n"
+    },
+    {
+      "id": "test_claude_sign_in.ClaudeSignIn.test_seed_follows_the_hosts_current_token",
+      "status": "ERROR",
+      "duration": 0.0048,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_claude_sign_in.py\", line 59, in test_seed_follows_the_hosts_current_token\n    I.seed_claude_sign_in(self.home)\n    ^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.isolated_cli' has no attribute 'seed_claude_sign_in'\n"
+    },
+    {
+      "id": "test_claude_sign_in.ClaudeSignIn.test_unchanged_token_is_not_rewritten",
+      "status": "ERROR",
+      "duration": 0.0043,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_claude_sign_in.py\", line 66, in test_unchanged_token_is_not_rewritten\n    I.seed_claude_sign_in(self.home)\n    ^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.isolated_cli' has no attribute 'seed_claude_sign_in'\n"
+    },
+    {
+      "id": "test_claude_sign_in.LongLivedToken.test_codex_runs_never_receive_the_claude_token",
+      "status": "PASS",
+      "duration": 0.068,
+      "details": null
+    },
+    {
+      "id": "test_claude_sign_in.LongLivedToken.test_readiness_is_connected_with_a_long_lived_token",
+      "status": "FAIL",
+      "duration": 0.0087,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_claude_sign_in.py\", line 213, in test_readiness_is_connected_with_a_long_lived_token\n    self.assertEqual(state, \"CONNECTED\")\nAssertionError: 'AUTH_EXPIRED' != 'CONNECTED'\n- AUTH_EXPIRED\n+ CONNECTED\n\n"
+    },
+    {
+      "id": "test_claude_sign_in.LongLivedToken.test_the_container_receives_the_token_through_a_removed_env_file",
+      "status": "ERROR",
+      "duration": 0.0634,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_claude_sign_in.py\", line 162, in test_the_container_receives_the_token_through_a_removed_env_file\n    I.run(plan, interactive=False, command=[\"claude\", \"-p\", \"hi\"], runtime_owner=\"a\" * 32)\n  File \"D:\\r663red\\backend\\providers\\isolated_cli.py\", line 221, in run\n    return subprocess.call(args, timeout=None if interactive else max(5, min(3600, int(plan.get('timeout_s', 600)))))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 1139, in __call__\n    return self._mock_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 1143, in _mock_call\n    return self._execute_mock_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 1204, in _execute_mock_call\n    result = effect(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r663red\\tests\\test_claude_sign_in.py\", line 154, in call\n    path = Path(args[args.index(\"--env-file\") + 1])\n                     ^^^^^^^^^^^^^^^^^^^^^^^^\nValueError: '--env-file' is not in list\n"
+    },
+    {
+      "id": "test_claude_sign_in.LongLivedToken.test_the_launcher_process_gets_the_token_from_its_parent_not_from_config",
+      "status": "FAIL",
+      "duration": 0.0058,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_claude_sign_in.py\", line 175, in test_the_launcher_process_gets_the_token_from_its_parent_not_from_config\n    self.assertEqual(env.get(\"CLAUDE_CODE_OAUTH_TOKEN\"), LONG, \"the launcher process inherits the token\")\nAssertionError: None != 'sk-ant-oat01-LLLLLLLLLLLLLLLLLLLLLLLLLLL[59 chars]LLLL' : the launcher process inherits the token\n"
+    },
+    {
+      "id": "test_claude_sign_in.LongLivedToken.test_the_token_is_stored_as_a_secret_and_validated",
+      "status": "ERROR",
+      "duration": 0.0052,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_claude_sign_in.py\", line 137, in test_the_token_is_stored_as_a_secret_and_validated\n    self.assertEqual(config.load_config()[\"gateway\"][\"claude_code_oauth_token\"], LONG)\n                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\nKeyError: 'claude_code_oauth_token'\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 12,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-c90kzujx",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

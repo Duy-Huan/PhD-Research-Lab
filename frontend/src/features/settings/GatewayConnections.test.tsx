@@ -45,6 +45,34 @@ describe('gateway connections (HTTP fixtures, no live-provider claims)', () => {
     await waitFor(() => expect(api.post).toHaveBeenCalledWith('/api/config', { hermes: { model: 'observed:free' } }));
   });
 
+  it('keeps Claude Code signed in with a long-lived token from claude setup-token (FQC-CLAUDE-SIGNIN-663)', async () => {
+    inventory.providers.push({ id: 'cli:claude_code', label: 'Claude (Claude Code CLI)', transport: 'cli', state: 'AUTH_EXPIRED',
+      available: false, models: [], detail: "this computer's Claude sign-in has expired", readiness: { inference: 'NOT_RUN' } });
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+    const view = renderWithProviders(<GatewayConnections config={config} />);
+    const claude = within((await screen.findByText('Claude (Claude Code CLI)')).closest('article')!);
+    expect(within((await screen.findByText('Codex subscription')).closest('article')!)
+      .queryByLabelText(/Long-lived Claude token/)).not.toBeInTheDocument();
+    fireEvent.click(claude.getByRole('button', { name: 'Copy command' }));
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith('claude setup-token'));
+    const field = claude.getByLabelText(/Long-lived Claude token/);
+    expect(field).toHaveAttribute('type', 'password');
+    expect(claude.getByRole('button', { name: 'Save token' })).toBeDisabled();
+    fireEvent.change(field, { target: { value: ' sk-ant-oat01-abc ' } });
+    fireEvent.click(claude.getByRole('button', { name: 'Save token' }));
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith('/api/config', { gateway: { claude_code_oauth_token: 'sk-ant-oat01-abc' } }));
+    expect(field).toHaveValue('');
+
+    view.unmount();
+    config.gateway.has_claude_code_oauth_token = true;
+    renderWithProviders(<GatewayConnections config={config} />);
+    const saved = within((await screen.findByText('Claude (Claude Code CLI)')).closest('article')!);
+    expect(saved.getByText(/A long-lived token is saved/)).toBeInTheDocument();
+    fireEvent.click(saved.getByRole('button', { name: 'Remove token' }));
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith('/api/config', { gateway: { claude_code_oauth_token: '' } }));
+  });
+
   it('uses official native Codex launch instead of a vendor website', async () => {
     const open = vi.spyOn(window, 'open').mockReturnValue(null);
     renderWithProviders(<GatewayConnections config={config} />);

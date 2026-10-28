@@ -15,44 +15,39 @@ the current source SHA. "Looked fine" is not evidence. Anything not run is NOT_R
 
 ## v6.6.3 release goal: CLI studio matches the current backend
 
-Owner request (2026-10-28). Scope: `frontend/src/features/cli/ClaudeCLIStudio.tsx` and its drawer entry. Build it,
-then QA it with every section of this checklist before release.
+Owner requests (2026-10-28): prompt at the bottom, framed transcript and AI answers, aligned with the backend; then
+"CLI takes the main chat area" and "the CLI must also work with the cmd console" ("Open in cmd" continues the same
+conversation). Evidence: `docs/qa/evidence/cli-studio-663/`, contract `FQC-CLI-STUDIO-663`. Ticked = evidence exists.
 
 Layout:
 
-- [ ] The prompt box sits at the bottom of the CLI panel in every viewport and drawer size, like a chat app. The
-      transcript fills the space above it and scrolls; the prompt never moves when output grows. Command suggestions
-      open upward from the prompt and do not cover the last message.
-- [ ] The transcript area has its own visible frame (border, radius, padding), separate from the prompt frame.
-- [ ] Each AI answer sits in its own framed block, visually distinct from user commands and system lines, in both
-      themes.
-- [ ] Before changing code, screenshot the current panel at 1440×900 and 390×844 and record why the prompt does not
-      appear at the bottom today (the source already renders it last, so the cause may be the drawer container).
+- [x] Chat CLI opens in the main area (not the right drawer); the prompt is the bottom block at 1440/1024/390/360 px,
+      both themes and languages, empty and with 100 messages; suggestions open upward (`cli_studio.spec.ts`).
+- [x] The transcript has its own frame; each AI answer has its own frame labelled with the provider that wrote it.
+- [x] Before the change: screenshots at 1280 and 390 (prompt was already last; the narrow drawer clipped the provider
+      chip, workflow chips and placeholder, and glued the footer text).
 
-Backend alignment (gaps found by reading the code at `edb9c0e`):
+Backend alignment:
 
-- [ ] The provider chip the user selects (Claude Code / Codex / Gemini CLI / Antigravity) is the provider the turn is
-      sent to. Today the turn uses `agent_catalog.assistant.engine` and ignores the chip.
-- [ ] The provider list and states come from `GET /api/providers` (state, detail, auth) instead of a hard-coded list;
-      unavailable or unauthenticated providers are shown disabled with the reason.
-- [ ] Manual mode (`awaiting_launch`) offers the launch action through `POST /api/chat/sessions/{sid}/turns/{tid}/launch`
-      instead of only printing a waiting line.
-- [ ] Tool calls, run status and errors of a turn are shown like the chat run cards (`ChatRunCard`), not only the final
-      text; a failed or cancelled turn shows its reason.
-- [ ] Approvals are listed one by one with what they will do; `/accept all` still exists but shows what it approved.
-- [ ] Errors appear inline in the transcript, not through `alert()`.
-- [ ] Workflow chips and all labels follow the active language (today the chip labels are Vietnamese in English mode)
-      and the colours follow the active theme (today they are hard-coded dark colours).
-- [ ] Reload keeps the CLI session and transcript; `/new` and `/clear` behave as described in the suggestion list.
+- [x] The selected provider is sent with the turn and saved as the conversation's provider (live: Codex turn stored
+      `provider: cli:codex`).
+- [x] Providers come from `/api/models` (`transport: cli`), unavailable ones disabled with the reason. (`/api/providers`
+      lists research engines only, not the CLIs.)
+- [x] Manual launch button; inline failures; run cards; per-item approvals; `/accept all` reports what it approved.
+- [x] Labels follow the language, colours follow the theme; reload keeps the CLI conversation.
+- [x] "Open in cmd" opens `phdlab chat --session <id>` in a real cmd console on the same conversation (live run).
+- [x] Claude Code in the container uses this computer's sign-in (access token only, never the refresh token) and readiness
+      is CONNECTED only when the container can sign in (`FQC-CLAUDE-SIGNIN-663`; live turn completed after the fix).
 
-Tests:
+Found by this checklist and fixed in 6.6.3: sidebar stayed over the CLI on phones; floating "Right menu" handle
+covered the header (icon-only at 820px and narrower); title truncated at 360px; the saved theme was not applied after
+a reload (every reload fell back to the system theme).
 
-- [ ] Unit tests in `ClaudeCLIStudio.test.tsx` for each backend alignment item (RED before the change, GREEN after).
-- [ ] Playwright `frontend/e2e/cli_studio.spec.ts`: prompt is the bottom-most control of the panel
-      (its bounding box bottom is within 16px of the panel bottom) at every core and wide viewport, both themes, both
-      languages, with an empty transcript and with 100 entries; transcript and answer frames exist; section 2 audit is
-      clean; the selected provider is the one in the posted turn.
-- [ ] Contract `docs/qa/contracts/FQC-CLI-STUDIO-663.json` with RED/GREEN evidence.
+Also fixed (`shell_layout.spec.ts`): sidebar at 1024–1280px (brand wrapped, icons squeezed by the shared `.btn svg` rule,
+footer buttons outside the sidebar, truncation without tooltip); the "Right menu" handle covered Upload PDF in the
+Library and is now icon-only. Settings never rendered the CLI connections panel (imported since 6.5.10); it is now in
+Models & AI Agents with the Claude long-lived token (`claude setup-token`). Still open: the first `/api/models` call
+takes several seconds.
 
 ## 0. Run setup
 

@@ -171,6 +171,16 @@ export function applyThemeById(id: string) {
   }
 }
 
+/** The theme lives only in this browser, so apply it at start-up; without this a reload fell back to the system theme. */
+export function restoreSavedTheme() {
+  try {
+    const saved = localStorage.getItem('pl.theme');
+    if (saved) applyThemeById(saved);
+  } catch {
+    // Storage can be unavailable (private window); the system theme applies.
+  }
+}
+
 // Tab definitions are generated dynamically inside SettingsModal using useI18n()
 
 export const SettingsModal: React.FC = () => {
@@ -450,8 +460,10 @@ export const SettingsModal: React.FC = () => {
     }
   };
 
+  // The ['models'] cache is shared with GatewayConnections and the CLI studio; never trust its shape here.
+  const catalogProviders = Array.isArray(gatewayModels?.providers) ? gatewayModels!.providers : [];
   const agentEngineOptions = [
-    ...(gatewayModels?.providers || []).map(provider => [provider.id, provider.label]),
+    ...catalogProviders.map(provider => [provider.id, provider.label]),
     ['mcp', t('Công cụ suy luận MCP', 'MCP inference tool')],
   ];
 
@@ -483,7 +495,7 @@ export const SettingsModal: React.FC = () => {
     }
     if (['codex', 'claude_code', 'gemini_cli', 'antigravity', 'hermes'].includes(targetPid)) {
       const cliSaved = config.gateway?.cli_models?.[targetPid] || [];
-      return Array.from(new Set([...(fetchedProviderModels[targetPid] || []), ...cliSaved, ...(gatewayModels?.providers.find(provider => provider.id === 'cli:' + targetPid || provider.id === 'runtime:' + targetPid)?.models || [])]));
+      return Array.from(new Set([...(fetchedProviderModels[targetPid] || []), ...cliSaved, ...(catalogProviders.find(provider => provider.id === 'cli:' + targetPid || provider.id === 'runtime:' + targetPid)?.models || [])]));
     }
     if (providerSpecs[targetPid]) {
       const fetched = fetchedProviderModels[targetPid] || [];
@@ -845,6 +857,10 @@ export const SettingsModal: React.FC = () => {
                   </table>
                 </div>
               </section>
+
+              {/* 1A'. Subscription CLIs and agent runtimes: status, official sign-in, Claude long-lived token.
+                  Imported since 6.5.10 but never rendered, so these could not be reached (found in 6.6.3 QA). */}
+              <GatewayConnections config={config} />
 
               {/* 1B. Cloud API Providers */}
               <section className="panelbox" style={{ marginTop: 0, padding: 20 }}>
@@ -1833,7 +1849,7 @@ export const SettingsModal: React.FC = () => {
                   <label className="switch">
                     <input
                       type="checkbox"
-                      checked={config.gateway?.block_source_code !== false}
+                      checked={config.gateway?.block_source_code === true}
                       onChange={(e) =>
                         savePatch({ gateway: { block_source_code: e.target.checked } })
                       }

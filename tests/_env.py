@@ -17,6 +17,9 @@ if not os.environ.get("PHDLAB_DATA_DIR"):
 os.environ.setdefault("PYTHONIOENCODING", "utf-8")
 # notebook kernels registered by tests (ipykernel install --user) must not land in the researcher's real Jupyter folder
 os.environ["JUPYTER_DATA_DIR"] = os.path.join(os.environ["PHDLAB_DATA_DIR"], "_jupyter")
+# CLI sign-ins are seeded into project runtimes; tests must never read or copy the researcher's real ones
+os.environ["CODEX_HOME"] = os.path.join(os.environ["PHDLAB_DATA_DIR"], "_codex_home")
+os.environ["CLAUDE_CONFIG_DIR"] = os.path.join(os.environ["PHDLAB_DATA_DIR"], "_claude_config")
 
 from backend.core import config  # noqa: E402
 
