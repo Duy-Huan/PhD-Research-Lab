@@ -1,0 +1,114 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_ui_language_data.UiLanguageData.test_checking_the_catalog_is_fast",
+      "status": "PASS",
+      "duration": 0.3823,
+      "details": null
+    },
+    {
+      "id": "test_ui_language_data.UiLanguageData.test_engine_names_and_details_are_english_like_the_other_engines",
+      "status": "FAIL",
+      "duration": 0.0003,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 44, in test_engine_names_and_details_are_english_like_the_other_engines\n    self.assertFalse(VIETNAMESE.search(research.CATALOG[\"docker\"][1]))\nAssertionError: <re.Match object; span=(17, 18), match='\u1ea1'> is not false\n"
+    },
+    {
+      "id": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description",
+      "status": "FAIL",
+      "duration": 0.0026,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 30, in test_every_agent_has_an_english_description\n    self.assertIn(\"label_en\", config.public_config(config.load_config())[\"agents\"][\"assistant\"])\nAssertionError: 'label_en' not found in {'label': 'Tr\u1ee3 l\u00fd chat \u2014 h\u1ed9i tho\u1ea1i th\u01b0\u1eddng ng\u00e0y, \u0111\u1ed9c l\u1eadp v\u1edbi agent nghi\u00ean c\u1ee9u', 'default': 'auto'}\n"
+    },
+    {
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "status": "FAIL",
+      "duration": 0.0015,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 39, in test_every_vietnamese_template_block_has_an_english_name\n    self.assertTrue(data.get(\"label_en\"))\nAssertionError: None is not true\n\nTraceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 39, in test_every_vietnamese_template_block_has_an_english_name\n    self.assertTrue(data.get(\"label_en\"))\nAssertionError: None is not true\n\nTraceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 39, in test_every_vietnamese_template_block_has_an_english_name\n    self.assertTrue(data.get(\"label_en\"))\nAssertionError: None is not true\n\nTraceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 39, in test_every_vietnamese_template_block_has_an_english_name\n    self.assertTrue(data.get(\"label_en\"))\nAssertionError: None is not true\n\nTraceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 39, in test_every_vietnamese_template_block_has_an_english_name\n    self.assertTrue(data.get(\"label_en\"))\nAssertionError: None is not true\n\nTraceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 39, in test_every_vietnamese_template_block_has_an_english_name\n    self.assertTrue(data.get(\"label_en\"))\nAssertionError: None is not true\n\nTraceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 39, in test_every_vietnamese_template_block_has_an_english_name\n    self.assertTrue(data.get(\"label_en\"))\nAssertionError: None is not true\n\nTraceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 39, in test_every_vietnamese_template_block_has_an_english_name\n    self.assertTrue(data.get(\"label_en\"))\nAssertionError: None is not true\n"
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description",
+      "id": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description (agent='assistant')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 28, in test_every_agent_has_an_english_description\n    self.assertTrue(spec.get(\"label_en\"), \"the English interface shows label_en\")\nAssertionError: None is not true : the English interface shows label_en\n"
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description",
+      "id": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description (agent='research')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 28, in test_every_agent_has_an_english_description\n    self.assertTrue(spec.get(\"label_en\"), \"the English interface shows label_en\")\nAssertionError: None is not true : the English interface shows label_en\n"
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description",
+      "id": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description (agent='reviewer')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 28, in test_every_agent_has_an_english_description\n    self.assertTrue(spec.get(\"label_en\"), \"the English interface shows label_en\")\nAssertionError: None is not true : the English interface shows label_en\n"
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description",
+      "id": "test_ui_language_data.UiLanguageData.test_every_agent_has_an_english_description (agent='utility')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 28, in test_every_agent_has_an_english_description\n    self.assertTrue(spec.get(\"label_en\"), \"the English interface shows label_en\")\nAssertionError: None is not true : the English interface shows label_en\n"
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name (template='hw-preset-llm-eval', label='Thu n\u1ea1p D\u1eef li\u1ec7u Benchmark')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 39, in test_every_vietnamese_template_block_has_an_english_name\n    self.assertTrue(data.get(\"label_en\"))\nAssertionError: None is not true\n"
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name (template='hw-preset-llm-eval', label='C\u1ed5ng Ki\u1ec3m \u0111\u1ecbnh Ch\u1ea5t l\u01b0\u1ee3ng')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 39, in test_every_vietnamese_template_block_has_an_english_name\n    self.assertTrue(data.get(\"label_en\"))\nAssertionError: None is not true\n"
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name (template='hw-preset-rag-audit', label='\u0110\u00e1nh gi\u00e1 Truy h\u1ed3i & Grounding (Ragas)')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 39, in test_every_vietnamese_template_block_has_an_english_name\n    self.assertTrue(data.get(\"label_en\"))\nAssertionError: None is not true\n"
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name (template='hw-preset-rag-audit', label='Ki\u1ec3m th\u1eed Ranh gi\u1edbi Promptfoo')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 39, in test_every_vietnamese_template_block_has_an_english_name\n    self.assertTrue(data.get(\"label_en\"))\nAssertionError: None is not true\n"
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name (template='hw-preset-rag-audit', label='Ch\u1ee9ng ch\u1ec9 B\u1eb1ng ch\u1ee9ng Khoa h\u1ecdc')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 39, in test_every_vietnamese_template_block_has_an_english_name\n    self.assertTrue(data.get(\"label_en\"))\nAssertionError: None is not true\n"
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name (template='hw-preset-code-swe', label='Ki\u1ec3m th\u1eed \u0110\u01a1n v\u1ecb & \u0110\u1ed9 bao ph\u1ee7 (Pytest)')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 39, in test_every_vietnamese_template_block_has_an_english_name\n    self.assertTrue(data.get(\"label_en\"))\nAssertionError: None is not true\n"
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name (template='hw-preset-code-swe', label='X\u00e1c th\u1ef1c B\u1ea3n v\u00e1 SWE-Bench')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 39, in test_every_vietnamese_template_block_has_an_english_name\n    self.assertTrue(data.get(\"label_en\"))\nAssertionError: None is not true\n"
+    },
+    {
+      "parent": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name",
+      "id": "test_ui_language_data.UiLanguageData.test_every_vietnamese_template_block_has_an_english_name (template='hw-preset-code-swe', label='Ki\u1ec3m tra S\u1ed5 c\u00e1i Minh ch\u1ee9ng')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_ui_language_data.py\", line 39, in test_every_vietnamese_template_block_has_an_english_name\n    self.assertTrue(data.get(\"label_en\"))\nAssertionError: None is not true\n"
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 4,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-_7n91j8q",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

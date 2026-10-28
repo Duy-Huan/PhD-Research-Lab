@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "6.6.2"
+APP_VERSION = "6.6.3"
 
 ROOT = Path(__file__).resolve().parents[2]
 INSTALL_MARKER = "phdlab-installed.json"  # written by the .exe/.deb installers next to the application
@@ -115,10 +115,14 @@ PROVIDERS = {
 # "local", "ollama" or a provider id. What an agent does is decided by the SKILL it runs (backend/agent/skills/*.md),
 # not by a separate agent per tool.
 AGENTS = {
-    "assistant": {"label": "Trợ lý chat — hội thoại thường ngày, độc lập với agent nghiên cứu", "default": "auto"},
-    "research": {"label": "Research agent — điều phối, nghiên cứu, thiết kế, code, viết bài", "default": "auto"},
-    "reviewer": {"label": "Reviewer agent — phản biện, kiểm chứng claim / evidence", "default": "claude"},
-    "utility":  {"label": "Tiện ích chạy nền — tóm tắt bộ nhớ, trích xuất PDF/BibTeX, truy vấn tìm kiếm", "default": "auto"},
+    "assistant": {"label": "Trợ lý chat — hội thoại thường ngày, độc lập với agent nghiên cứu",
+                  "label_en": "Chat assistant — everyday conversation, separate from the research agent", "default": "auto"},
+    "research": {"label": "Research agent — điều phối, nghiên cứu, thiết kế, code, viết bài",
+                 "label_en": "Research agent — orchestration, research, design, code, writing", "default": "auto"},
+    "reviewer": {"label": "Reviewer agent — phản biện, kiểm chứng claim / evidence",
+                 "label_en": "Reviewer agent — critique, checks claims and evidence", "default": "claude"},
+    "utility":  {"label": "Tiện ích chạy nền — tóm tắt bộ nhớ, trích xuất PDF/BibTeX, truy vấn tìm kiếm",
+                 "label_en": "Background utility — memory summaries, PDF/BibTeX extraction, search queries", "default": "auto"},
 }
 # v1–v4 agent names → the v5 agent that now does their job (old call sites and saved settings keep working)
 AGENT_ALIASES = {
@@ -209,11 +213,14 @@ DEFAULTS = {
     # Sensitivity: PUBLIC always leaves, INTERNAL per allow_internal, SENSITIVE only with allow_sensitive, RESTRICTED never.
     # *_api_fallback False = the CLI connectors run with API-key variables removed, so a subscription sign-in is used
     # and no API billing is ever created implicitly (cost guard).
-    "gateway": {"enabled": True, "allow_internal": True, "allow_sensitive": False, "block_source_code": True,
+    "gateway": {"enabled": True, "allow_internal": True, "allow_sensitive": False, "block_source_code": False,
                 "context_budget_tokens": 6000, "provider_timeout_s": 600, "codex_app_server": False, "cli_models": {}, "cli_catalogs": {},
                 "codex_enabled": True, "claude_code_enabled": True, "gemini_cli_enabled": True, "antigravity_enabled": True,
                 "codex_api_fallback": False, "claude_code_api_fallback": False, "antigravity_api_fallback": False,
                 "gemini_cli_api_fallback": False,
+                # 6.6.3: long-lived Claude subscription token from `claude setup-token`; given to the Claude Code
+                # container only (env file, removed after the run). Empty = share this computer's current sign-in.
+                "claude_code_oauth_token": "",
                 "claude_binary": "", "gemini_binary": "",
                 # v4.1 Secure CLI gateway: every CLI request runs in its own session workspace under cli_space_dir
                 # (empty = <data>/cli-space), never in the project or the app folder. cli_profile: review (read-only) |
@@ -273,7 +280,8 @@ DEFAULTS["ranking"] = {"auto": True, "core_source": "ICORE2026", "watch_download
 SECTIONS_V32 = ("runs", "research_providers", "memory", "resources", "codex", "workspace", "routing", "provenance",
                 "gateway", "mcp", "lifecycle", "aiws", "ui", "ranking", "research_os", "mcp_agent", 'hermes', "tools")
 LIFECYCLE_POLICIES = ("unload_after_task", "keep_loaded", "idle_unload")
-SECRET_FIELDS = {"mcp": ("token",), "mcp_agent": ("token",)}
+SECRET_FIELDS = {"mcp": ("token",), "mcp_agent": ("token",), "gateway": ("claude_code_oauth_token",)}
+CLAUDE_OAUTH_TOKEN = re.compile(r"sk-ant-oat01-[A-Za-z0-9_-]{20,500}")
 CHOICES = {("research_providers", "coding_default"): ("claude_code", "codex", "gemini_cli", "antigravity", "app"),
            ("research_providers", "engine_mode"): ("auto", "phdlab", "paperorchestra"),
            ("codex", "sandbox"): ("read-only", "workspace-write"),
@@ -328,6 +336,8 @@ def _merge_section(sec: str, target: dict, patch: dict, masked_ok: bool) -> None
         if f in SECRET_FIELDS.get(sec, ()) and masked_ok and isinstance(val, str) and "•" in val:
             continue
         v = _coerce(DEFAULTS[sec][f], val)
+        if masked_ok and (sec, f) == ("gateway", "claude_code_oauth_token") and v and not CLAUDE_OAUTH_TOKEN.fullmatch(v):
+            raise ValueError("Paste the token printed by `claude setup-token` (it starts with sk-ant-oat01-)")
         allowed = CHOICES.get((sec, f))
         if allowed and v not in allowed:
             v = DEFAULTS[sec][f]

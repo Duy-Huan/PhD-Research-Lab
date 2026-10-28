@@ -1,0 +1,142 @@
+{
+  "id": "FQC-UI-QA-663",
+  "title": "Full-app Playwright QA pass: every screen audited in both languages, themes and phone/desktop",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want a strict QA pass over the whole app (agent/PLAYWRIGHT_QA_CHECKLIST.md) that finds even small interface defects (overlap, covered or clipped controls, wrong language, contrast) and fixes them before 6.6.3 ships.",
+  "requirements": [
+    {
+      "id": "AGENT_LABELS",
+      "description": "The four agents have an English description (label_en) that the English Settings shows."
+    },
+    {
+      "id": "TEMPLATE_LABELS",
+      "description": "Every Vietnamese Harness preset block has an English name (label_en) that the English canvas shows."
+    },
+    {
+      "id": "ENGINE_TEXT",
+      "description": "The Docker and Python engine names and details are English, like the other engines."
+    }
+  ],
+  "nonfunctional": [
+    "frontend/e2e/qa_screens.spec.ts with frontend/e2e/uiAudit.ts: 29 screens (main views, 9 Settings tabs, every drawer panel) x 5 cells (en light/dark 1440, en light 390, vi light 1440, vi dark 390) plus 12 topic-dependent screens x 3 cells = 181 tests; rules VIS-HSCROLL, VIS-OCCLUDED, VIS-TARGET, VIS-ICON, VIS-CLIPPED, VIS-TEXT-JUNK, VIS-I18N-KEY, VIS-MIXED-LANG and axe (WCAG 2.1 AA serious/critical)",
+    "First run: 128 of 145 failed; final: 181/181, repeated",
+    "Frontend fixes: Dashboard, Harness, Topics, Figures, Intelligence, Workstreams and Claims follow the active language; skills, plugins and Harness presets use their English fields; WCAG fixes (contrast, labels, focusable scroll region, target size); the sidebar menu no longer shares its Vietnamese name with a Settings tab; VRAM errors shown inline"
+  ],
+  "inputs": [
+    "config.AGENTS",
+    "harness presets",
+    "research engine catalog"
+  ],
+  "outputs": [
+    "label_en / English engine text used by the interface"
+  ],
+  "preconditions": [
+    "None"
+  ],
+  "postconditions": [
+    "The English interface shows no Vietnamese chrome on any audited screen"
+  ],
+  "dependencies": [
+    "frontend/src/shared/state/uiStore.ts (useI18n)"
+  ],
+  "affected_modules": [
+    "backend/core/config.py",
+    "backend/execution/harness.py",
+    "backend/providers/research.py",
+    "frontend/src/features/dashboard/DashboardView.tsx",
+    "frontend/src/features/harness/CustomHarnessStudio.tsx",
+    "frontend/src/features/harness/HarnessNodeComponent.tsx",
+    "frontend/src/features/settings/SettingsModal.tsx",
+    "frontend/src/features/settings/AiToolsSettings.tsx",
+    "frontend/src/features/research-topics/TopicView.tsx",
+    "frontend/src/features/figures/FigureStudioPanel.tsx",
+    "frontend/src/features/intelligence/IntelligenceHubPanel.tsx",
+    "frontend/src/features/workstreams/WorkstreamMonitor.tsx",
+    "frontend/src/features/evidence/EvidenceReview.tsx",
+    "frontend/src/features/projects/ProjectSwitcher.tsx",
+    "frontend/src/features/workspace-tools/OutlinePaperCodePanels.tsx",
+    "frontend/src/features/chat/Composer.tsx",
+    "frontend/src/shell/Header.tsx",
+    "frontend/src/shell/Sidebar.tsx",
+    "frontend/assets/app.css"
+  ],
+  "acceptance_criteria": [
+    "qa_screens.spec.ts 181/181 on the final build",
+    "No VIS-MIXED-LANG, axe serious/critical, occlusion or target findings"
+  ],
+  "scenarios": [
+    {
+      "id": "agents-en",
+      "requirement": "AGENT_LABELS",
+      "kind": "positive",
+      "expected": "Every agent has label_en without Vietnamese; public config carries it",
+      "test": "tests/test_ui_language_data.py::UiLanguageData.test_every_agent_has_an_english_description"
+    },
+    {
+      "id": "templates-en",
+      "requirement": "TEMPLATE_LABELS",
+      "kind": "positive",
+      "expected": "Each Vietnamese preset block has an English name",
+      "test": "tests/test_ui_language_data.py::UiLanguageData.test_every_vietnamese_template_block_has_an_english_name"
+    },
+    {
+      "id": "engines-en",
+      "requirement": "ENGINE_TEXT",
+      "kind": "negative",
+      "expected": "No Vietnamese in the Docker and Python names or details (installed, missing, stopped)",
+      "test": "tests/test_ui_language_data.py::UiLanguageData.test_engine_names_and_details_are_english_like_the_other_engines"
+    },
+    {
+      "id": "docker-missing",
+      "requirement": "ENGINE_TEXT",
+      "kind": "failure",
+      "expected": "The Docker-not-installed detail is English",
+      "test": "tests/test_ui_language_data.py::UiLanguageData.test_engine_names_and_details_are_english_like_the_other_engines"
+    },
+    {
+      "id": "templates-boundary",
+      "requirement": "TEMPLATE_LABELS",
+      "kind": "boundary",
+      "expected": "At least one Vietnamese preset is checked (the test cannot pass vacuously)",
+      "test": "tests/test_ui_language_data.py::UiLanguageData.test_every_vietnamese_template_block_has_an_english_name"
+    },
+    {
+      "id": "public-config",
+      "requirement": "AGENT_LABELS",
+      "kind": "security",
+      "expected": "label_en travels through public_config (which still masks secrets)",
+      "test": "tests/test_ui_language_data.py::UiLanguageData.test_every_agent_has_an_english_description"
+    },
+    {
+      "id": "catalog-speed",
+      "requirement": "TEMPLATE_LABELS",
+      "kind": "performance",
+      "expected": "200 catalog reads in under 5 s",
+      "test": "tests/test_ui_language_data.py::UiLanguageData.test_checking_the_catalog_is_fast"
+    }
+  ],
+  "recovery": "Fix the text at its source; never relax the audit rules to pass. TASK-UI-QA-663, max three cycles.",
+  "test_environment": "Disposable PHDLAB_DATA_DIR (D:/qa663) on loopback port 8791 with a disposable QA project and topic; Chromium headless; evidence in docs/qa/evidence/ui-qa-663/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 4 tests on f4ea965, 14 failures. GREEN: 4/4. Playwright: first run 128/145 failed, final 181/181.",
+    "red": {
+      "path": "docs/qa/evidence/ui-qa-663/red.json",
+      "sha256": "dbce3d6be48b4c717caf06f306183441148358126ba1c890c542150f31579077",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/ui-qa-663/green.json",
+      "sha256": "8ad886bbfbd8cc5ff2754402b7720bad4f6a6165f65b834a72b0c9090f65a421",
+      "exit_code": 0
+    }
+  }
+}

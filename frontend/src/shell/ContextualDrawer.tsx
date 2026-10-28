@@ -20,7 +20,6 @@ import {
 } from '../features/workspace-tools/OutlinePaperCodePanels';
 import { UserGuidePanel } from '../features/guide/UserGuidePanel';
 import { CustomHarnessStudio } from '../features/harness/CustomHarnessStudio';
-import { ClaudeCLIStudio } from '../features/cli/ClaudeCLIStudio';
 import { X, PanelRightClose } from 'lucide-react';
 
 export const ContextualDrawer: React.FC = () => {
@@ -108,10 +107,6 @@ export const ContextualDrawer: React.FC = () => {
     case 'harness':
       title = t('Harness Studio & Thiết kế Quy trình Kéo thả', 'Harness Studio & Visual Drag-and-Drop Workflow');
       content = <CustomHarnessStudio />;
-      break;
-    case 'cli':
-      title = t('Giao diện Dòng lệnh Claude CLI', 'Claude CLI Terminal Studio');
-      content = <ClaudeCLIStudio />;
       break;
     default:
       content = null;

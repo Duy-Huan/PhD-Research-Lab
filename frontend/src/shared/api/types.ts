@@ -56,7 +56,7 @@ export interface AppConfig {
   references_dir: string;
   providers: Record<string, ProviderConfig>;
   provider_specs: Record<string, ProviderSpec>;
-  agents: Record<string, { label: string; default: string }>;
+  agents: Record<string, { label: string; label_en?: string; default: string }>;
   agent_modes: Record<string, string>;
   agent_models: Record<string, string>;
   search: {
@@ -176,6 +176,8 @@ export interface AppConfig {
     allow_internal: boolean;
     allow_sensitive: boolean;
     block_source_code: boolean;
+    claude_code_oauth_token?: string;  // always masked by the backend
+    has_claude_code_oauth_token?: boolean;
     context_budget_tokens: number;
     provider_timeout_s: number;
     codex_app_server: boolean;

@@ -17,6 +17,17 @@ phdlab --json status
 
 In chat, Tab completes commands. Type a normal question or a research skill such as `/lit`, `/plan`, `/write` or `/verify`. `/help` lists both research skills and terminal commands. Ctrl+C during an answer requests cancellation; Ctrl+D or `/quit` exits the client. Exiting the client does not shut down the shared server.
 
+## Continue the browser's CLI chat in cmd
+
+In the browser, **CLI chat** (sidebar) has **Open in cmd** (**Open in terminal** outside Windows). It opens a new console running `phdlab chat --session <id>` on the same conversation and prints the command so you can reopen it yourself, for example `chat.bat --session as-0123456789` from the PhD Lab folder. The browser and the console share the conversation and its tool: choosing Codex or Claude Code in the browser sets the conversation's provider, and `/model cli:codex` in the console changes it for both. The console starts only PhD Lab's own client, talks to the server over loopback and receives no API keys.
+
+## Claude Code sign-in
+
+PhD Lab runs Claude Code in its own container, which cannot see your `~/.claude` folder. There are two ways to sign it in:
+
+- **Automatic:** if Claude Code is signed in on this computer, each run gets your current access token. It never gets the refresh token, so it cannot sign your own Claude Code out. This access token expires after a few hours. If you have not used Claude Code on this computer for a while, the status shows "sign-in has expired": open Claude Code once and retry.
+- **Long-lived (recommended):** run `claude setup-token` in cmd, sign in with your Claude account, and paste the printed `sk-ant-oat01-…` token in **Settings → AI connections → Claude (Claude Code CLI)**. It lasts about a year and does not depend on your computer's sign-in. PhD Lab stores it masked, gives it only to the Claude Code container, and lets you remove it there.
+
 ## Accept or reject proposals
 
 A response can propose a file, a memory change or a background run. `/pending` prints numbered decisions. `/accept 1` accepts one proposal, `/reject 1` rejects it, and `/accept all` accepts every currently listed proposal. Inspect the list before using `all`. Code and compute requests still use the backend's risk and budget rules.

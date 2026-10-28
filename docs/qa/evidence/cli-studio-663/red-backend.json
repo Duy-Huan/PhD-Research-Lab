@@ -1,0 +1,72 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_cli_console.OpenChatConsole.test_api_uses_the_port_the_server_listens_on",
+      "status": "ERROR",
+      "duration": 1.8626,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_cli_console.py\", line 67, in test_api_uses_the_port_the_server_listens_on\n    with mock.patch.object(native, \"open_chat_console\", return_value={\"launched\": True, \"command\": \"x\"}) as opened:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 1467, in __enter__\n    original, local = self.get_original()\n                      ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\unittest\\mock.py\", line 1437, in get_original\n    raise AttributeError(\nAttributeError: <module 'backend.providers.native' from 'D:\\\\r663red\\\\backend\\\\providers\\\\native.py'> does not have the attribute 'open_chat_console'\n"
+    },
+    {
+      "id": "test_cli_console.OpenChatConsole.test_invalid_or_unknown_sessions_never_start_a_process",
+      "status": "ERROR",
+      "duration": 0.0551,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_cli_console.py\", line 43, in test_invalid_or_unknown_sessions_never_start_a_process\n    native.open_chat_console(self.sid, 0)\n    ^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.native' has no attribute 'open_chat_console'\n"
+    },
+    {
+      "id": "test_cli_console.OpenChatConsole.test_opening_a_console_returns_at_once_without_waiting_for_it",
+      "status": "ERROR",
+      "duration": 0.0406,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_cli_console.py\", line 51, in test_opening_a_console_returns_at_once_without_waiting_for_it\n    native.open_chat_console(self.sid, 8791)\n    ^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.native' has no attribute 'open_chat_console'\n"
+    },
+    {
+      "id": "test_cli_console.OpenChatConsole.test_the_command_line_runs_in_a_real_cmd",
+      "status": "ERROR",
+      "duration": 0.0518,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_cli_console.py\", line 76, in test_the_command_line_runs_in_a_real_cmd\n    line = native.console_command(sys.executable, [\"-m\", \"backend.cli\", \"--help\"], keep_open=False)\n           ^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.native' has no attribute 'console_command'\n"
+    },
+    {
+      "id": "test_cli_console.OpenChatConsole.test_windows_opens_cmd_on_this_conversation_with_a_clean_environment",
+      "status": "ERROR",
+      "duration": 0.0406,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_cli_console.py\", line 25, in test_windows_opens_cmd_on_this_conversation_with_a_clean_environment\n    out = native.open_chat_console(self.sid, 8791)\n          ^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.native' has no attribute 'open_chat_console'\n"
+    },
+    {
+      "id": "test_cli_console.OpenChatConsole.test_without_a_terminal_the_command_is_still_offered",
+      "status": "ERROR",
+      "duration": 0.0403,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_cli_console.py\", line 59, in test_without_a_terminal_the_command_is_still_offered\n    out = native.open_chat_console(self.sid, 8765)\n          ^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.native' has no attribute 'open_chat_console'\n"
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_cli_console.OpenChatConsole.test_invalid_or_unknown_sessions_never_start_a_process",
+      "id": "test_cli_console.OpenChatConsole.test_invalid_or_unknown_sessions_never_start_a_process (bad='as-1 & calc')",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_cli_console.py\", line 41, in test_invalid_or_unknown_sessions_never_start_a_process\n    native.open_chat_console(bad, 8791)\n    ^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.native' has no attribute 'open_chat_console'\n"
+    },
+    {
+      "parent": "test_cli_console.OpenChatConsole.test_invalid_or_unknown_sessions_never_start_a_process",
+      "id": "test_cli_console.OpenChatConsole.test_invalid_or_unknown_sessions_never_start_a_process (bad='../x')",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_cli_console.py\", line 41, in test_invalid_or_unknown_sessions_never_start_a_process\n    native.open_chat_console(bad, 8791)\n    ^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.native' has no attribute 'open_chat_console'\n"
+    },
+    {
+      "parent": "test_cli_console.OpenChatConsole.test_invalid_or_unknown_sessions_never_start_a_process",
+      "id": "test_cli_console.OpenChatConsole.test_invalid_or_unknown_sessions_never_start_a_process (bad='as-0000000000')",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r663red\\tests\\test_cli_console.py\", line 41, in test_invalid_or_unknown_sessions_never_start_a_process\n    native.open_chat_console(bad, 8791)\n    ^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.providers.native' has no attribute 'open_chat_console'\n"
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 6,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-o8qwcvh9",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

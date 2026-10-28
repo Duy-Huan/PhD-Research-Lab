@@ -97,7 +97,7 @@ export const WorkstreamMonitor: React.FC = () => {
   if (!activeTopicId) {
     return (
       <div style={{ padding: 16 }}>
-        <p className="muted">Vui lòng chọn một Topic để xem phân luồng Workstreams.</p>
+        <p className="muted">{t('Vui lòng chọn một Topic để xem các luồng công việc.', 'Select a topic to see its workstreams.')}</p>
       </div>
     );
   }
@@ -110,18 +110,18 @@ export const WorkstreamMonitor: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
           <GitBranch size={18} color="var(--accent)" />
-          <span>Phân luồng & Handoffs (Workstreams)</span>
+          <span>{t('Luồng công việc & bàn giao', 'Workstreams & handoffs')}</span>
         </h4>
         <button
           className="btn sm ghost"
           onClick={() => queryClient.invalidateQueries({ queryKey: ['workstreams', activeTopicId, activeMid] })}
         >
-          <RefreshCw size={13} style={{ marginRight: 4 }} /> Làm mới
+          <RefreshCw size={13} style={{ marginRight: 4 }} /> {t('Làm mới', 'Refresh')}
         </button>
       </div>
 
       <p className="muted" style={{ fontSize: 13, margin: 0 }}>
-        Mỗi workstream là một nhóm nhiệm vụ logic. Handoffs tự động truyền dữ liệu kiểm thử; các tranh chấp (disputes) yêu cầu quyết định rõ ràng từ nhà nghiên cứu.
+        {t('Mỗi workstream là một nhóm nhiệm vụ logic. Handoffs tự động truyền dữ liệu kiểm thử; các tranh chấp (disputes) yêu cầu quyết định rõ ràng từ nhà nghiên cứu.', 'Each workstream is a logical group of tasks. Handoffs pass verified data automatically; disputes need an explicit researcher decision.')}
       </p>
 
       {/* Mission Selector */}
@@ -142,7 +142,7 @@ export const WorkstreamMonitor: React.FC = () => {
         </label>
       ) : (
         <p className="muted" style={{ fontSize: 13 }}>
-          Không có Mission cộng tác multi-team nào trong Topic này.
+          {t('Không có Mission cộng tác multi-team nào trong Topic này.', 'No multi-team missions in this topic.')}
         </p>
       )}
 
@@ -314,7 +314,7 @@ export const WorkstreamMonitor: React.FC = () => {
           }}
         >
           <KeyRound size={14} style={{ marginRight: 4 }} />
-          Đăng ký Canonical Output (Compare-and-Swap)
+          {t('Đăng ký Canonical Output (Compare-and-Swap)', 'Register canonical output (compare-and-swap)')}
         </button>
 
         {casOpen && (
@@ -341,7 +341,7 @@ export const WorkstreamMonitor: React.FC = () => {
               gap: 8,
             }}
           >
-            <b>Đăng ký Canonical Output mới</b>
+            <b>{t('Đăng ký canonical output mới', 'Register a new canonical output')}</b>
             {casConflict && (
               <div style={{ color: 'var(--err)', fontSize: 12.5, background: 'var(--err-soft)', padding: 6, borderRadius: 6 }}>
                 <AlertCircle size={14} style={{ display: 'inline', marginRight: 4 }} />

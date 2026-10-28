@@ -186,7 +186,7 @@ const NODE_TYPE_INFO: Record<
 };
 
 export const HarnessNodeComponent: React.FC<HarnessNodeComponentProps> = ({ id, data, selected }) => {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const nodeType: WorkflowNodeType = (data.node_type as WorkflowNodeType) || (data.tool ? 'harnessNode' : 'agent_task');
   const status = data.status || 'idle';
 
@@ -201,7 +201,7 @@ export const HarnessNodeComponent: React.FC<HarnessNodeComponentProps> = ({ id, 
 
   const badgeTitle = isBenchmark
     ? TOOL_NAMES[data.tool || ''] || data.tool || 'Harness'
-    : typeMeta.label;
+    : nodeType === 'start' ? t('Bắt đầu', 'Start') : nodeType === 'end' ? t('Kết thúc', 'End') : typeMeta.label;
 
   const nodeIcon = isBenchmark
     ? TOOL_ICONS[data.tool || ''] || <Gauge size={15} color="var(--accent)" />
@@ -377,6 +377,7 @@ export const HarnessNodeComponent: React.FC<HarnessNodeComponentProps> = ({ id, 
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, overflow: 'hidden' }}>
           {nodeIcon}
           <span
+            title={badgeTitle}
             style={{
               fontSize: 10,
               fontWeight: 700,
@@ -419,7 +420,7 @@ export const HarnessNodeComponent: React.FC<HarnessNodeComponentProps> = ({ id, 
           wordBreak: 'break-word',
         }}
       >
-        {data.label || 'Tác vụ nghiên cứu'}
+        {String((language === 'en' && data.label_en) || data.label || t('Tác vụ nghiên cứu', 'Research task'))}
       </div>
 
       {/* Engine / Subtitle if present */}

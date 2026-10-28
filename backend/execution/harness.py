@@ -177,6 +177,7 @@ def _get_preset_workflows() -> list[dict[str, Any]]:
                     "position": {"x": 60, "y": 80},
                     "data": {
                         "label": "Thu nạp Dữ liệu Benchmark",
+                        "label_en": "Benchmark data intake",
                         "tool": "lm_evaluation_harness",
                         "category": "benchmark",
                         "params": {"tasks": "gsm8k,mmlu", "num_fewshot": 5, "min_pass_score": 0.75},
@@ -189,6 +190,7 @@ def _get_preset_workflows() -> list[dict[str, Any]]:
                     "position": {"x": 340, "y": 80},
                     "data": {
                         "label": "Inspect AI Agent Eval",
+                        "label_en": "Inspect AI agent eval",
                         "tool": "inspect_ai",
                         "category": "agent_eval",
                         "params": {"eval_suite": "agent_reasoning", "max_tool_calls": 6, "min_pass_rate": 0.80},
@@ -201,6 +203,7 @@ def _get_preset_workflows() -> list[dict[str, Any]]:
                     "position": {"x": 620, "y": 80},
                     "data": {
                         "label": "Cổng Kiểm định Chất lượng",
+                        "label_en": "Quality gate",
                         "tool": "phdlab_research_harness",
                         "category": "scientific_audit",
                         "params": {"stage": "6.3", "verify_ledger": True, "reproducibility_trials": 2},
@@ -229,6 +232,7 @@ def _get_preset_workflows() -> list[dict[str, Any]]:
                     "position": {"x": 60, "y": 80},
                     "data": {
                         "label": "Đánh giá Truy hồi & Grounding (Ragas)",
+                        "label_en": "Retrieval & grounding eval (Ragas)",
                         "tool": "ragas",
                         "category": "rag_eval",
                         "params": {"metrics": ["faithfulness", "context_precision"], "min_faithfulness": 0.90},
@@ -241,6 +245,7 @@ def _get_preset_workflows() -> list[dict[str, Any]]:
                     "position": {"x": 340, "y": 80},
                     "data": {
                         "label": "Kiểm thử Ranh giới Promptfoo",
+                        "label_en": "Promptfoo boundary tests",
                         "tool": "promptfoo",
                         "category": "prompt_test",
                         "params": {"assertions": ["contains", "llm-rubric"], "max_latency_ms": 1200},
@@ -253,6 +258,7 @@ def _get_preset_workflows() -> list[dict[str, Any]]:
                     "position": {"x": 620, "y": 80},
                     "data": {
                         "label": "Chứng chỉ Bằng chứng Khoa học",
+                        "label_en": "Scientific evidence certificate",
                         "tool": "phdlab_research_harness",
                         "category": "scientific_audit",
                         "params": {"verify_ledger": True, "require_signed_receipts": True},
@@ -281,6 +287,7 @@ def _get_preset_workflows() -> list[dict[str, Any]]:
                     "position": {"x": 60, "y": 80},
                     "data": {
                         "label": "Kiểm thử Đơn vị & Độ bao phủ (Pytest)",
+                        "label_en": "Unit tests & coverage (Pytest)",
                         "tool": "pytest_harness",
                         "category": "test_runner",
                         "params": {"test_path": "tests/", "min_coverage_pct": 85.0},
@@ -293,6 +300,7 @@ def _get_preset_workflows() -> list[dict[str, Any]]:
                     "position": {"x": 340, "y": 80},
                     "data": {
                         "label": "Xác thực Bản vá SWE-Bench",
+                        "label_en": "SWE-Bench patch validation",
                         "tool": "swe_bench",
                         "category": "code_benchmark",
                         "params": {"task_set": "lite", "min_pass_rate": 0.70},
@@ -305,6 +313,7 @@ def _get_preset_workflows() -> list[dict[str, Any]]:
                     "position": {"x": 620, "y": 80},
                     "data": {
                         "label": "Kiểm tra Sổ cái Minh chứng",
+                        "label_en": "Evidence ledger check",
                         "tool": "phdlab_research_harness",
                         "category": "scientific_audit",
                         "params": {"stage": "6.3", "verify_ledger": True},

@@ -29,3 +29,8 @@ See `docs/qa/UAT_ACCEPTANCE_REPORT.md` for executed cases and blockers. Only qua
 The owned application and Node/Chromium child processes receive an allowlisted environment: provider/GitHub credentials are not inherited. A canary regression verifies this before HTTP mutation assertions. Keep HOME/USERPROFILE unchanged when retained for platform path calculation; explicit app data/config/cache directories belong to the disposable lease. Do not publish the original private server-env-red attempt because its assertion diagnostic included the inherited environment; use the separately recorded safe RED/GREEN evidence.
 
 The one-use receipt is shared .git/uat-authorizations/TASK-UAT-LOCAL-ADAPTER-single-execution.json. Grant format and executable consumption/replay/expiry tests are in devtools/verification/uat_authorization.py and tests/test_uat_owner_authorization.py. Prepare optional hash-locked Browser Use and owned Chromium before consuming; do not use personal profiles or paid models. Default runs retain180seconds and three-failure rules. The exception does not waive deterministic VI-to-EN persistence, browser/network errors, raw trace/history/screenshots or independent acceptance review.
+
+## Full Playwright QA/QC pass
+
+For a release-level UI pass (every screen, viewport, theme, language and journey, plus automatic overlap, clipping
+and occlusion checks) follow `agent/PLAYWRIGHT_QA_CHECKLIST.md`. It adds to this procedure and does not relax it.

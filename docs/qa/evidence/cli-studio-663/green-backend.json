@@ -1,0 +1,72 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_cli_console.OpenChatConsole.test_api_uses_the_port_the_server_listens_on",
+      "status": "PASS",
+      "duration": 0.6105,
+      "details": null
+    },
+    {
+      "id": "test_cli_console.OpenChatConsole.test_invalid_or_unknown_sessions_never_start_a_process",
+      "status": "PASS",
+      "duration": 0.0618,
+      "details": null
+    },
+    {
+      "id": "test_cli_console.OpenChatConsole.test_opening_a_console_returns_at_once_without_waiting_for_it",
+      "status": "PASS",
+      "duration": 0.0671,
+      "details": null
+    },
+    {
+      "id": "test_cli_console.OpenChatConsole.test_the_command_line_runs_in_a_real_cmd",
+      "status": "PASS",
+      "duration": 0.1864,
+      "details": null
+    },
+    {
+      "id": "test_cli_console.OpenChatConsole.test_windows_opens_cmd_on_this_conversation_with_a_clean_environment",
+      "status": "PASS",
+      "duration": 0.0601,
+      "details": null
+    },
+    {
+      "id": "test_cli_console.OpenChatConsole.test_without_a_terminal_the_command_is_still_offered",
+      "status": "PASS",
+      "duration": 0.0504,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_cli_console.OpenChatConsole.test_invalid_or_unknown_sessions_never_start_a_process",
+      "id": "test_cli_console.OpenChatConsole.test_invalid_or_unknown_sessions_never_start_a_process (bad='as-1 & calc')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_console.OpenChatConsole.test_invalid_or_unknown_sessions_never_start_a_process",
+      "id": "test_cli_console.OpenChatConsole.test_invalid_or_unknown_sessions_never_start_a_process (bad='../x')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_cli_console.OpenChatConsole.test_invalid_or_unknown_sessions_never_start_a_process",
+      "id": "test_cli_console.OpenChatConsole.test_invalid_or_unknown_sessions_never_start_a_process (bad='as-0000000000')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 6,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-psn6uevr",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

@@ -75,6 +75,11 @@ describe('AI tools settings', () => {
     renderWithProviders(<AiToolsSettings />);
     expect(await screen.findByText('stats_mean')).toBeInTheDocument();
     expect(screen.getByText('delegate.codex').closest('li')).toHaveAttribute('title', 'codex: NOT_INSTALLED');
+    // FQC-UI-QA-663: tool ids are identifiers (marked as code), each shown with its plain-language description.
+    expect(screen.getByText('delegate.codex').tagName).toBe('CODE');
+    expect(screen.getByText('stats_mean').closest('li')).toHaveTextContent('mean');
+    // Card headers are targets: 18 px tall on Linux fonts in CI (VIS-TARGET), so they keep a 24 px minimum.
+    expect(screen.getByRole('button', { name: 'Tool registry' })).toHaveStyle({ minHeight: '24px' });
     fireEvent.change(screen.getByTestId('tool-search'), { target: { value: 'mean' } });
     await waitFor(() => expect(api.get).toHaveBeenCalledWith('/api/tools/search?q=mean'));
   });

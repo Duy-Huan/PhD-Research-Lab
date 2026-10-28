@@ -188,8 +188,8 @@ describe('Sidebar', () => {
 
     renderWithProviders(<Sidebar />);
 
-    // Click the Research Studios (Công cụ Nghiên cứu) menu toggle
-    const studiosBtn = screen.getByRole('button', { name: /Công cụ Nghiên cứu|Research Studios/i });
+    // Click the Research Studios (Xưởng nghiên cứu) menu toggle
+    const studiosBtn = screen.getByRole('button', { name: /Xưởng nghiên cứu|Research Studios/i });
     expect(studiosBtn).toBeInTheDocument();
     fireEvent.click(studiosBtn);
 

@@ -502,6 +502,16 @@ class ClaudeCodeConnector(CLIConnector):
     supports_resume = True
     WRITE_TOOLS = ("Edit", "Write", "MultiEdit", "NotebookEdit")
 
+    def env(self) -> dict:
+        """Plus the researcher's long-lived `claude setup-token` token, which the container launcher (a separate process
+        without the project configuration) hands to the container through a private env file."""
+        from backend.providers.isolated_cli import claude_long_lived_token
+        out = super().env()
+        token = claude_long_lived_token()
+        if token:
+            out["CLAUDE_CODE_OAUTH_TOKEN"] = token
+        return out
+
     def binary(self) -> str | None:
         found = super().binary()
         if found:
@@ -528,8 +538,17 @@ class ClaudeCodeConnector(CLIConnector):
     def auth_state(self, probe: dict) -> tuple[str, str]:
         auth = probe.get("auth")
         from backend.providers import cli_space as W
+        from backend.providers import isolated_cli
+        # Turns run in PhD Lab's container, so readiness is about the sign-in the container can use: its own (/login
+        # inside the runtime, with a refresh token) or this computer's current access token, which prepare() copies.
+        if isolated_cli.claude_long_lived_token():
+            return "CONNECTED", "long-lived Claude token (claude setup-token) is used by PhD Lab's runtime; the first request verifies it"
         isolated_auth = W.safe_path(W.root(), 'claude_code', 'runtime-home', '.claude', '.credentials.json')
-        if isolated_auth.is_file() and (not auth or not auth.get('loggedIn')):
+        try:
+            own = bool((json.loads(isolated_auth.read_text('utf-8')).get('claudeAiOauth') or {}).get('refreshToken'))
+        except (OSError, ValueError, AttributeError):
+            own = False
+        if own and (not auth or not auth.get('loggedIn')):
             return 'UNKNOWN', 'Project-contained Claude subscription sign-in exists; the first request verifies it. Console/API login is disabled in this runtime.'
         if not auth:
             return super().auth_state(probe)
@@ -539,7 +558,16 @@ class ClaudeCodeConnector(CLIConnector):
         if method in ("api_key", "api_key_helper", "third_party") and not self.api_fallback():
             return "ERROR", "Claude Code uses API billing. Sign in with a Claude subscription or enable claude_code_api_fallback."
         if probe.get("auth_code") == 0 and (method in ("claude.ai", "oauth_token") or self.api_fallback()):
-            return "CONNECTED", "sign-in configured (model access is verified by the first request)"
+            if own:
+                return "CONNECTED", "signed in inside PhD Lab's Claude Code runtime"
+            host = isolated_cli.host_claude_sign_in()
+            if host and float(host.get("expiresAt") or 0) / 1000 > time.time() + 60:
+                return "CONNECTED", "this computer's Claude subscription sign-in is shared with PhD Lab's runtime"
+            if host:
+                return "AUTH_EXPIRED", ("this computer's Claude sign-in has expired; open Claude Code on this computer once "
+                                        "to renew it, then retry")
+            return "AUTH_EXPIRED", ("this computer's Claude sign-in cannot be shared (it is kept in the system keychain); "
+                                    "use Open external terminal with Claude Code and run /login there")
         return super().auth_state(probe)
 
     def setup(self) -> list:

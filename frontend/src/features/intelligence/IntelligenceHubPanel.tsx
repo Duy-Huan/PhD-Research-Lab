@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useUIStore } from '../../shared/state/uiStore';
+import { useI18n, useUIStore } from '../../shared/state/uiStore';
 import { api } from '../../shared/api/client';
 import type { Mission, URAPArtifact } from '../../shared/api/types';
 import {
@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 
 export const IntelligenceHubPanel: React.FC = () => {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const { activeTopicId } = useUIStore();
   const [tab, setTab] = useState<'urap' | 'trace' | 'context' | 'repro'>('urap');
@@ -149,7 +150,7 @@ export const IntelligenceHubPanel: React.FC = () => {
   if (!activeTopicId) {
     return (
       <div style={{ padding: 16 }}>
-        <p className="muted">Vui lòng chọn một Topic để mở Unified Research Intelligence Hub (v6.4.2).</p>
+        <p className="muted">{t('Vui lòng chọn một Topic để mở Trung tâm Phân tích Tri thức.', 'Select a topic to open the Research Intelligence Hub.')}</p>
       </div>
     );
   }
@@ -204,7 +205,7 @@ export const IntelligenceHubPanel: React.FC = () => {
               onClick={() => registerSampleArtifactMutation.mutate()}
               disabled={registerSampleArtifactMutation.isPending}
             >
-              + Ghi nhận Artifact mẫu
+              {t('+ Ghi nhận Artifact mẫu', '+ Record a sample artifact')}
             </button>
           </div>
 

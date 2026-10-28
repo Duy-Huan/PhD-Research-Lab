@@ -1,0 +1,190 @@
+{
+  "id": "FQC-CLAUDE-SIGNIN-663",
+  "title": "Claude Code in PhD Lab's container uses the researcher's existing Claude sign-in",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner, signed in to Claude Code on my computer, I want Claude Code turns in PhD Lab to work without signing in again and to stay signed in for good, and its status to be true.",
+  "requirements": [
+    {
+      "id": "SEED",
+      "description": "prepare('claude_code') copies this computer's current Claude subscription access token (CLAUDE_CONFIG_DIR or ~/.claude/.credentials.json) into the project runtime home, refreshed from the host on every prepare."
+    },
+    {
+      "id": "NO_ROTATION",
+      "description": "The copy never contains the refresh token, so the container cannot rotate and sign out the host's sign-in; the host file is never modified; a sign-in made inside the runtime (/login, with its own refresh token) is kept."
+    },
+    {
+      "id": "READINESS",
+      "description": "CONNECTED only when the container can sign in (own runtime sign-in, or a host access token valid for more than a minute); an expired host token or a keychain-only sign-in is AUTH_EXPIRED with the action to take. Readiness reads files only and never starts the CLI."
+    },
+    {
+      "id": "LONG_LIVED",
+      "description": "A `claude setup-token` token saved in Settings (gateway.claude_code_oauth_token, validated sk-ant-oat01-…, masked by the API, removable) signs the container in for about a year; when set, the host's short token is not copied and an earlier copy is removed."
+    },
+    {
+      "id": "LAUNCHER_ENV",
+      "description": "The container launcher runs as a separate process without the project configuration: the parent passes the token in that process's environment (ClaudeCodeConnector.env, external terminal); the launcher writes it to a private --env-file removed after the run; never on a command line or in the plan; malformed inherited values are ignored; Codex never receives it."
+    }
+  ],
+  "nonfunctional": [
+    "Tests never read the researcher's real CLI sign-ins (tests/_env.py isolates CODEX_HOME and CLAUDE_CONFIG_DIR)",
+    "Settings UI: frontend/src/features/settings/GatewayConnections.test.tsx (token field is a password input, copy `claude setup-token`, save trims, remove, never prefilled)",
+    "Settings shows the connections panel (SettingsContracts.test.tsx: 'shows the CLI connections with the Claude long-lived token in the models tab'); a malformed shared catalog never crashes Settings"
+  ],
+  "inputs": [
+    "~/.claude/.credentials.json",
+    "runtime-home/.claude/.credentials.json",
+    "claude auth status"
+  ],
+  "outputs": [
+    "seeded runtime credentials",
+    "provider state and detail"
+  ],
+  "preconditions": [
+    "Claude Code signed in on this computer with a Claude subscription"
+  ],
+  "postconditions": [
+    "The host sign-in is unchanged"
+  ],
+  "dependencies": [
+    "backend/providers/cli_space.py"
+  ],
+  "affected_modules": [
+    "backend/providers/isolated_cli.py",
+    "backend/providers/cli.py",
+    "tests/_env.py",
+    "backend/core/config.py",
+    "backend/providers/native.py",
+    "frontend/src/features/settings/GatewayConnections.tsx",
+    "frontend/src/features/settings/SettingsModal.tsx",
+    "frontend/src/features/cli/ClaudeCLIStudio.tsx"
+  ],
+  "acceptance_criteria": [
+    "Live: Claude Code CLI turn completed in the container after the fix (previously 'Not logged in')",
+    "Readiness detail says the sign-in is shared",
+    "Live: with a long-lived token the container turn completed with no credentials file in the container home (as-d3b844c9c2)"
+  ],
+  "scenarios": [
+    {
+      "id": "seed",
+      "requirement": "SEED",
+      "kind": "positive",
+      "expected": "Access token copied",
+      "test": "tests/test_claude_sign_in.py::ClaudeSignIn.test_seed_copies_the_access_token_without_the_refresh_token"
+    },
+    {
+      "id": "follow-host",
+      "requirement": "SEED",
+      "kind": "positive",
+      "expected": "A renewed host token replaces the copy",
+      "test": "tests/test_claude_sign_in.py::ClaudeSignIn.test_seed_follows_the_hosts_current_token"
+    },
+    {
+      "id": "prepare",
+      "requirement": "SEED",
+      "kind": "positive",
+      "expected": "prepare seeds the runtime home",
+      "test": "tests/test_claude_sign_in.py::ClaudeSignIn.test_prepare_seeds_the_container_home"
+    },
+    {
+      "id": "no-refresh",
+      "requirement": "NO_ROTATION",
+      "kind": "security",
+      "expected": "No refresh token in the copy; host bytes unchanged",
+      "test": "tests/test_claude_sign_in.py::ClaudeSignIn.test_seed_copies_the_access_token_without_the_refresh_token"
+    },
+    {
+      "id": "own-kept",
+      "requirement": "NO_ROTATION",
+      "kind": "negative",
+      "expected": "A runtime /login is not overwritten and counts as CONNECTED",
+      "test": "tests/test_claude_sign_in.py::ClaudeSignIn.test_a_sign_in_made_inside_the_runtime_is_kept"
+    },
+    {
+      "id": "missing",
+      "requirement": "SEED",
+      "kind": "failure",
+      "expected": "Missing or malformed host sign-in seeds nothing",
+      "test": "tests/test_claude_sign_in.py::ClaudeSignIn.test_missing_or_malformed_host_sign_in_seeds_nothing"
+    },
+    {
+      "id": "unchanged",
+      "requirement": "SEED",
+      "kind": "boundary",
+      "expected": "An unchanged token is not rewritten",
+      "test": "tests/test_claude_sign_in.py::ClaudeSignIn.test_unchanged_token_is_not_rewritten"
+    },
+    {
+      "id": "readiness",
+      "requirement": "READINESS",
+      "kind": "failure",
+      "expected": "Fresh: CONNECTED; expired: AUTH_EXPIRED (open Claude Code); none: AUTH_EXPIRED (/login)",
+      "test": "tests/test_claude_sign_in.py::ClaudeSignIn.test_connected_only_when_the_container_can_sign_in"
+    },
+    {
+      "id": "no-cli-start",
+      "requirement": "READINESS",
+      "kind": "performance",
+      "expected": "auth_state never starts the CLI (run_cli raises if called)",
+      "test": "tests/test_claude_sign_in.py::ClaudeSignIn.test_connected_only_when_the_container_can_sign_in"
+    },
+    {
+      "id": "store-token",
+      "requirement": "LONG_LIVED",
+      "kind": "security",
+      "expected": "Stored, masked in the API, masked value keeps it, malformed tokens refused, removable",
+      "test": "tests/test_claude_sign_in.py::LongLivedToken.test_the_token_is_stored_as_a_secret_and_validated"
+    },
+    {
+      "id": "env-file",
+      "requirement": "LAUNCHER_ENV",
+      "kind": "security",
+      "expected": "Env file holds the token, removed after the run; not in argv or plan; no seeded copy",
+      "test": "tests/test_claude_sign_in.py::LongLivedToken.test_the_container_receives_the_token_through_a_removed_env_file"
+    },
+    {
+      "id": "launcher-process",
+      "requirement": "LAUNCHER_ENV",
+      "kind": "failure",
+      "expected": "Token reaches a launcher with no configuration through its environment; injection-shaped value ignored",
+      "test": "tests/test_claude_sign_in.py::LongLivedToken.test_the_launcher_process_gets_the_token_from_its_parent_not_from_config"
+    },
+    {
+      "id": "codex-no-token",
+      "requirement": "LAUNCHER_ENV",
+      "kind": "negative",
+      "expected": "Codex runs get no Claude env file",
+      "test": "tests/test_claude_sign_in.py::LongLivedToken.test_codex_runs_never_receive_the_claude_token"
+    },
+    {
+      "id": "long-ready",
+      "requirement": "LONG_LIVED",
+      "kind": "positive",
+      "expected": "CONNECTED with a long-lived token even when the host is signed out",
+      "test": "tests/test_claude_sign_in.py::LongLivedToken.test_readiness_is_connected_with_a_long_lived_token"
+    }
+  ],
+  "recovery": "Never copy the refresh token to fix a failure. TASK-CLAUDE-SIGNIN-663, max three cycles.",
+  "test_environment": "Temporary CLAUDE_CONFIG_DIR, isolated config and runtime home in a disposable PHDLAB_DATA_DIR; docker and subprocess faked in unit tests. Live checks in docs/qa/evidence/claude-signin-663/README.md.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 12 tests on 19a1b3e, 3 failures and 8 errors (Codex guard passes). GREEN: 12/12. Live: short-token sharing and long-lived token turns completed.",
+    "red": {
+      "path": "docs/qa/evidence/claude-signin-663/red.json",
+      "sha256": "6f7681af088b9a90ab81f69df4f2d18d6b58ec34534456044849ff48b86cfce7",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/claude-signin-663/green.json",
+      "sha256": "0faf0fd951727f6a1258a2ab4a0b93596726b6f581d0416c7a31bc4251f25d55",
+      "exit_code": 0
+    }
+  }
+}

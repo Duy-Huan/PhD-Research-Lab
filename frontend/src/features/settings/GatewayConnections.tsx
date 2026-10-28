@@ -11,6 +11,7 @@ export function GatewayConnections({ config }: { config: AppConfig }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [feedback, setFeedback] = useState('');
   const [feedbackError, setFeedbackError] = useState(false);
+  const [claudeToken, setClaudeToken] = useState('');  // never prefilled: the backend returns the saved token masked
   const inventory = useQuery({ queryKey: ['models'], queryFn: () => api.get<ModelsResponse>('/api/models') });
   const profile = config.gateway?.cli_profile || 'review';
   async function action(key: string, execute: () => Promise<unknown>) {
@@ -43,7 +44,7 @@ export function GatewayConnections({ config }: { config: AppConfig }) {
     {inventory.isLoading && <p role="status">{t('Đang tải kết nối…', 'Loading connections…')}</p>}
     {inventory.isError && <p role="alert">{t('Không tải được danh mục. Làm mới để thử lại.', 'Could not load connections. Refresh to retry.')}</p>}
     <div className="list">
-      {(inventory.data?.providers || []).filter(provider => provider.transport === 'cli' || provider.transport === 'runtime').map(provider => {
+      {(Array.isArray(inventory.data?.providers) ? inventory.data!.providers : []).filter(provider => provider.transport === 'cli' || provider.transport === 'runtime').map(provider => {
         const hermes = provider.id === 'runtime:hermes';
         const cliId = provider.id.replace(/^cli:/, '');
         const readiness = provider.readiness || {};
@@ -64,7 +65,38 @@ export function GatewayConnections({ config }: { config: AppConfig }) {
           </dl>
           <p className="muted" style={{ fontSize: 12 }}>{hermes
             ? t('Chỉ model được Nous báo giá miễn phí. Memory, skills và hội thoại lưu theo project; không fallback trả phí.', 'Only models currently priced free by Nous. Memory, skills and conversations persist per project; no paid fallback.')
-            : t('Đăng nhập chính thức trong CLI cách ly; không nhập khóa OpenAI API cho ChatGPT subscription.', 'Official sign-in in the isolated CLI; ChatGPT subscription does not require an OpenAI API key.')}</p>
+            : cliId === 'codex'
+              ? t('Đăng nhập chính thức trong CLI cách ly; không nhập khóa OpenAI API cho ChatGPT subscription.', 'Official sign-in in the isolated CLI; ChatGPT subscription does not require an OpenAI API key.')
+              : t('Đăng nhập chính thức bằng tài khoản subscription trong CLI cách ly; không cần khóa API.', 'Official subscription sign-in in the isolated CLI; no API key needed.')}</p>
+          {cliId === 'claude_code' && <div style={{ border: '1px dashed var(--line)', borderRadius: 8, padding: 12, marginBottom: 8 }}>
+            <p style={{ marginTop: 0, fontSize: 13 }}>{config.gateway?.has_claude_code_oauth_token
+              ? t('Đã lưu token dài hạn: Claude Code trong PhD Lab dùng token này (khoảng 1 năm), không phụ thuộc phiên đăng nhập trên máy.',
+                'A long-lived token is saved: Claude Code in PhD Lab uses it (about a year), independent of this computer\'s sign-in.')
+              : t('Để Claude Code trong PhD Lab luôn đăng nhập: mở cmd, chạy lệnh dưới đây (đăng nhập bằng tài khoản Claude), rồi dán token nó in ra.',
+                'To keep Claude Code in PhD Lab signed in: open cmd, run the command below (sign in with your Claude account), then paste the token it prints.')}</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+              <code style={{ fontFamily: 'var(--mono)', background: 'var(--bg-2)', padding: '2px 8px', borderRadius: 6 }}>claude setup-token</code>
+              <button type="button" className="btn sm ghost" onClick={() => navigator.clipboard?.writeText('claude setup-token').catch(() => undefined)}>
+                {t('Sao chép lệnh', 'Copy command')}
+              </button>
+            </div>
+            <label className="field" style={{ marginBottom: 8 }}>
+              <span>{t('Token Claude dài hạn (claude setup-token)', 'Long-lived Claude token (claude setup-token)')}</span>
+              <input className="input" type="password" autoComplete="off" spellCheck={false} value={claudeToken}
+                placeholder="sk-ant-oat01-…" onChange={event => setClaudeToken(event.target.value)} />
+            </label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <button type="button" className="btn sm" disabled={busy !== null || !claudeToken.trim()}
+                onClick={() => { const value = claudeToken.trim(); setClaudeToken('');
+                  action('claude-token', () => api.post('/api/config', { gateway: { claude_code_oauth_token: value } })); }}>
+                {t('Lưu token', 'Save token')}
+              </button>
+              {config.gateway?.has_claude_code_oauth_token && <button type="button" className="btn sm ghost" disabled={busy !== null}
+                onClick={() => action('claude-token', () => api.post('/api/config', { gateway: { claude_code_oauth_token: '' } }))}>
+                {t('Xóa token', 'Remove token')}
+              </button>}
+            </div>
+          </div>}
           {hermes && <label className="field"><span>{t('Model mặc định của Hermes', 'Hermes default model')}</span>
             <select className="input" name="hermes-model" value={config.hermes?.model || ''} disabled={busy !== null}
               onChange={event => { const model = event.target.value; action('hermes-model', () => api.post('/api/config', { hermes: { model } })); }}>

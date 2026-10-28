@@ -66,3 +66,11 @@ class DynamicDiscovery(unittest.TestCase):
                          [('2d',['navigation.spec.ts','chat.spec.ts']),('3d',['office3d.spec.ts','new.3d.spec.ts'])])
         self.assertEqual(execution_groups([]),[])
 
+    def test_full_app_screen_audit_runs_in_its_own_2d_group(self):
+        # FQC-UI-QA-663: the 181-screen audit alone fills most of one invocation's 600 s budget in CI, so it gets its
+        # own invocation (same per-invocation timeout), still before 3D.
+        from devtools.verification.journeys import execution_groups
+        self.assertEqual(execution_groups(['office3d.spec.ts','qa_screens.spec.ts','navigation.spec.ts']),
+                         [('2d',['navigation.spec.ts']),('2d-audit',['qa_screens.spec.ts']),('3d',['office3d.spec.ts'])])
+        self.assertEqual(execution_groups(['qa_screens.spec.ts']),[('2d-audit',['qa_screens.spec.ts'])])
+
