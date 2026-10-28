@@ -212,16 +212,55 @@ def satisfied(path):
             return False
         if pin and v != pin: return False
     return True
+def norm(name): return name.strip().lower().replace("_", "-").replace(".", "-")
+def extra_index(items):
+    """v6.6.4: a local-version pin (torch==2.5.1+cpu / +cu124) only exists on the PyTorch index."""
+    for _, pin in items:
+        tag = (pin or "").partition("+")[2]
+        if tag == "cpu" or tag.startswith("cu"):
+            return ["--extra-index-url", "https://download.pytorch.org/whl/" + tag]
+    return []
+# v6.6.4: one install per environment at a time (live run: two runs installed into one venv concurrently).
+# Keyed by the environment's folder, kept in the temp folder (an environment folder may not be writable).
+import tempfile
+LOCK = os.environ.get("PHDLAB_DEPS_LOCK") or os.path.join(tempfile.gettempdir(), "phdlab-deps-" + hashlib.sha1(
+    os.path.normcase(os.path.abspath(sys.prefix)).encode(), usedforsecurity=False).hexdigest()[:12] + ".lock")
+WAIT = float(os.environ.get("PHDLAB_DEPS_LOCK_WAIT") or 1800)
+def lock():
+    import time
+    start = time.time(); told = False
+    while True:
+        try:
+            os.mkdir(LOCK)
+            open(os.path.join(LOCK, "owner"), "w").write(str(os.getpid())); return
+        except FileExistsError:
+            try:
+                stale = time.time() - os.path.getmtime(LOCK) > 3600
+            except OSError:
+                continue
+            if stale:
+                say("taking over a dependency lock older than 1 h"); shutil.rmtree(LOCK, ignore_errors=True); continue
+            if time.time() - start > WAIT:
+                say("another dependency install is still running in this environment; try again later"); sys.exit(4)
+            if not told:
+                say("waiting for another dependency install in this environment"); told = True
+            time.sleep(1)
+def unlock(): shutil.rmtree(LOCK, ignore_errors=True)
+lock()
+import atexit; atexit.register(unlock)
 if subprocess.call([sys.executable, "-m", "pip", "--version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) != 0:
     say("pip missing — bootstrapping it with ensurepip"); subprocess.call([sys.executable, "-m", "ensurepip", "--upgrade"])
 failed = []
+pinned = set()  # every package a requirements file names: the requirements govern its version
 for rel in plan.get("requirements_files", []):
     path = os.path.join(root, rel)
+    items, _ = req_items(path)
+    pinned |= {norm(n) for n, _ in items}
     h = hashlib.sha1(open(path, "rb").read(), usedforsecurity=False).hexdigest()
     if satisfied(path):  # every requirement present at its pinned version: no pip call (works offline)
         stamp[rel] = h
         continue
-    if pip(["-r", path]) == 0: stamp[rel] = h
+    if pip(["-r", path] + extra_index(items)) == 0: stamp[rel] = h
     else: failed.append(rel)
 declared = [d for d in plan.get("declared", []) if not have_dist(d.split("=")[0].split(">")[0].split("<")[0].split("[")[0].strip())]
 if declared and pip(declared) != 0: failed += declared
@@ -231,6 +270,9 @@ for it in plan.get("imports", []):
         ok = importlib.util.find_spec(it["module"]) is not None
     except Exception:
         ok = False
+    if not ok and norm(it["pip"]) in pinned:
+        # Live run: a failed pinned install was followed by an unpinned one (matplotlib 3.11.2 for a 3.9.2 pin).
+        say(it["pip"] + " is named in a requirements file; it is not installed unpinned"); continue
     if not ok and it["pip"] not in missing: missing.append(it["pip"])
 torch_like = [m for m in missing if m in ("torch", "torchvision", "torchaudio")]
 if torch_like and shutil.which("nvidia-smi") and not os.environ.get("PHDLAB_IN_DOCKER"):

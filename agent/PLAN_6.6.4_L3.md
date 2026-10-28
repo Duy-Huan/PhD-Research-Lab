@@ -57,6 +57,12 @@ Progress 2026-10-28:
   papers; the step is partial and names the provider. A8 (FQC-MISSIONS-LIVE-664): mission changes are published on
   the bus (agent-created missions appear live), the selected Topic survives a reload, the Missions header wraps in a
   narrow drawer (missions_live.spec.ts in the offline CI run).
+- A4 is done locally (FQC-DEPS-PINS-664): a failed pinned install is never replaced by an unpinned one, +cpu/+cuNNN pins
+  use the PyTorch index, one install per environment at a time (lock), new code projects do not inherit site-packages.
+  Phase A is complete locally; phase B (qualification tooling) is next.
+- CI on Linux (13000d6) found the narrow-drawer squeeze the live run reported: the sidebar's header icons shrank below the
+  20 px tap target at 1024 px. They now keep their size and have accessible names; the Topic "Explore" button is
+  translated (it was Vietnamese in English mode) and no longer wraps.
 
 | ID | Change | Criteria |
 |---|---|---|
