@@ -72,7 +72,7 @@ def main() -> int:
     if plan['errors']:
         print(json.dumps({'decision':'BLOCKED','errors':plan['errors']}));return 2
     boundary=subprocess.run([sys.executable,'-m','devtools.verification.unittest_worker',str(out/'boundaries.json'),
-                             'browser_acceptance_integration','--mode','REAL_LOCAL'],cwd=root,timeout=150)
+                             'browser_acceptance_integration','--mode','REAL_LOCAL'],cwd=root,timeout=225)
     if boundary.returncode:
         print(json.dumps({'decision':'FAIL','scope':'Disposable browser/worker capability boundaries',
                           'evidence':str(out/'boundaries.json')}));return boundary.returncode
@@ -86,7 +86,7 @@ def main() -> int:
             actual_env=dict(env,PHDLAB_E2E_OUTPUT=str(folder))
             command=[npx,'--no-install','playwright','test',*tests]
             result=subprocess.run(command,cwd=root/'frontend',env=actual_env,
-                                  timeout=1800 if args.profile in ('full','release') else 600)
+                                  timeout=2700 if args.profile in ('full','release') else 900)
             results=folder/'results.json'
             data=json.loads(results.read_text(encoding='utf-8')) if results.is_file() else {}
             stats=data.get('stats',{})

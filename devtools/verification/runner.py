@@ -55,7 +55,7 @@ def identity(root: Path) -> dict:
     return {'sha256': digest, 'files': files, 'normalization':'LF for declared text source types; binary bytes unchanged'}
 
 
-def run_command(name: str, argv: list[str], cwd: Path, out: Path, timeout: int = 1200) -> dict:
+def run_command(name: str, argv: list[str], cwd: Path, out: Path, timeout: int = 1800) -> dict:
     started = time.monotonic(); logfile = out / (name + '.log')
     env = dict(os.environ, PYTHONIOENCODING='utf-8', PHDLAB_QA_OFFLINE='1', CI='1',
                PHDLAB_VERIFY_PROGRESS=str(out / (name + '-current-test.json')))
@@ -191,7 +191,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if budget.can_repair() or args.repair_result else 2
     before = identity(ROOT)
     steps, cases, coverage, deferred_tests = [], [], {}, []
-    def execute(name: str, command: list[str], cwd: Path = ROOT, timeout: int = 1200) -> dict:
+    def execute(name: str, command: list[str], cwd: Path = ROOT, timeout: int = 1800) -> dict:
         step = run_command(name, command, cwd, out, timeout); steps.append(step); return step
     try:
         changed = changed_files(ROOT, args.base)
@@ -271,11 +271,11 @@ def main(argv: list[str] | None = None) -> int:
         if args.component == 'all' and args.profile in ('feature', 'pr', 'full', 'release'):
             execute('test-discovery',[sys.executable,'scripts/discover_tests.py','--out',str(out/'test-inventory.json')])
             execute('workflow-contract-policy', [sys.executable, 'scripts/quality_gate.py', 'policy'])
-            execute('workflow-syntax', [sys.executable, 'scripts/check_workflows.py'], timeout=90)
+            execute('workflow-syntax', [sys.executable, 'scripts/check_workflows.py'], timeout=135)
             node = shutil.which('node.exe' if os.name == 'nt' else 'node') or 'node'
             policy_tests = sorted(str(path) for path in (ROOT/'.github/scripts').glob('*.test.cjs'))
             if policy_tests:
-                execute('github-policy-tests', [node, '--test', *policy_tests], timeout=60)
+                execute('github-policy-tests', [node, '--test', *policy_tests], timeout=90)
             else:
                 steps.append({'id':'github-policy-tests','status':'BLOCKED','details':'Explicit policy test files are missing; never invoke unbounded Node discovery'})
         python_files = [p for p in changed if p.endswith('.py') and (ROOT/p).is_file()]
@@ -287,7 +287,7 @@ def main(argv: list[str] | None = None) -> int:
                         '--layer', 'all' if args.profile in ('full','release') else 'software',
                         '--i-understand-full-suite', '--require-complete', '--coverage-min', str(BACKEND_COVERAGE_MIN),
                         '--output-dir', str(out/'backend')],
-                        timeout=1800)  # measured Windows CI 13.7-18.3m (6.6.0); 1500s hit at case 1287/1313, no stuck test (6.6.3)
+                        timeout=2700)  # measured Windows CI 13.7-18.3m (6.6.0); 1500s hit at case 1287/1313, no stuck test (6.6.3); 1.5x by the owner after 6.6.3
                 report_path = out/'backend/report.json'
                 if report_path.is_file():
                     backend_report=json.loads(report_path.read_text(encoding='utf-8'))
@@ -320,7 +320,7 @@ def main(argv: list[str] | None = None) -> int:
                     browser_command=[sys.executable,'-m','devtools.verification.browser',
                                      '--profile',args.profile,'--base',args.base,'--out',str(out/'browser')]
                     if args.profile in ('feature','pr'): browser_command.append('--offline-all')
-                    execute('deterministic-browser', browser_command, timeout=1900 if args.profile in ('full','release') else 700)
+                    execute('deterministic-browser', browser_command, timeout=2850 if args.profile in ('full','release') else 1050)
                     boundaries=out/'browser/boundaries.json'
                     if boundaries.is_file():
                         cases.extend({**case,'mode':'REAL_LOCAL'} for case in json.loads(boundaries.read_text(encoding='utf-8')).get('cases',[]))
