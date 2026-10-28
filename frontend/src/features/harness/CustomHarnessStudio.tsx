@@ -851,8 +851,8 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
             </span>
           </div>
 
-          {/* Mode Switcher */}
-          <div
+          {/* Mode Switcher: only where an automated view exists (Missions); the standalone studio is the canvas */}
+          {onSwitchToAutomated && <div
             style={{
               display: 'inline-flex',
               background: 'var(--bg-2)',
@@ -866,7 +866,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
               className={`btn xs ${studioMode === 'automated' ? 'accent' : 'ghost'}`}
               onClick={() => {
                 setStudioMode('automated');
-                if (onSwitchToAutomated) onSwitchToAutomated();
+                onSwitchToAutomated();
               }}
               style={{ borderRadius: 4, display: 'flex', alignItems: 'center', gap: 4, padding: '3px 8px' }}
             >
@@ -882,7 +882,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
               <Sparkles size={12} />
               <span>{t('Thủ công Kéo thả', 'Visual Drag & Drop')}</span>
             </button>
-          </div>
+          </div>}
         </div>
 
         {/* Workflow Action Bar */}
@@ -1295,13 +1295,14 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <b style={{ fontSize: 11.5, color: 'var(--ink)' }}>{ag.name}</b>
+                        <b style={{ fontSize: 11.5, color: 'var(--ink)' }}>{(language === 'en' && ag.name_en) || ag.name}</b>
                         <button
                           type="button"
                           className="btn xs ghost"
                           onClick={() =>
                             addNodeToCanvas('agent_task', undefined, {
                               label: ag.name,
+                              label_en: ag.name_en,
                               config: {
                                 agent_role: ag.role,
                                 provider: ag.provider,
@@ -1319,7 +1320,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                         Role: {ag.role} · {ag.provider}
                       </div>
                       <p className="muted" style={{ margin: 0, fontSize: 11, lineHeight: 1.35 }}>
-                        {ag.purpose}
+                        {(language === 'en' && ag.purpose_en) || ag.purpose}
                       </p>
                       {ag.skills?.length > 0 && (
                         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 2 }}>
@@ -1393,7 +1394,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                     >
                       <b style={{ fontSize: 12 }}>{generatedWorkflow.name}</b>
                       <p className="muted" style={{ margin: 0, fontSize: 11, lineHeight: 1.35 }}>
-                        {generatedWorkflow.description}
+                        {(language === 'en' && (generatedWorkflow as { description_en?: string }).description_en) || generatedWorkflow.description}
                       </p>
                       <div style={{ fontSize: 10.5, color: 'var(--ok)' }}>
                         ✓ {generatedWorkflow.nodes?.length} nodes · {generatedWorkflow.edges?.length} edges ({t('hợp lệ', 'valid')})
@@ -1751,8 +1752,8 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
                           }}
                         >
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
-                              <b>{st.label}</b>
+                            <div title={(language === 'en' && (st as { label_en?: string }).label_en) || st.label} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
+                              <b>{(language === 'en' && (st as { label_en?: string }).label_en) || st.label}</b>
                             </div>
                             <span className={`chip xs ${st.status === 'completed' ? 'ok' : st.status === 'blocked' ? 'muted' : st.status === 'failed' ? 'err' : 'muted'}`}>
                               {st.status}
@@ -1959,7 +1960,7 @@ export const CustomHarnessStudio: React.FC<CustomHarnessStudioProps> = ({
             <tbody>
               {Object.values(latestReport.node_results).map((nr) => (
                 <tr key={nr.node_id} style={{ borderBottom: '1px solid var(--line-2)' }}>
-                  <td style={{ padding: '6px 8px', fontWeight: 600 }}>{nr.label}</td>
+                  <td style={{ padding: '6px 8px', fontWeight: 600 }}>{(language === 'en' && (nr as { label_en?: string }).label_en) || nr.label}</td>
                   <td style={{ padding: '6px 8px', color: 'var(--accent)' }}>{nr.tool_name}</td>
                   <td style={{ padding: '6px 8px' }}>
                     <span className={`chip ${nr.passed ? 'ok' : 'err'}`} style={{ fontSize: 10.5 }}>

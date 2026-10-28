@@ -1,0 +1,174 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_autonomy_qa_664.AutonomyLevelsInCi.test_a_missions_or_policy_change_selects_the_levels_outside_the_offline_run",
+      "status": "PASS",
+      "duration": 0.0178,
+      "details": null
+    },
+    {
+      "id": "test_autonomy_qa_664.AutonomyLevelsInCi.test_the_four_autonomy_levels_and_harness_run_on_every_ci_without_a_model",
+      "status": "PASS",
+      "duration": 0.0114,
+      "details": null
+    },
+    {
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_architect_workflow_has_english_description_and_node_names",
+      "status": "PASS",
+      "duration": 0.0003,
+      "details": null
+    },
+    {
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_generating_and_running_is_fast",
+      "status": "PASS",
+      "duration": 0.0071,
+      "details": null
+    },
+    {
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes",
+      "status": "PASS",
+      "duration": 0.0025,
+      "details": null
+    },
+    {
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "status": "PASS",
+      "duration": 0.0005,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_autonomy_qa_664.AutonomyLevelsInCi.test_a_missions_or_policy_change_selects_the_levels_outside_the_offline_run",
+      "id": "test_autonomy_qa_664.AutonomyLevelsInCi.test_a_missions_or_policy_change_selects_the_levels_outside_the_offline_run (changed='frontend/src/features/missions/AutonomyPanel.tsx')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.AutonomyLevelsInCi.test_a_missions_or_policy_change_selects_the_levels_outside_the_offline_run",
+      "id": "test_autonomy_qa_664.AutonomyLevelsInCi.test_a_missions_or_policy_change_selects_the_levels_outside_the_offline_run (changed='backend/agent/autonomy.py')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_architect_workflow_has_english_description_and_node_names",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_architect_workflow_has_english_description_and_node_names (level='L2')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_architect_workflow_has_english_description_and_node_names",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_architect_workflow_has_english_description_and_node_names (level='L3')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_architect_workflow_has_english_description_and_node_names",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_architect_workflow_has_english_description_and_node_names (level='L4')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes (agent='agent-principal-investigator')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes (agent='agent-literature-specialist')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes (agent='agent-experiment-coder')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes (agent='agent-rigorous-reviewer')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes (agent='agent-scientific-writer')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes (agent='agent-benchmark-evaluator')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-start')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-literature')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-hypothesis')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-gate-hypothesis')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-native-code')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-evaluation')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-paperorchestra')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-gate-final')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-end')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 6,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-l3sq984s",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

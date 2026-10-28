@@ -1,0 +1,128 @@
+{
+  "id": "FQC-AUTONOMY-QA-664",
+  "title": "Missions L1–L4 and Harness Studio L2–L4 checked by Playwright on every CI run",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want the four L1–L4 workflow flows and the Harness Studio levels tested with Playwright and added to CI/CD (2026-10-28), so a broken flow is caught on every commit, and every defect the tests find is fixed.",
+  "requirements": [
+    {
+      "id": "CI_SELECTION",
+      "description": "autonomy_levels.spec.ts and harness_levels.spec.ts need no model and are selected by routine CI; a Missions UI or autonomy-policy change selects the L1–L4 spec in the pr profile."
+    },
+    {
+      "id": "HARNESS_ENGLISH",
+      "description": "Preset agents, AI Architect workflows and visual-runtime reports have English names and texts for the English interface."
+    },
+    {
+      "id": "HONEST_STATE",
+      "description": "Nodes the visual runtime did not execute are never reported as completed; a failed L1–L4 step shows which step failed and why."
+    }
+  ],
+  "nonfunctional": [
+    "frontend/e2e/autonomy_levels.spec.ts: 5 tests (plans per level and the L4 reproduction rule, L1 step review and failure reason, L2 rejection, L3 coordination without step review, L4 cancellation); the workflows name a model that cannot exist, so model steps fail the same way with or without LM Studio",
+    "frontend/e2e/harness_levels.spec.ts: 5 tests (Team, Architect and canvas pass uiAudit in English; L2/L3/L4 architect workflows run control flow and report unexecuted nodes as blocked; no dead mode switch)",
+    "Frontend fixes: AutonomyPanel names the failed step and its reason, and no longer flashes 'Enable Research OS' while loading; Harness shows English agent names, architect description and step labels, and hides the mode switch when there is no automated view"
+  ],
+  "inputs": [
+    "devtools/verification/uat_config.json journeys",
+    "workflow_architect.PRESET_AGENTS",
+    "generate_workflow_from_objective(objective, level)",
+    "workflow_runtime.execute_workflow_graph"
+  ],
+  "outputs": [
+    "CI browser plan including both specs",
+    "name_en / purpose_en / label_en / description_en fields",
+    "English blocked-node summaries"
+  ],
+  "preconditions": [
+    "None"
+  ],
+  "postconditions": [
+    "Every CI run executes the L1–L4 and Harness level specs without a model"
+  ],
+  "dependencies": [
+    "devtools/verification/journeys.py (browser_plan, execution_groups)",
+    "frontend/e2e/uiAudit.ts"
+  ],
+  "affected_modules": [
+    "devtools/verification/uat_config.json",
+    "backend/agent/workflow_architect.py",
+    "backend/execution/workflow_runtime.py",
+    "backend/execution/harness.py",
+    "frontend/src/features/missions/AutonomyPanel.tsx",
+    "frontend/src/features/harness/CustomHarnessStudio.tsx",
+    "frontend/src/shared/api/types.ts"
+  ],
+  "acceptance_criteria": [
+    "autonomy_levels.spec.ts 5/5 and harness_levels.spec.ts 5/5, repeated",
+    "tests/test_autonomy_qa_664.py 6/6; RED on 49df2d0",
+    "The offline CI plan contains both specs"
+  ],
+  "scenarios": [
+    {
+      "id": "ci-selects-levels",
+      "requirement": "CI_SELECTION",
+      "kind": "positive",
+      "expected": "Both specs are in the offline-all plan, in the 2D group, and need no model",
+      "test": "tests/test_autonomy_qa_664.py::AutonomyLevelsInCi.test_the_four_autonomy_levels_and_harness_run_on_every_ci_without_a_model"
+    },
+    {
+      "id": "unrelated-change",
+      "requirement": "CI_SELECTION",
+      "kind": "negative",
+      "expected": "A README change does not select the L1–L4 spec in the pr profile; a Missions or policy change does",
+      "test": "tests/test_autonomy_qa_664.py::AutonomyLevelsInCi.test_a_missions_or_policy_change_selects_the_levels_outside_the_offline_run"
+    },
+    {
+      "id": "blocked-not-completed",
+      "requirement": "HONEST_STATE",
+      "kind": "failure",
+      "expected": "Unexecuted research and agent nodes are reported as not completed, in English",
+      "test": "tests/test_autonomy_qa_664.py::HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed"
+    },
+    {
+      "id": "every-level",
+      "requirement": "HARNESS_ENGLISH",
+      "kind": "boundary",
+      "expected": "L2, L3 and L4 architect workflows all carry English node names and description",
+      "test": "tests/test_autonomy_qa_664.py::HarnessLanguage.test_architect_workflow_has_english_description_and_node_names"
+    },
+    {
+      "id": "presets-from-code",
+      "requirement": "HARNESS_ENGLISH",
+      "kind": "security",
+      "expected": "Preset agents always come from code (a saved file cannot replace them) and carry English names",
+      "test": "tests/test_autonomy_qa_664.py::HarnessLanguage.test_preset_agents_have_english_names_and_purposes"
+    },
+    {
+      "id": "fast",
+      "requirement": "HONEST_STATE",
+      "kind": "performance",
+      "expected": "50 generate-and-run cycles in under 5 s",
+      "test": "tests/test_autonomy_qa_664.py::HarnessLanguage.test_generating_and_running_is_fast"
+    }
+  ],
+  "recovery": "Fix the defect at its source; never make a model step look executed. TASK-AUTONOMY-QA-664, max three cycles.",
+  "test_environment": "Disposable PHDLAB_DATA_DIR (D:/qa663) on loopback port 8791, restarted after the backend changes; Chromium headless; evidence in docs/qa/evidence/autonomy-qa-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 6 tests on 49df2d0, 5 failing (the speed check passes on both). GREEN: 6/6. Playwright: first runs 5/5 and 2/5 failed; final 5/5 + 5/5.",
+    "red": {
+      "path": "docs/qa/evidence/autonomy-qa-664/red.json",
+      "sha256": "0ed23d76117a1d218d86f110555d5e1dc6502b22733605a747d86b09699be996",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/autonomy-qa-664/green.json",
+      "sha256": "a8ade5f0cdf4087740c1bd75d6d62a86888587d9835cb073ae34da7245b8ae50",
+      "exit_code": 0
+    }
+  }
+}

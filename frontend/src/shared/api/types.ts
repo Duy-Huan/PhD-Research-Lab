@@ -1005,8 +1005,10 @@ export interface WorkflowNodeMetadata {
 export interface AgentProfile {
   id: string;
   name: string;
+  name_en?: string;
   role: string;
   purpose: string;
+  purpose_en?: string;
   system_prompt: string;
   provider: string;
   model?: string;

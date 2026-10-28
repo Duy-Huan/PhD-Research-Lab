@@ -164,7 +164,7 @@ export const AiToolsSettings: React.FC = () => {
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t('aiTools.searchTools')}
             aria-label={t('aiTools.searchTools')} style={{ flex: 1 }} data-testid="tool-search" />
         </div>
-        <motion.ul layout tabIndex={0} aria-label={t('aiTools.registry')} style={{ listStyle: 'none', padding: 0, margin: 0, maxHeight: 280, overflowY: 'auto' }}>
+        <motion.ul layout tabIndex={0} aria-label={t('aiTools.registry')} aria-busy={!tools} style={{ listStyle: 'none', padding: 0, margin: 0, maxHeight: 280, overflowY: 'auto' }}>
           <AnimatePresence initial={false}>
             {(tools || []).slice(0, 60).map((tool) => {
               const Icon = KIND_ICON[tool.kind] || Sparkles;
@@ -182,6 +182,7 @@ export const AiToolsSettings: React.FC = () => {
               );
             })}
           </AnimatePresence>
+          {!tools && <li style={{ color: 'var(--muted)' }}>{t('aiTools.loadingTools')}</li>}
           {tools && tools.length === 0 && <li style={{ color: 'var(--muted)' }}>{t('aiTools.noTools')}</li>}
         </motion.ul>
       </Card>

@@ -39,7 +39,7 @@ export const AutonomyPanel: React.FC = () => {
   return <section aria-label="Workflows L1–L4" style={{ display: 'grid', gap: 12 }}>
     <h3>Workflows L1–L4</h3>
     <p>{t('Tối đa 4 workflow độc lập. Model local dùng chung giới hạn tài nguyên. L3/L4 là policy thử nghiệm; kiểm tra kỹ thuật chưa xác nhận tính đúng đắn khoa học.', 'Up to 4 independent workflows. Local models share resource limits. L3/L4 are experimental policies; technical checks do not establish scientific validity.')}</p>
-    {!settings.data?.enabled && <button className="btn" disabled={busy} onClick={() => perform(() => api.put('/api/research/os-settings', { enabled: true }))}>{t('Bật Research OS', 'Enable Research OS')}</button>}
+    {settings.data && !settings.data.enabled && <button className="btn" disabled={busy} onClick={() => perform(() => api.put('/api/research/os-settings', { enabled: true }))}>{t('Bật Research OS', 'Enable Research OS')}</button>}
     {(error || missions.error || papers.error || protocols.error || settings.error) && <p role="alert">{error || String(missions.error || papers.error || protocols.error || settings.error)}</p>}
     <form onSubmit={event => { event.preventDefault(); perform(() => api.post(`${base}/missions`, autonomyPlan(activeTopicId, level, objective, model, sources, protocols.data?.protocols.find(p => p.id === protocolId), protocols.data?.protocols.find(p => p.id === reproductionId)))); }} style={{ display: 'grid', gap: 8 }}>
       <label>{t('Chế độ tương tác', 'Interaction level')}<select className="input" value={level} onChange={e => setLevel(e.target.value as AutonomyLevel)}>
@@ -66,13 +66,16 @@ export const AutonomyPanel: React.FC = () => {
     {missions.isLoading && <p role="status">{t('Đang tải…', 'Loading…')}</p>}
     {missions.data?.missions.filter(m => m.payload.spec.autonomy).map(m => {
       const pending = m.tasks.find(task => task.status === 'completed' && !task.payload.human_review);
+      const broken = m.tasks.find(task => task.status === 'failed' || task.status === 'blocked');
+      const failure = broken && `${t('Bước', 'Step')} ${broken.id} ${t('thất bại', 'failed')}: ${broken.payload.result?.error || t('không có lý do', 'no reason recorded')}`;
+      const alert = [m.payload.blocking_reason, failure].filter(Boolean).join(' · ');
       const note = notes[m.id] || '';
       const url = `${base}/missions/${m.id}`;
       const review = (accept: boolean) => perform(() => api.post(`${url}/steps/${pending!.id}/review`, { plan_digest: m.payload.plan_digest, result_digest: pending!.payload.result_digest, accept, note }));
       return <article key={m.id} style={{ border: '1px solid var(--line)', padding: 12, minWidth: 0 }}>
         <h4>{m.payload.spec.autonomy!.level} · {m.payload.spec.objective}</h4>
         <p role="status">{m.status} · {t('Review khoa học: chờ xác nhận', 'Scientific review: pending')}</p>
-        {m.payload.blocking_reason && <p role="alert">{m.payload.blocking_reason}</p>}
+        {alert && <p role="alert">{alert}</p>}
         <details><summary>{t('Kế hoạch và kết quả', 'Plan and results')}</summary><pre style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{JSON.stringify({ digest: m.payload.plan_digest, spec: m.payload.spec, tasks: m.tasks }, null, 2)}</pre></details>
         <label>{t('Ghi chú review', 'Review note')}<input className="input" value={note} onChange={e => setNotes({ ...notes, [m.id]: e.target.value })} /></label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>

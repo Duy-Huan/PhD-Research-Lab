@@ -111,7 +111,7 @@ def _execute_single_node(node: dict[str, Any], context: dict[str, Any], executio
     ntype = node.get("type") or data.get("node_type") or "harnessNode"
     config = data.get("config") or data.get("params") or {}
     result = {
-        "node_id": nid, "node_type": ntype, "label": data.get("label", nid),
+        "node_id": nid, "node_type": ntype, "label": data.get("label", nid), "label_en": data.get("label_en") or data.get("label", nid),
         "status": "blocked", "passed": False, "out_branch": "out", "metrics": {},
         "execution_mode": "NOT_EXECUTED", "execution": {"executed": False},
         "summary": f"Node '{ntype}' has no authorized executable adapter in the visual runtime. Use the mission runtime for actual research.",
@@ -244,13 +244,13 @@ def execute_workflow_graph(
             res = {
                 "node_id": curr_id,
                 "node_type": curr_node.get("type") or curr_node.get("data", {}).get("node_type") or "harnessNode",
-                "label": curr_node.get("data", {}).get("label", curr_id),
+                "label": curr_node.get("data", {}).get("label", curr_id), "label_en": curr_node.get("data", {}).get("label_en") or curr_node.get("data", {}).get("label", curr_id),
                 "status": "blocked",
                 "passed": False,
                 "duration_s": 0.0,
                 "out_branch": "fail",
                 "metrics": {},
-                "summary": "Tác vụ bị chặn do các bước phụ thuộc trước đó không hoàn thành hoặc adapter chưa sẵn sàng.",
+                "summary": "Blocked: an earlier step did not complete or its adapter is not available.",
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             }
         else:
