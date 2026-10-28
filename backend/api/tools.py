@@ -161,6 +161,27 @@ async def clients_unregister_antigravity():
     return await _call(mcp_clients.unregister_antigravity)
 
 
+# v6.6.2 ChatGPT connector: local (loopback) owner controls for the public gateway.
+@router.get("/api/tools/clients/chatgpt")
+async def chatgpt_status():
+    from backend.tools import chatgpt_gateway
+    return chatgpt_gateway.status()
+
+
+@router.post("/api/tools/clients/chatgpt/{action}")
+async def chatgpt_action(action: str, body: dict = Body(default={})):
+    from backend.tools import chatgpt_gateway as G
+    if action == "enable":
+        return await _call(G.enable)
+    if action in ("disable", "kill"):
+        return G.kill_switch()
+    if action == "refresh-ranges":
+        return await _call(G.refresh_ranges)
+    if action in ("approve", "deny"):
+        return await _call(G.approve if action == "approve" else G.deny, str(body.get("request_id", "")))
+    raise HTTPException(404, "Unsupported ChatGPT connector action")
+
+
 @router.get("/api/tools/proposals")
 async def proposal_list():
     return {"proposals": await _call(P.listing)}
@@ -204,3 +225,29 @@ async def invoke(tool_id: str, request: Request, body: dict = Body(default={})):
 @router.get("/api/tools/{tool_id}")
 async def describe(tool_id: str, version: str = ""):
     return await _call(R.REGISTRY.describe, tool_id, version)
+
+
+# v6.6.2 one live roster of every agent (3D Lab, Harness, status views)
+@router.get("/api/agents/roster")
+async def agents_roster():
+    from backend.agent import roster
+    return await run_in_threadpool(roster.roster)
+
+
+@router.get("/api/agents/roster/stream")
+async def agents_roster_stream(once: int = 0):
+    """SSE: `event: roster` with the full snapshot now and whenever it changes (checked every second)."""
+    from backend.agent import roster
+    import json as _json
+
+    async def gen():
+        last = ""
+        while True:
+            snap = await run_in_threadpool(roster.roster)
+            if snap["digest"] != last:
+                last = snap["digest"]
+                yield "event: roster\ndata: " + _json.dumps(snap, ensure_ascii=False, default=str) + "\n\n"
+            if once:
+                return
+            await asyncio.sleep(1)
+    return stream(gen())

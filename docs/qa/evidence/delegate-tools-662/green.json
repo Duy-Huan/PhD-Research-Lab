@@ -1,0 +1,41 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_delegate_tools.DelegateTools.test_delegation_needs_compute_and_workspace_write",
+      "status": "PASS",
+      "duration": 0.0918,
+      "details": null
+    },
+    {
+      "id": "test_delegate_tools.DelegateTools.test_delegation_runs_through_the_gateway_and_returns_real_files",
+      "status": "PASS",
+      "duration": 0.2337,
+      "details": null
+    },
+    {
+      "id": "test_delegate_tools.DelegateTools.test_only_terms_compatible_cli_agents_are_delegates",
+      "status": "PASS",
+      "duration": 1.0036,
+      "details": null
+    },
+    {
+      "id": "test_delegate_tools.DelegateTools.test_unavailable_cli_is_reported_not_faked",
+      "status": "PASS",
+      "duration": 0.0711,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 4,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-_rh6ma1v",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

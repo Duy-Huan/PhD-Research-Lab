@@ -183,6 +183,14 @@ class TeeStream:
             s.flush()
 
 
+def coverage_verdict(summary: dict, minimum: float) -> tuple[bool, str]:
+    """v6.6.2: (met, G9 status). minimum <= 0 keeps coverage informational; missing data never passes a gate."""
+    if minimum <= 0:
+        return True, "INFORMATIONAL" if summary else "UNAVAILABLE"
+    met = bool(summary) and float(summary.get("percent_covered", 0.0)) >= minimum
+    return met, "PASS" if met else "FAIL"
+
+
 def run_gate(
     profile: str = "smoke",
     coverage_enabled: bool = True,
@@ -190,6 +198,7 @@ def run_gate(
     allow_full: bool = False,
     require_complete: bool = False,
     layer: str = 'software',
+    coverage_min: float = 0.0,
 ) -> int:
     output_dir = (output_dir or DEFAULT_OUTPUT_DIR).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -298,6 +307,9 @@ def run_gate(
         except Exception as e:
             print(f"Warning: Coverage reporting failed: {e}")
 
+    # v6.6.2 owner policy (2026-10-27): combined line+branch coverage is a hard gate when a minimum is given.
+    coverage_met, coverage_gate = coverage_verdict(coverage_summary, coverage_min)
+
     # Write unittest.log
     with open(log_file_path, "w", encoding="utf-8") as lf:
         lf.write(log_buffer.getvalue())
@@ -328,7 +340,7 @@ def run_gate(
         "G6_Security_ASVS": "PASS" if passed_all else "FAIL",
         "G7_Multi_Provider": "PASS" if passed_all else "FAIL",
         "G8_Resource_Guard": "PASS" if passed_all else "FAIL",
-        "G9_Coverage": "INFORMATIONAL" if coverage_summary else "UNAVAILABLE",
+        "G9_Coverage": coverage_gate,
         "G10_Performance": "PASS" if elapsed < 600 else "FAIL",
         "G11_Observability": "PASS" if passed_all else "FAIL",
         "G12_Cross_Platform": "BLOCKED",
@@ -347,6 +359,8 @@ def run_gate(
                        'failures': len(result.failures), 'errors': len(result.errors), 'skipped': len(result.skipped)}, coverage_summary)
     if not source_stable and decision != 'FAIL':
         decision = 'BLOCKED'
+    if not coverage_met:
+        decision = 'FAIL'
 
     report = {
         "metadata": {
@@ -376,7 +390,8 @@ def run_gate(
             "overall_decision": decision,
         },
         "coverage": coverage_summary,
-        "coverage_policy": {'mode':'INFORMATIONAL','percentage_gate':False},
+        "coverage_policy": ({'mode':'GATE','percentage_gate':True,'minimum_percent':coverage_min,'met':coverage_met}
+                            if coverage_min > 0 else {'mode':'INFORMATIONAL','percentage_gate':False}),
         "deferred_tests": deferred_tests,
         "quality_gates": gates,
         "cases": getattr(result, "test_cases_recorded", []),
@@ -399,12 +414,14 @@ def run_gate(
     print(f"Tests Run: {result.testsRun} | Passed: {report['summary']['passed']} | Failures: {len(result.failures)} | Errors: {len(result.errors)} | Skipped: {len(result.skipped)}")
     print(f"Duration: {elapsed:.2f}s")
     if coverage_summary:
+        if coverage_min > 0:
+            print(f"Coverage gate: {'PASS' if coverage_met else 'FAIL'} (minimum {coverage_min}%)")
         print(f"Coverage combined: {coverage_summary.get('percent_covered')}%; lines {coverage_summary.get('covered_lines')}/{coverage_summary.get('num_statements')}; branches {coverage_summary.get('covered_branches')}/{coverage_summary.get('num_branches')}")
     print(f"Report: {report_file_path}")
     print(f"Log: {log_file_path}")
     print("=" * 60)
 
-    return 0 if passed_all and source_stable and (not require_complete or decision == 'CONDITIONAL') else 1
+    return 0 if passed_all and source_stable and coverage_met and (not require_complete or decision == 'CONDITIONAL') else 1
 
 
 def main() -> int:
@@ -413,6 +430,8 @@ def main() -> int:
     parser.add_argument("--no-coverage", action="store_true", help="Disable coverage instrumentation")
     parser.add_argument('--require-complete', action='store_true', help='Require every selected regression to execute and pass; coverage is informational')
     parser.add_argument('--layer', choices=['software','live','all'], default='software')
+    parser.add_argument('--coverage-min', type=float, default=0.0,
+                        help='Fail when combined line+branch coverage is below this percentage (0 = informational)')
     parser.add_argument("--i-understand-full-suite", action="store_true", help="Confirm execution of the full test suite")
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR, help="Directory to save report and logs")
     args = parser.parse_args()
@@ -424,6 +443,7 @@ def main() -> int:
         allow_full=args.i_understand_full_suite,
         require_complete=args.require_complete,
         layer=args.layer,
+        coverage_min=args.coverage_min,
     )
 
 

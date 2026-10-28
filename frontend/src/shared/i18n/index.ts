@@ -1,5 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import { aiToolsEn, aiToolsVi } from './aiTools';
 
 export const defaultLanguage: 'vi' | 'en' =
   (typeof window !== 'undefined' &&
@@ -9,6 +10,7 @@ export const defaultLanguage: 'vi' | 'en' =
 export const resources = {
   vi: {
     translation: {
+      ...aiToolsVi,
       common: {
         save: 'Lưu',
         cancel: 'Hủy',
@@ -91,6 +93,7 @@ export const resources = {
   },
   en: {
     translation: {
+      ...aiToolsEn,
       common: {
         save: 'Save',
         cancel: 'Cancel',

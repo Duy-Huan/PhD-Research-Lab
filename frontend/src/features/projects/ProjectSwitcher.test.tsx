@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { within, screen, fireEvent, waitFor } from '@testing-library/react';
 import { renderWithProviders } from '../../test/test-utils';
 import { ProjectSwitcher } from './ProjectSwitcher';
 import { useUIStore } from '../../shared/state/uiStore';
@@ -97,6 +97,18 @@ describe('ProjectSwitcher', () => {
         references_dir: 'D:\\research\\papers',
       });
     });
+  });
+
+  it('saves the default folder for new projects (v6.6.2)', async () => {
+    vi.spyOn(api, 'get').mockImplementation(async (url: string) =>
+      (url === '/api/config' ? { ui: { projects_root: 'E:\Research' } } : { projects: [] }) as any);
+    const postSpy = vi.spyOn(api, 'post').mockResolvedValue({} as any);
+    renderWithProviders(<ProjectSwitcher />);
+    fireEvent.click(screen.getByRole('button', { name: /Dự án mới|New Project/i }));
+    const root = within(screen.getByTestId('projects-root')).getByRole('textbox');
+    await waitFor(() => expect(root).toHaveValue('E:\Research'));
+    fireEvent.change(root, { target: { value: 'F:\Thesis' } });
+    await waitFor(() => expect(postSpy).toHaveBeenCalledWith('/api/config', { ui: { projects_root: 'F:\Thesis' } }));
   });
 
   it('opens existing project from machine using Open Project form', async () => {

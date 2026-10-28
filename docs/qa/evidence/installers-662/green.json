@@ -1,0 +1,89 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_all_promotion_stages_require_software_regression_without_live_credits",
+      "status": "PASS",
+      "duration": 0.0147,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_dev_push_cannot_emit_a_skipped_required_qa_context",
+      "status": "PASS",
+      "duration": 0.0118,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_legacy_workflows_are_replaced_and_3d_is_not_left_diff_optional",
+      "status": "PASS",
+      "duration": 0.0112,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_policy_dependencies_precede_targeted_worker_execution",
+      "status": "PASS",
+      "duration": 0.0108,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_pr_quality_has_no_release_or_production_approval",
+      "status": "PASS",
+      "duration": 0.0118,
+      "details": null
+    },
+    {
+      "id": "test_ci_workflow_contract.WorkflowContract.test_release_runs_only_for_main_and_uses_exact_provenance",
+      "status": "PASS",
+      "duration": 0.0076,
+      "details": null
+    },
+    {
+      "id": "test_installed_data_dir.DataFolder.test_explicit_data_folder_always_wins",
+      "status": "PASS",
+      "duration": 0.0026,
+      "details": null
+    },
+    {
+      "id": "test_installed_data_dir.DataFolder.test_installed_copy_uses_the_per_user_folder",
+      "status": "PASS",
+      "duration": 0.0016,
+      "details": null
+    },
+    {
+      "id": "test_installed_data_dir.Staging.test_embedded_python_is_pinned_and_verified",
+      "status": "PASS",
+      "duration": 0.0026,
+      "details": null
+    },
+    {
+      "id": "test_installed_data_dir.Staging.test_merge_adds_verified_installers_once",
+      "status": "PASS",
+      "duration": 0.065,
+      "details": null
+    },
+    {
+      "id": "test_installed_data_dir.Staging.test_stage_unpacks_the_qualified_archives_and_marks_the_install",
+      "status": "PASS",
+      "duration": 0.0171,
+      "details": null
+    },
+    {
+      "id": "test_installed_data_dir.Staging.test_tampered_or_unsafe_archives_are_refused",
+      "status": "PASS",
+      "duration": 0.0191,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 12,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-vn_yeel9",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

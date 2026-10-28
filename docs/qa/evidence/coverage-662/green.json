@@ -1,0 +1,1026 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_remote_runner_bundle.RemoteRunner.test_checksums_and_bundle_paths_are_enforced_before_running",
+      "status": "PASS",
+      "duration": 0.0239,
+      "details": null
+    },
+    {
+      "id": "test_remote_runner_bundle.RemoteRunner.test_completed_run_collects_artifacts_metrics_and_a_results_zip",
+      "status": "PASS",
+      "duration": 0.1731,
+      "details": null
+    },
+    {
+      "id": "test_remote_runner_bundle.RemoteRunner.test_dataset_checksums_are_verified",
+      "status": "PASS",
+      "duration": 0.0647,
+      "details": null
+    },
+    {
+      "id": "test_remote_runner_bundle.RemoteRunner.test_existing_outputs_are_never_overwritten",
+      "status": "PASS",
+      "duration": 0.0055,
+      "details": null
+    },
+    {
+      "id": "test_remote_runner_bundle.RemoteRunner.test_failures_are_reported_in_the_receipt",
+      "status": "PASS",
+      "duration": 0.4171,
+      "details": null
+    },
+    {
+      "id": "test_remote_runner_bundle.RemoteRunner.test_gpu_targets_require_a_gpu_runtime",
+      "status": "PASS",
+      "duration": 0.0655,
+      "details": null
+    },
+    {
+      "id": "test_remote_runner_bundle.RemoteRunner.test_launch_error_is_a_failed_receipt",
+      "status": "PASS",
+      "duration": 0.0198,
+      "details": null
+    },
+    {
+      "id": "test_remote_runner_bundle.RemoteRunner.test_oversized_results_are_refused",
+      "status": "PASS",
+      "duration": 0.0992,
+      "details": null
+    },
+    {
+      "id": "test_remote_runner_bundle.RemoteRunner.test_time_limit_stops_the_owned_run",
+      "status": "PASS",
+      "duration": 1.1144,
+      "details": null
+    },
+    {
+      "id": "test_isolated_cli_runtime.IsolatedCli.test_cleanup_removes_only_owned_resources",
+      "status": "PASS",
+      "duration": 0.0017,
+      "details": null
+    },
+    {
+      "id": "test_isolated_cli_runtime.IsolatedCli.test_interactive_runs_have_no_timeout_and_a_tty",
+      "status": "PASS",
+      "duration": 7.0998,
+      "details": null
+    },
+    {
+      "id": "test_isolated_cli_runtime.IsolatedCli.test_prepare_refuses_unprepared_or_unknown_runtimes",
+      "status": "PASS",
+      "duration": 0.0025,
+      "details": null
+    },
+    {
+      "id": "test_isolated_cli_runtime.IsolatedCli.test_prepare_writes_a_server_authored_plan_per_provider",
+      "status": "PASS",
+      "duration": 0.3735,
+      "details": null
+    },
+    {
+      "id": "test_isolated_cli_runtime.IsolatedCli.test_run_launches_an_offline_container_behind_the_proxy_and_cleans_up",
+      "status": "PASS",
+      "duration": 0.076,
+      "details": null
+    },
+    {
+      "id": "test_isolated_cli_runtime.IsolatedCli.test_run_refuses_plans_that_break_the_launch_policy",
+      "status": "PASS",
+      "duration": 0.4145,
+      "details": null
+    },
+    {
+      "id": "test_isolated_cli_runtime.IsolatedCli.test_runtime_status_reports_identity_bound_images_only",
+      "status": "PASS",
+      "duration": 0.0022,
+      "details": null
+    },
+    {
+      "id": "test_system_api_routes.SystemApi.test_events_listing_and_stream_hello",
+      "status": "PASS",
+      "duration": 1.0301,
+      "details": null
+    },
+    {
+      "id": "test_system_api_routes.SystemApi.test_folder_picker_browse_and_mkdir",
+      "status": "PASS",
+      "duration": 0.0352,
+      "details": null
+    },
+    {
+      "id": "test_system_api_routes.SystemApi.test_hermes_runtime_actions",
+      "status": "PASS",
+      "duration": 0.0595,
+      "details": null
+    },
+    {
+      "id": "test_system_api_routes.SystemApi.test_model_connections_codex_catalog_and_usage",
+      "status": "PASS",
+      "duration": 0.0283,
+      "details": null
+    },
+    {
+      "id": "test_system_api_routes.SystemApi.test_provider_auth_status",
+      "status": "PASS",
+      "duration": 0.0072,
+      "details": null
+    },
+    {
+      "id": "test_system_api_routes.SystemApi.test_provider_connect_and_launch_use_the_installed_cli_only",
+      "status": "PASS",
+      "duration": 0.0264,
+      "details": null
+    },
+    {
+      "id": "test_system_api_routes.SystemApi.test_provider_sync_reports_workspace_changes",
+      "status": "PASS",
+      "duration": 0.3022,
+      "details": null
+    },
+    {
+      "id": "test_config_behaviour.Coercion.test_masking_hides_secrets_but_reports_presence",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_config_behaviour.Coercion.test_values_take_the_type_of_their_default",
+      "status": "PASS",
+      "duration": 0.0,
+      "details": null
+    },
+    {
+      "id": "test_config_behaviour.Projects.test_open_activate_rename_and_forget",
+      "status": "PASS",
+      "duration": 0.0741,
+      "details": null
+    },
+    {
+      "id": "test_config_behaviour.Projects.test_scoped_operations_keep_their_project_and_missing_active_falls_back",
+      "status": "PASS",
+      "duration": 0.0534,
+      "details": null
+    },
+    {
+      "id": "test_config_behaviour.SaveAndLoad.test_damaged_settings_are_quarantined_and_defaults_used",
+      "status": "PASS",
+      "duration": 0.0069,
+      "details": null
+    },
+    {
+      "id": "test_config_behaviour.SaveAndLoad.test_hermes_limits_are_clamped_and_zero_means_no_limit",
+      "status": "PASS",
+      "duration": 0.0135,
+      "details": null
+    },
+    {
+      "id": "test_config_behaviour.SaveAndLoad.test_invalid_tool_settings_are_refused_on_save_and_reset_on_load",
+      "status": "PASS",
+      "duration": 0.0244,
+      "details": null
+    },
+    {
+      "id": "test_config_behaviour.SaveAndLoad.test_legacy_settings_are_migrated_read_only",
+      "status": "PASS",
+      "duration": 0.0167,
+      "details": null
+    },
+    {
+      "id": "test_config_behaviour.SaveAndLoad.test_mcp_agent_validation_and_recovery",
+      "status": "PASS",
+      "duration": 0.0267,
+      "details": null
+    },
+    {
+      "id": "test_config_behaviour.SaveAndLoad.test_save_applies_each_kind_of_setting",
+      "status": "PASS",
+      "duration": 0.0244,
+      "details": null
+    },
+    {
+      "id": "test_tools_api_routes.ToolsApi.test_chatgpt_owner_controls",
+      "status": "PASS",
+      "duration": 0.1701,
+      "details": null
+    },
+    {
+      "id": "test_tools_api_routes.ToolsApi.test_jobs_events_stream_and_invoke",
+      "status": "PASS",
+      "duration": 0.033,
+      "details": null
+    },
+    {
+      "id": "test_tools_api_routes.ToolsApi.test_mcp_servers_google_and_clients",
+      "status": "PASS",
+      "duration": 0.0869,
+      "details": null
+    },
+    {
+      "id": "test_tools_api_routes.ToolsApi.test_proposal_lifecycle_routes",
+      "status": "PASS",
+      "duration": 0.0272,
+      "details": null
+    },
+    {
+      "id": "test_tools_api_routes.ToolsApi.test_registry_listing_search_and_describe",
+      "status": "PASS",
+      "duration": 2.4938,
+      "details": null
+    },
+    {
+      "id": "test_tools_api_routes.ToolsApi.test_tool_and_value_errors_become_http_errors",
+      "status": "PASS",
+      "duration": 0.009,
+      "details": null
+    },
+    {
+      "id": "test_hermes_rpc_lifecycle.Connector.test_cancel_refuses_a_mismatched_request_record",
+      "status": "PASS",
+      "duration": 0.6033,
+      "details": null
+    },
+    {
+      "id": "test_hermes_rpc_lifecycle.Connector.test_capabilities_health_and_sign_in",
+      "status": "PASS",
+      "duration": 0.5629,
+      "details": null
+    },
+    {
+      "id": "test_hermes_rpc_lifecycle.Connector.test_job_refusals_failures_cancellation_and_liveness",
+      "status": "PASS",
+      "duration": 0.8355,
+      "details": null
+    },
+    {
+      "id": "test_hermes_rpc_lifecycle.Connector.test_job_runs_to_completion_with_registry_tools",
+      "status": "PASS",
+      "duration": 0.6772,
+      "details": null
+    },
+    {
+      "id": "test_hermes_rpc_lifecycle.Lifecycle.test_docker_failures_and_container_identity_checks",
+      "status": "PASS",
+      "duration": 0.5608,
+      "details": null
+    },
+    {
+      "id": "test_hermes_rpc_lifecycle.Lifecycle.test_start_requires_the_reviewed_image_and_keeps_restart_history",
+      "status": "PASS",
+      "duration": 0.5502,
+      "details": null
+    },
+    {
+      "id": "test_hermes_rpc_lifecycle.Lifecycle.test_start_returns_a_ready_runtime_and_stop_keeps_data",
+      "status": "PASS",
+      "duration": 0.5441,
+      "details": null
+    },
+    {
+      "id": "test_hermes_rpc_lifecycle.Rpc.test_models_keep_only_free_entries_from_the_live_catalog",
+      "status": "PASS",
+      "duration": 0.6304,
+      "details": null
+    },
+    {
+      "id": "test_hermes_rpc_lifecycle.Rpc.test_rpc_calls_the_loopback_adapter_with_the_project_token",
+      "status": "PASS",
+      "duration": 0.6056,
+      "details": null
+    },
+    {
+      "id": "test_hermes_rpc_lifecycle.Rpc.test_rpc_errors_are_mapped_without_replay",
+      "status": "PASS",
+      "duration": 2.6492,
+      "details": null
+    },
+    {
+      "id": "test_hermes_rpc_lifecycle.Rpc.test_rpc_refuses_unsafe_paths_plans_and_bindings",
+      "status": "PASS",
+      "duration": 0.5498,
+      "details": null
+    },
+    {
+      "id": "test_hermes_rpc_lifecycle.Rpc.test_status_reports_ready_incompatible_or_unavailable",
+      "status": "PASS",
+      "duration": 0.66,
+      "details": null
+    },
+    {
+      "id": "test_hermes_service_paths.Relay.test_listener_binds_loopback_and_hands_clients_to_the_relay",
+      "status": "PASS",
+      "duration": 0.0452,
+      "details": null
+    },
+    {
+      "id": "test_hermes_service_paths.Relay.test_proxy_relays_both_directions_and_closes",
+      "status": "PASS",
+      "duration": 0.0722,
+      "details": null
+    },
+    {
+      "id": "test_hermes_service_paths.Routes.test_cancel_kills_the_active_worker_group",
+      "status": "PASS",
+      "duration": 0.5953,
+      "details": null
+    },
+    {
+      "id": "test_hermes_service_paths.Routes.test_catalog_failures_map_to_sign_in_or_unavailable",
+      "status": "PASS",
+      "duration": 0.5833,
+      "details": null
+    },
+    {
+      "id": "test_hermes_service_paths.Routes.test_health_models_jobs_and_unknown_paths",
+      "status": "PASS",
+      "duration": 0.5558,
+      "details": null
+    },
+    {
+      "id": "test_hermes_service_paths.Startup.test_main_requires_linux_runs_workers_and_marks_interrupted_jobs",
+      "status": "PASS",
+      "duration": 0.0595,
+      "details": null
+    },
+    {
+      "id": "test_hermes_service_paths.Supervision.test_deadline_kills_the_worker_and_exit_without_result_fails",
+      "status": "PASS",
+      "duration": 0.0865,
+      "details": null
+    },
+    {
+      "id": "test_hermes_service_paths.Supervision.test_oversized_history_fails_the_job",
+      "status": "PASS",
+      "duration": 0.1095,
+      "details": null
+    },
+    {
+      "id": "test_hermes_service_paths.ToolBridge.test_mcp_calls_carry_the_job_identity_and_reject_errors",
+      "status": "PASS",
+      "duration": 0.6001,
+      "details": null
+    },
+    {
+      "id": "test_hermes_service_paths.ToolBridge.test_only_granted_tools_are_registered_and_calls_go_through_the_bridge",
+      "status": "PASS",
+      "duration": 0.5452,
+      "details": null
+    },
+    {
+      "id": "test_research_jobs_flow.Jobs.test_discovery_keeps_the_unique_quota_and_auto_downloads",
+      "status": "PASS",
+      "duration": 0.4077,
+      "details": null
+    },
+    {
+      "id": "test_research_jobs_flow.Jobs.test_download_parse_failure_quota_and_cancellation",
+      "status": "PASS",
+      "duration": 0.3934,
+      "details": null
+    },
+    {
+      "id": "test_research_jobs_flow.Jobs.test_download_stores_indexes_and_reports_each_failure",
+      "status": "PASS",
+      "duration": 0.6873,
+      "details": null
+    },
+    {
+      "id": "test_research_jobs_flow.Jobs.test_enqueue_validates_kind_selection_and_topic",
+      "status": "PASS",
+      "duration": 0.2734,
+      "details": null
+    },
+    {
+      "id": "test_research_jobs_flow.Jobs.test_index_sync_failure_and_interrupt_states",
+      "status": "PASS",
+      "duration": 1.0039,
+      "details": null
+    },
+    {
+      "id": "test_research_jobs_flow.Jobs.test_scheduled_discovery_respects_cadence_and_disabled_topics",
+      "status": "PASS",
+      "duration": 0.4072,
+      "details": null
+    },
+    {
+      "id": "test_research_jobs_flow.Jobs.test_worker_recovers_running_jobs_and_runs_the_queue",
+      "status": "PASS",
+      "duration": 0.3436,
+      "details": null
+    },
+    {
+      "id": "test_routing_and_schema.Routing.test_candidates_are_checked_for_compatibility_breakers_and_health",
+      "status": "PASS",
+      "duration": 0.3375,
+      "details": null
+    },
+    {
+      "id": "test_routing_and_schema.Routing.test_deterministic_and_quota_paths_never_call_a_model",
+      "status": "PASS",
+      "duration": 0.2854,
+      "details": null
+    },
+    {
+      "id": "test_routing_and_schema.Schema.test_schema_structure_problems_are_reported",
+      "status": "PASS",
+      "duration": 0.0002,
+      "details": null
+    },
+    {
+      "id": "test_routing_and_schema.Schema.test_values_are_validated_with_json_paths",
+      "status": "PASS",
+      "duration": 0.0002,
+      "details": null
+    },
+    {
+      "id": "test_intelligence_api_errors.IntelligenceApiErrors.test_reproducibility_download_builds_a_pack_when_missing",
+      "status": "PASS",
+      "duration": 0.5713,
+      "details": null
+    },
+    {
+      "id": "test_intelligence_api_errors.IntelligenceApiErrors.test_topic_is_required_when_none_can_be_resolved",
+      "status": "PASS",
+      "duration": 0.242,
+      "details": null
+    },
+    {
+      "id": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors",
+      "status": "PASS",
+      "duration": 0.6191,
+      "details": null
+    },
+    {
+      "id": "test_harness_legacy_and_api.HarnessApi.test_agents_team_and_architect",
+      "status": "PASS",
+      "duration": 0.1007,
+      "details": null
+    },
+    {
+      "id": "test_harness_legacy_and_api.HarnessApi.test_execution_routes_and_debugger_actions",
+      "status": "PASS",
+      "duration": 0.1442,
+      "details": null
+    },
+    {
+      "id": "test_harness_legacy_and_api.HarnessApi.test_workflow_crud_and_templates",
+      "status": "PASS",
+      "duration": 0.1052,
+      "details": null
+    },
+    {
+      "id": "test_harness_legacy_and_api.LegacyHarness.test_adapter_detection_covers_every_catalog_entry",
+      "status": "PASS",
+      "duration": 0.0073,
+      "details": null
+    },
+    {
+      "id": "test_harness_legacy_and_api.LegacyHarness.test_invalid_graphs_fail_without_running",
+      "status": "PASS",
+      "duration": 0.0065,
+      "details": null
+    },
+    {
+      "id": "test_harness_legacy_and_api.LegacyHarness.test_known_adapters_are_blocked_and_downstream_is_blocked_too",
+      "status": "PASS",
+      "duration": 0.0546,
+      "details": null
+    },
+    {
+      "id": "test_harness_legacy_and_api.LegacyHarness.test_storage_survives_damaged_files",
+      "status": "PASS",
+      "duration": 0.0813,
+      "details": null
+    },
+    {
+      "id": "test_paperorchestra_dispatch.Dispatch.test_citation_check_uses_previous_text_or_the_project",
+      "status": "PASS",
+      "duration": 0.0669,
+      "details": null
+    },
+    {
+      "id": "test_paperorchestra_dispatch.Dispatch.test_l4_spec_with_an_approved_experiment_requests_compute",
+      "status": "PASS",
+      "duration": 0.0113,
+      "details": null
+    },
+    {
+      "id": "test_paperorchestra_dispatch.Dispatch.test_outline_and_section_writing_store_artifacts",
+      "status": "PASS",
+      "duration": 0.0523,
+      "details": null
+    },
+    {
+      "id": "test_paperorchestra_dispatch.Dispatch.test_refine_figure_and_full_orchestration",
+      "status": "PASS",
+      "duration": 0.1247,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_gateway_edges.Edges.test_denied_authorization_redirects_with_access_denied",
+      "status": "PASS",
+      "duration": 0.052,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_gateway_edges.Edges.test_enable_needs_cloudflared_reports_the_tunnel_and_kill_switch_stops_it",
+      "status": "PASS",
+      "duration": 0.0639,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_gateway_edges.Edges.test_malformed_oauth_requests_are_refused",
+      "status": "PASS",
+      "duration": 0.0674,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_gateway_edges.Edges.test_mcp_batches_parse_errors_and_invalid_payloads",
+      "status": "PASS",
+      "duration": 0.0825,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_gateway_edges.Edges.test_range_refresh_keeps_the_previous_list_on_failure",
+      "status": "PASS",
+      "duration": 0.0645,
+      "details": null
+    },
+    {
+      "id": "test_chatgpt_gateway_edges.Edges.test_ranges_loop_refreshes_until_stopped",
+      "status": "PASS",
+      "duration": 0.063,
+      "details": null
+    },
+    {
+      "id": "test_remote_compute_validation.Create.test_historical_runs_are_read_only_and_approval_is_idempotent",
+      "status": "PASS",
+      "duration": 0.1749,
+      "details": null
+    },
+    {
+      "id": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists",
+      "status": "PASS",
+      "duration": 0.1474,
+      "details": null
+    },
+    {
+      "id": "test_remote_compute_validation.Import.test_failed_runs_are_retained_with_their_log",
+      "status": "PASS",
+      "duration": 0.1744,
+      "details": null
+    },
+    {
+      "id": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused",
+      "status": "PASS",
+      "duration": 0.635,
+      "details": null
+    },
+    {
+      "id": "test_remote_compute_validation.Import.test_valid_results_import_once_and_are_served_back",
+      "status": "PASS",
+      "duration": 0.2374,
+      "details": null
+    },
+    {
+      "id": "test_project_context_sources.Actions.test_approved_actions_use_the_domain_services",
+      "status": "PASS",
+      "duration": 0.1802,
+      "details": null
+    },
+    {
+      "id": "test_project_context_sources.Sources.test_reference_sources_with_pdf_text_and_failed_extraction",
+      "status": "PASS",
+      "duration": 0.0959,
+      "details": null
+    },
+    {
+      "id": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing",
+      "status": "PASS",
+      "duration": 0.0897,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_remote_runner_bundle.RemoteRunner.test_failures_are_reported_in_the_receipt",
+      "id": "test_remote_runner_bundle.RemoteRunner.test_failures_are_reported_in_the_receipt [exit]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_runner_bundle.RemoteRunner.test_failures_are_reported_in_the_receipt",
+      "id": "test_remote_runner_bundle.RemoteRunner.test_failures_are_reported_in_the_receipt [missing]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_runner_bundle.RemoteRunner.test_failures_are_reported_in_the_receipt",
+      "id": "test_remote_runner_bundle.RemoteRunner.test_failures_are_reported_in_the_receipt [metrics]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_runner_bundle.RemoteRunner.test_failures_are_reported_in_the_receipt",
+      "id": "test_remote_runner_bundle.RemoteRunner.test_failures_are_reported_in_the_receipt [nan]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_runner_bundle.RemoteRunner.test_failures_are_reported_in_the_receipt",
+      "id": "test_remote_runner_bundle.RemoteRunner.test_failures_are_reported_in_the_receipt [tamper]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_isolated_cli_runtime.IsolatedCli.test_prepare_writes_a_server_authored_plan_per_provider",
+      "id": "test_isolated_cli_runtime.IsolatedCli.test_prepare_writes_a_server_authored_plan_per_provider [https://127.0.0.1/mcp]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_isolated_cli_runtime.IsolatedCli.test_prepare_writes_a_server_authored_plan_per_provider",
+      "id": "test_isolated_cli_runtime.IsolatedCli.test_prepare_writes_a_server_authored_plan_per_provider [http://example.com/mcp]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_isolated_cli_runtime.IsolatedCli.test_prepare_writes_a_server_authored_plan_per_provider",
+      "id": "test_isolated_cli_runtime.IsolatedCli.test_prepare_writes_a_server_authored_plan_per_provider [http://127.0.0.1/other]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_isolated_cli_runtime.IsolatedCli.test_prepare_writes_a_server_authored_plan_per_provider",
+      "id": "test_isolated_cli_runtime.IsolatedCli.test_prepare_writes_a_server_authored_plan_per_provider [http://u@127.0.0.1/mcp]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_isolated_cli_runtime.IsolatedCli.test_run_refuses_plans_that_break_the_launch_policy",
+      "id": "test_isolated_cli_runtime.IsolatedCli.test_run_refuses_plans_that_break_the_launch_policy [outside]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_isolated_cli_runtime.IsolatedCli.test_run_refuses_plans_that_break_the_launch_policy",
+      "id": "test_isolated_cli_runtime.IsolatedCli.test_run_refuses_plans_that_break_the_launch_policy [mount]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_isolated_cli_runtime.IsolatedCli.test_run_refuses_plans_that_break_the_launch_policy",
+      "id": "test_isolated_cli_runtime.IsolatedCli.test_run_refuses_plans_that_break_the_launch_policy [domains]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_isolated_cli_runtime.IsolatedCli.test_run_refuses_plans_that_break_the_launch_policy",
+      "id": "test_isolated_cli_runtime.IsolatedCli.test_run_refuses_plans_that_break_the_launch_policy [image]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_config_behaviour.SaveAndLoad.test_damaged_settings_are_quarantined_and_defaults_used",
+      "id": "test_config_behaviour.SaveAndLoad.test_damaged_settings_are_quarantined_and_defaults_used [{not json]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_config_behaviour.SaveAndLoad.test_damaged_settings_are_quarantined_and_defaults_used",
+      "id": "test_config_behaviour.SaveAndLoad.test_damaged_settings_are_quarantined_and_defaults_used [[1, 2]]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_jobs_flow.Jobs.test_enqueue_validates_kind_selection_and_topic",
+      "id": "test_research_jobs_flow.Jobs.test_enqueue_validates_kind_selection_and_topic [train]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_jobs_flow.Jobs.test_enqueue_validates_kind_selection_and_topic",
+      "id": "test_research_jobs_flow.Jobs.test_enqueue_validates_kind_selection_and_topic [download]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_research_jobs_flow.Jobs.test_enqueue_validates_kind_selection_and_topic",
+      "id": "test_research_jobs_flow.Jobs.test_enqueue_validates_kind_selection_and_topic [index]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors",
+      "id": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors (url='/api/artifacts?mission_id=m-x')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors",
+      "id": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors (url='/api/artifacts/a-missing')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors",
+      "id": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors (url='/api/artifacts/a-missing/lineage')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors",
+      "id": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors (url='/api/artifacts/a-missing/verify-integrity')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors",
+      "id": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors (url='/api/research/topics/t-missing/urap/artifacts')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors",
+      "id": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors (url='/api/research/topics/66990c5c-fba8-4321-b40a-d1e8b2d3a5b9/urap/artifacts')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors",
+      "id": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors (url='/api/research/topics/t-missing/missions/m/trace')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors",
+      "id": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors (url='/api/missions/m-x/trace')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors",
+      "id": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors (url='/api/tasks/t-1/context-pack')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors",
+      "id": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors (url='/api/tasks/t-new/context-pack')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors",
+      "id": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors (url='/api/tasks/t-1/route-preview')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors",
+      "id": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors (url='/api/missions/m-x/reproducibility-replay')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors",
+      "id": "test_intelligence_api_errors.IntelligenceApiErrors.test_unknown_identities_are_client_errors (url='/api/missions/m-x/report-manifest')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_harness_legacy_and_api.LegacyHarness.test_invalid_graphs_fail_without_running",
+      "id": "test_harness_legacy_and_api.LegacyHarness.test_invalid_graphs_fail_without_running (graph=[])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_harness_legacy_and_api.LegacyHarness.test_invalid_graphs_fail_without_running",
+      "id": "test_harness_legacy_and_api.LegacyHarness.test_invalid_graphs_fail_without_running (graph=[{'source': 'n0', 'target': 'ghost'}])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_harness_legacy_and_api.LegacyHarness.test_invalid_graphs_fail_without_running",
+      "id": "test_harness_legacy_and_api.LegacyHarness.test_invalid_graphs_fail_without_running (graph=[{'source': 'n0', 'target': 'n1'}, {'source': 'n1', 'target': 'n0'}])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists",
+      "id": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists [Credentials]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists",
+      "id": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists [Unknown compute target]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists",
+      "id": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists [list of relative]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists",
+      "id": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists [1\u2013200]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists",
+      "id": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists [canonical]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists",
+      "id": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists [outside the selected]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists",
+      "id": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists [simple file names]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists",
+      "id": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists [Reserved device]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists",
+      "id": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists [max_seconds]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists",
+      "id": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists [max_seconds]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists",
+      "id": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists [must be a list]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists",
+      "id": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists [relative paths]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists",
+      "id": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists [duplicate]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists",
+      "id": "test_remote_compute_validation.Create.test_specifications_are_validated_before_any_bundle_exists [Entrypoint must be included]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused",
+      "id": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused [does not match the approved]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused",
+      "id": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused [Invalid result status]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused",
+      "id": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused [verified code inputs]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused",
+      "id": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused [execution interval]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused",
+      "id": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused [exit zero]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused",
+      "id": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused [Invalid artifact manifest]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused",
+      "id": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused [Invalid artifact entry]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused",
+      "id": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused [Unexpected or duplicate]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused",
+      "id": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused [Artifact checksum mismatch]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused",
+      "id": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused [invalid digest/size]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused",
+      "id": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused [Unlisted files]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused",
+      "id": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused [missing required artifacts]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused",
+      "id": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused [differ from the raw metrics]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused",
+      "id": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused [require the raw metrics.json]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused",
+      "id": "test_remote_compute_validation.Import.test_inconsistent_results_are_refused [Non-finite metric]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing",
+      "id": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing [mem:nope]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing",
+      "id": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing [run:nope]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing",
+      "id": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing [att:nope]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing",
+      "id": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing [note:nope]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing",
+      "id": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing [other:x]",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 100,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-k6ib3vyq",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

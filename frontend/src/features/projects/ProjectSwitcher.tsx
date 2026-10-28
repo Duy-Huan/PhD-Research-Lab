@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUIStore, useI18n } from '../../shared/state/uiStore';
 import { api } from '../../shared/api/client';
@@ -36,6 +36,14 @@ export const ProjectSwitcher: React.FC = () => {
   const [newName, setNewName] = useState('');
   const [newDataDir, setNewDataDir] = useState('');
   const [newRefsDir, setNewRefsDir] = useState('');
+  const [projectsRoot, setProjectsRoot] = useState('');
+  const { data: uiConfig } = useQuery({
+    queryKey: ['config'],
+    queryFn: () => api.get<{ ui?: { projects_root?: string } }>('/api/config'),
+  });
+  useEffect(() => {
+    setProjectsRoot(uiConfig?.ui?.projects_root || '');
+  }, [uiConfig?.ui?.projects_root]);
   const [openExistingDir, setOpenExistingDir] = useState('');
 
   // Rename modal states
@@ -315,6 +323,23 @@ export const ProjectSwitcher: React.FC = () => {
                 'Folder storing database, research context memory, and experiment states.'
               )}
             </span>
+          </div>
+
+          {/* v6.6.2 default folder for new projects (any drive); used when the folder above is left blank */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }} data-testid="projects-root">
+            <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg)', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <HardDrive size={13} color="var(--accent)" />
+              <span>{t('projects.defaultRoot')}</span>
+            </label>
+            <FolderPickerInput
+              value={projectsRoot}
+              onChange={(value) => {
+                setProjectsRoot(value);
+                void api.post('/api/config', { ui: { projects_root: value } });
+              }}
+              placeholder={t('projects.defaultRoot')}
+              dialogTitle={t('projects.pickFolder')}
+            />
           </div>
 
           {/* References Directory */}

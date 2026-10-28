@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Group, Panel, Separator } from 'react-resizable-panels';
+import { MotionConfig } from 'motion/react';
 import { useUIStore, useI18n } from '../shared/state/uiStore';
 import { useAppBus } from '../shared/events/useAppBus';
 import { api } from '../shared/api/client';
@@ -33,6 +34,7 @@ export const AppShell: React.FC = () => {
     uiScale,
   } = useUIStore();
   const { t } = useI18n();
+  const motionEnabled = useUIStore((st) => st.motionEnabled);
   const { isConnected } = useAppBus();
 
   // Split panes become overlays on small screens; do not reserve a hidden sidebar column.
@@ -150,6 +152,8 @@ export const AppShell: React.FC = () => {
   };
 
   return (
+    // v6.6.2: "user" follows the OS reduced-motion setting; the Settings toggle can turn all motion off.
+    <MotionConfig reducedMotion={motionEnabled ? 'user' : 'always'}>
     <div id="app" className="react-shell" style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
       {!sidebarOpen && (
         <div
@@ -307,5 +311,6 @@ export const AppShell: React.FC = () => {
         )}
       </Group>
     </div>
+    </MotionConfig>
   );
 };

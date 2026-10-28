@@ -1,0 +1,198 @@
+{
+  "id": "FQC-CLI-AGENT-REGISTRY-662",
+  "title": "CLI agents and Hermes reach the tool registry in agent mode",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want Codex, Claude Code and Hermes to work as real agents in PhD Lab, bounded only by the tool permissions I grant, so a full research-to-paper flow runs from chat.",
+  "requirements": [
+    {
+      "id": "REGISTRY",
+      "description": "In tool_mode=agent a CLI or runtime agent turn receives the phdlab_tools_* meta-tools and a session token whose registry scope is the owner's agent profile (narrowed by an explicit session list); legacy mode keeps the read-only MCP allowlist."
+    },
+    {
+      "id": "TOPIC",
+      "description": "A Topic chat hides the project-scope MCP tools (memory, files, sandbox) but keeps the registry; an explicit [\"-\"] still removes every tool. App and CLI agents use the same scope."
+    },
+    {
+      "id": "WORKSPACE",
+      "description": "With workspace_write in the agent profile the CLI writes its own session workspace (assisted profile, as Hermes) only where the provider enforces that isolation; otherwise the review workspace stays read-only."
+    },
+    {
+      "id": "CONTAINER",
+      "description": "Inside the PhD-Lab container Codex runs without its own bubblewrap sandbox (the container is the boundary); other connectors are unchanged."
+    },
+    {
+      "id": "PERMISSIONS_UI",
+      "description": "The AI tools tab offers every backend permission, including process and reasoning (frontend/src/features/settings/AiToolsSettings.test.tsx)."
+    }
+  ],
+  "nonfunctional": [
+    "No availability probe per chat turn",
+    "No new permission is granted by default"
+  ],
+  "inputs": [
+    "session settings",
+    "tools.agent_profile",
+    "Codex argv"
+  ],
+  "outputs": [
+    "MCP grant (tools, registry)",
+    "security profile",
+    "container command"
+  ],
+  "preconditions": [
+    "mcp.enabled and mcp.expose_research"
+  ],
+  "postconditions": [
+    "phdlab_tools_call runs only registry tools inside the grant and the profile permissions"
+  ],
+  "dependencies": [
+    "backend/tools/profiles.py",
+    "backend/providers/mcp_server.py"
+  ],
+  "affected_modules": [
+    "backend/agent/orchestrator.py",
+    "backend/agent/mcp_policy.py",
+    "backend/tools/mcp_bridge.py",
+    "backend/tools/registry.py",
+    "backend/providers/cli.py",
+    "frontend/src/features/settings/AiToolsSettings.tsx"
+  ],
+  "acceptance_criteria": [
+    "Agent-mode CLI lists and runs registry tools over the real MCP handler",
+    "Registry scope narrows what phdlab_tools_call may run",
+    "Topic chats never see project-scope tools",
+    "Codex shell works inside the container",
+    "Live: Codex discovered papers, wrote experiment code and ran missions through PhD Lab tools"
+  ],
+  "scenarios": [
+    {
+      "id": "agent-registry",
+      "requirement": "REGISTRY",
+      "kind": "positive",
+      "expected": "Bridge tools, registry ['*'], assisted workspace",
+      "test": "tests/test_cli_agent_registry.py::CliAgentGrant.test_agent_mode_adds_the_registry_under_the_agent_profile"
+    },
+    {
+      "id": "mcp-run",
+      "requirement": "REGISTRY",
+      "kind": "positive",
+      "expected": "tools/list shows the meta-tools; phdlab_tools_call runs a registry tool",
+      "test": "tests/test_cli_agent_registry.py::EphemeralGrantOverMcp.test_agent_grant_lists_and_runs_registry_tools"
+    },
+    {
+      "id": "legacy",
+      "requirement": "REGISTRY",
+      "kind": "negative",
+      "expected": "Legacy mode keeps the read-only allowlist without meta-tools",
+      "test": "tests/test_cli_agent_registry.py::CliAgentGrant.test_legacy_mode_keeps_the_read_only_allowlist"
+    },
+    {
+      "id": "no-registry-scope",
+      "requirement": "REGISTRY",
+      "kind": "negative",
+      "expected": "A grant issued without a registry scope keeps its own tool list",
+      "test": "tests/test_cli_agent_registry.py::EphemeralGrantOverMcp.test_grant_without_registry_scope_keeps_its_own_tool_list"
+    },
+    {
+      "id": "scope-narrows",
+      "requirement": "REGISTRY",
+      "kind": "security",
+      "expected": "A tool outside the registry scope is denied",
+      "test": "tests/test_cli_agent_registry.py::EphemeralGrantOverMcp.test_registry_scope_narrows_what_the_meta_tool_may_run"
+    },
+    {
+      "id": "topic",
+      "requirement": "TOPIC",
+      "kind": "security",
+      "expected": "Topic: only meta-tools over MCP; registry excludes project-scope tools",
+      "test": "tests/test_cli_agent_registry.py::CliAgentGrant.test_topic_hides_project_scope_tools_but_not_the_registry"
+    },
+    {
+      "id": "app-topic",
+      "requirement": "TOPIC",
+      "kind": "positive",
+      "expected": "App agent gets the same Topic scope",
+      "test": "tests/test_cli_agent_registry.py::CliAgentGrant.test_app_agent_in_a_topic_gets_the_same_registry_scope"
+    },
+    {
+      "id": "explicit-none",
+      "requirement": "TOPIC",
+      "kind": "failure",
+      "expected": "Explicit no-tools removes everything",
+      "test": "tests/test_cli_agent_registry.py::CliAgentGrant.test_explicit_no_tools_still_removes_everything"
+    },
+    {
+      "id": "no-probe",
+      "requirement": "TOPIC",
+      "kind": "performance",
+      "expected": "Grant computation never probes tool availability",
+      "test": "tests/test_cli_agent_registry.py::CliAgentGrant.test_topic_scope_never_probes_tool_availability"
+    },
+    {
+      "id": "review-workspace",
+      "requirement": "WORKSPACE",
+      "kind": "boundary",
+      "expected": "Without workspace_write the workspace stays review",
+      "test": "tests/test_cli_agent_registry.py::CliAgentGrant.test_agent_profile_without_workspace_write_keeps_the_review_workspace"
+    },
+    {
+      "id": "bwrap",
+      "requirement": "CONTAINER",
+      "kind": "failure",
+      "expected": "--sandbox becomes danger-full-access inside the container; review stays review",
+      "test": "tests/test_cli_agent_registry.py::CodexInsideTheContainer.test_inner_bubblewrap_sandbox_is_replaced_by_the_container_boundary"
+    },
+    {
+      "id": "resume",
+      "requirement": "CONTAINER",
+      "kind": "boundary",
+      "expected": "Resume form sandbox_mode is rewritten too",
+      "test": "tests/test_cli_agent_registry.py::CodexInsideTheContainer.test_resume_form_is_rewritten_too"
+    },
+    {
+      "id": "other-connectors",
+      "requirement": "CONTAINER",
+      "kind": "negative",
+      "expected": "Other connectors keep their sandbox flags",
+      "test": "tests/test_cli_agent_registry.py::CodexInsideTheContainer.test_other_connectors_are_not_rewritten"
+    },
+    {
+      "id": "perm-ui",
+      "requirement": "PERMISSIONS_UI",
+      "kind": "positive",
+      "expected": "Every backend permission has a toggle",
+      "test": "tests/test_cli_agent_registry.py::PermissionsUi.test_ai_tools_tab_offers_every_backend_permission"
+    },
+    {
+      "id": "gemini-review",
+      "requirement": "WORKSPACE",
+      "kind": "boundary",
+      "expected": "A provider without enforced assisted isolation keeps review but still gets the registry",
+      "test": "tests/test_cli_agent_registry.py::CliAgentGrant.test_provider_without_an_enforced_writable_profile_keeps_review"
+    }
+  ],
+  "recovery": "Fix the grant, not the boundary. TASK-CLI-AGENT-REGISTRY-662, max three cycles.",
+  "test_environment": "Real policy, MCP JSON-RPC handler, registry and runtime with a disposable PHDLAB_DATA_DIR; Docker, the CLI binary and the model are not started. Live acceptance with Codex (ChatGPT sign-in) recorded in docs/qa/evidence/cli-agent-registry-662/live-codex.md.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 13 FAIL on c7a7d9f (bugs found by the live Codex run). GREEN: 15/15 PASS.",
+    "red": {
+      "path": "docs/qa/evidence/cli-agent-registry-662/red.json",
+      "sha256": "eeefd7034a1d7f103b18b68364e4d7c9abfbfd99713a1e6f1da6fa1d151b48cf",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/cli-agent-registry-662/green.json",
+      "sha256": "2bc0ce4245ca66423aad586c4c867a38a364858ab7d7a38954e12eefddf40701",
+      "exit_code": 0
+    }
+  }
+}

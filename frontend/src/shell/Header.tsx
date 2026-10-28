@@ -121,26 +121,29 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
         }}
       >
         <button
+          aria-label={t('Trò chuyện', 'Chat')}
           type="button"
           className={`btn sm ${mainView === 'chat' ? 'accent' : 'ghost'}`}
           onClick={() => setMainView('chat')}
           title={t('Trò chuyện Nghiên cứu', 'Research Chat')}
-          style={{ borderRadius: 999, padding: '5px 12px', minHeight: 28, gap: 5 }}
+          style={{ borderRadius: 999, padding: '5px 10px', minHeight: 28, minWidth: 32, gap: 4 }}
         >
           <MessageSquare size={14} />
-          <span style={{ fontSize: 12 }}>{t('Trò chuyện', 'Chat')}</span>
+          
         </button>
         <button
+          aria-label={t('Thư viện', 'Library')}
           type="button"
           className={`btn sm ${mainView === 'library' ? 'accent' : 'ghost'}`}
           onClick={() => setMainView('library')}
           title={t('Thư viện Bài báo & Tài liệu', 'Paper Library & Documents')}
-          style={{ borderRadius: 999, padding: '5px 12px', minHeight: 28, gap: 5 }}
+          style={{ borderRadius: 999, padding: '5px 10px', minHeight: 28, minWidth: 32, gap: 4 }}
         >
           <BookOpen size={14} />
-          <span style={{ fontSize: 12 }}>{t('Thư viện', 'Library')}</span>
+          
         </button>
         <button
+          aria-label={t('Lab 3D', '3D Lab')}
           type="button"
           className={`btn sm ${mainView === 'office3d' ? 'accent' : 'ghost'}`}
           onClick={() => open3DOffice(true)}
@@ -148,12 +151,13 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
             'Không gian Phòng Lab Đại học 3D Toàn màn hình',
             'Full-Screen 3D University Research Lab'
           )}
-          style={{ borderRadius: 999, padding: '5px 12px', minHeight: 28, gap: 5 }}
+          style={{ borderRadius: 999, padding: '5px 10px', minHeight: 28, minWidth: 32, gap: 4 }}
         >
           <Bot size={14} />
-          <span style={{ fontSize: 12 }}>{t('Lab 3D', '3D Lab')}</span>
+          
         </button>
         <button
+          aria-label={t('Harness Studio', 'Harness Studio')}
           type="button"
           className={`btn sm ${mainView === 'harness' ? 'accent' : 'ghost'}`}
           onClick={() => setMainView('harness')}
@@ -161,10 +165,10 @@ export const Header: React.FC<HeaderProps> = ({ isLive = true }) => {
             'Không gian Kiểm định & Thiết kế Quy trình Harness Studio Toàn màn hình',
             'Full-Space Visual Harness Studio & Evaluation Pipeline'
           )}
-          style={{ borderRadius: 999, padding: '5px 12px', minHeight: 28, gap: 5 }}
+          style={{ borderRadius: 999, padding: '5px 10px', minHeight: 28, minWidth: 32, gap: 4 }}
         >
           <Sliders size={14} />
-          <span style={{ fontSize: 12 }}>{t('Harness', 'Harness')}</span>
+          
         </button>
         <button
           type="button"

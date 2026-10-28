@@ -139,6 +139,12 @@ class Native:
             if spec.capabilities and "sandbox" in spec.capabilities and not m.get("expose_sandbox", True):
                 return {"available": False, "reason": "Sandbox tools are disabled (mcp.expose_sandbox)"}
             return {"available": True, "reason": ""}
+        if "probe" in ex:  # application-defined availability check (e.g. a CLI delegate's sign-in)
+            import importlib
+            module, _, name = ex["probe"].partition(":")
+            if not module.startswith("backend."):
+                return {"available": False, "reason": "Native probes must live in the backend package"}
+            return getattr(importlib.import_module(module), name)(spec)
         if "callable" in ex:
             return {"available": True, "reason": ""}
         return {"available": False, "reason": "Native tool has no handler"}
@@ -166,7 +172,7 @@ class Native:
         if not module.startswith("backend."):
             raise ToolError("invalid_spec", "Native callables must live in the backend package")
         fn = getattr(importlib.import_module(module), name)
-        result = fn(args, ctx)
+        result = fn(args, ctx, spec) if ex.get("pass_spec") else fn(args, ctx)
         if not isinstance(result, dict):
             raise ToolError("invalid_output", f"{spec.ref} returned {type(result).__name__}, expected an object")
         return result

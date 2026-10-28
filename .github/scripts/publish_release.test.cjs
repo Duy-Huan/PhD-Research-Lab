@@ -6,8 +6,8 @@ function fixture(t){
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'phdlab-release-test-'));
  t.after(()=>{const target=path.resolve(directory);if(!target.startsWith(path.resolve(os.tmpdir())+path.sep)||!path.basename(target).startsWith('phdlab-release-test-'))throw Error('Unsafe fixture cleanup');fs.rmSync(target,{recursive:true,force:true});});
  const sha='a'.repeat(40),head='b'.repeat(40),assets=[];
- const manifest={version:'1.2.3',source_sha:sha,assets:['source','web'].map(kind=>{
-  const name=`phdlab-1.2.3-${kind}.zip`,bytes=Buffer.from('MOCKED archive bytes '+kind);fs.writeFileSync(path.join(directory,name),bytes);
+ const manifest={version:'1.2.3',source_sha:sha,assets:['phdlab-1.2.3-source.zip','phdlab-1.2.3-web.zip','phdlab-1.2.3-windows-x64-setup.exe','phdlab_1.2.3_amd64.deb'].map(name=>{
+  const kind=name,bytes=Buffer.from('MOCKED archive bytes '+kind);fs.writeFileSync(path.join(directory,name),bytes);
   return {name,size:bytes.length,sha256:crypto.createHash('sha256').update(bytes).digest('hex')};})};
  fs.writeFileSync(path.join(directory,'manifest.json'),JSON.stringify(manifest));
  const prsFn=()=>{},checksFn=()=>{},assetsFn=()=>{},runsFn=()=>{};const s={release:null,tag:null,writes:0,main:sha};
@@ -24,7 +24,7 @@ function fixture(t){
  return {directory,sha,s,assets,manifest,args:{github,context:{repo:{owner:'owner',repo:'repo'},ref:'refs/heads/main',sha}}};
 }
 test('qualified release uploads validated assets before publishing',async t=>{
- const f=fixture(t),r=await publish(f.args,f.directory,f.sha);assert.equal(r.decision,'PUBLISHED');assert.equal(f.s.release.draft,false);assert.equal(f.assets.length,3);
+ const f=fixture(t),r=await publish(f.args,f.directory,f.sha);assert.equal(r.decision,'PUBLISHED');assert.equal(f.s.release.draft,false);assert.equal(f.assets.length,5);
 });
 test('repeat publishing is idempotent and performs no additional writes',async t=>{
  const f=fixture(t);await publish(f.args,f.directory,f.sha);const writes=f.s.writes;await publish(f.args,f.directory,f.sha);assert.equal(f.s.writes,writes);
@@ -46,4 +46,10 @@ test('a stale main commit never publishes',async t=>{
 });
 test('omitting an archive checksum cannot bypass integrity validation',async t=>{
  const f=fixture(t);delete f.manifest.assets[0].sha256;fs.writeFileSync(path.join(f.directory,'manifest.json'),JSON.stringify(f.manifest));await assert.rejects(publish(f.args,f.directory,f.sha),/required archive checksum/);assert.equal(f.s.writes,0);
+});
+test('a release without both installers is never published',async t=>{
+ const f=fixture(t);f.manifest.assets=f.manifest.assets.filter(a=>!a.name.endsWith('.deb'));fs.writeFileSync(path.join(f.directory,'manifest.json'),JSON.stringify(f.manifest));await assert.rejects(publish(f.args,f.directory,f.sha),/Invalid release manifest/);assert.equal(f.s.writes,0);
+});
+test('an installer for another version is rejected',async t=>{
+ const f=fixture(t);const a=f.manifest.assets[3];const renamed='phdlab_9.9.9_amd64.deb';fs.renameSync(path.join(f.directory,a.name),path.join(f.directory,renamed));a.name=renamed;fs.writeFileSync(path.join(f.directory,'manifest.json'),JSON.stringify(f.manifest));await assert.rejects(publish(f.args,f.directory,f.sha),/Unexpected release assets/);assert.equal(f.s.writes,0);
 });

@@ -31,6 +31,7 @@ import {
   Search,
   Edit3,
   SquarePen,
+  Feather,
   MoreHorizontal,
   Compass,
   HelpCircle,
@@ -911,35 +912,27 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
 
         <button
           type="button"
-          className={`btn sm ${mainView === 'office3d' ? 'accent' : 'ghost'}`}
-          onClick={() => open3DOffice(true)}
-          style={{
-            justifyContent: 'flex-start',
-            padding: '7px 10px',
-            borderRadius: 8,
-            fontWeight: 500,
-            gap: 8,
-          }}
-        >
-          <Bot size={15} />
-          <span>{t('Phòng Lab 3D', '3D University Lab')}</span>
-        </button>
-
-        <button
-          type="button"
           className="btn sm ghost"
-          onClick={() => openDrawer('library')}
-          style={{
-            justifyContent: 'flex-start',
-            padding: '6px 10px',
-            borderRadius: 8,
-            gap: 8,
+          data-testid="hermes-chat"
+          title={t('hermesChat.open')}
+          aria-label={t('hermesChat.open')}
+          onClick={async () => {
+            // v6.6.2: a dedicated chat with this project's Hermes (one Hermes per project).
+            const created = await api.post<ChatSession>('/api/chat/sessions', {
+              title: t('hermesChat.title'),
+              settings: { provider: 'runtime:hermes' },
+            });
+            await queryClient.invalidateQueries({ queryKey: ['sessions'] });
+            setActiveSessionId(created.id);
+            setMainView('chat');
           }}
+          style={{ justifyContent: 'flex-start', padding: '7px 10px', borderRadius: 8, fontWeight: 500, gap: 8 }}
         >
-          <BookOpen size={15} />
-          <span>{t('Thư viện Bài báo', 'Paper Library')}</span>
+          <Feather size={15} />
+          <span>{t('hermesChat.title')}</span>
         </button>
 
+        {/* v6.6.2: 3D Lab, Library and Harness live once, as icons in the header; missions and tools stay here. */}
         <button
           type="button"
           className="btn sm ghost"
@@ -955,36 +948,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
           <span>{t('Nhiệm vụ Tự hành', 'Autonomous Missions')}</span>
         </button>
 
-        <button
-          type="button"
-          className="btn sm ghost"
-          onClick={() => {
-            setMainView('harness');
-            if (window.matchMedia('(max-width: 820px)').matches && sidebarOpen) toggleSidebar();
-          }}
-          style={{
-            justifyContent: 'flex-start',
-            padding: '6px 10px',
-            borderRadius: 8,
-            gap: 8,
-            color: mainView === 'harness' ? 'var(--accent)' : undefined,
-            background: mainView === 'harness' ? 'var(--panel)' : 'transparent',
-          }}
-        >
-          <Sliders size={15} />
-          <span>{t('Harness Studio', 'Harness Studio')}</span>
-        </button>
 
-        <button className="btn sm ghost" onClick={() => openSettings('models')}>
+        <button className="btn sm ghost" onClick={() => openSettings('models')} style={{ justifyContent: 'flex-start', padding: '6px 10px', borderRadius: 8, gap: 8 }}>
           <Cpu size={14} /> {t('Mô hình & kết nối AI', 'Models & AI connections')}
         </button>
-        <button className="btn sm ghost" onClick={() => openDrawer('code')}>
+        <button className="btn sm ghost" onClick={() => openDrawer('code')} style={{ justifyContent: 'flex-start', padding: '6px 10px', borderRadius: 8, gap: 8 }}>
           <Terminal size={14} /> {t('Code và thí nghiệm native', 'Native code & experiments')}
         </button>
-        <button className="btn sm ghost" onClick={() => openDrawer('paper')}>
+        <button className="btn sm ghost" onClick={() => openDrawer('paper')} style={{ justifyContent: 'flex-start', padding: '6px 10px', borderRadius: 8, gap: 8 }}>
           <FileText size={14} /> PaperOrchestra Studio
         </button>
-        <button className="btn sm ghost" onClick={() => openDrawer('cli')}>
+        <button className="btn sm ghost" onClick={() => openDrawer('cli')} style={{ justifyContent: 'flex-start', padding: '6px 10px', borderRadius: 8, gap: 8 }}>
           <Terminal size={14} /> {t('Chat CLI', 'CLI chat')}
         </button>
 

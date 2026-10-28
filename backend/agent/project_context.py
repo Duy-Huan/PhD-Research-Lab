@@ -66,7 +66,7 @@ def resolve_source(sid: str, expanded: bool = False) -> dict | None:
                                         'characters_extracted': len(full),
                                         'limited': extracted['pages'] > 200 or len(full) > 2_000_000}
                 return source
-            except (OSError, ValueError, RuntimeError) as exc:
+            except Exception as exc:  # noqa: BLE001 - any extraction failure (e.g. pypdf stream errors) keeps the metadata
                 source = src(sid, 'reference', e.get('title') or key, text, 'untrusted', 'paper metadata; PDF extraction failed')
                 source['extraction'] = {'error': type(exc).__name__, 'limited': True}
                 return source

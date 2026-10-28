@@ -5,10 +5,12 @@ async function publish({github,context},directory,sha) {
   await qualify({github,context},sha);
   const {owner,repo}=context.repo,root=path.resolve(directory);
   const manifest=JSON.parse(fs.readFileSync(path.join(root,'manifest.json'),'utf8'));
-  if(manifest.source_sha!==sha || !/^\d+\.\d+\.\d+$/.test(manifest.version) || !Array.isArray(manifest.assets) || manifest.assets.length!==2) throw Error('Invalid release manifest');
+  // v6.6.2: every release ships source, web and both installers (.exe, .deb) built from the qualified commit.
+  if(manifest.source_sha!==sha || !/^\d+\.\d+\.\d+$/.test(manifest.version) || !Array.isArray(manifest.assets) || manifest.assets.length!==4) throw Error('Invalid release manifest');
   if(manifest.assets.some(a=>!a || !/^[a-f0-9]{64}$/.test(a.sha256 || '') || !Number.isSafeInteger(a.size) || a.size<=0 || a.size>200000000)) throw Error('Invalid required archive checksum/size');
-  const expected=[`phdlab-${manifest.version}-source.zip`,`phdlab-${manifest.version}-web.zip`];
-  if(new Set(manifest.assets.map(a=>a.name)).size!==2 || !expected.every(name=>manifest.assets.some(a=>a.name===name))) throw Error('Unexpected release assets');
+  const v=manifest.version;
+  const expected=[`phdlab-${v}-source.zip`,`phdlab-${v}-web.zip`,`phdlab-${v}-windows-x64-setup.exe`,`phdlab_${v}_amd64.deb`];
+  if(new Set(manifest.assets.map(a=>a.name)).size!==expected.length || !expected.every(name=>manifest.assets.some(a=>a.name===name))) throw Error('Unexpected release assets');
   const records=[...manifest.assets,{name:'manifest.json'}];
   for(const r of records){
     const file=path.join(root,r.name),stat=fs.lstatSync(file);
@@ -28,7 +30,7 @@ async function publish({github,context},directory,sha) {
   catch(e){
     if(e.status!==404)throw e;
     release=(await github.rest.repos.createRelease({owner,repo,tag_name:tag,target_commitish:sha,name:`PhD Research Lab ${tag}`,draft:true,
-      body:`Software release for qualified commit ${sha}. Source/web checksums are in manifest.json. This is not a scientific or zero-bug certification.`})).data;
+      body:`Software release for qualified commit ${sha}. Source, web, Windows installer and Linux package checksums are in manifest.json. This is not a scientific or zero-bug certification.`})).data;
   }
   const assets=await github.paginate(github.rest.repos.listReleaseAssets,{owner,repo,release_id:release.id,per_page:100});
   for(const r of records){

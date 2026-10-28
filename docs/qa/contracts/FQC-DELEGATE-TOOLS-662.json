@@ -1,0 +1,102 @@
+{
+  "mode": "REAL_LOCAL",
+  "nonfunctional": [
+    "No new dependency"
+  ],
+  "preconditions": [
+    "6.6.0 registry/runtime"
+  ],
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "id": "FQC-DELEGATE-TOOLS-662",
+  "title": "Codex CLI and Claude Code as registry delegate tools",
+  "risk": "MEDIUM",
+  "user_story": "As an agent I can delegate a coding sub-task to a CLI agent the researcher signed in to and get back the files it really wrote.",
+  "requirements": [
+    {
+      "id": "DELEG",
+      "description": "delegate.codex and delegate.claude_code run through research.run_coding (gateway, isolated workspace, scoped grant) and return real files copied under delegations/<job>; need compute+workspace_write."
+    },
+    {
+      "id": "TERMS",
+      "description": "Antigravity and Gemini CLI are never delegates; unavailable CLIs are reported by the probe, not faked."
+    }
+  ],
+  "inputs": [
+    "task",
+    "context"
+  ],
+  "outputs": [
+    "answer",
+    "files",
+    "gateway request id"
+  ],
+  "postconditions": [
+    "Files in project delegations folder"
+  ],
+  "dependencies": [
+    "backend.providers.research.run_coding",
+    "backend.providers.cli"
+  ],
+  "affected_modules": [
+    "backend/tools/delegate_tools.py",
+    "backend/tools/registry.py",
+    "backend/tools/adapters.py"
+  ],
+  "acceptance_criteria": [
+    "Real files returned",
+    "Terms-restricted CLIs absent",
+    "Probe reflects CLI health"
+  ],
+  "scenarios": [
+    {
+      "id": "terms",
+      "requirement": "TERMS",
+      "kind": "negative",
+      "expected": "Only codex/claude_code delegates",
+      "test": "tests/test_delegate_tools.py::DelegateTools.test_only_terms_compatible_cli_agents_are_delegates"
+    },
+    {
+      "id": "run",
+      "requirement": "DELEG",
+      "kind": "positive",
+      "expected": "Gateway run returns result.py",
+      "test": "tests/test_delegate_tools.py::DelegateTools.test_delegation_runs_through_the_gateway_and_returns_real_files"
+    },
+    {
+      "id": "perms",
+      "requirement": "DELEG",
+      "kind": "boundary",
+      "expected": "Without workspace_write denied",
+      "test": "tests/test_delegate_tools.py::DelegateTools.test_delegation_needs_compute_and_workspace_write"
+    },
+    {
+      "id": "probe",
+      "requirement": "TERMS",
+      "kind": "failure",
+      "expected": "Missing CLI reported unavailable",
+      "test": "tests/test_delegate_tools.py::DelegateTools.test_unavailable_cli_is_reported_not_faked"
+    }
+  ],
+  "recovery": "Remove delegate_tools from builtin_specs. TASK-DELEGATE-TOOLS-662, max three cycles.",
+  "test_environment": "Vendor transport MOCKED (fixture connector); gateway, workspace, registry and runtime real in disposable data.",
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: module missing 4/4 ERROR. GREEN: 4/4 PASS.",
+    "red": {
+      "path": "docs/qa/evidence/delegate-tools-662/red.json",
+      "sha256": "0ec3b9b01fb93cc74379bb2bdb1d1e142ee1903cec10708a788feae75bf82a52",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/delegate-tools-662/green.json",
+      "sha256": "d98383232ddf7e831f948ce982568d72260c0644ebd7f2d0e237fd0532896ece",
+      "exit_code": 0
+    }
+  }
+}

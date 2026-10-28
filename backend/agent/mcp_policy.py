@@ -119,7 +119,8 @@ def grant_for_cli(key: str, ttl_s: int = 3600) -> dict:
     return {"mcp_url": base + "/mcp", "mcp_token": issue(key, tools, ttl_s), "mcp_tools": tools}
 
 
-def issue(session_id: str, tools: list, ttl_s: int = 1800) -> str:
+def issue(session_id: str, tools: list, ttl_s: int = 1800, registry: list | None = None) -> str:
+    """registry: the registry tool patterns phdlab_tools_call may run (agent mode); None = the MCP tool list itself."""
     from backend.core.config import data_dir
     tok = "phg_" + secrets.token_urlsafe(24)
     with _lock:
@@ -128,6 +129,8 @@ def issue(session_id: str, tools: list, ttl_s: int = 1800) -> str:
             _grants.pop(k)
         _grants[tok] = {"session_id": session_id, "tools": sorted(set(tools)), "expires": now + ttl_s,
                         "project": str(data_dir().resolve())}
+        if registry is not None:
+            _grants[tok]["registry"] = sorted(set(registry))
     return tok
 
 

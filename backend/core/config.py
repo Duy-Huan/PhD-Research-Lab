@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import sys
 import threading
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -17,12 +18,36 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "6.6.1"
+APP_VERSION = "6.6.2"
 
 ROOT = Path(__file__).resolve().parents[2]
+INSTALL_MARKER = "phdlab-installed.json"  # written by the .exe/.deb installers next to the application
+
+
+def user_data_dir(env=os.environ, system: str = sys.platform) -> Path:
+    """Per-user data folder of an installed copy (v6.6.2): kept when the application is uninstalled or upgraded."""
+    if system.startswith("win"):
+        base = env.get("LOCALAPPDATA") or str(Path.home() / "AppData" / "Local")
+        return Path(base) / "PhDLab"
+    if system == "darwin":
+        return Path.home() / "Library" / "Application Support" / "PhDLab"
+    return Path(env.get("XDG_DATA_HOME") or str(Path.home() / ".local" / "share")) / "phdlab"
+
+
+def default_global_dir(root: Path = ROOT, env=os.environ, system: str = sys.platform) -> Path:
+    """PHDLAB_DATA_DIR wins (tests, portable setups); an installed copy uses the per-user folder, never its install
+    folder; a source checkout keeps <root>/data."""
+    override = env.get("PHDLAB_DATA_DIR", "").strip()
+    if override:
+        return Path(override).resolve()
+    if (root / INSTALL_MARKER).is_file():
+        return user_data_dir(env, system)
+    return root / "data"
+
+
 # PHDLAB_DATA_DIR (v3.2) moves ALL user data elsewhere — used by the test suite so it never touches the real data/.
 _DATA_OVERRIDE = os.environ.get("PHDLAB_DATA_DIR", "").strip()
-GLOBAL_DIR = Path(_DATA_OVERRIDE).resolve() if _DATA_OVERRIDE else ROOT / "data"   # global config + the "Default project"
+GLOBAL_DIR = default_global_dir()   # global config + the "Default project"
 CONFIG_PATH = GLOBAL_DIR / "config.json"
 PROJECTS_ROOT = GLOBAL_DIR / 'projects'  # New paper projects are data, never application source.
 DEFAULT_REFS = GLOBAL_DIR / "references"
@@ -208,7 +233,7 @@ DEFAULTS = {
              "context_mode": "relevant", "memory_mode": "suggest", "auto_memory_types": ["open_question"],
              "mcp_auto": True, "mcp_tools": [], "security_profile": "review", "keep_history": True, "summaries": True,
              "collect_artifacts": True, "context_budget_tokens": 6000, "history_budget_tokens": 4000, "module_defaults": {}, "max_turn_s": 900,
-             "tool_mode": "legacy"},  # v6.6.0: "agent" = model-driven tool loop instead of keyword pre-selection
+             "tool_mode": "agent"},  # v6.6.2 default (owner): model-driven tool loop; "legacy" = keyword pre-selection
 }
 # v5 research runs (backend/agent/runs.py) and research providers (backend/providers/research.py)
 DEFAULTS["runs"] = {
@@ -227,18 +252,22 @@ DEFAULTS["research_providers"] = {
 }
 # v5.1 interface language (UI strings) and AI response language
 DEFAULTS["ui"] = {"language": "vi", "ai_language": "auto", "prose_font": "sans", "paper_explorer_v2": True, "discovery_inbox": True,
-                  "contextual_actions": True, "topic_scheduler_ui": True}
+                  "contextual_actions": True, "topic_scheduler_ui": True,
+                  "projects_root": ""}  # v6.6.2: default folder (any drive) for new projects; "" = <app data>/projects
 DEFAULTS["mcp_agent"] = {"enabled": False, "url": "http://127.0.0.1:8766/mcp", "token": "",
                          "tool": "research", "models": [], "timeout_s": 120}
 DEFAULTS["research_os"] = {"enabled":False,"team_enabled":False,"multi_team_enabled":False}
-DEFAULTS['hermes'] = {'enabled': False, 'model': '', 'deadline_s': 600, 'max_iterations': 16,
-                      'max_tokens': 4096, 'free_only': True}
+DEFAULTS['hermes'] = {'enabled': False, 'model': '', 'deadline_s': 0, 'max_iterations': 0,  # v6.6.2: 0 = no limit
+                      'max_tokens': 0, 'free_only': True}
 # v5.1 automatic venue ranking: CORE conference ranks are downloaded (refreshed after refresh_days); SCImago journal
 # v6.6.0 native tool capability system (backend/tools): agent-written proposal code validates in a container unless
 # the owner explicitly allows host validation; external MCP agent clients reach the registry with mcp_permissions.
 DEFAULTS["tools"] = {"allow_host_validation": False, "validation_image": "python:3.12-slim",
                      "mcp_registry": True, "mcp_permissions": ["read", "compute"],
-                     "provider_pool": [], "pool_cooldown_s": 3600}  # v6.6.1: ordered DIFFERENT providers, empty = off
+                     "provider_pool": [], "pool_cooldown_s": 3600,  # v6.6.1: ordered DIFFERENT providers, empty = off
+                     # v6.6.2: agents are bounded by these permissions only (no step/call/time budgets)
+                     "agent_profile": {"permissions": ["read", "compute", "network", "workspace_write"], "tools": ["*"]},
+                     "client_profiles": {"chatgpt": "agent", "hermes": "agent", "antigravity": "agent"}}
 # exports cannot be fetched automatically (bot protection), so a scimagojr*.csv saved in Downloads is imported by itself.
 DEFAULTS["ranking"] = {"auto": True, "core_source": "ICORE2026", "watch_downloads": True, "refresh_days": 30}
 SECTIONS_V32 = ("runs", "research_providers", "memory", "resources", "codex", "workspace", "routing", "provenance",
@@ -303,10 +332,15 @@ def _merge_section(sec: str, target: dict, patch: dict, masked_ok: bool) -> None
         if allowed and v not in allowed:
             v = DEFAULTS[sec][f]
         target[f] = v
+    if sec == "ui" and target.get("projects_root"):
+        if not Path(target["projects_root"]).is_absolute():  # never resolve against the app or process folder
+            if masked_ok:
+                raise ValueError("The default projects folder must be an absolute path")
+            target["projects_root"] = ""
     if sec == 'hermes':
         target['free_only'] = True  # No paid model authorization exists in this campaign.
         for key, low, high in (('deadline_s', 5, 1800), ('max_iterations', 1, 50), ('max_tokens', 128, 16384)):
-            target[key] = max(low, min(high, target[key]))
+            target[key] = 0 if not target[key] else max(low, min(high, target[key]))  # 0 = no owner limit
         if target['model'] and not re.fullmatch(r'[\w.:/@+-]{1,160}', target['model']):
             raise ValueError('Invalid Hermes model')
     if sec == "tools":
@@ -318,6 +352,14 @@ def _merge_section(sec: str, target: dict, patch: dict, masked_ok: bool) -> None
                 raise
             target["provider_pool"] = []  # a malformed saved pool disables failover instead of breaking startup
         target["pool_cooldown_s"] = max(60, min(86400, target["pool_cooldown_s"]))
+        from backend.tools.profiles import normalize_clients, normalize_profile, DEFAULT_PROFILE, DEFAULT_CLIENTS
+        try:  # unknown permissions are refused on save; a malformed saved profile falls back to the default
+            target["agent_profile"] = normalize_profile(target["agent_profile"])
+            target["client_profiles"] = {**DEFAULT_CLIENTS, **normalize_clients(target["client_profiles"])}
+        except ValueError:
+            if masked_ok:
+                raise
+            target["agent_profile"], target["client_profiles"] = dict(DEFAULT_PROFILE), dict(DEFAULT_CLIENTS)
     if sec == "mcp_agent":
         from backend.providers.mcp_agent import endpoint
         if target["url"] or target["enabled"]:
@@ -622,16 +664,23 @@ def _slug(name: str) -> str:
     return s[:60] or "project"
 
 
+def projects_root() -> Path:
+    """Where new projects without an explicit folder are created (ui.projects_root, else <app data>/projects)."""
+    chosen = (load_config().get("ui") or {}).get("projects_root") or ""
+    return Path(chosen) if chosen else PROJECTS_ROOT
+
+
 def create_project(name: str, data_dir: str | None = None, references_dir: str | None = None) -> dict:
     """New project folder (default: <app>/projects/<name>). Existing folders are opened, not overwritten."""
     if not name or not name.strip():
         raise ValueError("Project name is required")
-    d = _resolve(data_dir) if data_dir and data_dir.strip() else PROJECTS_ROOT / _slug(name)
+    root = projects_root()
+    d = _resolve(data_dir) if data_dir and data_dir.strip() else root / _slug(name)
     if d.exists() and (d / META_NAME).exists() and not data_dir:
         i = 2
-        while (PROJECTS_ROOT / f"{_slug(name)}-{i}").exists():
+        while (root / f"{_slug(name)}-{i}").exists():
             i += 1
-        d = PROJECTS_ROOT / f"{_slug(name)}-{i}"
+        d = root / f"{_slug(name)}-{i}"
     info = _ensure_project(d, name, references_dir, update_refs=bool(references_dir))
     _register(info["data_dir"], activate=True)
     return info

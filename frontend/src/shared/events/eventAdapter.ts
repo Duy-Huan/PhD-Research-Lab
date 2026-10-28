@@ -6,7 +6,7 @@ import type {
   AgentActivity,
 } from '../api/types';
 
-function inferZone(role: string, engine: string): AgentOfficeViewModel['zone'] {
+export function inferZone(role: string, engine: string): AgentOfficeViewModel['zone'] {
   const r = (role || '').toLowerCase();
   const e = (engine || '').toLowerCase();
   if (e === 'opencode' || r.includes('code') || r.includes('implement') || r.includes('compute')) {
@@ -28,7 +28,7 @@ function inferZone(role: string, engine: string): AgentOfficeViewModel['zone'] {
 }
 
 // Old producer IDs below are read-only historical aliases, never active runtime choices.
-function inferArchetype(role: string, engine: string): AgentOfficeViewModel['archetype'] {
+export function inferArchetype(role: string, engine: string): AgentOfficeViewModel['archetype'] {
   const r = (role || '').toLowerCase();
   const e = (engine || '').toLowerCase();
   if (e === 'opencode' || r.includes('code') || r.includes('implement')) return 'opencode';

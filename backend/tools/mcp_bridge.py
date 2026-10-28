@@ -7,10 +7,11 @@ software drives the client (the direction its terms permit). Three meta-tools ar
   phdlab_tools_describe  full schema, permissions and availability of one tool
   phdlab_tools_call      execute a registry tool through the unified runtime (grants, budgets, provenance)
 
-Authority stays with this application. A session holding an ephemeral PhD Lab grant may only call the registry tools
-named in that grant; a directly registered local client gets the owner-configured `tools.mcp_permissions`
-(default read + compute), never mutation, with a per-session budget. Meta-tools are not registry entries, so a call
-cannot recurse into them.
+Authority stays with this application (v6.6.2 profiles). A session holding an ephemeral PhD Lab grant may only call
+the registry tools named in that grant, under the agent profile; a directly connected client gets its entry in
+`tools.client_profiles` ("agent" for chatgpt/hermes/antigravity by default) or, when it has none, the owner-configured
+`tools.mcp_permissions` (default read + compute, no mutation). No call/time budgets. Meta-tools are not registry
+entries, so a call cannot recurse into them.
 """
 from __future__ import annotations
 
@@ -19,7 +20,7 @@ import threading
 
 from backend.tools.registry import REGISTRY
 from backend.tools.runtime import RUNTIME, Grant
-from backend.tools.spec import PERMISSIONS, ToolError
+from backend.tools.spec import ToolError
 
 TOOLS = [
     {"name": "phdlab_tools_search", "group": "read",
@@ -45,23 +46,22 @@ _grants: dict[str, Grant] = {}
 _lock = threading.Lock()
 
 
-def _permissions() -> list:
-    from backend.core.config import load_config
-    configured = (load_config().get("tools") or {}).get("mcp_permissions") or ["read", "compute"]
-    return [p for p in configured if p in PERMISSIONS and p != "workspace_write"]
-
-
 def grant_for(client: dict) -> Grant:
+    """v6.6.2: authority comes from the owner's profiles (tools.client_profiles / tools.agent_profile), no budgets.
+    A PhD-Lab-issued ephemeral session grant (CLI agents, Hermes) runs under the agent profile, scoped to the registry
+    patterns issued with it (agent mode) or else to its own MCP tool list."""
+    from backend.tools import profiles
     session = str(client.get("session") or client.get("name") or "mcp-client")[:80]
+    name = str(client.get("name") or "client")[:60]
     ephemeral = client.get("grant")
-    tools = sorted(ephemeral["tools"]) if ephemeral else ["*"]
-    perms = _permissions()
-    key = json.dumps([session, tools, perms])
+    principal = f"mcp:{name}:{session}"
+    base = profiles.agent_grant(principal) if ephemeral else profiles.client_grant(name, principal)
+    tools = sorted(ephemeral.get("registry", ephemeral["tools"])) if ephemeral else base.tools
+    key = json.dumps([principal, tools, base.permissions])
     with _lock:
         g = _grants.get(key)
         if g is None:
-            g = Grant(principal=f"mcp:{client.get('name') or 'client'}:{session}", tools=tools, permissions=perms,
-                      allow_mutation=False, max_calls=200, max_wall_s=3600)
+            g = base.model_copy(update={"tools": tools})
             _grants[key] = g
             while len(_grants) > 500:
                 _grants.pop(next(iter(_grants)))

@@ -190,8 +190,9 @@ def run_agent(jid: str):
                         base_url=credentials['base_url'], model=job['model'], quiet_mode=True,
                         enabled_toolsets=['memory', 'skills', 'web'] + (['phdlab'] if job.get('tools') else []),
                         skip_context_files=True, skip_background_review=True, skip_memory=False,
-                        max_iterations=job['max_iterations'], run_budget_seconds=job['deadline_s'],
-                        fallback_model={}, session_id=job['session'], cwd='/workspace', max_tokens=job['max_tokens'])
+                        fallback_model={}, session_id=job['session'], cwd='/workspace',
+                        # v6.6.2: no PhD Lab work budget unless an owner limit was sent; Hermes defaults are unlimited.
+                        **{k: job[v] for k, v in BUDGET_KWARGS.items() if job.get(v) is not None})
         result = agent.run_conversation(user_message=job['prompt'], conversation_history=history, task_id=jid)
         text = result.get('final_response')
         if not isinstance(text, str) or not text.strip(): raise ValueError('Hermes returned no final response')
@@ -209,6 +210,9 @@ def run_agent(jid: str):
     save(job_path(jid), job)
 
 
+BUDGET_KWARGS = {'max_iterations': 'max_iterations', 'run_budget_seconds': 'deadline_s', 'max_tokens': 'max_tokens'}
+
+
 def supervise(job: dict):
     jid = job['id']
     log = STATE / 'jobs' / (jid + '.log')
@@ -220,7 +224,8 @@ def supervise(job: dict):
             process = subprocess.Popen([sys.executable, __file__, '--worker', jid], stdout=output, stderr=subprocess.STDOUT,
                                        start_new_session=True)
             ACTIVE[jid] = process
-        try: process.wait(timeout=job['deadline_s'] + 15)
+        # No deadline unless the owner set one (v6.6.2); the user's cancel RPC still kills the worker group.
+        try: process.wait(timeout=job['deadline_s'] + 15 if job.get('deadline_s') else None)
         except subprocess.TimeoutExpired:
             import signal
             os.killpg(process.pid, signal.SIGKILL); process.wait(timeout=10)
@@ -284,7 +289,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if not isinstance(data['prompt'], str) or not data['prompt'].strip(): raise ValueError('Empty prompt')
             if not isinstance(data['model'], str) or not re.fullmatch(r'[\w.:/@+-]{1,160}', data['model']): raise ValueError('Invalid model')
             for name, low, high in (('deadline_s', 5, 1800), ('max_iterations', 1, 50), ('max_tokens', 128, 16384)):
-                if type(data.get(name)) is not int or not low <= data[name] <= high: raise ValueError('Invalid execution budget')
+                if name in data and (type(data[name]) is not int or not low <= data[name] <= high):
+                    raise ValueError('Invalid execution budget')  # optional owner limits; absent = unlimited
             tools = data.get('tools') or []
             if not isinstance(tools, list) or len(tools) > 64 or any(not isinstance(t, str) or not re.fullmatch(r'[\w.-]{1,100}', t) for t in tools):
                 raise ValueError('Invalid tool grant')

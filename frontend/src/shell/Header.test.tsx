@@ -18,7 +18,7 @@ describe('Header', () => {
     renderWithProviders(<Header isLive={true} />);
 
     // Click 3D Lab pill
-    const labBtn = screen.getByText(/Lab 3D|3D Lab/i);
+    const labBtn = screen.getByRole('button', { name: /^(Lab 3D|3D Lab)$/ }); // icon-only, named by aria-label (v6.6.2)
     fireEvent.click(labBtn);
     expect(useUIStore.getState().mainView).toBe('office3d');
 
@@ -33,7 +33,7 @@ describe('Header', () => {
     expect(useUIStore.getState().mainView).toBe('dashboard');
 
     // Click Chat pill
-    const chatBtn = screen.getByText(/Trò chuyện|Chat/i);
+    const chatBtn = screen.getByRole('button', { name: /^(Trò chuyện|Chat)$/ });
     fireEvent.click(chatBtn);
     expect(useUIStore.getState().mainView).toBe('chat');
   });

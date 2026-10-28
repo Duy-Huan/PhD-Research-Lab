@@ -1,0 +1,177 @@
+{
+  "id": "FQC-AGENT-PROFILE-662",
+  "title": "Agents bounded by owner tool permissions only (agent profile, no budgets, agent mode default)",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the researcher I set which tools and permissions agents get; within that, the AI decides how many steps, calls and how long it works, and I can always stop it.",
+  "requirements": [
+    {
+      "id": "PROFILE",
+      "description": "tools.agent_profile (default read, compute, network, workspace_write; tools [*]) and tools.client_profiles (chatgpt/hermes/antigravity = agent) are validated on save; unknown permissions refused."
+    },
+    {
+      "id": "NOBUDGET",
+      "description": "Agent/client grants carry no call, wall or output budget; the agent loop has no step limit; explicit budgets set by other callers are still enforced; each tool keeps its own manifest timeout."
+    },
+    {
+      "id": "STOP",
+      "description": "The user Stop cancels an unbounded loop; identical repeated calls add a NO PROGRESS hint and a tool.no_progress event without stopping."
+    },
+    {
+      "id": "CHAT",
+      "description": "Chat defaults to tool_mode=agent with the profile grant (compute tools usable), session isolation [-] and explicit narrowing still apply, user-requested tools still need approval, prose streams live but tool-protocol blocks never do, and legacy stays selectable."
+    }
+  ],
+  "nonfunctional": [
+    "No new dependency",
+    "Topic isolation unchanged",
+    "One model reply keeps aiws.max_turn_s as a transport timeout (hang protection), the loop has none"
+  ],
+  "inputs": [
+    "tools.agent_profile",
+    "tools.client_profiles",
+    "session mcp_tools"
+  ],
+  "outputs": [
+    "Grants",
+    "Agent loop result",
+    "Session events"
+  ],
+  "preconditions": [
+    "6.6.0 registry/runtime"
+  ],
+  "postconditions": [
+    "Profile governs chat, MCP bridge and ephemeral sessions"
+  ],
+  "dependencies": [
+    "backend.tools.runtime.Grant",
+    "backend.tools.agent_loop",
+    "backend.agent.orchestrator",
+    "backend.tools.mcp_bridge"
+  ],
+  "affected_modules": [
+    "backend/tools/profiles.py",
+    "backend/tools/runtime.py",
+    "backend/tools/agent_loop.py",
+    "backend/tools/mcp_bridge.py",
+    "backend/agent/orchestrator.py",
+    "backend/agent/sessions.py",
+    "backend/core/config.py"
+  ],
+  "acceptance_criteria": [
+    "60 calls beyond the former 50/12 limits succeed",
+    "Stop ends an endless loop",
+    "Default chat runs a compute registry tool",
+    "Unknown permissions refused"
+  ],
+  "scenarios": [
+    {
+      "id": "defaults",
+      "requirement": "PROFILE",
+      "kind": "positive",
+      "expected": "Native default profile and agent mode",
+      "test": "tests/test_agent_profile.py::ProfileConfig.test_default_profile_is_native_and_chat_defaults_to_agent_mode"
+    },
+    {
+      "id": "validation",
+      "requirement": "PROFILE",
+      "kind": "security",
+      "expected": "Unknown permissions refused, lists normalised",
+      "test": "tests/test_agent_profile.py::ProfileConfig.test_profile_validation_refuses_unknown_permissions_and_keeps_lists_clean"
+    },
+    {
+      "id": "grant",
+      "requirement": "NOBUDGET",
+      "kind": "positive",
+      "expected": "Agent grant has no budgets and follows the profile",
+      "test": "tests/test_agent_profile.py::ProfileConfig.test_agent_grant_has_no_budgets_and_follows_the_profile"
+    },
+    {
+      "id": "isolation",
+      "requirement": "CHAT",
+      "kind": "security",
+      "expected": "Isolation and narrowing still apply",
+      "test": "tests/test_agent_profile.py::ProfileConfig.test_session_isolation_and_explicit_narrowing_still_apply"
+    },
+    {
+      "id": "clients",
+      "requirement": "PROFILE",
+      "kind": "boundary",
+      "expected": "External clients use their profiles; unknown clients the narrow fallback",
+      "test": "tests/test_agent_profile.py::ProfileConfig.test_client_profiles_for_external_mcp_clients"
+    },
+    {
+      "id": "many-calls",
+      "requirement": "NOBUDGET",
+      "kind": "performance",
+      "expected": "60 calls in one grant succeed",
+      "test": "tests/test_agent_profile.py::NoBudgets.test_unbudgeted_grant_runs_beyond_the_old_call_limit"
+    },
+    {
+      "id": "explicit-budget",
+      "requirement": "NOBUDGET",
+      "kind": "negative",
+      "expected": "Explicit budgets still enforced",
+      "test": "tests/test_agent_profile.py::NoBudgets.test_explicit_budgets_are_still_enforced_when_set"
+    },
+    {
+      "id": "no-step-limit",
+      "requirement": "STOP",
+      "kind": "boundary",
+      "expected": "18 steps and a NO PROGRESS hint",
+      "test": "tests/test_agent_profile.py::NoBudgets.test_loop_has_no_step_limit_and_hints_on_repeated_identical_calls"
+    },
+    {
+      "id": "cancel",
+      "requirement": "STOP",
+      "kind": "failure",
+      "expected": "Stop ends an unbounded loop",
+      "test": "tests/test_agent_profile.py::NoBudgets.test_cancel_still_stops_an_unbounded_loop"
+    },
+    {
+      "id": "chat-compute",
+      "requirement": "CHAT",
+      "kind": "positive",
+      "expected": "Default chat runs a compute tool",
+      "test": "tests/test_agent_profile.py::ChatAgent.test_default_chat_runs_compute_tools_from_the_registry_without_a_time_budget"
+    },
+    {
+      "id": "stream",
+      "requirement": "CHAT",
+      "kind": "positive",
+      "expected": "Prose streamed, tool blocks hidden",
+      "test": "tests/test_agent_profile.py::ChatAgent.test_agent_mode_streams_prose_live_but_never_tool_protocol_blocks"
+    },
+    {
+      "id": "legacy",
+      "requirement": "CHAT",
+      "kind": "negative",
+      "expected": "Legacy remains selectable",
+      "test": "tests/test_agent_profile.py::ChatAgent.test_legacy_mode_remains_available"
+    }
+  ],
+  "recovery": "Set aiws.tool_mode=legacy or narrow tools.agent_profile in Settings; revert profiles.py usage. TASK-AGENT-PROFILE-662, max three cycles.",
+  "test_environment": "Models MOCKED (scripted replies / engine streams); registry, runtime subprocess tools, sessions, orchestrator, config are real in disposable data.",
+  "skill_sources": [
+    "skills/ai-agents-architect/SKILL.md",
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent): owner decision no budgets vs. per-tool hang timeouts; legacy regressions found (explicit run_tools, streaming, partial) and fixed."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: before implementation 11/11 ERROR (profiles module missing). GREEN: 12/12 PASS (streaming scenario added during implementation).",
+    "red": {
+      "path": "docs/qa/evidence/agent-profile-662/red.json",
+      "sha256": "6e6e02d374cb0ce5373d6a63890fe9ba883066ef261f17fdaa76b55b62056ac1",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/agent-profile-662/green.json",
+      "sha256": "faca50a2a0ebb3fd6145de3e32b471efdaf99da9d41537cc05b12431c961a8de",
+      "exit_code": 0
+    }
+  }
+}

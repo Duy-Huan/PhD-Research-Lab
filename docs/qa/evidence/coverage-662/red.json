@@ -1,0 +1,126 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_harness_legacy_and_api.HarnessApi.test_agents_team_and_architect",
+      "status": "PASS",
+      "duration": 0.1808,
+      "details": null
+    },
+    {
+      "id": "test_harness_legacy_and_api.HarnessApi.test_execution_routes_and_debugger_actions",
+      "status": "ERROR",
+      "duration": 0.0227,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662\\tests\\test_harness_legacy_and_api.py\", line 111, in test_execution_routes_and_debugger_actions\n    legacy = self.c.post(\"/api/harness/execute\", json={\"workflow\": {\"id\": \"legacy2\", \"nodes\": \"x\"}}).json()\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\httpx\\_client.py\", line 1144, in post\n    return self.request(\n           ^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\starlette\\testclient.py\", line 518, in request\n    return super().request(\n           ^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\httpx\\_client.py\", line 825, in request\n    return self.send(request, auth=auth, follow_redirects=follow_redirects)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\httpx\\_client.py\", line 928, in send\n    raise exc\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\httpx\\_client.py\", line 922, in send\n    response.read()\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\httpx\\_models.py\", line 881, in read\n    self._content = b\"\".join(self.iter_bytes())\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\httpx\\_models.py\", line 897, in iter_bytes\n    for raw_bytes in self.iter_raw():\n                     ^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\httpx\\_models.py\", line 951, in iter_raw\n    for raw_stream_bytes in self.stream:\n                            ^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\httpx\\_client.py\", line 153, in __iter__\n    for chunk in self._stream:\n                 ^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\starlette\\testclient.py\", line 384, in iter_body\n    exit_stack.close()\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\contextlib.py\", line 618, in close\n    self.__exit__(None, None, None)\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\contextlib.py\", line 610, in __exit__\n    raise exc_details[1]\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\contextlib.py\", line 595, in __exit__\n    if cb(*exc_details):\n       ^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\starlette\\testclient.py\", line 399, in close_app\n    raise exception\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\anyio\\from_thread.py\", line 265, in _call_func\n    retval = await retval_or_awaitable\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\starlette\\testclient.py\", line 366, in run_app\n    await self.app(scope, receive, send)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\fastapi\\applications.py\", line 1194, in __call__\n    await super().__call__(scope, receive, send)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\starlette\\applications.py\", line 96, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\starlette\\middleware\\errors.py\", line 186, in __call__\n    raise exc\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\starlette\\middleware\\errors.py\", line 164, in __call__\n    await self.app(scope, receive, _send)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\fastapi\\telemetry\\_asgi.py\", line 151, in __call__\n    await self.app(scope, receive, send)\n  File \"D:\\r662\\backend\\app.py\", line 180, in __call__\n    return await self.inner(scope, receive, send)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r662\\backend\\app.py\", line 135, in __call__\n    return await self.inner(scope, receive, send)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r662\\backend\\core\\bus.py\", line 77, in __call__\n    await self.app(scope, receive, wrapped)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\starlette\\middleware\\exceptions.py\", line 63, in __call__\n    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\fastapi\\middleware\\asyncexitstack.py\", line 18, in __call__\n    await self.app(scope, receive, send)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\starlette\\routing.py\", line 683, in __call__\n    await self.middleware_stack(scope, receive, send)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\fastapi\\routing.py\", line 2811, in app\n    await route.handle(scope, receive, send)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\fastapi\\routing.py\", line 1839, in handle\n    await self.original_router.handle(scope, receive, send)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\fastapi\\routing.py\", line 2894, in handle\n    await included_router._handle_selected(scope, receive, send)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\fastapi\\routing.py\", line 1865, in _handle_selected\n    await original_route.handle(scope, receive, send)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\fastapi\\routing.py\", line 1328, in handle\n    await effective_context.app(scope, receive, send)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\fastapi\\routing.py\", line 166, in app\n    await wrap_app_handling_exceptions(app, request)(scope, receive, send)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 53, in wrapped_app\n    raise exc\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\starlette\\_exception_handler.py\", line 42, in wrapped_app\n    await app(scope, receive, sender)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\fastapi\\routing.py\", line 152, in app\n    response = await f(request)\n               ^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\fastapi\\routing.py\", line 745, in app\n    raw_response = await run_endpoint_function(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\fastapi\\routing.py\", line 372, in run_endpoint_function\n    return await dependant.call(**values)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r662\\backend\\api\\harness.py\", line 183, in run_workflow\n    report = await run_in_threadpool(H.execute_workflow, workflow, topic_id)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\starlette\\concurrency.py\", line 34, in run_in_threadpool\n    return await anyio.to_thread.run_sync(func)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\anyio\\to_thread.py\", line 65, in run_sync\n    return await get_async_backend().run_sync_in_worker_thread(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py\", line 2706, in run_sync_in_worker_thread\n    return await future\n           ^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\anyio\\_backends\\_asyncio.py\", line 1100, in run\n    result = context.run(func, *args)\n             ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r662\\backend\\execution\\harness.py\", line 454, in execute_workflow\n    node_map = {n[\"id\"]: n for n in nodes}\n                ~^^^^^^\nTypeError: string indices must be integers, not 'str'\n"
+    },
+    {
+      "id": "test_harness_legacy_and_api.HarnessApi.test_workflow_crud_and_templates",
+      "status": "PASS",
+      "duration": 0.0998,
+      "details": null
+    },
+    {
+      "id": "test_harness_legacy_and_api.LegacyHarness.test_adapter_detection_covers_every_catalog_entry",
+      "status": "PASS",
+      "duration": 0.0065,
+      "details": null
+    },
+    {
+      "id": "test_harness_legacy_and_api.LegacyHarness.test_invalid_graphs_fail_without_running",
+      "status": "PASS",
+      "duration": 0.0108,
+      "details": null
+    },
+    {
+      "id": "test_harness_legacy_and_api.LegacyHarness.test_known_adapters_are_blocked_and_downstream_is_blocked_too",
+      "status": "PASS",
+      "duration": 0.0629,
+      "details": null
+    },
+    {
+      "id": "test_harness_legacy_and_api.LegacyHarness.test_storage_survives_damaged_files",
+      "status": "PASS",
+      "duration": 0.0957,
+      "details": null
+    },
+    {
+      "id": "test_project_context_sources.Actions.test_approved_actions_use_the_domain_services",
+      "status": "PASS",
+      "duration": 0.1886,
+      "details": null
+    },
+    {
+      "id": "test_project_context_sources.Sources.test_reference_sources_with_pdf_text_and_failed_extraction",
+      "status": "ERROR",
+      "duration": 0.1024,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r662\\tests\\test_project_context_sources.py\", line 26, in test_reference_sources_with_pdf_text_and_failed_extraction\n    failed = P.resolve_source(\"ref:\" + key, expanded=True)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r662\\backend\\agent\\project_context.py\", line 62, in resolve_source\n    extracted = _read_pdf(pdf_path, 200, want_title=False)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r662\\backend\\knowledge\\library.py\", line 128, in _read_pdf\n    reader = PdfReader(str(path))\n             ^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\pypdf\\_reader.py\", line 157, in __init__\n    self._initialize_stream(stream)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\pypdf\\_reader.py\", line 182, in _initialize_stream\n    self.read(stream)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\pypdf\\_reader.py\", line 776, in read\n    self._find_eof_marker(stream)\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\pypdf\\_reader.py\", line 921, in _find_eof_marker\n    line = read_previous_line(stream)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\git-repo\\PhD-Research-Lab-worktrees\\dev\\output\\playwright\\regression-policy-657\\python\\Lib\\site-packages\\pypdf\\_utils.py\", line 413, in read_previous_line\n    raise PdfStreamError(STREAM_TRUNCATED_PREMATURELY)\npypdf.errors.PdfStreamError: Stream has ended unexpectedly\n"
+    },
+    {
+      "id": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing",
+      "status": "PASS",
+      "duration": 0.1018,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_harness_legacy_and_api.LegacyHarness.test_invalid_graphs_fail_without_running",
+      "id": "test_harness_legacy_and_api.LegacyHarness.test_invalid_graphs_fail_without_running (graph=[])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_harness_legacy_and_api.LegacyHarness.test_invalid_graphs_fail_without_running",
+      "id": "test_harness_legacy_and_api.LegacyHarness.test_invalid_graphs_fail_without_running (graph=[{'source': 'n0', 'target': 'ghost'}])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_harness_legacy_and_api.LegacyHarness.test_invalid_graphs_fail_without_running",
+      "id": "test_harness_legacy_and_api.LegacyHarness.test_invalid_graphs_fail_without_running (graph=[{'source': 'n0', 'target': 'n1'}, {'source': 'n1', 'target': 'n0'}])",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing",
+      "id": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing [mem:nope]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing",
+      "id": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing [run:nope]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing",
+      "id": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing [att:nope]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing",
+      "id": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing [note:nope]",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing",
+      "id": "test_project_context_sources.Sources.test_unknown_or_missing_records_resolve_to_nothing [other:x]",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 10,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-gb6eqz_4",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

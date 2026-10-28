@@ -1,0 +1,89 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_agent_profile.ChatAgent.test_agent_mode_streams_prose_live_but_never_tool_protocol_blocks",
+      "status": "PASS",
+      "duration": 7.8381,
+      "details": null
+    },
+    {
+      "id": "test_agent_profile.ChatAgent.test_default_chat_runs_compute_tools_from_the_registry_without_a_time_budget",
+      "status": "PASS",
+      "duration": 0.6563,
+      "details": null
+    },
+    {
+      "id": "test_agent_profile.ChatAgent.test_legacy_mode_remains_available",
+      "status": "PASS",
+      "duration": 0.3889,
+      "details": null
+    },
+    {
+      "id": "test_agent_profile.NoBudgets.test_cancel_still_stops_an_unbounded_loop",
+      "status": "PASS",
+      "duration": 2.6902,
+      "details": null
+    },
+    {
+      "id": "test_agent_profile.NoBudgets.test_explicit_budgets_are_still_enforced_when_set",
+      "status": "PASS",
+      "duration": 0.1832,
+      "details": null
+    },
+    {
+      "id": "test_agent_profile.NoBudgets.test_loop_has_no_step_limit_and_hints_on_repeated_identical_calls",
+      "status": "PASS",
+      "duration": 2.0954,
+      "details": null
+    },
+    {
+      "id": "test_agent_profile.NoBudgets.test_unbudgeted_grant_runs_beyond_the_old_call_limit",
+      "status": "PASS",
+      "duration": 6.0806,
+      "details": null
+    },
+    {
+      "id": "test_agent_profile.ProfileConfig.test_agent_grant_has_no_budgets_and_follows_the_profile",
+      "status": "PASS",
+      "duration": 0.0687,
+      "details": null
+    },
+    {
+      "id": "test_agent_profile.ProfileConfig.test_client_profiles_for_external_mcp_clients",
+      "status": "PASS",
+      "duration": 0.0641,
+      "details": null
+    },
+    {
+      "id": "test_agent_profile.ProfileConfig.test_default_profile_is_native_and_chat_defaults_to_agent_mode",
+      "status": "PASS",
+      "duration": 0.0407,
+      "details": null
+    },
+    {
+      "id": "test_agent_profile.ProfileConfig.test_profile_validation_refuses_unknown_permissions_and_keeps_lists_clean",
+      "status": "PASS",
+      "duration": 0.0551,
+      "details": null
+    },
+    {
+      "id": "test_agent_profile.ProfileConfig.test_session_isolation_and_explicit_narrowing_still_apply",
+      "status": "PASS",
+      "duration": 0.0556,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 12,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-4ueqmm0x",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}
