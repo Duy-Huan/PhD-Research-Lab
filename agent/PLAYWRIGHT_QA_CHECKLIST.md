@@ -103,6 +103,11 @@ Run the full screen inventory (section 4) on the **core matrix**; run the journe
 | Input | mouse | keyboard only; touch (`hasTouch`, `isMobile`) |
 | Network | normal | slow 3G profile, offline mid-action, backend stopped/restarted |
 | Browser | Chromium | Firefox and WebKit as smoke only (informational) |
+| Operating system fonts | Windows (local) and Linux (CI) | — |
+
+Fonts differ by operating system, so a pass on Windows does not prove a pass on Linux. In 6.6.3, CI on Linux found a
+shortened title without a tooltip and an 18 px card header that both passed on Windows. Treat the CI audit as part of
+the core matrix, and keep text that may shorten readable through a tooltip.
 
 ## 2. Automatic visual audit (run on every screen, every matrix cell)
 

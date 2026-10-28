@@ -26,6 +26,7 @@ Process: `agent/PLAYWRIGHT_QA_CHECKLIST.md`. Contract: `docs/qa/contracts/FQC-UI
 | 3 (topic selected, after the first fixes) | 26 of 181 failed | `red-run3-with-topic-findings.txt` |
 | Stability run A | 2 of 220 failed | timing-dependent defects in the Paper tabs and the AI tools list (see below) |
 | Stability runs C and D | 3 of 220 failed, the same 3 both times | the AI tools registry in the three desktop cells showed tool ids such as `mission.code.implement` as plain text (VIS-I18N-KEY). These runs also used a server started before the 6.6.3 backend changes (`/api/version` returned 6.6.2), so they do not count toward the release. |
+| CI on Linux, commit `8defb4a` | 6 audit failures, then the browser step timed out | Linux fonts are wider than on Windows. The Harness node badge "PhDLab Research Harness" was shortened without a tooltip (VIS-CLIPPED). The AI tools card headers were 18 px tall (VIS-TARGET). The 181-screen audit shared one 600 s Playwright invocation with every other suite and ran out of time. |
 
 The first run's 471 occlusions were mostly a rule error. On phones the full-screen drawer covers the screen behind it on purpose, so the rule now skips controls behind large overlays. The occlusion that remained ("Colab GPU / Local GPU / Docker") was inside a closed `<details>`, and closed `<details>` content is now skipped as well.
 
@@ -51,6 +52,12 @@ The first run's 471 occlusions were mostly a rule error. On phones the full-scre
   - The sidebar menu "Công cụ Nghiên cứu" had the same Vietnamese name as the Settings tab "Research Engines". It is now "Xưởng nghiên cứu".
   - The Dashboard's VRAM error was shown with `alert()`. It is now shown on the page.
   - The AI tools registry listed bare tool ids, with the description only in a tooltip. Each id is now marked as code (`<code>`), followed by its plain-language description. Unit test: `AiToolsSettings.test.tsx`.
+- **Found by CI on Linux:**
+  - The Harness node badge now carries its full name as a tooltip (`HarnessNodeComponent.test.tsx`).
+  - The AI tools card headers are at least 24 px tall (`AiToolsSettings.test.tsx`).
+- **Audit run time:**
+  - `qa_screens.spec.ts` now waits until the screen stops changing (`settle()` in `uiAudit.ts`) instead of a fixed 1.5 s pause. Locally this went from about 2.7 s to 2.15 s per screen.
+  - The audit runs as its own `2d-audit` Playwright invocation (`execution_groups` in `devtools/verification/journeys.py`, tested in `tests/test_dynamic_discovery.py`). The 600 s per-invocation limit is unchanged.
 
 ## GREEN
 

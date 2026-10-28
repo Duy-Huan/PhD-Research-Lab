@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect } from './live';
 import type { Page } from '@playwright/test';
-import { uiAudit } from './uiAudit';
+import { settle, uiAudit } from './uiAudit';
 
 // agent/PLAYWRIGHT_QA_CHECKLIST.md section 4: every main view, Settings tab and drawer panel, opened from its normal
 // entry point, audited with the section 2 rules (uiAudit) in both languages and themes, desktop and phone.
@@ -114,7 +114,7 @@ for (const [cell, screen, open, withTopic] of RUNS) {
       await expect(page.locator('html')).toHaveAttribute('data-theme', cell.theme);
       if (withTopic) await selectTopic(page);
       await open(page, cell.lang);
-      await page.waitForTimeout(1500);  // let data load and enter animations finish before measuring
+      await settle(page);  // measure once data has loaded and enter animations have finished
       const findings = await uiAudit(page, cell.lang);
       if (cell.axe) {
         const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).exclude('canvas').analyze();

@@ -36,7 +36,7 @@ const Card: React.FC<{ icon: React.ElementType; title: string; hint?: string; ch
   return (
     <motion.section layout className="card" data-testid={testId} style={{ padding: 16, marginBottom: 12 }}>
       <button type="button" className="icon" aria-expanded={open} onClick={() => setOpen(!open)}
-        style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', background: 'none', border: 0, cursor: 'pointer' }}>
+        style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', minHeight: 24, background: 'none', border: 0, cursor: 'pointer' }}>
         <Icon size={18} aria-hidden />
         <strong style={{ fontSize: 15 }}>{title}</strong>
       </button>

@@ -8,6 +8,16 @@ Specs: e2e/qa_screens.spec.ts e2e/cli_studio.spec.ts e2e/shell_layout.spec.ts (C
 Run E (output/playwright/qa663-stab-e): 220 passed (9.1m), 0 failed, 0 flaky
 Run F (output/playwright/qa663-stab-f): 220 passed (9.3m), 0 failed, 0 flaky
 
+After CI on Linux (commit 8defb4a) found 2 font-dependent defects and the audit timeout (see README.md), the fixes
+were rebuilt and the same three specs were run again as runs I and J (output/playwright/qa663-stab-i, -j). A run G
+started earlier was stopped before it finished and does not count.
+Bundle: frontend/dist/assets/react-D44gk0C7.js, react-D4R8dXDd.css; server /api/version -> 6.6.3
+
+Run I (output/playwright/qa663-stab-i): 220 passed (7.3m), 0 failed, 0 flaky
+Run J (output/playwright/qa663-stab-j): 220 passed (7.3m), 0 failed, 0 flaky
+qa_screens.spec.ts alone with settle(): 181 passed (6.5m). With the fixed 1.5 s pause, the three specs together took
+9.1-9.3 min (runs E and F); with settle() they took 7.3 min (runs I and J).
+
 Runs not counted:
 - Runs C and D (qa663-stab-c, qa663-stab-d): 217 passed, 3 failed each. The failures were the settings-ai-tools screen at
   1440 px (en light, en dark, vi light), rule VIS-I18N-KEY: the tool registry showed bare tool ids. Fixed in

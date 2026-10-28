@@ -377,6 +377,7 @@ export const HarnessNodeComponent: React.FC<HarnessNodeComponentProps> = ({ id, 
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, overflow: 'hidden' }}>
           {nodeIcon}
           <span
+            title={badgeTitle}
             style={{
               fontSize: 10,
               fontWeight: 700,

@@ -1,5 +1,28 @@
 import type { Page } from '@playwright/test';
 
+/** Waits until the screen stops changing: same layout, text, busy markers and running animations for `quietMs`.
+ * Replaces a fixed pause, so fast screens are measured sooner and slow ones get up to `maxMs`. */
+export async function settle(page: Page, quietMs = 500, maxMs = 5000): Promise<void> {
+  const signature = () => page.evaluate(() => {
+    let geometry = 0;
+    for (const el of Array.from(document.querySelectorAll('body *'))) {
+      const b = el.getBoundingClientRect();
+      geometry += Math.round(b.top) + Math.round(b.height) * 3 + Math.round(b.width) * 7;
+    }
+    const running = document.getAnimations().filter(a => a.playState === 'running').length;
+    return [document.querySelectorAll('body *').length, document.body.innerText.length, geometry,
+      document.querySelectorAll('[aria-busy="true"]').length, running].join(':');
+  });
+  const started = Date.now();
+  let last = await signature();
+  let quietSince = Date.now();
+  while (Date.now() - started < maxMs) {
+    await page.waitForTimeout(100);
+    const now = await signature();
+    if (now !== last) { last = now; quietSince = Date.now(); } else if (Date.now() - quietSince >= quietMs) return;
+  }
+}
+
 /** agent/PLAYWRIGHT_QA_CHECKLIST.md section 2: automatic visual audit of what is on screen now.
  * Returns findings as "RULE: detail" strings; an empty list means the screen passed every rule. */
 export async function uiAudit(page: Page, language: 'vi' | 'en'): Promise<string[]> {
