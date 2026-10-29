@@ -1,0 +1,96 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_suite_664.Suite.test_an_edited_suite_is_refused",
+      "status": "PASS",
+      "duration": 0.0354,
+      "details": null
+    },
+    {
+      "id": "test_suite_664.Suite.test_every_dataset_regenerates_to_its_recorded_sha256",
+      "status": "PASS",
+      "duration": 0.101,
+      "details": null
+    },
+    {
+      "id": "test_suite_664.Suite.test_invalid_suites_are_reported",
+      "status": "PASS",
+      "duration": 0.0006,
+      "details": null
+    },
+    {
+      "id": "test_suite_664.Suite.test_open_ended_cases_keep_held_out_data_apart",
+      "status": "PASS",
+      "duration": 0.0003,
+      "details": null
+    },
+    {
+      "id": "test_suite_664.Suite.test_regenerating_all_data_is_quick",
+      "status": "PASS",
+      "duration": 0.055,
+      "details": null
+    },
+    {
+      "id": "test_suite_664.Suite.test_the_campaign_template_is_scored_not_run_until_measured",
+      "status": "PASS",
+      "duration": 0.0054,
+      "details": null
+    },
+    {
+      "id": "test_suite_664.Suite.test_the_frozen_suite_loads_and_follows_the_owner_decision",
+      "status": "PASS",
+      "duration": 0.0005,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_suite_664.Suite.test_every_dataset_regenerates_to_its_recorded_sha256",
+      "id": "test_suite_664.Suite.test_every_dataset_regenerates_to_its_recorded_sha256 (dataset='d1-train')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_suite_664.Suite.test_every_dataset_regenerates_to_its_recorded_sha256",
+      "id": "test_suite_664.Suite.test_every_dataset_regenerates_to_its_recorded_sha256 (dataset='d2-train')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_suite_664.Suite.test_every_dataset_regenerates_to_its_recorded_sha256",
+      "id": "test_suite_664.Suite.test_every_dataset_regenerates_to_its_recorded_sha256 (dataset='d3-train')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_suite_664.Suite.test_every_dataset_regenerates_to_its_recorded_sha256",
+      "id": "test_suite_664.Suite.test_every_dataset_regenerates_to_its_recorded_sha256 (dataset='d3-heldout')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_suite_664.Suite.test_every_dataset_regenerates_to_its_recorded_sha256",
+      "id": "test_suite_664.Suite.test_every_dataset_regenerates_to_its_recorded_sha256 (dataset='d4-train')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_suite_664.Suite.test_every_dataset_regenerates_to_its_recorded_sha256",
+      "id": "test_suite_664.Suite.test_every_dataset_regenerates_to_its_recorded_sha256 (dataset='d4-heldout')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 7,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-gnrmm8ri",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

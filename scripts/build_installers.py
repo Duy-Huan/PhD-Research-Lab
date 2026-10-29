@@ -32,6 +32,16 @@ PYTHON_EMBED = {  # python.org 3.12.10 embeddable (MD5 fe8ef205f2e9c3ba44d0cf995
     "sha256": "4acbed6dd1c744b0376e3b1cf57ce906f9dc9e95e68824584c8099a63025a3c3",
     "pth": "python312._pth",
 }
+# v6.6.4: LaTeX → PDF without a TeX installation. Tectonic (MIT) 0.17.0; SHA-256 as published in the GitHub release
+# metadata and re-checked on download. Installed to <install>/tools next to <install>/app (backend.paper.latex.bundled_dir).
+TECTONIC = {
+    "windows": {"url": "https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic%400.17.0/"
+                       "tectonic-0.17.0-x86_64-pc-windows-msvc.zip",
+                "sha256": "f61ce51f0b0ade1015b7de7ef368541c5424e9756ecbd0d7af97d6d48030845f", "member": "tectonic.exe"},
+    "linux": {"url": "https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic%400.17.0/"
+                     "tectonic-0.17.0-x86_64-unknown-linux-musl.tar.gz",
+              "sha256": "8533d07f9ccbd7a65824b9e0459041bca34af1eb33daba48f59215593753a3b7", "member": "tectonic"},
+}
 DEB_PYTHONS = ("3.11", "3.12", "3.13")  # wheels bundled for every supported system python3
 LOCK = "requirements-runtime.lock"
 INSTALL_MARKER = "phdlab-installed.json"
@@ -91,15 +101,45 @@ def stage_app(assets: Path, app: Path) -> dict:
     return manifest
 
 
-def fetch_embed(cache: Path) -> Path:
-    target = cache / Path(PYTHON_EMBED["url"]).name
+def fetch_pinned(url: str, digest: str, cache: Path, what: str) -> Path:
+    """Download once into the cache; a file that does not match the pinned SHA-256 is deleted, never used."""
+    target = cache / Path(url).name.replace("%40", "@")
     if not target.is_file():
         cache.mkdir(parents=True, exist_ok=True)
-        with urllib.request.urlopen(PYTHON_EMBED["url"], timeout=120) as response, target.open("wb") as out:
+        with urllib.request.urlopen(url, timeout=120) as response, target.open("wb") as out:
             shutil.copyfileobj(response, out)
-    if sha256(target) != PYTHON_EMBED["sha256"]:
+    if sha256(target) != digest:
         target.unlink()
-        raise ValueError("Embedded Python download does not match the pinned SHA-256")
+        raise ValueError(f"{what} download does not match the pinned SHA-256")
+    return target
+
+
+def fetch_embed(cache: Path) -> Path:
+    return fetch_pinned(PYTHON_EMBED["url"], PYTHON_EMBED["sha256"], cache, "Embedded Python")
+
+
+def stage_tectonic(platform: str, cache: Path, tools: Path) -> Path:
+    """Put the pinned Tectonic binary (only that file) into tools/ and return its path."""
+    spec = TECTONIC[platform]
+    archive = fetch_pinned(spec["url"], spec["sha256"], cache, "Tectonic")
+    tools.mkdir(parents=True, exist_ok=True)
+    target = tools / spec["member"]
+    if archive.name.endswith(".zip"):
+        with zipfile.ZipFile(archive) as z:
+            names = [n for n in z.namelist() if Path(n).name == spec["member"]]
+            if len(names) != 1:
+                raise ValueError(f"{spec['member']} not found once in {archive.name}")
+            target.write_bytes(z.read(names[0]))
+    else:
+        import tarfile
+        with tarfile.open(archive, "r:gz") as t:
+            members = [m for m in t.getmembers() if m.isfile() and Path(m.name).name == spec["member"]]
+            if len(members) != 1:
+                raise ValueError(f"{spec['member']} not found once in {archive.name}")
+            target.write_bytes(t.extractfile(members[0]).read())
+    target.chmod(0o755)
+    # MIT: the licence travels with every copy (the release archives hold only the binary).
+    shutil.copy2(ROOT / "packaging" / "licenses" / "tectonic-0.17.0-LICENSE.txt", tools / "tectonic-LICENSE.txt")
     return target
 
 
@@ -128,6 +168,7 @@ def build_windows(assets: Path, out: Path, cache: Path) -> Path:
                         "--require-hashes", "--only-binary=:all:", "--target", str(site), "-r", str(ROOT / LOCK)], check=True)
         # The embedded interpreter ignores PYTHONPATH; its ._pth file is the import path (site enables .pth files).
         (python / PYTHON_EMBED["pth"]).write_text("python312.zip\n.\nLib\\site-packages\n..\\app\nimport site\n", "utf-8")
+        stage_tectonic("windows", cache, stage / "tools")
         shutil.copy2(ROOT / "packaging" / "icons" / "phdlab.ico", stage / "phdlab.ico")
         out.mkdir(parents=True, exist_ok=True)
         subprocess.run([iscc(), "/Q", f"/DAppVersion={manifest['version']}", f"/DStageDir={stage}", f"/DOutputDir={out.resolve()}",
@@ -147,7 +188,7 @@ def lf_copy(source: Path, target: Path, replace: dict | None = None) -> None:
     target.write_bytes(text.encode("utf-8"))
 
 
-def build_deb(assets: Path, out: Path) -> Path:
+def build_deb(assets: Path, out: Path, cache: Path = ROOT / "output" / "release" / "cache") -> Path:
     work = Path(tempfile.mkdtemp(prefix="phdlab-deb-"))
     try:
         tree = work / "tree"
@@ -155,6 +196,7 @@ def build_deb(assets: Path, out: Path) -> Path:
         version = manifest["version"]
         opt = tree / "opt" / "phdlab"
         shutil.copy2(ROOT / LOCK, opt / LOCK)
+        stage_tectonic("linux", cache, opt / "tools")
         wheels = opt / "wheels"
         for py in DEB_PYTHONS:
             subprocess.run([sys.executable, "-m", "pip", "download", "--quiet", "--disable-pip-version-check", "--no-deps",
@@ -257,6 +299,16 @@ def stop_installed_processes(install_dir: Path) -> list[int]:
     return stopped
 
 
+def check_latex(binary: Path) -> str:
+    """The bundled LaTeX engine is installed and runs (offline: --version needs no package download)."""
+    if not binary.is_file():
+        raise RuntimeError(f"The bundled LaTeX engine is missing: {binary}")
+    r = subprocess.run([str(binary), "--version"], capture_output=True, text=True, timeout=60)
+    if r.returncode or "0.17.0" not in r.stdout:
+        raise RuntimeError(f"The bundled LaTeX engine does not run: {(r.stdout + r.stderr)[-300:]}")
+    return r.stdout.strip()
+
+
 def smoke_windows(installer: Path, version: str) -> dict:
     work = Path(tempfile.mkdtemp(prefix="phdlab-winsmoke-"))
     install_dir, local = work / "install", work / "localappdata"
@@ -268,11 +320,12 @@ def smoke_windows(installer: Path, version: str) -> dict:
     info = run_installed([str(install_dir / "python" / "python.exe"), str(install_dir / "app" / "start.py")], env, version,
                          local / "PhDLab", install_dir)
     stop_installed_processes(install_dir)
+    latex = check_latex(install_dir / "tools" / "tectonic.exe")
     uninstaller = next(install_dir.glob("unins*.exe"))
     subprocess.run([str(uninstaller), "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART"], check=True, timeout=600)
     left = []
     for _ in range(180):  # the uninstaller finishes in a detached copy of itself
-        left = [p for p in (install_dir / "app", install_dir / "python") if p.exists()]
+        left = [p for p in (install_dir / "app", install_dir / "python", install_dir / "tools") if p.exists()]
         if not left:
             break
         time.sleep(1)
@@ -281,7 +334,7 @@ def smoke_windows(installer: Path, version: str) -> dict:
         raise RuntimeError(f"Uninstall left the application behind: {remaining}")
     if not (local / "PhDLab" / "project_meta.json").is_file():
         raise RuntimeError("Uninstall removed research data")
-    return {"installed": True, "health": info, "uninstalled": True, "data_kept": True}
+    return {"installed": True, "health": info, "latex": latex, "uninstalled": True, "data_kept": True}
 
 
 def smoke_deb(deb: Path, version: str) -> dict:
@@ -291,15 +344,16 @@ def smoke_deb(deb: Path, version: str) -> dict:
     env = {**os.environ, "XDG_DATA_HOME": str(home)}
     env.pop("PHDLAB_DATA_DIR", None)
     info = run_installed(["/usr/bin/phdlab"], env, version, home / "phdlab", Path("/opt/phdlab"))
+    latex = check_latex(Path("/opt/phdlab/tools/tectonic"))
     for size in ICON_SIZES:
         if not Path(f"/usr/share/icons/hicolor/{size}x{size}/apps/phdlab.png").is_file():
             raise RuntimeError("Missing PhD Lab icon " + str(size))
     subprocess.run(sudo + ["apt-get", "remove", "-y", "-qq", "phdlab"], check=True, timeout=600)
-    if Path("/opt/phdlab/app").exists() or Path("/usr/bin/phdlab").exists():
+    if Path("/opt/phdlab/app").exists() or Path("/opt/phdlab/tools").exists() or Path("/usr/bin/phdlab").exists():
         raise RuntimeError("Package removal left the application behind")
     if not (home / "phdlab" / "project_meta.json").is_file():
         raise RuntimeError("Package removal removed research data")
-    return {"installed": True, "health": info, "uninstalled": True, "data_kept": True}
+    return {"installed": True, "health": info, "latex": latex, "uninstalled": True, "data_kept": True}
 
 
 def merge(assets: Path, extra_dirs: list[Path]) -> dict:
@@ -337,7 +391,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "windows":
         print(build_windows(args.assets, args.out, args.cache))
     elif args.command == "deb":
-        print(build_deb(args.assets, args.out))
+        print(build_deb(args.assets, args.out, args.cache))
     elif args.command == "smoke-windows":
         print(json.dumps(smoke_windows(args.installer, args.version)))
     elif args.command == "smoke-deb":

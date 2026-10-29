@@ -1,0 +1,111 @@
+{
+  "id": "FQC-TOOL-SHELL-664",
+  "title": "The sandbox tool tells the agent which shell runs its commands",
+  "risk": "MEDIUM",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want an agent to write commands the host can run: in the live run (2026-10-28) Codex wrote POSIX `VAR=1 python ...` and Windows cmd.exe failed (agent/PLAN_6.6.4_L3.md A5).",
+  "requirements": [
+    {
+      "id": "SHELL_NOTE",
+      "description": "sandbox_run_code's description, in the registry and on /mcp, names the shell of the configured mode: cmd.exe with its syntax for local Windows, POSIX sh for local Linux/macOS and Docker, both plus a recommendation to send Python code for auto."
+    },
+    {
+      "id": "NO_SIDE_EFFECTS",
+      "description": "The note is computed per listing; the shared tool list and the other tools' descriptions do not change, and the auto mode is not resolved (no dependency planning)."
+    }
+  ],
+  "nonfunctional": [
+    "Under 20 ms per listing (one settings read)"
+  ],
+  "inputs": [
+    "sandbox settings mode (local | docker | auto)",
+    "host platform"
+  ],
+  "outputs": [
+    "sandbox_run_code description with the shell note"
+  ],
+  "preconditions": [
+    "None"
+  ],
+  "postconditions": [
+    "Every agent client reads the shell that will run its command before calling the tool"
+  ],
+  "dependencies": [
+    "backend/execution/sandbox.py (load_settings, IS_WIN)"
+  ],
+  "affected_modules": [
+    "backend/execution/sandbox.py",
+    "backend/providers/mcp_server.py",
+    "backend/tools/registry.py"
+  ],
+  "acceptance_criteria": [
+    "tests/test_tool_shell_664.py 6/6; RED on 0e52f6e"
+  ],
+  "scenarios": [
+    {
+      "id": "windows-local",
+      "requirement": "SHELL_NOTE",
+      "kind": "positive",
+      "expected": "cmd.exe and `set VAR=1 && python` in both the registry and /mcp descriptions",
+      "test": "tests/test_tool_shell_664.py::SandboxShellDescription.test_local_windows_names_cmd_and_its_syntax"
+    },
+    {
+      "id": "posix-docker",
+      "requirement": "SHELL_NOTE",
+      "kind": "negative",
+      "expected": "Local Linux/macOS and Docker never mention cmd.exe",
+      "test": "tests/test_tool_shell_664.py::SandboxShellDescription.test_local_posix_and_docker_name_sh"
+    },
+    {
+      "id": "auto",
+      "requirement": "SHELL_NOTE",
+      "kind": "boundary",
+      "expected": "Auto names both shells and recommends Python code",
+      "test": "tests/test_tool_shell_664.py::SandboxShellDescription.test_auto_mode_describes_both_and_recommends_code"
+    },
+    {
+      "id": "unknown-mode",
+      "requirement": "SHELL_NOTE",
+      "kind": "failure",
+      "expected": "An unknown stored mode falls back to the local shell description; registry and /mcp agree",
+      "test": "tests/test_tool_shell_664.py::SandboxShellDescription.test_unknown_mode_falls_back_to_the_local_shell"
+    },
+    {
+      "id": "shared-list",
+      "requirement": "NO_SIDE_EFFECTS",
+      "kind": "security",
+      "expected": "The shared TOOLS list is not modified and other tools keep their descriptions",
+      "test": "tests/test_tool_shell_664.py::SandboxShellDescription.test_other_tools_and_the_static_catalog_are_untouched"
+    },
+    {
+      "id": "fast",
+      "requirement": "NO_SIDE_EFFECTS",
+      "kind": "performance",
+      "expected": "50 notes in under 1 s",
+      "test": "tests/test_tool_shell_664.py::SandboxShellDescription.test_describing_is_fast"
+    }
+  ],
+  "recovery": "Fix the note at sandbox.shell_note; never resolve the auto mode while listing tools. TASK-TOOL-SHELL-664, max three cycles.",
+  "test_environment": "Disposable config (tests/_env.py); platform and mode patched; evidence in docs/qa/evidence/tool-shell-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 6 tests on 0e52f6e, 5 failing (the shared-list check passes on both). GREEN: 6/6.",
+    "red": {
+      "path": "docs/qa/evidence/tool-shell-664/red.json",
+      "sha256": "d47906bf60dcfbc710d7c867e44422c42826455604f5ab13e2d9440631953543",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/tool-shell-664/green.json",
+      "sha256": "03c29453f71d19d35bd599d5292b998a443c01b7e50d3445b82c705c698cbab5",
+      "exit_code": 0
+    }
+  }
+}

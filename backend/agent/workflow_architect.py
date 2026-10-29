@@ -51,8 +51,10 @@ PRESET_AGENTS: list[dict[str, Any]] = [
     {
         "id": "agent-principal-investigator",
         "name": "Giáo sư Hướng dẫn (Principal Investigator)",
+        "name_en": "Principal Investigator",
         "role": "director",
         "purpose": "Định hướng mục tiêu tổng thể, phân tích tính khả thi và thẩm định chất lượng nghiên cứu.",
+        "purpose_en": "Sets the overall goal, assesses feasibility and reviews research quality.",
         "system_prompt": "You are a Principal AI Research Scientist. Formulate hypotheses, supervise rigor, identify flaws, and maintain high publication standards.",
         "provider": "auto",
         "model": "",
@@ -65,8 +67,10 @@ PRESET_AGENTS: list[dict[str, Any]] = [
     {
         "id": "agent-literature-specialist",
         "name": "Chuyên viên Tổng quan Văn hiến (Literature Specialist)",
+        "name_en": "Literature Specialist",
         "role": "literature",
         "purpose": "Tìm kiếm tài liệu học thuật, đối chiếu công trình trước và phát hiện khoảng trống nghiên cứu.",
+        "purpose_en": "Searches scholarly literature, compares prior work and finds research gaps.",
         "system_prompt": "You are a Senior Academic Literature Specialist. Synthesize state-of-the-art papers, trace citations, identify gaps, and maintain strict provenance.",
         "provider": "auto",
         "model": "",
@@ -79,8 +83,10 @@ PRESET_AGENTS: list[dict[str, Any]] = [
     {
         "id": "agent-experiment-coder",
         "name": "Kỹ sư Thực nghiệm & Mã nguồn (Experiment Coder)",
+        "name_en": "Experiment Coder",
         "role": "coder",
         "purpose": "Lập trình kịch bản thí nghiệm, huấn luyện mô hình và đo lường metrics trong sandbox.",
+        "purpose_en": "Writes experiment scripts, trains models and measures metrics in the sandbox.",
         "system_prompt": "You are a Research Software Engineer. Write clean, reproducible scientific Python code with fixed seeds, modular structure, and logging.",
         "provider": "auto",
         "model": "",
@@ -93,8 +99,10 @@ PRESET_AGENTS: list[dict[str, Any]] = [
     {
         "id": "agent-rigorous-reviewer",
         "name": "Phản biện Khoa học Độc lập (Rigorous Reviewer)",
+        "name_en": "Rigorous Reviewer",
         "role": "reviewer",
         "purpose": "Phản biện khách quan theo chuẩn hội nghị hàng đầu (ICLR/NeurIPS/CVPR), kiểm tra rò rỉ dữ liệu và ảo giác.",
+        "purpose_en": "Reviews objectively to top-venue standards (ICLR/NeurIPS/CVPR), checking for data leakage and hallucination.",
         "system_prompt": "You are a Tier-1 Conference Reviewer. Scrutinize claims, audit empirical evidence, check baseline fairness, and challenge unsupported statements.",
         "provider": "auto",
         "model": "",
@@ -107,8 +115,10 @@ PRESET_AGENTS: list[dict[str, Any]] = [
     {
         "id": "agent-scientific-writer",
         "name": "Biên soạn Bài báo Học thuật (PaperOrchestra Writer)",
+        "name_en": "Scientific Writer (PaperOrchestra)",
         "role": "writer",
         "purpose": "Soạn thảo văn bản học thuật chuẩn LaTeX, biên soạn cấu trúc dàn ý 5 cấp và tích hợp bảng biểu.",
+        "purpose_en": "Drafts academic LaTeX text, structures the 5-level outline and integrates tables and figures.",
         "system_prompt": "You are an Academic Scientific Writer. Produce concise, clear, and mathematically accurate text conforming to conference LaTeX styles.",
         "provider": "auto",
         "model": "",
@@ -121,8 +131,10 @@ PRESET_AGENTS: list[dict[str, Any]] = [
     {
         "id": "agent-benchmark-evaluator",
         "name": "Chuyên gia Đánh giá Benchmark (Benchmark Evaluator)",
+        "name_en": "Benchmark Evaluator",
         "role": "evaluator",
         "purpose": "Vận hành các bộ benchmark chuẩn mở (LM-Eval, Inspect AI, Promptfoo, Ragas, SWE-Bench).",
+        "purpose_en": "Runs open standard benchmark suites (LM-Eval, Inspect AI, Promptfoo, Ragas, SWE-Bench).",
         "system_prompt": "You are a Benchmark Evaluation Specialist. Execute standardized evaluation suites and report unbiased statistics.",
         "provider": "auto",
         "model": "",
@@ -287,6 +299,7 @@ def generate_workflow_from_objective(
         "data": {
             "node_type": "start",
             "label": f"Khởi đầu: {obj_clean[:30]}",
+            "label_en": f"Start: {obj_clean[:30]}",
             "config": {"objective": obj_clean, "execution_level": execution_level},
             "status": "idle",
         },
@@ -303,6 +316,7 @@ def generate_workflow_from_objective(
         "data": {
             "node_type": "research_engine",
             "label": "Tổng quan Văn hiến (Native research)",
+            "label_en": "Literature review (native research)",
             "config": {
                 "engine": "phdlab",
                 "action": "synthesize_literature",
@@ -324,6 +338,7 @@ def generate_workflow_from_objective(
         "data": {
             "node_type": "agent_task",
             "label": "Đề xuất Giả thuyết & Thiết kế",
+            "label_en": "Propose hypothesis & design",
             "config": {
                 "agent_role": "researcher",
                 "prompt": f"Dựa trên mục tiêu '{obj_clean}', hãy đề xuất 1 giả thuyết khoa học cụ thể và thiết kế phương án thực nghiệm.",
@@ -347,6 +362,7 @@ def generate_workflow_from_objective(
             "data": {
                 "node_type": "human_approval",
                 "label": "Duyệt Giả thuyết (Checkpoint)",
+                "label_en": "Approve hypothesis (checkpoint)",
                 "config": {"checkpoint_title": f"Duyệt giả thuyết cho '{obj_clean[:40]}' trước khi chạy code"},
                 "status": "idle",
             },
@@ -364,6 +380,7 @@ def generate_workflow_from_objective(
         "data": {
             "node_type": "tool_skill",
             "label": "Thực nghiệm Mã nguồn (Native Code)",
+            "label_en": "Code experiment (native code)",
             "config": {"skill": "code", "input_arg": "Implement the approved research objective in the active code project"},
             "status": "idle",
         },
@@ -381,6 +398,7 @@ def generate_workflow_from_objective(
         "data": {
             "node_type": "evaluation_gate",
             "label": "Kiểm định Metrics & Bằng chứng",
+            "label_en": "Verify metrics & evidence",
             "config": {"metric_key": "accuracy", "min_threshold": 0.80, "verify_sha256": True},
             "status": "idle",
         },
@@ -399,6 +417,7 @@ def generate_workflow_from_objective(
             "data": {
                 "node_type": "research_engine",
                 "label": "Soạn thảo Bài báo (PaperOrchestra)",
+                "label_en": "Draft the paper (PaperOrchestra)",
                 "config": {
                     "engine": "paperorchestra",
                     "action": "synthesize_paper",
@@ -421,6 +440,7 @@ def generate_workflow_from_objective(
         "data": {
             "node_type": "human_approval",
             "label": "Phê duyệt Xuất bản & Hoàn tất",
+            "label_en": "Approve publication & finish",
             "config": {"checkpoint_title": "Duyệt toàn bộ kết quả nghiên cứu và minh chứng"},
             "status": "idle",
         },
@@ -438,6 +458,7 @@ def generate_workflow_from_objective(
         "data": {
             "node_type": "end",
             "label": "Hoàn thành Quy trình",
+            "label_en": "Workflow complete",
             "config": {"require_summary": True, "export_ro_crate": True},
             "status": "idle",
         },
@@ -448,6 +469,7 @@ def generate_workflow_from_objective(
         "id": wf_id,
         "name": f"AI Workflow: {obj_clean[:50]}",
         "description": f"Quy trình nghiên cứu do AI Workflow Architect thiết kế cho mục tiêu: '{obj_clean}' (Cấp độ: {execution_level}).",
+        "description_en": f"Research workflow designed by the AI Workflow Architect for the goal: '{obj_clean}' (level: {execution_level}).",
         "is_preset": False,
         "generated_by_ai": False,
         "generation_method": "deterministic_template",

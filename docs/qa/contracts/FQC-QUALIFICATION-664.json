@@ -1,0 +1,116 @@
+{
+  "id": "FQC-QUALIFICATION-664",
+  "title": "Criteria are scored only from measured campaign evidence that resolves",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want the objectives file to change only from measured results, never from claims, so an L3 statement is earned (agent/PLAN_6.6.4_L3.md B5).",
+  "requirements": [
+    {
+      "id": "SCORE",
+      "description": "qualification.score marks a criterion QUALIFIED only when every planned case measured and passed it with evidence resolving to its sha256 inside the campaign folder; any failure is NOT_QUALIFIED, missing or changed evidence INCONCLUSIVE, nothing measured NOT_RUN; RQ-13 needs the suite digest and every case attempted; RQ-14 needs zero rescue and risk exceptions; L3 needs all 14."
+    },
+    {
+      "id": "APPLY",
+      "description": "qualification.apply writes status, evidence and the campaign's sha256 into the objectives file from a scored campaign only."
+    }
+  ],
+  "nonfunctional": [
+    "Denominators always reported"
+  ],
+  "inputs": [
+    "campaign record JSON and its evidence files"
+  ],
+  "outputs": [
+    "per-criterion status, reasons, evidence refs, achieved_level"
+  ],
+  "preconditions": [
+    "None"
+  ],
+  "postconditions": [
+    "tests/test_qualification_664.py 7/7; RED on 8f0516a"
+  ],
+  "dependencies": [
+    "agent/research-quality-objectives.json"
+  ],
+  "affected_modules": [
+    "backend/agent/qualification.py"
+  ],
+  "acceptance_criteria": [
+    "tests/test_qualification_664.py 7/7; RED on 8f0516a",
+    "The repository's objectives file is unchanged (L3 not demonstrated)"
+  ],
+  "scenarios": [
+    {
+      "id": "all",
+      "requirement": "SCORE",
+      "kind": "positive",
+      "expected": "All measured and passed: scoped L3 with denominators",
+      "test": "tests/test_qualification_664.py::Scoring.test_all_criteria_measured_and_passed_qualify_scoped_l3"
+    },
+    {
+      "id": "failure",
+      "requirement": "SCORE",
+      "kind": "failure",
+      "expected": "One failed case disqualifies and is named",
+      "test": "tests/test_qualification_664.py::Scoring.test_one_failure_disqualifies_and_names_the_case"
+    },
+    {
+      "id": "inconclusive",
+      "requirement": "SCORE",
+      "kind": "boundary",
+      "expected": "A missing measurement or changed evidence is inconclusive",
+      "test": "tests/test_qualification_664.py::Scoring.test_missing_measurements_and_changed_evidence_are_inconclusive"
+    },
+    {
+      "id": "outside",
+      "requirement": "SCORE",
+      "kind": "security",
+      "expected": "Evidence outside the campaign folder never counts",
+      "test": "tests/test_qualification_664.py::Scoring.test_evidence_outside_the_campaign_folder_never_counts"
+    },
+    {
+      "id": "rescue",
+      "requirement": "SCORE",
+      "kind": "negative",
+      "expected": "Human rescue disqualifies RQ-14; no suite digest or missing cases disqualify RQ-13",
+      "test": "tests/test_qualification_664.py::Scoring.test_human_rescue_disqualifies_rq14_and_an_unfrozen_suite_rq13"
+    },
+    {
+      "id": "not-run",
+      "requirement": "SCORE",
+      "kind": "performance",
+      "expected": "An empty campaign is NOT_RUN everywhere (scoring is pure file reads)",
+      "test": "tests/test_qualification_664.py::Scoring.test_nothing_measured_is_not_run"
+    },
+    {
+      "id": "apply",
+      "requirement": "APPLY",
+      "kind": "positive",
+      "expected": "apply writes measured status and the campaign hash into a copy; the repository file is untouched",
+      "test": "tests/test_qualification_664.py::Scoring.test_apply_writes_only_measured_status_into_a_copy_of_the_objectives"
+    }
+  ],
+  "recovery": "Fix at qualification.score/apply; never write a status that was not measured. TASK-QUALIFICATION-664, max three cycles.",
+  "test_environment": "Temporary campaign folders with real evidence files; a copy of the objectives file; evidence in docs/qa/evidence/qualification-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 7 tests on 8f0516a, all failing (no scoring module). GREEN: 7/7.",
+    "red": {
+      "path": "docs/qa/evidence/qualification-664/red.json",
+      "sha256": "eedaf9b3ed31867d79ae8102efcc21d3af685728415bc114176b0b31728d28ce",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/qualification-664/green.json",
+      "sha256": "fbace9f0664425026481792119b50534d6601d3674225f058b90f80babaaa20b",
+      "exit_code": 0
+    }
+  }
+}

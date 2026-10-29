@@ -73,6 +73,37 @@ async def build_dynamic_team(body: dict = Body(...)):
     return {"team": team}
 
 
+# v6.6.4 (A9): the team comes from a model of the model list, and the canvas runs as a governed mission.
+@router.get("/models")
+async def team_models():
+    """Models a team agent may be bound to (Settings → Models & AI connections), with availability."""
+    from backend.agent import team_agents
+    return {"models": await run_in_threadpool(team_agents.model_choices)}
+
+
+@router.post("/team/propose")
+async def propose_team(body: dict = Body(...)):
+    """The chosen architect model proposes the team; the app validates tools and models (no substitution)."""
+    from backend.agent import harness_compile as HC
+    try:
+        return await run_in_threadpool(HC.propose_team, str(body.get("objective") or ""), str(body.get("architect_model") or ""),
+                                       bool(body.get("allow_api_billing")))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)[:600]) from exc
+
+
+@router.post("/compile")
+async def compile_to_mission(body: dict = Body(...)):
+    """Compile the canvas into a mission: preview (create=false) or a draft mission for plan approval in Missions."""
+    from backend.agent import harness_compile as HC
+    fn = HC.create_mission if body.get("create") else HC.compile_workflow
+    try:
+        return await run_in_threadpool(fn, body.get("workflow") or {}, str(body.get("topic_id") or ""), str(body.get("level") or "L3"),
+                                       body.get("team") or [], str(body.get("objective") or ""))
+    except (ValueError, KeyError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)[:600]) from exc
+
+
 # ---------------------------------------------------------------------------
 # 4. AI Workflow Architect
 # ---------------------------------------------------------------------------

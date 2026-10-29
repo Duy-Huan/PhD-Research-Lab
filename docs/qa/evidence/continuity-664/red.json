@@ -1,0 +1,59 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_continuity_664.Continuity.test_a_lost_or_changed_commitment_is_reported",
+      "status": "ERROR",
+      "duration": 1.3272,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_continuity_664\\tests\\test_continuity_664.py\", line 82, in test_a_lost_or_changed_commitment_is_reported\n    before = C.snapshot(self.tid)\n             ^^^^^^^^^^\n  File \"D:\\r664red-test_continuity_664\\tests\\test_continuity_664.py\", line 34, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.continuity'\n"
+    },
+    {
+      "id": "test_continuity_664.Continuity.test_a_rewritten_or_broken_ledger_is_reported",
+      "status": "ERROR",
+      "duration": 1.1376,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_continuity_664\\tests\\test_continuity_664.py\", line 94, in test_a_rewritten_or_broken_ledger_is_reported\n    before = C.snapshot(self.tid)\n             ^^^^^^^^^^\n  File \"D:\\r664red-test_continuity_664\\tests\\test_continuity_664.py\", line 34, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.continuity'\n"
+    },
+    {
+      "id": "test_continuity_664.Continuity.test_an_approval_cannot_run_a_second_experiment",
+      "status": "ERROR",
+      "duration": 1.3466,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_continuity_664\\tests\\test_continuity_664.py\", line 110, in test_an_approval_cannot_run_a_second_experiment\n    self.assertEqual(C.compare(C.snapshot(self.tid), C.snapshot(self.tid)), [])\n                     ^^^^^^^^^\n  File \"D:\\r664red-test_continuity_664\\tests\\test_continuity_664.py\", line 34, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.continuity'\n"
+    },
+    {
+      "id": "test_continuity_664.Continuity.test_another_project_does_not_see_this_topic",
+      "status": "ERROR",
+      "duration": 1.2345,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_continuity_664\\tests\\test_continuity_664.py\", line 116, in test_another_project_does_not_see_this_topic\n    self.assertEqual(C.leakage(self.tid, other[\"data_dir\"]), [])\n                     ^^^^^^^^^\n  File \"D:\\r664red-test_continuity_664\\tests\\test_continuity_664.py\", line 34, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.continuity'\n"
+    },
+    {
+      "id": "test_continuity_664.Continuity.test_commitments_survive_several_real_restarts",
+      "status": "ERROR",
+      "duration": 1.1832,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_continuity_664\\tests\\test_continuity_664.py\", line 72, in test_commitments_survive_several_real_restarts\n    before = C.snapshot(self.tid)\n             ^^^^^^^^^^\n  File \"D:\\r664red-test_continuity_664\\tests\\test_continuity_664.py\", line 34, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.continuity'\n"
+    },
+    {
+      "id": "test_continuity_664.Continuity.test_snapshots_are_quick",
+      "status": "ERROR",
+      "duration": 1.1263,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_continuity_664\\tests\\test_continuity_664.py\", line 132, in test_snapshots_are_quick\n    C.compare(C.snapshot(self.tid), C.snapshot(self.tid))\n    ^^^^^^^^^\n  File \"D:\\r664red-test_continuity_664\\tests\\test_continuity_664.py\", line 34, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.continuity'\n"
+    },
+    {
+      "id": "test_continuity_664.Continuity.test_snapshots_of_different_topics_are_not_compared",
+      "status": "ERROR",
+      "duration": 1.1929,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_continuity_664\\tests\\test_continuity_664.py\", line 122, in test_snapshots_of_different_topics_are_not_compared\n    a = C.snapshot(self.tid)\n        ^^^^^^^^^^\n  File \"D:\\r664red-test_continuity_664\\tests\\test_continuity_664.py\", line 34, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.continuity'\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 7,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-jhyt_y5b",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

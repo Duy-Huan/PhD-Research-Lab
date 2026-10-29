@@ -22,7 +22,7 @@ router = APIRouter(prefix="/api/research", tags=["research-workspace"], dependen
 from backend.agent import missions
 from backend.agent.mission_contracts import MissionSpec
 from backend.execution import protocols
-from backend.execution.protocol_contracts import ExperimentProtocol
+from backend.execution.protocol_contracts import AgentCodeProtocol, ExperimentProtocol
 from backend.knowledge import governance as G
 from backend.agent import research_os as OS
 
@@ -253,12 +253,25 @@ async def experiment_verification(tid:str,rid:str):
     return await call(verify_run,tid,rid)
 
 
+@router.get("/topics/{tid}/interventions")
+async def interventions_report(tid:str):
+    from backend.agent import interventions
+    return await call(interventions.report,tid)
+
+
+@router.post("/topics/{tid}/interventions")
+async def interventions_record(tid:str,body:dict=Body(...)):
+    from backend.agent import interventions
+    return await call(interventions.record,tid,str(body.get("category") or ""),str(body.get("note") or ""),
+                      str(body.get("decision") or ""),str(body.get("entity_id") or ""))
+
+
 @router.get("/topics/{tid}/protocols")
 async def protocol_list(tid:str):return {"protocols":await call(protocols.listing,tid),"runs":await call(protocols.runs,tid)}
 
 
 @router.post("/topics/{tid}/protocols")
-async def protocol_create(tid:str,body:ExperimentProtocol,parent_id:str=""):
+async def protocol_create(tid:str,body:AgentCodeProtocol|ExperimentProtocol,parent_id:str=""):
     if tid!=body.topic_id:raise HTTPException(400,"Topic mismatch")
     return await call(protocols.create,body,parent_id)
 

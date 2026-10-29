@@ -33,6 +33,7 @@ from backend.research_engines.paperorchestra.contracts import (
     IndependentReviewReport,
     IndependentReviewScore,
     LaTeXCompilationReport,
+    ManuscriptReport,
     ScientificConsistencyReport,
     VerificationQualityReport,
 )
@@ -71,6 +72,7 @@ def get_known_bib_keys(topic_id: str = "") -> dict[str, str]:
                     key_hint = payload.get("bibtex_key") or pid.replace("-", "").replace(".", "_")
                     known[key_hint] = title
                     known[pid] = title
+                    known[corpus.cite_key(pid)] = title  # the key the bibliography and the writer's evidence use
         except Exception:
             pass
 
@@ -438,6 +440,39 @@ def run_independent_review(
     )
 
 
+MIN_SECTION_WORDS = 30
+
+
+def check_manuscript(topic_id: str, sections: dict[str, str]) -> ManuscriptReport:
+    """Fail on empty or non-manuscript sections and on a draft without citations when the topic has a library.
+
+    Found live (v6.6.3): an agent-style answer (an approval plan in Vietnamese) and a draft with zero citations both
+    passed the gates. Word counts ignore LaTeX commands."""
+    from backend.research_engines.paperorchestra.evidence import AGENT_TEXT
+    empty, agent = [], []
+    for sid, text in sections.items():
+        words = re.findall(r"\w+", re.sub(r"\\[a-zA-Z]+\*?(\{[^}]*\})?", " ", text or ""))
+        if AGENT_TEXT.search(text or ""):
+            agent.append(sid)
+        elif len(words) < MIN_SECTION_WORDS:
+            empty.append(sid)
+    cites = len({k.strip() for m in CITE_PATTERN.finditer("\n".join(sections.values())) for k in m.group(2).split(",") if k.strip()})
+    library = 0
+    if topic_id:
+        try:
+            library = sum(1 for p in corpus.all_papers(topic_id) if p.get("state") != "dismissed")
+        except (KeyError, ValueError):
+            library = 0
+    issues = [f"Section {s} is empty or under {MIN_SECTION_WORDS} words" for s in empty]
+    issues += [f"Section {s} contains agent text (approval plan or commands), not manuscript text" for s in agent]
+    if not sections:
+        issues.append("No sections were written")
+    if library and not cites:
+        issues.append(f"The topic library has {library} papers but the draft cites none")
+    return ManuscriptReport(empty_sections=empty, agent_text_sections=agent, citation_count=cites, library_size=library,
+                            issues=issues, passed=not issues)
+
+
 def evaluate_quality_gates(
     topic_id: str,
     sections: dict[str, str],
@@ -446,6 +481,7 @@ def evaluate_quality_gates(
 ) -> VerificationQualityReport:
     """Run all quality gates and aggregate into a unified VerificationQualityReport."""
     full_text = "\n\n".join(sections.values())
+    m_report = check_manuscript(topic_id, sections)
     c_report = verify_citations(topic_id, full_text)
     p_report = verify_experiment_provenance(topic_id, full_text, mission_tasks)
     f_report = verify_figure_sources(topic_id, full_text)
@@ -454,7 +490,8 @@ def evaluate_quality_gates(
     r_report = run_independent_review(topic_id, full_text)
 
     overall_readiness = (
-        c_report.passed
+        m_report.passed
+        and c_report.passed
         and p_report.passed
         and f_report.passed
         and k_report.passed
@@ -463,6 +500,7 @@ def evaluate_quality_gates(
     )
 
     return VerificationQualityReport(
+        manuscript=m_report,
         citations=c_report,
         provenance=p_report,
         figures=f_report,

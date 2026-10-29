@@ -851,10 +851,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
         />
         <b className="ellipsis" title="PhD Research Lab" style={{ fontSize: 13.5, letterSpacing: '-0.01em', minWidth: 0 }}>PhD Research Lab</b>
         <span className="grow" />
+        {/* v6.6.4: fixed size so a narrow sidebar never squeezes the header icons below the tap-target minimum */}
         <button
           className="icon sm"
           title={t('Tìm kiếm đoạn chat', 'Search chats')}
+          aria-label={t('Tìm kiếm đoạn chat', 'Search chats')}
           onClick={() => setShowSearch((v) => !v)}
+          style={{ flexShrink: 0, minWidth: 28 }}
         >
           <Search size={15} />
         </button>
@@ -862,7 +865,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
           className="icon sm"
           id="side-toggle"
           title={t('Thu gọn thanh bên', 'Collapse sidebar')}
+          aria-label={t('Thu gọn thanh bên', 'Collapse sidebar')}
           onClick={toggleSidebar}
+          style={{ flexShrink: 0, minWidth: 28 }}
         >
           <SidebarIcon size={15} />
         </button>
@@ -1035,8 +1040,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed: propCollapsed }) =>
               type="button"
               className="icon sm"
               title={t('Tạo thư mục nhóm chat mới', 'New chat folder')}
+              aria-label={t('Tạo thư mục nhóm chat mới', 'New chat folder')}
               onClick={() => setCreatingFolder((v) => !v)}
-              style={{ width: 20, height: 20 }}
+              style={{ width: 24, height: 24, flexShrink: 0 }}
             >
               <FolderPlus size={13} />
             </button>

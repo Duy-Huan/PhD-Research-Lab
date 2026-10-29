@@ -1,0 +1,156 @@
+{
+  "id": "FQC-HARNESS-TEAM-664",
+  "title": "The Harness canvas runs as a governed mission with an AI-proposed team bound to models from the model list",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want Harness to form its agent team with AI, bind every agent to a model from the app's model list (Codex for live tests), and actually run the canvas through the governed mission runtime instead of blocking every agent node (Playwright 2026-10-28; agent/PLAN_6.6.4_L3.md A9).",
+  "requirements": [
+    {
+      "id": "TEAM",
+      "description": "POST /api/harness/team/propose asks the chosen architect model (from the model list) for 1-4 agents with role, purpose, prompt, tools and a model from the list; the app refuses unknown tools, unlisted models, duplicate ids and non-JSON answers, and keeps unavailable models marked, never swapped."
+    },
+    {
+      "id": "MODELS",
+      "description": "GET /api/harness/models lists the provider registry without Gemini CLI, Antigravity, Hermes and the router; local engines count as available only after a short cached probe answers."
+    },
+    {
+      "id": "COMPILE",
+      "description": "POST /api/harness/compile turns the canvas into an L2/L3 MissionSpec: agent and code nodes become agent.task on the agent's model and tools, literature paper.discover, paper writing paperorchestra.full_orchestration, approvals review.checkpoint, evaluation gates artifact.verify (with a note), End mission.report; conditions, loops, unknown roles, more than 3 model steps and L4 are refused with the reason. create=true stores a draft for plan approval."
+    },
+    {
+      "id": "RUN",
+      "description": "agent.task runs only on its bound model (CLI agents through research.run_coding with a grant carrying the agent's registry tools; local engines locally; cloud only with API billing allowed); an unavailable model pauses the mission and nothing else runs; review.checkpoint waits in awaiting_step_review until the researcher reviews it."
+    }
+  ],
+  "nonfunctional": [
+    "No hidden or hardcoded model; no substitution",
+    "Session instruction files are never returned as agent outputs",
+    "Local engine probe at most 5 s, cached 30 s"
+  ],
+  "inputs": [
+    "POST /api/harness/team/propose {objective, architect_model}",
+    "POST /api/harness/compile {workflow, topic_id, level, team, objective, create}"
+  ],
+  "outputs": [
+    "{agents, rationale, unavailable}",
+    "{spec, notes, node_tasks, team, mission?}"
+  ],
+  "preconditions": [
+    "research_os.enabled and team_enabled for a team mission to run (it pauses with the reason otherwise)"
+  ],
+  "postconditions": [
+    "Every agent step of a Harness canvas runs inside an approved mission on the model the team bound to it"
+  ],
+  "dependencies": [
+    "backend/providers/registry.py",
+    "backend/providers/research.py (run_coding)",
+    "backend/agent/missions.py, teams.py, autonomy.py"
+  ],
+  "affected_modules": [
+    "backend/agent/team_agents.py",
+    "backend/agent/harness_compile.py",
+    "backend/agent/capabilities.py",
+    "backend/agent/mission_contracts.py",
+    "backend/agent/missions.py",
+    "backend/agent/autonomy.py",
+    "backend/agent/mcp_policy.py",
+    "backend/providers/research.py",
+    "backend/api/harness.py",
+    "frontend/src/features/harness/MissionTeamPanel.tsx",
+    "frontend/src/features/harness/CustomHarnessStudio.tsx",
+    "frontend/e2e/harness_levels.spec.ts"
+  ],
+  "acceptance_criteria": [
+    "tests/test_harness_team_664.py 9/9; RED on 20efd5d",
+    "Harness Studio Team tab (architect model, AI proposal, per-agent model with unavailable state, compiled steps and notes, draft linked to Missions): MissionTeamPanel.test.tsx 3/3 and harness_levels.spec.ts HARNESS-LEVELS-004 at L2 and L3 in the offline CI browser run",
+    "Live Codex runs recorded in docs/qa/evidence/harness-team-664/README.md"
+  ],
+  "scenarios": [
+    {
+      "id": "propose",
+      "requirement": "TEAM",
+      "kind": "positive",
+      "expected": "The architect sees models with availability and the tool catalog; bad tools, models, duplicates, sizes and prose are refused; an unavailable model is kept and marked",
+      "test": "tests/test_harness_team_664.py::HarnessTeam.test_the_architect_model_proposes_and_the_app_validates_the_team"
+    },
+    {
+      "id": "compile",
+      "requirement": "COMPILE",
+      "kind": "positive",
+      "expected": "The architect canvas becomes 8 typed tasks with bound models, a gate note and a draft mission with researcher, coder and coordinator roles",
+      "test": "tests/test_harness_team_664.py::HarnessTeam.test_the_canvas_compiles_to_a_mission_draft_with_the_bound_models"
+    },
+    {
+      "id": "refuse",
+      "requirement": "COMPILE",
+      "kind": "negative",
+      "expected": "Conditions, L4 and a missing role are refused with the reason; one agent may take every agent node",
+      "test": "tests/test_harness_team_664.py::HarnessTeam.test_canvases_that_cannot_be_compiled_say_why"
+    },
+    {
+      "id": "run",
+      "requirement": "RUN",
+      "kind": "positive",
+      "expected": "The agent task runs on cli:codex with its role and tools, its file is an artifact, the checkpoint waits, the review continues to the report and L3 final review",
+      "test": "tests/test_harness_team_664.py::HarnessTeam.test_agent_tasks_run_on_the_bound_model_and_checkpoints_wait_for_the_researcher"
+    },
+    {
+      "id": "unavailable",
+      "requirement": "RUN",
+      "kind": "failure",
+      "expected": "An unavailable model pauses the mission with 'No other model is tried'; no CLI, local or cloud call happens",
+      "test": "tests/test_harness_team_664.py::HarnessTeam.test_an_unavailable_model_pauses_the_mission_and_nothing_else_runs"
+    },
+    {
+      "id": "excluded",
+      "requirement": "MODELS",
+      "kind": "security",
+      "expected": "Gemini CLI, Antigravity, Hermes and the router are never offered or bound",
+      "test": "tests/test_harness_team_664.py::HarnessTeam.test_model_choices_exclude_providers_that_may_not_be_driven"
+    },
+    {
+      "id": "local-probe",
+      "requirement": "MODELS",
+      "kind": "boundary",
+      "expected": "An unreachable local engine is unavailable; an answering one is READY with its model",
+      "test": "tests/test_harness_team_664.py::HarnessTeam.test_a_local_engine_counts_as_available_only_when_it_answers"
+    },
+    {
+      "id": "grant",
+      "requirement": "RUN",
+      "kind": "security",
+      "expected": "A team agent's grant carries exactly its registry tools; plain CLI grants carry none; session instruction files are not outputs",
+      "test": "tests/test_harness_team_664.py::HarnessTeam.test_a_cli_agent_grant_carries_its_registry_tools_and_session_files_are_not_outputs"
+    },
+    {
+      "id": "api",
+      "requirement": "COMPILE",
+      "kind": "performance",
+      "expected": "Model list, compile preview, draft creation and 400 errors through the real API",
+      "test": "tests/test_harness_team_664.py::HarnessTeam.test_the_api_lists_models_compiles_and_reports_errors"
+    }
+  ],
+  "recovery": "Fix at team_agents/harness_compile; never substitute a model, drop a canvas node silently or run an agent outside an approved mission. TASK-HARNESS-TEAM-664, max three cycles.",
+  "test_environment": "Disposable PHDLAB_DATA_DIR with real missions, team validation, approvals and step reviews (tests/_env.py); the CLI gateway and the architect's answer are fixed in unit tests; live Codex runs on the disposable QA server are recorded in docs/qa/evidence/harness-team-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 9 tests on 20efd5d, all 9 failing (no team agents, compiler, agent.task or checkpoint). GREEN: 9/9.",
+    "red": {
+      "path": "docs/qa/evidence/harness-team-664/red.json",
+      "sha256": "1b9cf0f28d05bb0e679f06b071b68a3b34ed2edfac5d24f010a9d326cad4ba0a",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/harness-team-664/green.json",
+      "sha256": "9cc7c5b2eb55e7f29894d7a1b6f67868eb13ea2b9c0e7ce1d72ed1669eeac259",
+      "exit_code": 0
+    }
+  }
+}

@@ -199,8 +199,19 @@ class IndependentReviewReport(Contract):
     actionable_revisions: list[str] = Field(default_factory=list)
 
 
+class ManuscriptReport(Contract):
+    """v6.6.4: every section is real manuscript text, and a library-backed draft actually cites the library."""
+    empty_sections: list[str] = Field(default_factory=list)
+    agent_text_sections: list[str] = Field(default_factory=list)
+    citation_count: int = 0
+    library_size: int = 0
+    issues: list[str] = Field(default_factory=list)
+    passed: bool = False
+
+
 class VerificationQualityReport(Contract):
     """Unified evidence and quality gates verification report (§5)."""
+    manuscript: ManuscriptReport = Field(default_factory=ManuscriptReport)
     citations: CitationReport = Field(default_factory=CitationReport)
     provenance: ExperimentProvenanceReport = Field(default_factory=ExperimentProvenanceReport)
     figures: FigureValidationReport = Field(default_factory=FigureValidationReport)

@@ -140,4 +140,31 @@ describe('autonomy policy contracts and user decisions', () => {
     renderWithProviders(<AutonomyPanel />);
     expect(await screen.findByText('Error: Settings unavailable')).toBeInTheDocument();
   });
+
+  // agent/PLAN_6.6.4_L3.md A-QA, found by e2e/autonomy_levels.spec.ts.
+  it('never offers "Enable Research OS" before the setting has loaded', async () => {
+    setup([], true);
+    let release!: () => void;
+    const normalGet = vi.mocked(api.get).getMockImplementation()!;
+    vi.mocked(api.get).mockImplementation(async url => {
+      if (url.endsWith('/os-settings')) await new Promise<void>(resolve => { release = resolve; });
+      return normalGet(url);
+    });
+    renderWithProviders(<AutonomyPanel />);
+    expect(await screen.findByRole('button', { name: 'Create draft' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Enable Research OS' })).not.toBeInTheDocument();
+    release();
+    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/api/research/os-settings'));
+    expect(screen.queryByRole('button', { name: 'Enable Research OS' })).not.toBeInTheDocument();
+  });
+
+  it('names the failed step and its reason instead of only "failed"', async () => {
+    const failed = { ...mission('failed'), payload: { ...mission('failed').payload, blocking_reason: '' },
+      tasks: [{ id: 'grounding', status: 'completed', payload: { result_digest: 'g' } },
+        { id: 'hypothesis', status: 'failed', payload: { result: { error: 'LM Studio error 400: No models loaded.' } } }] };
+    setup([failed]);
+    renderWithProviders(<AutonomyPanel />);
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('Step hypothesis failed: LM Studio error 400: No models loaded.');
+  });
 });

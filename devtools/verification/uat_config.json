@@ -9,7 +9,7 @@
   "personas": {
     "first-time": ["settings-language", "project-and-chat"],
     "researcher": ["research-evidence"],
-    "operator": ["workflow-operations"],
+    "operator": ["workflow-operations", "autonomy-levels"],
     "recovery": ["failure-recovery"],
     "frontend-quality": ["navigation-layout", "three-dimensional-office"]
   },
@@ -17,6 +17,7 @@
     "settings-language": {"routes": ["/dist/react.html"], "tests": ["uat_harness.spec.ts"], "adapter": "local-settings", "needs_model": false, "paths": ["frontend/src/features/settings/**", "frontend/src/i18n/**"]},
     "project-and-chat": {"routes": ["/dist/react.html"], "tests": ["journeys.spec.ts", "multi_turn_chat.spec.ts"], "adapter": "local-project-chat", "needs_model": true, "paths": ["frontend/src/features/chat/**", "backend/api/chat.py"]},
     "research-evidence": {"routes": ["/dist/react.html"], "tests": ["workflows.spec.ts"], "adapter": "NOT_IMPLEMENTED", "needs_model": true, "paths": ["backend/memory/**", "backend/research_engines/**", "backend/paper/**"]},
+    "autonomy-levels": {"routes": ["/dist/react.html"], "tests": ["autonomy_levels.spec.ts"], "adapter": "local-native-workflow", "needs_model": false, "paths": ["frontend/src/features/missions/**", "backend/agent/autonomy.py", "backend/agent/missions.py", "backend/api/research.py"]},
     "workflow-operations": {"routes": ["/dist/react.html"], "tests": ["harness_ide.spec.ts", "tools.spec.ts"], "adapter": "local-native-workflow", "needs_model": true, "paths": ["frontend/src/features/harness/**", "backend/agent/**", "backend/execution/**"]},
     "failure-recovery": {"routes": ["/dist/react.html"], "tests": ["uat_harness.spec.ts"], "adapter": "local-config-recovery", "needs_model": false, "paths": ["backend/providers/**", "frontend/src/lib/**"]},
     "navigation-layout": {"routes": ["/dist/react.html"], "tests": ["navigation.spec.ts"], "adapter": "NOT_IMPLEMENTED", "needs_model": false, "paths": ["frontend/src/**"]},

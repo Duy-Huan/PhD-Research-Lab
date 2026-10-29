@@ -58,10 +58,16 @@ def _mcfg() -> dict:
     return load_config()["mcp"]
 
 
+def sandbox_tools() -> list:
+    """TOOLS with the shell note on sandbox_run_code, computed per call; the shared list is never modified."""
+    note = sandbox.shell_note()
+    return [{**t, "description": f"{t['description']} {note}"} if t["name"] == "sandbox_run_code" else t for t in TOOLS]
+
+
 def tool_list() -> list:
     from backend.providers.mcp_tools import listed
     m = _mcfg()
-    out = listed(m) + (TOOLS if m.get("expose_sandbox", True) else [])
+    out = listed(m) + (sandbox_tools() if m.get("expose_sandbox", True) else [])
     if _registry_enabled():  # v6.6.0: the native tool registry for external agent clients
         from backend.tools.mcp_bridge import TOOLS as BRIDGE
         out += [{k: v for k, v in t.items() if k != "group"} for t in BRIDGE]

@@ -1,0 +1,71 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_code_tools_664.CodeTools.test_a_patch_edits_in_place_and_commits_only_that_file",
+      "status": "ERROR",
+      "duration": 0.0071,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 69, in test_a_patch_edits_in_place_and_commits_only_that_file\n    _, root = self.make()\n              ^^^^^^^^^^^\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 42, in make\n    made = CT.create_project({\"name\": name, \"description\": \"agent experiment\"}, CODEX)\n           ^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 21, in __getattr__\n    from backend.tools import code_tools\nImportError: cannot import name 'code_tools' from 'backend.tools' (D:\\r664red6\\backend\\tools\\__init__.py)\n"
+    },
+    {
+      "id": "test_code_tools_664.CodeTools.test_a_stale_or_ambiguous_patch_changes_nothing",
+      "status": "ERROR",
+      "duration": 0.007,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 90, in test_a_stale_or_ambiguous_patch_changes_nothing\n    _, root = self.make(text=TRAIN + \"lr = 0.1\\n\")\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 42, in make\n    made = CT.create_project({\"name\": name, \"description\": \"agent experiment\"}, CODEX)\n           ^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 21, in __getattr__\n    from backend.tools import code_tools\nImportError: cannot import name 'code_tools' from 'backend.tools' (D:\\r664red6\\backend\\tools\\__init__.py)\n"
+    },
+    {
+      "id": "test_code_tools_664.CodeTools.test_no_open_project_is_a_clear_unavailable_error",
+      "status": "ERROR",
+      "duration": 0.0065,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 133, in test_no_open_project_is_a_clear_unavailable_error\n    for fn, args in ((CT.apply_patch, {\"path\": \"x.py\", \"sha256\": \"0\" * 64, \"edits\": [{\"old\": \"a\", \"new\": \"b\"}], \"message\": \"m\"}),\n                      ^^^^^^^^^^^^^^\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 21, in __getattr__\n    from backend.tools import code_tools\nImportError: cannot import name 'code_tools' from 'backend.tools' (D:\\r664red6\\backend\\tools\\__init__.py)\n"
+    },
+    {
+      "id": "test_code_tools_664.CodeTools.test_patching_is_fast",
+      "status": "ERROR",
+      "duration": 0.0069,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 147, in test_patching_is_fast\n    self.make()\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 42, in make\n    made = CT.create_project({\"name\": name, \"description\": \"agent experiment\"}, CODEX)\n           ^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 21, in __getattr__\n    from backend.tools import code_tools\nImportError: cannot import name 'code_tools' from 'backend.tools' (D:\\r664red6\\backend\\tools\\__init__.py)\n"
+    },
+    {
+      "id": "test_code_tools_664.CodeTools.test_paths_outside_the_project_git_internals_and_binary_files_are_refused",
+      "status": "ERROR",
+      "duration": 0.0069,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 113, in test_paths_outside_the_project_git_internals_and_binary_files_are_refused\n    _, root = self.make()\n              ^^^^^^^^^^^\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 42, in make\n    made = CT.create_project({\"name\": name, \"description\": \"agent experiment\"}, CODEX)\n           ^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 21, in __getattr__\n    from backend.tools import code_tools\nImportError: cannot import name 'code_tools' from 'backend.tools' (D:\\r664red6\\backend\\tools\\__init__.py)\n"
+    },
+    {
+      "id": "test_code_tools_664.CodeTools.test_registry_lists_the_tools_and_mutations_need_workspace_write",
+      "status": "ERROR",
+      "duration": 0.1776,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 142, in test_registry_lists_the_tools_and_mutations_need_workspace_write\n    self.assertEqual((specs[tid].mutates, specs[tid].permissions), (True, [\"workspace_write\"]))\n                      ~~~~~^^^^^\nKeyError: 'code.create_project'\n"
+    },
+    {
+      "id": "test_code_tools_664.CodeTools.test_the_agent_creates_lists_and_opens_code_projects",
+      "status": "ERROR",
+      "duration": 0.01,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 54, in test_the_agent_creates_lists_and_opens_code_projects\n    made, _ = self.make(\"exp\")\n              ^^^^^^^^^^^^^^^^\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 42, in make\n    made = CT.create_project({\"name\": name, \"description\": \"agent experiment\"}, CODEX)\n           ^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 21, in __getattr__\n    from backend.tools import code_tools\nImportError: cannot import name 'code_tools' from 'backend.tools' (D:\\r664red6\\backend\\tools\\__init__.py)\n"
+    },
+    {
+      "id": "test_code_tools_664.CodeTools.test_windows_line_endings_are_kept",
+      "status": "ERROR",
+      "duration": 0.0064,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 108, in test_windows_line_endings_are_kept\n    _, root = self.make(text=TRAIN.replace(\"\\n\", \"\\r\\n\"))\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 42, in make\n    made = CT.create_project({\"name\": name, \"description\": \"agent experiment\"}, CODEX)\n           ^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 21, in __getattr__\n    from backend.tools import code_tools\nImportError: cannot import name 'code_tools' from 'backend.tools' (D:\\r664red6\\backend\\tools\\__init__.py)\n"
+    },
+    {
+      "id": "test_code_tools_664.CodeTools.test_without_git_the_patch_is_journalled",
+      "status": "ERROR",
+      "duration": 0.0505,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 126, in test_without_git_the_patch_is_journalled\n    done = self.patch([{\"old\": \"lr = 0.1\", \"new\": \"lr = 0.01\"}])\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 50, in patch\n    return CT.apply_patch({\"path\": path, \"sha256\": digest or sha(current.read_bytes()), \"edits\": edits,\n           ^^^^^^^^^^^^^^\n  File \"D:\\r664red6\\tests\\test_code_tools_664.py\", line 21, in __getattr__\n    from backend.tools import code_tools\nImportError: cannot import name 'code_tools' from 'backend.tools' (D:\\r664red6\\backend\\tools\\__init__.py)\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 9,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-jzsjus33",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

@@ -1,0 +1,59 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_continuity_664.Continuity.test_a_lost_or_changed_commitment_is_reported",
+      "status": "PASS",
+      "duration": 1.2125,
+      "details": null
+    },
+    {
+      "id": "test_continuity_664.Continuity.test_a_rewritten_or_broken_ledger_is_reported",
+      "status": "PASS",
+      "duration": 1.1799,
+      "details": null
+    },
+    {
+      "id": "test_continuity_664.Continuity.test_an_approval_cannot_run_a_second_experiment",
+      "status": "PASS",
+      "duration": 1.3763,
+      "details": null
+    },
+    {
+      "id": "test_continuity_664.Continuity.test_another_project_does_not_see_this_topic",
+      "status": "PASS",
+      "duration": 1.4126,
+      "details": null
+    },
+    {
+      "id": "test_continuity_664.Continuity.test_commitments_survive_several_real_restarts",
+      "status": "PASS",
+      "duration": 2.9904,
+      "details": null
+    },
+    {
+      "id": "test_continuity_664.Continuity.test_snapshots_are_quick",
+      "status": "PASS",
+      "duration": 2.3217,
+      "details": null
+    },
+    {
+      "id": "test_continuity_664.Continuity.test_snapshots_of_different_topics_are_not_compared",
+      "status": "PASS",
+      "duration": 1.1985,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 7,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-lucdz611",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

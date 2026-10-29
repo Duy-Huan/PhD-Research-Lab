@@ -1,0 +1,119 @@
+{
+  "id": "FQC-FAULTS-664",
+  "title": "Every automated planted fault is caught by the check that must catch it",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want a qualification case to count a detector only when it is shown to fire on a planted fault (agent/PLAN_6.6.4_L3.md B3; RQ-03, RQ-07, RQ-08, RQ-10).",
+  "requirements": [
+    {
+      "id": "DETECT",
+      "description": "faults.run_suite plants an edited result, an unsupported claim, an interrupted run, a missing model and instructions inside a source through the app's own functions and reports which detector fired; a crash is not detected."
+    },
+    {
+      "id": "HONEST",
+      "description": "Faults without a deterministic detector (leakage inside agent code, stale or contradictory memory, poisoned skill) are listed as campaign-only and never counted."
+    }
+  ],
+  "nonfunctional": [
+    "Denominators reported (automated, detected)"
+  ],
+  "inputs": [
+    "a topic in a disposable project"
+  ],
+  "outputs": [
+    "{results, detected, automated, campaign_only}"
+  ],
+  "preconditions": [
+    "A topic in a disposable project"
+  ],
+  "postconditions": [
+    "tests/test_faults_664.py 7/7; RED on e4a6b0f"
+  ],
+  "dependencies": [
+    "backend/knowledge/verification.py",
+    "backend/knowledge/governance.py",
+    "backend/execution/protocols.py",
+    "backend/agent/team_agents.py",
+    "backend/knowledge/research_context.py"
+  ],
+  "affected_modules": [
+    "backend/agent/faults.py"
+  ],
+  "acceptance_criteria": [
+    "tests/test_faults_664.py 7/7; RED on e4a6b0f"
+  ],
+  "scenarios": [
+    {
+      "id": "wrong-metric",
+      "requirement": "DETECT",
+      "kind": "positive",
+      "expected": "An edited stored gain fails verification",
+      "test": "tests/test_faults_664.py::Faults.test_an_edited_result_fails_independent_verification"
+    },
+    {
+      "id": "claim",
+      "requirement": "DETECT",
+      "kind": "negative",
+      "expected": "A claim with an unmeasured number is contested",
+      "test": "tests/test_faults_664.py::Faults.test_a_claim_with_an_unmeasured_number_is_contested"
+    },
+    {
+      "id": "interrupted",
+      "requirement": "DETECT",
+      "kind": "boundary",
+      "expected": "An interrupted run is marked and never rerun",
+      "test": "tests/test_faults_664.py::Faults.test_an_interrupted_run_is_marked_and_never_rerun"
+    },
+    {
+      "id": "provider",
+      "requirement": "DETECT",
+      "kind": "failure",
+      "expected": "A missing model pauses the mission; nothing else runs",
+      "test": "tests/test_faults_664.py::Faults.test_a_missing_model_pauses_the_mission_without_running_another"
+    },
+    {
+      "id": "poisoned",
+      "requirement": "DETECT",
+      "kind": "security",
+      "expected": "Instructions inside a source stay untrusted data",
+      "test": "tests/test_faults_664.py::Faults.test_instructions_inside_a_source_stay_untrusted_data"
+    },
+    {
+      "id": "suite",
+      "requirement": "HONEST",
+      "kind": "performance",
+      "expected": "5 of 5 automated faults detected; 4 campaign-only faults never counted",
+      "test": "tests/test_faults_664.py::Faults.test_the_suite_reports_denominators_and_never_counts_campaign_only_faults"
+    },
+    {
+      "id": "broken",
+      "requirement": "HONEST",
+      "kind": "failure",
+      "expected": "A crashing detector is reported as not detected",
+      "test": "tests/test_faults_664.py::Faults.test_a_broken_fixture_is_reported_as_not_detected"
+    }
+  ],
+  "recovery": "Fix the detector, never the fault; never count a campaign-only fault. TASK-FAULTS-664, max three cycles.",
+  "test_environment": "Disposable PHDLAB_DATA_DIR with real protocols, runs, missions, claims and sources (tests/_env.py); evidence in docs/qa/evidence/faults-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 7 tests on e4a6b0f, all failing (no fault suite). GREEN: 7/7.",
+    "red": {
+      "path": "docs/qa/evidence/faults-664/red.json",
+      "sha256": "21d738224c6aba749ace7dbebea343d21b5e2e7d8df5cb2ec2c3cd48ce280b4b",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/faults-664/green.json",
+      "sha256": "15f487e4117654c83ce2ecd32a2f521ffa17baac6357d9ef8e1f5682bb1f1c2f",
+      "exit_code": 0
+    }
+  }
+}

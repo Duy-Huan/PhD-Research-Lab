@@ -1,0 +1,59 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_qualification_664.Scoring.test_all_criteria_measured_and_passed_qualify_scoped_l3",
+      "status": "ERROR",
+      "duration": 0.0079,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_qualification_664\\tests\\test_qualification_664.py\", line 47, in test_all_criteria_measured_and_passed_qualify_scoped_l3\n    s = Q.score(self.campaign(), self.base)\n        ^^^^^^^\n  File \"D:\\r664red-test_qualification_664\\tests\\test_qualification_664.py\", line 21, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.qualification'\n"
+    },
+    {
+      "id": "test_qualification_664.Scoring.test_apply_writes_only_measured_status_into_a_copy_of_the_objectives",
+      "status": "ERROR",
+      "duration": 0.0008,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_qualification_664\\tests\\test_qualification_664.py\", line 95, in test_apply_writes_only_measured_status_into_a_copy_of_the_objectives\n    objectives.write_text(Q.OBJECTIVES.read_text(\"utf-8\"), \"utf-8\")\n                          ^^^^^^^^^^^^\n  File \"D:\\r664red-test_qualification_664\\tests\\test_qualification_664.py\", line 21, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.qualification'\n"
+    },
+    {
+      "id": "test_qualification_664.Scoring.test_evidence_outside_the_campaign_folder_never_counts",
+      "status": "ERROR",
+      "duration": 0.0011,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_qualification_664\\tests\\test_qualification_664.py\", line 71, in test_evidence_outside_the_campaign_folder_never_counts\n    c = self.campaign()\n        ^^^^^^^^^^^^^^^\n  File \"D:\\r664red-test_qualification_664\\tests\\test_qualification_664.py\", line 41, in campaign\n    measurements = {cid: {\"passed\": passed, \"note\": \"\", \"evidence\": ev} for cid in Q.CRITERIA if cid != skip}\n                                                                                   ^^^^^^^^^^\n  File \"D:\\r664red-test_qualification_664\\tests\\test_qualification_664.py\", line 21, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.qualification'\n"
+    },
+    {
+      "id": "test_qualification_664.Scoring.test_human_rescue_disqualifies_rq14_and_an_unfrozen_suite_rq13",
+      "status": "ERROR",
+      "duration": 0.0007,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_qualification_664\\tests\\test_qualification_664.py\", line 78, in test_human_rescue_disqualifies_rq14_and_an_unfrozen_suite_rq13\n    s = Q.score(self.campaign(interventions={\"scientific_rescue\": 1, \"initial_authorization\": 3}), self.base)\n        ^^^^^^^\n  File \"D:\\r664red-test_qualification_664\\tests\\test_qualification_664.py\", line 21, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.qualification'\n"
+    },
+    {
+      "id": "test_qualification_664.Scoring.test_missing_measurements_and_changed_evidence_are_inconclusive",
+      "status": "ERROR",
+      "duration": 0.0011,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_qualification_664\\tests\\test_qualification_664.py\", line 61, in test_missing_measurements_and_changed_evidence_are_inconclusive\n    c = self.campaign()\n        ^^^^^^^^^^^^^^^\n  File \"D:\\r664red-test_qualification_664\\tests\\test_qualification_664.py\", line 41, in campaign\n    measurements = {cid: {\"passed\": passed, \"note\": \"\", \"evidence\": ev} for cid in Q.CRITERIA if cid != skip}\n                                                                                   ^^^^^^^^^^\n  File \"D:\\r664red-test_qualification_664\\tests\\test_qualification_664.py\", line 21, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.qualification'\n"
+    },
+    {
+      "id": "test_qualification_664.Scoring.test_nothing_measured_is_not_run",
+      "status": "ERROR",
+      "duration": 0.0008,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_qualification_664\\tests\\test_qualification_664.py\", line 90, in test_nothing_measured_is_not_run\n    s = Q.score({\"campaign_id\": \"empty\", \"planned_cases\": 0, \"cases\": []}, self.base)\n        ^^^^^^^\n  File \"D:\\r664red-test_qualification_664\\tests\\test_qualification_664.py\", line 21, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.qualification'\n"
+    },
+    {
+      "id": "test_qualification_664.Scoring.test_one_failure_disqualifies_and_names_the_case",
+      "status": "ERROR",
+      "duration": 0.0009,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_qualification_664\\tests\\test_qualification_664.py\", line 53, in test_one_failure_disqualifies_and_names_the_case\n    c = self.campaign()\n        ^^^^^^^^^^^^^^^\n  File \"D:\\r664red-test_qualification_664\\tests\\test_qualification_664.py\", line 41, in campaign\n    measurements = {cid: {\"passed\": passed, \"note\": \"\", \"evidence\": ev} for cid in Q.CRITERIA if cid != skip}\n                                                                                   ^^^^^^^^^^\n  File \"D:\\r664red-test_qualification_664\\tests\\test_qualification_664.py\", line 21, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.qualification'\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 7,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-chv_0qqx",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

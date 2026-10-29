@@ -1,0 +1,125 @@
+{
+  "id": "FQC-TOOL-JOBS-664",
+  "title": "Long registry tool calls return a job the agent polls (no 502 through the CLI container proxy)",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want an agent such as Codex to run a long experiment through the registry without the call failing with HTTP 502 while the run goes on (live run 2026-10-28; agent/PLAN_6.6.4_L3.md A1).",
+  "requirements": [
+    {
+      "id": "BOUNDED_CALL",
+      "description": "phdlab_tools_call waits at most wait_s (default 45 s, below the CLI clients' 60 s MCP tool timeout; maximum 300 s), then returns the running job with a hint instead of holding the request."
+    },
+    {
+      "id": "JOB_TOOL",
+      "description": "phdlab_tools_job returns the status, observations and result of a job, waiting up to wait_s, and cancels it with action 'cancel'. Every registry client (CLI agents, Hermes, ChatGPT) sees it."
+    },
+    {
+      "id": "OWNERSHIP",
+      "description": "Only the principal that started a job can read or cancel it; another client's or a malformed job id answers not_found, so ids cannot be probed or used as paths."
+    }
+  ],
+  "nonfunctional": [
+    "Fast calls keep their one-step answer (no hint, same fields)",
+    "A still-running call is not an MCP error; a terminal failure still is",
+    "200 polls in under 2 s"
+  ],
+  "inputs": [
+    "phdlab_tools_call {tool, version, args, wait_s}",
+    "phdlab_tools_job {job, action, wait_s}"
+  ],
+  "outputs": [
+    "{job, tool, status, result, error[, observations, hint]}"
+  ],
+  "preconditions": [
+    "A registry grant for the client (agent profile or client profile)"
+  ],
+  "postconditions": [
+    "No registry call holds an HTTP request longer than its bounded wait"
+  ],
+  "dependencies": [
+    "backend/tools/runtime.py (submit, wait, cancel, get)"
+  ],
+  "affected_modules": [
+    "backend/tools/mcp_bridge.py",
+    "backend/providers/hermes.py",
+    "backend/tools/chatgpt_gateway.py"
+  ],
+  "acceptance_criteria": [
+    "tests/test_tool_jobs_664.py 7/7; RED on 0e52f6e",
+    "Existing bridge, CLI-agent, ChatGPT and Hermes suites pass with the new tool listed"
+  ],
+  "scenarios": [
+    {
+      "id": "long-call",
+      "requirement": "BOUNDED_CALL",
+      "kind": "positive",
+      "expected": "A 2.5 s tool with wait_s 0.3 returns running plus a hint; phdlab_tools_job returns its result",
+      "test": "tests/test_tool_jobs_664.py::ToolJobs.test_a_long_call_returns_its_running_job_and_the_job_tool_delivers_the_result"
+    },
+    {
+      "id": "fast-call",
+      "requirement": "BOUNDED_CALL",
+      "kind": "negative",
+      "expected": "A fast tool still answers in one step, without a hint",
+      "test": "tests/test_tool_jobs_664.py::ToolJobs.test_a_fast_call_still_answers_in_one_step"
+    },
+    {
+      "id": "cancel",
+      "requirement": "JOB_TOOL",
+      "kind": "failure",
+      "expected": "The owner cancels a 30 s tool and it ends as cancelled",
+      "test": "tests/test_tool_jobs_664.py::ToolJobs.test_the_owner_can_cancel_a_running_job"
+    },
+    {
+      "id": "bounds",
+      "requirement": "BOUNDED_CALL",
+      "kind": "boundary",
+      "expected": "Negative wait means no wait; huge wait is capped at 300 s; the default stays below 60 s",
+      "test": "tests/test_tool_jobs_664.py::ToolJobs.test_waits_are_bounded"
+    },
+    {
+      "id": "ownership",
+      "requirement": "OWNERSHIP",
+      "kind": "security",
+      "expected": "Another client cannot read or cancel the job; unknown ids are not_found",
+      "test": "tests/test_tool_jobs_664.py::ToolJobs.test_another_client_cannot_read_or_cancel_the_job"
+    },
+    {
+      "id": "listed",
+      "requirement": "JOB_TOOL",
+      "kind": "positive",
+      "expected": "The job tool is in the bridge, Hermes and ChatGPT tool lists",
+      "test": "tests/test_tool_jobs_664.py::ToolJobs.test_every_registry_client_sees_the_job_tool"
+    },
+    {
+      "id": "cheap-polling",
+      "requirement": "JOB_TOOL",
+      "kind": "performance",
+      "expected": "200 polls in under 2 s",
+      "test": "tests/test_tool_jobs_664.py::ToolJobs.test_polling_is_cheap"
+    }
+  ],
+  "recovery": "Fix at the bridge; never lengthen the HTTP hold or drop the ownership check. TASK-TOOL-JOBS-664, max three cycles.",
+  "test_environment": "Real subprocess registry tools in a disposable PHDLAB_DATA_DIR (tests/_env.py), the real bridge with a private Runtime; evidence in docs/qa/evidence/tool-jobs-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 7 tests on 0e52f6e, 6 failing (the fast-call compatibility check passes on both). GREEN: 7/7.",
+    "red": {
+      "path": "docs/qa/evidence/tool-jobs-664/red.json",
+      "sha256": "c782243c6169bb80b3744ce428818a7a1c8d60be2c7f99f473934790bd137b10",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/tool-jobs-664/green.json",
+      "sha256": "698cf0c7e046a98d15289895267baeaecce4c3aff0a0e8aa646d8d4974c1879e",
+      "exit_code": 0
+    }
+  }
+}

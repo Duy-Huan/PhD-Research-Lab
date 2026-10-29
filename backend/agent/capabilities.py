@@ -71,6 +71,19 @@ class PaperWritingAction(Contract):
     venue: str = ""
 
 
+class AgentTaskArgs(Contract):
+    """v6.6.4 (A9): one bounded sub-task for a team agent, run on the model the team bound it to."""
+    agent: str = Field(pattern=r"^[a-z][a-z0-9_-]{0,39}$")
+    model: str = Field(min_length=1, max_length=120)
+    instructions: str = Field(min_length=1, max_length=20000)
+    tools: list[str] = Field(default_factory=list, max_length=30)  # registry tools the team gave this agent
+    from_task: str = ""
+
+
+class Checkpoint(Contract):
+    title: str = Field(default="Review the results so far", min_length=1, max_length=300)
+
+
 INPUTS = {"paper.discover": Discover, "paper.download": PaperIDs, "paper.inspect": PaperIDs,
           "paper.compare": Compare, "workspace.sync": Sync, "mission.report": Report,"experiment.run":ProtocolRef}
 INPUTS.update({"experiment.verify":Verify,"artifact.verify":Verify})
@@ -90,6 +103,8 @@ INPUTS.update({
     "paperorchestra.cite_verify": PaperWritingAction,
     "paperorchestra.figure_integrate": PaperWritingAction,
     "paperorchestra.full_orchestration": PaperWritingAction,
+    "agent.task": AgentTaskArgs,
+    "review.checkpoint": Checkpoint,
 })
 META = {
     "experiment.verify": ("Independently check raw experiment artifacts",True,[],["deterministic"]),
@@ -116,6 +131,8 @@ META = {
     "paperorchestra.cite_verify": ("Verify in-text citations against project library and topic corpus", False, ["workspace_write"], ["paperorchestra", "app"]),
     "paperorchestra.figure_integrate": ("Integrate verified scientific figure artifacts into LaTeX manuscript", False, ["workspace_write"], ["paperorchestra", "app"]),
     "paperorchestra.full_orchestration": ("Multi-agent research-to-paper writing orchestration with quality gates", False, ["reasoning", "workspace_write"], ["paperorchestra", "app"]),
+    "review.checkpoint": ("Pause until the researcher reviews the results so far (a Harness approval node)", True, [], ["deterministic"]),
+    "agent.task": ("Run one bounded sub-task with a team agent on the model bound to it from the model list (no substitution)", False, ["reasoning", "workspace_write"], ["agent"]),
 }
 
 
@@ -141,6 +158,10 @@ def route(task: Task) -> dict:
         return {"engine":"deterministic", "why":"Typed deterministic operation bypasses every LLM provider"}
     from backend.research_engines import registry
     unavailable = []
+    if task.preferred_engine == "agent":
+        from backend.agent import team_agents
+        model = team_agents.check_model(task.args.get("model", ""))
+        return {"engine": "agent", "model": model["id"], "why": "The team bound this agent to this model; no other model is tried"}
     for engine in [task.preferred_engine, *task.fallback_engines]:
         if engine == "app":
             return {"engine":"app", "why":"Explicit configured application provider", "fallback_from":unavailable}

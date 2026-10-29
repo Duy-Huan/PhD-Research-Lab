@@ -940,6 +940,19 @@ export const ProtocolsPanel: React.FC = () => {
           <div>
             <b>{pr.payload?.title || pr.id}</b> (rev {pr.revision})
             <div className="muted" style={{ fontSize: 11.5 }}>digest: {pr.digest?.slice(0, 16)}…</div>
+            {pr.payload?.kind === 'agent_code_v1' && (
+              <details style={{ fontSize: 11.5, marginTop: 4 }}>
+                <summary>
+                  {t('Mã của agent', 'Agent code')}: {pr.payload.spec.entrypoint} · {pr.payload.code_manifest.length} {t('tệp', 'files')} ·{' '}
+                  {pr.payload.spec.conditions.join(' / ')} × {pr.payload.spec.seeds.length} seeds · {t('mã', 'code')} {pr.payload.code_digest.slice(0, 12)}
+                </summary>
+                <ul style={{ margin: '4px 0 0', paddingLeft: 16 }}>
+                  {pr.payload.code_manifest.map((f: { path: string; sha256: string; bytes: number }) => (
+                    <li key={f.path}><code>{f.path}</code> <span className="muted">{f.bytes} B · {f.sha256.slice(0, 10)}</span></li>
+                  ))}
+                </ul>
+              </details>
+            )}
           </div>
           {pr.approval ? (
             <span className="chip ok" style={{ fontSize: 11 }}>

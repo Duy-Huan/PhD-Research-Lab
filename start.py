@@ -25,7 +25,7 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 HOST = "127.0.0.1"
-APP_VERSION = "6.6.3"   # must match backend/core/config.py - a mismatch means files from two versions were mixed
+APP_VERSION = "6.6.4"   # must match backend/core/config.py - a mismatch means files from two versions were mixed
 # Files that must exist for this version (an incomplete copy or a partial upgrade is the most common failure)
 REQUIRED_FILES = [
     "backend/__init__.py", "backend/app.py", "backend/core/config.py", "backend/core/bus.py", "backend/api/__init__.py",
@@ -229,10 +229,23 @@ def report_tools() -> None:
             native = Path.home() / ".local" / "bin" / ("claude.exe" if sys.platform.startswith("win") else "claude")
             return str(native) if native.is_file() else None
         return found
+    def latex():  # v6.6.4: includes the Tectonic the installers ship in <install>/tools
+        try:
+            from backend.paper.latex import engines
+            return ", ".join(engines()["available"]) or None
+        except Exception:
+            return has("latexmk", "pdflatex", "tectonic", "xelatex")
     items = [("VS Code", has("code")), ("Git", has("git")), ("NVIDIA GPU", has("nvidia-smi")), ("Feynman", has("feynman")),
-             ("Claude Code", has("claude")), ("Codex", has("codex")), ("LaTeX", has("latexmk", "pdflatex", "tectonic", "xelatex")),
+             ("Claude Code", has("claude")), ("Codex", has("codex")), ("LaTeX", latex()),
              ("Docker", has("docker")), ("Ollama", has("ollama")), ("LM Studio CLI", has("lms"))]
     print("Tools   : " + ", ".join(f"{k} {'yes' if v else 'no'}" for k, v in items))
+    try:
+        from backend.execution.sysinfo import long_path_text, long_paths
+        lp = long_paths()
+        if lp.get("at_risk"):
+            print("WARNING : " + long_path_text(lp))
+    except Exception:
+        pass
 
 
 def main() -> None:

@@ -1,0 +1,47 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_missions_live_664.MissionEvents.test_a_failed_change_publishes_nothing",
+      "status": "PASS",
+      "duration": 0.2477,
+      "details": null
+    },
+    {
+      "id": "test_missions_live_664.MissionEvents.test_a_step_review_is_published",
+      "status": "PASS",
+      "duration": 0.3304,
+      "details": null
+    },
+    {
+      "id": "test_missions_live_664.MissionEvents.test_creation_approval_and_cancellation_are_published",
+      "status": "PASS",
+      "duration": 0.2324,
+      "details": null
+    },
+    {
+      "id": "test_missions_live_664.MissionEvents.test_events_carry_ids_and_status_only",
+      "status": "PASS",
+      "duration": 0.2042,
+      "details": null
+    },
+    {
+      "id": "test_missions_live_664.MissionEvents.test_publishing_is_cheap",
+      "status": "PASS",
+      "duration": 0.689,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 5,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-cousy1j4",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

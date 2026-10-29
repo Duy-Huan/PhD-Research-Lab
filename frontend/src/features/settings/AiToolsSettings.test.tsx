@@ -84,6 +84,24 @@ describe('AI tools settings', () => {
     await waitFor(() => expect(api.get).toHaveBeenCalledWith('/api/tools/search?q=mean'));
   });
 
+  // 6.6.4 gate: /api/tools takes about 1 s while the rest of the tab loads in milliseconds; the list says it is
+  // loading instead of appearing silently (and an audit or screen reader can wait for it).
+  it('marks the registry list busy until the tools arrive', async () => {
+    let release!: () => void;
+    const normalGet = vi.mocked(api.get).getMockImplementation()!;
+    vi.mocked(api.get).mockImplementation(async (url: string) => {
+      if (url === '/api/tools') await new Promise<void>(resolve => { release = resolve; });
+      return normalGet(url);
+    });
+    renderWithProviders(<AiToolsSettings />);
+    const list = await screen.findByRole('list', { name: 'Tool registry' });
+    expect(list).toHaveAttribute('aria-busy', 'true');
+    expect(list).toHaveTextContent('Loading');
+    release();
+    await screen.findByText('stats_mean');
+    expect(list).toHaveAttribute('aria-busy', 'false');
+  });
+
   it('approves a pending ChatGPT connection, shows alerts and the kill switch when enabled', async () => {
     renderWithProviders(<AiToolsSettings />);
     fireEvent.click(await screen.findByRole('button', { name: /Allow/ }));

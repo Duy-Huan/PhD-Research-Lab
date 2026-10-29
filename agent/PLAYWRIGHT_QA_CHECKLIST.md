@@ -49,6 +49,13 @@ Library and is now icon-only. Settings never rendered the CLI connections panel 
 Models & AI Agents with the Claude long-lived token (`claude setup-token`). Still open: the first `/api/models` call
 takes several seconds.
 
+## 6.6.4 QA run record
+
+Evidence: `docs/qa/evidence/ui-qa-664/`. Two offline runs on a fresh 6.6.4 server: 264/264 each (12 specs, including
+`qa_screens`, `harness_levels` HARNESS-LEVELS-004 and the new `missions_live`). The 5 model specs: 9 failures, identical
+on a 6.6.3 server with the same fresh setup, so pre-existing; listed in the evidence README, not claimed to pass.
+Live Codex agent-team runs: `docs/qa/evidence/harness-team-664/`. Not run: as in 6.6.3, plus a real local PDF compile.
+
 ## 6.6.3 QA run record
 
 Evidence: `docs/qa/evidence/ui-qa-663/`, `docs/qa/evidence/cli-studio-663/` and `docs/qa/evidence/claude-signin-663/`. Contracts: `FQC-UI-QA-663`, `FQC-CLI-STUDIO-663`, `FQC-CLAUDE-SIGNIN-663` and `FQC-SOURCE-POLICY-663`.

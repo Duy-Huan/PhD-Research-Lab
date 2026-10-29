@@ -1,0 +1,117 @@
+{
+  "id": "FQC-CONTINUITY-664",
+  "title": "Commitments survive restarts with no duplicate experiments or cross-project leakage",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want long work across many turns and restarts to keep every requirement, never repeat an experiment and never mix projects (agent/PLAN_6.6.4_L3.md B4; RQ-07).",
+  "requirements": [
+    {
+      "id": "SNAPSHOT",
+      "description": "continuity.snapshot/compare report lost or changed missions and protocols, a lost approval, an approval that ran twice, a lost run, a broken or rewritten ledger, and snapshots of different topics."
+    },
+    {
+      "id": "ISOLATION",
+      "description": "continuity.leakage reports this topic's missions, protocols or runs visible in another project, without switching the active project."
+    }
+  ],
+  "nonfunctional": [
+    "Twenty snapshot comparisons in under 10 s"
+  ],
+  "inputs": [
+    "topic id; another project folder"
+  ],
+  "outputs": [
+    "list of continuity issues (empty when continuity held)"
+  ],
+  "preconditions": [
+    "A topic in a disposable project"
+  ],
+  "postconditions": [
+    "tests/test_continuity_664.py 7/7; RED on e4a6b0f"
+  ],
+  "dependencies": [
+    "backend/agent/missions.py (recover)",
+    "backend/execution/protocols.py (recover)",
+    "backend/core/config.py (project_scope)"
+  ],
+  "affected_modules": [
+    "backend/agent/continuity.py"
+  ],
+  "acceptance_criteria": [
+    "tests/test_continuity_664.py 7/7; RED on e4a6b0f"
+  ],
+  "scenarios": [
+    {
+      "id": "restarts",
+      "requirement": "SNAPSHOT",
+      "kind": "positive",
+      "expected": "Three real process restarts: the running mission becomes interrupted, no issue, one run",
+      "test": "tests/test_continuity_664.py::Continuity.test_commitments_survive_several_real_restarts"
+    },
+    {
+      "id": "lost",
+      "requirement": "SNAPSHOT",
+      "kind": "negative",
+      "expected": "A lost mission, a changed protocol and a second run per approval are reported",
+      "test": "tests/test_continuity_664.py::Continuity.test_a_lost_or_changed_commitment_is_reported"
+    },
+    {
+      "id": "ledger",
+      "requirement": "SNAPSHOT",
+      "kind": "failure",
+      "expected": "A rewritten or broken ledger is reported",
+      "test": "tests/test_continuity_664.py::Continuity.test_a_rewritten_or_broken_ledger_is_reported"
+    },
+    {
+      "id": "nonce",
+      "requirement": "SNAPSHOT",
+      "kind": "security",
+      "expected": "A used approval cannot run a second experiment",
+      "test": "tests/test_continuity_664.py::Continuity.test_an_approval_cannot_run_a_second_experiment"
+    },
+    {
+      "id": "leakage",
+      "requirement": "ISOLATION",
+      "kind": "security",
+      "expected": "Another project does not see the topic; the active project is unchanged",
+      "test": "tests/test_continuity_664.py::Continuity.test_another_project_does_not_see_this_topic"
+    },
+    {
+      "id": "topics",
+      "requirement": "SNAPSHOT",
+      "kind": "boundary",
+      "expected": "Snapshots of different topics are refused",
+      "test": "tests/test_continuity_664.py::Continuity.test_snapshots_of_different_topics_are_not_compared"
+    },
+    {
+      "id": "fast",
+      "requirement": "SNAPSHOT",
+      "kind": "performance",
+      "expected": "20 comparisons in under 10 s",
+      "test": "tests/test_continuity_664.py::Continuity.test_snapshots_are_quick"
+    }
+  ],
+  "recovery": "Fix at continuity or the recovery it observes; never weaken a check to pass. TASK-CONTINUITY-664, max three cycles.",
+  "test_environment": "Disposable PHDLAB_DATA_DIR and a second project; real restarts in a new Python process (tests/_env.py); evidence in docs/qa/evidence/continuity-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 7 tests on e4a6b0f, all failing (no continuity module). GREEN: 7/7.",
+    "red": {
+      "path": "docs/qa/evidence/continuity-664/red.json",
+      "sha256": "77dcdd9e43eae7bc10d6db5b41ecbd6db0ecd88be3bb9fc9fd973bd108bc341f",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/continuity-664/green.json",
+      "sha256": "0997f62258cb3ffe1f0b2f5ccbe487838e3467b8d50021b9f5d1fbc3e9b94e7b",
+      "exit_code": 0
+    }
+  }
+}

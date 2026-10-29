@@ -1,0 +1,41 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_discovery_partial_664.PartialDiscovery.test_a_complete_discovery_is_not_marked_partial",
+      "status": "ERROR",
+      "duration": 0.4545,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_discovery_partial_664\\tests\\test_discovery_partial_664.py\", line 73, in test_a_complete_discovery_is_not_marked_partial\n    self.assertEqual((result[\"output\"][\"partial\"], result[\"output\"][\"provider_errors\"], result[\"limitations\"]), (False, [], []))\n                      ~~~~~~~~~~~~~~~~^^^^^^^^^^^\nKeyError: 'partial'\n"
+    },
+    {
+      "id": "test_discovery_partial_664.PartialDiscovery.test_nothing_found_still_fails_and_names_the_errors",
+      "status": "FAIL",
+      "duration": 2.9652,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_discovery_partial_664\\tests\\test_discovery_partial_664.py\", line 60, in test_nothing_found_still_fails_and_names_the_errors\n    self.assertIn(\"openalex: HTTP 429\", str(task[\"payload\"]))\nAssertionError: 'openalex: HTTP 429' not found in \"{'attempts': 1, 'execution_record': {'attempt_key': 'f8cbc752-3fe2-43e1-a474-b61412a45cd0:find:1', 'elapsed_seconds': 2.702999999979511, 'outcome': 'failed', 'provider_usage': None, 'verification_status': 'unverified'}, 'result': {'engine_job_id': '', 'error': 'Ingest job ae12f3dd-aa8f-4414-8e01-39e79ec2306c ended partial; inspect job errors'}, 'result_digest': '1cb8f588800ce3c7eaba8dccf37d68c47aeaf74f96605be00d7ed035648da7bf', 'spec': {'args': {'limit': 5}, 'capability': 'paper.discover', 'depends_on': [], 'fallback_engines': [], 'id': 'find', 'preferred_engine': 'deterministic', 'schema_version': '1.0'}}\"\n"
+    },
+    {
+      "id": "test_discovery_partial_664.PartialDiscovery.test_papers_from_the_other_providers_are_kept_and_the_429_is_reported",
+      "status": "FAIL",
+      "duration": 2.9974,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_discovery_partial_664\\tests\\test_discovery_partial_664.py\", line 48, in test_papers_from_the_other_providers_are_kept_and_the_429_is_reported\n    self.assertEqual(task[\"status\"], \"completed\", m[\"payload\"].get(\"blocking_reason\"))\nAssertionError: 'failed' != 'completed'\n- failed\n+ completed\n\n"
+    },
+    {
+      "id": "test_discovery_partial_664.PartialDiscovery.test_the_rate_limited_provider_is_asked_once_not_hammered",
+      "status": "FAIL",
+      "duration": 2.9962,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_discovery_partial_664\\tests\\test_discovery_partial_664.py\", line 66, in test_the_rate_limited_provider_is_asked_once_not_hammered\n    self.assertEqual(m[\"tasks\"][0][\"status\"], \"completed\")\nAssertionError: 'failed' != 'completed'\n- failed\n+ completed\n\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 4,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-8hjbj5we",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

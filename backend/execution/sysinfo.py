@@ -12,6 +12,7 @@ import re
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 import time
 from datetime import datetime, timezone
 
@@ -169,6 +170,41 @@ def wsl_info() -> dict:
 
 
 # ------------------------------------------------------------------ toolchain & local AI
+# Characters a project environment adds below the data folder, e.g.
+# /projects/<name>/sandbox/projects/<id>/venv/Lib/site-packages/torch/include/ATen/native/<file>
+LONG_PATH_ROOM = 180
+
+
+def _long_paths_enabled() -> bool:
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\FileSystem") as key:
+            return winreg.QueryValueEx(key, "LongPathsEnabled")[0] == 1
+    except (OSError, ImportError):
+        return False
+
+
+def long_paths(root=None) -> dict:
+    """v6.6.4 (A10): Windows keeps the 260-character path limit unless long paths are on, and Python packages deep
+    below a long data folder then fail to load (WinError 206, found in the live Codex run). Advisory only."""
+    if not sys.platform.startswith("win"):
+        return {"applicable": False, "at_risk": False}
+    if root is None:
+        from backend.core.config import data_dir
+        root = data_dir()
+    chars = len(str(Path(root).absolute()))
+    enabled = _long_paths_enabled()
+    return {"applicable": True, "enabled": enabled, "root": str(root), "root_chars": chars,
+            "at_risk": not enabled and chars + LONG_PATH_ROOM > 260}
+
+
+def long_path_text(lp: dict) -> str:
+    return (f"The data folder path is {lp['root_chars']} characters and Windows long paths are off: Python packages "
+            "installed under it can pass the 260-character limit and fail to load (WinError 206). Move the project to "
+            "a shorter folder (for example D:\\PhDLab), or turn on long paths (Group Policy \"Enable Win32 long paths\" "
+            "or registry LongPathsEnabled = 1) and restart.")
+
+
 def toolchain() -> dict:
     tools = {}
     for name, args in (("git", ["git", "--version"]), ("python", [sys.executable, "--version"]), ("nvcc", ["nvcc", "--version"]),
@@ -268,6 +304,9 @@ def recommend(s: dict) -> dict:
         items.append({"level": "warn", "area": "Git", "text": "Git is not installed — Source Control / Publish to GitHub need it (https://git-scm.com/download/win)."})
     if not (s.get("tools") or {}).get("latex"):
         items.append({"level": "info", "area": "LaTeX", "text": "No LaTeX engine — the PDF preview needs Tectonic or MiKTeX/TeX Live."})
+    lp = s.get("long_paths") or {}
+    if lp.get("at_risk"):
+        items.append({"level": "warn", "area": "Paths", "text": long_path_text(lp)})
     dsk = s.get("disk") or {}
     if dsk.get("free_gb") is not None and dsk["free_gb"] < 20:
         items.append({"level": "warn", "area": "Disk", "text": f"Only {dsk['free_gb']} GB free where data/ lives — Docker images (≈ 8 GB for PyTorch+CUDA) and checkpoints need space."})
@@ -285,7 +324,7 @@ def scan(force: bool = False) -> dict:
     s = {"time": _now(), "os": {"system": platform.system(), "release": platform.release(), "version": platform.version(),
                                 "machine": platform.machine(), "python": sys.version.split()[0]},
          "cpu": cpu(), "memory": memory(), "gpus": gpus(), "disk": disk(GLOBAL_DIR), "docker": docker_info(), "wsl": wsl_info(),
-         "tools": toolchain(), "local_ai": local_ai_servers(cfg)}
+         "tools": toolchain(), "local_ai": local_ai_servers(cfg), "long_paths": long_paths()}
     s["recommendation"] = recommend(s)
     CACHE.parent.mkdir(parents=True, exist_ok=True)
     CACHE.write_text(json.dumps(s, indent=1), "utf-8")

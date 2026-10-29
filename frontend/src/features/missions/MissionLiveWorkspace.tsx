@@ -130,8 +130,9 @@ export const MissionLiveWorkspace: React.FC = () => {
     <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
       {/* Header with Mode Switcher */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+        {/* v6.6.4 (A8): in a narrow drawer the mode switch wraps below the title instead of squeezing it */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', minWidth: 0 }}>
+          <h4 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
             <Layers size={18} color="var(--accent)" />
             <span>{t('Nhiệm vụ Nghiên cứu Tự trị', 'Autonomous Research Missions')}</span>
           </h4>

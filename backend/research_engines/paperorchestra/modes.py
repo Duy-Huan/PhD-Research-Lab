@@ -353,7 +353,8 @@ async def execute_mission_task(m: dict, task: Task, key: str) -> ExecutionResult
             if prev:
                 context = str((prev.get("payload") or {}).get("result", {}).get("output", {}))
 
-        text = await asyncio.to_thread(write_section, tid, sec_id, obj, context, None, p_ids, style)
+        from backend.knowledge.corpus import cite_key
+        text = await asyncio.to_thread(write_section, tid, sec_id, obj, context, None, [cite_key(p) for p in p_ids], style)
         art = WritingArtifact.create(
             task_id=task.id,
             parent_workflow_id=mid,
@@ -471,9 +472,14 @@ async def execute_mission_task(m: dict, task: Task, key: str) -> ExecutionResult
         style = task.args.get("style", "IEEE")
 
         outline = await asyncio.to_thread(generate_outline, tid, obj, p_ids, style)
+        from backend.knowledge.corpus import cite_key
+        from backend.research_engines.paperorchestra.evidence import gather
+        evidence = await asyncio.to_thread(gather, tid)  # v6.6.4: library and measured runs, once for every section
         sections = {}
         for sec in outline.sections:
-            sec_text = await asyncio.to_thread(write_section, tid, sec.section_id, obj, "", sec.bullet_points, sec.citation_hints, style)
+            hints = [h if h in evidence.keys else cite_key(h) for h in sec.citation_hints]
+            sec_text = await asyncio.to_thread(write_section, tid, sec.section_id, obj, "", sec.bullet_points,
+                                               [h for h in hints if h in evidence.keys], style, evidence.text)
             sections[sec.section_id] = sec_text
 
         q_report = await asyncio.to_thread(evaluate_quality_gates, tid, sections, m.get("tasks", []))

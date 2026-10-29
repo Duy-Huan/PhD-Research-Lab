@@ -1,6 +1,7 @@
 """LaTeX → PDF compilation for the Paper Writer preview (v2.7).
 
-Uses a TeX distribution installed on this computer (searched on PATH and in the usual install folders):
+Uses the Tectonic engine the installers ship in <install>/tools (v6.6.4; its first compile downloads the LaTeX packages it
+needs) or a TeX distribution installed on this computer (searched on PATH and in the usual install folders):
     tectonic            single binary, downloads missing packages automatically (easiest)
     latexmk / pdflatex  TeX Live, MiKTeX or MacTeX (pdflatex → bibtex → pdflatex ×2)
 Optional, opt-in only: online compilation through the public LaTeX-on-HTTP service (sends main.tex + references.bib).
@@ -30,11 +31,19 @@ TIMEOUT = 240
 ONLINE_URL = os.environ.get("PHDLAB_LATEX_ONLINE", "https://latex.ytotech.com/builds/sync")
 _lock = threading.Lock()
 NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+OFFLINE = re.compile(r"(?i)failed to (?:connect|resolve|download|fetch)|network|dns error|error sending request|"
+                     r"timed? ?out|unable to (?:open|retrieve) .*bundle")
 
 
 # ------------------------------------------------------------------ engine discovery
+def bundled_dir() -> Path:
+    """v6.6.4: the installers ship Tectonic in <install>/tools next to <install>/app; PHDLAB_TOOLS_DIR overrides."""
+    env = os.environ.get("PHDLAB_TOOLS_DIR", "").strip()
+    return Path(env) if env else Path(__file__).resolve().parents[2].parent / "tools"
+
+
 def _extra_dirs() -> list:
-    dirs = []
+    dirs = [str(bundled_dir())]
     if sys.platform.startswith("win"):
         for pat in (r"C:\Program Files\MiKTeX*\miktex\bin\x64", os.path.expandvars(r"%LOCALAPPDATA%\Programs\MiKTeX\miktex\bin\x64"),
                     r"C:\texlive\*\bin\windows", r"C:\texlive\*\bin\win64", r"C:\texlive\*\bin\win32",
@@ -282,6 +291,9 @@ def _compile(engine: str, layout: str, notes: list, t0: float, retry: bool) -> d
     parsed = parse_log(log, tex)
     pdf = build / "main.pdf"
     ok = pdf.exists() and pdf.stat().st_size > 0
+    if not ok and engine == "tectonic" and OFFLINE.search(log):
+        notes.append("Tectonic downloads the LaTeX packages it needs on its first compile and caches them; connect to the "
+                     "internet once and compile again.")
     if not ok and retry and layout != "simple" and any(f.endswith(".cls") for f in parsed["missing_files"]):
         notes.append(f"Missing {', '.join(parsed['missing_files'])} — compiled with the quick layout instead (to get the real template: {fix}).")
         return _compile(engine, "simple", notes, t0, retry=False)

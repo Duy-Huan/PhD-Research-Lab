@@ -1,0 +1,72 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_tool_shell_664.SandboxShellDescription.test_auto_mode_describes_both_and_recommends_code",
+      "status": "PASS",
+      "duration": 0.0406,
+      "details": null
+    },
+    {
+      "id": "test_tool_shell_664.SandboxShellDescription.test_describing_is_fast",
+      "status": "PASS",
+      "duration": 0.2623,
+      "details": null
+    },
+    {
+      "id": "test_tool_shell_664.SandboxShellDescription.test_local_posix_and_docker_name_sh",
+      "status": "PASS",
+      "duration": 0.0337,
+      "details": null
+    },
+    {
+      "id": "test_tool_shell_664.SandboxShellDescription.test_local_windows_names_cmd_and_its_syntax",
+      "status": "PASS",
+      "duration": 0.0126,
+      "details": null
+    },
+    {
+      "id": "test_tool_shell_664.SandboxShellDescription.test_other_tools_and_the_static_catalog_are_untouched",
+      "status": "PASS",
+      "duration": 0.0085,
+      "details": null
+    },
+    {
+      "id": "test_tool_shell_664.SandboxShellDescription.test_unknown_mode_falls_back_to_the_local_shell",
+      "status": "PASS",
+      "duration": 0.0186,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_tool_shell_664.SandboxShellDescription.test_local_posix_and_docker_name_sh",
+      "id": "test_tool_shell_664.SandboxShellDescription.test_local_posix_and_docker_name_sh (mode='local', windows=False)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_tool_shell_664.SandboxShellDescription.test_local_posix_and_docker_name_sh",
+      "id": "test_tool_shell_664.SandboxShellDescription.test_local_posix_and_docker_name_sh (mode='docker', windows=True)",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_tool_shell_664.SandboxShellDescription.test_local_posix_and_docker_name_sh",
+      "id": "test_tool_shell_664.SandboxShellDescription.test_local_posix_and_docker_name_sh (mode='docker', windows=False)",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 6,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-p_p2ekkc",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

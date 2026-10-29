@@ -111,12 +111,19 @@ def execute(tool: str, args: dict, session_id: str = "") -> dict:
 
 
 # ------------------------------------------------------------------ ephemeral grants
-def grant_for_cli(key: str, ttl_s: int = 3600) -> dict:
-    """An MCP grant for a CLI agent outside a chat session (research-run steps): every READ tool, nothing else."""
+def grant_for_cli(key: str, ttl_s: int = 3600, registry: list | None = None) -> dict:
+    """An MCP grant for a CLI agent outside a chat session (research-run steps): every READ tool, nothing else.
+
+    v6.6.4: a team agent's grant also carries its registry tools (`registry`), reached through the phdlab_tools_*
+    meta-tools and run under the owner's agent profile permissions. Found live: without it Codex could not call
+    library.search although the team gave it that tool."""
     import os
     tools = [t["name"] for t in catalog() if t["group"] == "read"]
+    if registry:
+        from backend.tools.mcp_bridge import NAMES
+        tools += sorted(NAMES)
     base = (os.environ.get("PHDLAB_URL") or "http://127.0.0.1:8765").rstrip("/")
-    return {"mcp_url": base + "/mcp", "mcp_token": issue(key, tools, ttl_s), "mcp_tools": tools}
+    return {"mcp_url": base + "/mcp", "mcp_token": issue(key, tools, ttl_s, registry=registry or None), "mcp_tools": tools}
 
 
 def issue(session_id: str, tools: list, ttl_s: int = 1800, registry: list | None = None) -> str:

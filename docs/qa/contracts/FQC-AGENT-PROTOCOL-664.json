@@ -1,0 +1,147 @@
+{
+  "id": "FQC-AGENT-PROTOCOL-664",
+  "title": "Agent-written experiment code runs only as a frozen, approved protocol and is verified from raw files",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want an agent such as Codex to run its own experiment code through the same approval, freezing and independent verification as the built-in protocol, instead of outside governance (live run 2026-10-28; agent/PLAN_6.6.4_L3.md A2).",
+  "requirements": [
+    {
+      "id": "FREEZE",
+      "description": "experiment.propose_protocol snapshots the active code project into a content-addressed store with per-file sha256 and pins the environment (interpreter, version and installed packages, or a Docker image digest). The protocol digest covers code, environment, conditions, seeds and metrics; later project edits never change it."
+    },
+    {
+      "id": "GOVERNED_RUN",
+      "description": "experiment.run accepts the agent protocol only after researcher approval and an approved mission; it re-checks the frozen code and the environment, then runs every condition x seed once in a fresh process on a fresh copy, within the per-trial and total time budgets, recording raw metrics.json, logs and a paired comparison that needs human review."
+    },
+    {
+      "id": "INDEPENDENT_VERIFY",
+      "description": "experiment.verify re-reads the raw metric files, checks hashes, registration, code and environment, recomputes the aggregation and comparison independently, and records a reproduction only from another separately approved run of the same digest with matching metrics."
+    }
+  ],
+  "nonfunctional": [
+    "No install, edit, retry or re-plan by the runner",
+    "The built-in denoising protocol and its API are unchanged",
+    "A 2-condition x 3-seed run completes in a few seconds"
+  ],
+  "inputs": [
+    "experiment.propose_protocol {topic_id, hypothesis, entrypoint, include, conditions, baseline, seeds, metrics, primary_metric, direction, min_effect, budgets, engine}",
+    "POST /api/research/topics/{tid}/protocols with kind agent_code_v1"
+  ],
+  "outputs": [
+    "Protocol snapshot {kind, code_digest, code_manifest, environment, trials}",
+    "Experiment run with per-trial metrics and comparison",
+    "Verification report agent-code-recompute-v1"
+  ],
+  "preconditions": [
+    "An open code project and an existing topic"
+  ],
+  "postconditions": [
+    "Every agent measurement used as evidence comes from approved, frozen code"
+  ],
+  "dependencies": [
+    "backend/execution/protocols.py (approve, mission_draft, runs)",
+    "backend/agent/missions.py (experiment.run, experiment.verify)"
+  ],
+  "affected_modules": [
+    "backend/execution/agent_protocols.py",
+    "backend/execution/protocol_contracts.py",
+    "backend/execution/protocols.py",
+    "backend/knowledge/verification.py",
+    "backend/tools/mission_tools.py",
+    "backend/api/research.py",
+    "frontend/src/features/workspace-tools/OutlinePaperCodePanels.tsx"
+  ],
+  "acceptance_criteria": [
+    "tests/test_agent_protocol_664.py 9/9; RED on 303dceb",
+    "OutlinePaperCodePanels.test.tsx shows the frozen files before approval",
+    "Existing protocol, governance, mission tool and autonomy suites pass"
+  ],
+  "scenarios": [
+    {
+      "id": "run-and-reproduce",
+      "requirement": "GOVERNED_RUN",
+      "kind": "positive",
+      "expected": "Approved agent code runs 6 trials, finds the method better (+0.10), verifies; a second approved run is recorded as its reproduction",
+      "test": "tests/test_agent_protocol_664.py::AgentProtocol.test_agent_code_runs_frozen_and_verifies_with_a_reproduction"
+    },
+    {
+      "id": "frozen",
+      "requirement": "FREEZE",
+      "kind": "negative",
+      "expected": "Editing the project after proposing does not change what runs; a new proposal gets a new code digest",
+      "test": "tests/test_agent_protocol_664.py::AgentProtocol.test_later_edits_never_change_the_frozen_code"
+    },
+    {
+      "id": "tamper-drift",
+      "requirement": "GOVERNED_RUN",
+      "kind": "security",
+      "expected": "A changed frozen file or a changed environment refuses the run before admission",
+      "test": "tests/test_agent_protocol_664.py::AgentProtocol.test_tampered_snapshot_or_environment_drift_refuses_to_run"
+    },
+    {
+      "id": "failing-code",
+      "requirement": "GOVERNED_RUN",
+      "kind": "failure",
+      "expected": "A non-zero exit or a missing registered metric fails the run with retained logs, and verification fails",
+      "test": "tests/test_agent_protocol_664.py::AgentProtocol.test_failing_code_and_missing_metric_fail_the_run"
+    },
+    {
+      "id": "falsified",
+      "requirement": "INDEPENDENT_VERIFY",
+      "kind": "security",
+      "expected": "An edited stored comparison or metric file fails verification",
+      "test": "tests/test_agent_protocol_664.py::AgentProtocol.test_falsified_summary_or_metric_file_fails_verification"
+    },
+    {
+      "id": "invalid",
+      "requirement": "FREEZE",
+      "kind": "boundary",
+      "expected": "Bad baseline, metric, paths, unpinned Docker or no code project are rejected",
+      "test": "tests/test_agent_protocol_664.py::AgentProtocol.test_invalid_protocols_are_rejected"
+    },
+    {
+      "id": "approval",
+      "requirement": "GOVERNED_RUN",
+      "kind": "security",
+      "expected": "No mission or run reference before approval; the reference is single-use",
+      "test": "tests/test_agent_protocol_664.py::AgentProtocol.test_status_tool_reveals_the_run_reference_only_after_approval"
+    },
+    {
+      "id": "budget",
+      "requirement": "GOVERNED_RUN",
+      "kind": "performance",
+      "expected": "A trial over its 1 s budget is stopped well before it would end",
+      "test": "tests/test_agent_protocol_664.py::AgentProtocol.test_a_trial_over_its_budget_is_stopped"
+    },
+    {
+      "id": "api",
+      "requirement": "FREEZE",
+      "kind": "positive",
+      "expected": "The protocol route accepts agent_code_v1 and still accepts the built-in protocol unchanged",
+      "test": "tests/test_agent_protocol_664.py::AgentProtocol.test_the_api_accepts_an_agent_code_protocol"
+    }
+  ],
+  "recovery": "Fix at agent_protocols; never run unfrozen code, skip approval or relax verification. TASK-AGENT-PROTOCOL-664, max three cycles.",
+  "test_environment": "Disposable PHDLAB_DATA_DIR and code project (tests/_env.py), real subprocess trials with the test interpreter as the pinned environment; evidence in docs/qa/evidence/agent-protocol-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 9 tests on 303dceb, all 9 failing (missing tools, missing runner, API 422). GREEN: 9/9.",
+    "red": {
+      "path": "docs/qa/evidence/agent-protocol-664/red.json",
+      "sha256": "71c117141e4da3971ff9a310754353dcfbd9dd4c7ffdf1a4e404e604501cee48",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/agent-protocol-664/green.json",
+      "sha256": "6ec3d66d95854620faac6a34830a287c62d8267423fa82388a5e5085274f7f8c",
+      "exit_code": 0
+    }
+  }
+}

@@ -298,6 +298,7 @@ class Repl:
             from rich.markdown import Markdown
             live = Live(Markdown(""), console=self.o.console, refresh_per_second=8, vertical_overflow="visible")
             live.start()
+        ended = False
         try:
             while time.time() < end:
                 for e in self.c.get(f"/api/chat/sessions/{self.sid}/events", after=after)["events"]:
@@ -324,10 +325,13 @@ class Repl:
                         self.o.line(f"✗ {d.get('message', '')}", "red")
                     elif e["type"] == "run.updated":
                         self.o.line(f"· run {d.get('run_id')}: {d.get('status')}", "dim")
+                if ended:
+                    break
                 s = self.c.get(f"/api/chat/sessions/{self.sid}")
                 status = next((x["status"] for x in s["turns"] if x["id"] == tid), status)
                 if status in ("completed", "failed", "cancelled", "awaiting_launch", "waiting_approval"):
-                    break
+                    ended = True  # one more read: events written after the last read but before the turn ended
+                    continue
                 time.sleep(0.15)
         except KeyboardInterrupt:
             self.c.post(f"/api/chat/sessions/{self.sid}/turns/{tid}/cancel")

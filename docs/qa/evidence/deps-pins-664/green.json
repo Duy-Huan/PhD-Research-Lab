@@ -1,0 +1,72 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_deps_pins_664.NewProjects.test_a_new_code_project_does_not_inherit_system_packages",
+      "status": "PASS",
+      "duration": 0.0949,
+      "details": null
+    },
+    {
+      "id": "test_deps_pins_664.NewProjects.test_an_explicit_choice_is_kept",
+      "status": "PASS",
+      "duration": 0.0534,
+      "details": null
+    },
+    {
+      "id": "test_deps_pins_664.Pins.test_a_failed_pinned_requirement_is_never_replaced_by_an_unpinned_install",
+      "status": "PASS",
+      "duration": 1.0222,
+      "details": null
+    },
+    {
+      "id": "test_deps_pins_664.Pins.test_a_second_install_waits_for_the_first_and_a_stale_lock_is_taken_over",
+      "status": "PASS",
+      "duration": 2.6043,
+      "details": null
+    },
+    {
+      "id": "test_deps_pins_664.Pins.test_local_version_pins_use_the_matching_pytorch_index",
+      "status": "PASS",
+      "duration": 3.0811,
+      "details": null
+    },
+    {
+      "id": "test_deps_pins_664.Pins.test_the_lock_is_released_after_an_install",
+      "status": "PASS",
+      "duration": 0.487,
+      "details": null
+    },
+    {
+      "id": "test_deps_pins_664.Pins.test_unpinned_imports_outside_the_requirements_are_still_installed",
+      "status": "PASS",
+      "duration": 2.17,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_deps_pins_664.Pins.test_local_version_pins_use_the_matching_pytorch_index",
+      "id": "test_deps_pins_664.Pins.test_local_version_pins_use_the_matching_pytorch_index (pin='torch==2.5.1+cpu')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_deps_pins_664.Pins.test_local_version_pins_use_the_matching_pytorch_index",
+      "id": "test_deps_pins_664.Pins.test_local_version_pins_use_the_matching_pytorch_index (pin='torch==2.5.1+cu124')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 7,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-ugpp797n",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

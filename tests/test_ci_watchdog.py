@@ -80,17 +80,29 @@ class Watchdog(unittest.TestCase):
 
     def test_workflow_runs_backend_regression_under_the_watchdog_below_step_and_job_limits(self):
         text = (Path(__file__).resolve().parents[1] / '.github/workflows/quality.yml').read_text('utf-8')
-        # 6.6.3: the Windows 3.11 push run hit the 1500 s stage budget at case 1287 of 1313 with no stuck test, so every
-        # bound moved up by about 5 minutes and keeps its order: stage < watchdog < step < job.
-        self.assertIn('-m devtools.verification.ci_watchdog --deadline-s 1860', text)
-        self.assertIn('timeout-minutes: 33', text)
-        self.assertIn('timeout-minutes: 40', text)
+        # 6.6.3: the Windows 3.11 push run hit the 1500 s stage budget at case 1287 of 1313 with no stuck test. After the
+        # 6.6.3 release the owner asked for every CI time limit at 1.5x, so runs never fail only for being slow.
+        # The order stays stage < watchdog < step < job.
+        self.assertIn('-m devtools.verification.ci_watchdog --deadline-s 2790', text)
+        self.assertIn('timeout-minutes: 50', text)
+        self.assertIn('timeout-minutes: 60', text)
         runner = (Path(__file__).resolve().parents[1] / 'devtools/verification/runner.py').read_text('utf-8')
         stage = int(re.search(r"timeout=(\d+)\)\s+# measured Windows", runner).group(1))
-        self.assertLess(stage, 1860)
-        self.assertLess(1860, 33 * 60)
-        self.assertLess(33, 40)
-        self.assertEqual(stage, 1800)
+        self.assertEqual(stage, 2700)
+        self.assertLess(stage, 2790)
+        self.assertLess(2790, 50 * 60)
+        self.assertLess(50, 60)
+
+    def test_every_ci_job_limit_is_one_and_a_half_times_its_6_6_3_value(self):
+        root = Path(__file__).resolve().parents[1]
+        def limits(name):
+            return [int(m) for m in re.findall(r'timeout-minutes: (\d+)', (root / '.github/workflows' / name).read_text('utf-8'))]
+        # policy, backend job, backend step, frontend, security, browser, installers
+        self.assertEqual(limits('quality.yml'), [15, 60, 50, 30, 23, 23, 45])
+        self.assertEqual(limits('release.yml'), [8, 38, 45, 15])
+        self.assertEqual(limits('automerge.yml'), [8])
+        browser = (root / 'devtools/verification/browser.py').read_text('utf-8')
+        self.assertIn("timeout=2700 if args.profile in ('full','release') else 900", browser)
 
 
 if __name__ == '__main__':

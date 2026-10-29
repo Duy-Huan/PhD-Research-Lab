@@ -1,0 +1,39 @@
+[1/13] e2e\harness_ide.spec.ts:3:1 › Harness Studio All-in-One IDE: Templates, Team Builder, Node Inspector and AI Architect
+  1) e2e\harness_ide.spec.ts:3:1 › Harness Studio All-in-One IDE: Templates, Team Builder, Node Inspector and AI Architect 
+    Error: expect(locator).toBeVisible() failed
+    ..\output\playwright\qa-664-live3\results\harness_ide-Harness-Studio-bc1d8--Inspector-and-AI-Architect\test-failed-1.png
+[2/13] e2e\journeys.spec.ts:4:1 › real selected local-model chat, SSE, pin, memory save and reload
+  2) e2e\journeys.spec.ts:4:1 › real selected local-model chat, SSE, pin, memory save and reload ───
+    Error: expect(locator).toContainText(expected) failed
+    ..\output\playwright\qa-664-live3\results\journeys-real-selected-loc-d77ce--pin-memory-save-and-reload\test-failed-1.png
+[3/13] e2e\journeys.spec.ts:32:1 › chat cancellation is persisted and the composer recovers
+[4/13] e2e\journeys.spec.ts:46:1 › provider settings persist, memory navigation and responsive settings
+  3) e2e\journeys.spec.ts:46:1 › provider settings persist, memory navigation and responsive settings 
+    Error: expect(locator).toHaveValue(expected) failed
+    ..\output\playwright\qa-664-live3\results\journeys-provider-settings-0e60a-ion-and-responsive-settings\test-failed-1.png
+[5/13] e2e\journeys.spec.ts:74:1 › project create, rename, delete cancellation and switch isolate topics
+  4) e2e\journeys.spec.ts:74:1 › project create, rename, delete cancellation and switch isolate topics 
+    ..\output\playwright\qa-664-live3\results\journeys-project-create-re-e96e9-n-and-switch-isolate-topics\test-failed-1.png
+[6/13] e2e\journeys.spec.ts:109:1 › critical accessibility scan of chat and settings
+[7/13] e2e\multi_turn_chat.spec.ts:4:3 › Multi-turn Long Chat and Turn Recovery Suite › consecutive multi-turn conversation maintains continuity without turn locking
+  5) e2e\multi_turn_chat.spec.ts:4:3 › Multi-turn Long Chat and Turn Recovery Suite › consecutive multi-turn conversation maintains continuity without turn locking 
+    Error: expect(locator).toContainText(expected) failed
+    ..\output\playwright\qa-664-live3\results\multi_turn_chat-Multi-turn-6ebc0-inuity-without-turn-locking\test-failed-1.png
+[8/13] e2e\multi_turn_chat.spec.ts:63:3 › Multi-turn Long Chat and Turn Recovery Suite › an API-created fresh session accepts a real chat turn without an error banner
+  6) e2e\multi_turn_chat.spec.ts:63:3 › Multi-turn Long Chat and Turn Recovery Suite › an API-created fresh session accepts a real chat turn without an error banner 
+    Error: expect(locator).toContainText(expected) failed
+    ..\output\playwright\qa-664-live3\results\multi_turn_chat-Multi-turn-98d4a-urn-without-an-error-banner\test-failed-1.png
+[9/13] e2e\tools.spec.ts:3:1 › harness run does not invent evaluation metrics when adapters are unavailable
+[10/13] e2e\tools.spec.ts:17:1 › ledger UI renders actual ledger events and verified API status
+  7) e2e\tools.spec.ts:17:1 › ledger UI renders actual ledger events and verified API status ───────
+    ..\output\playwright\qa-664-live3\results\tools-ledger-UI-renders-ac-b571e-nts-and-verified-API-status\test-failed-1.png
+[11/13] e2e\tools.spec.ts:28:1 › real Codex CLI chat follows the provider selected in settings
+  8) e2e\tools.spec.ts:28:1 › real Codex CLI chat follows the provider selected in settings ────────
+    ..\output\playwright\qa-664-live3\results\tools-real-Codex-CLI-chat--1a428-ovider-selected-in-settings\test-failed-1.png
+[12/13] e2e\workflows.spec.ts:3:1 › four independent L1–L4 workflows execute real local inference and CPU reproduction
+  9) e2e\workflows.spec.ts:3:1 › four independent L1–L4 workflows execute real local inference and CPU reproduction 
+    Error: expect(locator).toContainText(expected) failed
+    ..\output\playwright\qa-664-live3\results\workflows-four-independent-c0bba-erence-and-CPU-reproduction\test-failed-1.png
+[13/13] e2e\workflows.spec.ts:75:1 › workflow cancellation and invalid draft validation do not launch a task
+  9 failed
+  4 passed (5.9m)

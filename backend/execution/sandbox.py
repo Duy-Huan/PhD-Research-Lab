@@ -169,6 +169,22 @@ def docker_running(cache_s: float = 10) -> bool:
     return code == 0
 
 
+def shell_note(s: dict | None = None) -> str:
+    """Which shell runs sandbox commands, for tool descriptions (6.6.4 A5: an agent wrote POSIX syntax for cmd.exe).
+    Local mode uses shell=True (cmd.exe on Windows, /bin/sh elsewhere); Docker mode runs `sh -c` in a Linux container.
+    Reads the setting only; never resolves 'auto' (that plans dependencies)."""
+    mode = (s or load_settings()).get("mode")
+    local = ("Local runs use Windows cmd.exe in the project's Python venv: write `set VAR=1 && python x.py`, not "
+             "`VAR=1 python x.py`." if IS_WIN else
+             "Local runs use POSIX sh in the project's Python venv.")
+    docker = "Docker runs use POSIX sh inside a Linux container (/workspace)."
+    if mode == "docker":
+        return "Commands run with " + docker[len("Docker runs use "):]
+    if mode == "auto":
+        return f"{local} {docker} The mode is chosen per run, so prefer `code` (Python) over shell syntax."
+    return local + " Prefer `code` (Python) for anything beyond a single command."
+
+
 def effective_mode(s: dict | None = None) -> str:
     """local | docker. 'auto' (v3.4): Docker when the code needs a GPU framework and Docker runs, else the Python env."""
     s = s or load_settings()

@@ -1,0 +1,109 @@
+{
+  "id": "FQC-DISCOVERY-PARTIAL-664",
+  "title": "A rate-limited provider no longer fails a mission's discovery that found papers",
+  "risk": "MEDIUM",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want a mission's discovery step to keep the papers the other providers returned when one provider is rate limited, and to say which provider did not answer (live run 2026-10-28, OpenAlex 429; agent/PLAN_6.6.4_L3.md A7).",
+  "requirements": [
+    {
+      "id": "KEEP",
+      "description": "A partial discovery job that found papers completes the paper.discover step with partial=true, the provider errors and a limitation naming them."
+    },
+    {
+      "id": "FAIL",
+      "description": "A discovery that found nothing still fails, naming the provider errors; downloads stay strict."
+    }
+  ],
+  "nonfunctional": [
+    "No retry loop against a rate-limited provider"
+  ],
+  "inputs": [
+    "paper.discover mission task"
+  ],
+  "outputs": [
+    "{paper_ids, partial, provider_errors}, limitations"
+  ],
+  "preconditions": [
+    "None"
+  ],
+  "postconditions": [
+    "tests/test_discovery_partial_664.py 4/4; RED on 981b7fc"
+  ],
+  "dependencies": [
+    "backend/knowledge/sources.py (discover)",
+    "backend/knowledge/research_jobs.py"
+  ],
+  "affected_modules": [
+    "backend/agent/missions.py"
+  ],
+  "acceptance_criteria": [
+    "tests/test_discovery_partial_664.py 4/4; RED on 981b7fc"
+  ],
+  "scenarios": [
+    {
+      "id": "kept",
+      "requirement": "KEEP",
+      "kind": "positive",
+      "expected": "3 arXiv papers kept; partial; 'openalex: HTTP 429' in errors and limitations",
+      "test": "tests/test_discovery_partial_664.py::PartialDiscovery.test_papers_from_the_other_providers_are_kept_and_the_429_is_reported"
+    },
+    {
+      "id": "complete",
+      "requirement": "KEEP",
+      "kind": "negative",
+      "expected": "A complete discovery is not marked partial",
+      "test": "tests/test_discovery_partial_664.py::PartialDiscovery.test_a_complete_discovery_is_not_marked_partial"
+    },
+    {
+      "id": "empty",
+      "requirement": "FAIL",
+      "kind": "boundary",
+      "expected": "Zero papers with a 429 fails and names it",
+      "test": "tests/test_discovery_partial_664.py::PartialDiscovery.test_nothing_found_still_fails_and_names_the_errors"
+    },
+    {
+      "id": "errors-named",
+      "requirement": "FAIL",
+      "kind": "failure",
+      "expected": "The failure message carries the provider errors",
+      "test": "tests/test_discovery_partial_664.py::PartialDiscovery.test_nothing_found_still_fails_and_names_the_errors"
+    },
+    {
+      "id": "not-hidden",
+      "requirement": "KEEP",
+      "kind": "security",
+      "expected": "The missing provider is reported, never hidden",
+      "test": "tests/test_discovery_partial_664.py::PartialDiscovery.test_papers_from_the_other_providers_are_kept_and_the_429_is_reported"
+    },
+    {
+      "id": "once",
+      "requirement": "KEEP",
+      "kind": "performance",
+      "expected": "The rate-limited provider is asked once",
+      "test": "tests/test_discovery_partial_664.py::PartialDiscovery.test_the_rate_limited_provider_is_asked_once_not_hammered"
+    }
+  ],
+  "recovery": "Fix at the paper.discover handler; never hide a provider error or accept an empty partial. TASK-DISCOVERY-PARTIAL-664, max three cycles.",
+  "test_environment": "Disposable PHDLAB_DATA_DIR with a real topic, jobs and mission; the real provider wrapper with provider HTTP calls replaced; evidence in docs/qa/evidence/discovery-partial-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 4 tests on 981b7fc, all failing (partial discovery failed the step; no partial flag). GREEN: 4/4.",
+    "red": {
+      "path": "docs/qa/evidence/discovery-partial-664/red.json",
+      "sha256": "003b2521b84ad99fe7ab5c30b4df3f0c4fc0b8d3b9eb819c63dc28861496a860",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/discovery-partial-664/green.json",
+      "sha256": "9b384da186c9eceacc1323ee1071115c82951fdfcb514d931b99ef80da6b2fe2",
+      "exit_code": 0
+    }
+  }
+}
