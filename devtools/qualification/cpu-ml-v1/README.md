@@ -6,7 +6,7 @@ about 2 hours per case, Codex (`cli:codex`). Scope and rules: `agent/PLAN_6.6.4_
 | File | Purpose |
 |---|---|
 | `suite.json` | Cases, questions, datasets (generator arguments and sha256), budget, stopping rules, measured criteria |
-| `suite.sha256` | sha256 of the canonical JSON; `devtools.qualification.suite.load()` refuses a changed suite |
+| `suite-digest.txt` | sha256 of the canonical JSON; `devtools.qualification.suite.load()` refuses a changed suite |
 | `generate_data.py` | Recreates every dataset byte for byte and checks its sha256 (`python generate_data.py <out_dir>`) |
 
 Never edit a frozen suite: copy it to a new version (for example `cpu-ml-v2`) and freeze that. Held-out datasets go to

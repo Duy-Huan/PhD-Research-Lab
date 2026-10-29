@@ -79,7 +79,7 @@ class Suite(unittest.TestCase):
     def test_the_campaign_template_is_scored_not_run_until_measured(self):
         from backend.agent import qualification
         record = self.Q.campaign_template(SUITE, "campaign-test")
-        self.assertEqual((record["planned_cases"], record["suite_digest"]), (4, (SUITE / "suite.sha256").read_text("utf-8").strip()))
+        self.assertEqual((record["planned_cases"], record["suite_digest"]), (4, (SUITE / "suite-digest.txt").read_text("utf-8").strip()))
         scored = qualification.score(record, SUITE)
         self.assertEqual({v["status"] for v in scored["criteria"].values()}, {"NOT_RUN"})
         self.assertEqual(scored["denominators"], {"planned_cases": 4, "attempted_cases": 0, "cases_recorded": 4})

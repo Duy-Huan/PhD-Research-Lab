@@ -69,9 +69,12 @@ Progress 2026-10-28:
   B3 (FQC-FAULTS-664): 5 automated planted faults, each caught by its detector; 4 faults are campaign-only and never
   counted. B4 (FQC-CONTINUITY-664): snapshot/compare across real restarts, duplicate-run and leakage checks. Phase B
   is complete except B1, which needs the owner's domain and budget.
-- B1 is done locally (FQC-SUITE-664): devtools/qualification/cpu-ml-v1, frozen (suite.sha256), 4 cases with fixed
+- B1 is done locally (FQC-SUITE-664): devtools/qualification/cpu-ml-v1, frozen (suite-digest.txt), 4 cases with fixed
   generated data (held-out sets for the open cases), budgets and stopping rules; campaign_template feeds B5.
   Phase B is complete locally.
+- CI on f1b2607 (repair 1): the suite digest file was written with CRLF on Windows and committed as LF; its `.sha256`
+  suffix is not line-ending-normalised by the source fingerprint, so the local receipt and CI hashed different bytes.
+  The file is now suite-digest.txt (normalised), written with LF.
 
 | ID | Change | Criteria |
 |---|---|---|

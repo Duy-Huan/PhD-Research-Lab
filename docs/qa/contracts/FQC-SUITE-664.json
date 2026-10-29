@@ -7,7 +7,7 @@
   "requirements": [
     {
       "id": "FROZEN",
-      "description": "devtools/qualification/cpu-ml-v1/suite.json is frozen by the sha256 of its canonical JSON (suite.sha256); suite.load refuses a changed or invalid suite."
+      "description": "devtools/qualification/cpu-ml-v1/suite.json is frozen by the sha256 of its canonical JSON (suite-digest.txt); suite.load refuses a changed or invalid suite."
     },
     {
       "id": "DATA",
@@ -40,7 +40,7 @@
   "affected_modules": [
     "devtools/qualification/suite.py",
     "devtools/qualification/cpu-ml-v1/suite.json",
-    "devtools/qualification/cpu-ml-v1/suite.sha256",
+    "devtools/qualification/cpu-ml-v1/suite-digest.txt",
     "devtools/qualification/cpu-ml-v1/generate_data.py"
   ],
   "acceptance_criteria": [
@@ -116,7 +116,7 @@
     },
     "green": {
       "path": "docs/qa/evidence/suite-664/green.json",
-      "sha256": "33da985adb3f21004bb7393e0e07ca36f9830c5d65fd592ff13b04e548f301b2",
+      "sha256": "20dc617b55291fe1aeb7fe3962cc0d90364eb6295e4585a35289f20919debfde",
       "exit_code": 0
     }
   }

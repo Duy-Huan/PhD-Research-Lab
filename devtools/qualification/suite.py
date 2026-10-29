@@ -1,6 +1,7 @@
 """Frozen qualification suites (6.6.4 B1; RQ-13). A suite is frozen by the sha256 of its canonical JSON, kept beside it
-in suite.sha256: load() refuses a suite whose content no longer matches, and campaign_template() starts the campaign
-record that backend.agent.qualification scores (B5) with that digest and its denominators."""
+in suite-digest.txt (a .txt file, so checkout line endings never change the source fingerprint). load() refuses a suite
+whose content no longer matches; campaign_template() starts the campaign record that backend.agent.qualification
+scores (B5) with that digest and its denominators."""
 from __future__ import annotations
 
 import hashlib
@@ -44,7 +45,7 @@ def validate(suite: dict) -> list[str]:
 def load(folder: Path) -> dict:
     """The suite, only if valid and unchanged since it was frozen."""
     suite = json.loads((folder / "suite.json").read_text("utf-8"))
-    frozen = (folder / "suite.sha256").read_text("utf-8").strip()
+    frozen = (folder / "suite-digest.txt").read_text("utf-8").strip()
     if canonical_digest(suite) != frozen:
         raise ValueError(f"Suite {folder.name} changed after it was frozen; freeze a new version instead of editing it")
     problems = validate(suite)
