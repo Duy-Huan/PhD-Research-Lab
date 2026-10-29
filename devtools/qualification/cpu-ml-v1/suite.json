@@ -1,0 +1,62 @@
+{
+  "suite_id": "cpu-ml-v1",
+  "domain": "Small CPU-scale machine learning: calibration and robustness of small classifiers on fixed synthetic data",
+  "decided": "Owner, 2026-10-29: this domain, 4 cases (2 guided, 2 open-ended), 40 turns and 2 restarts per case, about 2 hours per case, Codex",
+  "agent": {"model": "cli:codex", "version": "recorded in the campaign record at start (provider registry and CLI version)", "reasoning": "default"},
+  "budget": {"max_turns": 40, "max_restarts": 2, "max_wall_seconds": 7200, "max_protocol_runs": 4},
+  "stopping_rules": [
+    "Stop when the case's question is answered with verified evidence or shown unanswerable with the given data",
+    "Stop at any budget limit; record the attempt as incomplete, never extend the budget",
+    "Stop after two consecutive failed protocol runs; record both failures",
+    "Never rerun an experiment without a new approval; never edit stored results"
+  ],
+  "rules": [
+    "The agent works in a new, disposable paper project per case and attempt",
+    "Experiments run only as approved protocols (experiment.propose_protocol, experiment.run, experiment.verify)",
+    "Held-out data is never given to the agent; only the case verifier evaluates on it",
+    "Every attempt is recorded, including null, negative and failed ones; denominators are reported",
+    "Every human action is recorded in the intervention ledger (B2)"
+  ],
+  "cases": [
+    {
+      "id": "guided-calibration",
+      "kind": "guided",
+      "question": "Does label smoothing with epsilon 0.1 lower the expected calibration error (15 equal-width bins) of a logistic regression trained on d1-train, compared with no smoothing, without lowering accuracy by more than 1 point? Use 5 seeds and report paired differences with uncertainty.",
+      "method_given": "Logistic regression by gradient descent, 200 epochs, learning rate 0.1, 80/20 split of d1-train fixed by seed",
+      "data": [{"id": "d1-train", "role": "given", "generator": {"seed": 101, "rows": 2000, "features": 5, "separation": 1.2, "label_noise": 0.05},
+                "sha256": "fa7a5d3dd4f261a4742309c88765a0c0b6045d1463d0b756957a2ec769f00af0"}],
+      "measures": ["RQ-01", "RQ-04", "RQ-05", "RQ-08", "RQ-10", "RQ-12", "RQ-13", "RQ-14"]
+    },
+    {
+      "id": "guided-robustness",
+      "kind": "guided",
+      "question": "How does the accuracy of a fixed logistic regression trained on d2-train change when Gaussian feature noise with standard deviation 0, 0.5 and 1.0 is added at test time? Use 5 seeds; report the curve with uncertainty and state any limitation.",
+      "method_given": "Logistic regression by gradient descent, 200 epochs, learning rate 0.1, 80/20 split of d2-train fixed by seed; noise added to the 20% test part only",
+      "data": [{"id": "d2-train", "role": "given", "generator": {"seed": 202, "rows": 2000, "features": 5, "separation": 1.0, "label_noise": 0.0},
+                "sha256": "cf87fa43db3a3634012f6898a2e73039c46e2e5dadbd32f575e8d4cc273cd259"}],
+      "measures": ["RQ-01", "RQ-04", "RQ-05", "RQ-07", "RQ-08", "RQ-10", "RQ-12", "RQ-13", "RQ-14"]
+    },
+    {
+      "id": "open-calibration",
+      "kind": "open-ended",
+      "question": "Find a method that improves the calibration of a small classifier trained on d3-train without lowering held-out accuracy by more than 1 point. Choose, test and justify the method yourself, cite the topic library for prior art, and report what did not work.",
+      "method_given": null,
+      "data": [{"id": "d3-train", "role": "given", "generator": {"seed": 303, "rows": 2000, "features": 8, "separation": 1.0, "label_noise": 0.10},
+                "sha256": "5e4fe3544da41a70fbf4a71bc529d46b39699fee9d004fe2d1254a7210bf2cad"},
+               {"id": "d3-heldout", "role": "held_out", "generator": {"seed": 3031, "rows": 2000, "features": 8, "separation": 1.0, "label_noise": 0.10},
+                "sha256": "697bced3f720483b6b111b32f8efcf0779a641f80d30071efa62240cd1aa3717"}],
+      "measures": ["RQ-01", "RQ-02", "RQ-03", "RQ-04", "RQ-05", "RQ-06", "RQ-07", "RQ-08", "RQ-09", "RQ-10", "RQ-11", "RQ-12", "RQ-13", "RQ-14"]
+    },
+    {
+      "id": "open-robustness",
+      "kind": "open-ended",
+      "question": "Investigate which training-time choice makes a small classifier trained on d4-train most robust to its label noise, as measured on held-out data. Decide the candidates, the experiments and when to stop; report negative results and limitations.",
+      "method_given": null,
+      "data": [{"id": "d4-train", "role": "given", "generator": {"seed": 404, "rows": 2000, "features": 8, "separation": 1.2, "label_noise": 0.20},
+                "sha256": "86214084595f036d421faec4c1d21c6561aedd2fb7b2bf6b6dd8e06d7e6ed107"},
+               {"id": "d4-heldout", "role": "held_out", "generator": {"seed": 4041, "rows": 2000, "features": 8, "separation": 1.2, "label_noise": 0.20},
+                "sha256": "22f155713daceafbeb2cd6b6c560031f429f8a7588f65e2c9e1d3040ebc62efd"}],
+      "measures": ["RQ-01", "RQ-02", "RQ-03", "RQ-04", "RQ-05", "RQ-06", "RQ-07", "RQ-08", "RQ-09", "RQ-10", "RQ-11", "RQ-12", "RQ-13", "RQ-14"]
+    }
+  ]
+}

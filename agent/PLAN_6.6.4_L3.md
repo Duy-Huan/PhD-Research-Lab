@@ -69,6 +69,9 @@ Progress 2026-10-28:
   B3 (FQC-FAULTS-664): 5 automated planted faults, each caught by its detector; 4 faults are campaign-only and never
   counted. B4 (FQC-CONTINUITY-664): snapshot/compare across real restarts, duplicate-run and leakage checks. Phase B
   is complete except B1, which needs the owner's domain and budget.
+- B1 is done locally (FQC-SUITE-664): devtools/qualification/cpu-ml-v1, frozen (suite.sha256), 4 cases with fixed
+  generated data (held-out sets for the open cases), budgets and stopping rules; campaign_template feeds B5.
+  Phase B is complete locally.
 
 | ID | Change | Criteria |
 |---|---|---|
@@ -133,12 +136,11 @@ Split each flow into a deterministic part that runs on every CI run and a model 
   Codex (`cli:codex`, ChatGPT sign-in) for the live tests** of the agent team and the L1–L4 model parts.
   Claude Code stays available in the list as an alternative.
 
-Still open:
+- 2026-10-29: domain = small CPU-scale ML (calibration / robustness of small classifiers); campaign budget = 4 cases
+  (2 guided, 2 open-ended), 40 turns and 2 restarts per case, about 2 hours per case, Codex; `research_os.team_enabled`
+  stays off by default (opt-in in Missions). Phase A order followed as proposed.
 
-1. Declared domain for the first campaign (proposal: small CPU-scale ML calibration/robustness, as in the live run).
-2. Budget for the campaign (turns, restarts, wall time, number of cases).
-3. Whether team flags (`research_os.enabled`, `team_enabled`) default to on after A9, or stay opt-in.
-4. Order inside phase A (proposal: A-QA, A1, A2, A3, A6, A9, then the rest).
+Still open: none for 6.6.4. Phase C (the campaign itself) runs after the release.
 
 ## Release rules
 

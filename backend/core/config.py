@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 from copy import deepcopy
 from pathlib import Path
 
-APP_VERSION = "6.6.3"
+APP_VERSION = "6.6.4"
 
 ROOT = Path(__file__).resolve().parents[2]
 INSTALL_MARKER = "phdlab-installed.json"  # written by the .exe/.deb installers next to the application

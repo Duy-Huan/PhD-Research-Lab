@@ -25,7 +25,7 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 HOST = "127.0.0.1"
-APP_VERSION = "6.6.3"   # must match backend/core/config.py - a mismatch means files from two versions were mixed
+APP_VERSION = "6.6.4"   # must match backend/core/config.py - a mismatch means files from two versions were mixed
 # Files that must exist for this version (an incomplete copy or a partial upgrade is the most common failure)
 REQUIRED_FILES = [
     "backend/__init__.py", "backend/app.py", "backend/core/config.py", "backend/core/bus.py", "backend/api/__init__.py",
