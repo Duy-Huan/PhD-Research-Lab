@@ -1,0 +1,408 @@
+{
+ "spec": {
+  "topic_id": "2d84fc5c-7cdc-4cae-9e60-744b5d3b6fda",
+  "objective": "Can a fixed 3x3 smoothing filter reduce synthetic Gaussian image noise (PSNR)?",
+  "permissions": [
+   "reasoning",
+   "workspace_write"
+  ],
+  "limits": {
+   "max_tasks": 3,
+   "max_hops": 3,
+   "max_seconds": 3600,
+   "max_reasoning_calls": 1
+  },
+  "control": {
+   "success_criteria": [
+    "Every canvas step completed with its evidence; scientific review pending"
+   ],
+   "allowed_engines": [
+    "agent",
+    "deterministic"
+   ],
+   "app_backend": "local",
+   "allow_api_billing": false,
+   "end_date": "2026-10-30T19:07:00.056883+00:00",
+   "max_wall_seconds": 3600
+  },
+  "team": {
+   "mode": "fixed",
+   "agents": [
+    {
+     "id": "researcher",
+     "purpose": "Proposes a testable hypothesis and experiment design",
+     "capabilities": [
+      "agent.task"
+     ],
+     "permissions": [
+      "reasoning",
+      "workspace_write"
+     ],
+     "engines": [
+      "agent"
+     ],
+     "expected_value": "Proposes a testable hypothesis and experiment design"
+    },
+    {
+     "id": "coordinator",
+     "purpose": "Runs the deterministic and writing steps of the canvas",
+     "capabilities": [
+      "mission.report",
+      "review.checkpoint"
+     ],
+     "permissions": [
+      "workspace_write"
+     ],
+     "engines": [
+      "deterministic"
+     ],
+     "expected_value": "Canvas steps that are not agent work run as typed mission tasks"
+    }
+   ],
+   "max_agents": 2,
+   "assignments": [
+    {
+     "task_id": "node-hypothesis",
+     "owner": "researcher",
+     "acceptance": [
+      "Result recorded with its artifacts"
+     ]
+    },
+    {
+     "task_id": "node-review",
+     "owner": "coordinator",
+     "acceptance": [
+      "Researcher reviewed"
+     ]
+    },
+    {
+     "task_id": "node-end",
+     "owner": "coordinator",
+     "acceptance": [
+      "Result recorded with its artifacts"
+     ]
+    }
+   ]
+  },
+  "autonomy": {
+   "level": "L3"
+  },
+  "tasks": [
+   {
+    "id": "node-hypothesis",
+    "capability": "agent.task",
+    "args": {
+     "agent": "researcher",
+     "model": "cli:codex",
+     "instructions": "Use library.search on topic 2d84fc5c-7cdc-4cae-9e60-744b5d3b6fda to see what the topic library holds (it may be empty; say so). Then write design.md with one testable hypothesis about a fixed 3x3 box filter and synthetic Gaussian noise (PSNR), the conditions (baseline = noisy input, method = filtered), 3 seeds and the metric. Do not run anything and do not claim results.",
+     "tools": [
+      "library.search",
+      "library.passages"
+     ]
+    },
+    "depends_on": [],
+    "preferred_engine": "agent"
+   },
+   {
+    "id": "node-review",
+    "capability": "review.checkpoint",
+    "args": {
+     "title": "Review the design"
+    },
+    "depends_on": [
+     "node-hypothesis"
+    ],
+    "preferred_engine": "deterministic"
+   },
+   {
+    "id": "node-end",
+    "capability": "mission.report",
+    "args": {
+     "title": "Harness mission report"
+    },
+    "depends_on": [
+     "node-review"
+    ],
+    "preferred_engine": "deterministic"
+   }
+  ]
+ },
+ "notes": [],
+ "node_tasks": {
+  "node-hypothesis": "node-hypothesis",
+  "node-review": "node-review",
+  "node-end": "node-end"
+ },
+ "team": [
+  {
+   "id": "researcher",
+   "role": "researcher",
+   "model": "cli:codex",
+   "model_available": true,
+   "model_state": "CONNECTED"
+  }
+ ],
+ "mission": {
+  "id": "5b7dc765-919b-4c58-b4b2-9621420024af",
+  "topic_id": "2d84fc5c-7cdc-4cae-9e60-744b5d3b6fda",
+  "status": "draft",
+  "payload": {
+   "active_seconds": 0,
+   "approval": null,
+   "depth": 0,
+   "hops": 3,
+   "plan_digest": "e05487a41a77a6b388ef424176fb70cfe8db051a8954c1b22b6be1eaa204430c",
+   "reasoning_calls": 0,
+   "spec": {
+    "autonomy": {
+     "level": "L3",
+     "max_output_tokens": 512,
+     "schema_version": "1.0"
+    },
+    "collaboration": null,
+    "control": {
+     "allow_api_billing": false,
+     "allowed_engines": [
+      "agent",
+      "deterministic"
+     ],
+     "app_backend": "local",
+     "app_model": "",
+     "charter_digest": "",
+     "charter_id": "",
+     "end_date": "2026-10-30T19:07:00.056883Z",
+     "exclusions": [],
+     "hypothesis_id": "",
+     "max_wall_seconds": 3600,
+     "not_before": null,
+     "predecessor_id": "",
+     "priority": 0,
+     "review_required": true,
+     "schema_version": "1.0",
+     "success_criteria": [
+      "Every canvas step completed with its evidence; scientific review pending"
+     ]
+    },
+    "expected_artifacts": [],
+    "inputs": [],
+    "limits": {
+     "max_artifact_mb": 32,
+     "max_attempts": 2,
+     "max_depth": 2,
+     "max_hops": 3,
+     "max_reasoning_calls": 1,
+     "max_seconds": 3600,
+     "max_tasks": 3,
+     "schema_version": "1.0"
+    },
+    "objective": "Can a fixed 3x3 smoothing filter reduce synthetic Gaussian image noise (PSNR)?",
+    "owner": "researcher",
+    "parent_mission_id": "",
+    "permissions": [
+     "reasoning",
+     "workspace_write"
+    ],
+    "questions": [],
+    "routing_mode": "manual",
+    "schema_version": "1.0",
+    "stop_conditions": [
+     "budget_exceeded",
+     "failed_dependency"
+    ],
+    "tasks": [
+     {
+      "args": {
+       "agent": "researcher",
+       "instructions": "Use library.search on topic 2d84fc5c-7cdc-4cae-9e60-744b5d3b6fda to see what the topic library holds (it may be empty; say so). Then write design.md with one testable hypothesis about a fixed 3x3 box filter and synthetic Gaussian noise (PSNR), the conditions (baseline = noisy input, method = filtered), 3 seeds and the metric. Do not run anything and do not claim results.",
+       "model": "cli:codex",
+       "tools": [
+        "library.search",
+        "library.passages"
+       ]
+      },
+      "capability": "agent.task",
+      "depends_on": [],
+      "fallback_engines": [],
+      "id": "node-hypothesis",
+      "preferred_engine": "agent",
+      "schema_version": "1.0"
+     },
+     {
+      "args": {
+       "title": "Review the design"
+      },
+      "capability": "review.checkpoint",
+      "depends_on": [
+       "node-hypothesis"
+      ],
+      "fallback_engines": [],
+      "id": "node-review",
+      "preferred_engine": "deterministic",
+      "schema_version": "1.0"
+     },
+     {
+      "args": {
+       "title": "Harness mission report"
+      },
+      "capability": "mission.report",
+      "depends_on": [
+       "node-review"
+      ],
+      "fallback_engines": [],
+      "id": "node-end",
+      "preferred_engine": "deterministic",
+      "schema_version": "1.0"
+     }
+    ],
+    "team": {
+     "agents": [
+      {
+       "capabilities": [
+        "agent.task"
+       ],
+       "engines": [
+        "agent"
+       ],
+       "expected_value": "Proposes a testable hypothesis and experiment design",
+       "id": "researcher",
+       "permissions": [
+        "reasoning",
+        "workspace_write"
+       ],
+       "purpose": "Proposes a testable hypothesis and experiment design",
+       "schema_version": "1.0",
+       "termination": "Assigned bounded tasks complete or admission stops"
+      },
+      {
+       "capabilities": [
+        "mission.report",
+        "review.checkpoint"
+       ],
+       "engines": [
+        "deterministic"
+       ],
+       "expected_value": "Canvas steps that are not agent work run as typed mission tasks",
+       "id": "coordinator",
+       "permissions": [
+        "workspace_write"
+       ],
+       "purpose": "Runs the deterministic and writing steps of the canvas",
+       "schema_version": "1.0",
+       "termination": "Assigned bounded tasks complete or admission stops"
+      }
+     ],
+     "assignments": [
+      {
+       "acceptance": [
+        "Result recorded with its artifacts"
+       ],
+       "output_contract": "ExecutionResult/1.0",
+       "owner": "researcher",
+       "schema_version": "1.0",
+       "task_id": "node-hypothesis",
+       "verifier": ""
+      },
+      {
+       "acceptance": [
+        "Researcher reviewed"
+       ],
+       "output_contract": "ExecutionResult/1.0",
+       "owner": "coordinator",
+       "schema_version": "1.0",
+       "task_id": "node-review",
+       "verifier": ""
+      },
+      {
+       "acceptance": [
+        "Result recorded with its artifacts"
+       ],
+       "output_contract": "ExecutionResult/1.0",
+       "owner": "coordinator",
+       "schema_version": "1.0",
+       "task_id": "node-end",
+       "verifier": ""
+      }
+     ],
+     "generation": 0,
+     "max_agents": 2,
+     "max_parallel_tasks": 1,
+     "max_replans": 2,
+     "mode": "fixed",
+     "schema_version": "1.0"
+    },
+    "topic_id": "2d84fc5c-7cdc-4cae-9e60-744b5d3b6fda"
+   }
+  },
+  "created": "2026-10-28T19:07:00.061882+00:00",
+  "updated": "2026-10-28T19:07:00.061882+00:00",
+  "tasks": [
+   {
+    "mission_id": "5b7dc765-919b-4c58-b4b2-9621420024af",
+    "id": "node-hypothesis",
+    "status": "pending",
+    "payload": {
+     "attempts": 0,
+     "spec": {
+      "args": {
+       "agent": "researcher",
+       "instructions": "Use library.search on topic 2d84fc5c-7cdc-4cae-9e60-744b5d3b6fda to see what the topic library holds (it may be empty; say so). Then write design.md with one testable hypothesis about a fixed 3x3 box filter and synthetic Gaussian noise (PSNR), the conditions (baseline = noisy input, method = filtered), 3 seeds and the metric. Do not run anything and do not claim results.",
+       "model": "cli:codex",
+       "tools": [
+        "library.search",
+        "library.passages"
+       ]
+      },
+      "capability": "agent.task",
+      "depends_on": [],
+      "fallback_engines": [],
+      "id": "node-hypothesis",
+      "preferred_engine": "agent",
+      "schema_version": "1.0"
+     }
+    }
+   },
+   {
+    "mission_id": "5b7dc765-919b-4c58-b4b2-9621420024af",
+    "id": "node-review",
+    "status": "pending",
+    "payload": {
+     "attempts": 0,
+     "spec": {
+      "args": {
+       "title": "Review the design"
+      },
+      "capability": "review.checkpoint",
+      "depends_on": [
+       "node-hypothesis"
+      ],
+      "fallback_engines": [],
+      "id": "node-review",
+      "preferred_engine": "deterministic",
+      "schema_version": "1.0"
+     }
+    }
+   },
+   {
+    "mission_id": "5b7dc765-919b-4c58-b4b2-9621420024af",
+    "id": "node-end",
+    "status": "pending",
+    "payload": {
+     "attempts": 0,
+     "spec": {
+      "args": {
+       "title": "Harness mission report"
+      },
+      "capability": "mission.report",
+      "depends_on": [
+       "node-review"
+      ],
+      "fallback_engines": [],
+      "id": "node-end",
+      "preferred_engine": "deterministic",
+      "schema_version": "1.0"
+     }
+    }
+   }
+  ]
+ }
+}

@@ -1,0 +1,123 @@
+{
+  "id": "FQC-DEPS-PINS-664",
+  "title": "Dependency installs honour pins, run one at a time per environment, and new projects do not inherit packages",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want an experiment's environment to contain exactly what its requirements pin, so measured results are reproducible (live run 2026-10-28: matplotlib 3.11.2 for a 3.9.2 pin, torch cu124 for a +cpu pin, two concurrent installs, an inheriting venv; agent/PLAN_6.6.4_L3.md A4).",
+  "requirements": [
+    {
+      "id": "PINS",
+      "description": "A package named in a requirements file is never installed unpinned by the import fallback after its pinned install fails; local-version pins (+cpu, +cuNNN) use the matching PyTorch index."
+    },
+    {
+      "id": "LOCK",
+      "description": "One dependency install per environment at a time: a second install waits (default up to 30 min, then exits 4 with a message); a lock older than 1 h is taken over; the lock is released at exit."
+    },
+    {
+      "id": "ISOLATED",
+      "description": "A new code project's environment does not include the interpreter's site-packages; an explicit setting and existing projects keep their choice."
+    }
+  ],
+  "nonfunctional": [
+    "Offline behaviour unchanged when everything is satisfied",
+    "Lock kept in the temp folder, keyed by the environment path"
+  ],
+  "inputs": [
+    "requirements files, detected imports",
+    "sandbox settings inherit_packages"
+  ],
+  "outputs": [
+    "pip commands and their results; exit code 3 (not installed) or 4 (locked)"
+  ],
+  "preconditions": [
+    "None"
+  ],
+  "postconditions": [
+    "No package is silently installed at a version other than its pin"
+  ],
+  "dependencies": [
+    "backend/execution/sandbox.py (_local_python, settings)"
+  ],
+  "affected_modules": [
+    "backend/execution/deps.py",
+    "backend/execution/code_projects.py"
+  ],
+  "acceptance_criteria": [
+    "tests/test_deps_pins_664.py 7/7; RED on 13000d6",
+    "test_envs_deps, code project, sandbox, runs and CLI suites pass"
+  ],
+  "scenarios": [
+    {
+      "id": "other-imports",
+      "requirement": "PINS",
+      "kind": "positive",
+      "expected": "Imports outside the requirements are still installed",
+      "test": "tests/test_deps_pins_664.py::Pins.test_unpinned_imports_outside_the_requirements_are_still_installed"
+    },
+    {
+      "id": "no-unpinned",
+      "requirement": "PINS",
+      "kind": "negative",
+      "expected": "A failed pinned requirement is reported, never replaced by an unpinned install",
+      "test": "tests/test_deps_pins_664.py::Pins.test_a_failed_pinned_requirement_is_never_replaced_by_an_unpinned_install"
+    },
+    {
+      "id": "local-version",
+      "requirement": "PINS",
+      "kind": "boundary",
+      "expected": "+cpu and +cu124 pins use the matching PyTorch index; plain pins do not",
+      "test": "tests/test_deps_pins_664.py::Pins.test_local_version_pins_use_the_matching_pytorch_index"
+    },
+    {
+      "id": "locked",
+      "requirement": "LOCK",
+      "kind": "failure",
+      "expected": "A held lock makes the second install wait then exit 4; a stale lock is taken over",
+      "test": "tests/test_deps_pins_664.py::Pins.test_a_second_install_waits_for_the_first_and_a_stale_lock_is_taken_over"
+    },
+    {
+      "id": "isolated",
+      "requirement": "ISOLATED",
+      "kind": "security",
+      "expected": "A new project's venv is created without --system-site-packages",
+      "test": "tests/test_deps_pins_664.py::NewProjects.test_a_new_code_project_does_not_inherit_system_packages"
+    },
+    {
+      "id": "explicit",
+      "requirement": "ISOLATED",
+      "kind": "negative",
+      "expected": "An explicit inherit choice is kept",
+      "test": "tests/test_deps_pins_664.py::NewProjects.test_an_explicit_choice_is_kept"
+    },
+    {
+      "id": "released",
+      "requirement": "LOCK",
+      "kind": "performance",
+      "expected": "An uncontended install takes and releases the lock without waiting",
+      "test": "tests/test_deps_pins_664.py::Pins.test_the_lock_is_released_after_an_install"
+    }
+  ],
+  "recovery": "Fix at deps.ENSURE / code_projects.create; never install a pinned package unpinned or share an install across concurrent runs. TASK-DEPS-PINS-664, max three cycles.",
+  "test_environment": "The real generated ensure_deps.py run offline (PIP_NO_INDEX) with a temporary lock path; disposable PHDLAB_DATA_DIR for code projects (tests/_env.py); evidence in docs/qa/evidence/deps-pins-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 7 tests on 13000d6, 4 failing (unpinned replacement, no index for local versions, no lock, inherited packages); the explicit-choice, lock-release and other-imports checks pass on both. GREEN: 7/7.",
+    "red": {
+      "path": "docs/qa/evidence/deps-pins-664/red.json",
+      "sha256": "062f6cca279c5e0ca6c9fc5a48310e85edaf9c3fcf0f75f0cef77cdd2f3ad9d0",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/deps-pins-664/green.json",
+      "sha256": "c64c820da1eacf64e532829faea3de6db354e4ae2eecfd82f1ca8d913fbce2bf",
+      "exit_code": 0
+    }
+  }
+}

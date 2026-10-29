@@ -1,0 +1,72 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_tool_jobs_664.ToolJobs.test_a_fast_call_still_answers_in_one_step",
+      "status": "PASS",
+      "duration": 0.204,
+      "details": null
+    },
+    {
+      "id": "test_tool_jobs_664.ToolJobs.test_a_long_call_returns_its_running_job_and_the_job_tool_delivers_the_result",
+      "status": "PASS",
+      "duration": 2.6571,
+      "details": null
+    },
+    {
+      "id": "test_tool_jobs_664.ToolJobs.test_another_client_cannot_read_or_cancel_the_job",
+      "status": "PASS",
+      "duration": 2.6567,
+      "details": null
+    },
+    {
+      "id": "test_tool_jobs_664.ToolJobs.test_every_registry_client_sees_the_job_tool",
+      "status": "PASS",
+      "duration": 0.2594,
+      "details": null
+    },
+    {
+      "id": "test_tool_jobs_664.ToolJobs.test_polling_is_cheap",
+      "status": "PASS",
+      "duration": 0.4145,
+      "details": null
+    },
+    {
+      "id": "test_tool_jobs_664.ToolJobs.test_the_owner_can_cancel_a_running_job",
+      "status": "PASS",
+      "duration": 0.4454,
+      "details": null
+    },
+    {
+      "id": "test_tool_jobs_664.ToolJobs.test_waits_are_bounded",
+      "status": "PASS",
+      "duration": 2.6783,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_tool_jobs_664.ToolJobs.test_another_client_cannot_read_or_cancel_the_job",
+      "id": "test_tool_jobs_664.ToolJobs.test_another_client_cannot_read_or_cancel_the_job (action='status')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_tool_jobs_664.ToolJobs.test_another_client_cannot_read_or_cancel_the_job",
+      "id": "test_tool_jobs_664.ToolJobs.test_another_client_cannot_read_or_cancel_the_job (action='cancel')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 7,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-62aibyd7",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

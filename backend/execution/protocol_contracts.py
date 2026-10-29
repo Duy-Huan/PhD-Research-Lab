@@ -57,3 +57,52 @@ class ProtocolRef(Contract):
     protocol_id: str
     protocol_digest: str
     approval_nonce: str
+
+
+NAME=r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,39}$"
+
+
+class AgentCodeProtocol(Contract):
+    """v6.6.4: an agent-written experiment, frozen as a code snapshot of the active code project plus a pinned
+    environment. The researcher approves the exact digest; the runner never edits, installs or re-plans."""
+    kind: Literal["agent_code_v1"]
+    topic_id: str
+    hypothesis: str = Field(min_length=1,max_length=8000)
+    question: str = Field(default="",max_length=4000)
+    entrypoint: str = Field(min_length=4,max_length=200)
+    include: list[str] = Field(default_factory=list,max_length=50)
+    conditions: list[str] = Field(min_length=2,max_length=8)
+    baseline: str
+    seeds: list[int] = Field(default_factory=lambda:[11,23,37],min_length=1,max_length=10)
+    metrics: list[str] = Field(min_length=1,max_length=16)
+    primary_metric: str
+    direction: Literal["maximize","minimize"] = "maximize"
+    min_effect: float = Field(default=0.0,ge=0,allow_inf_nan=False)
+    reproduction_rel_tol: float = Field(default=1e-9,ge=0,le=0.5,allow_inf_nan=False)
+    max_seconds: int = Field(default=600,ge=5,le=3600)
+    trial_seconds: int = Field(default=120,ge=1,le=900)
+    max_artifact_mb: int = Field(default=32,ge=1,le=256)
+    engine: Literal["python","docker"] = "python"
+    docker_image: str = ""
+    cpu_threads: Literal[1] = 1
+    gpu: Literal[False] = False
+
+    @model_validator(mode="after")
+    def fixed(self):
+        import re
+        from pathlib import PurePosixPath
+        for rel in [self.entrypoint,*self.include]:
+            p=PurePosixPath(rel.replace("\\","/"))
+            if p.is_absolute() or ".." in p.parts or ":" in rel or not p.parts:
+                raise ValueError("Code paths must be relative to the code project")
+        if not self.entrypoint.endswith(".py"):raise ValueError("The entrypoint must be a .py file")
+        for names,what in ((self.conditions,"conditions"),(self.metrics,"metrics")):
+            if len(set(names))!=len(names) or any(not re.fullmatch(NAME,n) for n in names):
+                raise ValueError(f"Choose unique simple names for {what}")
+        if self.baseline not in self.conditions:raise ValueError("The baseline must be one of the conditions")
+        if self.primary_metric not in self.metrics:raise ValueError("The primary metric must be one of the metrics")
+        if len(set(self.seeds))!=len(self.seeds) or any(not 0<=s<=2**31-1 for s in self.seeds):
+            raise ValueError("Seeds must be distinct nonnegative 32-bit integers")
+        if self.engine=="docker" and not re.fullmatch(r"[a-zA-Z0-9./:_-]+@sha256:[a-f0-9]{64}",self.docker_image):
+            raise ValueError("Docker requires an installed immutable image digest; no implicit pull")
+        return self

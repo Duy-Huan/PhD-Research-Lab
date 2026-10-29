@@ -1,0 +1,59 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_faults_664.Faults.test_a_broken_fixture_is_reported_as_not_detected",
+      "status": "ERROR",
+      "duration": 0.4916,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 65, in test_a_broken_fixture_is_reported_as_not_detected\n    result = F.run_suite(self.tid, only=[\"unsupported_conclusion\"])[\"results\"][0]\n             ^^^^^^^^^^^\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 22, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.faults'\n"
+    },
+    {
+      "id": "test_faults_664.Faults.test_a_claim_with_an_unmeasured_number_is_contested",
+      "status": "ERROR",
+      "duration": 0.208,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 44, in test_a_claim_with_an_unmeasured_number_is_contested\n    self.assertEqual(self.check(\"unsupported_conclusion\")[\"detail\"], \"claim status contested\")\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 36, in check\n    result = F.run_suite(self.tid, only=[fault])[\"results\"][0]\n             ^^^^^^^^^^^\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 22, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.faults'\n"
+    },
+    {
+      "id": "test_faults_664.Faults.test_a_missing_model_pauses_the_mission_without_running_another",
+      "status": "ERROR",
+      "duration": 0.2214,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 50, in test_a_missing_model_pauses_the_mission_without_running_another\n    self.assertIn(\"cli:not-installed\", self.check(\"provider_failure\")[\"detail\"])\n                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 36, in check\n    result = F.run_suite(self.tid, only=[fault])[\"results\"][0]\n             ^^^^^^^^^^^\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 22, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.faults'\n"
+    },
+    {
+      "id": "test_faults_664.Faults.test_an_edited_result_fails_independent_verification",
+      "status": "ERROR",
+      "duration": 0.2378,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 41, in test_an_edited_result_fails_independent_verification\n    self.assertIn(\"reported_gain_matches_raw\", self.check(\"wrong_metric\")[\"detail\"])\n                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 36, in check\n    result = F.run_suite(self.tid, only=[fault])[\"results\"][0]\n             ^^^^^^^^^^^\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 22, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.faults'\n"
+    },
+    {
+      "id": "test_faults_664.Faults.test_an_interrupted_run_is_marked_and_never_rerun",
+      "status": "ERROR",
+      "duration": 0.2122,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 47, in test_an_interrupted_run_is_marked_and_never_rerun\n    self.assertIn(\"status interrupted\", self.check(\"interrupted_run\")[\"detail\"])\n                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 36, in check\n    result = F.run_suite(self.tid, only=[fault])[\"results\"][0]\n             ^^^^^^^^^^^\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 22, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.faults'\n"
+    },
+    {
+      "id": "test_faults_664.Faults.test_instructions_inside_a_source_stay_untrusted_data",
+      "status": "ERROR",
+      "duration": 0.2124,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 53, in test_instructions_inside_a_source_stay_untrusted_data\n    self.assertEqual(self.check(\"poisoned_source\")[\"detail\"], \"trust untrusted\")\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 36, in check\n    result = F.run_suite(self.tid, only=[fault])[\"results\"][0]\n             ^^^^^^^^^^^\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 22, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.faults'\n"
+    },
+    {
+      "id": "test_faults_664.Faults.test_the_suite_reports_denominators_and_never_counts_campaign_only_faults",
+      "status": "ERROR",
+      "duration": 0.2039,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 56, in test_the_suite_reports_denominators_and_never_counts_campaign_only_faults\n    suite = F.run_suite(self.tid)\n            ^^^^^^^^^^^\n  File \"D:\\r664red-test_faults_664\\tests\\test_faults_664.py\", line 22, in __getattr__\n    return getattr(importlib.import_module(self.name), attr)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\win\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\importlib\\__init__.py\", line 90, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1387, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1360, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1324, in _find_and_load_unlocked\nModuleNotFoundError: No module named 'backend.agent.faults'\n"
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 7,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-xzdg19y6",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

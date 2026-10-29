@@ -203,4 +203,22 @@ describe('Workspace Tool Panels', () => {
       expect(screen.getByText(/exp-101/i)).toBeInTheDocument();
     });
   });
+
+  it('shows the frozen files of an agent-code protocol before approval', async () => {
+    useUIStore.getState().setLanguage('en');
+    vi.spyOn(api, 'get').mockImplementation((url: string) => Promise.resolve(url.includes('/protocols') ? {
+      protocols: [{
+        id: 'proto-2', revision: 1, digest: 'def4567890abcdef12', approval: null,
+        payload: {
+          kind: 'agent_code_v1', code_digest: '0123456789abcdef',
+          spec: { entrypoint: 'experiment.py', conditions: ['baseline', 'method'], seeds: [1, 2, 3] },
+          code_manifest: [{ path: 'experiment.py', sha256: 'aaaaaaaaaaaaaaaa', bytes: 120 }, { path: 'helper.py', sha256: 'bbbbbbbbbbbbbbbb', bytes: 40 }],
+        },
+      }],
+    } : {}));
+    renderWithProviders(<ProtocolsPanel />);
+    expect(await screen.findByText(/Agent code: experiment\.py · 2 files · baseline \/ method × 3 seeds · code 0123456789ab/)).toBeInTheDocument();
+    expect(screen.getByText('helper.py')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Approve' })).toBeInTheDocument();
+  });
 });

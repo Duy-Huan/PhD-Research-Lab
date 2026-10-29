@@ -1,0 +1,114 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_a_trial_over_its_budget_is_stopped",
+      "status": "PASS",
+      "duration": 2.0894,
+      "details": null
+    },
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_agent_code_runs_frozen_and_verifies_with_a_reproduction",
+      "status": "PASS",
+      "duration": 3.5781,
+      "details": null
+    },
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_failing_code_and_missing_metric_fail_the_run",
+      "status": "PASS",
+      "duration": 1.7947,
+      "details": null
+    },
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_falsified_summary_or_metric_file_fails_verification",
+      "status": "PASS",
+      "duration": 2.0029,
+      "details": null
+    },
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected",
+      "status": "PASS",
+      "duration": 0.2875,
+      "details": null
+    },
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_later_edits_never_change_the_frozen_code",
+      "status": "PASS",
+      "duration": 2.1197,
+      "details": null
+    },
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_status_tool_reveals_the_run_reference_only_after_approval",
+      "status": "PASS",
+      "duration": 1.9658,
+      "details": null
+    },
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_tampered_snapshot_or_environment_drift_refuses_to_run",
+      "status": "PASS",
+      "duration": 1.0644,
+      "details": null
+    },
+    {
+      "id": "test_agent_protocol_664.AgentProtocol.test_the_api_accepts_an_agent_code_protocol",
+      "status": "PASS",
+      "duration": 1.0827,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected",
+      "id": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected (bad={'baseline': 'other'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected",
+      "id": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected (bad={'entrypoint': '../outside.py'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected",
+      "id": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected (bad={'entrypoint': 'C:/x.py'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected",
+      "id": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected (bad={'entrypoint': 'missing.py'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected",
+      "id": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected (bad={'primary_metric': 'f1'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected",
+      "id": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected (bad={'conditions': ['baseline']})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected",
+      "id": "test_agent_protocol_664.AgentProtocol.test_invalid_protocols_are_rejected (bad={'engine': 'docker', 'docker_image': 'python:latest'})",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 9,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-p_chqs60",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

@@ -8,6 +8,7 @@ import { Plus, Check, Brain, Folder, Search, ShieldCheck, BookOpen } from 'lucid
 export const TopicView: React.FC = () => {
   const queryClient = useQueryClient();
   const { t, language } = useI18n();
+  const tr = t;  // inside the topic list `t` is the topic
   const { project, activeTopicId, setActiveTopic, openDrawer } = useUIStore();
   const [showCreate, setShowCreate] = useState(false);
   const [title, setTitle] = useState('');
@@ -225,9 +226,10 @@ export const TopicView: React.FC = () => {
                         e.stopPropagation();
                         discoverMutation.mutate(t.id);
                       }}
-                      title="Khám phá bài báo mới từ OpenAlex / arXiv"
+                      title={tr('Khám phá bài báo mới từ OpenAlex / arXiv', 'Discover new papers from OpenAlex / arXiv')}
+                      style={{ flexShrink: 0, whiteSpace: 'nowrap' }}
                     >
-                      <Search size={13} style={{ marginRight: 4 }} /> Khám phá
+                      <Search size={13} style={{ marginRight: 4 }} /> {tr('Khám phá', 'Explore')}
                     </button>
                   )}
                   {isSelected && <Check size={16} color="var(--accent)" />}

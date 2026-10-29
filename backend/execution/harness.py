@@ -521,7 +521,7 @@ def execute_workflow(workflow: dict[str, Any], topic_id: str = "") -> dict[str, 
                 "passed": False,
                 "duration_s": 0.0,
                 "metrics": {},
-                "summary": "Tác vụ bị chặn do các bước phụ thuộc trước đó không hoàn thành hoặc adapter chưa sẵn sàng.",
+                "summary": "Blocked: an earlier step did not complete or its adapter is not available.",
             }
         else:
             result = _execute_harness_tool(tool_id, params, context)

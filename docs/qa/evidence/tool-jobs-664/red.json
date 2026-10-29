@@ -1,0 +1,72 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_tool_jobs_664.ToolJobs.test_a_fast_call_still_answers_in_one_step",
+      "status": "PASS",
+      "duration": 0.3811,
+      "details": null
+    },
+    {
+      "id": "test_tool_jobs_664.ToolJobs.test_a_long_call_returns_its_running_job_and_the_job_tool_delivers_the_result",
+      "status": "FAIL",
+      "duration": 2.6705,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red2\\tests\\test_tool_jobs_664.py\", line 39, in test_a_long_call_returns_its_running_job_and_the_job_tool_delivers_the_result\n    self.assertIn(started[\"status\"], (\"queued\", \"running\"))\nAssertionError: 'succeeded' not found in ('queued', 'running')\n"
+    },
+    {
+      "id": "test_tool_jobs_664.ToolJobs.test_another_client_cannot_read_or_cancel_the_job",
+      "status": "ERROR",
+      "duration": 2.6831,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red2\\tests\\test_tool_jobs_664.py\", line 60, in test_another_client_cannot_read_or_cancel_the_job\n    res, unknown = self.call(\"phdlab_tools_job\", {\"job\": \"tj-does-not-exist\"})\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red2\\tests\\test_tool_jobs_664.py\", line 34, in call\n    res = mcp_bridge.call(name, args, client)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red2\\backend\\tools\\mcp_bridge.py\", line 96, in call\n    raise ValueError(f\"Unknown registry bridge tool {name}\")\nValueError: Unknown registry bridge tool phdlab_tools_job\n"
+    },
+    {
+      "id": "test_tool_jobs_664.ToolJobs.test_every_registry_client_sees_the_job_tool",
+      "status": "FAIL",
+      "duration": 0.354,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red2\\tests\\test_tool_jobs_664.py\", line 84, in test_every_registry_client_sees_the_job_tool\n    self.assertIn(\"phdlab_tools_job\", mcp_bridge.NAMES)\nAssertionError: 'phdlab_tools_job' not found in {'phdlab_tools_call', 'phdlab_tools_search', 'phdlab_tools_describe'}\n"
+    },
+    {
+      "id": "test_tool_jobs_664.ToolJobs.test_polling_is_cheap",
+      "status": "ERROR",
+      "duration": 0.2001,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red2\\tests\\test_tool_jobs_664.py\", line 92, in test_polling_is_cheap\n    self.call(\"phdlab_tools_job\", {\"job\": started[\"job\"], \"wait_s\": 0})\n  File \"D:\\r664red2\\tests\\test_tool_jobs_664.py\", line 34, in call\n    res = mcp_bridge.call(name, args, client)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red2\\backend\\tools\\mcp_bridge.py\", line 96, in call\n    raise ValueError(f\"Unknown registry bridge tool {name}\")\nValueError: Unknown registry bridge tool phdlab_tools_job\n"
+    },
+    {
+      "id": "test_tool_jobs_664.ToolJobs.test_the_owner_can_cancel_a_running_job",
+      "status": "ERROR",
+      "duration": 30.1451,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red2\\tests\\test_tool_jobs_664.py\", line 66, in test_the_owner_can_cancel_a_running_job\n    _, cancelled = self.call(\"phdlab_tools_job\", {\"job\": started[\"job\"], \"action\": \"cancel\", \"wait_s\": 30})\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red2\\tests\\test_tool_jobs_664.py\", line 34, in call\n    res = mcp_bridge.call(name, args, client)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red2\\backend\\tools\\mcp_bridge.py\", line 96, in call\n    raise ValueError(f\"Unknown registry bridge tool {name}\")\nValueError: Unknown registry bridge tool phdlab_tools_job\n"
+    },
+    {
+      "id": "test_tool_jobs_664.ToolJobs.test_waits_are_bounded",
+      "status": "FAIL",
+      "duration": 2.6635,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red2\\tests\\test_tool_jobs_664.py\", line 71, in test_waits_are_bounded\n    self.assertIn(started[\"status\"], (\"queued\", \"running\"))\nAssertionError: 'succeeded' not found in ('queued', 'running')\n"
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_tool_jobs_664.ToolJobs.test_another_client_cannot_read_or_cancel_the_job",
+      "id": "test_tool_jobs_664.ToolJobs.test_another_client_cannot_read_or_cancel_the_job (action='status')",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red2\\tests\\test_tool_jobs_664.py\", line 56, in test_another_client_cannot_read_or_cancel_the_job\n    res, seen = self.call(\"phdlab_tools_job\", {\"job\": started[\"job\"], \"action\": action}, OTHER)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red2\\tests\\test_tool_jobs_664.py\", line 34, in call\n    res = mcp_bridge.call(name, args, client)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red2\\backend\\tools\\mcp_bridge.py\", line 96, in call\n    raise ValueError(f\"Unknown registry bridge tool {name}\")\nValueError: Unknown registry bridge tool phdlab_tools_job\n"
+    },
+    {
+      "parent": "test_tool_jobs_664.ToolJobs.test_another_client_cannot_read_or_cancel_the_job",
+      "id": "test_tool_jobs_664.ToolJobs.test_another_client_cannot_read_or_cancel_the_job (action='cancel')",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red2\\tests\\test_tool_jobs_664.py\", line 56, in test_another_client_cannot_read_or_cancel_the_job\n    res, seen = self.call(\"phdlab_tools_job\", {\"job\": started[\"job\"], \"action\": action}, OTHER)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red2\\tests\\test_tool_jobs_664.py\", line 34, in call\n    res = mcp_bridge.call(name, args, client)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\r664red2\\backend\\tools\\mcp_bridge.py\", line 96, in call\n    raise ValueError(f\"Unknown registry bridge tool {name}\")\nValueError: Unknown registry bridge tool phdlab_tools_job\n"
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 7,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-9fhue8a3",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

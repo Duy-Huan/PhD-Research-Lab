@@ -212,9 +212,10 @@ def create(name: str, description: str = "", git: bool = True, vscode: bool = Tr
         reg["projects"][name] = rec
         _activate(reg, name)
     notes = []
-    if settings:
-        from backend.execution.sandbox import save_settings
-        save_settings(settings)
+    from backend.execution.sandbox import save_settings
+    # v6.6.4 (A4): a new project's environment holds only what it installs (the live run's venv inherited the
+    # interpreter's packages, so pins were never tested). Existing projects keep their setting.
+    save_settings({"inherit_packages": False, **(settings or {})})
     if seed:
         (f / "README.md").write_text(f"# {name}\n\n{rec['description'] or 'Code project of PhD Research Lab.'}\n\n"
                                      "Run it from Workspace & Runs (sandbox) or `phdlab run \"python main.py\"`.\n"

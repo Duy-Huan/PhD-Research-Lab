@@ -105,7 +105,16 @@ def create(spec: MissionSpec) -> dict:
         from backend.agent import collaboration
         collaboration.register(c,mid,spec)
         L.append(c,spec.topic_id,mid,"mission.created",{"plan_digest":payload["plan_digest"],"required_permissions":sorted(required),"owner":spec.owner})
-        return _get(c,mid)
+        made=_get(c,mid)
+    return _announce(made)
+
+
+def _announce(m: dict) -> dict:
+    """v6.6.4 (A8): every state change reaches open Missions views (after the write is committed). Found live: a
+    mission an agent created appeared only after a page reload, because only finished tasks were published."""
+    from backend.core.bus import publish
+    publish("research.mission",mission_id=m["id"],topic_id=m.get("topic_id",""),status=m.get("status",""))
+    return m
 
 
 def approve(tid: str, mid: str, plan_digest: str, note: str, expires_minutes: int = 60) -> dict:
@@ -125,7 +134,8 @@ def approve(tid: str, mid: str, plan_digest: str, note: str, expires_minutes: in
         state="scheduled" if control.get("not_before") and datetime.fromisoformat(control["not_before"])>datetime.now(timezone.utc) else "queued"
         c.execute("UPDATE missions SET status=?,payload=?,updated=? WHERE id=?",(state,S.dumps(p),S.now(),mid))
         L.append(c,tid,mid,"mission.approved",p["approval"])
-        return _get(c,mid)
+        done=_get(c,mid)
+    return _announce(done)
 
 
 def cancel(tid: str, mid: str):
@@ -133,7 +143,7 @@ def cancel(tid: str, mid: str):
         _get(c,mid,tid)
         c.execute("UPDATE missions SET status='cancelled',updated=? WHERE id=?",(S.now(),mid))
         L.append(c,tid,mid,"mission.cancelled",{"by":"researcher"})
-    return get(mid,tid)
+    return _announce(get(mid,tid))
 
 
 def retry(tid: str, mid: str, task_id: str, reconcile_note: str = ""):
@@ -149,7 +159,7 @@ def retry(tid: str, mid: str, task_id: str, reconcile_note: str = ""):
         c.execute("UPDATE mission_tasks SET status='pending' WHERE mission_id=? AND id=?",(mid,task_id))
         c.execute("UPDATE missions SET status='paused',updated=? WHERE id=?",(S.now(),mid))
         L.append(c,tid,mid,"mission.retry_proposed",{"task_id":task_id,"reconciliation":reconcile_note,"requires_fresh_approval":True})
-    return get(mid,tid)
+    return _announce(get(mid,tid))
 
 
 def recover():
@@ -244,13 +254,19 @@ async def _dispatch(m,task,key) -> ExecutionResult:
             c.execute("UPDATE mission_attempts SET payload=json_set(payload,'$.job_id',?) WHERE key=?",(job["id"],key))
         await J.execute(job)
         job = next(j for j in J.list_jobs(tid) if j["id"] == job["id"])
-        if job["status"] != "completed":
-            raise ValueError("Ingest job " + job["id"] + " ended " + job["status"] + "; inspect job errors")
         result = job["payload"].get("result",{})
+        errors = [str(e.get("error",e) if isinstance(e,dict) else e)[:200] for e in result.get("errors") or []]
+        found = result.get("paper_ids",result.get("added",[])) if kind=="discover" else []
+        # v6.6.4 (A7): one rate-limited provider (live run: OpenAlex 429) no longer fails a discovery that found papers
+        # through the others; the missing provider is reported, never hidden.
+        if job["status"] != "completed" and not (kind=="discover" and job["status"]=="partial" and found):
+            raise ValueError("Ingest job " + job["id"] + " ended " + job["status"] + "; inspect job errors" + (": " + "; ".join(errors[:5]) if errors else ""))
         ids = result.get("paper_ids",result.get("added",ids))[:task.args.get("limit",10)] if kind=="discover" else ids
         if kind=="download" and any(not any(v["document"] for v in corpus.paper(tid,pid)["versions"]) for pid in ids):
             raise ValueError("Requested PDFs remain unavailable or topic quota prevented download")
-        return ExecutionResult(status="completed",output={"job_id":job["id"],"paper_ids":ids,"counts":result})
+        partial = job["status"]=="partial"
+        return ExecutionResult(status="completed",output={"job_id":job["id"],"paper_ids":ids,"counts":result,"partial":partial,"provider_errors":errors},
+                               limitations=["Partial discovery; these sources did not answer: " + "; ".join(errors[:5])] if partial else [])
     if task.capability == "paper.inspect":
         ids = _papers(m,task)
         return ExecutionResult(status="completed",output={"paper_ids":ids,"papers":[corpus.paper(tid,p) for p in ids]})
@@ -339,6 +355,14 @@ async def _dispatch(m,task,key) -> ExecutionResult:
         return ExecutionResult(status="completed", output={"figure_id": created["id"], "version": created["current_version"], "verification": created["verification"]}, artifacts=arts)
     if task.capability == 'code.implement':
         return await _native_code(m,task)
+    if task.capability == "review.checkpoint":  # v6.6.4: the mission then waits in awaiting_step_review
+        return ExecutionResult(status="completed",output={"checkpoint":task.args.get("title",""),"requires_human_review":True})
+    if task.capability == "agent.task":  # v6.6.4: a team agent on the model bound to it
+        from backend.agent import team_agents
+        done=await team_agents.run(m,task,lambda:is_stopped(mid))
+        return ExecutionResult(status="completed",engine="agent",output=done["output"],
+                               artifacts=[ArtifactManifest(**a) for a in done["artifacts"]],
+                               limitations=["Agent output is unverified until checked; scientific review pending"])
     if task.capability.startswith("paperorchestra."):
         from backend.research_engines.paperorchestra.modes import execute_mission_task
         return await execute_mission_task(m, task, key)
@@ -368,7 +392,7 @@ async def tick(mid: str = ""):
         return
     done={t["id"] for t in m["tasks"] if t["status"]=="completed"}
     from backend.agent import autonomy
-    if autonomy.level(m) in ("L1", "L2") and autonomy.pending_review(m):
+    if autonomy.pending_review(m):
         with S.db() as c:
             c.execute("UPDATE missions SET status='awaiting_step_review' WHERE id=? AND status IN ('queued','running')", (m["id"],))
         return
@@ -385,7 +409,7 @@ async def tick(mid: str = ""):
         return
     task=Task.model_validate(taskrow["payload"]["spec"])
     routing=None;gate_task=task
-    if task.capability=="paper.compare" and p["spec"].get("control"):
+    if (task.capability=="paper.compare" and p["spec"].get("control")) or task.preferred_engine=="agent":
         try:routing=CAP.route(task)
         except ValueError as exc:
             with S.db() as c:
@@ -400,7 +424,10 @@ async def tick(mid: str = ""):
         slot = "cpu"
     if task.capability.startswith("paperorchestra."):
         slot = "local_llm" if (p["spec"].get("control") or {}).get("app_backend") in ("local", "ollama") else "cloud"
-    if routing:
+    if routing and routing["engine"]=="agent":
+        from backend.agent import team_agents
+        slot=team_agents.slot(routing["model"])
+    elif routing:
         slot="cli" if routing["engine"]!="app" else "local_llm" if p["spec"]["control"]["app_backend"] in ("local","ollama") else "cloud"
     holder="mission:"+m["id"]+":"+S.uid()
     try: guard.try_acquire(slot,holder)
@@ -500,7 +527,7 @@ async def tick(mid: str = ""):
                     ancestor["payload"]["active_seconds"]+=elapsed
                     c.execute("UPDATE missions SET payload=? WHERE id=?",(S.dumps(ancestor["payload"]),ancestor["id"]))
                 state=current["status"] if current["status"] in ("cancelled","paused") else "running" if outcome=="completed" else outcome
-                if state == "running" and autonomy.level(current) in ("L1", "L2"):
+                if state == "running" and (autonomy.level(current) in ("L1", "L2") or task.capability == "review.checkpoint"):
                     state = "awaiting_step_review"
                 c.execute("UPDATE missions SET status=?,payload=?,updated=? WHERE id=?",(state,S.dumps(current["payload"]),S.now(),m["id"]))
                 L.append(c,m["topic_id"],m["id"],"task."+outcome,{"task_id":task.id,"result":tp["result"]})

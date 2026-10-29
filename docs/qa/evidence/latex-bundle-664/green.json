@@ -1,0 +1,66 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_latex_bundle_664.Bundle.test_a_tampered_download_or_missing_binary_is_refused",
+      "status": "PASS",
+      "duration": 0.0519,
+      "details": null
+    },
+    {
+      "id": "test_latex_bundle_664.Bundle.test_an_offline_first_compile_says_what_to_do",
+      "status": "PASS",
+      "duration": 0.0698,
+      "details": null
+    },
+    {
+      "id": "test_latex_bundle_664.Bundle.test_only_the_binary_is_staged_from_a_matching_archive",
+      "status": "PASS",
+      "duration": 0.0217,
+      "details": null
+    },
+    {
+      "id": "test_latex_bundle_664.Bundle.test_the_app_finds_the_bundled_engine",
+      "status": "PASS",
+      "duration": 0.0094,
+      "details": null
+    },
+    {
+      "id": "test_latex_bundle_664.Bundle.test_the_installer_smoke_refuses_a_missing_or_wrong_engine",
+      "status": "PASS",
+      "duration": 0.0262,
+      "details": null
+    },
+    {
+      "id": "test_latex_bundle_664.Bundle.test_the_pins_are_exact_release_assets",
+      "status": "PASS",
+      "duration": 0.0032,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_latex_bundle_664.Bundle.test_only_the_binary_is_staged_from_a_matching_archive",
+      "id": "test_latex_bundle_664.Bundle.test_only_the_binary_is_staged_from_a_matching_archive (platform='windows')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_latex_bundle_664.Bundle.test_only_the_binary_is_staged_from_a_matching_archive",
+      "id": "test_latex_bundle_664.Bundle.test_only_the_binary_is_staged_from_a_matching_archive (platform='linux')",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 6,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-oj8pvz71",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

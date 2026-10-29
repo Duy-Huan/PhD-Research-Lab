@@ -170,46 +170,44 @@ def write_section(
     bullet_points: list[str] | None = None,
     citation_hints: list[str] | None = None,
     style: str = "IEEE",
+    evidence: str | None = None,
 ) -> str:
-    """Section Writing Agent: synthesizes a complete, rigorous LaTeX section."""
+    """Section Writing Agent: synthesizes a complete, rigorous LaTeX section.
+
+    v6.6.4: the writer is given the topic's library and measured experiments (evidence.gather, unless the caller passes
+    its own), chat around the LaTeX is removed, and a missing or non-manuscript answer raises ValueError. It never
+    falls back to template prose, which used to claim confirmed hypotheses without any run."""
+    from backend.research_engines.paperorchestra.evidence import gather, manuscript_only
+    if evidence is None:
+        evidence = gather(topic_id).text if topic_id else ""
     hints_text = ", ".join(f"\\cite{{{c}}}" for c in (citation_hints or []))
-    citation_example = hints_text or "\\cite{...}"
+    citation_example = hints_text or "\\cite{key}"
 
     sys_prompt = (
         f"You are the PaperOrchestra Section Writing Agent specializing in '{section_id}'.\n"
         "Guidelines:\n"
         "1. Write clean, publication-ready LaTeX body text (do NOT include \\documentclass or \\begin{document}).\n"
-        "2. Ground every assertion in verifiable evidence; do not fabricate synthetic results.\n"
-        f"3. Use LaTeX citations where appropriate (e.g., {citation_example}).\n"
+        "2. Ground every assertion in the evidence below; never invent results, numbers or references.\n"
+        f"3. Cite only keys listed in the evidence (e.g., {citation_example}).\n"
         "4. Include formal mathematical notation ($...$, $$...$$) where applicable.\n"
-        "5. Output ONLY the LaTeX section body."
+        "5. Output ONLY the LaTeX section body: no greeting, plan, question or approval request."
     )
     user_prompt = (
         f"Topic Objective: {objective}\n"
         f"Section Target: {section_id}\n"
         f"Bullet Points:\n" + "\n".join(f"- {b}" for b in (bullet_points or [])) + "\n\n"
-        f"Context & Measurements:\n{context or '(no prior measurements)'}"
+        f"Evidence:\n{evidence or '(none)'}\n\n"
+        f"Context:\n{context or '(none)'}"
     )
 
     try:
         raw_text = RP.app_complete("research", sys_prompt, user_prompt, max_tokens=4000)
-    except Exception:
-        raw_text = ""
-
-    if not raw_text.strip():
-        # High-quality deterministic default section body
-        bullets_tex = "\n".join(f"\\item {b}" for b in (bullet_points or ["Analyze empirical findings systematically."]))
-        cite_str = f" as demonstrated in the literature {hints_text}." if hints_text else "."
-        raw_text = (
-            f"This section addresses the technical requirements of {section_id.title()}{cite_str}\n\n"
-            "\\begin{itemize}\n"
-            f"{bullets_tex}\n"
-            "\\end{itemize}\n\n"
-            f"We systematically formulate the problem setting for {objective[:100]}. "
-            "Rigorous empirical evaluation confirms that our hypotheses hold under verifiable test conditions."
-        )
-
-    return clean_section(section_id, raw_text)
+    except Exception as exc:
+        raise ValueError(f"The section writer for {section_id} is unavailable: {str(exc)[:200]}") from exc
+    try:
+        return clean_section(section_id, manuscript_only(raw_text))
+    except ValueError as exc:
+        raise ValueError(f"Section {section_id}: {exc}") from exc
 
 
 def refine_and_polish(
@@ -229,7 +227,7 @@ def refine_and_polish(
                 # Replace with placeholder or mark for verification
                 refined = re.sub(
                     rf"\\(cite[a-zA-Z]*)\*?(?:\[[^\]]*\])?\{{[^}}]*\b{re.escape(bad_key)}\b[^}}]*\}}",
-                    r"[CẦN KIỂM CHỨNG: unverified citation]",
+                    r"\\textcolor{red}{[CITATION NEEDED]}",  # the marker writer.fix_citations uses
                     refined,
                 )
 
@@ -257,14 +255,17 @@ def execute_skill(
 
     # Identify matching section plan
     sec_plan = next((s for s in outline.sections if s.section_id == sec_id), outline.sections[0])
-    text = write_section(
-        topic_id=task.project_id,
-        section_id=sec_plan.section_id,
-        objective=task.question,
-        context=task.context,
-        bullet_points=sec_plan.bullet_points,
-        citation_hints=sec_plan.citation_hints,
-    )
+    try:
+        text = write_section(
+            topic_id=task.project_id,
+            section_id=sec_plan.section_id,
+            objective=task.question,
+            context=task.context,
+            bullet_points=sec_plan.bullet_points,
+            citation_hints=sec_plan.citation_hints,
+        )
+    except ValueError as exc:  # no model answer or no manuscript text: an honest failure, never template prose
+        raise EngineFailure(str(exc), "execution") from exc
 
     if cancelled():
         raise EngineFailure("Task cancelled during drafting", "cancelled")

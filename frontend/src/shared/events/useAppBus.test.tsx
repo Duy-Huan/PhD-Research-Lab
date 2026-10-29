@@ -59,6 +59,7 @@ describe('useAppBus', () => {
       });
     });
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['missions'] });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['autonomy'] });  // Workflows L1–L4 refresh too (v6.6.4)
 
     // Simulate aiws session event
     act(() => {

@@ -1,0 +1,146 @@
+{
+  "id": "FQC-CODE-TOOLS-664",
+  "title": "The agent opens its own code project and edits existing files as versioned patches",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want an agent such as Codex to create or open its code project and fix a line of its own code in place, versioned, instead of writing a new folder per run or needing a person to apply the fix (live run 2026-10-28; agent/PLAN_6.6.4_L3.md A3).",
+  "requirements": [
+    {
+      "id": "PROJECTS",
+      "description": "code.projects lists the code projects; code.create_project creates one (own folder, git repository) and opens it; code.open_project opens an existing one. Existing projects are never overwritten."
+    },
+    {
+      "id": "PATCH",
+      "description": "code.apply_patch edits an existing UTF-8 file of the open project in place, bound to its current sha256, with exact replacements that must each occur once, all-or-nothing, keeping the file's line endings."
+    },
+    {
+      "id": "VERSIONED",
+      "description": "Every patch is journalled outside the code folder (old/new sha256, edits, message, principal) and, in a git repository, committed on its own with only that file; code.file_version reports the sha256 and recent patches without content."
+    },
+    {
+      "id": "BOUNDS",
+      "description": "Paths outside the project, .git internals, missing, binary and over-1 MB files are refused; mutating tools need the workspace_write permission; no open project is a clear unavailable error."
+    }
+  ],
+  "nonfunctional": [
+    "No new folder or file per edit",
+    "Under 1 s per patch including the git commit",
+    "The researcher's other uncommitted changes stay uncommitted"
+  ],
+  "inputs": [
+    "code.create_project {name, description}",
+    "code.open_project {name}",
+    "code.apply_patch {path, sha256, edits[{old,new}], message}",
+    "code.file_version {path}"
+  ],
+  "outputs": [
+    "{path, old_sha256, sha256, bytes, commit, versioned}"
+  ],
+  "preconditions": [
+    "A research project; a grant with workspace_write for mutations"
+  ],
+  "postconditions": [
+    "Every agent edit of existing code is recoverable from git or the patch journal"
+  ],
+  "dependencies": [
+    "backend/execution/code_projects.py",
+    "backend/execution/files.py (safe)",
+    "backend/execution/gitops.py"
+  ],
+  "affected_modules": [
+    "backend/tools/code_tools.py",
+    "backend/tools/registry.py"
+  ],
+  "acceptance_criteria": [
+    "tests/test_code_tools_664.py 9/9; RED on ec928b9",
+    "Registry, code project, MCP, Hermes and ChatGPT suites pass"
+  ],
+  "scenarios": [
+    {
+      "id": "projects",
+      "requirement": "PROJECTS",
+      "kind": "positive",
+      "expected": "Create, list and open projects; unknown or unsafe names and duplicates are refused",
+      "test": "tests/test_code_tools_664.py::CodeTools.test_the_agent_creates_lists_and_opens_code_projects"
+    },
+    {
+      "id": "patch-commit",
+      "requirement": "VERSIONED",
+      "kind": "positive",
+      "expected": "The file changes in place, one commit with only that file, other work stays uncommitted, history listed",
+      "test": "tests/test_code_tools_664.py::CodeTools.test_a_patch_edits_in_place_and_commits_only_that_file"
+    },
+    {
+      "id": "stale-ambiguous",
+      "requirement": "PATCH",
+      "kind": "negative",
+      "expected": "Stale sha256, ambiguous, absent or no-op edits change nothing; partial edits are not written",
+      "test": "tests/test_code_tools_664.py::CodeTools.test_a_stale_or_ambiguous_patch_changes_nothing"
+    },
+    {
+      "id": "crlf",
+      "requirement": "PATCH",
+      "kind": "boundary",
+      "expected": "LF edits on a CRLF file keep CRLF",
+      "test": "tests/test_code_tools_664.py::CodeTools.test_windows_line_endings_are_kept"
+    },
+    {
+      "id": "paths",
+      "requirement": "BOUNDS",
+      "kind": "security",
+      "expected": "../, .git, missing and binary files are refused",
+      "test": "tests/test_code_tools_664.py::CodeTools.test_paths_outside_the_project_git_internals_and_binary_files_are_refused"
+    },
+    {
+      "id": "journal",
+      "requirement": "VERSIONED",
+      "kind": "positive",
+      "expected": "Without git the patch is journalled outside the code folder",
+      "test": "tests/test_code_tools_664.py::CodeTools.test_without_git_the_patch_is_journalled"
+    },
+    {
+      "id": "no-project",
+      "requirement": "BOUNDS",
+      "kind": "failure",
+      "expected": "No open project answers unavailable with a hint",
+      "test": "tests/test_code_tools_664.py::CodeTools.test_no_open_project_is_a_clear_unavailable_error"
+    },
+    {
+      "id": "permissions",
+      "requirement": "BOUNDS",
+      "kind": "security",
+      "expected": "Mutating tools declare workspace_write; reads declare none",
+      "test": "tests/test_code_tools_664.py::CodeTools.test_registry_lists_the_tools_and_mutations_need_workspace_write"
+    },
+    {
+      "id": "fast",
+      "requirement": "PATCH",
+      "kind": "performance",
+      "expected": "10 chained patches with commits in under 10 s",
+      "test": "tests/test_code_tools_664.py::CodeTools.test_patching_is_fast"
+    }
+  ],
+  "recovery": "Fix at code_tools; never write outside the project, commit other files or skip the sha256 check. TASK-CODE-TOOLS-664, max three cycles.",
+  "test_environment": "Disposable PHDLAB_DATA_DIR with real code projects, files and git (tests/_env.py); evidence in docs/qa/evidence/code-tools-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 9 tests on ec928b9, all 9 failing (no code_tools module; the registry has no code.* tools). GREEN: 9/9.",
+    "red": {
+      "path": "docs/qa/evidence/code-tools-664/red.json",
+      "sha256": "9cfb587e767755eccbe1f75c64d0823a44c2f5b58c5c7fb6203e7f10df1a525b",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/code-tools-664/green.json",
+      "sha256": "205865315d5b65267cb7e61ab16e76640dedd193d9113a2882ea33ea45609024",
+      "exit_code": 0
+    }
+  }
+}

@@ -10,7 +10,7 @@ jobs:
     # controller only after protected main adopts it and read-only policy auth exists.
     if: vars.PHDLAB_HOSTED_AUTO_PROMOTION == 'enabled' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     permissions:
       contents: write
       pull-requests: write

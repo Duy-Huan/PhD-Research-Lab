@@ -1,0 +1,60 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_long_paths_664.LongPaths.test_a_long_folder_without_long_paths_is_warned_with_the_fix",
+      "status": "PASS",
+      "duration": 0.0013,
+      "details": null
+    },
+    {
+      "id": "test_long_paths_664.LongPaths.test_an_unreadable_setting_counts_as_off",
+      "status": "PASS",
+      "duration": 0.0019,
+      "details": null
+    },
+    {
+      "id": "test_long_paths_664.LongPaths.test_no_warning_when_long_paths_are_on_or_the_folder_is_short",
+      "status": "PASS",
+      "duration": 0.0018,
+      "details": null
+    },
+    {
+      "id": "test_long_paths_664.LongPaths.test_other_systems_are_not_affected",
+      "status": "PASS",
+      "duration": 0.0014,
+      "details": null
+    },
+    {
+      "id": "test_long_paths_664.LongPaths.test_the_default_root_is_the_active_project",
+      "status": "PASS",
+      "duration": 0.0049,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_long_paths_664.LongPaths.test_no_warning_when_long_paths_are_on_or_the_folder_is_short",
+      "id": "test_long_paths_664.LongPaths.test_no_warning_when_long_paths_are_on_or_the_folder_is_short (lp={'applicable': True, 'enabled': True, 'root': 'D:/research-data-research-data-research-data-research-data-research-data-research-data-research-data-', 'root_chars': 101, 'at_risk': False})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_long_paths_664.LongPaths.test_no_warning_when_long_paths_are_on_or_the_folder_is_short",
+      "id": "test_long_paths_664.LongPaths.test_no_warning_when_long_paths_are_on_or_the_folder_is_short (lp={'applicable': True, 'enabled': False, 'root': 'D:/PhDLab', 'root_chars': 9, 'at_risk': False})",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 5,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-qrq3f8z0",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

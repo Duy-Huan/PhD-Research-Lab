@@ -1,0 +1,110 @@
+{
+  "id": "FQC-LONG-PATHS-664",
+  "title": "The system scan warns when a long Windows data path will break package loading",
+  "risk": "LOW",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want to be told when the data folder is too long for Windows' 260-character limit, instead of packages failing with WinError 206 (live run 2026-10-28; agent/PLAN_6.6.4_L3.md A10).",
+  "requirements": [
+    {
+      "id": "WARN",
+      "description": "On Windows with long paths off, a data folder that leaves less than 180 characters below 260 gives a 'Paths' warning in the system scan and at startup, with the length, WinError 206, a shorter folder example and how to enable long paths."
+    },
+    {
+      "id": "QUIET",
+      "description": "No warning with long paths on, a short folder, or another operating system; nothing is moved or changed."
+    }
+  ],
+  "nonfunctional": [
+    "Advisory only"
+  ],
+  "inputs": [
+    "The active project's data folder",
+    "Registry LongPathsEnabled"
+  ],
+  "outputs": [
+    "system scan item {level, area, text}"
+  ],
+  "preconditions": [
+    "None"
+  ],
+  "postconditions": [
+    "tests/test_long_paths_664.py 4/4; RED on b440881"
+  ],
+  "dependencies": [
+    "backend/core/config.py (data_dir)"
+  ],
+  "affected_modules": [
+    "backend/execution/sysinfo.py",
+    "start.py"
+  ],
+  "acceptance_criteria": [
+    "tests/test_long_paths_664.py 5/5; RED on b440881"
+  ],
+  "scenarios": [
+    {
+      "id": "warn",
+      "requirement": "WARN",
+      "kind": "positive",
+      "expected": "Warning with length, WinError 206, a short folder example and LongPathsEnabled = 1",
+      "test": "tests/test_long_paths_664.py::LongPaths.test_a_long_folder_without_long_paths_is_warned_with_the_fix"
+    },
+    {
+      "id": "quiet",
+      "requirement": "QUIET",
+      "kind": "negative",
+      "expected": "No warning when long paths are on or the folder is short",
+      "test": "tests/test_long_paths_664.py::LongPaths.test_no_warning_when_long_paths_are_on_or_the_folder_is_short"
+    },
+    {
+      "id": "other-os",
+      "requirement": "QUIET",
+      "kind": "boundary",
+      "expected": "Not applicable on other systems",
+      "test": "tests/test_long_paths_664.py::LongPaths.test_other_systems_are_not_affected"
+    },
+    {
+      "id": "unreadable",
+      "requirement": "WARN",
+      "kind": "failure",
+      "expected": "An unreadable registry setting counts as off",
+      "test": "tests/test_long_paths_664.py::LongPaths.test_an_unreadable_setting_counts_as_off"
+    },
+    {
+      "id": "advisory",
+      "requirement": "QUIET",
+      "kind": "security",
+      "expected": "Only the active project's folder is read; nothing is changed",
+      "test": "tests/test_long_paths_664.py::LongPaths.test_the_default_root_is_the_active_project"
+    },
+    {
+      "id": "cheap",
+      "requirement": "WARN",
+      "kind": "performance",
+      "expected": "The check is a string length and one registry read (all 5 tests in milliseconds)",
+      "test": "tests/test_long_paths_664.py::LongPaths.test_no_warning_when_long_paths_are_on_or_the_folder_is_short"
+    }
+  ],
+  "recovery": "Fix at sysinfo.long_paths; never change system settings or move data. TASK-LONG-PATHS-664, max three cycles.",
+  "test_environment": "Disposable config (tests/_env.py); platform and registry value patched; evidence in docs/qa/evidence/long-paths-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 5 tests on b440881, all failing (no long-path check). GREEN: 5/5.",
+    "red": {
+      "path": "docs/qa/evidence/long-paths-664/red.json",
+      "sha256": "964ada5ead4977a258bcdcd62296dbb32ff45e98929a95a5008ea8dd0a18592e",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/long-paths-664/green.json",
+      "sha256": "768d2258c82b73b99986ad57689ecac4c90af22a47672d3afd5c15ff128eacc4",
+      "exit_code": 0
+    }
+  }
+}

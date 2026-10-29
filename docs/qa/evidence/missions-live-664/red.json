@@ -1,0 +1,47 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_missions_live_664.MissionEvents.test_a_failed_change_publishes_nothing",
+      "status": "PASS",
+      "duration": 0.2578,
+      "details": null
+    },
+    {
+      "id": "test_missions_live_664.MissionEvents.test_a_step_review_is_published",
+      "status": "FAIL",
+      "duration": 0.3249,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_missions_live_664\\tests\\test_missions_live_664.py\", line 78, in test_a_step_review_is_published\n    self.assertEqual([e[\"mission_id\"] for e in self.events(mark)], [m[\"id\"]])\nAssertionError: Lists differ: [] != ['4df5c915-a0ea-4cd5-9e87-a2c7f9d40767']\n\nSecond list contains 1 additional elements.\nFirst extra element 0:\n'4df5c915-a0ea-4cd5-9e87-a2c7f9d40767'\n\n- []\n+ ['4df5c915-a0ea-4cd5-9e87-a2c7f9d40767']\n"
+    },
+    {
+      "id": "test_missions_live_664.MissionEvents.test_creation_approval_and_cancellation_are_published",
+      "status": "FAIL",
+      "duration": 0.2046,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_missions_live_664\\tests\\test_missions_live_664.py\", line 32, in test_creation_approval_and_cancellation_are_published\n    self.assertEqual([(e[\"mission_id\"], e[\"topic_id\"], e[\"status\"]) for e in created], [(m[\"id\"], self.tid, \"draft\")])\nAssertionError: Lists differ: [] != [('3988b8b0-b6fc-4251-a8bd-6d932cdfa806', [44 chars]ft')]\n\nSecond list contains 1 additional elements.\nFirst extra element 0:\n('3988b8b0-b6fc-4251-a8bd-6d932cdfa806', 'db45b332-901c-4254-88bd-9c5b0d52017c', 'draft')\n\n- []\n+ [('3988b8b0-b6fc-4251-a8bd-6d932cdfa806',\n+   'db45b332-901c-4254-88bd-9c5b0d52017c',\n+   'draft')]\n"
+    },
+    {
+      "id": "test_missions_live_664.MissionEvents.test_events_carry_ids_and_status_only",
+      "status": "ERROR",
+      "duration": 0.2183,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_missions_live_664\\tests\\test_missions_live_664.py\", line 43, in test_events_carry_ids_and_status_only\n    [event] = self.events(start)\n    ^^^^^^^\nValueError: not enough values to unpack (expected 1, got 0)\n"
+    },
+    {
+      "id": "test_missions_live_664.MissionEvents.test_publishing_is_cheap",
+      "status": "PASS",
+      "duration": 0.6952,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 5,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-rngcjw_d",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

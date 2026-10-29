@@ -1,0 +1,144 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_code_tools_664.CodeTools.test_a_patch_edits_in_place_and_commits_only_that_file",
+      "status": "PASS",
+      "duration": 1.4092,
+      "details": null
+    },
+    {
+      "id": "test_code_tools_664.CodeTools.test_a_stale_or_ambiguous_patch_changes_nothing",
+      "status": "PASS",
+      "duration": 0.8128,
+      "details": null
+    },
+    {
+      "id": "test_code_tools_664.CodeTools.test_no_open_project_is_a_clear_unavailable_error",
+      "status": "PASS",
+      "duration": 0.0365,
+      "details": null
+    },
+    {
+      "id": "test_code_tools_664.CodeTools.test_patching_is_fast",
+      "status": "PASS",
+      "duration": 2.7444,
+      "details": null
+    },
+    {
+      "id": "test_code_tools_664.CodeTools.test_paths_outside_the_project_git_internals_and_binary_files_are_refused",
+      "status": "PASS",
+      "duration": 0.7715,
+      "details": null
+    },
+    {
+      "id": "test_code_tools_664.CodeTools.test_registry_lists_the_tools_and_mutations_need_workspace_write",
+      "status": "PASS",
+      "duration": 0.0677,
+      "details": null
+    },
+    {
+      "id": "test_code_tools_664.CodeTools.test_the_agent_creates_lists_and_opens_code_projects",
+      "status": "PASS",
+      "duration": 1.1513,
+      "details": null
+    },
+    {
+      "id": "test_code_tools_664.CodeTools.test_windows_line_endings_are_kept",
+      "status": "PASS",
+      "duration": 0.9717,
+      "details": null
+    },
+    {
+      "id": "test_code_tools_664.CodeTools.test_without_git_the_patch_is_journalled",
+      "status": "PASS",
+      "duration": 0.0974,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_code_tools_664.CodeTools.test_a_stale_or_ambiguous_patch_changes_nothing",
+      "id": "test_code_tools_664.CodeTools.test_a_stale_or_ambiguous_patch_changes_nothing (message='occurs 2 times')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_code_tools_664.CodeTools.test_a_stale_or_ambiguous_patch_changes_nothing",
+      "id": "test_code_tools_664.CodeTools.test_a_stale_or_ambiguous_patch_changes_nothing (message='occurs 0 times')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_code_tools_664.CodeTools.test_a_stale_or_ambiguous_patch_changes_nothing",
+      "id": "test_code_tools_664.CodeTools.test_a_stale_or_ambiguous_patch_changes_nothing (message='do not change')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_code_tools_664.CodeTools.test_a_stale_or_ambiguous_patch_changes_nothing",
+      "id": "test_code_tools_664.CodeTools.test_a_stale_or_ambiguous_patch_changes_nothing (message='changed since you read it')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_code_tools_664.CodeTools.test_no_open_project_is_a_clear_unavailable_error",
+      "id": "test_code_tools_664.CodeTools.test_no_open_project_is_a_clear_unavailable_error (fn='apply_patch')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_code_tools_664.CodeTools.test_no_open_project_is_a_clear_unavailable_error",
+      "id": "test_code_tools_664.CodeTools.test_no_open_project_is_a_clear_unavailable_error (fn='file_version')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_code_tools_664.CodeTools.test_paths_outside_the_project_git_internals_and_binary_files_are_refused",
+      "id": "test_code_tools_664.CodeTools.test_paths_outside_the_project_git_internals_and_binary_files_are_refused (path='../outside.py')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_code_tools_664.CodeTools.test_paths_outside_the_project_git_internals_and_binary_files_are_refused",
+      "id": "test_code_tools_664.CodeTools.test_paths_outside_the_project_git_internals_and_binary_files_are_refused (path='.git/config')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_code_tools_664.CodeTools.test_paths_outside_the_project_git_internals_and_binary_files_are_refused",
+      "id": "test_code_tools_664.CodeTools.test_paths_outside_the_project_git_internals_and_binary_files_are_refused (path='missing.py')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_code_tools_664.CodeTools.test_paths_outside_the_project_git_internals_and_binary_files_are_refused",
+      "id": "test_code_tools_664.CodeTools.test_paths_outside_the_project_git_internals_and_binary_files_are_refused (path='blob.bin')",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_code_tools_664.CodeTools.test_the_agent_creates_lists_and_opens_code_projects",
+      "id": "test_code_tools_664.CodeTools.test_the_agent_creates_lists_and_opens_code_projects (bad={'name': 'nope'})",
+      "status": "PASS",
+      "details": null
+    },
+    {
+      "parent": "test_code_tools_664.CodeTools.test_the_agent_creates_lists_and_opens_code_projects",
+      "id": "test_code_tools_664.CodeTools.test_the_agent_creates_lists_and_opens_code_projects (bad={'name': '../escape'})",
+      "status": "PASS",
+      "details": null
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 9,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-dj286fl4",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

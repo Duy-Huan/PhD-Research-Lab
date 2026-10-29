@@ -103,7 +103,7 @@ class OAuth(Base):
         self.assertLessEqual(tok["expires_in"], 3600)
         listed = self.mcp(tok["access_token"], "tools/list").json()["result"]["tools"]
         self.assertEqual(sorted(t["name"] for t in listed),
-                         ["phdlab_tools_call", "phdlab_tools_describe", "phdlab_tools_search"],
+                         ["phdlab_tools_call", "phdlab_tools_describe", "phdlab_tools_job", "phdlab_tools_search"],
                          "ChatGPT reaches tools only through the runtime (isolation, provenance)")
         again = self.client.post("/oauth/token", data={"grant_type": "authorization_code", "code": code,
                                                         "redirect_uri": REDIRECT, "code_verifier": verifier, "resource": PUBLIC},

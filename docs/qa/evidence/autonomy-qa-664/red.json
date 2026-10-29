@@ -1,0 +1,174 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_autonomy_qa_664.AutonomyLevelsInCi.test_a_missions_or_policy_change_selects_the_levels_outside_the_offline_run",
+      "status": "FAIL",
+      "duration": 0.0322,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 59, in test_a_missions_or_policy_change_selects_the_levels_outside_the_offline_run\n    self.assertIn('autonomy_levels.spec.ts', browser_plan(root, [changed], [], 'pr')['tests'])\nAssertionError: 'autonomy_levels.spec.ts' not found in ['ci_smoke.spec.ts', 'uat_harness.spec.ts', 'ui_quality.spec.ts', 'navigation.spec.ts']\n\nTraceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 59, in test_a_missions_or_policy_change_selects_the_levels_outside_the_offline_run\n    self.assertIn('autonomy_levels.spec.ts', browser_plan(root, [changed], [], 'pr')['tests'])\nAssertionError: 'autonomy_levels.spec.ts' not found in ['ci_smoke.spec.ts', 'uat_harness.spec.ts', 'ui_quality.spec.ts']\n"
+    },
+    {
+      "id": "test_autonomy_qa_664.AutonomyLevelsInCi.test_the_four_autonomy_levels_and_harness_run_on_every_ci_without_a_model",
+      "status": "ERROR",
+      "duration": 0.0003,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 39, in test_the_four_autonomy_levels_and_harness_run_on_every_ci_without_a_model\n    record = config['journeys']['autonomy-levels']\n             ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^\nKeyError: 'autonomy-levels'\n"
+    },
+    {
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_architect_workflow_has_english_description_and_node_names",
+      "status": "ERROR",
+      "duration": 0.0006,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 76, in test_architect_workflow_has_english_description_and_node_names\n    self.assertFalse(VIETNAMESE.search(wf['description_en']))\n                                       ~~^^^^^^^^^^^^^^^^^^\nKeyError: 'description_en'\n\nTraceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 76, in test_architect_workflow_has_english_description_and_node_names\n    self.assertFalse(VIETNAMESE.search(wf['description_en']))\n                                       ~~^^^^^^^^^^^^^^^^^^\nKeyError: 'description_en'\n\nTraceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 76, in test_architect_workflow_has_english_description_and_node_names\n    self.assertFalse(VIETNAMESE.search(wf['description_en']))\n                                       ~~^^^^^^^^^^^^^^^^^^\nKeyError: 'description_en'\n"
+    },
+    {
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_generating_and_running_is_fast",
+      "status": "PASS",
+      "duration": 0.006,
+      "details": null
+    },
+    {
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes",
+      "status": "FAIL",
+      "duration": 0.0032,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 68, in test_preset_agents_have_english_names_and_purposes\n    self.assertTrue(agent.get(key))\nAssertionError: None is not true\n\nTraceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 68, in test_preset_agents_have_english_names_and_purposes\n    self.assertTrue(agent.get(key))\nAssertionError: None is not true\n\nTraceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 68, in test_preset_agents_have_english_names_and_purposes\n    self.assertTrue(agent.get(key))\nAssertionError: None is not true\n\nTraceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 68, in test_preset_agents_have_english_names_and_purposes\n    self.assertTrue(agent.get(key))\nAssertionError: None is not true\n\nTraceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 68, in test_preset_agents_have_english_names_and_purposes\n    self.assertTrue(agent.get(key))\nAssertionError: None is not true\n\nTraceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 68, in test_preset_agents_have_english_names_and_purposes\n    self.assertTrue(agent.get(key))\nAssertionError: None is not true\n"
+    },
+    {
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "status": "FAIL",
+      "duration": 0.002,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 91, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertTrue(result.get('label_en'))\nAssertionError: None is not true\n\nTraceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 91, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertTrue(result.get('label_en'))\nAssertionError: None is not true\n\nTraceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 90, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertFalse(VIETNAMESE.search(result['summary']))\nAssertionError: <re.Match object; span=(5, 6), match='\u1ee5'> is not false\n\nTraceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 90, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertFalse(VIETNAMESE.search(result['summary']))\nAssertionError: <re.Match object; span=(5, 6), match='\u1ee5'> is not false\n\nTraceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 90, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertFalse(VIETNAMESE.search(result['summary']))\nAssertionError: <re.Match object; span=(5, 6), match='\u1ee5'> is not false\n\nTraceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 90, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertFalse(VIETNAMESE.search(result['summary']))\nAssertionError: <re.Match object; span=(5, 6), match='\u1ee5'> is not false\n\nTraceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 90, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertFalse(VIETNAMESE.search(result['summary']))\nAssertionError: <re.Match object; span=(5, 6), match='\u1ee5'> is not false\n\nTraceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 90, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertFalse(VIETNAMESE.search(result['summary']))\nAssertionError: <re.Match object; span=(5, 6), match='\u1ee5'> is not false\n\nTraceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 90, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertFalse(VIETNAMESE.search(result['summary']))\nAssertionError: <re.Match object; span=(5, 6), match='\u1ee5'> is not false\n"
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_autonomy_qa_664.AutonomyLevelsInCi.test_a_missions_or_policy_change_selects_the_levels_outside_the_offline_run",
+      "id": "test_autonomy_qa_664.AutonomyLevelsInCi.test_a_missions_or_policy_change_selects_the_levels_outside_the_offline_run (changed='frontend/src/features/missions/AutonomyPanel.tsx')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 59, in test_a_missions_or_policy_change_selects_the_levels_outside_the_offline_run\n    self.assertIn('autonomy_levels.spec.ts', browser_plan(root, [changed], [], 'pr')['tests'])\nAssertionError: 'autonomy_levels.spec.ts' not found in ['ci_smoke.spec.ts', 'uat_harness.spec.ts', 'ui_quality.spec.ts', 'navigation.spec.ts']\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.AutonomyLevelsInCi.test_a_missions_or_policy_change_selects_the_levels_outside_the_offline_run",
+      "id": "test_autonomy_qa_664.AutonomyLevelsInCi.test_a_missions_or_policy_change_selects_the_levels_outside_the_offline_run (changed='backend/agent/autonomy.py')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 59, in test_a_missions_or_policy_change_selects_the_levels_outside_the_offline_run\n    self.assertIn('autonomy_levels.spec.ts', browser_plan(root, [changed], [], 'pr')['tests'])\nAssertionError: 'autonomy_levels.spec.ts' not found in ['ci_smoke.spec.ts', 'uat_harness.spec.ts', 'ui_quality.spec.ts']\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_architect_workflow_has_english_description_and_node_names",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_architect_workflow_has_english_description_and_node_names (level='L2')",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 76, in test_architect_workflow_has_english_description_and_node_names\n    self.assertFalse(VIETNAMESE.search(wf['description_en']))\n                                       ~~^^^^^^^^^^^^^^^^^^\nKeyError: 'description_en'\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_architect_workflow_has_english_description_and_node_names",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_architect_workflow_has_english_description_and_node_names (level='L3')",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 76, in test_architect_workflow_has_english_description_and_node_names\n    self.assertFalse(VIETNAMESE.search(wf['description_en']))\n                                       ~~^^^^^^^^^^^^^^^^^^\nKeyError: 'description_en'\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_architect_workflow_has_english_description_and_node_names",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_architect_workflow_has_english_description_and_node_names (level='L4')",
+      "status": "ERROR",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 76, in test_architect_workflow_has_english_description_and_node_names\n    self.assertFalse(VIETNAMESE.search(wf['description_en']))\n                                       ~~^^^^^^^^^^^^^^^^^^\nKeyError: 'description_en'\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes (agent='agent-principal-investigator')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 68, in test_preset_agents_have_english_names_and_purposes\n    self.assertTrue(agent.get(key))\nAssertionError: None is not true\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes (agent='agent-literature-specialist')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 68, in test_preset_agents_have_english_names_and_purposes\n    self.assertTrue(agent.get(key))\nAssertionError: None is not true\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes (agent='agent-experiment-coder')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 68, in test_preset_agents_have_english_names_and_purposes\n    self.assertTrue(agent.get(key))\nAssertionError: None is not true\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes (agent='agent-rigorous-reviewer')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 68, in test_preset_agents_have_english_names_and_purposes\n    self.assertTrue(agent.get(key))\nAssertionError: None is not true\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes (agent='agent-scientific-writer')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 68, in test_preset_agents_have_english_names_and_purposes\n    self.assertTrue(agent.get(key))\nAssertionError: None is not true\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_preset_agents_have_english_names_and_purposes (agent='agent-benchmark-evaluator')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 68, in test_preset_agents_have_english_names_and_purposes\n    self.assertTrue(agent.get(key))\nAssertionError: None is not true\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-start')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 91, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertTrue(result.get('label_en'))\nAssertionError: None is not true\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-literature')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 91, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertTrue(result.get('label_en'))\nAssertionError: None is not true\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-hypothesis')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 90, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertFalse(VIETNAMESE.search(result['summary']))\nAssertionError: <re.Match object; span=(5, 6), match='\u1ee5'> is not false\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-gate-hypothesis')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 90, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertFalse(VIETNAMESE.search(result['summary']))\nAssertionError: <re.Match object; span=(5, 6), match='\u1ee5'> is not false\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-native-code')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 90, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertFalse(VIETNAMESE.search(result['summary']))\nAssertionError: <re.Match object; span=(5, 6), match='\u1ee5'> is not false\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-evaluation')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 90, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertFalse(VIETNAMESE.search(result['summary']))\nAssertionError: <re.Match object; span=(5, 6), match='\u1ee5'> is not false\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-paperorchestra')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 90, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertFalse(VIETNAMESE.search(result['summary']))\nAssertionError: <re.Match object; span=(5, 6), match='\u1ee5'> is not false\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-gate-final')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 90, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertFalse(VIETNAMESE.search(result['summary']))\nAssertionError: <re.Match object; span=(5, 6), match='\u1ee5'> is not false\n"
+    },
+    {
+      "parent": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed",
+      "id": "test_autonomy_qa_664.HarnessLanguage.test_runtime_reports_blocked_nodes_in_english_and_never_as_completed (node='node-end')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red\\tests\\test_autonomy_qa_664.py\", line 90, in test_runtime_reports_blocked_nodes_in_english_and_never_as_completed\n    self.assertFalse(VIETNAMESE.search(result['summary']))\nAssertionError: <re.Match object; span=(5, 6), match='\u1ee5'> is not false\n"
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 6,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-btlfwd_n",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

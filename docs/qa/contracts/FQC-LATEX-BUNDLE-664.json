@@ -1,0 +1,120 @@
+{
+  "id": "FQC-LATEX-BUNDLE-664",
+  "title": "The installers ship a pinned LaTeX engine so a paper compiles to PDF without a TeX installation",
+  "risk": "MEDIUM",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want the paper step to produce a PDF on a computer without TeX Live or MiKTeX, instead of only reporting that compilation is unavailable (live run 2026-10-28; agent/PLAN_6.6.4_L3.md A6).",
+  "requirements": [
+    {
+      "id": "PINNED",
+      "description": "The Windows installer and the .deb carry Tectonic 0.17.0 from its GitHub release, pinned by SHA-256; a mismatching download is deleted and the build fails; only the binary and its MIT licence are installed, in <install>/tools."
+    },
+    {
+      "id": "FOUND",
+      "description": "backend.paper.latex searches <install>/tools (or PHDLAB_TOOLS_DIR) before other TeX folders, so the bundled engine is available without PATH changes."
+    },
+    {
+      "id": "OFFLINE",
+      "description": "When Tectonic cannot download packages on its first compile, the report says to connect to the internet once; a LaTeX error is not blamed on the network."
+    },
+    {
+      "id": "SMOKE",
+      "description": "The installer smoke tests (CI) require the installed engine to run `--version` 0.17.0 and to be removed on uninstall."
+    }
+  ],
+  "nonfunctional": [
+    "No download or execution of Tectonic in unit tests",
+    "Installer growth: about 51 MB (Windows) and 25 MB (Linux)"
+  ],
+  "inputs": [
+    "scripts/build_installers.py windows|deb --cache"
+  ],
+  "outputs": [
+    "<install>/tools/tectonic(.exe) and tectonic-LICENSE.txt"
+  ],
+  "preconditions": [
+    "Network access when building the installers"
+  ],
+  "postconditions": [
+    "An installed copy can compile LaTeX to PDF after one online first compile"
+  ],
+  "dependencies": [
+    "Tectonic 0.17.0 release assets (MIT)"
+  ],
+  "affected_modules": [
+    "scripts/build_installers.py",
+    "backend/paper/latex.py",
+    "packaging/licenses/tectonic-0.17.0-LICENSE.txt"
+  ],
+  "acceptance_criteria": [
+    "tests/test_latex_bundle_664.py 6/6; RED on 1099a52",
+    "CI installer jobs build both installers with the real pinned downloads and run the bundled engine"
+  ],
+  "scenarios": [
+    {
+      "id": "pins",
+      "requirement": "PINNED",
+      "kind": "positive",
+      "expected": "Both pins are 0.17.0 GitHub release assets with SHA-256; both builds stage tools/",
+      "test": "tests/test_latex_bundle_664.py::Bundle.test_the_pins_are_exact_release_assets"
+    },
+    {
+      "id": "stage",
+      "requirement": "PINNED",
+      "kind": "positive",
+      "expected": "Only the binary and the licence are staged from a matching zip or tar.gz",
+      "test": "tests/test_latex_bundle_664.py::Bundle.test_only_the_binary_is_staged_from_a_matching_archive"
+    },
+    {
+      "id": "tampered",
+      "requirement": "PINNED",
+      "kind": "security",
+      "expected": "A wrong SHA-256 deletes the download and fails; an archive without the binary fails",
+      "test": "tests/test_latex_bundle_664.py::Bundle.test_a_tampered_download_or_missing_binary_is_refused"
+    },
+    {
+      "id": "found",
+      "requirement": "FOUND",
+      "kind": "boundary",
+      "expected": "With PATH empty the bundled engine is found and listed; the default folder is <install>/tools",
+      "test": "tests/test_latex_bundle_664.py::Bundle.test_the_app_finds_the_bundled_engine"
+    },
+    {
+      "id": "offline",
+      "requirement": "OFFLINE",
+      "kind": "failure",
+      "expected": "A network failure gives the connect-once note; a LaTeX error does not",
+      "test": "tests/test_latex_bundle_664.py::Bundle.test_an_offline_first_compile_says_what_to_do"
+    },
+    {
+      "id": "smoke",
+      "requirement": "SMOKE",
+      "kind": "negative",
+      "expected": "A missing engine or a binary that is not Tectonic 0.17.0 fails the smoke check",
+      "test": "tests/test_latex_bundle_664.py::Bundle.test_the_installer_smoke_refuses_a_missing_or_wrong_engine"
+    }
+  ],
+  "recovery": "Fix at build_installers/latex; never unpin, skip the SHA-256 check or fall back to an unverified download. TASK-LATEX-BUNDLE-664, max three cycles.",
+  "test_environment": "Local stand-in archives and binaries in a temporary folder; the real assets are downloaded and run only by the CI installer jobs. Evidence in docs/qa/evidence/latex-bundle-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 6 tests on 1099a52, all 6 failing (no pins, no staging, no bundled folder, no offline note, no smoke check). GREEN: 6/6.",
+    "red": {
+      "path": "docs/qa/evidence/latex-bundle-664/red.json",
+      "sha256": "74db690eca5ba3dfc341a8e0ec7fe98e6c2fb97911456dbff0f164d68b7e3f0d",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/latex-bundle-664/green.json",
+      "sha256": "49a1f9b9592c752c59fe616247c69942073e9c89d81750601ceeb497067f6af7",
+      "exit_code": 0
+    }
+  }
+}

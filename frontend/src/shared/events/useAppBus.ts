@@ -44,6 +44,7 @@ export function useAppBus() {
           // F01 Remediation: Revalidate all related query keys live
           if (data.type === 'research.mission' || (data.type && data.type.startsWith('research.'))) {
             queryClient.invalidateQueries({ queryKey: ['missions'] });
+            queryClient.invalidateQueries({ queryKey: ['autonomy'] });  // Missions → Workflows L1–L4 (v6.6.4)
             queryClient.invalidateQueries({ queryKey: ['workstreams'] });
             queryClient.invalidateQueries({ queryKey: ['teams'] });
             queryClient.invalidateQueries({ queryKey: ['claims'] });

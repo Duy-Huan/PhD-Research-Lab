@@ -21,6 +21,9 @@ def _verify_run(tid,rid,*,_find_reproduction=True):
     def check(name,ok,detail=""):
         checks.append({"check":name,"status":"passed" if ok else "failed","detail":detail})
     p=P.get(tid,run["protocol_id"]);snapshot=p["payload"];spec=snapshot["spec"]
+    if snapshot.get("kind")=="agent_code_v1":
+        from backend.execution import agent_protocols
+        return agent_protocols.verify(tid,run,p,find_reproduction=_find_reproduction)
     check("run_completed",run["status"]=="completed")
     check("immutable_protocol",p["digest"]==L.digest(snapshot)==run["payload"]["protocol_digest"])
     check("worker_revision",P.worker_hash()==snapshot["worker_sha256"]==run["payload"]["worker_sha256"])

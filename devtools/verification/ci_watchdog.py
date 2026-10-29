@@ -1,6 +1,6 @@
 """Outer deadline for a CI verification step: heartbeats, diagnostics and an owned process-tree stop.
 
-Usage: python -m devtools.verification.ci_watchdog --deadline-s 1860 --out <dir> -- <command...>
+Usage: python -m devtools.verification.ci_watchdog --deadline-s 2790 --out <dir> -- <command...>
 
 The runner already bounds its own stages, but Windows 3.12 push runs were killed at the job limit without logs or
 artifacts, so the step never ended on its own. This separate parent prints a heartbeat (elapsed, current test,

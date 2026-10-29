@@ -1,0 +1,41 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_discovery_partial_664.PartialDiscovery.test_a_complete_discovery_is_not_marked_partial",
+      "status": "PASS",
+      "duration": 0.4244,
+      "details": null
+    },
+    {
+      "id": "test_discovery_partial_664.PartialDiscovery.test_nothing_found_still_fails_and_names_the_errors",
+      "status": "PASS",
+      "duration": 2.9816,
+      "details": null
+    },
+    {
+      "id": "test_discovery_partial_664.PartialDiscovery.test_papers_from_the_other_providers_are_kept_and_the_429_is_reported",
+      "status": "PASS",
+      "duration": 3.0256,
+      "details": null
+    },
+    {
+      "id": "test_discovery_partial_664.PartialDiscovery.test_the_rate_limited_provider_is_asked_once_not_hammered",
+      "status": "PASS",
+      "duration": 2.9948,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 4,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-be1wruaf",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

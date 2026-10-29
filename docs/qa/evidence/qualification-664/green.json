@@ -1,0 +1,59 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_qualification_664.Scoring.test_all_criteria_measured_and_passed_qualify_scoped_l3",
+      "status": "PASS",
+      "duration": 0.0146,
+      "details": null
+    },
+    {
+      "id": "test_qualification_664.Scoring.test_apply_writes_only_measured_status_into_a_copy_of_the_objectives",
+      "status": "PASS",
+      "duration": 0.0325,
+      "details": null
+    },
+    {
+      "id": "test_qualification_664.Scoring.test_evidence_outside_the_campaign_folder_never_counts",
+      "status": "PASS",
+      "duration": 0.01,
+      "details": null
+    },
+    {
+      "id": "test_qualification_664.Scoring.test_human_rescue_disqualifies_rq14_and_an_unfrozen_suite_rq13",
+      "status": "PASS",
+      "duration": 0.0272,
+      "details": null
+    },
+    {
+      "id": "test_qualification_664.Scoring.test_missing_measurements_and_changed_evidence_are_inconclusive",
+      "status": "PASS",
+      "duration": 0.0218,
+      "details": null
+    },
+    {
+      "id": "test_qualification_664.Scoring.test_nothing_measured_is_not_run",
+      "status": "PASS",
+      "duration": 0.0005,
+      "details": null
+    },
+    {
+      "id": "test_qualification_664.Scoring.test_one_failure_disqualifies_and_names_the_case",
+      "status": "PASS",
+      "duration": 0.0082,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 7,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-n1c_mlwm",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

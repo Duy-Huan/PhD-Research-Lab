@@ -1,25 +1,31 @@
 import type { Page } from '@playwright/test';
 
-/** Waits until the screen stops changing: same layout, text, busy markers and running animations for `quietMs`.
- * Replaces a fixed pause, so fast screens are measured sooner and slow ones get up to `maxMs`. */
+/** Waits until the screen stops changing: same layout, text, busy markers, running animations and inline opacity
+ * for `quietMs`. Replaces a fixed pause, so fast screens are measured sooner and slow ones get up to `maxMs`.
+ * Inline opacity covers JavaScript-driven fades (motion), which document.getAnimations() does not list; without it
+ * axe could measure a list row mid fade-in as low contrast (6.6.4 gate, AI tools registry). */
 export async function settle(page: Page, quietMs = 500, maxMs = 5000): Promise<void> {
   const signature = () => page.evaluate(() => {
     let geometry = 0;
-    for (const el of Array.from(document.querySelectorAll('body *'))) {
+    let opacity = 0;
+    for (const el of Array.from(document.querySelectorAll<HTMLElement>('body *'))) {
       const b = el.getBoundingClientRect();
       geometry += Math.round(b.top) + Math.round(b.height) * 3 + Math.round(b.width) * 7;
+      if (el.style.opacity) opacity += Math.round(Number(el.style.opacity) * 100);
     }
     const running = document.getAnimations().filter(a => a.playState === 'running').length;
     return [document.querySelectorAll('body *').length, document.body.innerText.length, geometry,
-      document.querySelectorAll('[aria-busy="true"]').length, running].join(':');
+      document.querySelectorAll('[aria-busy="true"]').length, running, opacity].join(':');
   });
+  // A region marked aria-busy is still loading (e.g. the AI tools registry, about 1 s): never quiet while one exists.
+  const busy = (sig: string) => sig.split(':')[3] !== '0';
   const started = Date.now();
   let last = await signature();
   let quietSince = Date.now();
   while (Date.now() - started < maxMs) {
     await page.waitForTimeout(100);
     const now = await signature();
-    if (now !== last) { last = now; quietSince = Date.now(); } else if (Date.now() - quietSince >= quietMs) return;
+    if (now !== last || busy(now)) { last = now; quietSince = Date.now(); } else if (Date.now() - quietSince >= quietMs) return;
   }
 }
 

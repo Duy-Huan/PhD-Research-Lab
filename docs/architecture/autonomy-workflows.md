@@ -41,3 +41,62 @@ Development and executed evidence will be appended here and in `docs/testing/aut
 - Final L4 closure also rejects truncated model output, rather than accepting the provider's nonempty warning marker. Result digests are computed after output-policy checks so they refer to the exact persisted result.
 - The initial legacy live run had two Team failures and one MCP timeout. All three passed in isolation and a fresh full repeat passed 70/71 with one CLI opt-in skip. Root cause of the initial intermittent behavior remains open; no retries are silently relabelled as first-attempt success.
 - Final UI audit found the legacy Mission form submitted `max_reasoning_calls=4`, beyond the backend's maximum of 3. A regression assertion reproduced the mismatch; the form now submits 3. The launcher also probes the new defusedxml dependency and the two required workflow modules before starting.
+
+## Agent-written experiment code (v6.6.4)
+
+Before 6.6.4, `experiment.run` only ran the built-in denoising protocol, so an agent's own experiment ran outside
+approval. An agent now calls `experiment.propose_protocol` with an entrypoint in the open code project, the conditions
+(one is the baseline), the seeds, the metrics and the primary metric. The app copies the selected files into a
+content-addressed store with a sha256 per file. It also pins the environment: the interpreter, its version and its
+installed packages, or a Docker image digest. The protocol digest covers all of this.
+
+The researcher reviews the frozen file list in Protocols and approves the digest. `experiment.protocol_status` then gives
+the agent the single-use reference for `mission.experiment.run`, and the mission plan still needs approval.
+
+The runner re-checks the frozen code and the environment, then runs every condition × seed once. Each run is a fresh
+process on a fresh copy, with `PHDLAB_CONDITION`, `PHDLAB_SEED` and `PHDLAB_OUT` set. The code writes
+`$PHDLAB_OUT/metrics.json` = `{"metrics": {...}}`. The runner never installs, edits, retries or re-plans.
+
+`experiment.verify` (verifier `agent-code-recompute-v1`) re-reads the raw files, checks hashes, registration, code and
+environment, and recomputes the paired comparison. It records a reproduction only from another separately approved run
+of the same digest with matching metrics. It does not check how the agent's code computes a metric, and the best
+condition is chosen on the same runs; both limits are stated in every report. Contract: FQC-AGENT-PROTOCOL-664.
+
+## Harness canvas as a governed mission (v6.6.4)
+
+Before 6.6.4 the Harness canvas runtime evaluated only control flow, so every agent and research node was blocked.
+The team also came from keyword matching. Now a canvas runs through the mission runtime with a team the AI proposes.
+
+**Team.** In the Team tab, the researcher picks an architect model from the model list (Settings → Models & AI
+connections) and asks it for a team (`POST /api/harness/team/propose`). The architect proposes one to four agents, each
+with a role, purpose, prompt, registry tools and a model from the same list. The app refuses unknown tools, unlisted
+models and answers that are not JSON. An agent bound to an unavailable model stays in the team, marked as unavailable,
+and is never swapped. The list leaves out Gemini CLI and Antigravity, whose terms forbid being driven, plus Hermes and
+the router. Local engines count as available only after a short probe answers.
+
+**Compile.** `POST /api/harness/compile` (`backend/agent/harness_compile.py`) maps each node to a mission step:
+
+| Canvas node | Mission step |
+|---|---|
+| Agent node, code node | `agent.task` on the agent's model, with its tools |
+| Literature node | `paper.discover` |
+| Paper node | `paperorchestra.full_orchestration` |
+| Approval node | `review.checkpoint` |
+| Evaluation gate | `artifact.verify` of its input, with a note that a metric threshold needs an approved protocol |
+| End node | `mission.report` |
+
+The compiler refuses, and says why, for conditions, loops, a role no agent has, more than three model steps, and L4.
+With `create: true` it stores a draft mission. The researcher approves the exact plan in Missions, and `teams.validate`
+checks every role's authority.
+
+**Run.**
+- `agent.task` runs only on the bound model:
+  - CLI agents run through `research.run_coding`, with a grant that carries the agent's registry tools under the
+    owner's agent profile.
+  - Local engines run locally.
+  - Cloud engines run only when the mission allows API billing.
+- If the model is unavailable, the mission pauses and says so. Nothing else is tried.
+- `review.checkpoint` holds the mission in `awaiting_step_review` until the researcher reviews it, at any level.
+
+Team missions need `research_os.team_enabled`, which is off by default; the owner decides that default. Live Codex
+runs are recorded in `docs/qa/evidence/harness-team-664/`. Contract: FQC-HARNESS-TEAM-664.

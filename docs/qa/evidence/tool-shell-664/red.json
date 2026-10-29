@@ -1,0 +1,72 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_tool_shell_664.SandboxShellDescription.test_auto_mode_describes_both_and_recommends_code",
+      "status": "FAIL",
+      "duration": 0.1075,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red3\\tests\\test_tool_shell_664.py\", line 43, in test_auto_mode_describes_both_and_recommends_code\n    self.assertIn(\"cmd.exe\", text)\nAssertionError: 'cmd.exe' not found in 'Run Python code or a shell command in the research sandbox (Docker container with GPU when available, working directory = project code workspace). Returns exit code, stdout/stderr tails, metrics and figures.'\n"
+    },
+    {
+      "id": "test_tool_shell_664.SandboxShellDescription.test_describing_is_fast",
+      "status": "ERROR",
+      "duration": 0.0019,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red3\\tests\\test_tool_shell_664.py\", line 63, in test_describing_is_fast\n    sandbox.shell_note()\n    ^^^^^^^^^^^^^^^^^^\nAttributeError: module 'backend.execution.sandbox' has no attribute 'shell_note'\n"
+    },
+    {
+      "id": "test_tool_shell_664.SandboxShellDescription.test_local_posix_and_docker_name_sh",
+      "status": "FAIL",
+      "duration": 0.033,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red3\\tests\\test_tool_shell_664.py\", line 38, in test_local_posix_and_docker_name_sh\n    self.assertIn(\"POSIX sh\", text)\nAssertionError: 'POSIX sh' not found in 'Run Python code or a shell command in the research sandbox (Docker container with GPU when available, working directory = project code workspace). Returns exit code, stdout/stderr tails, metrics and figures.'\n\nTraceback (most recent call last):\n  File \"D:\\r664red3\\tests\\test_tool_shell_664.py\", line 38, in test_local_posix_and_docker_name_sh\n    self.assertIn(\"POSIX sh\", text)\nAssertionError: 'POSIX sh' not found in 'Run Python code or a shell command in the research sandbox (Docker container with GPU when available, working directory = project code workspace). Returns exit code, stdout/stderr tails, metrics and figures.'\n\nTraceback (most recent call last):\n  File \"D:\\r664red3\\tests\\test_tool_shell_664.py\", line 38, in test_local_posix_and_docker_name_sh\n    self.assertIn(\"POSIX sh\", text)\nAssertionError: 'POSIX sh' not found in 'Run Python code or a shell command in the research sandbox (Docker container with GPU when available, working directory = project code workspace). Returns exit code, stdout/stderr tails, metrics and figures.'\n"
+    },
+    {
+      "id": "test_tool_shell_664.SandboxShellDescription.test_local_windows_names_cmd_and_its_syntax",
+      "status": "FAIL",
+      "duration": 0.0111,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red3\\tests\\test_tool_shell_664.py\", line 30, in test_local_windows_names_cmd_and_its_syntax\n    self.assertIn(\"cmd.exe\", text)\nAssertionError: 'cmd.exe' not found in 'Run Python code or a shell command in the research sandbox (Docker container with GPU when available, working directory = project code workspace). Returns exit code, stdout/stderr tails, metrics and figures.'\n"
+    },
+    {
+      "id": "test_tool_shell_664.SandboxShellDescription.test_other_tools_and_the_static_catalog_are_untouched",
+      "status": "PASS",
+      "duration": 0.0035,
+      "details": null
+    },
+    {
+      "id": "test_tool_shell_664.SandboxShellDescription.test_unknown_mode_falls_back_to_the_local_shell",
+      "status": "FAIL",
+      "duration": 0.0185,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red3\\tests\\test_tool_shell_664.py\", line 49, in test_unknown_mode_falls_back_to_the_local_shell\n    self.assertIn(\"cmd.exe\", listed)\nAssertionError: 'cmd.exe' not found in 'Run Python code or a shell command in the research sandbox (Docker container with GPU when available, working directory = project code workspace). Returns exit code, stdout/stderr tails, metrics and figures.'\n"
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_tool_shell_664.SandboxShellDescription.test_local_posix_and_docker_name_sh",
+      "id": "test_tool_shell_664.SandboxShellDescription.test_local_posix_and_docker_name_sh (mode='local', windows=False)",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red3\\tests\\test_tool_shell_664.py\", line 38, in test_local_posix_and_docker_name_sh\n    self.assertIn(\"POSIX sh\", text)\nAssertionError: 'POSIX sh' not found in 'Run Python code or a shell command in the research sandbox (Docker container with GPU when available, working directory = project code workspace). Returns exit code, stdout/stderr tails, metrics and figures.'\n"
+    },
+    {
+      "parent": "test_tool_shell_664.SandboxShellDescription.test_local_posix_and_docker_name_sh",
+      "id": "test_tool_shell_664.SandboxShellDescription.test_local_posix_and_docker_name_sh (mode='docker', windows=True)",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red3\\tests\\test_tool_shell_664.py\", line 38, in test_local_posix_and_docker_name_sh\n    self.assertIn(\"POSIX sh\", text)\nAssertionError: 'POSIX sh' not found in 'Run Python code or a shell command in the research sandbox (Docker container with GPU when available, working directory = project code workspace). Returns exit code, stdout/stderr tails, metrics and figures.'\n"
+    },
+    {
+      "parent": "test_tool_shell_664.SandboxShellDescription.test_local_posix_and_docker_name_sh",
+      "id": "test_tool_shell_664.SandboxShellDescription.test_local_posix_and_docker_name_sh (mode='docker', windows=False)",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red3\\tests\\test_tool_shell_664.py\", line 38, in test_local_posix_and_docker_name_sh\n    self.assertIn(\"POSIX sh\", text)\nAssertionError: 'POSIX sh' not found in 'Run Python code or a shell command in the research sandbox (Docker container with GPU when available, working directory = project code workspace). Returns exit code, stdout/stderr tails, metrics and figures.'\n"
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 6,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-na3d6f_i",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}

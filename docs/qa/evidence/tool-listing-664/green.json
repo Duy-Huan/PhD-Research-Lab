@@ -1,0 +1,47 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_tool_listing_664.ToolListing.test_an_unknown_tool_is_still_not_found_with_suggestions",
+      "status": "PASS",
+      "duration": 0.663,
+      "details": null
+    },
+    {
+      "id": "test_tool_listing_664.ToolListing.test_filters_narrow_the_listing",
+      "status": "PASS",
+      "duration": 0.0768,
+      "details": null
+    },
+    {
+      "id": "test_tool_listing_664.ToolListing.test_listing_and_search_build_the_index_once",
+      "status": "PASS",
+      "duration": 0.0688,
+      "details": null
+    },
+    {
+      "id": "test_tool_listing_664.ToolListing.test_listing_is_fast",
+      "status": "PASS",
+      "duration": 0.1401,
+      "details": null
+    },
+    {
+      "id": "test_tool_listing_664.ToolListing.test_the_listing_matches_resolving_each_tool",
+      "status": "PASS",
+      "duration": 1.2869,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 5,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-59v3ij_x",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

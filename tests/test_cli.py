@@ -267,6 +267,26 @@ class Chat(Base):
             self.assertEqual(r.send("x"), 130)
         self.assertEqual(r.send("/help", timeout=0.01), 0)
 
+    def test_text_written_just_before_the_turn_ends_is_printed(self):
+        # A slow runner (seen on Windows CI) can finish the whole turn between the events read and the status read;
+        # the events of that gap must still be printed.
+        s = sessions.create("t")
+        r = R.Repl(cli.Ctx(cli.Client("", self.tc), io.StringIO(), False))
+        r.sid = s["id"]
+        reads = iter([[], [{"seq": 1, "turn_id": "t-1", "type": "message.delta", "data": {"text": "Late answer."}}]])
+        real_get = r.c.get
+
+        def get(path, **kw):
+            if path.endswith("/events"):
+                return {"events": next(reads, [])}
+            if path == f"/api/chat/sessions/{r.sid}":
+                return {"last_seq": 0, "turns": [{"id": "t-1", "status": "completed"}], "approvals": []}
+            return real_get(path, **kw)
+        with mock.patch.object(r.c, "get", side_effect=get), \
+                mock.patch.object(r.c, "post", return_value={"id": "t-1", "status": "running"}):
+            r.send("x")
+        self.assertIn("Late answer.", r.x.out.getvalue())
+
     def test_rich_output_completer_and_toolbar(self):
         buf = io.StringIO()
         o = R.Out(buf, True)

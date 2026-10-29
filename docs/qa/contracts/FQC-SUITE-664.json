@@ -1,0 +1,123 @@
+{
+  "id": "FQC-SUITE-664",
+  "title": "The cpu-ml-v1 qualification suite is frozen, valid and reproducible",
+  "risk": "HIGH",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want the L3 campaign to run a suite fixed before any run: 4 small CPU-scale ML cases with fixed data, budgets and stopping rules, as decided on 2026-10-29 (agent/PLAN_6.6.4_L3.md B1; RQ-13).",
+  "requirements": [
+    {
+      "id": "FROZEN",
+      "description": "devtools/qualification/cpu-ml-v1/suite.json is frozen by the sha256 of its canonical JSON (suite-digest.txt); suite.load refuses a changed or invalid suite."
+    },
+    {
+      "id": "DATA",
+      "description": "Every dataset regenerates byte for byte (standard library, LF, 6 decimals) to the sha256 recorded in the suite; open-ended cases have held-out data with a different seed, given to the verifier only."
+    },
+    {
+      "id": "CAMPAIGN",
+      "description": "campaign_template starts the B5 campaign record with the suite digest and 4 planned cases; unmeasured, every criterion is NOT_RUN."
+    }
+  ],
+  "nonfunctional": [
+    "Regenerating all 6 datasets takes under 10 s",
+    "Owner budget: 40 turns, 2 restarts, 7200 s per case, Codex"
+  ],
+  "inputs": [
+    "devtools/qualification/cpu-ml-v1/"
+  ],
+  "outputs": [
+    "validated suite; datasets; campaign record template"
+  ],
+  "preconditions": [
+    "None"
+  ],
+  "postconditions": [
+    "Every campaign run uses exactly this frozen suite"
+  ],
+  "dependencies": [
+    "backend/agent/qualification.py (score)"
+  ],
+  "affected_modules": [
+    "devtools/qualification/suite.py",
+    "devtools/qualification/cpu-ml-v1/suite.json",
+    "devtools/qualification/cpu-ml-v1/suite-digest.txt",
+    "devtools/qualification/cpu-ml-v1/generate_data.py"
+  ],
+  "acceptance_criteria": [
+    "tests/test_suite_664.py 7/7; RED on 6c7fa3b"
+  ],
+  "scenarios": [
+    {
+      "id": "loads",
+      "requirement": "FROZEN",
+      "kind": "positive",
+      "expected": "2 guided + 2 open cases, 40/2/7200 budget, Codex, all 14 criteria measured by some case",
+      "test": "tests/test_suite_664.py::Suite.test_the_frozen_suite_loads_and_follows_the_owner_decision"
+    },
+    {
+      "id": "data",
+      "requirement": "DATA",
+      "kind": "positive",
+      "expected": "All datasets regenerate to their sha256, deterministically, without CR",
+      "test": "tests/test_suite_664.py::Suite.test_every_dataset_regenerates_to_its_recorded_sha256"
+    },
+    {
+      "id": "held-out",
+      "requirement": "DATA",
+      "kind": "security",
+      "expected": "Open cases have held-out data with another seed; guided cases none",
+      "test": "tests/test_suite_664.py::Suite.test_open_ended_cases_keep_held_out_data_apart"
+    },
+    {
+      "id": "edited",
+      "requirement": "FROZEN",
+      "kind": "negative",
+      "expected": "An edited budget makes the suite refuse to load",
+      "test": "tests/test_suite_664.py::Suite.test_an_edited_suite_is_refused"
+    },
+    {
+      "id": "invalid",
+      "requirement": "FROZEN",
+      "kind": "failure",
+      "expected": "Missing held-out data, unknown criteria and no stopping rules are reported",
+      "test": "tests/test_suite_664.py::Suite.test_invalid_suites_are_reported"
+    },
+    {
+      "id": "campaign",
+      "requirement": "CAMPAIGN",
+      "kind": "boundary",
+      "expected": "The empty campaign is NOT_RUN everywhere with 4 planned cases",
+      "test": "tests/test_suite_664.py::Suite.test_the_campaign_template_is_scored_not_run_until_measured"
+    },
+    {
+      "id": "fast",
+      "requirement": "DATA",
+      "kind": "performance",
+      "expected": "6 datasets regenerated and checked in under 10 s",
+      "test": "tests/test_suite_664.py::Suite.test_regenerating_all_data_is_quick"
+    }
+  ],
+  "recovery": "Never edit a frozen suite; freeze a new version. TASK-SUITE-664, max three cycles.",
+  "test_environment": "Repository suite files; temporary copies for the edit test; evidence in docs/qa/evidence/suite-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 7 tests on 6c7fa3b, all failing (no suite or loader). GREEN: 7/7.",
+    "red": {
+      "path": "docs/qa/evidence/suite-664/red.json",
+      "sha256": "42682a182e4d650feb9c976beef080a2d631bf2ea445593533c6d038a4a8b3cc",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/suite-664/green.json",
+      "sha256": "20dc617b55291fe1aeb7fe3962cc0d90364eb6295e4585a35289f20919debfde",
+      "exit_code": 0
+    }
+  }
+}

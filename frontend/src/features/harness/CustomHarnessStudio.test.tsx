@@ -4,6 +4,7 @@ import { screen, waitFor, fireEvent } from '@testing-library/react';
 import { renderWithProviders } from '../../test/test-utils';
 import { CustomHarnessStudio } from './CustomHarnessStudio';
 import { api } from '../../shared/api/client';
+import { useUIStore } from '../../shared/state/uiStore';
 
 describe('CustomHarnessStudio', () => {
   beforeEach(() => {
@@ -155,5 +156,28 @@ describe('CustomHarnessStudio', () => {
     const autoBtn = screen.getByRole('button', { name: /Quy trình Tự động/i });
     fireEvent.click(autoBtn);
     expect(switchSpy).toHaveBeenCalled();
+  });
+
+  // agent/PLAN_6.6.4_L3.md A-QA, found by frontend/e2e/harness_levels.spec.ts.
+  it('has no mode switch when there is no automated view to switch to', async () => {
+    vi.spyOn(api, 'get').mockResolvedValue({ tools: [], workflows: [] });
+    renderWithProviders(<CustomHarnessStudio />);
+    await screen.findByRole('button', { name: /Chạy Harness/i });
+    expect(screen.queryByRole('button', { name: /Quy trình Tự động/i })).not.toBeInTheDocument();
+  });
+
+  it('shows English agent names and descriptions in the English interface', async () => {
+    useUIStore.getState().setLanguage('en');
+    vi.spyOn(api, 'get').mockImplementation((url: string) => Promise.resolve(url.includes('/api/harness/agents') ? { agents: [{
+      id: 'agent-literature-specialist', name: 'Chuyên viên Tổng quan Văn hiến (Literature Specialist)', name_en: 'Literature Specialist',
+      role: 'literature', purpose: 'Tìm kiếm tài liệu học thuật', purpose_en: 'Searches scholarly literature',
+      system_prompt: 'x', provider: 'auto', skills: [], mcp_tools: [], memory_scope: 'project', permissions: [],
+      max_tokens: 1, timeout_seconds: 1, max_retries: 0 }] } : { tools: [], workflows: [] }));
+    renderWithProviders(<CustomHarnessStudio />);
+    fireEvent.click(await screen.findByTitle('Build the agent team'));
+    expect(await screen.findByText('Literature Specialist')).toBeInTheDocument();
+    expect(screen.getByText('Searches scholarly literature')).toBeInTheDocument();
+    expect(screen.queryByText(/Chuyên viên/)).not.toBeInTheDocument();
+    useUIStore.getState().setLanguage('vi');
   });
 });

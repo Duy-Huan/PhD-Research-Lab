@@ -140,6 +140,21 @@ interface UIState {
   resetAgentProfile: (agentId: string) => void;
 }
 
+// v6.6.4 (A8): the selected Topic survives a reload, per project folder. Found live: after a reload the next chat was
+// no longer Topic-bound. Browser storage is a per-viewer convenience; the app works without it.
+const TOPIC_KEY = 'phdlab_active_topic:';
+export function rememberTopic(dataDir: string | undefined, topicId: string | null) {
+  if (!dataDir) return;
+  try {
+    if (topicId) localStorage.setItem(TOPIC_KEY + dataDir, topicId);
+    else localStorage.removeItem(TOPIC_KEY + dataDir);
+  } catch { /* storage unavailable */ }
+}
+export function rememberedTopic(dataDir: string | undefined): string | null {
+  if (!dataDir) return null;
+  try { return localStorage.getItem(TOPIC_KEY + dataDir); } catch { return null; }
+}
+
 export const useUIStore = create<UIState>((set) => ({
   project: null,
   projects: [],
@@ -183,12 +198,15 @@ export const useUIStore = create<UIState>((set) => ({
     })),
   setProjects: (projects) => set({ projects }),
   setActiveTopic: (activeTopic) =>
-    set({ activeTopic, activeTopicId: activeTopic ? activeTopic.id : null }),
+    set((s) => {
+      rememberTopic(s.project?.data_dir, activeTopic ? activeTopic.id : null);
+      return { activeTopic, activeTopicId: activeTopic ? activeTopic.id : null };
+    }),
   setActiveTopicId: (activeTopicId) =>
-    set((s) => ({
-      activeTopicId,
-      activeTopic: s.topics.find((t) => t.id === activeTopicId) || s.activeTopic,
-    })),
+    set((s) => {
+      rememberTopic(s.project?.data_dir, activeTopicId);
+      return { activeTopicId, activeTopic: s.topics.find((t) => t.id === activeTopicId) || s.activeTopic };
+    }),
   setTopics: (topics) => set({ topics }),
   setActiveSessionId: (activeSessionId) => set({ activeSessionId }),
   setActiveChatProjectId: (activeChatProjectId) => set({ activeChatProjectId }),

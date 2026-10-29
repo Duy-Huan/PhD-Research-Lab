@@ -1,0 +1,109 @@
+{
+  "id": "FQC-LINE-ENDINGS-664",
+  "title": "Experiment approvals do not depend on line endings",
+  "risk": "MEDIUM",
+  "mode": "REAL_LOCAL",
+  "user_story": "As the owner I want an approved experiment to keep running when an editor or git changes the working copy's line endings, and approvals never to compare text files byte-for-byte across platforms (live run 2026-10-28; agent/PLAN_6.6.4_L3.md A11).",
+  "requirements": [
+    {
+      "id": "CANONICAL",
+      "description": "An approval is the digest of canonical JSON over a frozen byte snapshot (A2), never a hash of a text file a person or agent wrote."
+    },
+    {
+      "id": "FROZEN",
+      "description": "Converting the working copy's line endings after approval does not break the approved run: the approved bytes run and verify; new bytes need a new protocol."
+    }
+  ],
+  "nonfunctional": [
+    "No change to approval semantics"
+  ],
+  "inputs": [
+    "experiment.propose_protocol",
+    "protocol approval"
+  ],
+  "outputs": [
+    "experiment run and verification"
+  ],
+  "preconditions": [
+    "None"
+  ],
+  "postconditions": [
+    "tests/test_line_endings_664.py 2/2; RED on 02d0517 (before A2, when the live run used a hand-written approval file)"
+  ],
+  "dependencies": [
+    "backend/execution/agent_protocols.py (A2)"
+  ],
+  "affected_modules": [
+    "tests/test_line_endings_664.py (regression guard of A2)"
+  ],
+  "acceptance_criteria": [
+    "tests/test_line_endings_664.py 5/5; RED on 02d0517 (before A2, when the live run used a hand-written approval file)"
+  ],
+  "scenarios": [
+    {
+      "id": "converted",
+      "requirement": "FROZEN",
+      "kind": "positive",
+      "expected": "LF conversion of the working copy after a CRLF approval: the run completes and verifies with the approved bytes",
+      "test": "tests/test_line_endings_664.py::LineEndings.test_converting_the_working_copy_after_approval_keeps_the_approved_run"
+    },
+    {
+      "id": "frozen-tamper",
+      "requirement": "FROZEN",
+      "kind": "negative",
+      "expected": "Converting the frozen copy itself is refused before admission",
+      "test": "tests/test_line_endings_664.py::LineEndings.test_converting_the_frozen_copy_is_refused"
+    },
+    {
+      "id": "mixed",
+      "requirement": "FROZEN",
+      "kind": "boundary",
+      "expected": "Mixed LF/CRLF files are copied into the trial byte for byte",
+      "test": "tests/test_line_endings_664.py::LineEndings.test_mixed_line_endings_are_copied_byte_for_byte"
+    },
+    {
+      "id": "result",
+      "requirement": "CANONICAL",
+      "kind": "failure",
+      "expected": "A result file converted after the run fails its sha256 check",
+      "test": "tests/test_line_endings_664.py::LineEndings.test_a_converted_result_file_fails_verification"
+    },
+    {
+      "id": "canonical",
+      "requirement": "CANONICAL",
+      "kind": "security",
+      "expected": "Digest equals the canonical JSON digest; different bytes give a new code digest",
+      "test": "tests/test_line_endings_664.py::LineEndings.test_the_approval_digest_is_canonical_json_and_new_bytes_need_a_new_protocol"
+    },
+    {
+      "id": "runtime",
+      "requirement": "FROZEN",
+      "kind": "performance",
+      "expected": "A full approved run with conversion completes in seconds",
+      "test": "tests/test_line_endings_664.py::LineEndings.test_converting_the_working_copy_after_approval_keeps_the_approved_run"
+    }
+  ],
+  "recovery": "Fix at agent_protocols; never hash working-copy text for an approval. TASK-LINE-ENDINGS-664, max three cycles.",
+  "test_environment": "Disposable PHDLAB_DATA_DIR and code project, real subprocess trials (tests/_env.py); evidence in docs/qa/evidence/line-endings-664/.",
+  "skill_sources": [
+    "skills/SOURCES.json"
+  ],
+  "review": {
+    "status": "REVIEWED",
+    "method": "Same-agent review (not independent)."
+  },
+  "tdd": {
+    "status": "RED_GREEN",
+    "scope": "RED: 5 tests on 02d0517 (before A2), all failing (no governed agent approval). GREEN: 5/5.",
+    "red": {
+      "path": "docs/qa/evidence/line-endings-664/red.json",
+      "sha256": "e5351d6362026f4be06631ebb721be9f88bf0e3443d7d0908b0677b142ea1e7e",
+      "exit_code": 1
+    },
+    "green": {
+      "path": "docs/qa/evidence/line-endings-664/green.json",
+      "sha256": "5168d8c2de7740d32a2d251368e2a5166740655ffd4b6940d4dedc925128fd05",
+      "exit_code": 0
+    }
+  }
+}

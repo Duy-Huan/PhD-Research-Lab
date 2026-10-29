@@ -1,0 +1,265 @@
+[1/264] e2e\autonomy_levels.spec.ts:72:1 › UI-AUTONOMY-001: each level drafts its own plan and L4 refuses a draft without a separate reproduction
+[2/264] e2e\autonomy_levels.spec.ts:98:1 › UI-AUTONOMY-002: L1 stops for review after every step and shows why a model step failed
+[3/264] e2e\autonomy_levels.spec.ts:117:1 › UI-AUTONOMY-003: L2 rejecting a step result cancels the workflow before the next step
+[4/264] e2e\autonomy_levels.spec.ts:131:1 › UI-AUTONOMY-004: L3 coordinates without per-step review and reports the failing step
+[5/264] e2e\autonomy_levels.spec.ts:145:1 › UI-AUTONOMY-005: cancelling an L4 draft launches no task
+[6/264] e2e\ci_smoke.spec.ts:3:1 › CI: real application shell and settings respond without provider inference
+[7/264] e2e\cli_studio.spec.ts:106:7 › UI-CLI-LAYOUT-001: 1440x900 vi light: prompt at the bottom, framed, nothing overlaps
+[8/264] e2e\cli_studio.spec.ts:106:7 › UI-CLI-LAYOUT-001: 1440x900 vi dark: prompt at the bottom, framed, nothing overlaps
+[9/264] e2e\cli_studio.spec.ts:106:7 › UI-CLI-LAYOUT-001: 1440x900 en light: prompt at the bottom, framed, nothing overlaps
+[10/264] e2e\cli_studio.spec.ts:106:7 › UI-CLI-LAYOUT-001: 1440x900 en dark: prompt at the bottom, framed, nothing overlaps
+[11/264] e2e\cli_studio.spec.ts:106:7 › UI-CLI-LAYOUT-001: 1024x768 vi light: prompt at the bottom, framed, nothing overlaps
+[12/264] e2e\cli_studio.spec.ts:106:7 › UI-CLI-LAYOUT-001: 1024x768 vi dark: prompt at the bottom, framed, nothing overlaps
+[13/264] e2e\cli_studio.spec.ts:106:7 › UI-CLI-LAYOUT-001: 1024x768 en light: prompt at the bottom, framed, nothing overlaps
+[14/264] e2e\cli_studio.spec.ts:106:7 › UI-CLI-LAYOUT-001: 1024x768 en dark: prompt at the bottom, framed, nothing overlaps
+[15/264] e2e\cli_studio.spec.ts:106:7 › UI-CLI-LAYOUT-001: 390x844 vi light: prompt at the bottom, framed, nothing overlaps
+[16/264] e2e\cli_studio.spec.ts:106:7 › UI-CLI-LAYOUT-001: 390x844 vi dark: prompt at the bottom, framed, nothing overlaps
+[17/264] e2e\cli_studio.spec.ts:106:7 › UI-CLI-LAYOUT-001: 390x844 en light: prompt at the bottom, framed, nothing overlaps
+[18/264] e2e\cli_studio.spec.ts:106:7 › UI-CLI-LAYOUT-001: 390x844 en dark: prompt at the bottom, framed, nothing overlaps
+[19/264] e2e\cli_studio.spec.ts:106:7 › UI-CLI-LAYOUT-001: 360x740 vi light: prompt at the bottom, framed, nothing overlaps
+[20/264] e2e\cli_studio.spec.ts:106:7 › UI-CLI-LAYOUT-001: 360x740 vi dark: prompt at the bottom, framed, nothing overlaps
+[21/264] e2e\cli_studio.spec.ts:106:7 › UI-CLI-LAYOUT-001: 360x740 en light: prompt at the bottom, framed, nothing overlaps
+[22/264] e2e\cli_studio.spec.ts:106:7 › UI-CLI-LAYOUT-001: 360x740 en dark: prompt at the bottom, framed, nothing overlaps
+[23/264] e2e\cli_studio.spec.ts:119:3 › UI-CLI-LAYOUT-002: 1440px with 100 messages keeps the prompt fixed and scrolls the transcript
+[24/264] e2e\cli_studio.spec.ts:119:3 › UI-CLI-LAYOUT-002: 390px with 100 messages keeps the prompt fixed and scrolls the transcript
+[25/264] e2e\cli_studio.spec.ts:132:1 › UI-CLI-SUGGEST-001: command suggestions open above the prompt and stay on screen
+[26/264] e2e\harness_levels.spec.ts:26:1 › HARNESS-LEVELS-001: Team and AI Architect speak the interface language and pass the visual audit
+[27/264] e2e\harness_levels.spec.ts:42:3 › HARNESS-LEVELS-002: an L2 architect workflow runs control flow and reports every unexecuted node
+[28/264] e2e\harness_levels.spec.ts:42:3 › HARNESS-LEVELS-002: an L3 architect workflow runs control flow and reports every unexecuted node
+[29/264] e2e\harness_levels.spec.ts:42:3 › HARNESS-LEVELS-002: an L4 architect workflow runs control flow and reports every unexecuted node
+[30/264] e2e\harness_levels.spec.ts:65:1 › HARNESS-LEVELS-003: the standalone studio offers no mode switch that does nothing
+[31/264] e2e\harness_levels.spec.ts:72:3 › HARNESS-LEVELS-004: an L2 canvas compiles into a mission draft with a team bound to listed models
+[32/264] e2e\harness_levels.spec.ts:72:3 › HARNESS-LEVELS-004: an L3 canvas compiles into a mission draft with a team bound to listed models
+[33/264] e2e\missions_live.spec.ts:8:1 › MISSIONS-LIVE-001: a mission created outside the UI appears in the open Missions drawer without a reload
+[34/264] e2e\missions_live.spec.ts:21:1 › TOPIC-RELOAD-001: the selected Topic survives a page reload
+[35/264] e2e\missions_live.spec.ts:31:3 › NARROW-DRAWER-001: Topic and Missions drawers pass the visual audit at 1024 px
+[36/264] e2e\missions_live.spec.ts:31:3 › NARROW-DRAWER-001: Topic and Missions drawers pass the visual audit at 1280 px
+[37/264] e2e\navigation.spec.ts:5:3 › navigation: Paper Library & Search
+[38/264] e2e\navigation.spec.ts:5:3 › navigation: 5-Level Research Outline
+[39/264] e2e\navigation.spec.ts:5:3 › navigation: Research Topics
+[40/264] e2e\navigation.spec.ts:5:3 › navigation: Workstreams
+[41/264] e2e\navigation.spec.ts:5:3 › navigation: Figure Studio
+[42/264] e2e\navigation.spec.ts:5:3 › navigation: Native code workspace
+[43/264] e2e\navigation.spec.ts:5:3 › navigation: Intelligence & RO-Crate
+[44/264] e2e\navigation.spec.ts:5:3 › navigation: Protocols
+[45/264] e2e\navigation.spec.ts:5:3 › navigation: Claims & Evidence
+[46/264] e2e\navigation.spec.ts:5:3 › navigation: Paper LaTeX
+[47/264] e2e\navigation.spec.ts:5:3 › navigation: Code · VS Code
+[48/264] e2e\navigation.spec.ts:19:1 › main views and keyboard return to chat
+[49/264] e2e\navigation.spec.ts:38:1 › mobile chat controls and topic tabs fit the viewport
+[50/264] e2e\office3d.spec.ts:4:1 › 3D real WebGL renders, camera and lighting change pixels, dock returns to chat
+[51/264] e2e\paper_integrity.spec.ts:3:1 › PaperOrchestra cannot invent submission approval in the real workspace
+[52/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: chat en light 1440px
+[53/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: library-view en light 1440px
+[54/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: review en light 1440px
+[55/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: dashboard en light 1440px
+[56/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: harness en light 1440px
+[57/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: cli en light 1440px
+[58/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-models en light 1440px
+[59/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-ai-tools en light 1440px
+[60/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-engines en light 1440px
+[61/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-search en light 1440px
+[62/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-hardware en light 1440px
+[63/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-memory en light 1440px
+[64/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-mcp en light 1440px
+[65/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-skills en light 1440px
+[66/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-look en light 1440px
+[67/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-outline en light 1440px
+[68/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-library en light 1440px
+[69/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-figures en light 1440px
+[70/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-code en light 1440px
+[71/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-intelligence en light 1440px
+[72/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-guide en light 1440px
+[73/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-topics en light 1440px
+[74/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-missions en light 1440px
+[75/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-paperorchestra en light 1440px
+[76/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-projects en light 1440px
+[77/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-workstreams en light 1440px
+[78/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-protocols en light 1440px
+[79/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-claims en light 1440px
+[80/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-paper en light 1440px
+[81/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: chat en dark 1440px
+[82/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: library-view en dark 1440px
+[83/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: review en dark 1440px
+[84/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: dashboard en dark 1440px
+[85/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: harness en dark 1440px
+[86/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: cli en dark 1440px
+[87/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-models en dark 1440px
+[88/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-ai-tools en dark 1440px
+[89/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-engines en dark 1440px
+[90/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-search en dark 1440px
+[91/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-hardware en dark 1440px
+[92/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-memory en dark 1440px
+[93/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-mcp en dark 1440px
+[94/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-skills en dark 1440px
+[95/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-look en dark 1440px
+[96/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-outline en dark 1440px
+[97/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-library en dark 1440px
+[98/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-figures en dark 1440px
+[99/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-code en dark 1440px
+[100/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-intelligence en dark 1440px
+[101/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-guide en dark 1440px
+[102/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-topics en dark 1440px
+[103/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-missions en dark 1440px
+[104/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-paperorchestra en dark 1440px
+[105/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-projects en dark 1440px
+[106/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-workstreams en dark 1440px
+[107/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-protocols en dark 1440px
+[108/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-claims en dark 1440px
+[109/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-paper en dark 1440px
+[110/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: chat en light 390px
+[111/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: library-view en light 390px
+[112/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: review en light 390px
+[113/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: dashboard en light 390px
+[114/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: harness en light 390px
+[115/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: cli en light 390px
+[116/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-models en light 390px
+[117/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-ai-tools en light 390px
+[118/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-engines en light 390px
+[119/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-search en light 390px
+[120/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-hardware en light 390px
+[121/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-memory en light 390px
+[122/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-mcp en light 390px
+[123/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-skills en light 390px
+[124/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-look en light 390px
+[125/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-outline en light 390px
+[126/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-library en light 390px
+[127/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-figures en light 390px
+[128/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-code en light 390px
+[129/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-intelligence en light 390px
+[130/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-guide en light 390px
+[131/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-topics en light 390px
+[132/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-missions en light 390px
+[133/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-paperorchestra en light 390px
+[134/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-projects en light 390px
+[135/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-workstreams en light 390px
+[136/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-protocols en light 390px
+[137/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-claims en light 390px
+[138/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-paper en light 390px
+[139/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: chat vi light 1440px
+[140/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: library-view vi light 1440px
+[141/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: review vi light 1440px
+[142/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: dashboard vi light 1440px
+[143/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: harness vi light 1440px
+[144/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: cli vi light 1440px
+[145/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-models vi light 1440px
+[146/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-ai-tools vi light 1440px
+[147/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-engines vi light 1440px
+[148/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-search vi light 1440px
+[149/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-hardware vi light 1440px
+[150/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-memory vi light 1440px
+[151/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-mcp vi light 1440px
+[152/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-skills vi light 1440px
+[153/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-look vi light 1440px
+[154/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-outline vi light 1440px
+[155/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-library vi light 1440px
+[156/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-figures vi light 1440px
+[157/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-code vi light 1440px
+[158/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-intelligence vi light 1440px
+[159/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-guide vi light 1440px
+[160/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-topics vi light 1440px
+[161/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-missions vi light 1440px
+[162/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-paperorchestra vi light 1440px
+[163/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-projects vi light 1440px
+[164/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-workstreams vi light 1440px
+[165/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-protocols vi light 1440px
+[166/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-claims vi light 1440px
+[167/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-paper vi light 1440px
+[168/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: chat vi dark 390px
+[169/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: library-view vi dark 390px
+[170/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: review vi dark 390px
+[171/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: dashboard vi dark 390px
+[172/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: harness vi dark 390px
+[173/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: cli vi dark 390px
+[174/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-models vi dark 390px
+[175/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-ai-tools vi dark 390px
+[176/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-engines vi dark 390px
+[177/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-search vi dark 390px
+[178/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-hardware vi dark 390px
+[179/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-memory vi dark 390px
+[180/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-mcp vi dark 390px
+[181/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-skills vi dark 390px
+[182/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: settings-look vi dark 390px
+[183/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-outline vi dark 390px
+[184/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-library vi dark 390px
+[185/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-figures vi dark 390px
+[186/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-code vi dark 390px
+[187/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-intelligence vi dark 390px
+[188/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-guide vi dark 390px
+[189/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-topics vi dark 390px
+[190/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-missions vi dark 390px
+[191/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-paperorchestra vi dark 390px
+[192/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-projects vi dark 390px
+[193/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-workstreams vi dark 390px
+[194/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-protocols vi dark 390px
+[195/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-claims vi dark 390px
+[196/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-paper vi dark 390px
+[197/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: chat+topic en light 1440px
+[198/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-outline+topic en light 1440px
+[199/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-library+topic en light 1440px
+[200/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-figures+topic en light 1440px
+[201/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-code+topic en light 1440px
+[202/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-intelligence+topic en light 1440px
+[203/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-topics+topic en light 1440px
+[204/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-missions+topic en light 1440px
+[205/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-workstreams+topic en light 1440px
+[206/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-protocols+topic en light 1440px
+[207/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-claims+topic en light 1440px
+[208/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-paper+topic en light 1440px
+[209/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: chat+topic en light 390px
+[210/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-outline+topic en light 390px
+[211/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-library+topic en light 390px
+[212/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-figures+topic en light 390px
+[213/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-code+topic en light 390px
+[214/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-intelligence+topic en light 390px
+[215/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-topics+topic en light 390px
+[216/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-missions+topic en light 390px
+[217/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-workstreams+topic en light 390px
+[218/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-protocols+topic en light 390px
+[219/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-claims+topic en light 390px
+[220/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-paper+topic en light 390px
+[221/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: chat+topic vi light 1440px
+[222/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-outline+topic vi light 1440px
+[223/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-library+topic vi light 1440px
+[224/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-figures+topic vi light 1440px
+[225/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-code+topic vi light 1440px
+[226/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-intelligence+topic vi light 1440px
+[227/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-topics+topic vi light 1440px
+[228/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-missions+topic vi light 1440px
+[229/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-workstreams+topic vi light 1440px
+[230/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-protocols+topic vi light 1440px
+[231/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-claims+topic vi light 1440px
+[232/264] e2e\qa_screens.spec.ts:108:5 › UI-QA-SCREEN-001: drawer-paper+topic vi light 1440px
+[233/264] e2e\shell_layout.spec.ts:22:5 › UI-SHELL-SIDEBAR-001: 1024px vi: brand on one line, every icon full size, nothing clipped
+[234/264] e2e\shell_layout.spec.ts:22:5 › UI-SHELL-SIDEBAR-001: 1024px en: brand on one line, every icon full size, nothing clipped
+[235/264] e2e\shell_layout.spec.ts:22:5 › UI-SHELL-SIDEBAR-001: 1280px vi: brand on one line, every icon full size, nothing clipped
+[236/264] e2e\shell_layout.spec.ts:22:5 › UI-SHELL-SIDEBAR-001: 1280px en: brand on one line, every icon full size, nothing clipped
+[237/264] e2e\shell_layout.spec.ts:22:5 › UI-SHELL-SIDEBAR-001: 1440px vi: brand on one line, every icon full size, nothing clipped
+[238/264] e2e\shell_layout.spec.ts:22:5 › UI-SHELL-SIDEBAR-001: 1440px en: brand on one line, every icon full size, nothing clipped
+[239/264] e2e\shell_layout.spec.ts:60:5 › UI-SHELL-HANDLE-001: 1024px chat: the Right menu handle covers no control
+[240/264] e2e\shell_layout.spec.ts:60:5 › UI-SHELL-HANDLE-001: 1024px library: the Right menu handle covers no control
+[241/264] e2e\shell_layout.spec.ts:60:5 › UI-SHELL-HANDLE-001: 1024px harness: the Right menu handle covers no control
+[242/264] e2e\shell_layout.spec.ts:60:5 › UI-SHELL-HANDLE-001: 1024px review: the Right menu handle covers no control
+[243/264] e2e\shell_layout.spec.ts:60:5 › UI-SHELL-HANDLE-001: 1024px dashboard: the Right menu handle covers no control
+[244/264] e2e\shell_layout.spec.ts:60:5 › UI-SHELL-HANDLE-001: 1024px settings: the Right menu handle covers no control
+[245/264] e2e\shell_layout.spec.ts:60:5 › UI-SHELL-HANDLE-001: 1024px cli: the Right menu handle covers no control
+[246/264] e2e\shell_layout.spec.ts:60:5 › UI-SHELL-HANDLE-001: 1440px chat: the Right menu handle covers no control
+[247/264] e2e\shell_layout.spec.ts:60:5 › UI-SHELL-HANDLE-001: 1440px library: the Right menu handle covers no control
+[248/264] e2e\shell_layout.spec.ts:60:5 › UI-SHELL-HANDLE-001: 1440px harness: the Right menu handle covers no control
+[249/264] e2e\shell_layout.spec.ts:60:5 › UI-SHELL-HANDLE-001: 1440px review: the Right menu handle covers no control
+[250/264] e2e\shell_layout.spec.ts:60:5 › UI-SHELL-HANDLE-001: 1440px dashboard: the Right menu handle covers no control
+[251/264] e2e\shell_layout.spec.ts:60:5 › UI-SHELL-HANDLE-001: 1440px settings: the Right menu handle covers no control
+[252/264] e2e\shell_layout.spec.ts:60:5 › UI-SHELL-HANDLE-001: 1440px cli: the Right menu handle covers no control
+[253/264] e2e\uat_harness.spec.ts:6:1 › UAT harness: real language form reaches backend and persists after refresh without LLM
+[254/264] e2e\uat_harness.spec.ts:20:1 › UAT harness: separate browser contexts do not share cookies or local storage
+[255/264] e2e\uat_harness.spec.ts:34:1 › UAT harness: controlled console error and unhandled rejection produce evidence
+[256/264] e2e\uat_harness.spec.ts:48:1 › UAT harness: injected config-network failure is recorded and reload recovers
+[257/264] e2e\uat_harness.spec.ts:59:1 › UAT harness: failed action preserves screenshot and reproducible actual/expected report
+[258/264] e2e\uat_harness.spec.ts:70:1 › UAT harness: a controlled broken fixture fails its regression then corrected fixture passes
+[259/264] e2e\ui_quality.spec.ts:8:1 › UI-MODEL-RULES-001: cloud preconnection and context budgets persist through the real settings API
+[260/264] e2e\ui_quality.spec.ts:43:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 375px
+[261/264] e2e\ui_quality.spec.ts:43:3 › UI-MOBILE-SETTINGS-001: Settings dismisses mobile sidebar at 768px
+[262/264] e2e\ui_quality.spec.ts:57:1 › UI-DESKTOP-SETTINGS-001: Settings preserves desktop navigation
+[263/264] e2e\ui_quality.spec.ts:68:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (en)
+[264/264] e2e\ui_quality.spec.ts:68:3 › UI-ACCESSIBLE-NAMES-001: WCAG automated scan of workspace and settings (vi)
+  264 passed (9.0m)

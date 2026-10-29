@@ -1,0 +1,72 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_deps_pins_664.NewProjects.test_a_new_code_project_does_not_inherit_system_packages",
+      "status": "FAIL",
+      "duration": 0.0668,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_deps_pins_664\\tests\\test_deps_pins_664.py\", line 87, in test_a_new_code_project_does_not_inherit_system_packages\n    self.assertFalse(sandbox.load_settings()[\"inherit_packages\"])\nAssertionError: True is not false\n"
+    },
+    {
+      "id": "test_deps_pins_664.NewProjects.test_an_explicit_choice_is_kept",
+      "status": "PASS",
+      "duration": 0.0539,
+      "details": null
+    },
+    {
+      "id": "test_deps_pins_664.Pins.test_a_failed_pinned_requirement_is_never_replaced_by_an_unpinned_install",
+      "status": "FAIL",
+      "duration": 2.253,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_deps_pins_664\\tests\\test_deps_pins_664.py\", line 40, in test_a_failed_pinned_requirement_is_never_replaced_by_an_unpinned_install\n    self.assertIn(\"phdlab-pinned-pkg is named in a requirements file; it is not installed unpinned\", r.stdout)\nAssertionError: 'phdlab-pinned-pkg is named in a requirements file; it is not installed unpinned' not found in '[deps] pip install -r C:\\\\Users\\\\win\\\\AppData\\\\Local\\\\Temp\\\\tmp61g_q88c\\\\requirements.txt\\n[deps] pip install phdlab-pinned-pkg\\n[deps] pip install phdlab-pinned-pkg\\n[deps] could not install: requirements.txt, phdlab-pinned-pkg \u00e2\u20ac\u201d add them (or their correct pip names) to requirements.txt\\n'\n"
+    },
+    {
+      "id": "test_deps_pins_664.Pins.test_a_second_install_waits_for_the_first_and_a_stale_lock_is_taken_over",
+      "status": "FAIL",
+      "duration": 0.4596,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_deps_pins_664\\tests\\test_deps_pins_664.py\", line 62, in test_a_second_install_waits_for_the_first_and_a_stale_lock_is_taken_over\n    self.assertEqual(r.returncode, 4)\nAssertionError: 0 != 4\n"
+    },
+    {
+      "id": "test_deps_pins_664.Pins.test_local_version_pins_use_the_matching_pytorch_index",
+      "status": "FAIL",
+      "duration": 3.1221,
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_deps_pins_664\\tests\\test_deps_pins_664.py\", line 53, in test_local_version_pins_use_the_matching_pytorch_index\n    self.assertIn(\"--extra-index-url \" + index, r.stdout)\nAssertionError: '--extra-index-url https://download.pytorch.org/whl/cpu' not found in '[deps] pip install -r C:\\\\Users\\\\win\\\\AppData\\\\Local\\\\Temp\\\\tmpsqdnryhh\\\\requirements.txt\\n[deps] could not install: requirements.txt \u00e2\u20ac\u201d add them (or their correct pip names) to requirements.txt\\n'\n\nTraceback (most recent call last):\n  File \"D:\\r664red-test_deps_pins_664\\tests\\test_deps_pins_664.py\", line 53, in test_local_version_pins_use_the_matching_pytorch_index\n    self.assertIn(\"--extra-index-url \" + index, r.stdout)\nAssertionError: '--extra-index-url https://download.pytorch.org/whl/cu124' not found in '[deps] pip install -r C:\\\\Users\\\\win\\\\AppData\\\\Local\\\\Temp\\\\tmpsqdnryhh\\\\requirements.txt\\n[deps] could not install: requirements.txt \u00e2\u20ac\u201d add them (or their correct pip names) to requirements.txt\\n'\n"
+    },
+    {
+      "id": "test_deps_pins_664.Pins.test_the_lock_is_released_after_an_install",
+      "status": "PASS",
+      "duration": 0.4852,
+      "details": null
+    },
+    {
+      "id": "test_deps_pins_664.Pins.test_unpinned_imports_outside_the_requirements_are_still_installed",
+      "status": "PASS",
+      "duration": 2.2344,
+      "details": null
+    }
+  ],
+  "subtests": [
+    {
+      "parent": "test_deps_pins_664.Pins.test_local_version_pins_use_the_matching_pytorch_index",
+      "id": "test_deps_pins_664.Pins.test_local_version_pins_use_the_matching_pytorch_index (pin='torch==2.5.1+cpu')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_deps_pins_664\\tests\\test_deps_pins_664.py\", line 53, in test_local_version_pins_use_the_matching_pytorch_index\n    self.assertIn(\"--extra-index-url \" + index, r.stdout)\nAssertionError: '--extra-index-url https://download.pytorch.org/whl/cpu' not found in '[deps] pip install -r C:\\\\Users\\\\win\\\\AppData\\\\Local\\\\Temp\\\\tmpsqdnryhh\\\\requirements.txt\\n[deps] could not install: requirements.txt \u00e2\u20ac\u201d add them (or their correct pip names) to requirements.txt\\n'\n"
+    },
+    {
+      "parent": "test_deps_pins_664.Pins.test_local_version_pins_use_the_matching_pytorch_index",
+      "id": "test_deps_pins_664.Pins.test_local_version_pins_use_the_matching_pytorch_index (pin='torch==2.5.1+cu124')",
+      "status": "FAIL",
+      "details": "Traceback (most recent call last):\n  File \"D:\\r664red-test_deps_pins_664\\tests\\test_deps_pins_664.py\", line 53, in test_local_version_pins_use_the_matching_pytorch_index\n    self.assertIn(\"--extra-index-url \" + index, r.stdout)\nAssertionError: '--extra-index-url https://download.pytorch.org/whl/cu124' not found in '[deps] pip install -r C:\\\\Users\\\\win\\\\AppData\\\\Local\\\\Temp\\\\tmpsqdnryhh\\\\requirements.txt\\n[deps] could not install: requirements.txt \u00e2\u20ac\u201d add them (or their correct pip names) to requirements.txt\\n'\n"
+    }
+  ],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 7,
+  "passed": false,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-11pmq829",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 1
+}
