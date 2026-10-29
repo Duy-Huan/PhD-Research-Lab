@@ -1,0 +1,59 @@
+{
+  "mode": "REAL_LOCAL",
+  "cases": [
+    {
+      "id": "test_faults_664.Faults.test_a_broken_fixture_is_reported_as_not_detected",
+      "status": "PASS",
+      "duration": 1.3737,
+      "details": null
+    },
+    {
+      "id": "test_faults_664.Faults.test_a_claim_with_an_unmeasured_number_is_contested",
+      "status": "PASS",
+      "duration": 1.2404,
+      "details": null
+    },
+    {
+      "id": "test_faults_664.Faults.test_a_missing_model_pauses_the_mission_without_running_another",
+      "status": "PASS",
+      "duration": 0.295,
+      "details": null
+    },
+    {
+      "id": "test_faults_664.Faults.test_an_edited_result_fails_independent_verification",
+      "status": "PASS",
+      "duration": 1.3956,
+      "details": null
+    },
+    {
+      "id": "test_faults_664.Faults.test_an_interrupted_run_is_marked_and_never_rerun",
+      "status": "PASS",
+      "duration": 1.2116,
+      "details": null
+    },
+    {
+      "id": "test_faults_664.Faults.test_instructions_inside_a_source_stay_untrusted_data",
+      "status": "PASS",
+      "duration": 0.2968,
+      "details": null
+    },
+    {
+      "id": "test_faults_664.Faults.test_the_suite_reports_denominators_and_never_counts_campaign_only_faults",
+      "status": "PASS",
+      "duration": 3.3859,
+      "details": null
+    }
+  ],
+  "subtests": [],
+  "deferred_tests": [],
+  "test_layer": "software",
+  "total": 7,
+  "passed": true,
+  "skipped": 0,
+  "cleanup_complete": true,
+  "disposable_data": "C:\\Users\\win\\AppData\\Local\\Temp\\phdlab-verify-kgabxc80",
+  "limitations": [
+    "Offline fixtures do not qualify external providers; skips remain unqualified"
+  ],
+  "child_exit_code": 0
+}

@@ -66,7 +66,9 @@ Progress 2026-10-28:
 - Phase B: B2 is done locally (FQC-INTERVENTIONS-664): intervention ledger by category and decision ownership, with a
   record route for interventions the app cannot see. B5 (FQC-QUALIFICATION-664): per-criterion scoring from measured
   campaign evidence; the objectives file changes only through it. B1 (frozen case suite) waits for the owner's domain;
-  B3 (fault injection) and B4 (continuity) are next.
+  B3 (FQC-FAULTS-664): 5 automated planted faults, each caught by its detector; 4 faults are campaign-only and never
+  counted. B4 (FQC-CONTINUITY-664): snapshot/compare across real restarts, duplicate-run and leakage checks. Phase B
+  is complete except B1, which needs the owner's domain and budget.
 
 | ID | Change | Criteria |
 |---|---|---|
